@@ -1,0 +1,746 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>D2R research plan — guide #1 Pindleskin / Anya shop · guide #2 Pricing primer</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+</style>
+<script type="module">
+try{
+  const m = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  m.default.initialize({startOnLoad:true, theme: dark ? "dark" : "neutral"});
+}catch(e){}
+</script>
+
+<main>
+<h1>D2R research plan — guide #1: Pindleskin / Anya shop · guide #2: Pricing primer</h1>
+<p class="sub">Diablo II: Resurrected, <b>Reign of the Warlock</b> era (RotW, patch 3.1.x, Season 14 live) ·
+player market: <b>Softcore, Non-Ladder, PC</b> · every source and API below was probed with
+<code>curl</code> on <b>2026-09-18</b> · conventions per <code>guides/planning-with-html.html</code>.
+This is the <em>research plan</em>; it produces two deliverables: <code>guides/pindle-anya.html</code>
+(the farm/shop guide) and <code>guides/pricing-primer.html</code> (a general "what is worth what, and why"
+guide: white bases, jewels, charms, uniques/sets, rares/crafts, runes as currency).</p>
+
+<div class="tldr">
+<b>TL;DR — the plan:</b> two guides, ten work packages, run by clean-context sub-agents in four waves.
+<b>Guide #1 (Pindle/Anya)</b> = WP-A…E; <b>guide #2 (pricing primer)</b> = WP-F…J, answering questions
+like "which white bases are worth a lot and why", "which jewels/charms are worth something and why",
+"how do I read a price in runes". Both guides share one <b>currency package (WP-F)</b> that builds the
+NL rune ladder from live data, and two verified market feeds: the <b>Traderie JSON API</b> (asking
+prices, with every affix as a numeric property) and the <b>diablo2.io trade search</b> (plain GET,
+filters for SC/NL/PC/RotW, and a <em>"sold in the last 3 days"</em> mode that returns real fills).
+Guide #1 packages: <b>WP-A</b> turns the maxroll tier list into a <em>build → runeword → base</em> matrix
+(which white/superior/ethereal bases and which "blue" magic items the top builds actually need).
+<b>WP-B</b> prices those bases and blues for SC/NL from the <b>unauthenticated Traderie JSON API</b>
+(verified: no login, 50 listings/page, server-side socket filter) cross-checked against the
+diablo2.io NL price guide of 2026-08-28. <b>WP-C</b> writes the <em>Anya shop checklist</em>
+(what she sells, the clvl→ilvl rule, which rolls are worth gold, how to reset her inventory via
+Pindle's red portal). <b>WP-D</b> writes the <em>pickup filter</em> for Pindleskin runs (bases by
+socket count / ethereal / superior, and magic items worth identifying), using the maxroll socket
+tables and WP-A/WP-B outputs. <b>WP-E</b> assembles the guide and runs two review passes.
+Guide #2 packages: <b>WP-F</b> currency (rune ladder, what "1 Ist" means, asks vs fills), <b>WP-G</b>
+white bases (why demand comes from runewords, what sockets/eth/ED/def do to value, tiers), <b>WP-H</b>
+jewels &amp; charms (facets, magic/rare jewel affix classes, skillers, small charms, Anni/Torch/Sunder
+charms), <b>WP-I</b> uniques/sets/rares/crafts/misc (value tiers, roll ranges, what to identify), <b>WP-J</b>
+assembles the primer and reviews it. Every fetch goes through <code>pricing/tools/</code> (tested helpers); every claim carries a source URL
+and date; <b>LLM recall of D2 facts is not evidence</b> — the game changed materially in 2026
+(new Warlock class, grimoires, new runewords, daggers sold by vendors, Terror Zone rework).
+</div>
+
+<details><summary>Links &amp; sources (all probed 2026-09-18; status = curl with a Chrome UA)</summary>
+<div class="tblwrap"><table>
+<tr><th>Source</th><th>Status</th><th>What it contributes</th></tr>
+<tr><td><a href="https://maxroll.gg/d2/tierlists/overall-tier-list">maxroll overall tier list</a></td><td class="ok">200, server-rendered, 303 KB</td><td>WP-A input: S/A/B… builds, updated "May 22, 2026 — Season 14". Guide links are <code>/d2/guides/&lt;slug&gt;</code> (58 slugs, list in appendix).</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/guides/blizzard-sorceress">maxroll build guides</a> (e.g. blizzard-sorceress, echoing-strike-warlock-guide)</td><td class="ok">200, ~500–630 KB, tables in HTML</td><td>Gear table header <code>Slot | Item Options | Desirable Stats</code>; mercenary table <code>Slot | Early-Game | Mid-Game | End-Game</code>. Extract with <code>tools/tables.py</code> (tested on both a Sorceress and a Warlock guide).</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/tierlists/runeword-tier-list">maxroll runeword tier list</a></td><td class="ok">200</td><td>Runeword S/A/B tiers → which bases matter most (S: CtA, Enigma, Flickering Flame, Fortitude, Grief, HotO, Infinity, Insight, Last Wish, Phoenix, Spirit, Stealth).</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/runewords">maxroll runewords</a></td><td class="ok">200, 50 KB text</td><td>Every runeword with "Recommended Base Item(s)" and socket count — the base-requirement source of truth for WP-A.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/sockets">maxroll sockets</a></td><td class="ok">200, updated June 16, 2026</td><td>Full table "Number of Sockets by ilvl" (ilvl 1-25 / 26-40 / 41+) per base + cube/Larzuk rules. WP-D pickup rules.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/base-items">maxroll base items</a></td><td class="ok">200</td><td>Qualities (low/normal/superior ranges, "superior can be ethereal and socketed", "low quality can't be ethereal"), base stats.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/valuable-magic-items">maxroll valuable magic items</a></td><td class="ok">200, dated March 6, 2024 (pre-RotW!)</td><td>Blue items with value tiers: claws "best shopped from Hell Anya", +3 Warcry weapons "Hell Malah and Anya", skill circlets, charms, jewels, armors. Needs a Warlock-era update — that is a WP-C/WP-D task.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/valuable-unique-set-items">maxroll valuable uniques/sets</a></td><td class="ok">200, dated March 6, 2024</td><td>Value tiers for uniques/sets (secondary for this guide; Pindle drops).</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/new-items-in-reign-of-the-warlock">maxroll new items in RotW</a></td><td class="ok">200, updated Feb 19, 2026</td><td>Grimoire base names (15), 5 new runewords with base types and runes (Authority, Coven, Void, Vigilance, Ritual), new sets, Colossal Ancient Jewels, cube recipes.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/meta/pindleskin-farming-guide">maxroll Pindleskin farming guide</a></td><td class="ok">200</td><td>TC 87 / mlvl 86, three items he can't drop, "always drops 2 items of Magic quality or higher", layout/route, hork tip.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/sitemap.xml">maxroll d2 sitemap</a></td><td class="ok">200, 224 URLs</td><td>Discovery: 75 guides, 44 resources, 26 meta (farming guides), 12 items, 7 tier lists. Full relevant list in appendix.</td></tr>
+<tr><td><a href="https://traderie.com/api/diablo2resurrected/listings?item=3707980542">Traderie JSON API</a></td><td class="ok">200, JSON, no auth</td><td>WP-B: live SC/NL listings with prices in runes. Endpoint cookbook in §2.2; client in <code>tools/traderie.py</code>.</td></tr>
+<tr><td><a href="https://traderie.com/diablo2resurrected?type=base&prop_1076Min=1&prop_402Min=3">Traderie web UI (user's URL)</a></td><td class="warn">200 but a 7 KB JS shell</td><td>Not scrapable; the API above is what the page calls. See warnbox in §2.2 about <code>prop_1076</code>.</td></tr>
+<tr><td><a href="https://diablo2.io/post4505103.html">diablo2.io "D2R RotW SC price guide — revised 28 Aug 2026"</a></td><td class="ok">200</td><td>WP-B cross-check: NL rune ladder in Ist, a "Bases" table (Archon/Mage Plate/Monarch/ST/PB/BA/GMB…), skillers, jewels. Author self-describes it as an "AI/slop experiment" corrected by moderators — orientation only, never a BIN.</td></tr>
+<tr><td><a href="https://diablo2.io/price-check/">diablo2.io price-check tool</a></td><td class="warn">200, POST form with session id</td><td>552,061 data points of completed trades, filters NL/SC/PC. Not automated in this plan (form needs a <code>sid</code>); usable manually for spot checks.</td></tr>
+<tr><td><a href="https://diablo2.io/forums/the-complete-overview-guide-to-shopping-in-diablo-2-by-hastmannen-t6614.html">diablo2.io shopping guide (Hastmannen)</a></td><td class="ok">200, 31 KB text</td><td>WP-C mechanics: ilvl = clvl+5, no ethereal from shops, magic-only after ilvl 25, "hell upgrade" tags, qlvl ≤ ilvl rule, shop-reset tricks, per-item clvl targets.</td></tr>
+<tr><td><a href="https://diablo2.io/forums/claw-shopping-guide-by-bmay-t8592.html">diablo2.io claw shopping guide (BMAY)</a></td><td class="ok">200</td><td>WP-C: Anya claw throughput (avg 3.5 claws per refresh over 500 runs), clvl 94+ recommendation, gold reserve, dex requirement.</td></tr>
+<tr><td><a href="https://diablo2.io/npcs/anya-t3958.html">diablo2.io Anya NPC page</a></td><td class="ok">200</td><td>Sells "Armor, Weapons (Katars, Throwing Weapons), Keys and Arrows", gambles; comment: 4os 100-life armor at Hell Anya with clvl 70 → ilvl 75 (Ancient Armor, 2.2 % Archon Plate) with odds.</td></tr>
+<tr><td><a href="https://d2runes.io/cheatsheet/shopping/">d2runes.io shopping &amp; gambling cheatsheet</a></td><td class="ok">200, 6 KB text</td><td>WP-C: compact clvl table (3/20 gloves clvl 55; Jeweler's of the Whale Anya Hell clvl 70; +3 Warcries stick Malah/Anya clvl 75; +6 Jav/+40 IAS Anya Hell clvl 75; +3 traps claws clvl 75) and gamble odds.</td></tr>
+<tr><td><a href="https://www.purediablo.com/strategy/diablo-2-guide-shuko-jutsu-the-art-of-the-claw">purediablo claw guide</a></td><td class="ok">200 (strategy pages OK; forums are 403)</td><td>Anya sells only two claw classes (Blade/Greater/Runic Talons and Scissors Katars).</td></tr>
+<tr><td><a href="https://diablo2.io/forums/rotw-3-1-2-patch-notes-1-apr-2026-t1764155.html">diablo2.io RotW 3.1.2 patch notes thread</a></td><td class="ok">200</td><td>RotW patch text mirrored ("Updated the number of daggers that can be found on vendors"). Blizzard's own forum topic 172168 is only a link; <code>news.blizzard.com</code> returned 500.</td></tr>
+<tr><td><a href="https://www.icy-veins.com/d2/reign-of-the-warlock-overview-for-diablo-ii-resurrected">icy-veins RotW overview</a> · <a href="https://www.icy-veins.com/d2/reign-of-the-warlock-endgame-changes-for-diablo-ii-resurrected">endgame changes</a></td><td class="ok">200</td><td>TZ rotate every 30 min, TZ affixes, Worldstone Shards, Heralds, Uber Ancients — context for "is Pindle still worth it".</td></tr>
+<tr><td><a href="https://d2emu.com/guides/reign-of-the-warlock-endgame">d2emu RotW endgame guide</a></td><td class="ok">200</td><td>Herald token mechanics, Warlock skill trees (Chaos/Demon/Eldritch) — for naming Warlock build needs.</td></tr>
+<tr><td><a href="https://diablo2.io/runewords/">diablo2.io runewords</a> · <a href="https://d2runewizard.com/runewords">d2runewizard runewords</a></td><td class="ok">200 (891 KB / 1.7 MB)</td><td>Second and third opinion on runeword base types if maxroll is ambiguous.</td></tr>
+<tr><td><a href="http://classic.battle.net/diablo2exp/items/runewords.shtml">Arreat Summit</a></td><td class="ok">200</td><td>Legacy (pre-RotW) reference only.</td></tr>
+<tr><td colspan="3" style="background:var(--sub-bg)"><b>Added for guide #2 (pricing primer) — probed 2026-09-18</b></td></tr>
+<tr><td><a href="https://diablo2.io/search.php?keywords=jewel&fid%5B%5D=16&terms=all&sc=0&sf=titleonly&sr=on&ladder=2&hc=2&plat_pc=1&activesold=1&legacy_resu=2&sk=t&sd=d&st=0&ch=300&t=0&submit=Search">diablo2.io trade search (GET)</a></td><td class="ok">200, server-rendered, ~30 rows/page</td><td><b>Second market feed.</b> Plain phpBB <code>search.php</code> URL; filter values decoded from the page (ladder=2 NL, hc=2 SC, plat_pc=1, legacy_resu=2 RotW, activesold=1 <b>sold in last 3 days = fills</b>, irarity 1-9, charm 1-3, imaxsockets, eth, super, skiller…). Rows show "Sold 2 days ago … for 1 Mal 1 Um". Keywords required; ≥30 s between requests (flood control; 26 s was not always enough). Client in <code>tools/d2io_search.py</code>.</td></tr>
+<tr><td><a href="https://diablo2.io/uniques/harlequin-crest-t3.html">diablo2.io item pages</a> (uniques/sets/runewords/bases)</td><td class="ok">200</td><td>Each item page has "On the trade market — Active trades (latest 20, 3h cache)" with asks; also full stat ranges. Item URLs are <code>/uniques/&lt;slug&gt;-t&lt;id&gt;.html</code> — take them from <code>/uniques/</code> (2.7 MB index, 200).</td></tr>
+<tr><td><a href="https://diablo2.io/price-check/rare-claws-ias-ed-ar-t1863764.html">diablo2.io price-check threads</a></td><td class="ok">200 (GET per thread)</td><td>Community answers with reasoning ("Charsi food because base is slow, 4/6 affixes, no staff mods") — the <em>why</em> material for rares. Index at <code>/price-check/</code> lists recent threads.</td></tr>
+<tr><td><a href="https://traderie.com/api/diablo2resurrected/listings?item=2732223103">Traderie: jewels, charms, uniques, runes</a></td><td class="ok">200</td><td>Jewel = <code>misc</code> id 2732223103 (~31 pages); Small/Large/Grand Charm = type <code>charms</code> (3551993524 / 4152254204 / 3779798752); uniques carry roll properties (Shako 1855 Defense, Anni 727/441/776); rune listings give rune-for-rune asks (<code>traderie.py runes Ist Ber</code>). Affixes are numeric properties (510 ED%, 457 IAS, 441 all res, 418 life, class-tree skill ids). Sunder charms under <code>uniques</code>.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/resources/trade-guide">maxroll Trading guide</a></td><td class="ok">200, updated Feb 10, 2026 (RotW-era)</td><td>WP-F: common currencies, trade language (BIN, LF, HR, "offer"), unintuitive trades, scams. "Trade value depends on demand" framing.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/rune-value">maxroll Rune Value</a></td><td class="ok">200, updated March 6, 2024 (pre-RotW)</td><td>WP-F: 33 runes with relative value (Ber ≈ Jah; Sur &lt; ½ Ber; Ohm ½-⅔ Lo; Vex ½-⅔ Ohm; Gul, Ist, Mal, Um, Pul medium…) and the runewords that drive each — the <em>why</em> for rune prices; re-verify ratios with WP-F's live ladder.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/valuable-magic-items">maxroll Valuable Magic Items</a> (again)</td><td class="ok">200, March 6, 2024</td><td>WP-H/WP-I: sections Charms (skill GCs per class, melee GCs, small charms MF/defensive/utility/damage/elemental/gold, large), Jewels (Damage: Ruby Jewel of Fervor etc. with ED ranges and "why"; Resistance), Jewelry, Circlets, class helms/weapons, shields, armors, gloves. Explanations included ("Only good in weapons due to a bug…").</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/items/valuable-unique-set-items">maxroll Valuable Unique/Set Items</a> (again)</td><td class="ok">200, March 6, 2024</td><td>WP-I: every unique/set in High / Med / Low / None / TRASH with "Details" and "Stat Priority" columns; explicit that relative value shifts across a season.</td></tr>
+<tr><td><a href="https://maxroll.gg/d2/resources/sundered-charms">maxroll Sunder Charms</a> · <a href="https://maxroll.gg/d2/meta/colossal-ancients">Colossal Ancients</a> · <a href="https://maxroll.gg/d2/items/crafted-items">Crafted Items</a> · <a href="https://maxroll.gg/d2/items/gems">Gems</a> · <a href="https://maxroll.gg/d2/items/runes">Runes</a></td><td class="ok">200 (May 22 / Feb 19 / Mar 1 / Feb 10 / Feb 10, 2026 — dates corrected after WP-J review)</td><td>RotW-era mechanics for WP-H/WP-I: Latent/Renewed sunder charms and their cube recipes; Colossal Ancients rewards; crafting recipes and affix math; gem uses (crafting, rerolls, bulk trade); rune farming spots and cube upgrades.</td></tr>
+<tr><td><a href="https://diablo2.io/post4505103.html">diablo2.io price guide (again)</a></td><td class="ok">200</td><td>Also has "Jewels and charms" (Rainbow Facet by element and death/level-up; magic jewels 40ED Ist, 15IAS Pul, 15@ Pul-Um, 40/15 Ber-range), Skillers (plain vs 45-life), Annihilus and Torch roll brackets, Gheed's, uniques — orientation only.</td></tr>
+<tr><td><a href="https://d2runes.io/">d2runes.io</a></td><td class="ok">200 (index, /cheatsheet, /runewords/*)</td><td>Secondary runeword base reference; no price data (<code>/prices</code> 404).</td></tr>
+<tr><td>d2runewizard.com <code>/prices</code>, <code>/rune-values</code>; diablo2.io <code>/jewels/</code>, <code>/charms/</code></td><td class="bad">404</td><td>Do not guess these paths.</td></tr>
+<tr><td>diablo.fandom.com · diablo2.diablowiki.net · purediablo forums · wowhead d2</td><td class="bad">403 (Cloudflare) </td><td>Do not use; do not waste fetches. WebSearch snippets may quote them, treat as unverified.</td></tr>
+<tr><td>maxroll <code>/d2/database</code>, <code>/d2/d2-drop-calculator</code>, <code>/d2planner</code></td><td class="bad">JS apps, 924 chars of text</td><td>Not curl-able; "verify in-game / in-tool" items only.</td></tr>
+</table></div>
+</details>
+
+<details><summary>Preconditions &amp; working assumptions</summary>
+<ul>
+<li><b>Rule zero (D2 edition):</b> LLM recall of Diablo 2 facts is not evidence. Reign of the Warlock
+(Feb 2026) added a class, an item class (grimoires), runewords, vendor changes and a Terror Zone rework;
+anything remembered from pre-2026 D2/D2R is suspect. Every number in the deliverable cites a URL +
+fetch date, or is flagged <b>"verify in-game"</b>.</li>
+<li><b>Two claim classes.</b> <em>Game facts</em> (what Anya can sell, socket caps by ilvl, TC/mlvl) come
+from the sources above and are stable until the next patch. <em>Market facts</em> (what a 4os Archon
+Plate sells for) are volatile: they need a <b>same-session Traderie pull, cited with date</b>, and the
+diablo2.io guide only as orientation.</li>
+<li><b>Market scope:</b> Softcore · Non-Ladder · PC · RotW economy. Traderie listings carry these as
+properties 799/800/798/1854 and must be filtered <em>client-side</em> (§2.2). Never mix ladder Ist with
+NL Ist (the diablo2.io guide says the same).</li>
+<li><b>Tooling:</b> all fetching is <code>curl</code> with a Chrome UA through <code>pricing/tools/fetch.sh</code>;
+raw HTML/JSON is cached in <code>pricing/raw/</code>; structured outputs go to <code>pricing/data/</code>.
+The built-in WebFetch tool summarizes pages with a small model and loses tables — use it only for
+discovery, never for numbers.</li>
+<li><b>Deliverable shape:</b> <code>guides/pindle-anya.html</code> follows
+<code>guides/planning-with-html.html</code> (TL;DR, four collapsed preamble blocks, stable keys,
+verified-vs-not appendix). This plan is itself written in that shape so WP-E can copy its style block.</li>
+<li><b>Two economies since RotW.</b> diablo2.io's search filter states: "Resurrected characters cannot trade with
+Reign of the Warlock characters and vice versa." Every price the packages use must be the <b>RotW</b> economy
+(Traderie property 1854 = "reign of the warlock"; diablo2.io <code>legacy_resu=2</code>). Pre-RotW prices are a
+different market and only ever a sanity band.</li>
+<li><b>Asks vs fills.</b> Traderie listings and diablo2.io active trades are <em>asking</em> prices (often
+inflated, "offer", or multi-item). diablo2.io <code>activesold=1</code> returns trades marked <em>sold</em> in the
+last 3 days with the price paid ("Sold … for 1 Mal 1 Um") — the only fill data we can fetch. The primer
+reports both, labelled, and prefers fills where ≥3 exist.</li>
+<li><b>Guide #2 explains <em>why</em>, not just how much.</b> Each value claim is tied to a cause the reader can
+reason with: demand (which S/A builds or runewords want it), supply (drop rarity, ilvl/socket rules,
+shop-ability), roll quality (perfect vs low), and substitutes (why 4os Archon Plate ≠ 4os Dusk Shroud).
+Numbers date fast; causes don't — the primer is written so its numbers can be refreshed by re-running
+the tools.</li>
+<li><b>The first guide is narrow on purpose:</b> Pindleskin runs + Anya shop. Terror Zones, Heralds,
+Uber Ancients and other farm spots are context, not scope (they become later guides).</li>
+</ul>
+</details>
+
+<details><summary>Rejected ideas (and why)</summary>
+<ol>
+<li><b>Scrape the Traderie website.</b> It is a Vite SPA (7 KB shell, 3.2 MB bundle); nothing renders
+without JS. The bundle's own API (<code>/api/diablo2resurrected/…</code>) answers without a token, so
+we use that instead (verified 2026-09-18).</li>
+<li><b>Pass Traderie's bool/string filters to the API</b> (<code>prop_738=true</code>,
+<code>prop_800=false</code>, <code>prop_799=softcore</code>, <code>prop_797=superior</code>). Tested:
+the server ignores them (same 50 listings back, ladder/eth/hardcore mix unchanged); numeric
+<code>prop_402Min</code> works. Filter locally on <code>listing.properties</code>.</li>
+<li><b>Traderie per-item price history / stats endpoints.</b> <code>/items/&lt;id&gt;</code>,
+<code>/items/&lt;id&gt;/prices</code>, <code>/listings/stats</code> all return 401 "Unauthorized jwt".
+Asking prices from live listings are what we get; treat them as <em>asks</em>, not fills.</li>
+<li><b>Automate the diablo2.io price-check form.</b> It is a POST with a per-session <code>sid</code>;
+doable but fragile and rate-limit-unknown. Kept as a manual spot-check step in WP-B; the 2026-08-28
+price-guide post is used as the static cross-check instead.</li>
+<li><b>Fandom / diablowiki / purediablo forums as sources.</b> All 403 behind Cloudflare with curl.
+Purediablo <em>strategy</em> pages do work.</li>
+<li><b>One giant agent doing everything.</b> ~60 build pages plus ~50 base items × several listing
+pages is too much context for one agent and the review discipline needs bounded fact-sets. Hence
+five packages with JSON hand-offs.</li>
+<li><b>Using the user's URL filter literally.</b> <code>prop_1076Min=1</code> decodes to
+"+{{value}} to Dragon Flight (Assassin Only)" and returns zero listings for bases. It is almost
+certainly a mis-copied property id; WP-B uses Ethereal (738) + Socketed (402) as the intended filter
+and says so in the deliverable.</li>
+<li><b>Keyword-less diablo2.io searches</b> (filters only, e.g. "all magic jewels"). Tested: "Found 0 matches".
+Always pass a keyword ("jewel", "charm", "archon"), then filter.</li>
+<li><b>Pulling every Traderie page for high-volume items.</b> Jewel alone is 31 pages (~1,500 listings).
+Sample 4-6 pages (newest first as returned) and bucket; report the sample size.</li>
+<li><b>Reading Traderie stack asks as per-unit.</b> Rune listings such as "Ist ×10 — 1× Jah" and "Ist ×2 — 1× Vex"
+only match the ladder if the ask is for the whole stack. WP-F divides by <code>amount</code> and states this.</li>
+<li><b>Using maxroll's 2024 value tiers as prices.</b> They are pre-RotW and Ladder-start oriented; they are used
+only as the <em>category list</em> and the <em>why</em> text, never as a number.</li>
+</ol>
+</details>
+
+<details><summary>Review log — errors already found &amp; fixed (don't reintroduce)</summary>
+<p class="sub">No review passes on this plan yet. Verification log of the drafting session (2026-09-18),
+recorded so the packages don't redo it:</p>
+<ol>
+<li>maxroll.gg answers 200 to curl with a Chrome UA for tier lists, build guides, items, meta, resources
+(91/91 sitemap pages fetched, all 200); the HTML contains the tables (no client-side rendering needed).
+Guessed URLs like <code>/d2/resources/runewords</code> are 404 — always take URLs from the sitemap.</li>
+<li>The tier list contains a <b>Warlock</b> class with builds in S/A/B tiers (Echoing Strike, Fire, Abyss,
+Mirrored Blades, Blood Boil, Summoner). Any agent that "doesn't know" the Warlock must read
+<code>d2/resources/warlock-overview</code> first, not guess.</li>
+<li>maxroll "New Items in RotW" says <b>5</b> new runewords (Authority, Coven, Void, Vigilance, Ritual);
+the runeword tier list also ranks <b>Mania</b> (A) and <b>Hysteria</b> (B), and a web-search snippet
+claims six with "Mania &amp; Hysteria". Unresolved — WP-A must read the runewords page to settle which
+runewords are new/RotW-only and their bases. Don't assert either count without that.</li>
+<li>Traderie item catalog: 516 base items over 22 pages (page is 0-based, 24/page); 500 have a
+description with "Max sockets: N"; the 16 without are belts/boots/gloves/potions/grimoires — grimoire
+socket data must come from maxroll, not Traderie.</li>
+<li>Traderie listing <code>page</code> is 0-based (<code>page=1</code> is the second page). Default
+response is <code>selling=true</code> listings; <code>selling=false</code> gives buy orders (3 for
+Aegis).</li>
+<li>Blizzard's forum topic for 3.1.1 (Discourse JSON works: <code>/t/172168.json</code>) is a
+138-character stub linking to news.blizzard.com, which returned HTTP 500. The diablo2.io 3.1.2 thread
+carries the notes text; it is the patch-notes source until Blizzard's page answers.</li>
+<li>Traderie item types are not discoverable from the bundle; probed by name: <code>charms</code> (3 items),
+<code>crafted</code> (36), <code>misc</code> (Jewel, Ring, Amulet, keys, essences, Worldstone Shards, potions);
+<code>jewels</code>/<code>magic</code>/<code>rare</code> are not types (0 items) — magic/rare pieces live under
+the base or misc item with rarity property 797.</li>
+<li>Traderie search "colossal ancient" / "ancient jewel" returns nothing (2026-09-18) — the RotW Colossal
+Ancient Jewels have no catalog entry under those names; WP-H must search diablo2.io instead and report.</li>
+<li>diablo2.io search: a second request within ~20 s returned an empty page (phpBB flood control for guests);
+with 25 s spacing all requests succeeded. Filter values come from <code>data-param</code> attributes of the
+search page's buttons, not from form inputs.</li>
+<li>diablo2.io sold search verified: "jewel … activesold=1 ladder=2 hc=2 plat_pc=1 legacy_resu=2" → 1 row
+("Sold 1 day ago … for 20 Perfect Gems"); "archon … irarity=4 imaxsockets=4 activesold=1" → 2 rows
+("505 Def … Sold for 1 Mal 1 Um", "453 def … Sold for 3 Key of Terror"). Fills exist but are thin — use
+14-day windows via repeated pulls if the primer needs more. Second batch: "charm charm=3 skiller=1 activesold=1"
+→ 4 sold skillers in 3 days, two of them <b>Warlock</b> trees ("+1 to Chaos Skills", "+1 to Eldritch Skills +32 Life
+… LF 3 Jah", "Captain's GC … 1 mid rune"); "jewel irarity=7 activesold=2 legacy_resu=2" → 53 active magic jewels
+(e.g. Ruby Jewel 38 ED "LF Um or 10 pgems", Ruby Jewel of Hope 34 ED/20 life "LF 1 Mal"). A third search 26 s
+after the second came back empty again — use <b>≥30 s</b> spacing and retry once on an empty page.</li>
+<li><b>Wave 1 (WP-F) correction:</b> Traderie <code>prices[].group</code> semantics — entries sharing a group are
+summed, entries in <em>different</em> groups are OR-alternatives (e.g. "Small Charm OR 18× Jah"). ~1,200 of ~7,900
+pulled listings are multi-group. The plan's earlier reading ("2× Jah + 2× Zod + 4× Cham" as one sum) was wrong;
+the effective ask is the <b>cheapest alternative</b>. <code>traderie.py</code> now prints alternatives with "OR";
+WP-B's buckets were regenerated with this rule. Also: rune asks are per stack (confirmed on 322 listings), and
+diablo2.io rune trades are titled with the bare rune name ("Ber") — <code>irarity=8</code> does not match them.</li>
+<li><b>Wave 2 corrections (WP-H, WP-I):</b> Colossal Ancient Jewels <em>do</em> exist on Traderie under their real names
+(Defender's Fire/Bile, Protector's Frost/Stone, Guardian's Thunder/Light — 32–76 in-scope asks each); the plan's
+"colossal ancient" search only failed because the catalog name lacks those words. Traderie rare Ring/Amulet and
+crafted-type feeds are single-seller walls (267/268 and 304/323 listings from one seller asking Jah multiples) —
+unusable for pricing; rare/craft values come from diablo2.io price-check reasoning and fills instead. WP-H's lock
+cleanup briefly deleted WP-G's diablo2.io lock (~1 min) — a lock owner must only delete a lock it created (check
+the owner line).</li>
+<li><b>Execution log (2026-09-18):</b> all ten packages ran in four waves (A/B/C/F → D/G/H/I → E/J drafts → two
+review lenses per guide + fix passes). Outputs: <code>pricing/data/wp-{a,b,c,d,f,g,h,i}.md|json</code>,
+<code>pricing/data/review-{e,j}-{facts,editorial}.md</code>, build scripts <code>pricing/tools/{rune_ladder,wp_b_buckets,wp_g_build}.py</code>.
+Guide #1 <code>guides/pindle-anya.html</code> (514 lines): 16 fact + 36 editorial findings, 46 fixed, 5 skipped with
+reasons. Guide #2 <code>guides/pricing-primer.html</code> (630 lines): 92 fact + 48 editorial findings, 136 fixed, 4
+skipped. Hand-off errors found in review and left in the data files (documented in each guide's Review log): WP-I
+<code>sold_last10</code> lots truncated to one rune and per-seller medians misquoted as bands in wp-i.md; wp-g.md
+"18 searches" vs 12 pages; wp-h "35 pulls" vs 48 files. Headline ratios recomputed by WP-J: fills = 32–63 % of asks
+on chase rolls, ≈ ask at the floor; RotW-tag share 71–98 % per rune. <code>rune_ladder.py</code> now emits the
+hand-off JSON shape so §7 of the primer runs as written (tested offline, zero diff). The repo is not under git, so
+the house checklist's "committed" line cannot pass until the user inits one.</li>
+<li>maxroll "Valuable Magic Items" and "Valuable Unique/Set Items" are dated March 6, 2024 — pre-RotW, and
+say so themselves ("most accurate at the beginning of a Ladder reset"). Their tiers are inputs for structure
+only.</li>
+</ol>
+</details>
+
+<h2>1 · What was established today (facts the packages start from)</h2>
+
+<h3>1.1 Game state (RotW)</h3>
+<ul>
+<li><b>Tier list, Season 14 (maxroll, "Updated May 22, 2026")</b> — S tier (15): Lightning Fury Amazon,
+Lightning Sorc, Blessed Hammer Paladin, Blizzard Sorc, Echoing Strike Warlock, Fist of the Heavens
+Paladin, Fire Ball Meteor Sorc, Smite Paladin, Nova Sorc, Berserk Barbarian, Gold Find Barbarian,
+Poison Nova Necro, Fire Warlock, Lightning Sentry Assassin, Fissure Druid. A tier (11): Lightning
+Strike Amazon, Dream Paladin, Abyss Warlock, Enchant Sorc, Strafe Amazon, Double Throw Barbarian, Fire
+Blast Assassin, Wake of Fire Assassin, Summon Necro, Dragon Talon Assassin, Mirrored Blades Warlock.
+Full slug list in the appendix.</li>
+<li><b>Pindleskin</b> (maxroll meta guide): TC 87, mlvl 86; cannot drop Azurewrath, Tyrael's Might,
+Arachnid Mesh; "always drops 2 items of Magic quality or higher (unless a Rune or Gem)"; red portal is
+next to Anya; his temple "may sometimes become terrorized" in RotW (fandom snippet — verify).</li>
+<li><b>RotW additions relevant here</b> (maxroll new-items page + patch thread): grimoires (Warlock
+off-hand, 15 bases: Old Book/Tome/Codex/Compendium/Grimoire × normal/exceptional/elite); runewords
+Authority (body armor, Hel-Shael-Ral), Coven (helms, Ist-Ral-Io), Void (daggers, Thul-Zod-Ist),
+Vigilance (grimoires/shields/voodoo heads/auric shields, Dol-Gul), Ritual (daggers, Amn-Shael-Ohm);
+daggers now carry Warlock staff-mods, are sold by vendors and were removed from gambling (search
+snippet: Akara, Drognan, Ormus, Jamella, Malah — <b>Anya not listed; verify</b>).</li>
+<li><b>Shop mechanics</b> (Hastmannen guide, d2runes.io): shop ilvl = clvl + 5; vendors never sell
+ethereal; after ilvl 25 vendors sell magic only (no white/socketed); elite bases only from A3 Hell
+onward; an item type appears only when its qlvl ≤ ilvl; shopping window does not refresh if another
+player is in town.</li>
+</ul>
+
+<h3>1.2 Market state (SC NL, orientation from diablo2.io guide of 2026-08-28, Ist = 1.0)</h3>
+<div class="tblwrap"><table class="vs">
+<tr><th>Rune ladder (NL)</th><td>Lem 0.15-0.25 · Pul 0.25-0.35 · Um 0.35-0.5 · Mal 0.55-0.7 · <b>Ist 1</b> · Gul 1.4-1.7 · Vex 2.5-3 · Ohm 3.5-4 · Lo 5-6 · Sur 7-9 · Ber 10-12 · Jah 10-12 · Zod ≈ Jah · Cham "offer"</td></tr>
+<tr><th>Bases (NL)</th><td>3os 15ed Mage Plate Mal-Ist · 3os Archon Plate Um-Mal · 3os 15ed Archon Gul-Vex · 4os AP/Dusk Lem-Pul · Eth 4os elite 800+ def Gul-Vex · 3os eth elite 900+ Ist-Gul · plain Monarch Lum-Lem · 4os Monarch Pul · 15ed Monarch Ist · Sacred Targe 45@ 0os Ist-Gul · ST 45@ 4os Lo-Ber · Eth ST 45@ Ber+ · Eth 4os CV/Thresher/GT/GPA Um-Vex · 4/5os Flail Lum-Pul · 5os Phase Blade Pul · 5os 15ed/3ar PB Mal-Ist · Eth 5os Berserker Axe Ist-Vex · Eth 5os 15ed BA Lo+ · +3 4os GMB Vex-Ohm</td></tr>
+<tr><th>Blues (NL)</th><td>Jeweler's Monarch of Deflecting: offer/multi-Jah · Jeweler's Archon of the Whale 90-100: offer/multi-Jah · +3 Jav/20 IAS gloves Ist-Vex · +3 Jav/40 IAS Matriarchal: offer · Artisan's Tiara of Speed 30 FRW Lo-Ber · skillers: Pala Combat Ist, Sorc Light Ist-Gul, Fire/Cold Um-Ist, Jav Pul-Um, P&amp;B Mal, Traps Pul-Um</td></tr>
+</table></div>
+<div class="warnbox"><b>These are orientation numbers, not prices.</b> The guide's author flags that
+"almost every unique/set/base row" was <em>not</em> re-verified against August fills, and that the
+v1 draft was wrong on several rows. WP-B replaces every row it uses with a dated Traderie pull and
+keeps this table only as a sanity band.</div>
+
+<h3>1.3 Where prices come from (verified feeds, what each one is)</h3>
+<div class="tblwrap"><table>
+<tr><th>Feed</th><th>Kind</th><th>Filters we can apply</th><th>Use in the guides</th></tr>
+<tr><td>Traderie JSON API</td><td><b>Asks</b> (active sell listings, price in runes/items, "offer" flag)</td><td>server: numeric props (sockets, ED, …); client: SC/NL/PC/RotW, rarity, ethereal, every affix</td><td>primary for bases/jewels/charms/uniques: volume is high, affixes are structured. Report min / median / count per bucket.</td></tr>
+<tr><td>diablo2.io trade search, <code>activesold=1</code></td><td><b>Fills</b> (trades marked sold ≤ 3 days ago, "Sold … for X")</td><td>SC/HC, NL/L, platform, RotW/legacy, rarity, sockets, eth, superior, charm size, skiller/res/life…</td><td>sanity check of asks; quote fills when ≥3 exist. Thin: 1-3 rows per item per 3 days.</td></tr>
+<tr><td>diablo2.io trade search, <code>activesold=2</code></td><td>Asks (active WTS/WTB)</td><td>same</td><td>second ask sample; WTB rows show what buyers pay.</td></tr>
+<tr><td>diablo2.io item pages "On the trade market"</td><td>Asks (latest 20, 3 h cache)</td><td>none</td><td>quick look per unique/runeword; not filtered by ladder.</td></tr>
+<tr><td>diablo2.io price-check threads</td><td>Opinions with reasoning</td><td>none</td><td>the <em>why</em> for rares/crafts; never a number source.</td></tr>
+<tr><td>diablo2.io price guide 2026-08-28 · maxroll rune-value / valuable-* pages</td><td>Static bands / tiers</td><td>—</td><td>orientation and category lists; pre-RotW where dated 2024.</td></tr>
+</table></div>
+
+<h2>2 · Access cookbook (tested commands)</h2>
+<p>Helpers live in <code>pricing/tools/</code>; all were run successfully on 2026-09-18. Run them from
+the repo root. Cache everything under <code>pricing/raw/</code> so re-runs cost nothing.</p>
+
+<h3>2.1 maxroll.gg (server-rendered HTML)</h3>
+<pre>UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
+# generic
+pricing/tools/fetch.sh https://maxroll.gg/d2/guides/blizzard-sorceress pricing/raw/mr/blizzard-sorceress.html
+# plain text, or ±N chars around a keyword
+python3 pricing/tools/html2text.py pricing/raw/mr/blizzard-sorceress.html
+python3 pricing/tools/html2text.py pricing/raw/mr/blizzard-sorceress.html "Recommended Base" 300
+# every &lt;table&gt; as rows — gear tables: 'Slot | Item Options | Desirable Stats'
+python3 pricing/tools/tables.py pricing/raw/mr/blizzard-sorceress.html
+# discovery: the sitemap (224 URLs) — never guess maxroll paths
+curl -s -A "$UA" https://maxroll.gg/d2/sitemap.xml | grep -oE '&lt;loc&gt;[^&lt;]*' | sed 's/&lt;loc&gt;//'</pre>
+<p>Notes: cells in gear tables concatenate item names as <code>Name  Name  Name</code> (double-space
+separated because each <code>&lt;a&gt;</code> is padded — split on two spaces); a trailing digit
+(e.g. <code>Tal Rasha's Lidless Eye 1</code>) is a footnote marker, not part of the name. Pages
+carry a "Last Updated: &lt;date&gt;" line — copy it into every citation.</p>
+
+<h3>2.2 Traderie (JSON API, no auth)</h3>
+<pre># catalog: 24 items/page, page 0-based, empty page ends the list (bases: 22 pages, 516 items)
+curl -s -A "$UA" 'https://traderie.com/api/diablo2resurrected/items?type=base&amp;page=0'
+curl -s -A "$UA" 'https://traderie.com/api/diablo2resurrected/items?search=archon%20plate'
+# property dictionary (778 ids)
+curl -s -A "$UA" 'https://traderie.com/api/diablo2resurrected/properties'
+# listings: 50/page, page 0-based, nextPage in response; numeric filters work server-side
+curl -s -A "$UA" 'https://traderie.com/api/diablo2resurrected/listings?item=3707980542&amp;page=0&amp;prop_402Min=3'
+# the helper does pagination + client-side SC/NL/PC filtering
+python3 pricing/tools/traderie.py search archon plate
+python3 pricing/tools/traderie.py listings 3707980542 4 --sc --nl --pc --sockets-min 3
+python3 pricing/tools/traderie.py listings 3707980542 4 --sc --nl --pc --json &gt; pricing/raw/traderie/archon-plate.json
+# guide #2: affixes on jewels/charms/uniques, rarity buckets, rune-for-rune asks
+python3 pricing/tools/traderie.py listings 2732223103 4 --sc --nl --pc --rarity magic --props   # Jewel
+python3 pricing/tools/traderie.py listings 3779798752 4 --sc --nl --pc --props                  # Grand Charm
+python3 pricing/tools/traderie.py listings 2487112490 2 --sc --nl --pc --props                  # Harlequin Crest (rolls)
+python3 pricing/tools/traderie.py runes Ist Gul Vex Ohm Lo Sur Ber Jah                          # empirical NL ladder input</pre>
+<div class="tblwrap"><table>
+<tr><th>Traderie catalog</th><th>ids (verified 2026-09-18)</th></tr>
+<tr><td>Jewel (type misc)</td><td>2732223103 — ~31 pages; affix props 510 ED%, 457 IAS, 441 all res, 437 str, 429 dex, 416/448 min/max dmg, 428/427/426/401 single res, 420 requirements, 1263 "Jewel Variant" (colour), 796 req level</td></tr>
+<tr><td>Charms (type charms)</td><td>Small 3551993524 · Large 4152254204 · Grand 3779798752 — props 418 life, 441 all res, 461 MF, 480 FRW, 423 AR, 448 max dmg, 478/479 lightning dmg; skill trees e.g. 443 Pala Combat, 445 Defensive Auras, 515/516/517 Sorc Fire/Light/Cold, 408 Traps, 410 Martial Arts, 456 Jav&amp;Spear, 499 Curses, 405/406 Barb Masteries/Warcries, 485 Druid Summoning, 1547/1548 Warlock Eldritch/Chaos</td></tr>
+<tr><td>Uniques (type uniques)</td><td>Harlequin Crest 2487112490 (1855 Defense) · Annihilus 3101777677 (727 all attributes, 441 all res, 776 exp) · Hellfire Torch 3475729354 · The Stone of Jordan 3471333300 · Sunder charms e.g. The/Latent/Renewed Cold Rupture 21102838 / 3154803138 / 2702791506</td></tr>
+<tr><td>Runes (type runes)</td><td>Ist 2290642411 · Ber 4149485449 (asks are rune-for-rune; per-stack — divide by <code>amount</code>)</td></tr>
+<tr><td>Rings / Amulets (type misc)</td><td>Ring 2390453209 · Amulet 3209126938 (magic/rare/crafted share the id; rarity 797) · crafted type: Blood/Caster/Hit Power/Safety × slot (36 ids)</td></tr>
+<tr><td>Grimoires (type base)</td><td>Grimoire 522150085 · Possessed Grimoire 1380202707 · Blasphemous Grimoire 1316178507 (elite tier; other 12 via <code>items base</code>)</td></tr>
+</table></div>
+<div class="tblwrap"><table>
+<tr><th>property_id</th><th>meaning</th><th>value field</th><th>note</th></tr>
+<tr><td>402</td><td>Socketed (n)</td><td>number</td><td>server-side <code>prop_402Min</code>/<code>Max</code> work</td></tr>
+<tr><td>738</td><td>Ethereal</td><td>bool</td><td>filter client-side</td></tr>
+<tr><td>797</td><td>Rarity</td><td>string: rare/magic/superior/normal/low quality</td><td>client-side</td></tr>
+<tr><td>799</td><td>Mode</td><td>string: softcore/hardcore</td><td>client-side — keep <code>softcore</code></td></tr>
+<tr><td>800</td><td>Ladder</td><td>bool: true = Ladder, <b>false = Non Ladder</b></td><td>client-side — keep <code>false</code></td></tr>
+<tr><td>798</td><td>Platform</td><td>string: PC/switch/playstation/xbox</td><td>client-side — keep <code>PC</code></td></tr>
+<tr><td>1854</td><td>Game version</td><td>string: "reign of the warlock" / "lord of destruction" / "classic (base game)"</td><td>keep RotW</td></tr>
+<tr><td>425 / 399 / 1855</td><td>+x% Enhanced Defense / +x Defense / Defense</td><td>number</td><td>superior rolls, total def</td></tr>
+<tr><td>937 / 796</td><td>% Increase Max Durability / Required Level</td><td>number</td><td></td></tr>
+<tr><td>934</td><td>Sockets (contents)</td><td>array of rune/gem/jewel names</td><td>filled sockets — exclude for "clean base" pricing</td></tr>
+<tr><td>1076</td><td>+x to Dragon Flight (Assassin Only)</td><td>number</td><td>the id in the user's URL — see warnbox</td></tr>
+</table></div>
+<p>Price = <code>listing.prices[]</code> as <code>{name:"Jah Rune", quantity:18}</code> (one or several
+entries, plus <code>make_offer</code> flag). <code>amount</code> is the seller's stock. <code>updated_at</code>
+gives recency. Behaviour observed: ~1 s per request, no rate limiting seen over ~150 requests; be polite
+anyway (sequential, cache).</p>
+<div class="warnbox"><b>The user's URL filter is not "ethereal".</b>
+<code>prop_1076Min=1</code> means "+1 to Dragon Flight (Assassin Only)" in Traderie's property
+dictionary and returns 0 listings for bases. Read the intent as "valuable bases: ethereal and/or
+≥3 sockets" and price with <code>402</code> + <code>738</code>. Record this interpretation in the
+deliverable's assumptions block.</div>
+
+<h3>2.3 diablo2.io, d2runes.io, icy-veins, d2emu (server-rendered)</h3>
+<pre>pricing/tools/fetch.sh https://diablo2.io/post4505103.html pricing/raw/d2io/price-guide-2026-08-28.html
+python3 pricing/tools/html2text.py pricing/raw/d2io/price-guide-2026-08-28.html "Bases" 1500
+pricing/tools/fetch.sh https://diablo2.io/forums/the-complete-overview-guide-to-shopping-in-diablo-2-by-hastmannen-t6614.html pricing/raw/d2io/shopping-guide.html
+pricing/tools/fetch.sh https://d2runes.io/cheatsheet/shopping/ pricing/raw/d2runes-shopping.html</pre>
+<p>diablo2.io forum pages are phpBB: the first post is the guide; comments follow ("N years ago
+(pre-Resurrected)" markers are visible in the text — use them to date claims). Blizzard forums:
+append <code>.json</code> to a topic URL for Discourse JSON.</p>
+
+<h3>2.4 diablo2.io trade search (GET; asks and fills)</h3>
+<pre># fills: jewels sold in the last 3 days, SC / NL / PC / RotW
+python3 pricing/tools/d2io_search.py jewel ladder=2 hc=2 plat_pc=1 activesold=1 legacy_resu=2 --out pricing/raw/d2io/search-jewel-sold.html
+# asks: 4-socket base Archon Plates, non-ladder softcore
+python3 pricing/tools/d2io_search.py archon irarity=4 imaxsockets=4 ladder=2 hc=2 activesold=2 --out pricing/raw/d2io/search-archon-4os.html
+# skillers sold (grand charms with a skill affix)
+python3 pricing/tools/d2io_search.py charm charm=3 skiller=1 ladder=2 hc=2 activesold=1
+# re-parse a cached page without fetching
+python3 pricing/tools/d2io_search.py --parse pricing/raw/d2io/search-jewel-sold.html</pre>
+<p>Output: one line per trade — <code>slug | NL/L | SC/HC | PC | RotW | SOLD | title + [quote]tooltip[/quote] + ask text</code>.
+Rules: keywords are mandatory; wait ≥30 s between searches (a faster request comes back empty — retry once);
+~30 rows per page, <code>start=30</code> for page 2 (append <code>&amp;start=30</code>); prices are free text
+("LF Ist", "BIN = Cham", "Sold … for 1 Mal 1 Um") — the package converts them by hand, quoting the row.
+Full filter dictionary in the tool's docstring (irarity 1 Unique 2 Runeword 3 Set 4 Base 5 Crafted 6 Rare
+7 Magic 8 Misc; charm 1/2/3; eth/super/unid 1 yes 2 no; imaxsockets 1-6, 7 = none).</p>
+
+<h2>3 · Work packages</h2>
+<p>Stable keys <b>WP-A … WP-E</b> (guide #1) and <b>WP-F … WP-J</b> (guide #2). Each package is one clean-context sub-agent with the uniform
+template <b>Goal / Inputs / Method / Output / Acceptance</b>. Outputs are files, never chat; the
+orchestrator only reads the <code>pricing/data/*.md</code> summaries.</p>
+
+<h3>WP-A · Builds → runewords → bases (and blues)</h3>
+<table class="stg">
+<tr><th>Goal</th><td>For every S- and A-tier build (26 builds) list the runewords it uses per slot, then resolve each runeword to its recommended base(s) and socket count. Also collect every <em>magic/rare</em> ("blue") item the guides name as an option (e.g. "Jeweler's Monarch of Deflecting", "Rare Diadem", "Magic Gloves", "+3 Traps claws"). Produce a demand-weighted base list.</td></tr>
+<tr><th>Inputs</th><td>tier list HTML (cached), 26 guide pages via slugs (appendix), <code>items/runewords</code>, <code>items/new-items-in-reign-of-the-warlock</code>, <code>tierlists/runeword-tier-list</code>; <code>resources/warlock-overview</code> for unfamiliar Warlock terms.</td></tr>
+<tr><th>Method</th><td><code>tables.py</code> on each guide → rows with <code>Slot</code>; split item cells; classify each item as runeword / unique / set / magic-rare-base / crafted; for runewords look up "Recommended Base Item(s)" + "Socketed (n)" on the runewords page; also record mercenary-table runewords (Insight, Infinity, Fortitude, Treachery bases). Weight = number of S/A builds naming the item (S counts 2, A counts 1).</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-a-builds.json</code> (build → slots → items), <code>pricing/data/wp-a-bases.json</code> (base → {runewords, sockets, eth-wanted?, builds, weight}), <code>pricing/data/wp-a-blues.json</code> (magic/rare item pattern → builds), <code>pricing/data/wp-a.md</code> (≤1 page: top-20 bases, unresolved items, the Mania/Hysteria question settled).</td></tr>
+<tr><th>Acceptance</th><td>every base row cites the runewords-page "Last Updated" date; every item in a guide table is classified or listed under "unresolved"; zero items invented from memory; grimoire runeword (Vigilance) and dagger runewords (Void, Ritual) resolved to concrete base names.</td></tr>
+</table>
+
+<h3>WP-B · Market values (SC / NL / PC)</h3>
+<table class="stg">
+<tr><th>Goal</th><td>Price the bases and blues from WP-A's top list (and the diablo2.io "Bases" rows) as <em>asking-price bands in runes</em> for SC NL PC RotW, with dates. Answer: which base/socket/eth combinations are worth picking up, and which are floor value.</td></tr>
+<tr><th>Inputs</th><td><code>pricing/data/wp-a-bases.json</code> (or, if WP-A is not done, the §1.2 base list + top runeword bases: Archon Plate, Mage Plate, Dusk Shroud, Wire Fleece, Monarch, Sacred Targe/Rondache, Phase Blade, Berserker Axe, Colossus Blade, Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Flail, Crystal Sword, Grand Matron Bow, Matriarchal Bow/Jav, Greater/Runic Talons, Diadem/Tiara/Circlet/Coronet, daggers for Void/Ritual, elite grimoires); Traderie API; diablo2.io price guide; optional manual diablo2.io price-check spot checks.</td></tr>
+<tr><th>Method</th><td>for each base: <code>traderie.py search</code> → id; pull up to 4 pages (200 listings) with <code>--sc --nl --pc</code>; bucket by (sockets, ethereal, rarity superior/normal, ED%≥15); per bucket report count, min, median, and the 3 cheapest asks converted to Ist using the §1.2 NL rune ladder (state the ladder used). Flag buckets with &lt;3 listings as "thin". Compare with diablo2.io rows; where they disagree by &gt;2× say so. Grimoires/daggers: same, plus note if listings are absent (new-item market).</td></tr>
+<tr><th>Output</th><td><code>pricing/raw/traderie/*.json</code> (raw pulls), <code>pricing/data/wp-b-prices.json</code> (base → buckets → bands), <code>pricing/data/wp-b.md</code> (≤1 page: "keep / sell / floor" thresholds, e.g. "Archon Plate: 3os or 4os any → keep; 0os non-eth → floor").</td></tr>
+<tr><th>Acceptance</th><td>every band has a date, listing count and the filter used; no price from memory; asks labelled as asks; the prop_1076 note carried into assumptions; the Ist ladder cited.</td></tr>
+</table>
+
+<h3>WP-C · Anya shop checklist</h3>
+<table class="stg">
+<tr><th>Goal</th><td>A one-screen "what to look for at Hell (and Nightmare) Anya" checklist: item classes she sells (post-RotW), the clvl → ilvl rule and the clvl brackets that matter (55 / 68-74 / 75+ / 87 / 91 / 94+), exact affix targets with rough odds where a source gives them, gold reserve, refresh loop (Pindle portal), and what she does <em>not</em> sell (ethereal, elites before Hell, etc.).</td></tr>
+<tr><th>Inputs</th><td>Hastmannen shopping guide, BMAY claw guide, d2runes.io cheatsheet, purediablo claw guide, diablo2.io Anya NPC page, maxroll valuable-magic-items (2024 — flag as pre-RotW), maxroll tips-tricks ("Anya in Act 5 Nightmare and Hell can sell you Claws…"), RotW patch thread (daggers at vendors), WP-A blues list.</td></tr>
+<tr><th>Method</th><td>build the checklist as a table with stable keys <code>AN-claw-traps</code>, <code>AN-claw-ma</code>, <code>AN-armor-whale</code>, <code>AN-gloves-jav</code>, <code>AN-gloves-ma</code>, <code>AN-stick-warcry</code>, <code>AN-jav-6</code>, <code>AN-dagger-warlock</code> (if Anya sells daggers — verify), <code>AN-circlet</code> (gamble), … each with Item / Affixes / clvl needed / Source / Value (from WP-B or the maxroll value tier). Separate "gamble at Anya" from "shop at Anya". State the exact refresh loop from the claw guide (portal in/out, ~20 checks/min claim) as "per source, verify".</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-c-anya.json</code>, <code>pricing/data/wp-c.md</code> (the checklist rendered as a table + a "verify in-game" list, e.g. "does Hell Anya stock daggers/grimoires after 3.1.2?").</td></tr>
+<tr><th>Acceptance</th><td>every row cites a source and its date (forum posts: use the "N years ago" marker → pre-RotW); all RotW-era uncertainties are in the verify list, not asserted; the clvl→ilvl arithmetic is shown once and reused.</td></tr>
+</table>
+
+<h3>WP-D · Pickup filter for Pindleskin runs</h3>
+<table class="stg">
+<tr><th>Goal</th><td>The "what do I pick up" rules for Pindle (and his minions): white/superior/ethereal bases by socket count, using ilvl → max sockets tables; blues worth identifying; what to leave. Output must be usable as an in-game mental filter (≤ 25 rules).</td></tr>
+<tr><th>Inputs</th><td>maxroll <code>items/sockets</code> (full table), <code>items/base-items</code> (qualities), Pindleskin guide (mlvl 86 → item ilvl; verify the ilvl rule on the sockets page "Item Generation" section), <code>resources/gold-magic-find</code>, WP-A bases + weights, WP-B keep/sell thresholds, maxroll valuable-magic-items categories.</td></tr>
+<tr><th>Method</th><td>derive the drop ilvl for Pindle's pack from the sockets page rule (do not assume ilvl = mlvl from memory — read it); for each WP-A base give: max sockets at that ilvl, whether "socketed on drop" vs "Larzuk/cube" matters, eth desirability (merc/weapon bases yes, self-armor no unless Enigma-eth-irrelevant…), and the WP-B threshold. Add a blue-item section keyed to affix names (Jeweler's … of the Whale / Deflecting, skill circlets, +3 skill class items, charms per maxroll categories). Add "leave it" list (e.g. non-elite armors below N def unless 4os for Enigma? — decide from WP-A demand, cite).</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-d-pickup.json</code>, <code>pricing/data/wp-d.md</code> (rules table with stable keys <code>PK-…</code>, plus verify list).</td></tr>
+<tr><th>Acceptance</th><td>every socket number traceable to the maxroll table (page date cited); every value threshold traceable to WP-B; nothing from memory about ilvl/affix levels; RotW bases (grimoires, daggers) covered or explicitly "no data".</td></tr>
+</table>
+
+<h3>WP-E · Assemble guide #1 and review</h3>
+<table class="stg">
+<tr><th>Goal</th><td>Write <code>guides/pindle-anya.html</code> from WP-A…D outputs in the house format; then run two clean-context review passes (lenses: fact-check every cited number against the cached raw pages / a fresh Traderie pull; editorial + closure "can a reader act on the TL;DR alone?"); apply corrections in place; append the review log.</td></tr>
+<tr><th>Inputs</th><td>the four <code>wp-*.md/json</code>, this plan's style block, <code>guides/planning-with-html.html</code> §2 skeleton and §8 review prompt.</td></tr>
+<tr><th>Method</th><td>sections: TL;DR (run loop + top-5 pickups + top-3 Anya targets) · preamble blocks · §1 Pindle facts · §2 the run loop (portal → Pindle → back → Anya check → repeat) · §3 pickup rules (WP-D, keys PK-…) · §4 Anya checklist (WP-C, keys AN-…) · §5 value table (WP-B, dated) · §6 builds that want these bases (WP-A, compact) · appendix verified-vs-verify-in-game. Diagrams as CSS flows; one mermaid for the run loop is allowed with a table twin.</td></tr>
+<tr><th>Output</th><td><code>guides/pindle-anya.html</code>; review findings folded in; plan §"Review log" updated.</td></tr>
+<tr><th>Acceptance</th><td>checklist in planning-with-html.html §8 passes; every market number carries a 2026-09 date; the verify-in-game ledger is non-empty (it will be).</td></tr>
+</table>
+
+<h3 style="margin-top:2.2rem">Guide #2 — pricing primer (<code>guides/pricing-primer.html</code>)</h3>
+<p class="sub">Questions the primer must answer, each in one screen: <em>What is the currency and how do I read
+"Ist"/"HR"/"BIN"?</em> · <em>Which white bases are worth a lot, and why?</em> · <em>Which jewels are worth
+something, and why?</em> · <em>Which charms?</em> · <em>Which uniques/sets are worth keeping and which are
+vendor food?</em> · <em>When is a rare or a craft worth anything?</em> · <em>Which misc items (keys, essences,
+shards, gems) trade?</em> Each answer = a table of item classes with value band (dated), the <b>cause</b> of
+the value, and the roll thresholds that flip it from trash to tradeable.</p>
+
+<h3>WP-F · Currency and the NL rune ladder</h3>
+<table class="stg">
+<tr><th>Goal</th><td>Define the unit the whole primer prices in. Build the <em>empirical</em> SC/NL/PC/RotW rune ladder (Pul…Zod in Ist, and Ist in lesser runes), explain why runes are currency (divisible, fungible, demanded by runewords), explain trade language (LF, BIN, HR, offer, "fat"), and the asks-vs-fills caveat.</td></tr>
+<tr><th>Inputs</th><td><code>traderie.py runes Pul Um Mal Ist Gul Vex Ohm Lo Sur Ber Jah Cham Zod</code> (rune-for-rune asks); <code>d2io_search.py "ist rune" irarity=8 activesold=1 ladder=2 hc=2</code> and the same for Ber/Jah/Lo/Vex (fills); maxroll rune-value (2024 ratios + which runewords drive each rune); maxroll trade-guide (2026-02-10, language and scams); diablo2.io price guide ladder (2026-08-28); maxroll runeword tier list (S-tier runewords → rune demand).</td></tr>
+<tr><th>Method</th><td>For each rune: collect asks paid purely in runes, divide by stack <code>amount</code>, express in Ist using a fixed-point iteration (start from the diablo2.io ladder, re-solve until stable); report median and spread per rune with n. Compare with fills from diablo2.io sold rows. Write the "why": each HR's key runewords from maxroll rune-value / runeword tier list (e.g. Ber-Jah → Enigma/Infinity/CoH; Lo → Grief/Fortitude; Vex/Ohm → HotO/CtA; Ist → CtA/Infinity + MF socketing). Note gem/junk-rune bulk trades (maxroll rune-value "Bulk Trading").</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-f-ladder.json</code> (rune → {ist_median, ist_min, ist_max, n_asks, n_fills, date}), <code>pricing/data/wp-f.md</code> (ladder table + glossary + "how to read a price" box). WP-B and WP-G…I convert with this ladder.</td></tr>
+<tr><th>Acceptance</th><td>every rune row has n and date; the per-stack assumption is stated; ratios that differ from diablo2.io's ladder by &gt;30 % are called out; glossary terms each cite the maxroll trade guide or an observed listing.</td></tr>
+</table>
+
+<h3>WP-G · White bases — which are worth a lot, and why</h3>
+<table class="stg">
+<tr><th>Goal</th><td>The reader's question verbatim: "what white bases are worth a lot, why". Produce a ranked table of base item classes (armor / shield / weapon / helm / grimoire / class items) with: the runewords that create the demand (from WP-A), the exact properties that gate value (socket count, ethereal, superior ED/ED-AR/max-dur, defense roll, req-strength tier, speed class), why each matters mechanically (eth = +50 % def/dmg but breaks unless merc/Zod/indestructible; 4os Monarch is the only 4-socket light shield for Spirit; Archon Plate = highest def per str; Phase Blade = indestructible + fastest sword; Berserker Axe eth for Grief/BotD; Thresher/Giant Thresher/Cryptic Axe eth for Infinity/Insight merc; Grand Matron Bow for Faith/Ice; Sacred Targe 45@ for Exile/Spirit; grimoires for Vigilance…). Include "floor" bases (why plain 3os Dusk Shroud is near-worthless) and the ilvl/socket rules that decide whether a drop can even have the right socket count.</td></tr>
+<tr><th>Inputs</th><td><code>wp-a-bases.json</code> (demand weights), <code>wp-b-prices.json</code> (asks by bucket), <code>wp-f-ladder.json</code>; maxroll base-items (qualities, str/def tables), sockets (ilvl table, Larzuk/cube), runewords ("Recommended Base Item(s)"), runeword tier list, new-items-in-RotW (grimoires, dagger runewords); diablo2.io price guide "Bases" rows; diablo2.io sold rows for the top-15 bases (<code>d2io_search.py &lt;base&gt; irarity=4 activesold=1 ladder=2 hc=2</code>, spaced).</td></tr>
+<tr><th>Method</th><td>Rank by demand weight × price band; for each base write a 2-line "why" citing the runeword page and the mechanic page; give the flip thresholds (e.g. "Archon Plate: 4os → keep; 3os superior ≥15 % ED → keep; 0os non-eth ≤ 500 def → floor"); add a short section on how superior/eth/socket combinations multiply (eth+4os+15ED elite = HR territory) and on what Larzuk/cube can fix (0os → can be socketed, so 0os elite eth armor has value; a 2os drop cannot). Cover RotW additions explicitly (grimoire bases, dagger bases for Void/Ritual) with "thin market" flags.</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-g-bases.json</code>, <code>pricing/data/wp-g.md</code> (≤ 2 pages: the ranked table + "why" + thresholds; keys <code>BS-archon</code>, <code>BS-monarch</code>, …).</td></tr>
+<tr><th>Acceptance</th><td>every "why" cites a maxroll mechanics/runeword page (with its "Last Updated"); every band cites WP-B/WP-F with date; the sockets-by-ilvl rule is stated once; no base named that WP-A/WP-B did not see; at least one fill quoted for each of the top-5 bases or "no fills in window" stated.</td></tr>
+</table>
+
+<h3>WP-H · Jewels and charms — which are worth something, and why</h3>
+<table class="stg">
+<tr><th>Goal</th><td>The reader's second question: "what jewels are worth and why", plus charms. Cover (1) <b>Rainbow Facets</b> (unique jewels; element, die/level-up variant, 5/5 rolls — why: -enemy res stacks for elemental builds); (2) <b>magic/rare jewels</b> by affix class: ED (Ruby 30-40 %), IAS (15 %), all-res (15 @), ED+IAS, IAS+res, ED+max-dmg, low-req-level PvP jewels — why: they go into weapon/armor/helm sockets of melee and caster builds, and which affix pairs can/can't roll together; (3) <b>grand charms</b>: skillers per tree (which trees are demanded by S/A builds → price ranking), "plain" vs "+life/FHR" skillers, 3/20/20-style melee GCs; (4) <b>small charms</b>: 20-life/5-res, 7 MF, 3/20 damage, FRW, Gheed's; (5) <b>Annihilus / Hellfire Torch</b> roll brackets; (6) <b>Sunder charms</b> (base vs Latent vs Renewed, RotW recipes) and <b>Colossal Ancient Jewels</b> (RotW) — what they are and whether they trade.</td></tr>
+<tr><th>Inputs</th><td>Traderie: Jewel (4-6 pages, <code>--props</code>, bucket by rarity 797 and affix ids), Grand/Small Charm (4 pages each, bucket by skill-tree property id and life), Annihilus, Hellfire Torch, Rainbow Facet (search), sunder charms (search "Rupture"/"Break"/"Cleft"…); diablo2.io: sold searches "jewel", "facet", "charm" with <code>skiller=1</code>, "anni", "torch"; maxroll valuable-magic-items (Charms/Jewels sections — categories and the explanations), sundered-charms (May 22, 2026), colossal-ancients (Feb 16, 2026), new-items-in-RotW (Colossal Ancient Jewels); diablo2.io price guide "Jewels and charms" rows; WP-A build lists (which trees/affixes are demanded).</td></tr>
+<tr><th>Method</th><td>Per class: define the affix bucket (ids), pull asks, count, min/median in Ist via WP-F, add fills if any; write the "why" from the mechanics (which builds socket what, why 15 IAS matters for breakpoints — cite maxroll attack-speed/breakpoints pages, why -res facets stack); give the trash line (e.g. "jewel with a single low affix = vendor"). For skillers, rank trees by WP-A demand and confirm with asks (Pala Combat, Sorc Light/Cold/Fire, Traps, Jav, P&amp;B, Warcries, Warlock trees). Report the Colossal Ancient Jewel market as found (or "no listings under any name — verify").</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-h-jewels-charms.json</code>, <code>pricing/data/wp-h.md</code> (keys <code>JW-facet-*</code>, <code>JW-ed</code>, <code>JW-ias-res</code>, …, <code>CH-skiller-*</code>, <code>CH-sc-life-res</code>, <code>CH-anni</code>, <code>CH-torch</code>, <code>CH-sunder-*</code>).</td></tr>
+<tr><th>Acceptance</th><td>every bucket has n + date + filter; every "why" cites a page; affix pairs that cannot coexist are not listed as targets (verify against maxroll valuable-magic-items text or flag); RotW items (sunders, colossal jewels, Warlock skillers) covered or explicitly "no data".</td></tr>
+</table>
+
+<h3>WP-I · Uniques, sets, rares, crafts, misc — keep, sell, or vendor</h3>
+<table class="stg">
+<tr><th>Goal</th><td>A compact map of the rest of the market: (1) uniques/sets by value tier with the roll that matters (Shako def, SoJ, Griffon's -res/+skill, Arachnid, Mara's, Titan's eth, War Trav MF, Andy's, Gheed's…), why (build demand from WP-A, rarity), and the "TRASH" line; (2) RotW uniques/sets and Heralds/Colossal rewards — what is new and whether it trades; (3) rares and crafts: the few patterns that are worth anything (caster amulets/rings with FCR + skills, 2/20 circlets, blood gloves 20 IAS/3 skill, rare claws/javs with staff mods, "3/20/20" GCs) and why most rares are vendor food; (4) misc: keys, essences/token, Worldstone Shards, perfect gems, junk-rune bulk — how they price.</td></tr>
+<tr><th>Inputs</th><td>maxroll valuable-unique-set-items (tiers + Stat Priority, 2024), new-items-in-RotW, colossal-ancients rewards, crafted-items (recipes/affix math, Mar 1, 2026); Traderie: top-30 uniques by maxroll tier (ids via <code>traderie.py search</code>, <code>--props</code> for rolls), Ring/Amulet with rarity rare/crafted, crafted type, misc type (keys, essences, shards); diablo2.io: item pages "On the trade market" for the top-30, sold searches for 10 spot items, price-check threads (3-5 recent ones for rares) for reasoning; diablo2.io price guide unique rows (orientation).</td></tr>
+<tr><th>Method</th><td>Start from the maxroll tier list, re-price each High/Med item from Traderie asks (n, min/median in Ist) and diablo2.io fills where present, demote/promote with evidence, and write the roll threshold ("Shako any; Griffon's 20/-20 vs 25/-25 ×3"). For rares/crafts, list only patterns with ≥3 asks or a price-check thread; quote the reasoning. For misc, price per unit from Traderie stacks (per-stack rule) and diablo2.io.</td></tr>
+<tr><th>Output</th><td><code>pricing/data/wp-i-uniques-misc.json</code>, <code>pricing/data/wp-i.md</code> (keys <code>UQ-*</code>, <code>ST-*</code>, <code>RR-*</code>, <code>CR-*</code>, <code>MS-*</code>; the "vendor it" list is part of the deliverable).</td></tr>
+<tr><th>Acceptance</th><td>no unique named without a Traderie id or diablo2.io page fetched; every tier change vs maxroll has a stated reason; RotW items covered or "no data"; the misc per-unit prices state the stack rule.</td></tr>
+</table>
+
+<h3>WP-J · Assemble guide #2 and review</h3>
+<table class="stg">
+<tr><th>Goal</th><td>Write <code>guides/pricing-primer.html</code> in the house format from WP-F…I (and WP-A/B where they overlap); two clean-context review passes (fact-check against <code>pricing/raw/</code> + fresh pulls; editorial/closure: "can a reader with one drop in hand decide keep/sell/vendor from the TL;DR and one table?").</td></tr>
+<tr><th>Inputs</th><td><code>wp-f…i .md/json</code>, this plan's style block, <code>guides/planning-with-html.html</code>.</td></tr>
+<tr><th>Method</th><td>Sections: TL;DR (currency box + the 10 things worth the most that a mid-level player actually finds) · preamble blocks · §1 currency &amp; how to read prices (WP-F) · §2 white bases: why and thresholds (WP-G) · §3 jewels (WP-H) · §4 charms (WP-H) · §5 uniques/sets (WP-I) · §6 rares, crafts, misc (WP-I) · §7 how to refresh the numbers (the exact tool commands) · appendix verified-vs-verify. One CSS flow "drop in hand → keep/sell/vendor" decision diagram with a table twin. Every price row carries date + n + feed.</td></tr>
+<tr><th>Output</th><td><code>guides/pricing-primer.html</code>; review findings folded in; this plan's Review log updated.</td></tr>
+<tr><th>Acceptance</th><td>planning-with-html.html §8 checklist passes; every number has date/n/feed; every "why" cites a page; RotW-economy scope stated in the preamble; the "refresh" section runs as written.</td></tr>
+</table>
+
+<h2>4 · Orchestration</h2>
+<pre class="mermaid">
+flowchart LR
+    subgraph g1["guide #1 — Pindle / Anya"]
+    A["WP-A builds→bases"] --> D["WP-D pickup rules"]
+    B["WP-B market values"] --> D
+    A --> B
+    C["WP-C Anya checklist"] --> E["WP-E assemble + 2 reviews"]
+    D --> E
+    B --> E
+    A --> E
+    end
+    subgraph g2["guide #2 — pricing primer"]
+    F["WP-F currency / rune ladder"] --> G["WP-G white bases: why"]
+    F --> H["WP-H jewels & charms"]
+    F --> I["WP-I uniques/sets/rares/misc"]
+    G --> J["WP-J assemble + 2 reviews"]
+    H --> J
+    I --> J
+    end
+    F --> B
+    A --> G
+    B --> G
+    A --> H
+    A --> I
+</pre>
+<div class="tblwrap"><table>
+<tr><th>Wave</th><th>Runs</th><th>Depends on</th><th>Budget (fetches)</th><th>Model / notes</th></tr>
+<tr><td>1</td><td>WP-A, WP-C, WP-F, WP-B (seed list from §1.2 until WP-A lands; converts with the §1.2 ladder until WP-F lands)</td><td>—</td><td>A ≈ 30 pages (cached under raw/mr) · C ≈ 8 pages · F ≈ 13 runes × 2 API pages + ≤8 spaced diablo2.io searches · B ≈ 40 bases × ≤4 pages = ≤160 API calls</td><td>Parallel. Only one agent at a time may hit diablo2.io search (flood control) — give WP-F the slot in wave 1.</td></tr>
+<tr><td>2</td><td>WP-D · WP-G · WP-H · WP-I</td><td>D: A, B · G: A, B, F · H: A, F · I: A, F</td><td>D ≈ 4 pages · G ≈ 15 spaced diablo2.io searches · H ≈ 25 API pages + ≈10 searches · I ≈ 60 API pages + ≈30 item pages + ≈10 searches</td><td>Parallel; the three guide-#2 packages take diablo2.io slots in the order G → H → I (or each waits ≥30 s between its own calls).</td></tr>
+<tr><td>3</td><td>WP-E draft · WP-J draft</td><td>E: A–D · J: F–I (+A, B)</td><td>0</td><td>Writes the two guides; may run in parallel.</td></tr>
+<tr><td>4</td><td>WP-E reviews ×2 · WP-J reviews ×2</td><td>drafts</td><td>≤ 20 re-fetches each</td><td>Clean-context agents; prompt templates below.</td></tr>
+</table></div>
+<p>File layout: <code>pricing/plan.html</code> (this) · <code>pricing/tools/</code> (fetch.sh,
+html2text.py, tables.py, traderie.py) · <code>pricing/raw/&lt;site&gt;/…</code> (cache; not reviewed) ·
+<code>pricing/data/wp-*.json|md</code> (hand-offs) · <code>guides/pindle-anya.html</code> and
+<code>guides/pricing-primer.html</code> (deliverables). Tools: <code>fetch.sh</code>, <code>html2text.py</code>,
+<code>tables.py</code>, <code>traderie.py</code> (now with <code>--rarity/--eth/--props</code> and <code>runes</code>),
+<code>d2io_search.py</code>.</p>
+
+<h3>4.1 Sub-agent prompt skeleton (fill the bracketed parts per package)</h3>
+<pre>You are running work package [WP-X] of pricing/plan.html (read that file first, including all
+&lt;details&gt; blocks — especially "Rejected ideas" and "Review log"). Work from repo root
+/mnt/extra/1000/games/d2r. You have no other context; that is deliberate.
+
+Rule zero: LLM recall of Diablo 2 facts is NOT evidence. The game changed in 2026 (Reign of the
+Warlock). Every number you write must come from a page you fetched this session (cite URL + the
+page's "Last Updated" date) or be flagged "verify in-game". Never invent item names.
+
+Tools (tested): pricing/tools/fetch.sh URL OUT · html2text.py FILE [KW [CTX]] · tables.py FILE ·
+traderie.py {search|items|props|listings [--sc --nl --pc --rarity R --eth|--noeth --props]|runes} ·
+d2io_search.py KEYWORD filter=value… (keywords required; ≥30 s between calls, retry once if empty; activesold=1 = fills).
+Use curl with the Chrome UA only (fetch.sh does this). Market scope: Softcore, Non-Ladder, PC,
+Reign of the Warlock economy (Traderie prop 1854; diablo2.io legacy_resu=2). Prices: convert to Ist
+with pricing/data/wp-f-ladder.json if it exists, else the §1.2 ladder — and say which.
+Cache under pricing/raw/. Do NOT use WebFetch for numbers; WebSearch only for discovery.
+Sites that 403 (fandom, diablowiki, purediablo forums) — skip.
+
+Inputs: [list from the WP table]. Method: [from the WP table].
+Deliver: [files from the WP table]. The .md summary is ≤ 1 page: findings first, then an
+"unresolved / verify in-game" list, then the sources you actually used with dates.
+Do not edit pricing/plan.html or guides/. Report the file paths when done.</pre>
+
+<h3>4.2 Review prompt (WP-E / WP-J, per lens)</h3>
+<pre>Read guides/pindle-anya.html (or guides/pricing-primer.html) in full (raw source incl. &lt;details&gt;). Rule zero as in
+pricing/plan.html. Lens: [fact-check every cited number against pricing/raw/ and a fresh
+pricing/tools/traderie.py pull | editorial + logic + "can the TL;DR be acted on alone" |
+closure: for each item type Pindle can drop, is there a pickup rule? | primer closure: for a random
+drop of each rarity (white, magic, rare, unique, set, jewel, charm, rune, misc) can the reader decide
+keep / sell / vendor from the tables, and does every "why" actually explain the price?]. Do not re-open "Rejected
+ideas" or reintroduce review-log entries. Deliver a numbered findings list (claim → what's wrong →
+evidence). Do not edit the file.</pre>
+
+<h2>5 · Open questions the packages must settle (not assume)</h2>
+<ol>
+<li>Does Hell Anya sell daggers and/or grimoires after 3.1.2? (patch: "Updated the number of daggers
+that can be found on vendors"; search snippet lists five vendors without Anya). → WP-C, verify in-game
+if no source.</li>
+<li>Which runewords are RotW-new: 5 (maxroll new-items) or 7 incl. Mania/Hysteria (tier list)? → WP-A
+from the runewords page.</li>
+<li>Item ilvl of Pindle's pack drops (mlvl 86 → ilvl 86?) and therefore max sockets per base. → WP-D
+from the sockets page "Item Generation" section.</li>
+<li>Is the Traderie "Game version" property reliably set to RotW on NL listings, or should WP-B ignore
+it? (First Aegis sample: all "reign of the warlock".) → WP-B, report the distribution.</li>
+<li>Value of RotW-only bases (elite grimoires, dagger bases for Void/Ritual) — thin or absent market?
+→ WP-B.</li>
+<li>Whether Terror-Zone/Herald changes make Pindle less attractive than a TZ rotation for this
+player — <em>out of scope for guide #1</em>, one paragraph with pointers in WP-E (cross-cutting rule).</li>
+<li>Traderie stack pricing: is a rune/gem ask for the whole <code>amount</code> or per unit? Evidence so far
+(Ist ×10 → 1 Jah; Ist ×2 → 1 Vex) says per stack. → WP-F confirms on ≥20 listings and documents.</li>
+<li><s>Colossal Ancient Jewels (RotW): what are they called on Traderie / diablo2.io, and do they trade at all?</s>
+Settled by WP-H/WP-I: named Defender's/Protector's/Guardian's &lt;element&gt;; 0.4–1 Ist mid rolls, multi-Jah for
+-10 %/35 MF rolls (asks, 2026-09-18).</li>
+<li>How thin are diablo2.io fills? First probes: 1 jewel row, 2 Archon Plate rows in 3 days. → WP-F/G decide
+whether to widen the window by repeating pulls across days, or to lean on asks with a stated haircut.</li>
+<li>Does the RotW/Resurrected split (diablo2.io: "cannot trade … and vice versa") also show up as distinct
+prices on Traderie (property 1854 distribution per item)? → WP-F reports the split for runes.</li>
+<li>Which affix pairs on jewels/charms are actually possible (e.g. ED + max dmg on one jewel is possible but
+"bugged", per maxroll)? → WP-H must not list impossible targets; cite maxroll valuable-magic-items or flag.</li>
+</ol>
+
+<h2>6 · Appendix</h2>
+
+<details><summary>maxroll build-guide slugs found in the tier list (58) — tier from the page text</summary>
+<pre>S: lightning-fury-amazon-guide lightning-sorceress blessed-hammer-paladin blizzard-sorceress
+   echoing-strike-warlock-guide fist-of-the-heavens-paladin meteor-sorceress (= "Fire Ball Meteor Sorc") smite-paladin
+   nova-sorceress-guide berserk-barbarian gold-find-barbarian poison-nova-necromancer fire-warlock-guide
+   lightning-sentry-assassin fissure-druid
+A: lightning-strike-amazon dream-paladin abyss-warlock-build-guide enchant-sorceress strafe-amazon
+   double-throw-barbarian-guide fire-blast-assassin wake-of-fire-assassin summoner-necromancer-guide
+   dragon-talon-assassin mirrored-blades-warlock-guide
+B: blood-boil-warlock-guide zeal-paladin tornado-hurricane-druid holy-fire-paladin frost-nova-sorceress
+   war-cry-barbarian hydra-sorceress frenzy-barbarian fire-wall-sorceress-guide dragon-tail-assassin
+   frozen-orb-sorceress frozen-orb-meteor-sorceress summoner-warlock-guide multiple-shot-amazon
+C/D/F: freezing-arrow-amazon-guide leap-attack-barbarian-guide exploding-arrow-amazon whirlwind-barbarian-guide
+   poison-javelin-amazon werebear-sorceress summon-druid zeal-sorceress werewolf-fury-druid bone-spear-necromancer
+   blade-assassin jab-fend-amazon maul-druid rift-assassin phoenix-strike-assassin whirlwind-assassin
+   rabies-druid-guide werewolf-barbarian
+All: https://maxroll.gg/d2/guides/&lt;slug&gt; — tier assignment extracted from the page's tier containers
+(span class *tierName* = S/A/B/C/D/F, followed by the guide anchors; 15/11/14/11/5/2 = 58) on 2026-09-18.
+Regex used: tierName_[a-z0-9_]+"&gt;([SABCDF])&lt;/span&gt;  and  href="/d2/guides/([^"]+)"</pre>
+</details>
+
+<details><summary>maxroll pages relevant to this guide (from sitemap, all fetched 200 on 2026-09-18)</summary>
+<pre>tierlists: overall-tier-list ladder-start-tier-list terror-zone-tier-list uber-tier-list
+           density-destroying-tier-list elite-hunting-tier-list runeword-tier-list
+items:     new-items-in-reign-of-the-warlock valuable-unique-set-items valuable-magic-items runewords runes
+           unique-items sets base-items sockets gems crafted-items
+meta:      pindleskin-farming-guide nihlathak-farming-guide eldritch-and-shenk-farming-guide
+           worldstone-keep-and-baal-farming-guide meta-thresh-socket-farming-guide (+ 20 other farm spots)
+resources: warlock-overview gold-magic-find terror-zones tips-tricks horadric-cube-recipes bosses
+           mercenary-mechanics important-quests durability-quantity
+tools (JS, not curl-able): /d2/database /d2/d2-drop-calculator /d2/d2planner</pre>
+</details>
+
+<details><summary>Traderie facts verified (2026-09-18)</summary>
+<ul>
+<li>Catalog types seen: base, gems, misc, runes, runewords, sets, uniques. Bases: 516 (22 pages). Runes
+list starts Amn, Ber, Cham… (alphabetical, 24/page).</li>
+<li>Listing sample (Aegis, id 2914605671, page 0, 50 listings): 16 ladder / 34 non-ladder, 0 hardcore,
+0 non-PC, 15 ethereal, 14 with &lt;3 sockets; with <code>prop_402Min=3</code>: 0 with &lt;3 sockets.
+<code>prop_1076Min=1</code>: 0 listings.</li>
+<li>Archon Plate id 3707980542; SC/NL/PC, ≥3os, 2 pages → asks from "1x Ist" (3os 502 def superior) to
+"40x Jah" (4os magic) — the spread is huge because magic 4os "of the Whale"-class armors share the
+item id with plain bases. <b>WP-B must bucket by rarity (797) and read the magic affix properties
+before comparing.</b></li>
+<li>Endpoints needing login (401): <code>/items/&lt;id&gt;</code>, <code>/items/&lt;id&gt;/prices</code>,
+<code>/listings/stats</code>.</li>
+<li>Guide #2 samples (page 0, 50 listings each, 2026-09-18): Jewel — 30 have a "Jewel Variant" (colour), 16 ED %,
+15 IAS, 7 all-res; asks from "1x Ohm" (35 ED/15 IAS) to "40x Jah" (rare 27 ED/53 AR/8@/8 dex). Grand Charm — 28
+with +life, skill-tree affixes spread across 12 trees incl. Warlock; asks e.g. "2x Jah" (Warcries + life),
+"1x Ist + 1x Mal" (Barb skills + life). Small Charm — 15 life, 12 MF, 9 all-res; "1x Jah" for 5@ alone (ask).
+Harlequin Crest — 31 carry total Defense, asks "1x Ist"–"1x Ohm". Annihilus — rolls 17-20 / 16-20 / 5-10,
+asks "1x Vex" to "3x Jah". Ist Rune — asks "1x Gul + 2x Mal + 3x Um + 4x Pul" (×1), "1x Jah" (×10-12), "1x Vex"
+(×2). Ber Rune — "1x Jah", "1x Jah + 1x Lo", "1x Sur + 1x Lo + 1x Ohm".</li>
+</ul>
+</details>
+
+<details><summary>diablo2.io trade search — verified filter dictionary (2026-09-18)</summary>
+<pre>URL: https://diablo2.io/search.php?keywords=KW&amp;fid[]=16&amp;terms=all&amp;sc=0&amp;sf=titleonly&amp;sr=on&amp;sk=t&amp;sd=d&amp;st=0&amp;ch=300&amp;t=0&amp;submit=Search&amp;FILTERS
+ladder=2 Non-ladder · ladder=1 Ladder · hc=2 Softcore · hc=1 Hardcore · plat_pc=1 (plat_switch, plat_playstation, plat_xbox)
+legacy_resu=2 Reign of the Warlock · legacy_resu=1 Resurrected (separate economy) · xc=1 Expansion · xc=2 Non-expansion
+activesold=1 Sold ≤3 days (fills) · activesold=2 Active · wtbs=1 WTS · wtbs=2 WTB · online=1 · perfect=1 · free=1
+irarity=1 Unique 2 Runeword 3 Set 4 Base 5 Crafted 6 Rare 7 Magic 8 Misc 9 Player services
+charm=1 Small 2 Large 3 Grand · skiller=1 resists=1 life=1 mana=1 magicfind=1 extragold=1 ias=1 fcr=1 frw=1 fhr=1 ed=1 mmd=1 ar=1
+eth=1 Ethereal 2 Non-eth · super=1 Superior 2 Non-superior · unid=1 Unidentified 2 Identified · imaxsockets=1..6 exact, 7 none
+iitemtype=Jewels|Rings|Amulets|Body%20Armor|Helms|Barb%20Helms|Pelts|Shrunken%20Heads|Shields|Grimoires|Targes|Belts|Boots|Gloves|
+          Axes|Katars|Daggers|Swords|Hammers|Mauls|Maces|Clubs|Scepters|Polearms|Spears|Bows|Crossbows|Javelins|Throwing%20Weapons|Orbs|Staves|Wands
+iclassspec=1..8 · imercspec=1,2,3,5 · region=1 Americas 2 Europe 3 Asia
+Row markers: title="Non-Ladder character" / "Hardcore character" / "Windows PC" / "Want to Sell"; class zi-tinylogrotw = RotW; "SOLD" + "Sold N days ago … for &lt;price&gt;".
+Verified rows: Archon Plate 505 def → "Sold for 1 Mal 1 Um"; Archon Plate 453 def → "3 Key of Terror"; Shimmering Jewel of Virility 6 str/10@ → "20 Perfect Gems".
+Sizes: ~30 rows/page, "Page 1 of 6" for keyword "jewel" NL. Empty keywords → "Found 0 matches". Two requests &lt;25 s apart → second is empty.</pre>
+</details>
+
+<details><summary>What is verified vs. judgment (this plan)</summary>
+<ul>
+<li><b>Verified 2026-09-18 by running the commands:</b> every HTTP status and size in "Links &amp;
+sources"; the Traderie endpoint behaviour, property ids, catalog types and filter semantics; the diablo2.io
+search URL, its filter values, the sold-rows format and the flood behaviour; the RotW/Resurrected
+no-trade statement (copied from the diablo2.io filter tooltip); the maxroll table
+structure (tables.py output on two guides); the sitemap counts; the quoted diablo2.io price rows and
+rune ladder (copied from the fetched page text); the tier-list build names and RotW runeword list
+(copied from fetched page text).</li>
+<li><b>From sources, not yet cross-verified:</b> all shop mechanics in §1.1 (ilvl = clvl+5 etc.), the
+Pindle drop facts, the "daggers at vendors" vendor list (WebSearch snippet) — the packages re-cite them
+from the fetched pages.</li>
+<li><b>Judgment:</b> the package split, weights (S=2/A=1), the 4-page/200-listing sample size, the
+"asks in Ist via the NL ladder" pricing method, reading the user's prop_1076 filter as "ethereal", the
+per-stack reading of Traderie rune asks (2 data points), and the "prefer fills when ≥3" rule.</li>
+</ul>
+</details>
+
+<footer>Drafted 2026-09-18 from live curl probes of maxroll.gg, traderie.com (JSON API), diablo2.io (pages
+and trade search), d2runes.io, icy-veins.com, d2emu.com · extended the same day with guide #2 (pricing
+primer: WP-F…J) · conventions per guides/planning-with-html.html · helper tools in pricing/tools/
+(fetch.sh, html2text.py, tables.py, traderie.py, d2io_search.py).</footer>
+</main>

@@ -1,0 +1,346 @@
+{
+ "_meta": {
+  "package": "WP-D pickup filter for Pindleskin runs",
+  "date": "2026-09-18",
+  "ilvl_derivation": "maxroll Sockets (June 16, 2026): 'An item's ilvl is determined by the monster that drops it' + worked example 'Cow King and his Minions are Monster Level (mlvl) 31 ... Any item dropped in this area has ilvl 28/31' => drop ilvl = mlvl for monster drops. maxroll Pindleskin guide (Feb 10, 2026): 'a Monster Level of 86, both he and his minions' => Pindle pack drops are ilvl 86 => socket table column 'ilvl 41+'; 'Hell Difficulty does not have a Socket limit'.",
+  "market_scope": "Softcore / Non-Ladder / PC / Reign of the Warlock; all prices are WP-B Traderie ASKS (2026-09-18) in Ist via the WP-F ladder; n = listings in the bucket; thin = n<3",
+  "rule_count": 24,
+  "groups": [
+   "bases",
+   "blues",
+   "charms-jewels",
+   "runes-gems",
+   "leave"
+  ],
+  "action_semantics": "keep = pick up and keep/trade at or above ~Ist asks; sell = pick up, it moves at Mal-Ohm asks or is self-use; leave = do not pick up"
+ },
+ "PK-ilvl-gray": {
+  "group": "bases",
+  "rule": "Pindle's pack drops ilvl 86 items: read the 'ilvl 41+' column of the socket table, and Hell has no socket cap. Pick up every GRAY-named (socketed or ethereal) or 'Superior' base that is on the WP-A list; the socket count and eth flag are only visible after pickup.",
+  "item_class": "white base (gray / superior name)",
+  "condition": "base is in wp-a-bases.json (top-20 or merc polearm/armor) AND name is gray or prefixed Superior",
+  "action": "keep",
+  "why": "Sockets page: ilvl comes from the dropping monster (Cow King mlvl 31 -> ilvl 31 example); Pindle and his minions are mlvl 86 -> ilvl 86; a socketed drop 'shows up in a Gray color; just like an Ethereal. You need to pick up the item to see the difference.'",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): 'An item's ilvl is determined by the monster that drops it, or the Area Level (alvl) for chests and other clickables' + Cow King example 'Monster Level (mlvl) 31 ... Any item dropped in this area has ilvl 28/31'; 'Hell Difficulty does not have a Socket limit'; '1/3 chance that an item spawns with Sockets'",
+   "maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): 'a Monster Level of 86, both he and his minions'; 'he always drops 2 items of Magic quality or higher. (Unless they drop a Rune or Gem)' -> white bases come from the minions or from extra drops",
+   "maxroll Gold Find & Magic Find (Last Updated February 11, 2026): 'Magic Find has no impact on the item tier' and no effect on rune drops -> MF gear does not change which bases you see"
+  ]
+ },
+ "PK-sockets-fix": {
+  "group": "bases",
+  "rule": "0 sockets is not a defect: a 0os normal/eth base can be cubed (random count, weighted by the base's ilvl-86 max; not on Superior or Low Quality) and any 0os base can be Larzuk'ed to its ilvl-86 MAX. Keep 0os only where that max equals the runeword count: 4 = Archon/Dusk/Wire Fleece/Sacred Armor/Monarch/Sacred Targe/Sacred Rondache/Targe/Colossus Voulge; 3 = Mage Plate/Diadem/Tiara/Kite Shield/Greater+Runic Talons/Legend Spike/Fanged Knife/Kris; 2 = Bone Shield/Preserved Head/Circlet/Coronet. A drop that already has the WRONG count (1-2os elite armor, 3os Monarch, 5-6os Thresher-class for Insight/Infinity, 4os Flail/Crystal Sword for CtA) cannot be re-socketed: leave it.",
+  "item_class": "white base, 0 sockets or wrong socket count",
+  "condition": "0os AND (Larzuk max at ilvl 41+ == runeword sockets, or normal/eth quality for the cube gamble); socketed with count != any WP-A runeword count -> leave",
+  "action": "keep",
+  "why": "Cube armor/weapon/helm/shield recipes need an 'unsocketed' Normal/Ethereal base ('Cannot be used on Low-quality or Superior bases') and roll by max (max 4: 4os 50%; max 5: 5os 33%; max 6: each 16.67%); Larzuk gives 'Base Items ... their maximum possible number of Sockets which depend on their Item Levels' -> at ilvl 86 a Giant Thresher gets 6, not 4.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): cube recipes 'randomly add Sockets ... capped to the maximum Sockets the Body Armor can have. It can't be used on Low-quality or Superior bases' + result tables; Larzuk 'Base Items receive their maximum possible number of Sockets which depend on their Item Levels ... Magic Items receive 1-2 Sockets (random). Rare, Crafted, Set, and Unique Items receive 1 Socket'",
+   "maxroll Sockets (Last Updated June 16, 2026) table 'Number of Sockets by ilvl', column ilvl 41+: Archon Plate 4, Dusk Shroud 4, Wire Fleece 4, Sacred Armor 4, Monarch 4 (3 below ilvl 41), Sacred Targe 4, Sacred Rondache 4, Targe 4, Colossus Voulge 4, Mage Plate 3, Diadem 3, Tiara 3, Circlet 2, Coronet 2, Kite Shield 3, Greater Talons 3, Runic Talons 3, Legend Spike 3, Fanged Knife 3, Kris 3, Bone Shield 2, Preserved Head 2, Flail 5, Thresher 5, Cryptic Axe 5, Mancatcher 5, Grand Matron Bow 5, Matriarchal Bow 5, Phase Blade 6, Berserker Axe 6, Colossus Blade 6, Crystal Sword 6, Giant Thresher 6, Great Poleaxe 6, Matriarchal Spear 6",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Giant Thresher eth 0os superior >=15ED n=4 9.3->10.4 vs eth 4os superior n=10 57->86 (Larzuk would give 6); Colossus Voulge eth 0os superior n=6 0.67->4.05 (Larzuk gives 4 = Insight)",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): sockets_by_runeword (Enigma 3, CoH/Fortitude 4, Spirit 4, CtA 5, Insight/Infinity 4, Obedience 5, Grief 5, BotD/Last Wish 6, Void/Ritual 3, Vigilance 2)"
+  ]
+ },
+ "PK-eth": {
+  "group": "bases",
+  "rule": "Ethereal is wanted only where a mercenary wears it or the weapon is meant for a merc: eth Thresher/Giant Thresher/Cryptic Axe/Great Poleaxe/Colossus Voulge/Mancatcher/Matriarchal Spear, eth Sacred Armor, eth Archon/Dusk/Mage Plate (merc Fortitude/Treachery), eth Berserker Axe/Colossus Blade. Ethereal is NOT wanted on self-worn armor/shields (Enigma/CoH/Spirit Monarch, Flail CtA/HotO, Bone Shield/Targe/Kite Rhyme) - one exception: an ethereal Sacred Targe with 45 all-res still asks Ber+.",
+  "item_class": "white base, ethereal",
+  "condition": "eth flag on a base whose wp-a eth_wanted is true/mixed(merc) -> keep; eth on a non-eth base -> floor unless Sacred Targe 45@",
+  "action": "keep",
+  "why": "WP-A eth flags come from the runewords page wording ('Ethereal Superior Giant Thresher') and the guides' 'Ethereal gear is preferred since it doesn't lose durability' (mercenary sections of 18/26 guides); Superior can be ethereal and socketed, Low Quality cannot.",
+  "evidence": [
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): eth_wanted true = Thresher, Giant Thresher, Colossus Voulge, Sacred Armor, Mancatcher, Matriarchal Spear, Ward, War Pike; mixed = Archon Plate, Dusk Shroud, Mage Plate, Berserker Axe, Colossus Blade, Monarch, Sacred Targe, Phase Blade, Crystal Sword; false = Flail, Bone Shield, Targe, Kite Shield, Stealth armors",
+   "maxroll Base Items (Last Updated May 12, 2024, pre-RotW; quality rules only): Superior 'Can be Ethereal and spawn with Sockets'; Low Quality 'Can't be Ethereal. Don't drop with Sockets'",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Sacred Targe eth 45@ any os n=9 45.7->63; Dusk Shroud eth 4os normal n=5 0.25->0.79; Monarch eth rows thin; Sacred Armor eth 4os normal n=13 4.05->5.9 vs non-eth 4os normal n=17 0.5->1.0"
+  ]
+ },
+ "PK-elite-armor": {
+  "group": "bases",
+  "rule": "Archon Plate / Dusk Shroud / Wire Fleece / Sacred Armor (all max 4os at ilvl 86). KEEP: Superior with >=15% ED in 3os, 4os or 0os (Larzuk -> 4); any ethereal Archon 3/4/0os; Sacred Armor only ethereal (4os or 0os). SELL ~Ist: 3os plain Archon, 0os superior <15ED Archon. FLOOR (Pul-Ist asks): plain 3os/4os Archon/Dusk/Wire, non-eth Sacred Armor, 0os superior Dusk/Wire.",
+  "item_class": "white elite body armor",
+  "condition": "see rule; ED% is visible only after pickup (Superior prefix on the ground)",
+  "action": "keep",
+  "why": "Enigma (3os) / CoH, Fortitude, Bramble (4os) demand on the two highest-weight armors (Archon 41, Dusk 41); the market pays for the superior 15ED roll and for eth on merc armor, not for plain sockets.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Archon Plate 3|4|4, Dusk Shroud 3|4|4, Wire Fleece 3|4|4, Sacred Armor 3|4|4",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Archon 4os superior 15ED n=4 11.4->20.7; 3os superior 15ED n=5 22.8->45.7; 0os superior 15ED n=8 11.4->22.8; 4os eth n=3 9.3; 3os eth normal n=3 2->2.6; 0os eth normal n=3 4.05->11.3; 3os normal n=12 0.1->1.0; 4os normal n=23 0.08->1.0",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Dusk 3os superior 15ED n=3 11.4->22.8, 4os superior 15ED n=5 5.9->11.4, 0os superior 15ED n=14 0.79->2.0, 4os normal n=10 0.57->0.79; Wire Fleece 3os superior 15ED n=10 4.05->11.4, 4os superior 15ED n=10 1.4->9.3, 0os superior 15ED n=9 0.67->3.3, 3os normal n=4 0.25->0.84",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Sacred Armor eth 4os superior 15ED n=5 43.6->57, eth 4os superior <15ED n=8 8.6->28.6, eth 0os normal n=9 2.6->9.3, eth 4os normal n=13 4.05->5.9, 4os normal non-eth n=17 0.5->1.0",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Archon Plate weight 41 (Enigma 3, CoH 4, Fortitude 4, Dragon 3, Bramble 4), Dusk Shroud 41, Sacred Armor 32 (merc Fortitude/Bramble, eth)"
+  ]
+ },
+ "PK-mage-plate": {
+  "group": "bases",
+  "rule": "Mage Plate (max 3os at every ilvl). KEEP: Superior >=15% ED with 3os or 0os (Larzuk -> 3). Everything else (plain 3os, superior <15ED, eth) is floor.",
+  "item_class": "white Mage Plate",
+  "condition": "Superior AND ED>=15 AND sockets in {0,3}",
+  "action": "keep",
+  "why": "Highest-weight light armor (13 three-socket runewords incl. Enigma, Treachery, Hysteria) but a 4os runeword can never go in it; buyers pay only for the 15ED superior roll.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Mage Plate 3|3|3",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: 3os superior 15ED n=14 0.79->9.3 (q1 5.9); 0os superior 15ED n=13 4.05->9.3; 3os superior <15ED n=5 0.67->0.83; 3os normal n=31 0.2->0.73; eth thin (0os eth n=3 0.83->1.4)",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Mage Plate weight 41, sockets [2,3], mixed eth (merc Treachery eth)"
+  ]
+ },
+ "PK-monarch": {
+  "group": "bases",
+  "rule": "Monarch (max 4os only at ilvl 41+, so Pindle can drop native 4os). KEEP: Superior >=15% ED with 4os or 0os (Larzuk -> 4). A plain 4os Monarch is a self-use Spirit base (floor Pul-Mal asks); 3os Monarch is a dead Spirit base.",
+  "item_class": "white Monarch",
+  "condition": "Superior AND ED>=15 AND sockets in {0,4}; plain 4os only if you need a Spirit",
+  "action": "keep",
+  "why": "Spirit/Phoenix (4os) on 25 character builds, but the plain 4os supply is large; value sits in the superior 15ED roll.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Monarch 3|3|4; Larzuk example 'Any Monarch always receives 4 Sockets'",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: 4os superior 15ED n=4 9.3->17.1; 0os superior 15ED n=14 2.6->11.4; 4os normal 15ED n=3 9.3; 4os normal n=19 0.42->0.79; 3os normal n=5 0.79",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Monarch weight 39, sockets 4 (Spirit, Phoenix)"
+  ]
+ },
+ "PK-pala-shields": {
+  "group": "bases",
+  "rule": "Sacred Targe / Sacred Rondache / Targe: pick up EVERY one and read the all-resist automod. KEEP any Sacred Targe with 40+ all-res regardless of sockets or eth (45@ 4os, 3os, 0os and eth all ask Ber-class); Sacred Rondache only 45@ 4os or superior 15ED; Targe only superior 45@. Below 40 all-res all three are floor.",
+  "item_class": "white paladin shield",
+  "condition": "all-res roll >= 40 (visible after pickup); sockets 0/3/4 all sell",
+  "action": "keep",
+  "why": "The resistance automod, not the socket count, sets the price (Spirit/Exile/Phoenix/Dream all want 45@); sockets can be added later (max 4 at ilvl 86).",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Sacred Targe 3|4|4, Sacred Rondache 3|4|4, Targe 3|4|4",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Sacred Targe 45@ 4os n=26 9.3->22.8 (superior 15ED n=7 57->126); 45@ 0os n=24 4.05->40; 45@ 3os n=12 22.8->45.7; eth 45@ any os n=9 45.7->63; res 40-44 3os n=3 9.3; res<40 floor; Sacred Rondache 4os any res n=34 0.5->2.6, 4os 45@ n=6 2.6->45.7; Targe 0os superior 45@ n=4 4.05->5.9, 3os superior 45@ n=3 2.6->6, below 45@ floor",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Sacred Targe weight 39 (Spirit 4, Phoenix 4, Exile 4, Dream 3, Sanctuary 3); Targe 32 (Rhyme 2, Splendor 2, Ancient's Pledge 3)"
+  ]
+ },
+ "PK-elite-weapons": {
+  "group": "bases",
+  "rule": "Phase Blade / Berserker Axe / Colossus Blade (max 6os at ilvl 86). KEEP: Superior >=15% ED Phase Blade 5os or 6os; Superior >=15% ED Berserker Axe 5os (non-eth) or eth 6os or eth 0os (Larzuk -> 6); Colossus Blade superior 15ED 5os, or eth superior 15ED 0/5/6os. SELL Lo: eth 5os plain Berserker Axe. FLOOR: plain 4/5/6os Phase Blade, plain 5/6os Berserker Axe, plain 5os Colossus Blade, eth 6os plain BA/CB.",
+  "item_class": "white elite weapon (sword/axe)",
+  "condition": "Superior AND ED>=15 with a runeword count (5 Grief/Beast/Death, 6 Last Wish/BotD/Unbending Will); eth only on BA/CB",
+  "action": "keep",
+  "why": "Grief (5) / Last Wish (6) / BotD (6) / Fortitude (4) demand; plain sockets are abundant, the 15ED superior roll is the chase.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Phase Blade 3|4|6, Berserker Axe 4|5|6, Colossus Blade 3|4|6",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Phase Blade 5os superior 15ED n=5 11.4->22.8; 6os superior 15ED n=5 8.6->9.3; 0os superior 15ED n=4 2.6->8.2; 5os normal n=18 0.1->0.67; 6os normal n=17 0.1->0.57; 4os normal n=12 0.2->0.25",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Berserker Axe 5os superior 15ED non-eth n=10 34->45.7; eth 6os superior 15ED n=4 45.7->51; eth 0os superior 15ED n=3 34->45.7; eth 5os normal n=3 5.9; 5os normal n=13 0.79->1.0; 6os normal n=9 0.67->0.9; eth 6os normal n=5 1.0",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Colossus Blade eth 0os superior 15ED n=7 68.5->80; 5os superior 15ED n=11 11.4->40; eth 5os/6os superior 15ED n=3/3 68.5 / 34->45.7; eth 6os normal n=6 1->4.2; 5os normal n=13 0.2->0.79",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Phase Blade weight 37 (Grief 5, Last Wish 6, ...), Berserker Axe 39 (BotD 6, Beast/Death/Doom 5, Fortitude 4), Colossus Blade 6"
+  ]
+ },
+ "PK-merc-polearms": {
+  "group": "bases",
+  "rule": "Merc polearms/spears - ONLY ethereal: Thresher (max 5), Giant Thresher (6), Cryptic Axe (5), Great Poleaxe (6), Colossus Voulge (4), Mancatcher (5), Matriarchal Spear (6). KEEP: eth 4os Superior (any ED) of any of them; eth 4os plain Giant Thresher (Lo-Jah asks); eth 0os Superior 15ED GPA/GT (Ohm-Sur asks); eth 6os Superior 15ED GT/GPA. SELL: eth 4os plain Thresher (Vex-Ohm), Great Poleaxe (Ist-Ohm), Mancatcher (Um-Ist), Cryptic Axe (Mal-Ist), Colossus Voulge (Mal). FLOOR/LEAVE: eth 5os or 6os plain (wrong count for Insight/Infinity/Pride 4), any non-eth polearm, eth 0os plain Thresher-class (cube odds 1/6 for 4os).",
+  "item_class": "white polearm / spear",
+  "condition": "ethereal AND (4os, or 0os Superior on a 4-max base, or Superior 15ED any of 0/4/6os)",
+  "action": "keep",
+  "why": "Insight/Infinity/Pride are 4-socket merc runewords on 25 builds; at ilvl 86 these bases roll up to 5-6 sockets, so a 4os drop is the lucky case and 5/6os drops are worth little; eth is wanted because 'Ethereal gear is preferred since it doesn't lose durability' on mercs.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Thresher 3|4|5, Giant Thresher 3|4|6, Cryptic Axe 3|4|5, Great Poleaxe 3|4|6, Colossus Voulge 3|4|4, Mancatcher 3|4|5, Matriarchal Spear 3|4|6",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Thresher eth 4os superior 15ED n=9 57->68.5, eth 4os normal n=13 2.6->8.1, eth 5os normal n=20 0.17->0.33; Giant Thresher eth 4os superior <15ED n=10 57->86, eth 4os superior 15ED n=8 126->799, eth 4os normal n=20 5.9->11.4, eth 6os superior 15ED n=9 11.4->86, eth 0os superior 15ED n=4 9.3->10.4, eth 6os normal n=16 0.2->1.0",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Cryptic Axe eth 4os superior 15ED n=4 91->108, eth 4os normal n=27 0.79->1.0, eth 5os normal n=16 0.4->0.79; Great Poleaxe eth 4os superior 15ED n=16 80->126, eth 6os superior 15ED n=20 9.3->57, eth 0os superior 15ED n=6 5.9->15, eth 4os normal n=17 1->3.9, eth 5/6os normal n=5/13 0.25->0.79 / 0.2->0.62",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Colossus Voulge eth 4os normal n=37 0.6->0.79, eth 0os superior n=6 0.67->4.05, 4os non-eth n=9 0.2->0.79; Mancatcher eth 4os superior 15ED n=10 34->86, eth 4os normal n=31 0.2->2.0, eth 5os normal n=16 0.13->0.67; Matriarchal Spear not priced by WP-B (WP-A #21)",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Thresher/Giant Thresher/Colossus Voulge weight 40 (25 merc builds), Mancatcher/Matriarchal Spear 27; eth_wanted true"
+  ]
+ },
+ "PK-bows": {
+  "group": "bases",
+  "rule": "Grand Matron Bow / Matriarchal Bow (max 5os at ilvl 86; the +3 Bow skills automod is what sells). KEEP: 4os Superior >=15% ED with +3 skills (either bow), 0os Superior 15ED +3 Matriarchal Bow. SELL Vex-Ohm: 4os plain +3 GMB. FLOOR: 5os or 3os drops (wrong count for Faith/Harmony/Insight 4), +1/+2 rolls.",
+  "item_class": "white Amazon bow",
+  "condition": "+3 bow skills AND sockets==4 AND Superior ED>=15 (or 0os Superior 15ED Matriarchal)",
+  "action": "keep",
+  "why": "Faith/Harmony/Insight (4) and Mist (5) demand; at ilvl 86 the base can roll 5 sockets so 4os+superior+3skill is the rare combination the market pays for.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Grand Matron Bow 3|4|5, Matriarchal Bow 3|4|5",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: GMB 4os superior 15ED +3 n=13 91->114; 5os superior 15ED +3 n=4 17->39; 4os normal +3 n=9 2->4.05; 5os/3os normal +3 n=20/11 floor; Matriarchal Bow 4os superior 15ED +3 n=9 11.4->45.7; 0os superior 15ED +3 n=5 9.3->28.6; 5os normal +3 n=22 0.67->0.79",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Matriarchal Bow weight 40 (Insight 4, Harmony 4, Faith 4, Mist 5, Mania 3), Grand Matron Bow 4"
+  ]
+ },
+ "PK-self-use-bases": {
+  "group": "bases",
+  "rule": "Self-use bases with no resale value - take one only if YOU need the runeword: Flail 5os (CtA) / 4os (HotO), Crystal Sword 4os (Spirit) / 5os (CtA), Diadem/Tiara 0os or 3os (Coven/Dream/Flickering Flame; Larzuk -> 3), Kite Shield 3os, Bone Shield/Preserved Head 2os (Rhyme/Splendor), 3os Greater/Runic Talons (Plague/Mosaic), Mask-class helm 3os (Wisdom). Superior >=15% ED versions with the right count ask Vex-Ohm (Flail 4os n=5 4.05, Crystal Sword 5os n=3 8.2->15.5, Mask 3os n=7 0.79->4.05).",
+  "item_class": "white low-value runeword base",
+  "condition": "you need the runeword yourself, or Superior ED>=15 with the exact count",
+  "action": "sell",
+  "why": "WP-A demand weight is high (Flail/Crystal Sword/Diadem 41) but the white market is floor: supply is huge and these are the cheapest base for their runeword.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Flail 3|4|5, Crystal Sword 3|4|6, Diadem 1|2|3, Tiara 1|2|3, Kite Shield 3|3|3, Bone Shield 2|2|2, Preserved Head 2|2|2, Greater Talons 2|3|3, Runic Talons 2|3|3 (no plain 'Mask' row in the table: Death Mask 2|2|3)",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Flail all white 4/5os n=53 0.08->0.67, 4os superior 15ED n=5 4.05; Crystal Sword 5os normal/superior n=27/15 0.2->0.79 / 0.33->1.0, 5os superior 15ED n=3 8.2->15.5; white Diadem n=2 thin, no white circlet market; Greater/Runic Talons zero clean white listings; Bone Shield 2os superior 15ED n=3 1.4->3.7; Preserved Head no clean white 2os listing; Mask 3os superior 15ED n=7 0.79->4.05, 3os superior <15ED n=4 0.57->0.79",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Flail 41 (CtA 5, HotO 4, Black 3), Crystal Sword 41 (Spirit 4, CtA 5), Diadem 41 (Coven/Dream/Flickering Flame 3, Lore 2), Bone Shield 32, Targe 32, Preserved Head 31, Mask 31, Kite Shield 26"
+  ]
+ },
+ "PK-rotw-daggers-grimoires": {
+  "group": "bases",
+  "rule": "RotW bases. Daggers for Void/Ritual (3os): only Legend Spike / Fanged Knife / Kris can reach 3 sockets at ilvl 86 (Mithril Point, Bone Knife, Dagger, Dirk, Poignard, Rondel max 1 - never). Pick up 3os or 0os (Larzuk -> 3) Legend Spike/Fanged Knife and read the Warlock staff-mods; there is no clean-white dagger market, asks are skill-driven (3os Legend Spike 4.05->17.3, 17 of 37 'offer'). Grimoires: max 2 sockets (Vigilance = 2os, D-tier, no S/A build); no clean white listings, priced by their Warlock automods - keep elite (Blasphemous/Occult/Forgotten Volume) 2os ones only if the staff-mods are +3 to a used tree, else leave.",
+  "item_class": "white RotW dagger / grimoire",
+  "condition": "elite dagger with 3os (or 0os) AND useful Warlock staff-mods; grimoire elite 2os with +3 staff-mods",
+  "action": "sell",
+  "why": "Void = Legend Spike per the Echoing Strike guide (WP-A); the sockets table caps normal-tier daggers at 1; every Traderie dagger/grimoire row carries Warlock skills, so the base alone has no established price (thin, offer-heavy market).",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Legend Spike 2|3|3, Fanged Knife 2|3|3, Kris 2|3|3, Mithril Point 1|1|1, Bone Knife 1|1|1, Dagger/Dirk/Poignard/Rondel 1|1|1; grimoires are NOT in the maxroll socket table",
+   "diablo2.io Grimoire base page (pricing/raw/d2io/base-grimoire.html, fetched 2026-09-18; page ~7 months old per WP-C): Grimoire 'Quality level: 24 ... Max sockets: 2', 'Can be used to make Runewords: Rhyme Splendor Vigilance'",
+   "maxroll New Items in Reign of the Warlock (Last Updated February 19, 2026): 15 grimoire bases (Grimoire/Compendium/Tome/Codex/Old Book; Possessed Grimoire/Possessed Compendium/Dark Tome/Dark Codex/Burnt Text; Blasphemous Grimoire/Blasphemous Compendium/Occult Tome/Occult Codex/Forgotten Volume); 'Void (Daggers, Thul-Zod-Ist), Vigilance (Grimoires/Shields/Voodoo Heads/Auric Shields, Dol-Gul), Ritual (Daggers, Amn-Shael-Ohm)'",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Legend Spike 3os affixed n=37 4.05->17.3 (17 offer), Fanged Knife 3os affixed n=42 0.67->22.8, Mithril Point/Bone Knife no 3os rows; Grimoire 2os normal n=11 0.67->5.9 (6 offer), 2os superior n=4 4.05->9.3, Possessed 2os n=5 1->1, Blasphemous 2os n=2 all offer; 'Zero clean white listings'",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Void -> Legend Spike 3os (Echoing Strike guide Aug 26, 2026), Ritual F-tier, Vigilance 2os D-tier no S/A build; WP-C wp-c.md (2026-09-18): AN-grimoire '0-3 staff mods, +1-3 each' (warlock-overview)"
+  ]
+ },
+ "PK-blue-jeweler": {
+  "group": "blues",
+  "rule": "Identify every BLUE Archon Plate / Dusk Shroud / Wire Fleece / Sacred Armor / Monarch / Sacred Targe / Bloodlord Skull (unidentified blues show only the base name). KEEP any Jeweler's (4 sockets) prefix: Jeweler's Monarch of Deflecting (asks 75->114 Ist), Jeweler's Archon Plate of the Whale 90-100 life (57->343), any other Jeweler's Monarch/Archon (4os magic any affix: min 9.3 / 11.4), Jeweler's Sacred Armor/Dusk Shroud of Stability/Precision (WP-A merc), Jeweler's Sacred Targe of Deflecting (VMI Very High). No Jeweler's prefix -> vendor.",
+  "item_class": "magic elite armor / shield",
+  "condition": "after ID: prefix Jeweler's (4os); suffix of Deflecting / of the Whale / of Stability / of Precision / of the Colossus",
+  "action": "keep",
+  "why": "4os magic armor cannot be shopped (Anya sells magic-only past ilvl 25 but the Jeweler's roll is ~1/470k per armor per WP-C) and Pindle guarantees 2 magic+ drops per kill, so this is the single most valuable blue class a Pindle runner sees.",
+  "evidence": [
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder _blues: Jeweler's Monarch of Deflecting n=17 74.6->114; Jeweler's Archon of the Whale (life 90-100) n=10, 7 priced, 57->343; Monarch 4os magic any affix n=50 9.3->71.5; Archon 4os magic any affix n=29 11.4->91",
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Shields table 'Jeweler's Monarch of Deflecting Very High (often regarded as the most valuable Magic Item in the game)', 'Jeweler's Sacred Targe of Deflecting Very High'; Body Armors table 'Jeweler's Archon Plate of the Whale High', 'Jeweler's Dusk Shroud of Stability Medium'",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Jeweler's Monarch of Deflecting weight 11 (6 builds, 4x Rainbow Facet), Jeweler's Sacred Armor of Stability 6 (merc), Jeweler's Dusk Shroud of Stability/Precision",
+   "maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): 'he always drops 2 items of Magic quality or higher'; WP-C wp-c.md (2026-09-18): AN-armor-whale odds 1/473,600 per shopped armor"
+  ]
+ },
+ "PK-blue-circlet": {
+  "group": "blues",
+  "rule": "Identify EVERY magic or rare Circlet / Coronet / Tiara / Diadem. KEEP: +2 class-skill prefixes (Rose Branded, Priest's, Volcanic, Glacial, Powered, Venomous, Golemlord's, Necromancer's, Witch-hunter's, Hierophant's, Berserker's, Gaean, Keeper's) with 'of the Magus' (20 FCR) - worth it only if Larzuk gives 2 sockets (magic = 1-2 random); Artisan's Tiara of Speed (30 FRW, 3os; asks 11.4->34.3), Artisan's Tiara of Luck / Nirvana / Wealth / Diadem of the Whale; any rare circlet with +2 skills, 20 FCR, 30 FRW, resist or sockets (WP-A 'Rare Diadem' on 9 builds).",
+  "item_class": "magic / rare circlet",
+  "condition": "after ID: +2 class skills, of the Magus, Artisan's (3os) + Speed/Luck/Nirvana/Wealth; rare with 2 of skills/FCR/FRW/res/sockets",
+  "action": "keep",
+  "why": "Circlets are the only helm slot where a magic/rare item beats uniques for many builds; at ilvl 86 a Diadem/Tiara can carry 3 sockets, a Circlet/Coronet 2.",
+  "evidence": [
+   "maxroll Sockets (Last Updated June 16, 2026): Circlet 1|2|2, Coronet 1|2|2, Diadem 1|2|3, Tiara 1|2|3; Larzuk 'Magic Items receive 1-2 Sockets (random). Rare ... 1 Socket'",
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Circlets tables 26-31 ('<class> Circlet of the Magus - Only has high value if it gets 2 Open Sockets'), Tiara/Diadem table 32 ('Artisan's Tiara of Speed Very High', 'of the Magus / Nirvana / Luck / Wealth High', 'Artisan's Diadem of the Whale Medium')",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Tiara magic 30 FRW n=4 11.4->34.3; Diadem 0os rare n=69 1.43->137, 2os rare n=68 45.7->171, 3os magic n=9 22.8->57; Tiara 3os magic n=21 5.9->11.4; Circlet 2os rare n=36 22.8->91; Coronet 0os rare n=108 2.6->68.5 - all magic/rare, no white market",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Rare Diadem weight 16 (9 builds), Rare Circlet 7, Artisan's/Jeweler's Diadem of Speed/Nirvana/Luck, <tree> Diadem of the Magus; WP-C wp-c.md (2026-09-18): AN-circlet-gamble targets"
+  ]
+ },
+ "PK-blue-class-items": {
+  "group": "blues",
+  "rule": "Identify every magic/rare CLASS item: claws (Greater/Runic Talons, Feral Claws), Amazon javelins (Matriarchal/Maiden), Eldritch/other orbs, War Scepters, Barbarian helms (Assault Helmet etc.), Druid pelts (Antlers etc.), Necro heads (Bloodlord Skull, Preserved Head), Warlock daggers and grimoires. KEEP: claws 'Cunning'/'Witch-hunter's' + 'of Quickness' with +3 Lightning Sentry / Wake of Fire / Death Sentry (asks 22.8->114 on 3os); 'Lancer's ... Javelin of Quickness' (+3/+6 Jav, 40 IAS; +2 Amazon skills version asks 57); 'Powered/Volcanic Eldritch Orb of the Magus' (+6 skill, 20 FCR); 'Rose Branded/Priest's War Scepter of the Apprentice'; 'Echoing' anything (+3 Warcries; Echoing Assault Helmet = +6 BO); 'Gaean/Hierophant's Antlers of the Colossus'; 'Venomous/Golemlord's' heads (Preserved Head 2os magic asks 22.8->68.5); 'Arch-Devil's'/+3 Abyss/Chaos/Eldritch daggers & grimoires (RotW, thin market).",
+  "item_class": "magic / rare class-specific item",
+  "condition": "after ID: +2/+3 tree prefix + staff-mod (+3 skill) and the speed/FCR suffix named above",
+  "action": "keep",
+  "why": "Class items carry staff-mods on top of affixes, so a +3 tree +3 skill roll is the BiS pre-Ladder item for several S/A builds (LS Assassin, LF Amazon, Blizzard Sorc pre-buff, Hammerdin, GF Barb, Fissure Druid, PN Necro, Warlocks).",
+  "evidence": [
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): tables 33-39 (Class Specific Helmets: 'Echoing Assault Helmet Very High'; Pelts: 'Gaean Antlers of the Colossus Very High'; Orbs: 'Powered Eldritch Orb of the Magus Very High'; Claws: 'Cunning Greater Talons of Quickness Very High'; Javelins: 'Lancer's Maiden Javelin of Quickness Very High'; Scepters: 'Rose Branded War Scepter of the Apprentice Very High'; 'Echoing Weapon (+3 to War Cry) ... solid to high'); table 42 'Venomous/Golemlord's Bloodlord Skull of Deflecting Very High'",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Greater Talons 3os staff-mod claws n=21 22.8->114, Runic Talons n=29 4.05->114; Matriarchal Javelin +3 Jav/40 IAS magic n=13 (0.4 outlier, 4.05 with +1 Ama, 57 with +2 Ama); Preserved Head 2os magic n=12 22.8->68.5; Legend Spike/Fanged Knife/grimoires all staff-modded, offer-heavy",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Cunning Greater Talons of Quickness (3 builds), Lancer's Matriarchal Javelin of Quickness (3), Powered Eldritch Orb of the Magus, Gaean Antlers of the Colossus, Venomous Demon Head, Echoing Balanced Knife, Rare Kris, Arch-Devil's Kris of Lower Resistance, Berserker's Diadem of the Magus",
+   "WP-C wp-c.md (2026-09-18): AN-claw-traps / AN-jav-6 / AN-stick-warcry / AN-dagger-warlock affix targets and the clvl brackets; pricing/plan.html §1.2 diablo2.io NL price guide revised 2026-08-28 (orientation only): '+3 Jav/40 IAS Matriarchal: offer'"
+  ]
+ },
+ "PK-blue-jewelry-gloves": {
+  "group": "blues",
+  "rule": "Identify every RARE ring, amulet, gloves, boots, belt (yellow on the ground) and every MAGIC ring/amulet. KEEP rares with 2+ of: +skills/FCR/res/life/MF (rings, WP-A 23 builds), FRW/res/FHR (boots, 17 builds), IAS+skills (gloves: +2-3 Jav/20 IAS rare gloves ask 8->137), FHR/res/life (belts). KEEP magic: 'Fortuitous Ring of Fortune' (31-40 MF, 9 builds), '<class> Amulet of the Whale/Apprentice/Luck', 'Amulet of Teleportation', 'Lancer's/Archer's/Kenshi's Gloves of Alacrity', 'Ruby/Sapphire Boots of Acceleration', 'Garnet/Coral Belt of the Squid'. Magic items with only one plain affix -> vendor.",
+  "item_class": "rare / magic jewelry, gloves, boots, belt",
+  "condition": "rare: 2+ of the listed mods after ID; magic: the named prefix+suffix pairs",
+  "action": "keep",
+  "why": "Rings/amulets/boots are the slots where rares are BiS-adjacent on almost every S/A build; gloves/belts/boots are not socketable so their value is affixes only.",
+  "evidence": [
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Rare Ring weight 37 (23 builds), Rare Boots 29, Rare Gloves 16, Rare Belt 12, Rare Amulet 6, Fortuitous Ring of Fortune 16, Lancer's Chain Gloves of Alacrity, Cobalt/Coral Gloves of Alacrity, Garnet/Coral Belt of the Squid, Ruby/Sapphire Boots of Acceleration, Amulet of Teleportation; desirable_stats_from_guides per build",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder _blues: rare gloves +2 Jav/20 IAS per base n=21-30, min 8-27, median 51-137 (no +3 Jav seen)",
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Rings table 25 ('Fortuitous Ring of Fortune High ... perfect 40% Very High'), Amulets tables 18-24 ('<class> Amulet of the Whale/Apprentice/Luck', 'Fortuitous Amulet of Luck High'), Gloves table 44 ('Lancer's Sharkskin Gloves of Alacrity High', Archer's/Kenshi's of Alacrity Medium)",
+   "maxroll Sockets (Last Updated June 16, 2026): Gear Slot table - Amulet, Ring, Belt, Glove, Boots not socketable; pricing/plan.html §1.2 diablo2.io NL price guide revised 2026-08-28 (orientation only): '+3 Jav/20 IAS gloves Ist-Vex'"
+  ]
+ },
+ "PK-unique-set": {
+  "group": "blues",
+  "rule": "Pick up every unique (gold) and set (green) item; Pindle's pack can drop every unique except Azurewrath, Tyrael's Might and Arachnid Mesh. Value per WP-I / maxroll valuable unique & set items (out of scope here).",
+  "item_class": "unique / set item",
+  "condition": "always",
+  "action": "keep",
+  "why": "TC 87 / mlvl 86 gives access to 'almost every item in the game'; the guide lists Jalal's, HoZ, Eschuta's, IK Soul Cage, Tal armor, Mara's, Shako, Highlord's, Guillaume's, Andariel's, Dracul's, Verdungo's, Griffon's, Stormshield, Reaper's Toll as Hell examples.",
+  "evidence": [
+   "maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): 'There are ONLY 3 items that Pindleskin's pack CANNOT drop due to their mlvl being 86: Azurewrath, Tyrael's Might, Arachnid Mesh'; Hell example lists",
+   "maxroll Gold Find & Magic Find (Last Updated February 11, 2026): 'Failed Set' drops as Magic with doubled durability, 'Failed Unique' as Rare with tripled durability (a rare elite with 3x durability is a failed unique, not a special item)"
+  ]
+ },
+ "PK-charm-grand": {
+  "group": "charms-jewels",
+  "rule": "Pick up and identify EVERY Grand Charm. KEEP: any '+1 to <tree> Skills' skiller (prefixes Lion Branded, Sparking, Chilling, Burning, Sounding, Harpoonist's, Fungal, Graverobber's, Entrapping, Shogukusha's, Natural, Spiritual, and the Warlock trees) - with 'of Vita/Sustenance/Balance/Inertia' it is High/Very High; 'Sharp ... of Vita' (8-10 max dmg + life), 'Shimmering GC of Vita' (13-15@ + life). Rank by WP-A demand: Paladin Combat, Sorc Lightning/Cold/Fire, Traps, Jav, P&B, Warcries, Warlock Chaos/Eldritch. Pindle GCs cannot roll 41-45 life (that pool needs alvl 88+ TZ, Baal, Nihlathak or Diablo).",
+  "item_class": "grand charm",
+  "condition": "after ID: +1 tree skills, or Sharp/Shimmering with of Vita",
+  "action": "keep",
+  "why": "Skillers are the most tradable magic item class; the tree decides the price (WP-A tree demand; diablo2.io sold skillers incl. Warlock trees).",
+  "evidence": [
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Skill Grand Charms tables 0-6 (e.g. 'Sparking Grand Charm of Vita Very High', 'Lion Branded ... the best + to Skill Grand Charm for Paladins', 'Shogukusha's ... easy to trade'); '41-45 Life on a Grand Charm can only be found or Re-rolled from Area Lvl 88+ Terror Zones (Elites only), Area Lvl 91+ Terror Zones (all monsters), Baal, Nihlathak, or Diablo'; Melee table 7 'Sharp Grand Charm of Vita Very High'; table 8 'Shimmering Grand Charm of Vita Very High'",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): class-prefix GCs named in gear tables (Sparking, Fungal, Harpoonist's, Natural, Entrapping, Sharp, Steel with of Vita/Balance/Inertia); Grand Charm base weight 27",
+   "pricing/plan.html Review log (2026-09-18): diablo2.io 'charm charm=3 skiller=1 activesold=1' -> 4 skillers sold in 3 days, two Warlock trees ('+1 to Chaos Skills', '+1 to Eldritch Skills +32 Life ... LF 3 Jah'); Traderie Grand Charm sample asks '2x Jah' (Warcries + life); pricing/plan.html §1.2 diablo2.io NL price guide revised 2026-08-28 (orientation only): skillers Pala Combat Ist, Sorc Light Ist-Gul, Fire/Cold Um-Ist, Jav Pul-Um, P&B Mal, Traps Pul-Um",
+   "maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): 'he always drops 2 items of Magic quality or higher'"
+  ]
+ },
+ "PK-charm-small-large": {
+  "group": "charms-jewels",
+  "rule": "Pick up and identify EVERY Small Charm. KEEP: 'Shimmering' (4-5 all-res) / 'Fine' (3 max dmg) / 'Resistance' (8-11 single res) with 'of Vita' (16-20 life), 'of Good Luck' (6-7 MF), 'of Balance', 'of Inertia', 'of Sustenance'; plain 'Small Charm of Vita' / 'of Good Luck' (5@ alone asks 1 Jah on Traderie). Large Charms: only 'Sharp/Shimmering Large Charm of Vita' - otherwise vendor.",
+  "item_class": "small / large charm",
+  "condition": "after ID: SC with a Shimmering/Fine/Resistance prefix and/or a Vita/Good Luck/Balance/Inertia suffix; LC only Sharp/Shimmering of Vita",
+  "action": "keep",
+  "why": "Small charms are the highest value-per-inventory-slot item Pindle drops; 7 S/A builds name Shimmering/Resistance/Fine SC of Vita/Good Luck.",
+  "evidence": [
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Small Charms tables 9-14 ('Shimmering Small Charm of Good Luck Very High', 'Shimmering Small Charm of Vita Very High', 'Fine Small Charm of Vita Very High', 'Resistance Small Charm of Vita High', 'Small Charm of Good Luck Medium'); Large Charms table 15 ('Sharp Large Charm of Vita High', 'Shimmering Large Charm of Vita High')",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): Shimmering Small Charm of Vita weight 13, Resistance/Shimmering/Fine SC of Good Luck/Vita 11 each",
+   "pricing/plan.html appendix Traderie sample (2026-09-18): Small Charm page 0 - 15 life, 12 MF, 9 all-res; '1x Jah' for 5@ alone (ask)"
+  ]
+ },
+ "PK-jewel": {
+  "group": "charms-jewels",
+  "rule": "Pick up and identify EVERY Jewel (magic, rare and unique). KEEP: 'Ruby' (30-40% ED) with 'of Fervor' (15 IAS) Very High; 'Scintillating' (10-15 all-res) of Fervor Very High; Ruby of Carnage/Bliss (ED + flat dmg, weapons only); any 15 IAS or 12-15@ jewel; ED+life 'of Hope'; rare jewels with ED/IAS/res; unique Rainbow Facets always. Single low affix (e.g. 9% ED alone, +res 5) -> vendor.",
+  "item_class": "jewel",
+  "condition": "after ID: ED>=30, IAS 15, all-res>=10, or two of ED/IAS/res/life/max dmg; any unique jewel",
+  "action": "keep",
+  "why": "Jewels go into the sockets of every 15ED/4os base above; asks run from Ohm for 35ED/15IAS to Jah-multiples for rares, and 'Ist ~ 40 ED' / '15 IAS Pul' / '15@ Pul-Um' orientation bands exist.",
+  "evidence": [
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): Damage Jewels table 16 ('Ruby Jewel of Fervor Very High 30-40% ED', 'Ruby Jewel of Carnage/Bliss ... Only good in Weapons due to a bug involving both Flat Damage and Enhanced Damage'), Resistance Jewels table 17 ('Scintillating Jewel of Fervor Very High', 'Scintillating Jewel of Hope/Daring High')",
+   "pricing/plan.html appendix Traderie Jewel sample (2026-09-18): 50 listings - 16 ED%, 15 IAS, 7 all-res; asks '1x Ohm' (35 ED/15 IAS) to '40x Jah' (rare 27 ED/53 AR/8@/8 dex); Review log diablo2.io: 53 active magic jewels ('Ruby Jewel 38 ED LF Um or 10 pgems', 'Ruby Jewel of Hope 34 ED/20 life LF 1 Mal'), sold 'Shimmering Jewel of Virility 6 str/10@ -> 20 Perfect Gems'",
+   "pricing/plan.html §1.2 diablo2.io NL price guide revised 2026-08-28 (orientation only): magic jewels 40ED Ist, 15IAS Pul, 15@ Pul-Um, 40/15 Ber-range; Rainbow Facet by element",
+   "maxroll Base Items (Last Updated May 12, 2024, pre-RotW; quality rules only): 'Jewels, which spawn with 3-4 Affixes' (rare)"
+  ]
+ },
+ "PK-runes": {
+  "group": "runes-gems",
+  "rule": "Pick up EVERY rune. Pul and up is currency at the WP-F ladder (Pul .57 Um .67 Mal .79 Ist 1 Gul 1.43 Vex 2.59 Ohm 4.05 Lo 5.89 Sur 8.23 Ber 9.32 Jah 11.4 Zod 13.7 Ist); Lem-Gul are 'mid runes' for small trades; El-Fal have 'close to no value' singly but trade in bulk (Spirit sets Tal/Thul/Ort/Amn/Hel, Ral for caster crafts, '40x Hel/Sol') and cube upward 3:1. Magic Find does not change rune drops.",
+  "item_class": "rune",
+  "condition": "always",
+  "action": "keep",
+  "why": "Runes are the market's money: divisible, fungible (fixed cube exchange rates) and demanded by runewords; Pindle's 'always 2 magic+' rule explicitly excepts runes and gems.",
+  "evidence": [
+   "WP-F wp-f.md / wp-f-ladder.json (2026-09-18): ladder table (n asks per rune, 2026-09-18); 'Why runes are the money' (cube rates '2x Ist + Sapphire = Gul ...'); 'Bulk junk runes trade too: 40x Hel / 40x Sol = High (maxroll Rune Value), 8x Hel rune for a Captain's GC (diablo2.io sold row)'",
+   "maxroll Runes (Last Updated February 10, 2026): 'Most Low Runes have close to no value, however, some Runes in this range (El Rune - Fal Rune) are frequently used for Runewords or Crafting ... Spirit sets: Tal Rune + Thul Rune + Ort Rune + Amn Rune + Hel Rune ... Runes from Lem Rune - Gul Rune are considered Mid Runes ... Vex Rune - Zod Rune are considered High Runes'",
+   "maxroll Gold Find & Magic Find (Last Updated February 11, 2026): 'Magic Find has no effect on Rune drops'; maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): '(Unless they drop a Rune or Gem)'"
+  ]
+ },
+ "PK-gems": {
+  "group": "runes-gems",
+  "rule": "Pick up Perfect and Flawless gems (cube 3 Flawless -> 1 Perfect); Perfect Amethyst/Ruby/Sapphire/Topaz/Skull are the small change of the market (Ist ~ 40 PGems, ~12 PAmethyst; '1 Ber = 100 pskull' WTB) and the cost of GC rerolls, socket recipes and crafts. Leave Chipped/Flawed/normal gems unless inventory is empty (judgment).",
+  "item_class": "gem",
+  "condition": "Perfect or Flawless; lower grades leave",
+  "action": "keep",
+  "why": "Gems have 'a decent value in trading' because crafting and the GC reroll recipe consume them; every socket/craft recipe on the sockets page costs a perfect gem.",
+  "evidence": [
+   "maxroll Gems (Last Updated February 10, 2026): 'Due to crafting and the Horadric Cube recipe to reroll Magic Items (frequently used for Grand Charms) they have a decent value in trading'; 3 same-quality gems -> next quality",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder _meta: 'PGem 1/40 Ist and PAmethyst 1/12 Ist from the guide line Ist ~40 PGems or ~12 PAmethyst'; WP-F wp-f.md / wp-f-ladder.json (2026-09-18): observed bid '1 Ber = 100 pskull' (diablo2.io WTB), 'LF Um or 10 pgems OBO'",
+   "maxroll Sockets (Last Updated June 16, 2026): socket recipes need Perfect Topaz / Amethyst / Sapphire / Ruby; rare-socket recipe 3x Perfect Skull + SoJ",
+   "maxroll Pindleskin Farming Guide (Last Updated February 10, 2026): runes and gems are the exception to the 2-magic+ rule"
+  ]
+ },
+ "PK-leave-white": {
+  "group": "leave",
+  "rule": "LEAVE these white items: (1) anything Cracked/Crude/Damaged/Low Quality (75% reduced stats, never eth, never socketed on drop); (2) any base not on the WP-A list (normal/exceptional armors and weapons, Ancient Armor, Gothic Plate ... - Pindle can drop them but no S/A runeword wants them); (3) socketed bases with the wrong count (1-2os elite armor, 3os Monarch, 5/6os eth Thresher-class, 4os Crystal Sword/Flail unless self-use); (4) plain, non-eth, non-superior 4os Archon/Dusk/Monarch, 5/6os Phase Blade/Berserker Axe, 5os Crystal Sword/Flail, non-eth polearms - floor asks of Pul-Ist, only worth a slot on an empty inventory; (5) white gloves/boots/belts/rings/amulets (not socketable) and plain white claws (no market without staff-mods).",
+  "item_class": "white item",
+  "condition": "low quality, off-list base, wrong socket count, plain floor base, unsocketable slot",
+  "action": "leave",
+  "why": "The cube cannot re-socket a socketed base and Larzuk gives the ilvl-86 max, so a wrong count is final; floor buckets have n=10-53 asks at 0.08-1.0 Ist and are not worth a portal.",
+  "evidence": [
+   "maxroll Base Items (Last Updated May 12, 2024, pre-RotW; quality rules only): Low Quality 'Labels: Cracked, Crude, Damaged, Low Quality ... 75% reduced Defense ... Can't be Ethereal. Don't drop with Sockets'",
+   "maxroll Sockets (Last Updated June 16, 2026): cube socket recipes require an 'unsocketed' base; Gear Slot table Belt/Glove/Boots/Ring/Amulet not socketable",
+   "WP-B wp-b-prices.json, Traderie asks SC/NL/PC/RotW pulled 2026-09-18, Ist via WP-F ladder: Archon 4os normal n=23 0.08->1.0; Dusk 4os normal n=10 0.57->0.79; Monarch 4os normal n=19 0.42->0.79; Phase Blade 5os/6os normal n=18/17 0.1->0.67 / 0.1->0.57; Berserker Axe 5os normal n=13 0.79->1.0; Flail n=53 0.08->0.67; Crystal Sword 5os normal n=27 0.2->0.79; Thresher eth 5os n=20 0.17->0.33; Colossus Voulge 4os non-eth n=9 0.2->0.79; Greater/Runic Talons 'zero clean white listings'",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): 62 bases carry weight; bases 21-62 (Kite Shield, Stealth armors, Archon Staff, Hunter's Bow ...) are low-weight and unpriced by WP-B",
+   "maxroll Gold Find & Magic Find (Last Updated February 11, 2026): 'Magic Find has no impact on the item tier'"
+  ]
+ },
+ "PK-leave-blue-misc": {
+  "group": "leave",
+  "rule": "LEAVE / vendor these: magic (blue) body armor, helms, shields and weapons that are not a class item, not a circlet and not a Jeweler's elite armor/Monarch/Sacred Targe (maxroll's magic-value list names no other armor/weapon class); blue Large Charms other than Sharp/Shimmering of Vita; jewels/charms/rings with a single low affix after ID; potions, arrows/bolts, scrolls, keys of the towns, and gold piles (gold only if you gamble - GF is a separate build).",
+  "item_class": "magic item / consumable / gold",
+  "condition": "not covered by any keep rule above",
+  "action": "leave",
+  "why": "Only the Jeweler's / Artisan's / class-prefix patterns appear in the valuable-magic-items categories and in WP-A's blue list; everything else blue is vendor food, and MF gear has diminishing returns so speed beats pickups.",
+  "evidence": [
+   "maxroll Valuable Magic Items (Last Updated March 6, 2024, pre-RotW; categories only): categories are Charms, Jewels, Jewelry, Circlets, Class Specific Helmets, Class Specific Weapons, Shields (Jeweler's Monarch / Sacred Targe / Bloodlord Skull), Body Armors (Jeweler's/Artisan's elite), Gloves - no generic magic weapon/armor category",
+   "WP-A wp-a-bases.json / wp-a-blues.json (2026-09-18): wp-a-blues.json 169 patterns - all are charms, jewelry, circlets, class items, Jeweler's armors/Monarch, gloves/boots/belts, teleport/LR charge items; no generic magic armor or weapon",
+   "maxroll Gold Find & Magic Find (Last Updated February 11, 2026): Gold Find 'only increases the value of the Gold pile'; MF/GF 'undergo diminishing returns'; GF Barb guide (May 22, 2026) is the gambling build"
+  ]
+ }
+}

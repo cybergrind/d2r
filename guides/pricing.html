@@ -1,0 +1,302 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>How to price a D2R item — the method (RotW, SC/NL/PC)</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+.key{font:600 .8rem/1.6 ui-monospace,monospace;white-space:nowrap}
+</style>
+<main>
+<h1>How to price a D2R item — the method</h1>
+<p class="sub">Written 2026-09-18 for a Softcore / Non-Ladder / PC / Reign of the Warlock player farming Pindleskin, Hell cows and the Anya shop. This page is the <b>procedure</b>: how to go from a tooltip on the ground to “vendor”, “sell for X” or “keep”. The numbers it leans on live in the <a href="pricing-primer.html">pricing primer</a> (what is worth what, Traderie asks and diablo2.io fills pulled 2026-09-18); the pickup rules in the <a href="pindle-anya.html#s3">farm guide §3</a>; the build's own needs in <a href="warlock.html">the Warlock page</a>.</p>
+
+<div class="tldr">
+<b>TL;DR — the five questions, in order.</b>
+<ol style="margin:.4rem 0 0 1.1rem">
+<li><b>Who pays for this?</b> Value comes from two places only: a runeword recipe that accepts the base, or an S/A-tier build that names the item or affix. If neither exists, stop: vendor.</li>
+<li><b>Does it pass the gate?</b> Every priced item has one or two binary gates: exact socket count, ≥15 % Enhanced Defense/Damage for “Superior”, 45 all-res on a Paladin shield, +2 class skills on a circlet/amulet, 5/5 on a facet, +life on a skiller, 3 sockets on a Void dagger. Fail the gate = floor or vendor, whatever the rest says.</li>
+<li><b>How good is the roll?</b> Past the gate, the roll multiplies price 3–10×: 15 ED vs plain, 45@ vs 40@, +45 life vs +30, 20 FCR vs 10.</li>
+<li><b>What do people <i>ask</i>, and what does it <i>fill</i> for?</b> Read Traderie asks one vote per seller, take the min → median of the matching bucket; expect common rolls to fill near the median and chase rolls at 32–63 % of the ask.</li>
+<li><b>Sell, keep or vendor?</b> Sell ≥ 0.8 Ist (a Mal) singly, 0.2–0.8 only in bulk, below 0.2 vendor; keep currency and anything your build wears.</li>
+</ol>
+</div>
+
+<h2 id="s1">1 · Step 0 — what the question really is</h2>
+<p>“Is this worth anything?” means “is there a buyer with runes for exactly this item?”. D2R has no auction house; price is what a specific buyer pays for a specific need. Three facts follow, and they explain almost every verdict on this page:</p>
+<ul>
+<li><b>Runewords set base demand.</b> A white Archon Plate is worth something because Enigma / CoH / Fortitude want a 4-socket elite light armor. A white Gothic Plate is worth nothing because no S/A runeword names it. The runeword also fixes the <i>exact</i> socket count — a 3os Monarch is dead, a 4os is Spirit.</li>
+<li><b>Builds set affix demand.</b> A Warlock caster amulet sells because three Warlock guides are S tier this season; a +3 Javelin skills white javelin does not because Lightning Fury wants +2 Amazon on top. Demand shifts with the tier list: <a href="pricing-primer.html#app-builds">primer appendix B</a> lists the 26 builds and their key items.</li>
+<li><b>Runes are money.</b> Everything is quoted in runes; this guide converts to <b>Ist = 1</b> (§4). A rune never rolls badly, so it never loses value — which is why the currency runes (Pul and up) are always “keep”.</li>
+</ul>
+
+<h2 id="s2">2 · Step 1 — triage by colour (item on the ground or in the tooltip)</h2>
+<p>The colour tells you which branch to read. Each branch ends in a verdict or in a pointer to the primer section with the numbers.</p>
+
+<h3 id="s2-gray">Gray or white (normal / superior / ethereal / socketed base)</h3>
+<ol>
+<li><b>Is the base class on the runeword list?</b> Elite armor Archon / Dusk / Wire Fleece / Sacred Armor; Mage Plate; Monarch; Sacred Targe / Rondache / Targe; Phase Blade / Berserker Axe / Colossus Blade; the merc polearms and spears (Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Mancatcher, Matriarchal Spear); Grand Matron / Matriarchal Bow; Crystal Sword / Flail; Diadem / Tiara; Kite Shield, Bone Shield, Preserved Head; Legend Spike / Fanged Knife / Kris (Void). <span class="bad">Not on it → vendor.</span> Normal- and exceptional-tier generic bases are never on it.</li>
+<li><b>Socket count = the runeword's exact count?</b> Yes → continue. <b>0os</b> → continue only where Larzuk's maximum at the drop's ilvl equals the runeword count (Monarch, Archon, Dusk, Sacred Armor, Sacred Targe, Rondache, Targe, Colossus Voulge → 4; Mage Plate, Kite, Talons, Legend Spike / Fanged Knife / Kris → 3; Bone Shield, Preserved Head → 2); never Larzuk a 0os Giant Thresher / Berserker Axe / Phase Blade for a 4- or 5-socket word — it gets 6. <b>Wrong count</b> (3os Monarch, 5os eth polearm, 1–2os elite armor) → <span class="bad">floor, nothing fixes it</span>.</li>
+<li><b>Read the roll.</b> Superior: only ≥15 % ED counts as “Superior” in a price (5–14 % = plain). Ethereal: worth it on merc bases (polearms, Sacred Armor, merc Archon/Dusk), a discount on self-use bases (Spirit, Enigma). Automods: 45@ on Paladin shields (40–44 still sells, &lt;40 floor), +3 Bow skills on Amazon bows, Warlock staff-mods on daggers (§7).</li>
+<li><b>Band</b> → <a href="pricing-primer.html#s2">primer §2</a>. Orientation: eth 4os Giant Thresher 5.9 → 11.4 · sup 15ED 0os Archon 11.4 → 22.8 · 45@ Sacred Targe 0os 4 → 40 · plain 4os Monarch / Archon 0.1 → 1 (Low; Larzuk makes every Monarch 4os).</li>
+</ol>
+
+<h3 id="s2-blue">Blue (magic)</h3>
+<p>Only pattern items are priced; a blue is worth what its two affixes are worth <i>together</i>. Identify it, then check the pattern list; no pattern → <span class="bad">vendor</span>, whatever the base.</p>
+<div class="tblwrap"><table>
+<tr><th>Blue item</th><th>The pattern that is worth money</th><th>One affix alone</th><th>Band</th></tr>
+<tr><td>Elite armor / Monarch / Sacred Targe / Bloodlord Skull</td><td><b>Jeweler's</b> (4os) + of Deflecting (Monarch), of the Whale 90–100 (Archon, merc), of Stability / Precision (merc)</td><td>Jeweler's with a dud suffix = 4os-magic bucket minimum; no Jeweler's = vendor</td><td>Monarch of Deflecting 74.6 → 114 · <a href="pricing-primer.html#s3-3">§3.3</a></td></tr>
+<tr><td>Circlet / Coronet / Tiara / Diadem</td><td>+2 class skills prefix + <b>of the Magus</b> (20 FCR); Artisan's (3os) Tiara of Speed / Luck; “of the Whale”</td><td>+2 skills without FCR 1 → 34; white circlet 0 listings</td><td>+2/20 2os rare 34 → 143 · §3.3</td></tr>
+<tr><td>Ring / Amulet</td><td>&lt;class&gt; Amulet of the Whale / Apprentice / Luck; Amulet of Teleportation <b>only with</b> +2 class skills; Fortuitous Ring of Fortune 31–40 MF</td><td>teleport charges alone, +2 skills alone = vendor / Pul</td><td>§3.3</td></tr>
+<tr><td>Class items (claws, orbs, war scepters, Barb helms, pelts, Necro heads, Warlock daggers / grimoires, Amazon javelins)</td><td>staff-mod + the slot's second affix: Cunning / Witch-hunter's claws of Quickness + LS/WoF/DS; Eldritch Orb of the Magus; War Scepter of the Apprentice; Echoing Barb helm; Preserved Head 2os +Necro; +3 Jav / 40 IAS javelin only with +2 Amazon</td><td>a single +1/+3 staff-mod with a dud second affix = vendor (the +1 Abyss Dirk, the +1 Assassin Talons)</td><td>claws 22.8 → 114 · heads 22.8 → 68.5 · §3.3</td></tr>
+<tr><td>Gloves (any base)</td><td>Lancer's / Archer's / Kenshi's (+3 Jav / Bow / MA) <b>of Alacrity</b> (20 IAS); named by five S/A builds, also an Anya shop target</td><td>+3 skills without IAS, or IAS alone = vendor</td><td>asks Lo … Jah (Heavy Bracers +3 MA / 20 IAS 1 Jah) · <a href="pindle-anya.html#s4">farm guide §4</a></td></tr>
+<tr><td>Jewel</td><td>two of: ED ≥20 · 15 IAS · all-res ≥8 · max dmg ≥10 (Ruby of Fervor, Scintillating of Fervor, Ruby of Carnage)</td><td>one → Pul–Ist; none → gems</td><td>Ruby of Fervor 8.2 → 28.6 · <a href="pricing-primer.html#s3-2">§3.2</a></td></tr>
+<tr><td>Grand Charm</td><td>+1 tree (a demanded tree) with <b>+life</b>; Sharp / Shimmering GC of Vita</td><td>plain skiller Ist–Gul; dead tree Pul</td><td>fat Pala Combat 11.4 → 45.7 · <a href="pricing-primer.html#s4-1">§4.1</a></td></tr>
+<tr><td>Small Charm</td><td>life ≥16 + @ ≥4 (Shimmering of Vita); 7 MF + res; 3/20/20</td><td>plain 7 MF or +20 life Um–Mal</td><td>realistic Ohm–Lo · §4.2</td></tr>
+<tr><td>Craft bases</td><td>magic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet, Leather / Demonhide Gloves / Bramble Mitts from Hell (ilvl ≥ 71 after the craft) — keep for the cube, not for sale</td><td>—</td><td><a href="warlock.html#s3">Warlock §3</a></td></tr>
+<tr><td>Anything else blue (generic armor / weapon / helm / shield, Large Charm without Vita)</td><td>—</td><td>—</td><td class="bad">vendor</td></tr>
+</table></div>
+
+<h3 id="s2-yellow">Yellow (rare)</h3>
+<p>A rare is a lottery of 4–6 affixes; it is worth something only when the slot's <b>must-affixes</b> all landed and one wrong roll did not eat a slot. Check three things before reading affixes:</p>
+<ul>
+<li><b>Durability 3× the base?</b> A “failed unique” (the unique was already found this game, or cannot spawn here) — it is an ordinary rare with extra durability, nothing more.</li>
+<li><b>Base tier.</b> Rare generic armor / weapons of normal or exceptional tier have no market at all (a rare Razor Bow with 138 ED / 20 IAS / 2os — vendor). Rare <i>elites</i> of generic type sell only with two or more good rolls on a runeword-grade base (Archon, Monarch, Phase Blade…).</li>
+<li><b>Slot.</b> Rings, amulets, gloves, boots, belts, circlets and class items are the slots where rares compete with uniques — read them against the table.</li>
+</ul>
+<div class="tblwrap"><table class="vs">
+<tr><th>Slot</th><th>Must-affixes (all of them)</th><th>Then two of</th><th>Band when it all lands</th></tr>
+<tr><td>Amulet (caster)</td><td>+2 class skills · 10 FCR</td><td>res ≥15 · life ≥40 · teleport charges · str/dex</td><td>Ist … Jah (+2 Warlock / 10 FCR / 13@ / 31 life / tele = “~Ist”; +2 Sorc / 10 FCR / poison res = Ohm–Lo) · <a href="pricing-primer.html#s6-1">§6.1</a></td></tr>
+<tr><td>Ring (caster)</td><td>10 FCR</td><td>res ≥10 · life · mana · str/dex</td><td>Ist–Vex</td></tr>
+<tr><td>Ring (melee)</td><td>AR ≥100 · life leech ≥5</td><td>all-res ≥10 · life ≥30 · 10+ str/dex</td><td>Ohm … 2 Jah (a 4–4.5 “point” ring = Ohm–Lo; 5–5.5 points = Jah–2 Jah)</td></tr>
+<tr><td>Circlet</td><td>+2 class skills · 20 FCR</td><td>FRW · IAS · sockets · res · life · str/dex</td><td>Diadem 2os 45.7 → 171; “energy instead of something else” = Charsi</td></tr>
+<tr><td>Gloves</td><td>+2 Jav or Bow or MA skills · 20 IAS</td><td>str/dex · life · res</td><td>+2 Jav / 20 IAS 8 → 137</td></tr>
+<tr><td>Boots</td><td>30 FRW</td><td>two res ≥25 · life · FHR · dex</td><td>only priced by build demand (17 builds name “Rare Boots”); no thread priced one — list as offer</td></tr>
+<tr><td>Belt</td><td>24 FHR · life ≥40</td><td>res · str</td><td>same — offer</td></tr>
+<tr><td>Amazon spear (Ceremonial Pike, Matriarchal Spear / Pike)</td><td>ED ≥200 · +2 Amazon or +3 Jav &amp; Spear · 40 IAS · 2os (rares get one Larzuk socket at most, so 2os must drop)</td><td>life leech · +max dmg per level · str/dex</td><td>no thread and no S/A build prices one — list as offer; missing any gate = vendor (a 2 Jav / 40 IAS / LL / 0os pike is a stat stick)</td></tr>
+<tr><td>Warlock dagger (Bone Knife, Mithril Point, the Blade–Legend Spike line)</td><td>+2 Warlock skills, or +3 Echoing Strike / key skill staff-mod, or eth + 30–40 IAS + leech</td><td>+max dmg · life · res · a socket</td><td>Traderie rare buckets (2026-09-18): eth rare Mithril Point median 171 Ist, +2 Warlock non-eth 1 Jah, +3 Echoing Strike 1 Ist — asks, no fills; show and ID, price as offer</td></tr>
+<tr><td>Amazon javelin (Matriarchal; Ceremonial borderline)</td><td>+2 Amazon · +2–5 Javelin skills · 30–40 IAS</td><td>replenish quantity · ED · leech</td><td>asks 1 Ist … 685, medians 91–228 (Traderie, unverified by fills); the magic +2 Ama / +3 Jav / 40 IAS version asks 57</td></tr>
+<tr><td>Class item with staff-mods (Barb helm, pelt, Necro head, orb, elite Paladin shield)</td><td>+2 class skills · the key +3 staff-mod (Battle Orders, a Druid tree, a Necro tree, 20 FCR on an orb, all-res / FBR on a Sacred Targe)</td><td>FHR · res · life · sockets</td><td>Necro heads are priced (Preserved Head feed, 2026-09-18): +2 Necro + +3 Poison Nova / Bone Spear with FBR or block sells 20–55 Jah asks, 2os multiplies it; a lone +3 to a filler skill (Attract, Teeth, Revive) with resists is vendor. Barb helms (Destroyer Helm pull, 2026-09-19, 136 SC/NL/PC asks): the market is <b>+3 Battle Orders</b> — white +3 BO asks 1 Ist, magic +3 BO / +3 Warcries 5 Jah, 2os magic 6–10 Jah, rare +2 Barb / +3 BO 3–50 Jah. <b>+2 BO is the floor</b>: 2 of 136 listings, one 1-Vex ask, next to no buyers while 17 white +3 BO helms sit on the board. Pelts / orbs unpriced in the repo — the farm guide says ID every one; Sacred Targe / Rondache rares ask 5–20 Jah (walls)</td></tr>
+<tr><td>Grimoire</td><td>+2 Warlock skills</td><td>all-res · life · FCR · 2os</td><td>median 4, max 457 (the tree and the extras decide) · §7</td></tr>
+<tr><td>Anything else</td><td>—</td><td>—</td><td class="bad">vendor</td></tr>
+</table></div>
+<div class="warnbox">Never price a rare from the Traderie rare feed: 267 of 268 SC/NL/PC rare Ring listings and 304 of 323 rare Amulet listings are one seller asking 1–12 Jah for ordinary 10-FCR rares. Use diablo2.io <i>sold</i> rows and price-check threads (§5).</div>
+
+<h3 id="s2-gold">Gold (unique) / green (set)</h3>
+<ol>
+<li><b>Is it in the primer's unique table (<a href="pricing-primer.html#s5">§5</a>)?</b> Yes → read the <i>one</i> roll that matters and take the bucket: Arachnid Mesh ED, Mara's all-res, Crown of Ages sockets + res, Griffon's −res / +dmg, Death's Fathom cold, Titan's eth + ED, Verdungo's vit / PDR, Gheed's MF, War Traveler MF, Andariel's eth 30/10, Hellwarden's Will the two −8 res, Wraithstep the Warlock tree. At threshold → sell at min → median; below → the next bucket down (mostly Um–Ist).</li>
+<li><b>Not in the table</b> → does a build in appendix B name it? Yes → Low tier, sell for a mid rune or wear it (Bloodpact Shard, Entropy Locket for Echoing Strike). No → vendor, except eth merc gear and one of each self-use staple (Stormshield, an IK piece, a Shako).</li>
+<li><b>Set pieces</b>: Tal Rasha's, IK, Trang-Oul's, Aldur's, Griswold's pieces trade at Low–Mid; every RotW set (Bane's, Horazon's) is floor.</li>
+</ol>
+
+<h3 id="s2-orange">Orange (crafted)</h3>
+<p>Two crafts have a market: <b>Caster Amulet</b> with +2 class skills and 10 FCR from the affix (20 FCR total) — “Jah+” in threads, 2–3 Jah realistic on SC/NL; <b>Blood Gloves</b> with life leech, 5–10 % crushing blow, life and either 20 IAS or +2 skills — Lo … 4 Jah asks. Caster rings with 10 FCR from the affix sell Ist–Vex. Every other craft, including your own caster boots and belts, is self-use or vendor.</p>
+
+<h3 id="s2-misc">Runes, gems, keys, essences, shards, tokens</h3>
+<p>These <i>are</i> the money. Keep Hel and up and every Perfect gem; price by the ladder (§4) or per unit (<a href="pricing-primer.html#s6-2">primer §6.2</a>: keys ≈ 0.45, P.gems 0.06–0.12, Northern Worldstone Shard 0.17). El–Dol and chipped/flawed/normal gems have no market: cube up 3 → 1 or vendor. Low runes sell only as stacks (“9× Hel → 1 Ist”).</p>
+
+<h2 id="s3">3 · Step 2 — reading the tooltip: the gates checklist</h2>
+<p>Hold Alt on the ground, then pick up and read. The things that decide the verdict, in the order you meet them on the tooltip:</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Line</th><th>What to read</th><th>Gate</th></tr>
+<tr><td>Name colour + base name</td><td>rarity branch (§2); base class on a runeword / build list</td><td>not on any list → stop</td></tr>
+<tr><td>“Superior” / “Ethereal” / gray name</td><td>Superior needs the ED line ≥15 %; eth = +50 % def/dmg, cannot repair (merc only, or Zod / Indestructible words)</td><td>ED 5–14 % = plain price</td></tr>
+<tr><td>Defense / Damage line</td><td>the ED roll on a base; the +def roll on Arachnid / Shako etc.</td><td>threshold per item (primer §5)</td></tr>
+<tr><td>Durability</td><td>3× the base's normal = failed unique</td><td>ignore the rare's affixes' “unique-ness”; price as a plain rare</td></tr>
+<tr><td>Required level</td><td>a hint of the affix levels — a rare with req lvl 60+ on a normal base rolled high affixes</td><td>not a gate</td></tr>
+<tr><td>Socketed (n)</td><td>exact count vs the runeword; a magic / rare item's sockets are 1–2 (Larzuk gives 1 to rares)</td><td>wrong count = floor</td></tr>
+<tr><td>Automods (shield res, bow skills, class staff-mods)</td><td>45@ · +3 Bow · Warlock / Assassin / Necro / Sorc staff-mods</td><td>&lt;40@ floor; a lone +1 staff-mod is noise</td></tr>
+<tr><td>Affixes</td><td>the slot's must-affixes first (§2 yellow table), then count the good ones</td><td>one missing must = a tier down or Charsi</td></tr>
+</table></div>
+
+<h2 id="s4">4 · Step 3 — converting to a price</h2>
+<h3>4.1 The ladder (Ist = 1; Traderie asks 2026-09-18, one vote per seller)</h3>
+<div class="tblwrap"><table>
+<tr><th>Rune</th><td>Lem</td><td>Pul</td><td>Um</td><td>Mal</td><td><b>Ist</b></td><td>Gul</td><td>Vex</td><td>Ohm</td><td>Lo</td><td>Sur</td><td>Cham</td><td>Ber</td><td>Jah</td><td>Zod</td></tr>
+<tr><th>Ist</th><td>0.20</td><td>0.57</td><td>0.67</td><td>0.79</td><td><b>1</b></td><td>1.43</td><td>2.59</td><td>4.05</td><td>5.89</td><td>8.23</td><td>8.57</td><td>9.32</td><td>11.4</td><td>13.7</td></tr>
+</table></div>
+<p>Slang: <b>HR</b> = high rune, Vex–Zod · <b>mid rune</b> = Lem–Gul · <b>BIN</b> = fixed price · <b>LF</b> = looking for · <b>offer</b> = no fixed price. Below Lem: Fal 0.25, Ko 0.20, Hel 0.14, Io 0.11, Lum 0.08, Sol 0.06 per unit in stacks. Perfect gem ≈ 0.06; “1 Ber = 100 perfect skulls”. Source and caveats: <a href="pricing-primer.html#s1">primer §1</a>.</p>
+<h3>4.2 Tiers and verdicts</h3>
+<div class="tblwrap"><table class="vs">
+<tr><th>Tier</th><th>Ist</th><th>Runes</th><th>What to do</th></tr>
+<tr><td>Top</td><td>≥ 8</td><td>Sur and up</td><td>sell as “offer”, wait for a bid; expect 32–63 % of the ask median on chase rolls</td></tr>
+<tr><td>High</td><td>2.5–8</td><td>Vex–Lo</td><td>sell at the bucket median</td></tr>
+<tr><td>Mid</td><td>0.8–2.5</td><td>Mal–Vex</td><td>sell at the median; fills come fast</td></tr>
+<tr><td>Low</td><td>0.2–0.8</td><td>Lem–Mal</td><td>sell only in bulk lots (“3 plain 4os Monarchs for a Pul”) or use</td></tr>
+<tr><td>Floor</td><td>&lt; 0.2</td><td>—</td><td>vendor; the listing costs more time than it earns</td></tr>
+</table></div>
+<h3>4.3 Asks are not fills</h3>
+<ul>
+<li><b>One vote per seller.</b> A bucket of 47 listings from 6 sellers is a wall, not a market. Traderie <code>prices[].group</code> entries are OR-alternatives — take the cheapest.</li>
+<li><b>Floor rolls fill near the ask</b> (the one observed floor pair filled at 95–118 %). <b>Chase rolls fill at 32–63 %</b> (sup 15ED 6os Phase Blade fill 4.05 vs asks 8.6 → 9.3; sup 15ED 0os Archon fill 7.2 vs 11.4 → 22.8). Quote the median for common rolls, “offer” for chase rolls, never the bucket minimum as “the price”.</li>
+<li><b>Stack asks are per stack.</b> An ask of 1 Ist on “Hel ×9” is the whole stack.</li>
+<li><b>Snapshot.</b> Every number here is 2026-09-18. Two months later re-pull before quoting a Top-tier item (§5.3).</li>
+</ul>
+
+<h2 id="s5">5 · Step 4 — looking a price up yourself</h2>
+<h3>5.1 Traderie (asks) — the first stop for bases, uniques, charms, jewels</h3>
+<ol>
+<li>Search the item on traderie.com/diablo2resurrected; open the item page; set <b>Softcore · Non-Ladder · PC</b>, and for bases the rarity (normal / superior / magic) and sockets.</li>
+<li>Read the listings newest first. Count <b>sellers</b>, not listings; skip any seller repeated more than twice. Note whether prices are “offer” or fixed.</li>
+<li>Write down min → median of the rolls that match yours (same sockets, same ED bracket, same automod). That is the <b>ask band</b>.</li>
+<li>Offline / bulk: the repo tools do the same with the SC/NL/PC filters applied client-side and the ladder conversion built in:
+<pre>python3 pricing/tools/traderie.py search "archon plate"
+python3 pricing/tools/traderie.py listings &lt;itemId&gt; 4 --sc --nl --pc --props --json</pre>
+Item ids used so far: <code>pricing/tools/wp_b_ids.txt</code>.</li>
+</ol>
+<h3>5.2 diablo2.io (fills and price-checks) — the only source for rares and crafts</h3>
+<ol>
+<li>Sold rows: forum search with the item keyword, <b>Softcore · Non-Ladder · PC</b>, “active + sold”, sorted by date; read the “Sold for” lines of the last 3 days. Keywords are mandatory; wait <b>≥ 30 s</b> between searches or you hit the flood page; page 2 is <code>&amp;start=30</code>.
+<pre>python3 pricing/tools/d2io_search.py "archon" irarity=4 imaxsockets=4 ladder=2 hc=2 plat_pc=1 activesold=1 legacy_resu=2 --out pricing/raw/d2io/search-archon.html
+python3 pricing/tools/d2io_search.py --parse pricing/raw/d2io/search-archon.html</pre></li>
+<li>Price-check threads (“PC: rare ring 104 AR / 8 LL …”): read two or more replies; the answers are stated as a rune range and usually disagree by one tier — take the lower one for SC/NL. The reasoning in those threads is the model for rares: count the affixes that match the slot's buyer, subtract one tier per wrong affix.</li>
+<li>Guide bands (the diablo2.io price guide of 2026-08-28) are orientation only — never a price source.</li>
+</ol>
+<h3>5.3 Refreshing the whole table</h3>
+<p>The runbook that regenerated every number on 2026-09-18 is <a href="pricing-primer.html#s7">primer §7</a> (ladder → base buckets → jewels / charms / uniques → sanity check). Run it before quoting a Top-tier item that is more than a few weeks past the snapshot; low tiers move slowly.</p>
+
+<h2 id="s6">6 · Echoing Strike Warlock — self-use upgrade or sale? (per slot)</h2>
+<p>Because you play this build, “keep” has a second meaning: does the drop beat what you wear? Wanted affixes per slot, from the maxroll guide (Aug 26, 2026) gear list on <a href="warlock.html#s1">the Warlock page</a>:</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Slot</th><th>What the build wants</th><th>Wear it if</th><th>Sell it if</th></tr>
+<tr><td>Weapon</td><td>+Warlock skills, FCR, 3os dagger for Void</td><td>gray 3os Legend Spike / Fanged Knife / Kris (your Void base); Bloodpact Shard / Wizardspike early</td><td>a second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 → 17)</td></tr>
+<tr><td>Off-hand</td><td>Spirit Monarch (+2, 35 FCR), Lidless</td><td>4os Monarch, 2os Bone Shield for Rhyme</td><td>Superior / Jeweler's Monarch of Deflecting — always sell, it is worth more than a Spirit</td></tr>
+<tr><td>Helm</td><td>+2 Warlock, 20 FCR, res, sockets</td><td>rare / magic circlet with +2 Warlock and FCR</td><td>+2 <i>other</i> class circlets with 20 FCR; Shako you do not need</td></tr>
+<tr><td>Armor</td><td>Enigma, CoH, Stealth</td><td>Stealth in any 2os armor</td><td>every Superior / Jeweler's Archon / Dusk / Wire Fleece base</td></tr>
+<tr><td>Gloves</td><td>FCR (Trang-Oul's, Magefist)</td><td>either unique</td><td>+2 Jav / 20 IAS rares, Blood gloves</td></tr>
+<tr><td>Belt</td><td>FCR (Arachnid, caster craft), life, FHR</td><td>caster craft with 10 FCR + life</td><td>Arachnid Mesh ≥110 ED if you already have one</td></tr>
+<tr><td>Boots</td><td>FRW until Enigma, then res / life</td><td>Natalya's Soul now; Waterwalk, or a craft with 30 FRW + 2 res</td><td>War Traveler 45+ MF, Sandstorm Trek high vit</td></tr>
+<tr><td>Amulet</td><td>+2 Warlock, 10 FCR</td><td>Forbidden Amulet of the Apprentice; caster craft +2 / 10</td><td>caster craft +2 of another class (Jah+), Mara's 30@</td></tr>
+<tr><td>Rings</td><td>FCR, life, res (SoJ, BK, caster / blood craft)</td><td>any 10 FCR rare with res</td><td>SoJ / BK beyond the pair you wear</td></tr>
+<tr><td>Charms</td><td>Chaos / Eldritch / Demon skillers, life SCs</td><td>every Warlock skiller</td><td>other classes' skillers (Pala Combat first), fat Warlock skillers if you need runes more</td></tr>
+</table></div>
+
+<h2 id="s7">7 · Warlock staff-mods — which ones anyone pays for</h2>
+<p>Every dagger and grimoire in RotW rolls Warlock skill automods, so a staff-mod on its own is not a signal. What the 2026-09-18 listings and the dagger / grimoire price-checks of the earlier sessions show (thin market — treat as ranking, not price):</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Roll</th><th>Demand</th><th>Evidence</th></tr>
+<tr><td>Rare grimoire <b>+2 to Warlock Skills</b> (+ res / life / 2os)</td><td class="ok">highest</td><td>median 4, max 457 Ist; the class-wide skill line is the gate</td></tr>
+<tr><td>Magic grimoire <b>+3 to a tree</b> (Chaos / Eldritch / Demon) with all-res</td><td class="ok">high</td><td>median ≈ 51; the Abyss guide asks for “all resistance on a magic grimoire”</td></tr>
+<tr><td>White 2os grimoire with +3 <b>Summon Tainted / Consume / Bind Demon / Sigil: Death</b></td><td>mid</td><td>white 2os medians 5 → 118 by mod; Vigilance base</td></tr>
+<tr><td>3os elite dagger (Legend Spike / Fanged Knife / Kris) — any mods</td><td>mid</td><td>3os Legend Spike 4 → 17; the <b>sockets</b> price it, +3 Abyss / +2 Chaos are a bonus</td></tr>
+<tr><td>+3 <b>Abyss</b>, +2 <b>Apocalypse</b>, +3 <b>Eldritch Blast</b> on anything</td><td>common</td><td>the most frequent rolls in the Kris listings; only paid for on top of a 3os elite base or a +2 Warlock grimoire</td></tr>
+<tr><td>+1 anything on a normal-tier dagger (Dirk / Kris 0–1os), <b>Blood Oath</b>, <b>Levitation Mastery</b>, <b>Demonic Mastery</b></td><td class="bad">none</td><td>the +1 Abyss Dirk, the +2 Levitation / +3 Blood Oath / +1 Demonic Mastery Dagger — both vendor; Bloodpact Shard already caps +Blood Oath</td></tr>
+<tr><td>Grimoire with no staff-mods (any tier, any colour)</td><td class="bad">none</td><td>“Superior Codex, no staff mods” — vendor</td></tr>
+</table></div>
+
+<h2 id="s8">8 · Worked examples — your own drops, 2026-09-18</h2>
+<p>Every item you asked about across the sessions, with the step that decided it.</p>
+<div class="tblwrap"><table>
+<tr><th>Drop</th><th>Deciding step</th><th>Verdict</th></tr>
+<tr><td>Rare Razor Bow, 138 ED / 20 IAS / 2os</td><td>§2 yellow: exceptional-tier generic weapon — no rare market; no S/A bow build wants a rare</td><td class="bad">vendor</td></tr>
+<tr><td>Superior Heraldic Shield 28@</td><td>§2 gray: normal-tier Paladin shield, &lt;40@ — self Spirit at best</td><td class="bad">vendor / self</td></tr>
+<tr><td>White Ceremonial Javelin +3 Jav &amp; Spear</td><td>§2 blue table: javelins need +2 Amazon on top; no white javelin market</td><td class="bad">vendor</td></tr>
+<tr><td>White 3os Wire Fleece</td><td>§2 gray step 2: runeword count is 4, 3os is final</td><td class="bad">vendor</td></tr>
+<tr><td>Superior Eldritch Orb 2os +1/+1/+1</td><td>§2 blue: orbs sell as “+3 tree of the Magus” — three +1s and a white base are neither</td><td class="bad">vendor</td></tr>
+<tr><td>Hyperion Spear of Butchery (blue)</td><td>§2 blue: generic weapon, one affix</td><td class="bad">vendor</td></tr>
+<tr><td>Tomb Reaver 3os, 220 ED / 42@ / 70 MF, non-eth</td><td>§2 gold: in the unique table; 3os is the roll that matters, non-eth halves it</td><td class="warn">~1 Ist — list Mal–Ist</td></tr>
+<tr><td>Superior Codex, no staff-mods</td><td>§7: grimoire without mods</td><td class="bad">vendor</td></tr>
+<tr><td>White 0os Tiara</td><td>§2 blue table: white circlets have no market and no cube recipe takes them — Charsi imbue food (Diadem &gt; Tiara)</td><td class="bad">imbue or vendor</td></tr>
+<tr><td>Rhyme in a Codex</td><td>a finished self-use runeword is worth less than its base</td><td>self-use</td></tr>
+<tr><td>Magic Greater Talons +1 Assassin / Dragon Flight</td><td>§2 blue: claws need +3 Traps/MA + IAS/sockets</td><td class="bad">vendor</td></tr>
+<tr><td>White Dagger +2 Levitation Mastery / +3 Blood Oath / +1 Demonic Mastery</td><td>§7: unpaid staff-mods, 1os cap on a Dagger</td><td class="bad">vendor</td></tr>
+<tr><td>Maiden's Amulet of Teleportation</td><td>§2 blue: teleport charges sell only with +2 class skills</td><td class="bad">vendor</td></tr>
+<tr><td>White Dirk +1 to Abyss</td><td>§7 + §2 gray: Dirk caps at 1 socket, cannot hold Void</td><td class="bad">vendor</td></tr>
+<tr><td>Mirrored Boots of Accuracy (+8 dex)</td><td>§2 blue: one affix; Mirrored Boots are the <i>blood</i> craft base, not caster</td><td class="bad">vendor</td></tr>
+<tr><td>Cleglaw's Tooth (set sword)</td><td>§2 green: normal-tier set piece outside the sellable list — Cleglaw's is level-4 gear</td><td class="bad">vendor</td></tr>
+<tr><td>Vambraces of Thawing (blue gloves)</td><td>§2 blue table: gloves need +2 tree (Javelin, Martial Arts, Bow) with 20 IAS or +str/dex/life; a resist suffix alone is nothing; Vambraces are not a craft base</td><td class="bad">vendor</td></tr>
+<tr><td>White 3os Kite Shield</td><td>§2 gray: only Rhyme / Ancient's Pledge / Spirit bases, all self-use; no market once you carry Spirit</td><td class="bad">vendor</td></tr>
+<tr><td>Rare Mummified Trophy: +3 Attract, 49 ED, cold 25 / fire 27, PLR, thorns</td><td>§2 yellow class-item row: no +2 Necro, the staff-mod is a filler curse, no FBR / block / sockets — the feed's sold heads all carry +2 Necro or +3 Poison Nova / Bone Spear</td><td class="bad">vendor</td></tr>
+<tr><td>Garnet Destroyer Helm: +2 Battle Orders, +2 Natural Resistance, fire 28 (blue)</td><td>§2 yellow class-item row: the Barb-helm market is +3 BO, ideally with +2 Barb or sockets; +2 BO with no sockets has one 1-Vex ask on Traderie and a wall of +3 BO whites above it</td><td class="bad">vendor, or list at Pul and forget it</td></tr>
+<tr><td>The Gavel of Pain (unique Martel de Fer)</td><td>§2 gold: not in the unique table; Traderie 2026-09-19, 41 SC/NL/PC asks — cheapest alternatives are 1 Perfect Amethyst / 3 Ral, the mode is a hopeful 1 Ist, nobody bids</td><td class="bad">vendor</td></tr>
+<tr><td>Natalya's Soul (set boots)</td><td>§6: 40 FRW beats every guide boot pre-Enigma</td><td class="ok">wear</td></tr>
+</table></div>
+
+<h2 id="s9">9 · False positives — looks valuable, is not</h2>
+<ul>
+<li>Rare non-elite bows, spears, armors of any roll. Rare elites outside the runeword list unless two must-affixes landed.</li>
+<li>White javelins / claws / orbs with +3 skills and nothing else; white circlets of any tier.</li>
+<li>Blue weapons or armor with one affix, however large the number.</li>
+<li>Superior with 5–14 % ED (it is a plain base with a longer name).</li>
+<li>Ethereal self-use gear (eth Monarch, eth Archon for yourself) — a discount, not a premium.</li>
+<li>Finished runewords in self-use bases (Rhyme, Spirit, Stealth) — worth less than the base was.</li>
+<li>Teleport amulets without +2 class skills; +2 class circlets without FCR.</li>
+<li>Daggers with Blood Oath / Levitation / Demonic Mastery; grimoires without staff-mods; any Dirk / Dagger / Mithril Point / Bone Knife as a Void base.</li>
+<li>A rare with 3× durability read as “almost a unique”.</li>
+</ul>
+<p>The primer's one-screen version, with the asks per line: <a href="pricing-primer.html#miss">“things a runner throws away”</a>.</p>
+
+<h2 id="s10">10 · Housekeeping</h2>
+<ul>
+<li>All prices in the guides are a <b>2026-09-18 snapshot</b> (Traderie asks, diablo2.io fills ≤ 3 days). The method does not age; the numbers do.</li>
+<li>diablo2.io search spacing: <b>30 s</b> everywhere (the tools and primer say 30; an older note said 25 — 30 is the safe one).</li>
+<li>Filters that must always be on: Softcore · Non-Ladder · PC · Reign of the Warlock (Traderie property ids 799 / 800 / 798 / 1854). Ladder and Hardcore prices are a different economy.</li>
+<li><b>Absence from the repo is not a price of zero.</b> The 2026-09-18 filter audit hid rare class items, rare Warlock daggers, rare javelins and all magic gloves because no build list or thread named them; a second review found Traderie rare buckets and build rows for each. Before calling an item type worthless, check <code>pricing/data/wp-b-prices.json</code> for its rare/magic buckets and <code>wp-a-blues.json</code> for named blues.</li>
+<li>When a screenshot verdict here turns out wrong in trade, add the item and the fill to <code>pricing/data/addendum-2026-09-18-session.json</code> and fold it into the primer as a dated pass.</li>
+</ul>
+
+<footer>Sources: <code>guides/pricing-primer.html</code> (§1 ladder, §2 bases, §3 jewels / blues, §4 charms, §5 uniques, §6 rares / crafts, §7 runbook, §8 decision table, #miss); <code>pricing/data/wp-f-ladder.json</code>, <code>wp-b.md</code>, <code>wp-d.md</code>, <code>wp-g.md</code>, <code>wp-i.md</code>, <code>addendum-2026-09-18-session.json</code>; price-check verdicts from the 2026-09-18 sessions (screenshot checks); maxroll Echoing Strike Warlock guide (Aug 26, 2026); diablo2.io price-check threads t1861326, t1861553, t1861293, t1863574, t1863846 (fetched 2026-09-18).</footer>
+</main>

@@ -1,0 +1,14 @@
+# Scraped source cache (regenerable via pricing/tools; ~200MB)
+pricing/raw/
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs / editor temp
+*.log
+*~
+*.swp
+*.bak
+*.tmp
+.DS_Store

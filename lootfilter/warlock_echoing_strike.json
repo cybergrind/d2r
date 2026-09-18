@@ -1,0 +1,700 @@
+{
+    "name": "General (ALL)",
+    "rules": [
+        {
+            "name": "HIDE All - Gold too",
+            "enabled": true,
+            "ruleType": "hide",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce",
+                "weap",
+                "armo"
+            ],
+            "itemCategory": [
+                "misc"
+            ],
+            "goldFilterValue": 5037
+        },
+        {
+            "name": "SHOW Important Mats and Items",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "set",
+                "magic",
+                "unique",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce"
+            ],
+            "itemCategory": [
+                "gems",
+                "uberm",
+                "runes",
+                "terrt",
+                "absol"
+            ],
+            "itemCode": [
+                "isc",
+                "tsc"
+            ]
+        },
+        {
+            "name": "SHOW Potions ACT I",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCode": [
+                "hp2",
+                "mp3",
+                "mp4",
+                "hp5",
+                "hp1",
+                "rvs",
+                "hp4",
+                "mp1",
+                "mp5",
+                "mp2",
+                "yps",
+                "vps",
+                "hp3",
+                "rvl"
+            ]
+        },
+        {
+            "name": "SHOW Potions ACT II-III",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCode": [
+                "hp2",
+                "mp3",
+                "mp4",
+                "hp5",
+                "hp4",
+                "rvs",
+                "mp5",
+                "mp2",
+                "rvl",
+                "hp3"
+            ]
+        },
+        {
+            "name": "SHOW Potions ACT IV - V",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCode": [
+                "mp4",
+                "mp5",
+                "hp5",
+                "rvs",
+                "hp4",
+                "rvl"
+            ]
+        },
+        {
+            "name": "SHOW Potions NIGHTMARE",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCategory": [
+                "potis"
+            ]
+        },
+        {
+            "name": "SHOW Potions ENDGAME",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCode": [
+                "mp5",
+                "hp5",
+                "rvl"
+            ]
+        },
+        {
+            "name": "SHOW Sell FOR GOLD",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "sorce",
+                "wands"
+            ],
+            "equipmentItemCode": [
+                "7qs",
+                "9qs",
+                "8bs",
+                "6bs",
+                "gsc",
+                "cst",
+                "8cs",
+                "6cs",
+                "9sc",
+                "scp",
+                "lst",
+                "6ls",
+                "8ss",
+                "bst",
+                "8ws",
+                "sst",
+                "9ws",
+                "dgr",
+                "7sc",
+                "6ss",
+                "7ws",
+                "6ws",
+                "8ls"
+            ]
+        },
+        {
+            "name": "SHOW Throwing FOR GOLD",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "magic",
+                "unique",
+                "set",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "throw"
+            ],
+            "equipmentItemCode": [
+                "gps",
+                "opl",
+                "gpl",
+                "gpm",
+                "opm",
+                "ops"
+            ]
+        },
+        {
+            "name": "SHOW Rare/Unique/Set",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "rare",
+                "set",
+                "unique"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce",
+                "weap",
+                "armo"
+            ]
+        },
+        {
+            "name": "SHOW Magic OPTIONALS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "glove",
+                "boots",
+                "shlds",
+                "circl",
+                "belts"
+            ]
+        },
+        {
+            "name": "SHOW Magic WEAPONS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce",
+                "javel"
+            ],
+            "equipmentItemCode": [
+                "9ar",
+                "7qr",
+                "7xf",
+                "wsp",
+                "9xf",
+                "9tw",
+                "9qr",
+                "7wb",
+                "9wb",
+                "7lw",
+                "9lw",
+                "9ws",
+                "7ar",
+                "7tw",
+                "7cs",
+                "9cs",
+                "7ws"
+            ]
+        },
+        {
+            "name": "SHOW Magic ARMORS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "glove",
+                "palad",
+                "druid",
+                "barbh",
+                "circl"
+            ],
+            "equipmentItemCode": [
+                "gth",
+                "ula",
+                "xar",
+                "uts",
+                "ult",
+                "uow",
+                "uth",
+                "urn",
+                "uar",
+                "ucl",
+                "uhm",
+                "xth",
+                "xul",
+                "uhn",
+                "usk",
+                "uit",
+                "ung",
+                "uh9",
+                "uul",
+                "urs",
+                "aar",
+                "upl",
+                "uld",
+                "uui",
+                "utu",
+                "ful",
+                "utp",
+                "uea"
+            ]
+        },
+        {
+            "name": "SHOW Bases WEAPONS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "wands"
+            ],
+            "equipmentItemCode": [
+                "am5",
+                "6lb",
+                "6bs",
+                "wsp",
+                "7br",
+                "8cs",
+                "6lw",
+                "7fl",
+                "7mp",
+                "7pa",
+                "6cb",
+                "7wb",
+                "bld",
+                "6sw",
+                "amc",
+                "bst",
+                "kri",
+                "8ws",
+                "ama",
+                "amb",
+                "6s7",
+                "7cm",
+                "6hb",
+                "bsd",
+                "7wh",
+                "9bl",
+                "7qr",
+                "7gs",
+                "ame",
+                "7m7",
+                "9qr",
+                "7tr",
+                "mpi",
+                "9fl",
+                "7lw",
+                "2ax",
+                "fla",
+                "lsd",
+                "7tw",
+                "am2",
+                "7cs",
+                "7ws",
+                "9cs",
+                "am7",
+                "6ws",
+                "7b7",
+                "7o7",
+                "7bt",
+                "7wc",
+                "am1",
+                "7gi",
+                "7xf",
+                "72h",
+                "7bl",
+                "7s8",
+                "9xf",
+                "7wa",
+                "9tw",
+                "9wb",
+                "7sr",
+                "6l7",
+                "9lw",
+                "amf",
+                "7gd",
+                "7ar",
+                "7p7",
+                "wst",
+                "72a",
+                "7kr",
+                "7st",
+                "9ar",
+                "8bs",
+                "cst",
+                "6cs",
+                "am6",
+                "amd",
+                "7fb",
+                "9kr",
+                "9ws",
+                "7cr",
+                "7vo",
+                "7gm",
+                "crs",
+                "7h7"
+            ]
+        },
+        {
+            "name": "SHOW Bases ARMOR",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "palad",
+                "warlo",
+                "necro",
+                "druid",
+                "barbh",
+                "circl"
+            ],
+            "equipmentItemCode": [
+                "ush",
+                "ult",
+                "uts",
+                "uow",
+                "uth",
+                "xh9",
+                "ghm",
+                "urn",
+                "xtp",
+                "xrn",
+                "xhm",
+                "uhm",
+                "msk",
+                "usk",
+                "brs",
+                "urs",
+                "upl",
+                "uld",
+                "utp",
+                "uui",
+                "ful",
+                "ula",
+                "xrs",
+                "upk",
+                "ltp",
+                "uar",
+                "ucl",
+                "xsk",
+                "uhn",
+                "crn",
+                "urg",
+                "bhm",
+                "uit",
+                "uh9",
+                "ung",
+                "uul",
+                "utu",
+                "uea"
+            ]
+        },
+        {
+            "name": "SHOW Warlock",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "daggs",
+                "warlo"
+            ]
+        },
+        {
+            "name": "SHOW Paladin",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "unique",
+                "set",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "palad",
+                "scept"
+            ]
+        },
+        {
+            "name": "SHOW Necro",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "magic",
+                "unique",
+                "set",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "necro"
+            ]
+        },
+        {
+            "name": "SHOW Druid",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "druid"
+            ]
+        },
+        {
+            "name": "SHOW Barbarian",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "unique",
+                "set",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "barbh"
+            ]
+        },
+        {
+            "name": "SHOW Amazon",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "magic",
+                "unique",
+                "set",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "spear",
+                "javel",
+                "amazo"
+            ]
+        },
+        {
+            "name": "SHOW Assassin",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "magic",
+                "unique",
+                "set",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "assas"
+            ]
+        },
+        {
+            "name": "SHOW Sorceress",
+            "enabled": false,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "magic",
+                "unique",
+                "set",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "sorce",
+                "stave"
+            ]
+        }
+    ]
+}

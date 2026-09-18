@@ -1,0 +1,635 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>HTML planning documents — authoring guide</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+</style>
+<script type="module">
+try{
+  const m = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  m.default.initialize({startOnLoad:true, theme: dark ? "dark" : "neutral"});
+}catch(e){ /* offline: the diagram source stays readable as text */ }
+</script>
+
+<main>
+<h1>HTML planning documents — authoring guide</h1>
+<p class="sub">How we design, review and maintain planning documents in
+<code>guides/*.html</code>. Distilled from <code>guides/ore-processing.html</code>
+(the reference implementation) on 2026-08-09. This document follows its own rules —
+read it in a browser once, then use it as a template.</p>
+
+<div class="tldr">
+<b>TL;DR — the model:</b> one self-contained HTML file per topic, committed to git.
+The <b>open text</b> is for the human: TL;DR first, then the settled design, cheat-sheets
+and build phases. The <b>collapsed <code>&lt;details&gt;</code> blocks</b> are for agents:
+sources, working assumptions, <b>rejected ideas</b>, and a <b>review log</b> of every
+error already found and fixed — so a fresh clean-context agent is cut off from false
+paths before it starts. Every number obeys <b>rule zero</b> (verified with the tools,
+never from LLM memory; unverifiable claims flagged "verify in-game"). Reviews correct
+the text <em>in place</em> and append a log entry; the document is always the single
+current truth, never a discussion thread.
+</div>
+
+<details><summary>Links &amp; sources</summary>
+<ul>
+<li><b>Reference implementation:</b> <code>guides/ore-processing.html</code> — every
+convention here was extracted from it (six review passes, 2026-08-08/09).</li>
+<li><b>Rule zero + tool cookbook:</b> <code>guides/AE2-PLANNING.md</code> — the command
+reference every document and every review pass depends on.</li>
+<li><b>Change workflow:</b> <code>README.md</code> ("How we work" — document before
+apply; git as the record).</li>
+<li><b>Mermaid:</b> <a href="https://mermaid.js.org/">mermaid.js.org</a>, loaded from
+the jsdelivr CDN (v11 ESM) — the only external dependency, optional and degrading
+(§5.3).</li>
+</ul>
+</details>
+
+<details><summary>Preconditions &amp; working assumptions</summary>
+<ul>
+<li><b>Rule zero</b> (from AE2-PLANNING.md): LLM recall of GTNH facts is not evidence —
+every number in a planning document comes from the tools or is flagged "verify
+in-game". This guide's own factual claims are about the repo's documents and were
+verified by reading them (see the review log).</li>
+<li><b>Two reader types, both first-class:</b> humans render the file in a browser;
+agents read raw source and see collapsed content at zero cost.</li>
+<li><b>Canonical stylesheet: the <code>&lt;style&gt;</code> block in THIS file.</b> It
+contains every class this guide's advice requires (<code>.legend</code>/<code>.dot</code>,
+<code>.prio</code>, <code>.vs</code>, callouts, flows). <code>ore-processing.html</code>
+shares the palette but carries extra topic-specific classes (<code>.lcr</code>,
+<code>.tag</code>, <code>.frag</code>…) — add classes like those per topic as
+needed.</li>
+<li><b>Documents are committed; generated reports are not.</b> A planning doc quotes
+report numbers with their date instead of linking into <code>reports/</code>, which is
+reproducible and may be regenerated.</li>
+</ul>
+</details>
+
+<details><summary>Rejected ideas (and why)</summary>
+<ol>
+<li><b>Markdown for design documents.</b> Kept for bootstrap notes and linear reference
+guides (AE2-PLANNING.md, BEES.md), but it lacks collapsed sections, fixed-meaning
+callouts and color-coded topology — the three features the dual audience needs
+most.</li>
+<li><b>One big per-tier document.</b> Topics mature at different rates, and a review
+pass needs a bounded fact-set (~170 claims was one full fact-check); one topic per file
+keeps passes affordable and git history legible.</li>
+<li><b>A separate agent-notes file next to each human doc.</b> Two files describing one
+design always drift; collapsed <code>&lt;details&gt;</code> keeps a single truth with
+two views.</li>
+<li><b>Vendoring mermaid into the repo.</b> A ~1 MB asset per copy, or a shared asset
+path every document then depends on. The CDN plus the graceful-degradation rule costs
+nothing offline, because diagrams must have table twins anyway (§5.3). Revisit only if
+offline rendering becomes a real workflow.</li>
+<li><b>Inline revision markers in the body</b> (strikethrough, "UPDATE:", editor's
+notes). The body must always read as the settled current truth; history belongs to the
+review log and git.</li>
+</ol>
+</details>
+
+<details><summary>Review log — errors already found &amp; fixed (don't reintroduce)</summary>
+<p class="sub">Pass 1 — 2026-08-09, clean-context review (lenses: fidelity vs
+ore-processing.html, self-consistency, usability, logic). All corrections are applied
+in the text; this log exists so they are not reverted.</p>
+<ol>
+<li><b>The guide shipped without practicing its own structure</b> — no preamble
+<code>&lt;details&gt;</code> blocks (sources / assumptions / rejected ideas / review
+log) and no closing verified-vs-not appendix, while §2 declares them never-omit. This
+preamble and the §8 "verified vs judgment" block are the fix.</li>
+<li><b>The stylesheet was incomplete for the guide's own advice</b> —
+<code>.legend</code>/<code>.dot</code> (§5.1 legends), <code>.prio</code>/<code>.pn</code>
+(priority ladders) and <code>.vs</code> (concerns table) existed only in
+ore-processing.html, while the appendix said "copy from this file (or
+ore-processing.html — same palette)" as if the two style blocks were equivalent. The
+classes are now included here and this file is the stated complete copy source.</li>
+<li><b>"Dependency-free" overclaimed</b> — the mermaid embed is an (optional, degrading)
+runtime dependency; and ore-processing.html itself contains <em>zero</em> mermaid — the
+reference implementation is the pure-CSS case. §1 and §5.2 now say so plainly.</li>
+<li><b>The handoff claim omitted the cookbook</b> — a fresh agent needs the document +
+rule zero <em>+ <code>guides/AE2-PLANNING.md</code></em> (the shared tool cookbook);
+"no companion file" was only true of per-topic bootstrap files. §6 okbox
+corrected.</li>
+<li><b>Minor, also applied:</b> mermaid node/edge labels quoted (colon-safe); the §3.1
+appendix-dump example now names content ore-processing actually collapses; the
+skeleton's recipe-DB name is a placeholder (the concrete file name lives in the
+cookbook and goes stale); the checklist's cross-reference rule now says it targets
+repeated units, not top-level § numbers.</li>
+</ol>
+<p class="sub">Confirmed by the same pass (don't re-derive): every descriptive claim
+about ore-processing.html, AE2-PLANNING.md and README.md checked out; the HTML is
+well-formed with correctly double-escaped skeleton entities; the appendix skeleton
+matches §2's mandatory subset.</p>
+<p class="sub">Pass 2 — 2026-08-09, field test (user review of the first four documents
+produced under this guide).</p>
+<ol start="6">
+<li><b>The guide had no state-grounding rules, and it cost us a document.</b> The first
+community-priorities draft asserted five major capabilities missing (petrochem fluids,
+LCR, banked Ti, bees, automated chlorine) that the base had, treated quest state as
+built-state evidence, and silently omitted a cross-cutting topic (centralized power)
+because a sibling doc owned it. Root causes: item-only scans are blind to fluids and
+can't name machines; agents worked from stale snapshots; nothing required fresh
+evidence for "missing X" claims. Fixes: <code>fluid_scan.py</code> +
+<code>machine_scan.py</code> added to the tool battery, §4.4 (state grounding
+protocol) added, checklist extended, pack-fact KB split out to
+<code>guides/KB-GTNH29.md</code>. Don't weaken §4.4 — it exists because every one of
+its rules was violated at once.</li>
+</ol>
+</details>
+
+<h2>1 · Why HTML, and what a document is</h2>
+<p>A planning document is the <b>settled state of a design</b>, not a chat transcript.
+Markdown was fine for bootstrap notes (<code>AE2-PLANNING.md</code>), but for real
+designs HTML wins because it gives us, in one self-contained file (zero build step; the
+only optional runtime fetch is the mermaid CDN, which degrades to readable source,
+§5.3):</p>
+<ul>
+<li><b>Two audiences in one file.</b> A human skims rendered callouts and tables in a
+browser; an agent reads the raw source and sees everything — including the collapsed
+blocks that would only slow a human down. Collapsing costs the agent nothing.</li>
+<li><b>Structure that survives editing.</b> Stable keys (S0…S7 style), uniform
+per-stage templates, callout boxes with fixed meanings — an agent can patch one stage
+without reflowing a 3,000-word narrative.</li>
+<li><b>Visual reasoning.</b> Color-coded flow diagrams, priority ladders, comparison
+tables. In GTNH the topology <em>is</em> the design (which network owns which bus, what
+outranks what) — prose alone hides bugs that a diagram makes obvious.</li>
+<li><b>Dark/light theming, print-friendly, zero build step.</b> Open the file, read it.
+No server, no toolchain, works offline (diagrams degrade gracefully, §5.3).</li>
+</ul>
+<p>One topic per file, lowercase-hyphenated name in <code>guides/</code>
+(<code>ore-processing.html</code>, <code>power-generation.html</code>…). Git history is
+part of the record: commit after every meaningful revision with a message saying what
+changed and which review pass caused it.</p>
+
+<h2>2 · Anatomy — the canonical section order</h2>
+<p>Every document follows this skeleton. Sections marked <b>▸ collapsed</b> are
+<code>&lt;details&gt;</code> blocks — agent payload, human-optional.</p>
+
+<div class="flow">
+<div class="fbox f-main"><b>Header</b> — <code>&lt;h1&gt;</code> + one
+<code>.sub</code> line: pack version, data source, <b>date of last verification</b>
+<small>e.g. "every recipe verified against data-2.9.0-v7.bin (221,760 recipes) on 2026-08-08"</small></div>
+<div class="fbox f-sub"><b>TL;DR box</b> — the settled recommendation in one paragraph,
+bold on the load-bearing choices <small>a returning human should be able to act after
+reading only this</small></div>
+<div class="fbox f-drw"><b>▸ Links &amp; sources</b> — wiki pages, community guides,
+GitHub issues, repo tools <small>collapsed; each link annotated with what it
+contributed</small></div>
+<div class="fbox f-drw"><b>▸ Preconditions &amp; working assumptions</b> — rule zero
+restated, fork semantics relied on, what the base already runs, cross-plan context
+<small>collapsed; this is the context a clean agent must load before touching
+anything</small></div>
+<div class="fbox f-drw"><b>▸ Rejected ideas (and why)</b> — every alternative
+considered and killed, with the killing argument <small>collapsed; prevents
+re-litigation — see §4.2</small></div>
+<div class="fbox f-drw"><b>▸ Review log</b> — errors already found &amp; fixed, per
+review pass, plus confirmed non-errors <small>collapsed; cuts fresh agents off from
+false paths — see §4.1</small></div>
+<div class="farrow">agent preamble ends — human-facing body begins</div>
+<div class="fbox f-sub"><b>The numbers</b> — key quantities from the data, with their
+tool provenance</div>
+<div class="fbox f-sub"><b>Concerns, point by point</b> — the human's original doubts
+answered in a two-column table <small>optional but valuable: it records <em>why</em> the
+design is shaped this way</small></div>
+<div class="fbox f-sub"><b>The design</b> — recommended layout, diagrams, walkthroughs
+of the non-obvious mechanics</div>
+<div class="fbox f-sub"><b>The full detail ladder</b> — every repeated unit under a
+uniform template with stable keys (§3.2)</div>
+<div class="fbox f-sub"><b>Cheat-sheets</b> — paste-ready strings, priority tables,
+exact configs <small>with lengths/counts so limits are checkable at a glance</small></div>
+<div class="fbox f-sub"><b>Variants compared · Build list</b> — phases ("now" vs
+"later-tier polish"), rules of thumb</div>
+<div class="fbox f-mach"><b>Appendix</b> — ▸ raw data dumps · ▸ what is DB-verified vs
+verify-in-game (§4.3)</div>
+<div class="fbox f-mach"><b>Footer</b> — generation provenance: which tool scans, which
+sources, which baseline architecture</div>
+</div>
+
+<p>Not every document needs every section — a research-only doc has no build list — but
+<b>never omit</b> the TL;DR, the assumptions block, the review log (create it empty at
+draft time), and the verified-vs-not appendix.</p>
+
+<h2>3 · Writing for the two audiences</h2>
+
+<h3>3.1 What collapses and what stays open</h3>
+<p>The rule: <b>anything a human needs to <em>decide or build</em> stays open; anything
+an agent needs to <em>not repeat mistakes</em> collapses.</b></p>
+<div class="tblwrap">
+<table>
+<tr><th>Content</th><th>Where</th><th>Why</th></tr>
+<tr><td>Settled recommendation, design, cheat-sheets, build phases</td><td>open text</td>
+<td>the human's working surface</td></tr>
+<tr><td>Sources, assumptions, fork semantics, plan context</td><td>▸ collapsed, top</td>
+<td>an agent must load it; a human already knows it</td></tr>
+<tr><td>Rejected ideas, review log</td><td>▸ collapsed, top</td>
+<td>pure agent guard-rails — see §4</td></tr>
+<tr><td>Raw data dumps (ore-processing's 86-pair table, closure inventories)</td><td>▸ collapsed, appendix</td>
+<td>evidence, not reading material</td></tr>
+<tr><td>Warnings a builder could physically get wrong</td><td>open
+<code>.warnbox</code>, at the point of use</td><td>a collapsed warning is a missed
+warning</td></tr>
+</table>
+</div>
+
+<h3>3.2 Repeated units: uniform template + stable keys</h3>
+<p>When the design has N instances of the same shape (processing stages, generator
+options, farm plots…), give each a <b>stable key</b> that is not a section number —
+<code>S0…S7</code>, <code>G-benzene</code>, <code>P-passive-1</code> — and render each
+under the <em>same</em> field template. In ore-processing every stage is exactly
+<b>In / Bus / Card / Out</b>:</p>
+<table class="stg">
+<tr><th>In</th><td>what arrives and from where</td></tr>
+<tr><th>Bus</th><td>owner network, sticky, priority, target</td></tr>
+<tr><th>Card</th><td>the mandatory filter string, verbatim</td></tr>
+<tr><th>Out</th><td>what leaves and to which stage key</td></tr>
+</table>
+<p>Pick the four-or-five fields that define a unit <em>for your topic</em> and never
+deviate. Why it matters: section numbers drift when sections are inserted (ore-processing
+carried stale §5.7→§5.8 references for a day); stable keys don't. And a uniform template
+lets an agent diff two units — or audit all of them — mechanically.</p>
+
+<h3>3.3 Atomic, checkable claims</h3>
+<ul>
+<li><b>Absolute dates</b>, never "today"/"currently" — a document is read weeks later
+by an agent with a different clock.</li>
+<li><b>Exact strings with counts</b>: "43 ores, 681 chars — fits the 1024 limit" is
+checkable; "the list fits" is not.</li>
+<li><b>Name the evidence inline</b>: "source-verified in <code>MTEBoxinator.java</code>",
+"DB-verified 5 V recipe", "per wiki Ore Generation page". A claim without provenance
+is a claim the next review pass must re-derive.</li>
+<li><b>One claim per sentence</b> where it matters. Review passes fact-check ~170 claims
+at a time; compound sentences hide the one wrong half.</li>
+</ul>
+
+<h2>4 · The review discipline (the load-bearing part)</h2>
+<p>Documents at this depth are wrong in a dozen places on the first draft — ore-processing
+went through <b>six</b> review passes and every one found real errors. The process that
+makes this safe:</p>
+
+<h3>4.1 Clean-context reviews append to the review log — never to the body</h3>
+<p>Reviews are run by <b>clean-context sub-agents</b>: a fresh agent gets the file, rule
+zero, and the tool cookbook — no conversation history, so it can't inherit the author's
+blind spots. Its findings are handled in exactly two motions:</p>
+<ol>
+<li><b>The correction is applied in place.</b> The body text always reads as if it had
+been right all along. No strikethrough, no "UPDATE:", no inline discussion.</li>
+<li><b>The error is recorded in the ▸ review log</b>: what was wrong, what the truth is,
+what evidence settled it, dated per pass.</li>
+</ol>
+<div class="warnbox"><b>Why the log exists — false-path cutoff.</b> A future
+clean-context agent, seeing only the corrected text, may independently re-derive the old
+wrong claim (it was plausible — that's why it got written the first time) and "fix" the
+document back to it. The log is the immunization: <em>"this exact claim was believed,
+checked, and is wrong — here's the evidence — don't reintroduce it."</em> The log also
+records <b>confirmed non-errors</b>: facts that look like typos but are verified correct
+(the crossed Stargatium rows), explicitly marked <b>don't "fix" them</b>. Both directions
+cut off a false path before an agent walks it.</div>
+<p>Sub-agent review prompts should ask for different lenses on different passes:
+editorial/logic consistency, full fact-check of every claim against the recipe DB,
+source-level verification against the shipped jars, closure audit ("simulate every item
+this system can emit — does each one have a handler?"). Each lens catches a class the
+others miss.</p>
+
+<h3>4.2 Rejected ideas: kill alternatives permanently</h3>
+<p>Every alternative that was considered and dropped gets a numbered entry: the idea,
+and the <b>specific killing argument</b> (with numbers — "86 pairs → bus explosion",
+"only 2 input slots → permanent stall"). Purpose is the same cutoff: the obvious-looking
+alternative <em>will</em> occur to the next agent or the next human; the entry answers it
+in ten seconds instead of an afternoon of re-derivation. If a rejected idea has a narrow
+valid niche, say so in the entry ("kept only as a bridge for isolated single-ore
+crops").</p>
+<p>Companion rule from <code>AE2-PLANNING.md</code>: settled decisions are listed and
+<b>never silently re-litigated</b>. Reopening one is allowed — but explicitly, with new
+evidence, and the entry gets updated either way.</p>
+
+<h3>4.3 Rule zero and the verified-vs-not appendix</h3>
+<p><b>Rule zero: LLM recall of GTNH facts is not evidence.</b> Every recipe, quantity,
+voltage and behavior claim is verified against the tools —
+<code>databin.py</code> for recipes, <code>craft_plan.py --explain</code> for routes,
+<code>quests.py</code> / <code>base_scan.py</code> / <code>player_report.py</code> for
+world state (full cookbook in <code>guides/AE2-PLANNING.md</code>). Claims from the
+internet get <em>double</em> scrutiny: community guides are architecture inspiration,
+but their numbers are for other pack versions until re-verified against our DB.</p>
+<p>What the tools cannot settle (GUI slot counts, in-world mechanics not in the recipe
+DB) is <b>flagged "verify in-game" at the point of claim</b> and collected in a closing
+appendix: <i>▸ What is DB-verified vs. verify-in-game</i>. That appendix is the
+document's honesty ledger — a reader knows exactly which claims stand on evidence and
+which on convention.</p>
+<p>Pack-version facts that keep tripping LLM memory (fuel maps, id traps, mechanics
+that changed since 2.7/2.8) are collected in <code>guides/KB-GTNH29.md</code> — consult
+it before web research, and feed newly verified cross-topic facts back into it.</p>
+
+<h3>4.4 State grounding — before asserting what the base has</h3>
+<div class="warnbox"><b>The costliest failure mode observed so far is not a wrong
+recipe — it's a wrong "the base doesn't have X".</b> A field-test draft asserted five
+major capabilities missing (petrochem fluids, an LCR, banked titanium, bees, automated
+chlorine) that all existed. Pack facts and base-state facts have different evidence
+rules; conflating them produces confidently wrong documents.</div>
+<ul>
+<li><b>Two claim classes.</b> <em>Pack facts</em> (recipes, fuel values, mechanics) come
+from the DB/jars/KB and stay true. <em>Base-state facts</em> (what is built, banked,
+automated, visited) are volatile — they require <b>fresh scans, run during the writing
+session</b>, cited with tool + date. Stale snapshots (even days old) are history, not
+state.</li>
+<li><b>The scan battery:</b> <code>base_scan.py</code> (item stacks incl. AE cells in
+drives), <code>fluid_scan.py</code> (fluid banks — tanks/hatches; items-only scans are
+blind to them), <code>machine_scan.py</code> (which machines/multiblocks are physically
+placed), <code>player_report.py</code>, <code>quests.py</code>. A "does the base have
+X?" claim needs the scan whose domain covers X — a missing-machine claim needs the
+machine census, a missing-fluid claim needs the fluid scan.</li>
+<li><b>Quest state is progression evidence, never built-state evidence.</b> Quests lag
+reality in both directions: unclaimed quests exist for things long built (banked Moon
+blocks with "Moon Arrival" unclaimed), and a completed quest doesn't mean the reward
+infrastructure exists. Cross-check against scans before any "not yet done" claim.</li>
+<li><b>"Not found" ≠ "absent".</b> The scanners publish honest gap sections; phrase
+negative findings as "not found by <code>&lt;tool&gt;</code> on &lt;date&gt;
+(&lt;coverage caveat&gt;)" and put them in the verify-in-game ledger, never as flat
+absence.</li>
+<li><b>Cross-cutting topics are never silently omitted.</b> If a sibling document owns
+a topic the reader would expect here (e.g. centralized power in a priorities doc),
+include the one-paragraph conclusion with a pointer — a reader of THIS document must
+not be able to miss it.</li>
+</ul>
+
+<h2>5 · Visual language</h2>
+
+<h3>5.1 Callouts with fixed meanings</h3>
+<div class="tblwrap">
+<table>
+<tr><th>Class</th><th>Meaning</th><th>Rule</th></tr>
+<tr><td><code>.tldr</code></td><td>the settled recommendation</td><td>exactly one, at
+the top</td></tr>
+<tr><td><code>.warnbox</code></td><td>a mistake the reader could actually make</td>
+<td>at the point of use, never collapsed</td></tr>
+<tr><td><code>.okbox</code></td><td>a reassurance that closes a worry ("144 L = exactly
+one ingot — nothing to void")</td><td>sparingly, or it becomes noise</td></tr>
+</table>
+</div>
+<p>Color-code entities consistently across the whole document (main network red, subnet
+blue, buffers amber, fluids teal, machines gray in ore-processing) and put a legend at
+the top if you use more than two colors. The palette lives in the shared stylesheet —
+reuse the CSS variables, don't invent new hex values.</p>
+
+<h3>5.2 CSS flows first, mermaid when the graph earns it</h3>
+<p>Two diagram tools, one decision rule:</p>
+<ul>
+<li><b><code>.flow</code>/<code>.fbox</code> CSS boxes</b> (as in §2 above) for linear
+ladders and priority stacks. Zero dependencies, theme-aware for free, and each box holds
+rich HTML — filter strings, <code>&lt;small&gt;</code> annotations. This covers ~90% of
+GTNH planning diagrams because most of them are "things fall through a ladder" —
+ore-processing.html, 1,554 lines, is served entirely by these and contains zero
+mermaid.</li>
+<li><b>Mermaid</b> when the topology genuinely branches, merges or cycles — power
+distribution graphs, multi-path processing decisions, dependency DAGs between build
+phases. A CSS column can't show a diamond; mermaid can.</li>
+</ul>
+<p>Embed once per document, in the <code>&lt;head&gt;</code>-equivalent position
+(snippet in the appendix skeleton). Live example — the document lifecycle:</p>
+
+<pre class="mermaid">
+flowchart TD
+    D["Draft — design session,<br>rule zero applied"] --> R1["Clean-context review pass<br>editorial / logic lens"]
+    D --> R2["Clean-context fact-check<br>every claim vs recipe DB"]
+    R1 --> FIX["Corrections applied in place<br>+ review-log entries"]
+    R2 --> FIX
+    FIX --> MORE{"new class of<br>doubt found?"}
+    MORE -- "yes — new lens" --> R3["Next pass — source-level,<br>closure audit, web research"]
+    R3 --> FIX
+    MORE -- no --> STABLE["Stable — commit;<br>build from it"]
+    STABLE -. "world changes,<br>new tier reached" .-> D
+</pre>
+
+<h3>5.3 Degrade gracefully</h3>
+<p>Mermaid loads from a CDN — offline, the <code>&lt;pre class="mermaid"&gt;</code>
+simply shows its source text, which is deliberately kept legible (short node labels,
+meaningful IDs). Never encode information <em>only</em> in a rendered diagram: the
+ladder a diagram shows must also exist as the stage tables. Diagrams are a view, tables
+are the truth. The same rule keeps the raw HTML readable for agents, who never render
+anything.</p>
+
+<h2>6 · Lifecycle</h2>
+<table class="stg">
+<tr><th>Draft</th><td>design session against the tools; skeleton from the appendix;
+review log created empty; every number sourced on first write</td></tr>
+<tr><th>Review</th><td>2+ clean-context sub-agent passes with different lenses (§4.1);
+repeat with new lenses until a pass finds nothing structural</td></tr>
+<tr><th>Stable</th><td>commit; the TL;DR is now buildable; further edits only through
+the review discipline</td></tr>
+<tr><th>Maintain</th><td>world moves on (new tier, new scan) → update the affected
+claims <em>and their verification date</em>; a claim with a stale date is a claim due
+for re-verification, not a claim to delete</td></tr>
+</table>
+<div class="okbox"><b>Handing off:</b> a document following this guide needs no
+<em>per-topic</em> bootstrap file — the collapsed preamble (assumptions + rejected ideas
++ review log) <em>is</em> the topic handoff. A fresh agent needs exactly three things:
+the document, rule zero, and the shared tool cookbook
+(<code>guides/AE2-PLANNING.md</code>).</div>
+
+<h2>7 · Document backlog — topics waiting for this treatment</h2>
+<p class="sub">Candidate future documents, explicitly <b>not</b> in scope here — listed
+so each starts from the right evidence instead of from memory.</p>
+<div class="tblwrap">
+<table>
+<tr><th>Working name</th><th>Core question</th><th>Primary evidence</th></tr>
+<tr><td><code>tier-next.html</code></td><td>What is actually required next in the
+current voltage tier — the true frontier, not the quest-book order</td>
+<td><code>quests.py status --frontier</code>, <code>quests.py path --smart</code>,
+<code>reports/ae2_v2/plan-full.txt</code>, topo order</td></tr>
+<tr><td><code>passive-priorities.html</code></td><td>What is most worth making passive
+right now — ranked by hand-time saved vs build cost</td>
+<td><code>base_scan.py</code> consumption deltas between snapshots, machine-hour lines
+in <code>plan-full.txt</code>, player inventory churn</td></tr>
+<tr><td><code>power-central.html</code></td><td>Central power generation at the current
+tier — worth it now, or which prerequisites first? (The AE2 plan's open thread: power
+is assumed, never sized — a benzene/LCE sizing pass closes it)</td>
+<td>DB recipes for the candidate fuels (benzene, LCE inputs), EU/t demand summed from
+the plan, wiki generator pages re-verified against the DB</td></tr>
+<tr><td><code>powergen-improve.html</code></td><td>Deep-dive on one aspect: upgrading
+the existing powergen in place — the "improve one subsystem" document shape</td>
+<td>current setup from <code>base_scan.py</code>, DB efficiency numbers,
+fuel-chain BOMs via <code>craft_plan.py</code></td></tr>
+<tr><td><code>community-priorities.html</code></td><td>What experienced players
+prioritize at this progression stage — a web-research pass distilled, then re-verified
+(rule zero applies doubly to internet claims, §4.3)</td>
+<td>wiki, community guides/videos; every actionable number re-checked against
+<code>databin.py</code> before it enters the document</td></tr>
+</table>
+</div>
+<p>A research-shaped document (the last row) keeps the same skeleton but its "design"
+section becomes a ranked findings section, and its review passes lean on fact-checking
+rather than closure audits.</p>
+
+<h2>8 · Appendix</h2>
+
+<details><summary>Starter skeleton — copy this to begin a new document</summary>
+<p>Copy the full <code>&lt;style&gt;</code> block from this file — it is the complete
+copy source (ore-processing.html shares the palette but its class set differs; borrow
+its topic-specific classes only as needed). Drop the mermaid script if the topic won't
+need branching diagrams; it can be added later.</p>
+<pre>&lt;!doctype html&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;title&gt;TOPIC — design notes&lt;/title&gt;
+&lt;style&gt; /* copy from planning-with-html.html */ &lt;/style&gt;
+&lt;script type="module"&gt;
+try{
+  const m = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+  m.default.initialize({startOnLoad:true, theme: dark ? "dark" : "neutral"});
+}catch(e){}
+&lt;/script&gt;
+
+&lt;main&gt;
+&lt;h1&gt;TOPIC — design notes&lt;/h1&gt;
+&lt;p class="sub"&gt;GTNH 2.9 · SCOPE · verified against RECIPE-DB (current file name in
+the AE2-PLANNING.md cookbook) on DATE.&lt;/p&gt;
+
+&lt;div class="tldr"&gt;&lt;b&gt;TL;DR — recommendation:&lt;/b&gt; …&lt;/div&gt;
+
+&lt;details&gt;&lt;summary&gt;Links &amp;amp; sources&lt;/summary&gt;&lt;ul&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ul&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Preconditions &amp;amp; working assumptions&lt;/summary&gt;&lt;ul&gt;
+&lt;li&gt;&lt;b&gt;Rule zero:&lt;/b&gt; every number verified with the tools
+    (guides/AE2-PLANNING.md cookbook); unverifiable claims flagged "verify in-game".&lt;/li&gt;
+&lt;/ul&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Rejected ideas (and why)&lt;/summary&gt;&lt;ol&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ol&gt;&lt;/details&gt;
+&lt;details&gt;&lt;summary&gt;Review log — errors already found &amp;amp; fixed (don't reintroduce)&lt;/summary&gt;
+&lt;p class="sub"&gt;No review passes yet.&lt;/p&gt;&lt;/details&gt;
+
+&lt;h2&gt;1 · The numbers (from the tools)&lt;/h2&gt;
+&lt;h2&gt;2 · The design&lt;/h2&gt;
+&lt;h2&gt;3 · Build list&lt;/h2&gt;
+&lt;h2&gt;4 · Appendix&lt;/h2&gt;
+&lt;details&gt;&lt;summary&gt;What is DB-verified vs. verify-in-game&lt;/summary&gt;…&lt;/details&gt;
+
+&lt;footer&gt;Generated from TOOL scans · GTNH 2.9 · SOURCES.&lt;/footer&gt;
+&lt;/main&gt;</pre>
+</details>
+
+<details><summary>Sub-agent review prompt template</summary>
+<pre>Read guides/TOPIC.html in full (raw source — including all &lt;details&gt; blocks:
+assumptions, rejected ideas, review log). You have no other context; that is
+deliberate.
+
+Rule zero: LLM recall of GTNH facts is not evidence. Verify claims with the
+tools (run from gtnh_config/tools/): databin.py find/recipes, craft_plan.py
+--explain, quests.py, base_scan.py — cookbook in guides/AE2-PLANNING.md.
+
+Your lens for this pass: [editorial+logic | full fact-check of every numeric
+claim | source-level vs the shipped jars | closure audit | web research
+cross-check].
+
+Do NOT re-open entries in "Rejected ideas" or re-introduce anything listed in
+the review log — those are settled unless you bring new evidence, and note the
+review log also lists confirmed NON-errors that must not be "fixed".
+
+Deliver: a numbered findings list (claim → what's wrong → evidence). Do not
+edit the file; the author applies corrections in place and appends your pass
+to the review log.</pre>
+</details>
+
+<details><summary>Checklist before calling a document stable</summary>
+<ul>
+<li>TL;DR alone is enough to act on — tested by reading only it.</li>
+<li>All four preamble <code>&lt;details&gt;</code> blocks exist (sources, assumptions,
+rejected ideas, review log) and the log records every pass with dates.</li>
+<li>Every number has provenance inline; every unverifiable claim says "verify in-game"
+and appears in the closing appendix.</li>
+<li>Every "the base lacks / hasn't done X" claim cites a same-session scan (tool +
+date) whose domain covers X; quest state is never the sole evidence for built-state
+(§4.4).</li>
+<li>Repeated units use stable keys + the uniform field template; cross-references to
+repeated units go by key, never by section number (top-level § references are fine —
+whole sections rarely move).</li>
+<li>Warnings sit at their point of use in <code>.warnbox</code>, none collapsed.</li>
+<li>Diagrams have a table twin; document is readable with JS off and in both themes.</li>
+<li>At least two clean-context review passes with different lenses found nothing
+structural on their last run.</li>
+<li>Committed, with the review passes visible in git history.</li>
+</ul>
+</details>
+
+<details><summary>What is verified vs. judgment</summary>
+<ul>
+<li><b>Verified (review pass 1, 2026-08-09):</b> every descriptive claim about
+ore-processing.html (structure, six-pass review history, the In/Bus/Card/Out template,
+string counts like "43 ores, 681 chars"), about AE2-PLANNING.md (rule zero, cookbook,
+the unsized-power open thread) and about README.md (document-before-apply workflow);
+tag-balance and entity-escaping of this file; the appendix skeleton containing §2's
+full never-omit subset; the five tools named in §4.3 existing in
+<code>tools/</code>.</li>
+<li><b>Verify by opening the file in a browser:</b> the mermaid diagram actually
+rendering (needs network for the CDN; unrendered it must still read as legible source —
+the §5.3 contract), and both color themes.</li>
+<li><b>Judgment, not fact:</b> the section order, the collapse rules, the
+two-lenses-minimum bar, and everything in Rejected ideas — conventions proven once (on
+ore-processing.html) and expected to generalize. Revise them through the review
+discipline, not silently.</li>
+</ul>
+</details>
+
+<footer>Authoring conventions distilled from guides/ore-processing.html (6 review
+passes, 2026-08-08/09) · rule zero and tool cookbook per guides/AE2-PLANNING.md ·
+change-workflow (document before apply) per README.md.</footer>
+</main>

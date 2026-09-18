@@ -1,0 +1,4355 @@
+{
+ "abyss-warlock-build-guide": {
+  "tier": "A",
+  "class": "Warlock",
+  "title": "Abyss Warlock Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Void",
+    "Heart of the Oak",
+    "Spirit",
+    "Plague",
+    "Obsession",
+    "Insight",
+    "Mang Song's Lesson",
+    "Ondal's Wisdom",
+    "Razorswitch",
+    "Suicide Branch",
+    "Spectral Shard",
+    "Wizardspike",
+    "Rare Kris",
+    "Arch-Devil's Kris of Lower Resistance"
+   ],
+   "Off-Hand": [
+    "Spirit",
+    "Lidless Wall",
+    "Splendor",
+    "Ancients' Pledge",
+    "Rhyme"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Blade of Ali Baba",
+    "Gull",
+    "Naj's Puzzler",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Harlequin Crest",
+    "Crown of Ages",
+    "Lore"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Stealth",
+    "Chains of Honor",
+    "Que-Hegan's Wisdom",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship"
+   ],
+   "Gloves": [
+    "Trang-Oul's Claws",
+    "Magefist",
+    "Chance Guards",
+    "Caster Crafted Bramble Mitts"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Caster Crafted Belt"
+   ],
+   "Boots": [
+    "Waterwalk",
+    "Sandstorm Trek",
+    "War Traveler",
+    "Aldur's Advance",
+    "Silkweave",
+    "Caster Crafted Boots"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Blood Crafted Ring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Warlock)",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": []
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Chains of Honor"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage"
+    ]
+   }
+  }
+ },
+ "berserk-barbarian": {
+  "tier": "S",
+  "class": "Barbarian",
+  "title": "Berserk Barbarian Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Grief Phase Blade",
+    "Grief Zweihander",
+    "Oath Highland Blade",
+    "Oath Cryptic Sword",
+    "Oath Balrog Blade",
+    "Unbending Will Phase Blade",
+    "Unbending Will Colossus Blade"
+   ],
+   "Off-Hand": [
+    "Gemmed Phase Blade (6x Ist Rune s )",
+    "Ethereal (Gemmed Crystal Sword (6x Ist Rune s ))",
+    "Rune Master (5x Ist Rune s )",
+    "Blade of Ali Baba (2x Ist Rune s )",
+    "Gull Dagger ( Ist Rune )",
+    "Stormshield",
+    "Moser's Blessed Circle (2x Ist Rune s )",
+    "Rhyme"
+   ],
+   "Weapon-Swap": [
+    "Suicide Branch ( Ist Rune )",
+    "Wizardspike ( Ist Rune )",
+    "Heart of the Oak Flail",
+    "Gemmed Phase Blade (6x Ist Rune s )",
+    "Blade of Ali Baba (2x Ist Rune s )",
+    "Gull Dagger ( Ist Rune )",
+    "Harmony",
+    "Naj's Puzzler",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Suicide Branch ( Ist Rune )",
+    "Wizardspike ( Ist Rune )",
+    "Heart of the Oak Flail",
+    "Spirit Monarch",
+    "Gemmed Phase Blade (6x Ist Rune s )",
+    "Blade of Ali Baba (2x Ist Rune s )",
+    "Gull Dagger"
+   ],
+   "Helmets": [
+    "Harlequin Crest ( Cham Rune )",
+    "Harlequin Crest ( Ist Rune )",
+    "Immortal King's Will",
+    "Artisan's Tiara of Luck",
+    "Rare Circlet",
+    "Berserker's Diadem of the Magus",
+    "Tarnhelm",
+    "Gemmed Crown (3x Perfect Topaz es )",
+    "Guillaume's Face ( Cham Rune )",
+    "Arreat's Face",
+    "Crown of Ages",
+    "Temper"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship (3-Piece Tal Rasha's Set )",
+    "Wealth",
+    "Gemmed Dusk Shroud (4x Perfect Topaz )"
+   ],
+   "Gloves": [
+    "Chance Guards",
+    "Laying of Hands",
+    "Immortal King's Forge (3-Piece Immortal King's Set )",
+    "Sigon's Gage (3-Piece Sigon's Set )",
+    "Death's Hand (2-Piece Death's Set )",
+    "Rare Gloves",
+    "Blood Crafted Gloves",
+    "Trang-Oul's Claws"
+   ],
+   "Belts": [
+    "Goldwrap",
+    "Arachnid Mesh",
+    "Trang-Oul's Girth",
+    "Verdungo's Hearty Cord",
+    "Tal Rasha's Fine-Spun Cloth (3-Piece Tal Rasha's Set )",
+    "Immortal King's Detail (3-Piece Immortal King's Set )",
+    "Sigon's Wrap (3-Piece Sigon's Set )",
+    "Death's Guard Demonhide Sash (1 or 2-Piece Death's Set )"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Gore Rider",
+    "Goblin Toe",
+    "Immortal King's Pillar (3-Piece Immortal King's Set )",
+    "Sigon's Sabot (3-Piece Sigon's Set )",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Highlord's Wrath",
+    "Metalgrid",
+    "Tal Rasha's Adjudication (3-Piece Tal Rasha's Set )",
+    "Amulet of Teleportation",
+    "Angelic Wings (2-Piece Angelic Set )"
+   ],
+   "Rings": [
+    "Nagelring",
+    "Rare Ring",
+    "Rare Ring",
+    "Dwarf Star",
+    "Wisp Projector",
+    "Angelic Halo (2-Piece Angelic Set )"
+   ],
+   "Charms": [
+    "Fine Small Charm of Good Luck",
+    "Steel Small Charm of Good Luck",
+    "Shimmering Small Charm of Good Luck",
+    "Small Charm of Good Luck",
+    "Fine Small Charm of Vita",
+    "Steel Small Charm of Vita",
+    "Shimmering Small Charm of Vita",
+    "Small Charm of Vita",
+    "Fine Small Charm of Balance",
+    "Shimmering Small Charm of Balance",
+    "Fine Small Charm",
+    "Shimmering Small Charm",
+    "Resistance Small Charm",
+    "Sharp Large Charm of Vita",
+    "Sharp Grand Charm of Balance",
+    "Steel Grand Charm of Balance",
+    "Sharp Grand Charm of Vita",
+    "Steel Grand Charm of Vita",
+    "Sharp Grand Charm",
+    "Steel Grand Charm",
+    "Shimmering Grand Charm of Balance",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm"
+   ],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Barbarian Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight",
+     "Hustle"
+    ],
+    "mid": [
+     "Insight",
+     "Hustle"
+    ],
+    "end": [
+     "Insight",
+     "Breath of the Dying War Pike",
+     "Tomb Reaver"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Treachery",
+     "Chains of Honor",
+     "Jeweler's Sacred Armor of Stability",
+     "Skullder's Ire"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Guillaume's Face",
+     "Guillaume's Face",
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Stealskull",
+     "Harlequin Crest",
+     "Cure"
+    ]
+   }
+  }
+ },
+ "blessed-hammer-paladin": {
+  "tier": "S",
+  "class": "Paladin",
+  "title": "Blessed Hammer Paladin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Void",
+    "Heart of the Oak Flail",
+    "Wizardspike",
+    "Astreon's Iron Ward",
+    "Suicide Branch",
+    "Spectral Shard",
+    "Spirit Crystal Sword",
+    "Scepter of the Apprentice"
+   ],
+   "Off-Hand": [
+    "Spirit Sacred Targe",
+    "Phoenix Sacred Targe",
+    "Herald of Zakarum",
+    "Gemmed Targe"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms War Scepter",
+    "Blade of Ali Baba",
+    "Gull",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Ancients' Pledge Targe",
+    "Spirit Sacred Targe",
+    "Rhyme Targe",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Hellwarden's Will",
+    "Harlequin Crest",
+    "Crown of Ages",
+    "Rockstopper",
+    "Lore",
+    "Rare Diadem"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Principle",
+    "Smoke",
+    "Stealth"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Chance Guards",
+    "Bloodfist",
+    "Trang-Oul's Claws",
+    "Garnet Gloves of Fortune"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Gheed's Wager",
+    "Verdungo's Hearty Cord",
+    "Thundergod's Vigor",
+    "Goldwrap",
+    "Nightsmoke",
+    "Immortal King's Detail",
+    "Rare Belt"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Waterwalk",
+    "Sandstorm Trek",
+    "Aldur's Advance",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Seraph's Hymn",
+    "Telling of Beads",
+    "Caster Crafted Amulet"
+   ],
+   "Rings": [
+    "Sling",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Nature's Peace",
+    "Dwarf Star",
+    "Wisp Projector",
+    "Rare Ring",
+    "Fortuitous Ring of Fortune"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Paladin)",
+    "Annihilus",
+    "Renewed Black Cleft"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Insight"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Goldskin",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery",
+     "Chains of Honor",
+     "Jeweler's Sacred Armor of Stability",
+     "Shaftstop",
+     "Duress"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "blizzard-sorceress": {
+  "tier": "S",
+  "class": "Sorceress",
+  "title": "Blizzard Sorceress Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Doom Double Axe",
+    "Heart of the Oak",
+    "Obsession Archon Staff",
+    "Spirit",
+    "The Oculus",
+    "Death's Fathom",
+    "Wizardspike",
+    "Tal Rasha's Lidless Eye"
+   ],
+   "Off-Hand": [
+    "Spirit Monarch",
+    "Gemmed Superior Monarch (4x Rainbow Facet )",
+    "Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel )",
+    "Rhyme",
+    "Ancients' Pledge",
+    "Stormshield"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Memory Battle Staff",
+    "Gull",
+    "Blade of Ali Baba",
+    "Wand of Lower Resistance",
+    "Doom Double Axe"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Rhyme",
+    "Magic Find Monarch",
+    "Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel )"
+   ],
+   "Helmets": [
+    "Glacial Diadem of the Magus",
+    "Nightwing's Veil",
+    "Harlequin Crest",
+    "Lore",
+    "Crown of Ages",
+    "Harlequin Crest",
+    "Tal Rasha's Horadric Crest",
+    "Rare Diadem",
+    "Gemmed Mask"
+   ],
+   "Body Armor": [
+    "Chains of Honor",
+    "Stealth",
+    "Skin of the Vipermagi",
+    "Ormus' Robes",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Chance Guards",
+    "Trang-Oul's Claws",
+    "Magic Gloves"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Snowclash",
+    "Verdungo's Hearty Cord",
+    "Tal Rasha's Fine-Spun Cloth",
+    "Immortal King's Detail",
+    "Magic Belt"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Sandstorm Trek",
+    "Waterwalk",
+    "Aldur's Advance",
+    "Rare Boots",
+    "Magic Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Tal Rasha's Adjudication",
+    "Caster Crafted Amulet",
+    "Magic Amulet",
+    "Magic Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Dwarf Star",
+    "Rare Ring",
+    "Magic Ring",
+    "Magic Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Hellfire Torch",
+    "Annihilus",
+    "Cold Rupture"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity",
+     "Insight"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "The Gladiator's Bane",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage"
+    ]
+   }
+  }
+ },
+ "double-throw-barbarian-guide": {
+  "tier": "A",
+  "class": "Barbarian",
+  "title": "Double Throw Barbarian Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Ethereal Lacerator",
+    "Lacerator",
+    "Ethereal Warshrike",
+    "Warshrike",
+    "Ethereal Deathbit (Upgraded)",
+    "Deathbit (Upgraded)",
+    "Ethereal The Scalper (Upgraded)",
+    "The Scalper (Upgraded)",
+    "Ethereal Demon's Arch",
+    "Demon's Arch",
+    "Ethereal Gimmershred",
+    "Gimmershred",
+    "Ethereal Gargoyle's Bite",
+    "Wraith Flight",
+    "Ethereal Rare Ghost Glaive",
+    "Ethereal Rare Winged Axe",
+    "Ethereal Rare Flying Axe",
+    "Ethereal Rare Flying Knife",
+    "Ethereal Rare Winged Harpoon (Imbue)",
+    "Ethereal Rare Flying Axe (Imbue)",
+    "Ethereal Rare Flying Knife (Imbue)",
+    "Blood Crafted Elite Throwing Axe",
+    "Cruel Elite Throwing Weapon"
+   ],
+   "Off-Hand": [
+    "Ethereal Lacerator",
+    "Lacerator",
+    "Ethereal Warshrike",
+    "Warshrike",
+    "Ethereal Deathbit (Upgraded)",
+    "Deathbit (Upgraded)",
+    "Ethereal The Scalper (Upgraded)",
+    "The Scalper (Upgraded)",
+    "Ethereal Demon's Arch",
+    "Demon's Arch",
+    "Ethereal Gimmershred",
+    "Gimmershred",
+    "Ethereal Gargoyle's Bite",
+    "Wraith Flight",
+    "Ethereal Rare Ghost Glaive",
+    "Ethereal Rare Winged Axe",
+    "Ethereal Rare Flying Axe",
+    "Ethereal Rare Flying Knife",
+    "Ethereal Rare Flying Axe (Imbue)",
+    "Ethereal Rare Flying Knife (Imbue)",
+    "Blood Crafted Elite Throwing Axe",
+    "Cruel Elite Throwing Weapon"
+   ],
+   "Weapon-Swap": [
+    "Wizardspike ( Ist Rune )",
+    "Suicide Branch ( Ist Rune )",
+    "Heart of the Oak Flail",
+    "Gemmed Crystal Sword (6x Ist Rune s )",
+    "Blade of Ali Baba Tulwar (2x Ist Rune s )",
+    "Gull ( Ist Rune )",
+    "Hustle Phase Blade",
+    "Harmony",
+    "Naj's Puzzler",
+    "Teleport Charge Staff"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Heart of the Oak Flail",
+    "Wizardspike ( Ist Rune )",
+    "Suicide Branch ( Ist Rune )",
+    "Stormshield",
+    "Gemmed Crystal Sword (6x Ist Rune s )",
+    "Blade of Ali Baba Tulwar (2x Ist Rune s )",
+    "Gull ( Ist Rune )"
+   ],
+   "Helmets": [
+    "Guillaume's Face ( Cham Rune )",
+    "Harlequin Crest ( Cham Rune )",
+    "Rare Diadem",
+    "Artisan's Diadem of Speed (3x Ruby Jewels of Fervor )",
+    "Artisan's Diadem of Nirvana (3x Ruby Jewels of Fervor )",
+    "Artisan's Diadem of Luck (3x Ruby Jewels of Fervor )",
+    "Berserker's Diadem of the Magus",
+    "Crown of Ages ( Cham Rune + Ber Rune )",
+    "Crown of Ages (2x Ruby Jewels of Fervor )",
+    "Giant Skull",
+    "Arreat's Face",
+    "Wisdom",
+    "Bulwark",
+    "Temper",
+    "Gemmed Slayer Guard (3x Vermilion Jewels )",
+    "Immortal King's Will",
+    "Tarnhelm",
+    "Gemmed Slayer Guard (3x Perfect Topaz es )"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Fortitude",
+    "Hustle",
+    "Lionheart",
+    "Treachery",
+    "Skullder's Ire",
+    "Wealth",
+    "Gemmed Dusk Shroud (4x Perfect Topaz es )"
+   ],
+   "Gloves": [
+    "Laying of Hands",
+    "Chance Guards",
+    "Hit Power Crafted Gloves",
+    "Blood Crafted Gloves",
+    "Immortal King's Forge (3-Piece Immortal King's Set )",
+    "Sigon's Gage (3-Pierce Sigon's Set )",
+    "Death's Hand (2-Piece Death's Set )",
+    "Trang-Oul's Claws",
+    "Magefist"
+   ],
+   "Belts": [
+    "Razortail",
+    "Arachnid Mesh",
+    "Nosferatu's Coil",
+    "Goldwrap",
+    "Thundergod's Vigor",
+    "Verdungo's Hearty Cord",
+    "String of Ears",
+    "Immortal King's Detail (3-Piece Immortal King's Set )",
+    "Sigon's Wrap (3-Piece Sigon's Set )",
+    "Death's Guard Demonhide Sash (2-Piece Death's Set )"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Gore Rider",
+    "Goblin Toe",
+    "Immortal King's Pillar (3-Piece Immortal King's Set )",
+    "Sigon's Sabot (3-Piece Sigon's Set )",
+    "Sander's Riprap"
+   ],
+   "Amulets": [
+    "Highlord's Wrath",
+    "The Cat's Eye",
+    "Atma's Scarab",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Teleport Charge Amulet",
+    "Metalgrid",
+    "Angelic Wings (2-Piece Angelic Set )"
+   ],
+   "Rings": [
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Blood Crafted Ring",
+    "Raven Frost",
+    "Nagelring",
+    "Wisp Projector Ring",
+    "Nature's Peace Ring",
+    "Angelic Halo Ring (2-Piece Angelic Set )"
+   ],
+   "Charms": [
+    "Fine Small Charm of Good Luck",
+    "Shimmering Small Charm of Good Luck",
+    "Shimmering Small Charm of Vita",
+    "Fine Small Charm of Vita",
+    "Fine Small Charm of Balance",
+    "Fine Small Charm of Inertia",
+    "Fine Small Charm",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm",
+    "Sharp Large Charm of Vita",
+    "Sharp Grand Charm of Maiming",
+    "Sharp Grand Charm of Dexterity",
+    "Sharp Grand Charm of Vita",
+    "Sharp Grand Charm of Balance",
+    "Sharp Grand Charm of Inertia",
+    "Sharp Grand Charm",
+    "Shimmering Grand Charm of Balance",
+    "Shimmering Grand Charm of Inertia",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm"
+   ],
+   "Unique Charms": [
+    "Bone Break",
+    "Gheed's Fortune",
+    "Barbarian Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Mercenary Type": {
+    "early": [
+     "Act 2 Might",
+     "or Act 5 Frenzy"
+    ],
+    "mid": [
+     "Act 2 Might"
+    ],
+    "end": [
+     "Act 1 Fire",
+     "or Act 2 Might"
+    ]
+   },
+   "Weapon": {
+    "early": [
+     "Hustle",
+     "Insight",
+     "Lawbringers"
+    ],
+    "mid": [
+     "Hustle"
+    ],
+    "end": [
+     "Faith",
+     "Pride"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Shaftstop"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "dragon-talon-assassin": {
+  "tier": "A",
+  "class": "Assassin",
+  "title": "Dragon Talon Assassin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Mosaic Greater Talons",
+    "Stormlash ( Shael Rune )",
+    "Beast Berserker Axe",
+    "Black Flail",
+    "Wizardspike"
+   ],
+   "Off-Hand": [
+    "Mosaic",
+    "Stormshield ( Jewel )",
+    "Sanctuary",
+    "Moser's Blessed Circl (2x perfect diamond"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Wand of Life Tap"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Guillaume's Face ( Jewel )",
+    "Crown of Ages ( Um Rune + Shael Rune )",
+    "Kira's Guardian",
+    "Rockstopper"
+   ],
+   "Body Armor": [
+    "Chains of Honor Dusk Shroud",
+    "Enigma Mage Plate",
+    "Duress",
+    "Duriel's Shell ( Um Rune )"
+   ],
+   "Gloves": [
+    "Dracul's Grasp",
+    "Blood Crafted Gloves",
+    "Death's Hand",
+    "Magefist"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Thundergod's Vigor",
+    "Verdungo's Hearty Cord",
+    "String of Ears",
+    "Death's Guard",
+    "Blood Crafted Belt"
+   ],
+   "Boots 4": [
+    "Gore Rider Myrmidon Greaves",
+    "Goblin Toe Mirrored Boots",
+    "Shadow Dancer Myrmidon Greaves"
+   ],
+   "Amulets": [
+    "Metalgrid",
+    "Mara's Kaleidoscope",
+    "The Cat's Eye",
+    "Highlord's Wrath"
+   ],
+   "Rings": [
+    "Wisp Projector",
+    "Raven Frost",
+    "Rare Ring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "_text_only": true,
+   "Weapon": {
+    "end": [
+     "Hexfire Shamshir"
+    ]
+   },
+   "Body Armor": {
+    "end": [
+     "Ormus' Robes Dusk Shroud"
+    ]
+   },
+   "Helmet": {
+    "end": [
+     "Flickering Flame"
+    ]
+   },
+   "Shield": {
+    "end": [
+     "Lidless Wall",
+     "Ethereal Spirit Monarch"
+    ]
+   },
+   "_source": "guide prose, Mercenary section (Act 3 Iron Wolf, Fire)"
+  }
+ },
+ "dream-paladin": {
+  "tier": "A",
+  "class": "Paladin",
+  "title": "Dream Paladin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/dream-paladin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Grief Phase Blade",
+    "Crescent Moon Phase Blade",
+    "Azurewrath",
+    "Lightsabre",
+    "Hand of Justice Phase Blade",
+    "Last Wish Phase Blade"
+   ],
+   "Off-Hand": [
+    "Dream"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Wizardspike",
+    "Naj's Puzzler",
+    "Staff of Teleportation",
+    "Bone Wand of Life Tap",
+    "Demon Limb"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit"
+   ],
+   "Helmets": [
+    "Dream"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Chains of Honor",
+    "Fortitude",
+    "Shaftstop",
+    "Skullder's Ire",
+    "Dragon",
+    "Duress",
+    "Treachery"
+   ],
+   "Gloves": [
+    "Laying of Hands",
+    "Blood Crafted Gloves",
+    "Dracul's Grasp",
+    "Bloodfist",
+    "Chance Guards"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "String of Ears",
+    "Verdungo's Hearty Cord",
+    "Nosferatu's Coil",
+    "Thundergod's Vigor",
+    "Goldwrap",
+    "Caster Crafted Belt",
+    "Blood Crafted Belt"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Gore Rider",
+    "Goblin Toe"
+   ],
+   "Amulets": [
+    "Highlord's Wrath",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Teleport Charge Amulet",
+    "Mara's Kaleidoscope",
+    "Seraph's Hymn"
+   ],
+   "Rings": [
+    "Raven Frost",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Bul-Kathos' Wedding Band",
+    "The Stone of Jordan",
+    "Nagelring",
+    "Wisp Projector",
+    "Dwarf Star",
+    "Nature's Peace"
+   ],
+   "Charms": [
+    "Fine Small Charm of Good Luck",
+    "Fine Small Charm of Vita",
+    "Shimmering Small Charm of Good Luck",
+    "Amber Small Charm of Good Luck",
+    "Shimmering Small Charm of Vita",
+    "Fine Small Charm of Balance",
+    "Fine Small Charm",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm",
+    "Sharp Grand Charm of Vita",
+    "Sharp Grand Charm of Balance",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm"
+   ],
+   "Unique Charms": [
+    "Crack of the Heavens",
+    "Bone Break",
+    "Flame Rift",
+    "Gheed's Fortune",
+    "Paladin Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Mercenary Type": {
+    "early": [
+     "Act 2 Might"
+    ],
+    "mid": [
+     "Act 2 Might"
+    ],
+    "end": [
+     "Act 2 Might",
+     "or Act 1 Cold"
+    ]
+   },
+   "Weapon": {
+    "early": [
+     "Hustle",
+     "Insight"
+    ],
+    "mid": [
+     "The Reaper's Toll"
+    ],
+    "end": [
+     "The Reaper's Toll",
+     "Infinity",
+     "Faith Matriarchal Bow"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Treachery",
+     "Fortitude",
+     "Chains of Honor",
+     "Duress",
+     "Shaftstop"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Guillaume's Face",
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Guillaume's Face",
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "echoing-strike-warlock-guide": {
+  "tier": "S",
+  "class": "Warlock",
+  "title": "Echoing Strike Warlock Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+  "last_updated": "August 26, 2026",
+  "slots": {
+   "Weapon": [
+    "Void",
+    "Plague",
+    "Heart of the Oak",
+    "Spirit",
+    "Obsession",
+    "Silence",
+    "Fortitude",
+    "Insight",
+    "Doom",
+    "Bloodpact Shard",
+    "Spectral Shard",
+    "Wizardspike",
+    "Tomb Reaver",
+    "Arioc's Needle",
+    "Mang Song's Lesson",
+    "Ondal's Wisdom",
+    "Razorswitch",
+    "Skull Collector",
+    "Suicide Branch"
+   ],
+   "Off-Hand": [
+    "Spirit",
+    "Lidless Wall",
+    "Splendor",
+    "Ancients' Pledge",
+    "Rhyme"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Blade of Ali Baba",
+    "Gull",
+    "Naj's Puzzler",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Rare Diadem",
+    "Forbidden Diadem of the Magus",
+    "Harlequin Crest",
+    "Hellwarden's Will",
+    "Crown of Ages",
+    "Lore"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Stealth",
+    "Chains of Honor",
+    "Que-Hegan's Wisdom",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship"
+   ],
+   "Gloves": [
+    "Trang-Oul's Claws",
+    "Magefist",
+    "Chance Guards"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Caster Crafted Belt"
+   ],
+   "Boots": [
+    "Waterwalk",
+    "Sandstorm Trek",
+    "War Traveler",
+    "Aldur's Advance",
+    "Silkweave",
+    "Caster Crafted Boots"
+   ],
+   "Amulets": [
+    "Forbidden Amulet of the Apprentice",
+    "Mara's Kaleidoscope",
+    "Entropy Locket"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Blood Crafted Ring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Warlock)",
+    "Annihilus",
+    "Renewed Bone Break"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [],
+    "end": [
+     "Insight Giant Thresher"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Chains of Honor",
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Cure Grand Crown"
+    ]
+   }
+  }
+ },
+ "enchant-sorceress": {
+  "tier": "A",
+  "class": "Sorceress",
+  "title": "Enchant Sorceress Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Demon Machine Demon Crossbow ( Upgraded )",
+    "Raven Claw",
+    "Widowmaker",
+    "Volcanic Eldritch Orb (2x 5%/-x Fire Rainbow Facets )",
+    "Eschuta's Temper",
+    "Leaf",
+    "Spirit"
+   ],
+   "Off-Hand": [
+    "Bolts",
+    "Arrows",
+    "Spirit Monarch"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Memory"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Lidless Wall",
+    "Splendor"
+   ],
+   "Helmets": [
+    "Flickering Flame",
+    "Crown of Ages (2x 5/5 Fire Rainbow Facets )",
+    "Andariel's Visage",
+    "Harlequin Crest",
+    "Wisdom",
+    "Tarnhelm",
+    "Lore",
+    "Volcanic Diadem (2x 5%/-x Fire Rainbow Facets )",
+    "Volcanic Circlet"
+   ],
+   "Body Armor": [
+    "Skin of the Vipermagi",
+    "Ormus' Robes",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship (3-Piece Tal Rasha's Set )",
+    "Guardian Angel",
+    "Treachery",
+    "Enlightenment"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Rare Gloves",
+    "Frostburn",
+    "Death's Hand (2-Piece Death's Set )"
+   ],
+   "Belts": [
+    "Razortail",
+    "Arachnid Mesh",
+    "Caster Crafted Belt",
+    "Tal Rasha's Fine-Spun Cloth (3-Piece Tal Rasha's Set )",
+    "Thundergod's Vigor",
+    "Death's Guard Demonhide Sash (2-Piece Death's Set )"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Aldur's Advance",
+    "Rare Boots",
+    "Sandstorm Trek",
+    "Sander's Riprap"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope",
+    "Tal Rasha's Adjudication (3-Piece Tal Rasha's Set )",
+    "Highlord's Wrath",
+    "Volcanic Amulet of the Apprentice",
+    "Volcanic Amulet"
+   ],
+   "Rings": [
+    "Raven Frost",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Rare Ring",
+    "Rare Ring",
+    "Fortuitous Ring of Fortune",
+    "Nagelring Ring",
+    "Wisp Projector Ring",
+    "Dwarf Star Ring",
+    "Nature's Peace Ring"
+   ],
+   "Charms": [],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Sorceress Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity",
+     "Breath of the Dying"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Chains of Honor",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Cure"
+    ]
+   }
+  }
+ },
+ "fire-blast-assassin": {
+  "tier": "A",
+  "class": "Assassin",
+  "title": "Fire Blast Assassin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/fire-blast-assassin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Cunning Greater Claws of Quickness (2x Rainbow Facet )",
+    "Heart of the Oak",
+    "Suicide Branch",
+    "Spirit Crystal Sword",
+    "Plague Greater Talons"
+   ],
+   "Off-Hand": [
+    "Cunning Greater Claws of Quickness (2x Shael Rune )",
+    "Phoenix Monarch",
+    "Spirit Monarch",
+    "rhyme",
+    "Stormshield",
+    "Monarch (4x Rainbow Facet )",
+    "Plague Greater Talons"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Flickering Flame",
+    "Harlequin Crest ( Rainbow Facet Jewel )",
+    "Tarnhelm",
+    "Crown of Ages",
+    "Temper",
+    "Ground"
+   ],
+   "Body Armor": [
+    "Enigma Mage Plate",
+    "treachery",
+    "Chains of Honor"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Waterwalk",
+    "Aldur's Advance",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope",
+    "Magic Amulet",
+    "Magic Amulet"
+   ],
+   "Rings": [
+    "Rare Ring",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Raven Frost"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "flame rift",
+    "Gheed's Fortune",
+    "Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity",
+     "Plague"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "fire-warlock-guide": {
+  "tier": "S",
+  "class": "Warlock",
+  "title": "Fire Warlock Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+  "last_updated": "May 27, 2026",
+  "slots": {
+   "Weapon": [
+    "Obsession",
+    "Heart of the Oak",
+    "Spirit",
+    "Insight",
+    "Leaf",
+    "Hexfire",
+    "Mang Song's Lesson",
+    "Ondal's Wisdom",
+    "Razorswitch",
+    "Suicide Branch",
+    "Spectral Shard",
+    "Wizardspike"
+   ],
+   "Off-Hand": [
+    "Ars Al'Diabolos",
+    "Spirit",
+    "Lidless Wall",
+    "Phoenix",
+    "Measured Wrath",
+    "Ars Dul'Mephistos",
+    "Ars Tor'Baalos",
+    "Splendor",
+    "Ancients' Pledge",
+    "Rhyme",
+    "Horazon's Secrets"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Blade of Ali Baba",
+    "Gull",
+    "Naj's Puzzler",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Flickering Flame",
+    "Rare Diadem",
+    "Harlequin Crest",
+    "Hellwarden's Will",
+    "Coven Diadem",
+    "Crown of Ages",
+    "Lore",
+    "Peasant Crown",
+    "Horazon's Countenance"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Stealth",
+    "Chains of Honor",
+    "Authority",
+    "Que-Hegan's Wisdom",
+    "Ormus' Robes",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship",
+    "Horazon's Dominion"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Chance Guards"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Caster Crafted Belt",
+    "Gheed's Wager"
+   ],
+   "Boots": [
+    "Wraithstep",
+    "Waterwalk",
+    "Sandstorm Trek",
+    "War Traveler",
+    "Aldur's Advance",
+    "Silkweave",
+    "Caster Crafted Boots",
+    "Horazon's Legacy"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "The Rising Sun",
+    "Torrid Amulet of the Apprentice",
+    "Arch-Devil's Amulet of the Apprentice",
+    "Shadow Mark Amulet",
+    "Telling of Beads"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Opalvein",
+    "Blood Crafted Ring",
+    "Rare Ring",
+    "Scintillating Ring of the Apprentice"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Warlock)",
+    "Annihilus",
+    "Flame Rift"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity Giant Thresher",
+     "OR",
+     "Insight Giant Thresher"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery",
+     "Chains of Honor"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Flickering Flame"
+    ]
+   }
+  }
+ },
+ "fissure-druid": {
+  "tier": "S",
+  "class": "Druid",
+  "title": "Fissure Druid Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/fissure-druid",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Heart of the Oak Flail",
+    "Gemmed Crystal Sword (6x 5/5 Fire Rainbow Facets )",
+    "Gemmed Crystal Sword (2x 5/5 Fire Rainbow Facets + 4x Ist Rune s )",
+    "Gemmed Crystal Sword (6x Ist Rune s )",
+    "Phoenix",
+    "Spirit",
+    "Earthshaker",
+    "Leaf"
+   ],
+   "Off-Hand": [
+    "Phoenix",
+    "Jeweler's Monarch of Deflecting (4x 5/5 Fire Rainbow Facets )",
+    "Gemmed Monarch (4x 5/5 Fire Rainbow Facets )",
+    "Gemmed Monarch (4x Ist Rune s )",
+    "Stormshield",
+    "Spirit",
+    "Moser's Blessed Circle",
+    "Rhyme",
+    "Ancients' Pledge"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Lower Resist Charge Wand",
+    "Naj's Puzzler",
+    "Staff of Teleportation",
+    "Harmony"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Ravenlore",
+    "Flickering Flame",
+    "Gaean Antlers of the Colossus",
+    "Gaean Antlers of the Colossus",
+    "Gaean Diadem of the Magus",
+    "Harlequin Crest",
+    "Crown of Ages",
+    "Peasant Crown",
+    "Tarnhelm",
+    "Lore",
+    "Temper",
+    "Gemmed Mask (3x Perfect Topaz es )"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Skullder's Ire",
+    "Wealth",
+    "Gemmed Dusk Shroud (4x Perfect Topaz es )",
+    "Skin of the Vipermagi",
+    "Chains of Honor",
+    "Rain",
+    "Smoke",
+    "Treachery"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Rare Gloves",
+    "Chance Guards",
+    "Bloodfist"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Verdungo's Hearty Cord",
+    "Thundergod's Vigor",
+    "Goldwrap",
+    "Caster Crafted Belt",
+    "Rare Belt",
+    "Cobalt Demonhide Sash of the Whale"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Aldur's Advance",
+    "Rare Boots",
+    "Sandstorm Trek",
+    "Natalya's Soul",
+    "Ruby Heavy Boots of Acceleration"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope",
+    "Gaean Amulet of Luck",
+    "Gaean Amulet of the Apprentice",
+    "Gaean Amulet of the Whale",
+    "Gaean Amulet of Teleportation",
+    "Gaean Amulet",
+    "Teleport Charge Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Rare Ring",
+    "Rare Ring",
+    "Bul-Kathos' Wedding Band",
+    "Fortuitous Ring of Fortune",
+    "Nagelring",
+    "Dwarf Star",
+    "Wisp Projector"
+   ],
+   "Charms": [
+    "Natural Grand Charm of Vita",
+    "Natural Grand Charm of Balance",
+    "Natural Grand Charm of Inertia",
+    "Natural Grand Charm",
+    "Shimmering Small Charm of Good Luck",
+    "Ruby Small Charm of Good Luck",
+    "Shimmering Small Charm of Vita",
+    "Ruby Small Charm of Vita",
+    "Shimmering Small Charm of Balance",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm"
+   ],
+   "Unique Charms": [
+    "Flame Rift",
+    "Gheed's Fortune",
+    "Druid Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Mercenary Type": {
+    "early": [
+     "Act 2 Might",
+     "or Act 5 Bash/Frenzy"
+    ],
+    "mid": [
+     "Act 2 Might",
+     "or Act 5 Bash/Frenzy"
+    ],
+    "end": [
+     "Act 2 Might/Defiance",
+     "or Act 3 Lightning"
+    ]
+   },
+   "Weapon": {
+    "early": [
+     "Insight",
+     "Lawbringer(s)"
+    ],
+    "mid": [
+     "The Reaper's Toll",
+     "Lawbringers"
+    ],
+    "end": [
+     "Infinity",
+     "The Reaper's Toll",
+     "Crescent Moon"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Chains of Honor",
+     "Treachery",
+     "Duress",
+     "Shaftstop"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Flickering Flame",
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Guillaume's Face",
+     "Griffon's Eye"
+    ]
+   },
+   "Shield": {
+    "early": [
+     "N/A"
+    ],
+    "mid": [
+     "N/A"
+    ],
+    "end": [
+     "Spirit Monarch"
+    ]
+   }
+  }
+ },
+ "fist-of-the-heavens-paladin": {
+  "tier": "S",
+  "class": "Paladin",
+  "title": "Fist of the Heavens Paladin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "handofblessedlight",
+    "Heart of the Oak Flail",
+    "Wizardspike",
+    "Suicide Branch",
+    "Spectral Shard",
+    "Spirit Crystal Sword",
+    "Rose Branded War Scepter of the Apprentice (2x Rainbow Facet Jewel / istrune )",
+    "Heaven's Lightr ( shaelrune )",
+    "Astreon's Iron Ward ( shaelrune )"
+   ],
+   "Off-Hand": [
+    "Herald of Zakarum ( umrune )",
+    "Ancients' Pledge Targe",
+    "Spirit Sacred Targe"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Blade of Ali Baba",
+    "Gull",
+    "Battle Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Herald of Zakarum",
+    "Spirit",
+    "Rhyme",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Griffon's Eye (1x Rainbow Facet Jewel )",
+    "Harlequin Crest",
+    "Crown of Ages",
+    "Rockstopper",
+    "Peasant Crown",
+    "Lore",
+    "Rare Diadem",
+    "Mask (3x perfecttopaz )"
+   ],
+   "Body Armors": [
+    "Enigma Mage Plate",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Principle",
+    "Smoke",
+    "Stealth",
+    "Gothic Plate (4x perfecttopaz )"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Chance Guards",
+    "Bloodfist",
+    "Trang-Oul's Claws",
+    "Garnet Gloves of Fortune"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Verdungo's Hearty Cord",
+    "Thundergod's Vigor",
+    "Caster Crafted Belt",
+    "Goldwrap",
+    "Rare Belt"
+   ],
+   "Boots": [
+    "Waterwalk",
+    "Sandstorm Trek",
+    "War Traveler",
+    "Aldur's Advance",
+    "Silkweave",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Seraph's Hymn",
+    "Telling of Beads",
+    "Caster Crafted Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Nature's Peace",
+    "Dwarf Star",
+    "Wisp Projector",
+    "Rare Ring",
+    "Fortuitous Ring of Fortune",
+    "Raven Frost"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Paladin)",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Insight"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Rockfleece",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell",
+     "Guardian Angel",
+     "Wealth"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "gold-find-barbarian": {
+  "tier": "S",
+  "class": "Barbarian",
+  "title": "Gold Find Barbarian Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Grief Phase Blade",
+    "Oath Balrog Blade",
+    "Unbending Will Phase Blade",
+    "Heart of the Oak Flail",
+    "Blade of Ali Baba",
+    "Gemmed Crystal Sword"
+   ],
+   "Off-Hand": [
+    "Heart of the Oak Flail",
+    "Blade of Ali Baba",
+    "Gemmed Crystal Sword"
+   ],
+   "Weapon-Swap": [
+    "Heart of the Oak",
+    "Call to Arms Crystal Sword",
+    "Blade of Ali Baba",
+    "Wizardspike",
+    "Gemmed Crystal Sword",
+    "Echoing Balanced Knife"
+   ],
+   "Off-Hand-Swap": [
+    "Call to Arms Crystal Sword",
+    "Heart of the Oak Flail",
+    "Blade of Ali Baba",
+    "Wizardspike",
+    "Gemmed Crystal Sword",
+    "Echoing Balanced Knife"
+   ],
+   "Helmets": [
+    "Crown of Thieves",
+    "Harlequin Crest",
+    "Immortal King's Will",
+    "temper"
+   ],
+   "Body Armor": [
+    "Enigma Archon Plate",
+    "Wealth",
+    "Goldskin"
+   ],
+   "Gloves": [
+    "Chance Guards",
+    "Rare Gloves"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Trang-Oul's Girth",
+    "Immortal King's",
+    "Rare Belt"
+   ],
+   "Boots": [
+    "Infernostride",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Telling of Beads",
+    "Caster Crafted Amulet",
+    "Rare Amulet"
+   ],
+   "Rings": [
+    "Dwarf Star",
+    "Raven Frost",
+    "Nagelring",
+    "Garnet Ring of Greed"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Hellfiretorch ( Barbarian )",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Breath of the Dying War Pike"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Wealth"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Crown of Thieves"
+    ],
+    "end": [
+     "Crown of Thieves"
+    ]
+   }
+  }
+ },
+ "lightning-fury-amazon-guide": {
+  "tier": "S",
+  "class": "Amazon",
+  "title": "Lightning Fury Amazon Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Ethereal Upgraded Titan's Revenge",
+    "EtherealTitan's Revenge",
+    "Titan's Revenge",
+    "Thunderstroke",
+    "Lancer's Matriarchal Javelin of Quickness"
+   ],
+   "Off-Hand": [
+    "Spirit Monarch",
+    "Phoenix Monarch",
+    "Stormshield",
+    "Rainbow Facets (Jeweler's Monarch of Deflecting (4x ))",
+    "Sanctuary Troll Nest",
+    "Rhyme Bone Shield"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Wand of Lower Resistance",
+    "Naj's Puzzler",
+    "Staff of Teleportation",
+    "Harmony",
+    "Mania",
+    "Wizardspike"
+   ],
+   "Off-Hand Swap": [
+    "Spirit Monarch",
+    "Phoenix Monarch",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Griffon's Eye",
+    "Kira's Guardian",
+    "Rockstopper",
+    "Tarnhelm",
+    "Peasant Crown",
+    "Wisdom",
+    "Lore",
+    "Ground"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Chains of Honor",
+    "Treachery",
+    "Hysteria",
+    "Skullder's Ire",
+    "Duriel's Shell",
+    "Peace",
+    "Smoke"
+   ],
+   "Gloves": [
+    "Rare Gloves",
+    "Lancer's Chain Gloves of Alacrity",
+    "Death's Hand (2-Piece Death's Set )",
+    "Sander's Taboo",
+    "Laying of Hands"
+   ],
+   "Belts": [
+    "Razortail",
+    "Arachnid Mesh",
+    "Thundergod's Vigor",
+    "Goldwrap Battle Belt (Upgraded)",
+    "Verdungo's Hearty Cord",
+    "Nosferatu's Coil",
+    "Death's Guard Demonhide Sash (Upgraded, 2-Piece Death's Set )"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Aldur's Advance",
+    "Silkweave",
+    "horazon's legacy",
+    "Rare Boots",
+    "Natalya's Soul"
+   ],
+   "Amulets": [
+    "Highlord's Wrath",
+    "The Cat's Eye",
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope"
+   ],
+   "Rings": [
+    "Raven Frost",
+    "Rare Ring",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nature's Peace",
+    "Dwarf Star",
+    "Manald Heal",
+    "Nagelring",
+    "Fortuitous Ring of Fortune"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Renewed Crack of the Heavens",
+    "Gheed's Fortune",
+    "Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight",
+     "Hustle"
+    ],
+    "mid": [
+     "Insight",
+     "Hustle"
+    ],
+    "end": [
+     "Infinity"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel",
+     "Wealth"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery",
+     "Chains of Honor"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Guillaume's Face"
+    ]
+   }
+  }
+ },
+ "lightning-sentry-assassin": {
+  "tier": "S",
+  "class": "Assassin",
+  "title": "Lightning Sentry Assassin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Cunning Greater Talons of Quickness (2x Rainbow Facet )",
+    "Cunning Greater Talons of Quickness (2x Rainbow Facet )",
+    "Crescent Moon",
+    "Heart of the Oak Flail",
+    "Wizardspike",
+    "Bartuc's Cut-Throat",
+    "Suicide Branch",
+    "Spirit Crystal Sword",
+    "Plague Greater Talons"
+   ],
+   "Off-Hand": [
+    "Cunning Greater Talons of Quickness ( Jewel + Jewel )",
+    "Cunning Greater Talons of Quickness (2x Rainbow Facet )",
+    "Jeweler's Monarch of Deflecting (4x Rainbow Facet )",
+    "Gemmed Monarch (4x Rainbow Facet )",
+    "Plague Greater Talons",
+    "Spirit Monarch",
+    "Stormshield",
+    "Rhyme Bone Shield",
+    "Lidless Wall"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Crescent Moon",
+    "Wand of Lower Resistance",
+    "Battle Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Jeweler's Monarch of Deflecting (4x Rainbow Facet )",
+    "Gemmed Monarch (4x Rainbow Facet )"
+   ],
+   "Helmets": [
+    "Griffon's Eye ( Rainbow Facet )",
+    "Cunning Circlet of the Magus",
+    "Rare Circlet",
+    "Rare Circlet",
+    "Harlequin Crest",
+    "Crown of Ages",
+    "Lore Cap",
+    "Tarnhelm",
+    "Peasant Crown",
+    "Rockstopper",
+    "Ground",
+    "Temper",
+    "Hearth"
+   ],
+   "Body Armor": [
+    "Enigma Mage Plate",
+    "Treachery",
+    "Smoke Studded Leather",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Stealth"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Chance Guards",
+    "Cobalt Heavy Gloves of Alacrity"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "String of Ears",
+    "Verdungo's Hearty Cord",
+    "Garnet Belt of the Squid"
+   ],
+   "Boots": [
+    "Aldur's Advance",
+    "War Traveler",
+    "Waterwalk",
+    "Natalya's Soul",
+    "Sandstorm Trek"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope Amulet",
+    "Cunning Amulet of the Whale",
+    "Cunning Amulet of the Apprentice",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Rare Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Fortuitous Ring of Fortune",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Entrapping Grand Charm of Vita",
+    "Lapis Grand Charm of Life",
+    "Ruby Large Charm",
+    "Shimmering Small Charm of Vita",
+    "Ruby Small Charm of Good Luck",
+    "Sapphire Small Charm of Good Luck",
+    "Small Charm of Sustenance"
+   ],
+   "Unique Charms": [
+    "Crack of the Heavens",
+    "gheed's fortune",
+    "Annihilus",
+    "Hellfire Torch"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity",
+     "Plague"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "lightning-sorceress": {
+  "tier": "S",
+  "class": "Sorceress",
+  "title": "Lightning Sorceress Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Heart of the Oak Flail",
+    "Eschuta's Temper",
+    "The Oculus",
+    "Crescent Moon",
+    "Gemmed Crystal Sword (6x 5/5 Lightning Rainbow Facets )",
+    "Powered Eldritch Orb of the Magus",
+    "Obsession",
+    "Tal Rasha's Lidless Eye",
+    "Wizardspike",
+    "Spirit"
+   ],
+   "Off-Hand": [
+    "Spirit Monarch",
+    "Stormshield",
+    "Gerke's Sanctuary",
+    "Jeweler's Monarch of Deflecting (4x 5/5 Lightning Rainbow Facets )",
+    "Moser's Blessed Circle",
+    "Ancients' Pledge"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Gemmed Crystal Sword (6x Ist Rune s )",
+    "Blade of Ali Baba",
+    "Gull Dagger",
+    "Lower Resist Charge Wand",
+    "Harmony",
+    "Wizardspike"
+   ],
+   "Off-Hand Swap": [
+    "Spirit Monarch",
+    "Ethereal Spirit Monarch",
+    "Lidless Wall",
+    "Gemmed Monarch (4x Ist Rune s )",
+    "Rhyme",
+    "Stormshield",
+    "Moser's Blessed Circle"
+   ],
+   "Helmets": [
+    "Griffon's Eye",
+    "Harlequin Crest",
+    "Crown of Ages (2x 5/5 Lightning Rainbow Facets )",
+    "Tal Rasha's Horadric Crest",
+    "Tarnhelm",
+    "Peasant Crown",
+    "Lore",
+    "Ground"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Tal Rasha's Guardianship (3-Piece Tal Rasha's Set )",
+    "Ormus' Robes",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Chains of Honor",
+    "Fortitude",
+    "Smoke",
+    "Stealth",
+    "Treachery"
+   ],
+   "Gloves": [
+    "Chance Guards",
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Frostburn",
+    "Rare Gloves"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Tal Rasha's Fine-Spun Cloth (3-Piece Tal Rasha's Set )",
+    "Verdungo's Hearty Cord",
+    "Thundergod's Vigor",
+    "Goldwrap Battle Belt",
+    "Caster Crafted Belt",
+    "Rare Belt"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Aldur's Advance",
+    "Sandstorm Trek",
+    "Silkweave",
+    "Rare Boots",
+    "Rare Boots",
+    "Caster Crafted Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Tal Rasha's Adjudication (3-Piece Tal Rasha's Set )",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Powered Amulet of the Whale",
+    "Powered Amulet of the Apprentice",
+    "Powered Amulet",
+    "Metalgrid"
+   ],
+   "Rings": [
+    "The Stone of Jordan Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Fortuitous Ring of Fortune",
+    "Nagelring",
+    "Bul-Kathos' Wedding Band",
+    "Wisp Projector",
+    "Nature's Peace",
+    "Dwarf Star"
+   ],
+   "Charms": [
+    "Sparking Grand Charm of Vita",
+    "Sparking Grand Charm of Balance",
+    "Sparking Grand Charm",
+    "Shimmering Grand Charm of Balance",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm",
+    "Shimmering Small Charm of Good Luck",
+    "Amber Small Charm of Good Luck",
+    "Shimmering Small Charm of Balance",
+    "Shimmering Small Charm of Vita",
+    "Amber Small Charm of Vita",
+    "Serpent's Small Charm of Vita",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm"
+   ],
+   "Unique Charms": [
+    "Crack of the Heavens",
+    "Gheed's Fortune",
+    "Sorceress Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery",
+     "Duress",
+     "Chains of Honor"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Guillaume's Face",
+     "Cure"
+    ]
+   }
+  }
+ },
+ "lightning-strike-amazon": {
+  "tier": "A",
+  "class": "Amazon",
+  "title": "Lightning Strike Amazon Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Infinity Matriarchal Spear",
+    "Infinity Maiden Spear",
+    "Thunderstroke",
+    "Ethereal Upgraded Titan's Revenge",
+    "Upgraded Titan's Revenge",
+    "Titan's Revenge",
+    "Lancer's Matriarchal Javelin of Quickness",
+    "Javelin of Quickness"
+   ],
+   "Off-Hand": [
+    "None",
+    "Spirit Monarch",
+    "Stormshield ( Ber Rune )",
+    "Stormshield ( 5/5 Lightning Rainbow Facet )",
+    "Jeweler's Monarch of Deflecting (4x 5/5 Lightning Rainbow Facets )",
+    "Gemmed Monarch (4x 5/5 Lightning Rainbow Facets )",
+    "Sanctuary",
+    "Moser's Blessed Circle",
+    "Rhyme"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Lower Resist Charge Wand",
+    "Naj's Puzzler",
+    "Teleport Charge Staff",
+    "Harmony",
+    "Wizardspike"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Griffon's Eye ( 5/5 Lightning Rainbow Facet )",
+    "Griffon's Eye ( Cham Rune )",
+    "Griffon's Eye ( Scintillating Jewel of Fervor )",
+    "Crown of Ages ( Cham Rune + Ber Rune )",
+    "Crown of Ages (2x 5/5 Lightning Rainbow Facets )",
+    "Harlequin Crest",
+    "Valkyrie Wing",
+    "Kira's Guardian",
+    "Rockstopper",
+    "Peasant Crown",
+    "Tarnhelm",
+    "Lore",
+    "Artisan's Crown (3x Perfect Topaz es )",
+    "Artisan's Crown ( Ral Rune , Ort Rune , Thul Rune )",
+    "Ground"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Chains of Honor",
+    "Treachery",
+    "Skullder's Ire",
+    "Gemmed Dusk Shroud (4x Perfect Topaz es )",
+    "Duriel's Shell",
+    "Peace",
+    "Smoke"
+   ],
+   "Gloves": [
+    "Rare Gloves",
+    "Lancer's Gloves of Alacrity",
+    "Death's Hand (2-Piece Death's Set )",
+    "Sander's Taboo",
+    "Laying of Hands",
+    "Coral Gloves of Alacrity"
+   ],
+   "Belts": [
+    "Thundergod's Vigor",
+    "Arachnid Mesh",
+    "Verdungo's Hearty Cord",
+    "Goldwrap Battle Belt",
+    "Death's Guard Demonhide Sash (2-Piece Death's Set )",
+    "Rare Belt",
+    "Credendum",
+    "Coral Belt of the Squid"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Rare Boots",
+    "Rare Boots",
+    "Aldur's Advance",
+    "Natalya's Soul",
+    "Ruby Boots of Acceleration"
+   ],
+   "Amulets": [
+    "Highlord's Wrath",
+    "The Cat's Eye",
+    "Mara's Kaleidoscope",
+    "Chromatic Amulet"
+   ],
+   "Rings": [
+    "Raven Frost",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nature's Peace",
+    "Dwarf Star",
+    "Nagelring"
+   ],
+   "Charms": [
+    "Harpoonist's Grand Charm of Vita",
+    "Harpoonist's Grand Charm of Balance",
+    "Harpoonist's Grand Charm of Inertia",
+    "Harpoonist's Grand Charm",
+    "Shimmering Grand Charm of Balance",
+    "Shimmering Grand Charm of Inertia",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm",
+    "Shimmering Large Charm of Vita",
+    "Large Charm of Vita",
+    "Shimmering Small Charm of Good Luck",
+    "Amber Small Charm of Good Luck",
+    "Shimmering Small Charm of Vita",
+    "Amber Small Charm of Vita",
+    "Shimmering Small Charm of Balance",
+    "Shimmering Small Charm of Inertia",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm"
+   ],
+   "Unique Charms": [
+    "Crack of the Heavens",
+    "Gheed's Fortune",
+    "Amazon Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Mercenary Type": {
+    "early": [
+     "Act 2 Holy Freeze"
+    ],
+    "mid": [
+     "Act 2 Holy Freeze"
+    ],
+    "end": [
+     "Act 1 Cold"
+    ]
+   },
+   "Weapon": {
+    "early": [
+     "Insight",
+     "Hustle"
+    ],
+    "mid": [
+     "Insight",
+     "Hustle"
+    ],
+    "end": [
+     "Faith Matriarchal Bow",
+     "Infinity"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Shaftstop",
+     "Fortitude",
+     "Treachery",
+     "Chains of Honor",
+     "Duress"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Vampire Gaze",
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Guillaume's Face"
+    ]
+   }
+  }
+ },
+ "meteor-sorceress": {
+  "tier": "S",
+  "class": "Sorceress",
+  "title": "Fire Ball Meteor Sorceress Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/meteor-sorceress",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Heart of the Oak",
+    "Spirit",
+    "Obsession Archon Staff",
+    "The Oculus",
+    "Eschuta's Temper",
+    "Wizardspike",
+    "Tal Rasha's Lidless Eye"
+   ],
+   "Off-Hand": [
+    "Spirit Monarch",
+    "Rhyme",
+    "Ancients' Pledge",
+    "Stormshield"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Memory Battle Staff",
+    "Gull",
+    "Blade of Ali Baba",
+    "Wand of Lower Resistance"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Rhyme",
+    "Magic Find Monarch"
+   ],
+   "Helmets": [
+    "Flickering Flame Diadem",
+    "Lore",
+    "Crown of Ages",
+    "Harlequin Crest",
+    "Tal Rasha's Horadric Crest",
+    "Rare Diadem",
+    "Gemmed Mask"
+   ],
+   "Body Armor": [
+    "Chains of Honor",
+    "Stealth",
+    "Skin of the Vipermagi",
+    "Ormus' Robes",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Chance Guards",
+    "Trang-Oul's Claws",
+    "Rare Gloves",
+    "Magic Gloves"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Verdungo's Hearty Cord",
+    "Tal Rasha's Fine-Spun Cloth",
+    "Immortal King's Detail",
+    "Magic Belt"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Sandstorm Trek",
+    "Waterwalk",
+    "Marrowwalk",
+    "Aldur's Advance",
+    "Rare Boots",
+    "Magic Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Tal Rasha's Adjudication",
+    "Caster Crafted Amulet",
+    "Magic Amulet",
+    "Magic Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Dwarf Star",
+    "Rare Ring",
+    "Magic Ring",
+    "Magic Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Hellfiretorch (Sorceress)",
+    "Annihilus",
+    "Flame Rift"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity",
+     "Insight"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "mirrored-blades-warlock-guide": {
+  "tier": "A",
+  "class": "Warlock",
+  "title": "Mirrored Blades Warlock Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+  "last_updated": "June 6, 2026",
+  "slots": {
+   "Weapon": [
+    "Tomb Reaver"
+   ],
+   "Off-Hand": [],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Blade of Ali Baba",
+    "Gull",
+    "Naj's Puzzler",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Guillaume's Face",
+    "Hellwarden's Will",
+    "Harlequin Crest",
+    "Crown of Ages"
+   ],
+   "Body Armors": [
+    "Enigma",
+    "Stealth",
+    "Chains of Honor",
+    "Skullder's Ire",
+    "Tal Rasha's Guardianship"
+   ],
+   "Gloves": [
+    "Chance Guards"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Caster Crafted Belt"
+   ],
+   "Boots": [
+    "Waterwalk",
+    "Sandstorm Trek",
+    "War Traveler",
+    "Aldur's Advance"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Blood Crafted Ring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheeds Fortune",
+    "Hellfiretorch (Paladin)",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight Partizan"
+    ],
+    "end": [
+     "Pride Giant Thresher"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Chains of Honor",
+     "Fortitude",
+     "Treachery"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage"
+    ]
+   }
+  }
+ },
+ "nova-sorceress-guide": {
+  "tier": "S",
+  "class": "Sorceress",
+  "title": "Nova Sorceress Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Infinity Scythe",
+    "Crescent Moon",
+    "ist rune (Eschuta's Temper ())",
+    "The Oculus",
+    "Heart of the Oak Flail"
+   ],
+   "Off-Hand": [
+    "Lidless Wall",
+    "Spirit Monarch"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Memory"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Griffon's Eye ( Guardian's Thunder )",
+    "Harlequin Crest ( Guardian's Thunder )",
+    "Rare Diadem",
+    "Temper",
+    "Ground"
+   ],
+   "Body Armor": [
+    "Skin of the Vipermagi",
+    "Ormus' Robes ( Rainbow Facet )",
+    "Ist rune (Tal Rasha's Guardianship ())",
+    "Chains of Honor"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Frostburn",
+    "Chance Guards"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "Tal Rasha's Fine-Spun Cloth",
+    "Verdungo's Hearty Cord",
+    "String of Ears"
+   ],
+   "Boots": [
+    "Silkweave",
+    "War Traveler",
+    "Sandstorm Trek",
+    "Waterwalk",
+    "Caster Crafted Boots",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope",
+    "Tal Rasha's Adjudication",
+    "Entropy Locket"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Nagelring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Renewed Crack of the Heavens",
+    "Gheed's Fortune",
+    "Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Insight Giant Thresher"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "Duriel's Shell"
+    ],
+    "end": [
+     "Chains of Honor Archon Plate"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Cure Diadem"
+    ]
+   }
+  }
+ },
+ "poison-nova-necromancer": {
+  "tier": "S",
+  "class": "Necromancer",
+  "title": "Poison Nova Necromancer Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Death's Web",
+    "Plague",
+    "Heart of the Oak Flail",
+    "White",
+    "Spirit",
+    "Gemmed Crystal Sword (6x 5/5 Poison Rainbow Facets )"
+   ],
+   "Off-Hand": [
+    "Spirit",
+    "Trang-Oul's Wing (3-Piece Trang-Oul's Set )",
+    "Homunculus",
+    "Darkforce Spawn",
+    "Stormshield",
+    "Moser's Blessed Circle",
+    "Rhyme",
+    "Ancients' Pledge",
+    "Venomous Demon Head",
+    "Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets )",
+    "Gemmed Monarch (4x 5/5 Poison Rainbow Facets )"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms",
+    "Naj's Puzzler",
+    "Staff of Teleportation",
+    "Harmony"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Lidless Wall"
+   ],
+   "Helmets": [
+    "Rare Circlet",
+    "Rare Circlet",
+    "Venomous Circlet of the Magus (2x 5/5 Poison Rainbow Facets )",
+    "Venomous Circlet of the Magus (2x Ber Rune s )",
+    "Harlequin Crest",
+    "Crown of Ages (2x 5/5 Poison Rainbow Facets )",
+    "Crown of Ages (2x Ber Rune s )",
+    "Trang-Oul's Guise",
+    "Peasant Crown",
+    "Tarnhelm",
+    "Lore",
+    "Cure"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "Bramble",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Trang-Oul's Scales",
+    "Bone",
+    "Smoke",
+    "Stealth"
+   ],
+   "Gloves": [
+    "Trang-Oul's Claws (1 or 3-Piece Trang-Oul's Set )"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Trang-Oul's Girth (3-Piece Trang-Oul's Set )",
+    "Caster Crafted Belt",
+    "Thundergod's Vigor",
+    "Verdungo's Hearty Cord",
+    "Goldwrap Battle Belt",
+    "Garnet Sharkskin Belt of the Squid"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Aldur's Advance",
+    "Waterwalk",
+    "Sandstorm Trek",
+    "Rare Boots",
+    "Sapphire Chain Boots of Acceleration"
+   ],
+   "Amulets": [
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Caster Crafted Amulet",
+    "Mara's Kaleidoscope",
+    "Venomous Amulet of the Apprentice",
+    "Venomous Amulet of Teleportation",
+    "Venomous Amulet",
+    "Amulet of Teleportation"
+   ],
+   "Rings": [
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Rare Ring",
+    "Blood Crafted Ring",
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Fortuitous Ring of Fortune",
+    "Wisp Projector"
+   ],
+   "Charms": [
+    "Fungal Grand Charm of Vita",
+    "Fungal Grand Charm of Balance",
+    "Fungal Grand Charm",
+    "Shimmering Grand Charm of Balance",
+    "Shimmering Grand Charm",
+    "Resistance Grand Charm",
+    "Shimmering Small Charm of Good Luck",
+    "Emerald Small Charm of Good Luck",
+    "Shimmering Small Charm of Balance",
+    "Shimmering Small Charm of Vita",
+    "Emerald Small Charm of Vita",
+    "Small Charm of Good Luck",
+    "Small Charm of Vita",
+    "Shimmering Small Charm",
+    "Resistance Small Charm"
+   ],
+   "Unique Charms": [
+    "Rotting Fissure",
+    "Flame Rift",
+    "Bone Break",
+    "Gheed's Fortune",
+    "Necromancer Hellfire Torch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight",
+     "Hustle"
+    ],
+    "end": [
+     "Infinity"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Hustle",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Fortitude",
+     "Treachery",
+     "Chains of Honor",
+     "Duress",
+     "Jeweler's Sacred Armor of Stability"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper",
+     "Cure"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Andariel's Visage",
+     "Guillaume's Face",
+     "Guillaume's Face",
+     "Cure"
+    ]
+   }
+  }
+ },
+ "smite-paladin": {
+  "tier": "S",
+  "class": "Paladin",
+  "title": "Smite Paladin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/smite-paladin",
+  "last_updated": "July 9, 2026",
+  "slots": {
+   "Weapon": [
+    "Black Flail",
+    "Grief Phase Blade",
+    "Death Berserker Axe",
+    "Kingslayer Phase Blade",
+    "Last Wish Phase Blade",
+    "Fleshripper",
+    "wizardspike",
+    "The Gnasher"
+   ],
+   "Off-Hand": [
+    "Exile",
+    "Rhyme Targe",
+    "Sanctuary Sacred Targe",
+    "Herald of Zakarum",
+    "Gemmed Targe"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit"
+   ],
+   "Helmets": [
+    "Crown of Ages",
+    "Rockstopper",
+    "Vampire Gaze",
+    "Guillaume's Face",
+    "Tal Rasha's Horadric Crest",
+    "Wisdom Mask",
+    "Resistance Mask",
+    "Bulwark",
+    "Temper",
+    "Ground",
+    "Hearth"
+   ],
+   "Body Armor": [
+    "Chains of Honor",
+    "Duress",
+    "Enigma",
+    "Treachery",
+    "Smoke",
+    "Hustle",
+    "Duriel's Shell",
+    "Guardian Angel",
+    "Shaftstop"
+   ],
+   "Gloves": [
+    "Bloodfist",
+    "Dracul's Grasp",
+    "Death's Hand",
+    "Laying of Hands",
+    "Blood Crafted Gloves"
+   ],
+   "Belts": [
+    "Thundergod's Vigor",
+    "Nightsmoke",
+    "String of Ears",
+    "Verdungo's Hearty Cord",
+    "Trang-Oul's Girth",
+    "Death's Guard",
+    "Blood Crafted Belt"
+   ],
+   "Boots": [
+    "Goblin Toe",
+    "Gore Rider",
+    "Sandstorm Trek",
+    "Waterwalk",
+    "Aldur's Advance",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Seraph's Hymn",
+    "Metalgrid",
+    "Safety Crafted Amulet",
+    "Prismatic Amulet"
+   ],
+   "Rings": [
+    "Wisp Projector",
+    "Raven Frost",
+    "Bul-Kathos' Wedding Band",
+    "Dwarf Star",
+    "Rare Ring",
+    "Blood Crafted Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Hellfiretorch ( Paladin )",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "_text_only": true,
+   "Weapon": {
+    "any": [
+     "Insight"
+    ]
+   },
+   "Body Armor": {
+    "any": [
+     "Treachery (non-Ethereal base, per guide note)"
+    ]
+   },
+   "_source": "guide prose, Mercenary section"
+  }
+ },
+ "strafe-amazon": {
+  "tier": "A",
+  "class": "Amazon",
+  "title": "Strafe Amazon Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+  "last_updated": "July 18, 2026",
+  "slots": {
+   "Weapon": [
+    "Faith Grand Matron Bow",
+    "Windforce",
+    "Mist Matriarchal Bow",
+    "M'avina's Caster",
+    "Buriza-Do Kyanon (Or Upgraded)",
+    "Rare Bow",
+    "Eaglehorn"
+   ],
+   "Off-Hand": [
+    "bolts",
+    "arrows"
+   ],
+   "Weapon-Swap": [
+    "Hustle",
+    "demonlimb",
+    "Call to Arms Crystal Sword",
+    "Naj's Puzzler",
+    "Spellsteel"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Guillaume's Face",
+    "Jeweler's Diadem of Nirvana",
+    "Jeweler's Diadem of Speed",
+    "Andariel's Visage",
+    "Wisdom Diadem",
+    "Giant Skull",
+    "Stealskull",
+    "M'avina's True Sight",
+    "Crown of Ages",
+    "bulwark",
+    "Sigon's Visor (3-Piece Set)"
+   ],
+   "Body Armor": [
+    "Fortitude",
+    "Jeweler's Dusk Shroud of Stability",
+    "Jeweler's Dusk Shroud of Precision",
+    "Treachery",
+    "Enigma",
+    "M'avina's Embrace",
+    "Chains of Honor",
+    "Lionheart",
+    "Twitchthroe",
+    "Tyrael's Might"
+   ],
+   "Gloves": [
+    "Laying of Hands",
+    "Lava Gout",
+    "Death's Hand",
+    "M'avina's Icy Clutch",
+    "Hit Power Crafted Gloves",
+    "Rare Gloves",
+    "Archer's Gloves of Alacrity",
+    "Sigon's Gage (3-Piece Set)"
+   ],
+   "Belts": [
+    "Razortail",
+    "Death's Guard",
+    "Nosferatu's Coil",
+    "Goldwrap",
+    "M'avina's Tenet"
+   ],
+   "Boots": [
+    "War Traveler",
+    "Sandstorm Trek",
+    "Gore Rider",
+    "Aldur's Advance",
+    "Rare Boots",
+    "Sigon's Sabot (3-Piece Set)"
+   ],
+   "Amulets": [
+    "Atma's Scarab",
+    "Highlord's Wrath",
+    "The Cat's Eye",
+    "Metalgrid",
+    "Mara's Kaleidoscope",
+    "Blood Crafted Amulet",
+    "Angelic Wings (2-Piece Set)"
+   ],
+   "Rings": [
+    "Raven Frost",
+    "Blood Crafted Ring",
+    "Angelic Halo (2-Piece Set)",
+    "Bul-Kathos' Wedding Band"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Annihilus",
+    "Hellfire Torch Large Charm",
+    "Bone Break"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight",
+     "Strength"
+    ],
+    "mid": [
+     "Insight",
+     "Obedience"
+    ],
+    "end": [
+     "Pride",
+     "The Reaper's Toll"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Rockfleece"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel"
+    ],
+    "end": [
+     "Chains of Honor"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Gemmed Mask",
+     "Temper"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Vampire Gaze"
+    ]
+   }
+  }
+ },
+ "summoner-necromancer-guide": {
+  "tier": "A",
+  "class": "Necromancer",
+  "title": "Summoner Necromancer Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Heartoftheoak (Spirit Crystal Sword)",
+    "Beast",
+    "ArmofKingLeoric",
+    "Ume'slament",
+    "BladeofAliBaba",
+    "wizardspike"
+   ],
+   "Off-Hand": [
+    "Spirit Monarch",
+    "trangoul'swing",
+    "homunculus",
+    "Splendor",
+    "rhyme",
+    "ancient'spledge"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Naj's Puzzler",
+    "Long Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch"
+   ],
+   "Helmets": [
+    "Harlequincrest",
+    "trangoul'sguise",
+    "Rare Diadem",
+    "Magic Diadem",
+    "PeasantCrown",
+    "lore",
+    "Wormskull",
+    "Tarnhelm"
+   ],
+   "Body Armor": [
+    "Enigma",
+    "bone",
+    "trangoul'sscales",
+    "Skinofthevipermagi",
+    "skullder'sire",
+    "Thespiritshroud"
+   ],
+   "Gloves": [
+    "trangoul'sclaws",
+    "chanceguards",
+    "magefist"
+   ],
+   "Belts": [
+    "arachnidmesh",
+    "goldwrap",
+    "stringofears",
+    "trangoul'sgirth"
+   ],
+   "Boots": [
+    "marrowwalk",
+    "sandstormtrek",
+    "silkweave",
+    "aldur'sadvance",
+    "wartraveler",
+    "natalya'ssoul"
+   ],
+   "Amulets": [
+    "mara'skaleidoscope",
+    "Rare Amulet"
+   ],
+   "Rings": [
+    "thestoneofjordan",
+    "bulkatho'sweddingband",
+    "nagelring",
+    "Rare Ring"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Gheed's Fortune",
+    "Hellfiretorch",
+    "Annihilus"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight"
+    ],
+    "mid": [
+     "Insight"
+    ],
+    "end": [
+     "Infinity"
+    ]
+   },
+   "Body Armor": {
+    "early": [
+     "Smoke",
+     "Lionheart",
+     "Skin of the Flayed One",
+     "Goldskin",
+     "Rockfleece",
+     "Gemmed Dusk Shroud",
+     "Venom Ward"
+    ],
+    "mid": [
+     "Treachery",
+     "Duress",
+     "Shaftstop",
+     "The Gladiator's Bane",
+     "Duriel's Shell",
+     "Guardian Angel",
+     "Wealth"
+    ],
+    "end": [
+     "Bramble Sacred Armor",
+     "Fortitude"
+    ]
+   },
+   "Helmet": {
+    "early": [
+     "Bulwark",
+     "Undead Crown",
+     "The Face of Horror",
+     "Temper",
+     "Ground",
+     "Cure"
+    ],
+    "mid": [
+     "Tal Rasha's Horadric Crest",
+     "Guillaume's Face",
+     "Vampire Gaze",
+     "Crown of Thieves",
+     "Stealskull",
+     "Kira's Guardian",
+     "Rockstopper"
+    ],
+    "end": [
+     "Andariel's Visage",
+     "Guillaume's Face"
+    ]
+   }
+  }
+ },
+ "wake-of-fire-assassin": {
+  "tier": "A",
+  "class": "Assassin",
+  "title": "Wake of Fire Assassin Endgame Build Guide for Diablo II: Resurrected Season 14",
+  "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+  "last_updated": "May 22, 2026",
+  "slots": {
+   "Weapon": [
+    "Cunning Greater Talons of Quickness",
+    "Plague Greater Talons",
+    "Heart of the Oak Flail",
+    "Wizardspike",
+    "Bartuc's Cut-Throat",
+    "Suicide Branch",
+    "Spirit Crystal Sword"
+   ],
+   "Off-Hand": [
+    "Cunning Greater Talons of Quickness",
+    "Plague Greater Talons",
+    "Spirit Monarch",
+    "Stormshield ( Eld Rune",
+    "Rhyme Bone Shield",
+    "Lidless Wall"
+   ],
+   "Weapon-Swap": [
+    "Call to Arms Crystal Sword",
+    "Wand of Lower Resistance",
+    "Staff of Teleportation"
+   ],
+   "Off-Hand-Swap": [
+    "Spirit Monarch",
+    "Rhyme Bone Shield"
+   ],
+   "Helmets": [
+    "Cunning Circlet of the Magus",
+    "Rare Circlet",
+    "Harlequin Crest ( um rune )",
+    "Crown of Ages",
+    "Lore Cap",
+    "Wisdom",
+    "Tarnhelm",
+    "Peasant Crown",
+    "Rockstopper"
+   ],
+   "Body Armor": [
+    "Enigma Mage Plate",
+    "Treachery",
+    "chains of honor",
+    "Smoke",
+    "Skin of the Vipermagi",
+    "Skullder's Ire",
+    "Stealth"
+   ],
+   "Gloves": [
+    "Magefist",
+    "Trang-Oul's Claws",
+    "Chance Guards",
+    "Rare Gloves"
+   ],
+   "Belts": [
+    "Arachnid Mesh",
+    "Goldwrap",
+    "String of Ears",
+    "Verdungo's Hearty Cord",
+    "Rare Belt",
+    "Garnet Belt of the Squid"
+   ],
+   "Boots": [
+    "Aldur's Advance",
+    "War Traveler",
+    "Waterwalk",
+    "Natalya's Soul",
+    "Sandstorm Trek",
+    "Rare Boots"
+   ],
+   "Amulets": [
+    "Mara's Kaleidoscope",
+    "Cunning Amulet of the Whale",
+    "Cunning Amulet of the Apprentice",
+    "Caster Crafted Amulet",
+    "Rare Amulet"
+   ],
+   "Rings": [
+    "The Stone of Jordan",
+    "Bul-Kathos' Wedding Band",
+    "Nagelring",
+    "Fortuitous Ring of Fortune"
+   ],
+   "Charms": [
+    "Grand Charm",
+    "Large Charm",
+    "Small Charm"
+   ],
+   "Unique Charms": [
+    "Annihilus",
+    "Hellfiretorch (Assassin)",
+    "Gheedsfortune",
+    "Flame Rift"
+   ]
+  },
+  "merc": {
+   "Weapon": {
+    "early": [
+     "Insight",
+     "(Elite Polearm)"
+    ],
+    "mid": [
+     "Infinity Thresher"
+    ],
+    "end": []
+   },
+   "Body Armor": {
+    "early": [
+     "Treachery",
+     "(Any Body Armor)"
+    ],
+    "mid": [
+     "Fortitude",
+     "(Body Armor, 700++ Base Defense)"
+    ],
+    "end": []
+   },
+   "Helmet": {
+    "early": [
+     "Tal Rasha's Horadric Crest"
+    ],
+    "mid": [
+     "Andariel’s Visage",
+     "( Ethereal )"
+    ],
+    "end": []
+   }
+  }
+ }
+}

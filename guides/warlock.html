@@ -1,0 +1,205 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Echoing Strike Warlock — gear, crafts, Warlock items, loot filter (D2R RotW, SC/NL/PC)</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+.key{font:600 .8rem/1.6 ui-monospace,monospace;white-space:nowrap}
+</style>
+<main>
+<h1>Echoing Strike Warlock — gear, crafts, Warlock items, loot filter</h1>
+<p class="sub">D2R Reign of the Warlock · Softcore / Non-Ladder / PC · farming Pindleskin, Hell cows and the Anya shop. Written 2026-09-18. Companion pages: <a href="pindle-anya.html">Pindle &amp; Anya farm guide</a> (run loop, pickup rules, base prices) · <a href="pricing-primer.html">pricing primer</a> (what is worth what) · <a href="pricing.html">how to price an item</a>.</p>
+
+<div class="tldr">
+<b>TL;DR.</b> The build is a caster that hits with a dagger: Void Legend Spike, Spirit or Lidless off-hand, Enigma or Chains of Honor, a +2 Warlock circlet or Shako, Trang-Oul's or Magefist gloves, Arachnid Mesh or a caster belt, SoJ / BK / caster rings, a +2 Warlock 10-FCR amulet. Three cube crafts belong to it: <b>Caster Boots</b>, <b>Caster Belt</b>, <b>Blood Ring</b>; Caster Amulet and Caster Ring are the same-slot upgrades the guide lists as “rare”. Every craft needs a <b>blue</b> base of a specific type (§3) plus a low rune, a perfect gem and any jewel. The loot filter <code>lootfilter/warlock_lean.json</code> (§6) already shows the bases, jewels, rings and amulets those recipes eat. Your Natalya's Soul boots (40 FRW, two resists) are fine until an Enigma makes run speed irrelevant.
+</div>
+
+<h2 id="s1">1 · Gear list (maxroll Echoing Strike Warlock guide, S tier, updated August 26, 2026)</h2>
+<p>Slot options as the guide lists them, first = best. Items in <b>bold</b> are the ones your current farm (Pindle / cows / Anya) can realistically produce or fund; the rest are trade targets. Prices: <a href="pricing-primer.html#s5">primer §5</a>.</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Slot</th><th>Options (guide order)</th><th>Where it comes from</th></tr>
+<tr><td>Weapon</td><td><b>Void</b> (Thul-Zod-Ist, 3os Legend Spike / Fanged Knife / Kris), Plague, Heart of the Oak, Spirit, Obsession, Silence, Fortitude, Insight, Doom · uniques Bloodpact Shard, Spectral Shard, Wizardspike, Tomb Reaver, Arioc's Needle, Mang Song's, Ondal's, Razorswitch, Skull Collector, Suicide Branch</td><td>Void base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter.</td></tr>
+<tr><td>Off-hand</td><td><b>Spirit</b> (4os Monarch; whether shield runewords roll in a grimoire is unverified — only Vigilance names grimoires), Lidless Wall, Splendor, Ancients' Pledge, <b>Rhyme</b></td><td>4os Monarch drops gray at Pindle; Rhyme in a 2os Bone Shield / Preserved Head / grimoire.</td></tr>
+<tr><td>Swap</td><td>Call to Arms + Spirit / Lidless; Blade of Ali Baba, Gull (gold-find); Naj's Puzzler / Staff of Teleportation (teleport charges pre-Enigma)</td><td>Gull can be gambled from daggers (verify daggers are still gambleable in RotW).</td></tr>
+<tr><td>Helm</td><td><b>Rare Diadem</b>, Forbidden Diadem of the Magus (+2 Warlock skills, of the Magus = 20 FCR), Harlequin Crest, Hellwarden's Will, Crown of Ages, <b>Lore</b></td><td>Every magic/rare circlet-class drop is worth an ID: the filter shows them all. Coronets are gambleable at clvl 87+.</td></tr>
+<tr><td>Body</td><td>Enigma, <b>Stealth</b>, Chains of Honor, Que-Hegan's Wisdom, Skin of the Vipermagi, Skullder's Ire, Tal Rasha's Guardianship</td><td>Stealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots.</td></tr>
+<tr><td>Gloves</td><td><b>Trang-Oul's Claws</b> (20 FCR, 30 cold res), <b>Magefist</b>, <b>Chance Guards</b></td><td>All three drop from Pindle; no craft listed for gloves (Caster Gloves exist, §3, but are weaker).</td></tr>
+<tr><td>Belt</td><td>Arachnid Mesh (Pindle cannot drop it), <b>Goldwrap</b>, <b>Caster Crafted Belt</b></td><td>Caster belt = your FCR belt until Arachnid: §3.</td></tr>
+<tr><td>Boots</td><td>Waterwalk, Sandstorm Trek, War Traveler, Aldur's Advance, Silkweave, <b>Caster Crafted Boots</b></td><td>§2 for the decision; §3 for the craft.</td></tr>
+<tr><td>Amulet</td><td><b>Forbidden Amulet of the Apprentice</b> (+2 Warlock / 10 FCR magic amulet), Mara's Kaleidoscope, Entropy Locket (RotW unique)</td><td>Forbidden amulets are gambled (clvl 95 for +2 class) or bought from Hell Anya; a Caster Amulet craft with +2 Warlock beats both (§3).</td></tr>
+<tr><td>Rings</td><td>Stone of Jordan, Bul-Kathos' Wedding Band, <b>Blood Crafted Ring</b>, <b>Rare Ring</b> (10 FCR + res + life)</td><td>§3 for Blood / Caster ring crafts; magic rings from Anya are the bases.</td></tr>
+<tr><td>Charms</td><td>Warlock skillers (Chaos / Eldritch / Demon GCs), Annihilus, Hellfire Torch (Warlock), Gheed's Fortune, Renewed Bone Break (sunder)</td><td>Cows are the GC farm; every GC is shown by the filter.</td></tr>
+<tr><td>Merc</td><td>Insight Giant Thresher → Infinity; Treachery / Chains of Honor / Fortitude; Cure / Andariel's / Guillaume's</td><td>Eth 4os Giant Thresher is the single most valuable gray base Pindle drops (<a href="pindle-anya.html#s5">farm guide §5</a>).</td></tr>
+</table></div>
+<p><b>Breakpoints (maxroll Echoing Strike guide, Aug 26, 2026).</b> FCR: 75 % is the starter target (Spirit gets you there), <b>125 %</b> is the max breakpoint the Standard and Magic Find setups hold. FHR: at least 26 %. Only the 75 and 125 thresholds change the cast animation; anything between them is wasted. Wizardspike (50 FCR) vs Spirit (25–35 FCR): the swap only pays if it crosses 125.</p>
+<p><b>Stat points (same guide).</b> Warlock starts 15 str / 20 dex / 25 vit / 20 energy; 3 life per vitality point. Strength only as far as the gear needs (Spirit Monarch 156, Legend Spike 65, Wizardspike 32). Dexterity: 50 points for the Starter setup, ~100 for Standard and Magic Find (attack rating — Echoing Strike is a weapon hit and can miss; Wizardspike needs 63 dex, Legend Spike 67, Fanged Knife 86). Energy none. Everything else Vitality.</p>
+<p><b>Skills (same guide).</b> 1 point each: Echoing Strike, Sigil: Lethargy, Summon Defiler. Then max in order: Hex Purge → Mirrored Blades → Hex Bane → Demonic Mastery (Starter stops at 5, Standard 10) → Eldritch Blast → Blood Oath. Starter puts spare points into Consume for duration instead of Eldritch Blast / Blood Oath. Echoing Strike only applies Hex Purge; Hex Purge is the damage.</p>
+<p><b>Rotation (same guide).</b> Buffs, cast on yourself and recast when they expire: Battle Command twice, then Battle Orders (CtA swap); two Defilers (three at Demonic Mastery 10), recast BC/BO so they inherit the level; Consume one Defiler for the Magic Damage % buff; Hex Purge; Eldritch Blast. Hex Purge is a weapon hex — every successful Echoing Strike hit applies it to the target, it detonates as AoE magic damage up to 3 times, then the next hit reapplies it. Eldritch Blast runs around the Warlock on its own. Per pack there are only two targeted casts: Sigil: Lethargy under elites and bosses (lowers their defense), then Echoing Strike. Cursor close to the character widens the blade fan for packs; far away narrows it into one line for bosses or corridors, and all five blades can hit one target on the way out and back. Blade Warp between packs until Enigma replaces it with Teleport. Immunities are irrelevant (physical + magic split); Renewed Black Cleft handles the few magic immunes.</p>
+
+<h2 id="s2">2 · Boots: is Natalya's Soul enough?</h2>
+<p>Yes, for now. Natalya's Soul (Mesh Boots) gives <b>40 % FRW</b>, +cold and +lightning resist (15–25 each), and Heal Stamina. Every boot on the guide's list moves slower:</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Boots</th><th>FRW</th><th>What you gain over Natalya's</th><th>What you lose</th><th>Verdict for a Pindle/cow farmer</th></tr>
+<tr><td>Natalya's Soul (yours)</td><td>40</td><td>—</td><td>—</td><td class="ok">keep until Enigma</td></tr>
+<tr><td>Waterwalk</td><td>20</td><td>+45–65 life, +15 dex, +5 max fire res, +50 % stamina</td><td>20 FRW, both resists</td><td>swap only if you die, not because you are slow</td></tr>
+<tr><td>Sandstorm Trek</td><td>20</td><td>+10–15 str/vit, poison res 40–70, +20 % FHR</td><td>20 FRW, cold/light res</td><td>a fix for poison damage at cows; otherwise no</td></tr>
+<tr><td>War Traveler</td><td>25</td><td>30–50 % MF, +10 str/vit</td><td>15 FRW, both resists</td><td>MF does not change rune drops or base tier — low value for this farm</td></tr>
+<tr><td>Caster Crafted Boots</td><td>0–30 (random)</td><td>mana package + whatever rolls (3 resists, life, 30 FRW on a lucky roll)</td><td>guaranteed FRW</td><td>only a 30-FRW, 2–3-resist roll beats Natalya's — that roll is what people <i>sell</i>, not what you get in a few tries</td></tr>
+</table></div>
+<p>Once you wear Enigma you teleport everywhere and FRW is irrelevant; at that point the boots slot is about life and resists (Waterwalk, or a good craft/rare).</p>
+
+<h2 id="s3">3 · Crafting for this build</h2>
+<p>Every recipe below is a <b>Horadric Cube transmute</b>: one <b>magic (blue)</b> base of the exact type listed + one rune + one perfect gem + any jewel (magic or rare, stats irrelevant). White, gray, superior, rare, set, unique and already-crafted items all fail the recipe; sockets and ethereal on the base do not matter. Fixed mods per the Arreat Summit / maxroll <i>Crafted Items</i> table (2026-03-01); the result also gets 1–4 random affixes (see “item level” below).</p>
+<div class="tblwrap"><table>
+<tr><th>Craft</th><th>Magic base — any of</th><th>Rune + gem (+ jewel)</th><th>Fixed mods (always)</th><th>Random affixes to hope for</th><th>Guide slot it fills</th></tr>
+<tr><td><b>Caster Boots</b></td><td>Boots · Demonhide Boots · Wyrmhide Boots<br><span class="sub">codes lbt · xlb · ulb</span></td><td><b>Thul</b> + Perfect Amethyst</td><td>Regenerate Mana 4–10 %, +10–20 mana, +2–5 % max mana</td><td>30 FRW, 2–3 resists, life, dex</td><td>Boots (listed)</td></tr>
+<tr><td><b>Caster Belt</b></td><td>Light Belt · Sharkskin Belt · Vampirefang Belt<br><span class="sub">codes vbl · zvb · uvc</span></td><td><b>Ith</b> + Perfect Amethyst</td><td>5–10 % FCR, Regenerate Mana 4–10 %, +10–20 mana</td><td>life, resists, FHR, str (a 10-FCR roll = 20 FCR belt)</td><td>Belt (listed; the Arachnid Mesh stand-in)</td></tr>
+<tr><td><b>Blood Ring</b></td><td>Ring<br><span class="sub">code rin</span></td><td><b>Sol</b> + Perfect Ruby</td><td>1–3 % life leech, +10–20 life, +1–5 str</td><td>10 FCR, more life, resists</td><td>Rings (listed) — the build wants the life + FCR, not the leech</td></tr>
+<tr><td>Caster Amulet</td><td>Amulet<br><span class="sub">code amu</span></td><td><b>Ral</b> + Perfect Amethyst</td><td>5–10 % FCR, Regenerate Mana 4–10 %, +10–20 mana</td><td>+2 Warlock skills and 10 FCR (→ 20 FCR total), then res/life</td><td>Amulet — not listed by name but beats Mara's and the Forbidden amulet when it hits; “Jah+” in price-check threads (<a href="pricing-primer.html#s6-1">primer §6.1</a>)</td></tr>
+<tr><td>Caster Ring</td><td>Ring<br><span class="sub">code rin</span></td><td><b>Amn</b> + Perfect Amethyst</td><td>+1–5 energy, Regenerate Mana 4–10 %, +10–20 mana</td><td>10 FCR affix, life, resists</td><td>Rings — the “Rare Ring” slot; FCR is a rolled affix, not a fixed mod (only the amulet and belt crafts guarantee FCR)</td></tr>
+<tr><td>Caster Gloves</td><td>Leather Gloves · Demonhide Gloves · Bramble Mitts<br><span class="sub">codes lgl · xlg · ulg</span></td><td><b>Ort</b> + Perfect Amethyst</td><td>Regenerate Mana 4–10 %, +10–20 mana, +1–3 mana per kill</td><td>resists, life</td><td>Gloves — weaker than Trang-Oul's / Magefist; low priority</td></tr>
+</table></div>
+
+<h3>3.1 Item level — why <i>where</i> the base comes from matters</h3>
+<ul>
+<li><b>Crafted ilvl = ⌊clvl/2⌋ + ⌊base ilvl/2⌋.</b> The number of random affixes is rolled from that ilvl: at crafted ilvl <b>≥ 71</b> you get the full 1–4 (each extra affix a coin-flip chain), lower ilvl caps you at fewer. Craft on a level 90+ character with a Hell-dropped base (Pindle's pack is mlvl 86, cows 81–ish in Hell) and you are always past the cap.</li>
+<li><b>Affix level = ilvl − qlvl/2</b> gates which affixes can appear. +2 class skills on an amulet needs a high-level amulet, 30 FRW on boots needs a high-level base. Hell Anya's stock is <b>ilvl = clvl + 5</b> (cap 99), so at clvl 90 she sells ilvl-95 magic rings, amulets, boots and belts — the best craft bases you can buy, and repeatable every Pindle run (<a href="pindle-anya.html#s4">farm guide §4</a>).</li>
+<li>Gambled rings/amulets also work but cost ~50k gold each; shop bases cost a few thousand.</li>
+</ul>
+
+<h3>3.2 Shopping list per craft, from one Pindle/Anya run</h3>
+<div class="tblwrap"><table class="vs">
+<tr><th>Ingredient</th><th>Source in your loop</th><th>Filter shows it?</th></tr>
+<tr><td>Magic Boots / Demonhide / Wyrmhide Boots · Light Belt / Sharkskin Belt / Vampirefang Belt</td><td>Hell Anya armor tab (magic only, ilvl clvl+5); Hell drops</td><td>yes — the six bases are in the Magic ARMOR rule (§6)</td></tr>
+<tr><td>Magic Ring / Amulet</td><td>Hell Anya; gamble; drops</td><td>yes — accessories always show</td></tr>
+<tr><td>Any Jewel</td><td>drops (every jewel is shown)</td><td>yes</td></tr>
+<tr><td>Thul, Ith, Sol, Ral, Amn, Ort</td><td>drops, countess, cube-up from El–Tir (3:1)</td><td>yes — every rune</td></tr>
+<tr><td>Perfect Amethyst / Perfect Ruby</td><td>3 flawless → 1 perfect in the cube; cows drop plenty</td><td>yes — flawless + perfect gems</td></tr>
+</table></div>
+<div class="warnbox">The random part is what sells. Most crafts are vendor food; the caster amulet with +2 Warlock/10 FCR and the caster ring with 10 FCR are the two outcomes with a real market (primer §6.1: caster amulet “Jah+”, caster ring Ist–Vex). Boots and belts you craft are for your own back, not for sale, unless they hit 30 FRW / 10 FCR plus two 30 resists.</div>
+
+<h2 id="s4">4 · Warlock-specific items — what they are worth</h2>
+<p>Everything Warlock-only (grimoires, daggers with Warlock staff-mods, RotW uniques) trades on a thin market; the numbers below are Traderie asks pulled 2026-09-18 for SC/NL/PC, in Ist (details and sellers: <a href="pricing-primer.html#s5-2">primer §5.1</a>, <a href="pricing-primer.html#s2-4">§2.4</a>).</p>
+<div class="tblwrap"><table>
+<tr><th>Item</th><th>What matters</th><th>Ask range (Ist)</th><th>For you</th></tr>
+<tr><td>Void base — Legend Spike / Fanged Knife / Kris, 3os or 0os<br><span class="sub">requirements: Kris 45 dex · Legend Spike 65 str / 67 dex · Fanged Knife 42 str / 86 dex</span></td><td>3 sockets exact (Larzuk gives 3 at ilvl 86); Warlock staff-mods on top (+3 Abyss, +2 Chaos…) are a bonus buyers pay for; Mithril Point / Bone Knife / Dirk cap at 1os → never</td><td>3os Legend Spike 4 → 17 (37 listings, many “offer”); Fanged Knife 0.7 → 23</td><td class="ok">pick up every gray or Superior elite dagger of those three types; the +1 Abyss white Dirk you saw is noise</td></tr>
+<tr><td>Grimoires (15 bases, max 2os)</td><td>Every grimoire carries Warlock skill automods; only Vigilance (D tier) fits as a runeword; “all resistance on a magic grimoire” is the Abyss guide's ask</td><td>2os normal 0.7 → 5.9; superior 4 → 9</td><td>keep elite 2os with +3 useful mods or all-res; vendor the rest</td></tr>
+<tr><td>Forbidden Diadem / Amulet (magic, +2 Warlock)</td><td>“of the Magus” (20 FCR) on the diadem; “of the Apprentice” (10 FCR) on the amulet; Whale / Luck suffixes also sell</td><td>pattern items, priced per roll (primer §3.3)</td><td class="ok">ID every magic/rare circlet and amulet; the build wears both</td></tr>
+<tr><td>Warlock skillers (GC +1 Chaos / Eldritch / Demon)</td><td>+life suffix (“of Vita” 30–45) multiplies price</td><td>plain Ist–Gul; fat Jah+</td><td class="ok">every GC is shown; ID all</td></tr>
+<tr><td>Entropy Locket (RotW unique amulet)</td><td>named by Echoing Strike and Nova Sorc</td><td>1.0 → 8.6 (14 sellers)</td><td>wear or sell</td></tr>
+<tr><td>Bloodpact Shard (RotW unique dagger)</td><td>Echoing Strike starter weapon</td><td>0.06 → 1.0 (23)</td><td>use, do not bother selling</td></tr>
+<tr><td>Hellwarden's Will (RotW unique Death Mask)</td><td>−8 magic &amp; −8 fire res roll = Sur–3 Jah; one at −8 Ist–Vex; both below Ist</td><td>see roll</td><td>read the two res numbers before pricing</td></tr>
+<tr><td>Wraithstep (boots)</td><td>the +1 Warlock tree roll decides (+1 Eldritch 4 → 7.6; Chaos 4 → 5.9; Demon 2.6 → 4)</td><td>2.6 → 7.6</td><td>Fire Warlock item; sell</td></tr>
+<tr><td>Ars Al'Diabolos / Dul'Mephistos / Tor'Baalos, Opalvein, Sling, Gheed's Wager</td><td>Fire Warlock / Hammerdin top items</td><td>Ars Al'Diabolos median ≈ 63; Opalvein 11 → 80; Sling −5 magic 34 → 54</td><td class="ok">sell — these fund your Zod / Enigma</td></tr>
+<tr><td>Bane's Garments, Horazon's Splendor (sets)</td><td>—</td><td>0.06 → 2.6</td><td>vendor or bulk</td></tr>
+</table></div>
+
+<h2 id="s5">5 · Pickup rules that matter for this build (full list: <a href="pindle-anya.html#s3">farm guide §3</a>)</h2>
+<ul>
+<li><b>Gray or Superior bases</b> only from the runeword list: Archon / Dusk / Wire Fleece / Sacred Armor (4os), Mage Plate (3), Monarch (4), every Sacred Targe / Rondache / Targe (read all-res), Phase Blade / Berserker Axe / Colossus Blade, the seven eth merc polearms and spears, Grand Matron / Matriarchal Bow, Crystal Sword / Flail for self-use, 2os Bone Shield / Preserved Head (Rhyme), Legend Spike / Fanged Knife / Kris (Void).</li>
+<li><b>Every unique, set, rune, flawless+ gem, charm, jewel, ring, amulet.</b></li>
+<li><b>ID every</b> magic or rare circlet-class helm, class item (claws, orbs, Amazon weapons, Paladin shields, Barb helms, pelts, Necro heads, Warlock daggers/grimoires), Jeweler's elite armor/Monarch, rare gloves / boots / belts.</li>
+<li><b>Leave:</b> white or magic generic armor/weapons of any tier, rare non-elite generic armor/weapons, rare elites outside the runeword list, chipped/flawed/normal gems, El–Dol singles, plain magic Large Charms.</li>
+<li>A rare with <b>triple durability</b> is a failed unique: nothing more.</li>
+</ul>
+
+<h2 id="s6">6 · Loot filter <code>lootfilter/warlock_lean.json</code> — what it does</h2>
+<p>Profile name <b>Warlock Lean</b>, 11 rules. One Hide-all rule (gold piles below 5,037 hidden too), then Show rules; Show always beats Hide and rule order is irrelevant.</p>
+<div class="tblwrap"><table class="vs">
+<tr><th>Rule</th><th>Shows</th></tr>
+<tr><td>SHOW Important Mats and Items</td><td>all rings/amulets/charms/jewels (any rarity), every rune, uber mats, terror-zone and absolute items, flawless + perfect gems and skulls</td></tr>
+<tr><td>SHOW Potions and TP Scrolls</td><td>Super Healing, Super Mana, Full Rejuvenation, Town Portal scroll</td></tr>
+<tr><td>SHOW Unique Set</td><td>every gold and green item</td></tr>
+<tr><td>SHOW Rare ARMOR / WEAPONS</td><td>rare gloves, boots, belts, circlets; rare class items that carry +2 class / +3 tree staff-mods — Barb helms (e.g. +2 Barb / +2 Battle Orders), pelts, Necro heads, grimoires, orbs, elite Paladin shields (Sacred Targe / Rondache, Zakarum / Vortex Shield); rare Warlock daggers (whole Blade–Legend Spike 3os line plus Bone Knife and Mithril Point — rare eth Mithril Points with +2 Warlock skills or 40 IAS / leech ask Jah+ on Traderie); 3-socket claws; Matriarchal / Grand Matron Bow; Matriarchal Javelin (+2 Ama / +Jav / 40 IAS / replenish); Ceremonial Pike / Matriarchal Spear / Pike; Phase Blade / Berserker Axe / Colossus Blade; Caduceus. Hidden: rare normal-tier class bases, rare polearms, rare elite armors, rare War / Divine scepters, Dagger–Rondel</td></tr>
+<tr><td>SHOW Magic ARMOR</td><td>magic circlets, grimoires, Barb helms (Echoing +BO), pelts (Antlers of the Colossus); <b>every magic glove</b> (Lancer's / Archer's / Kenshi's … of Alacrity = +3 skill / 20 IAS, named by five S/A builds, asks Lo–Jah); Jeweler's check on Archon / Dusk / Wire Fleece / Sacred Armor / Monarch / Sacred Targe / Sacred Rondache; Preserved Head / Demon Head / Bloodlord Skull; and the six caster-craft bases only among boots and belts — Boots / Demonhide Boots / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt</td></tr>
+<tr><td>SHOW Magic WEAPONS</td><td>magic daggers of the 3-socket line plus Bone Knife / Mithril Point (+2 Warlock prefix, +3 staff-mods), 3-socket claws, Amazon javelins (Lancer's of Quickness), War Scepter and Caduceus (Rose Branded … of the Apprentice), the four elite orbs (&lt;tree&gt; Orb of the Magus). Dagger–Rondel, 2-socket claws, Divine Scepter and non-elite orbs are hidden</td></tr>
+<tr><td>SHOW Bases ARMOR</td><td>white, Superior and gray (eth/socketed) runeword bases: elite armors, Mage Plate, Monarch, Sacred Targe / Rondache / Targe, Tiara / Diadem (Charsi imbue fodder for the “Rare Diadem” helm), Grand Crown (merc Cure, 3os, eth preferred), grimoires. Plain whites stay because every listed armor has max sockets equal to its runeword, so Larzuk always fits. Kite Shield and Bone Shield were dropped once the character had Spirit; Mask / Crown / Preserved Head whites are hidden</td></tr>
+<tr><td>SHOW Bases WEAPONS</td><td>white, Superior and gray: Kris / Cinquedeas / Fanged Knife / Legend Spike (Void, max 3 sockets), Flail (CtA, max 5), Greater / Runic Talons (max 3). Same rule: Larzuk gives exactly the runeword count, so a plain white is a valid base</td></tr>
+<tr><td>SHOW Bases WEAPONS Gray</td><td>Superior and gray (eth/socketed) only, plain 0-socket whites hidden: Phase Blade / Berserker Axe / Colossus Blade (max 6), the seven merc polearms and spears — Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Mancatcher, Matriarchal Spear — Grand Matron / Matriarchal Bow (max 5), Crystal Sword (HotO needs 4, Larzuk gives 6). Only eth 4-socket copies of the polearms sell (Infinity); a non-eth 0os Thresher is vendor food</td></tr>
+</table></div>
+<div class="okbox"><b>Import rules.</b> The profile <code>name</code> must be ≤ 13 characters or the game says “invalid profile code”; a duplicate name says “name already exists” — delete the old profile before re-importing. Rule names ≤ 32 chars, letters/digits/space/<code>_-/.,</code>. Keep armor and weapon item codes in separate rules. Rarity <code>normal</code> also matches gray socketed bases; <code>filterEtherealSocketed:true</code> adds eth items.</div>
+<details><summary>Corrections log (collapsed)</summary>
+<ul>
+<li><b>2026-09-18</b> — Caster Belt base was listed as Sash / Demonhide Sash / Spiderweb Sash (that is the Safety Belt recipe, Tal + P.Emerald). Corrected to Light Belt / Sharkskin Belt / Vampirefang Belt per diablo2.io recipe-caster-belt-t3880, Arreat Summit, d2runewizard.</li>
+<li><b>2026-09-18</b> — Belt item codes went lbl zlb ulc → vbl xtb utc → <b>vbl zvb uvc</b>; xtb is Battle Boots and utc is Troll Belt. Codes verified against d2data <code>armor.json</code> and the PD2 Item_Codes wiki. Filter updated in the same pass.</li>
+<li><b>2026-09-18</b> — Caster Ring had “5–10 % FCR” as a fixed mod; the ring craft has no fixed FCR (+1–5 energy instead). A 10 FCR caster ring is a rolled suffix.</li>
+<li><b>2026-09-18</b> — Regenerate Mana on Caster Boots / Belt / Gloves is 4–10 %, not 5–10 % (Arreat Summit, d2tomb, d2runewizard agree).</li>
+<li><b>2026-09-19</b> — Bases WEAPONS split: polearms / spears, PB / BA / CB, bows and Crystal Sword moved to a Superior + gray only rule (rarity <code>hiQuality</code> + eth/socketed flag, no <code>normal</code>) after a plain white Thresher showed on a run. Daggers, Flail and Talons keep plain whites.</li>
+<li><b>2026-09-18</b> — Filter narrowing pass: magic boots/belts limited to the six craft bases; rare class categories, rare elite armors / polearms / scepters / orbs, 1-socket daggers and 2-socket claws hidden; white Mask / Crown / Preserved Head hidden; Blade and Stiletto added to the Void line. Magic gloves were dropped, then restored (Lancer's / Archer's / Kenshi's … of Alacrity sell).</li>
+</ul>
+</details>
+
+<h2 id="s7">7 · Verify in-game (asserted nowhere above with a source)</h2>
+<ol>
+<li>Crafted fixed-mod ranges for Caster Belt (FCR) and Caster Boots (max mana) — from the Arreat Summit table; confirm on the first craft.</li>
+<li>Whether Hell Anya sells daggers / grimoires after patch 3.1.2 (WP-C open question) — check her weapon tab once.</li>
+<li>Whether the Bases WEAPONS rule (category carrier <code>circl</code> + dagger codes) still shows gray 3os Kris — pick one up with Alt held.</li>
+<li>Whether the Bases WEAPONS Gray rule (<code>hiQuality</code> + flag, no <code>normal</code>) hides a plain 0os Thresher yet still shows a non-eth socketed one — the “normal also matches gray” behaviour is from forum posts, not tested here.</li>
+</ol>
+
+<footer>Sources: maxroll Echoing Strike Warlock guide (Aug 26, 2026) via <code>pricing/data/wp-a-builds.json</code>; maxroll Crafted Items (Mar 1, 2026) and Arreat Summit cube recipes for fixed mods; <code>pricing/data/wp-c.md</code> (Anya ilvl = clvl+5), <code>wp-d.md</code> (pickup rules), <code>wp-g.md</code> / <code>wp-i.md</code> / primer §5.1 (RotW item asks, Traderie 2026-09-18); item codes from the d2data <code>armor.json</code> dump. Filter semantics: icy-veins loot-filter page, diablobytes guide, diablo2.io PSA, in-game bisection 2026-09-18.</footer>
+</main>

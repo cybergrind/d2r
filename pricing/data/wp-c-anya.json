@@ -1,0 +1,277 @@
+{
+ "_meta": {
+  "package": "WP-C Anya shop checklist",
+  "generated": "2026-09-18",
+  "scope": "D2R Reign of the Warlock (3.1.x), Softcore Non-Ladder PC; game facts from fetched pages listed per row; values are pointers to WP-B/WP-H unless a source states one",
+  "ilvl_rule": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "dating_note": "diablo2.io prints '(pre-Resurrected)' after EVERY post age, including 2026 posts (e.g. the 3.1.2 patch thread '5 months ago (pre-Resurrected)'); it is not a date marker. Posts are dated here from the 'N years/months ago' text relative to 2026-09-18.",
+  "wp_a_input": "pricing/data/wp-a-blues.json did not exist at run time; RotW demand taken directly from the cached maxroll S/A guides."
+ },
+ "AN-claw-traps": {
+  "mode": "shop",
+  "difficulty": "Hell (Nightmare also stocks claws, but no elite upgrade and lower exceptional chance)",
+  "item": "Greater Talons / Runic Talons (also Greater Claws / Feral Claws) - magic (blue), exceptional or elite only",
+  "affixes": "Prefix Cunning (+3 Traps) or Witch-hunter's (+2 Assassin Skills); suffix of Quickness (+40 IAS) / of Swiftness (+30); staff mods +3 Lightning Sentry (best), +3 Death Sentry, +3 Wake of Fire, Fade/BoS/Weapon Block/Mind Blast as bonus. Targets named by sources: 'Cunning Greater Talons of Quickness' (+6 LS = +3 tree +3 staffmod), 'Witch-hunter's Greater Talons' (+5 LS). Then 2 sockets from Larzuk.",
+  "clvl": "75 minimum (ilvl 80 is what BMAY gives for the +3 skill-tree affix); 94+ recommended (ilvl 99 = max exceptional/elite chance). Derived: Runic Talons have qlvl 81 (purediablo table) and an item type only appears when qlvl <= ilvl (Hastmannen), so Runic bases need clvl >= 76.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "Per BMAY (pre-RotW, harrogath affix calc): claw rolls exceptional 15.24% / elite 2.28% at ilvl 80 (combined 16.82%); 17.67% / 2.58% at ilvl 99 (19.34%). Staff mods only on exceptional/elite claws. Per claw at clvl 94+: +5 or +6 LS 1:41,118; +6 LS 1:328,947; +5/+6 Venom 1:102,833; +6 Venom 1:826,446. Anya averaged 3.5 claws per refresh over 500 refreshes (1,756 claws). Expected: a +5 LS claw every ~10 h, +6 LS ~78 h at ~4,200 claws/h - per source, verify.",
+  "source": [
+   "diablo2.io forum t8592 'Claw Shopping Guide by BMAY' ('5 years ago', pre-RotW; fetched 2026-09-18; pricing/raw/d2io/claw-guide-bmay.html)",
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "purediablo.com strategy 'Shuko-Jutsu: The Art of the Claw' (dateModified 2023-02-22, 'Updated for D2R Patch 2.6'; fetched 2026-09-18; pricing/raw/d2io/purediablo-claw-guide.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "maxroll.gg/d2/resources/tips-tricks (Last Updated November 22, 2023; pricing/raw/mr/resources__tips-tricks.html)",
+   "diablo2.io /base/greater-talons-t1866.html (description by Aelanwyr, post #1980 '5 years ago'; pricing/raw/d2io/base-greater-talons.html)",
+   "maxroll.gg/d2/guides/lightning-sentry-assassin (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/guides/wake-of-fire-assassin (Last Updated May 22, 2026)"
+  ],
+  "date": "BMAY/Hastmannen ~2021; purediablo 2023-02-22; maxroll VMI 2024-03-06; tips 2023-11-22; LS/WoF guides 2026-05-22",
+  "value": "WP-B. Orientation only: d2runes 'Costs 10-20 x Jah' (undated); maxroll VMI 'Very High' (2024); diablo2.io 2026-08-28 guide has no claw row (only 'Assassin Traps' skiller Pul-Um).",
+  "notes": "Demand RotW-era: S-tier Lightning Sentry Assassin and A-tier Wake of Fire Assassin guides (May 22, 2026) list 'Cunning Greater Talons of Quickness' as top weapon/off-hand ('Greater Talons and Greater Claws are the best bases due to their low requirements'). Anya sells only two claw classes: Blade/Greater/Runic Talons and Scissors Katar/Quhab/Suwayyah (purediablo). BMAY trick: keep dexterity at exactly 55 (Scissors Katar req) so every exceptional/elite claw shows red and only red claws need a mouse-over; beware -requirements suffixes (Greater Talons 79 dex -> 56 with Simplicity)."
+ },
+ "AN-claw-ma": {
+  "mode": "shop",
+  "difficulty": "Hell",
+  "item": "Greater Talons / Runic Talons (Suwayyah class for damage builds) - magic, exceptional/elite",
+  "affixes": "Prefix Kenshi's (+3 Martial Arts) or Witch-hunter's (+2 Assassin); suffix of Swiftness/Quickness; staff mods +3 Phoenix Strike / Claws of Thunder / Dragon Talon etc. (purediablo). Also 'Fools' (Trump) Talons of Quickness for WW/physical sins; Artisan's/Jeweler's (3 sockets) Talons of Quickness.",
+  "clvl": "75 minimum for the +3 tree prefix (same rule as traps); 94+ best.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "No source gives MA-specific odds; same upgrade chances as AN-claw-traps (16.82% / 19.34% exc+elite at ilvl 80 / 99).",
+  "source": [
+   "purediablo.com strategy 'Shuko-Jutsu: The Art of the Claw' (dateModified 2023-02-22, 'Updated for D2R Patch 2.6'; fetched 2026-09-18; pricing/raw/d2io/purediablo-claw-guide.html)",
+   "maxroll.gg/d2/guides/dragon-talon-assassin (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)"
+  ],
+  "date": "purediablo 2023-02-22; Dragon Talon guide 2026-05-22; VMI 2024-03-06",
+  "value": "WP-B. No orientation price found: VMI (2024) lists no MA claw; the Dragon Talon Assassin guide (May 22, 2026) uses Mosaic Greater Talons, not magic claws -> low demand signal.",
+  "notes": "Pre-buff claws are a third class: Shadow (+3 Shadow Disciplines) claws with +3 Venom / Fade / Burst of Speed staff mods; VMI 2024 rates 'Shadow Greater Talons (+6 Venom)' High for pre-buff."
+ },
+ "AN-armor-whale": {
+  "mode": "shop",
+  "difficulty": "Hell",
+  "item": "Body armor, magic: 'Jeweler's <armor> of the Whale' - Jeweler's = 4 sockets, of the Whale = +100 life (alvl 55 per d2io comment). Archon Plate roll is the valuable one; at ilvl 75 the base is Ancient Armor with a 2.2% elite upgrade to Archon Plate (d2io Anya-page comment).",
+  "affixes": "Jeweler's (Socketed 4) + of the Whale (+100 Life; maxroll VMI counts 80-100 life). Sister targets from the same comment: Jeweler's ... of Amicae (15 PDR), Jeweler's ... of Stability (24 FHR).",
+  "clvl": "70 (-> ilvl 75) per d2runes and the d2io Anya comment; d2runes lists the row as 'Anya (Hell) Clvl: 70'.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "Per d2io Anya-page comment ('4 years ago', pre-RotW): 4sox+100life 1/473,600 per armor (1/441,600 with alvl 55-59); 4sox+15pdr 1/142,080; 4sox+24fhr 1/17,760. Larzuk/Halbu (Hell) are slower to re-roll but show more armors per window (same comment).",
+  "source": [
+   "diablo2.io NPC page /npcs/anya-t3958.html ('Sells' line undated, index flags 'Missing v0.3 Data'; comments '5'/'4 years ago'; fetched 2026-09-18; pricing/raw/d2io/npc-anya.html)",
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "diablo2.io post4505103 'D2R RotW SC price guide - revised 28 Aug 2026' (NL column; author calls it an experiment; orientation only; pricing/raw/d2io/price-guide-2026-08-28.html)"
+  ],
+  "date": "d2io comment ~2022; d2runes undated (live 2026); VMI 2024-03-06; price guide 2026-08-28",
+  "value": "WP-B. Orientation: d2runes 'Costs ~5 x Ber'; diablo2.io 2026-08-28 NL 'Jeweler's Archon of the Whale 90-100: OFFER / multi-Jah'; VMI High ('usually socketed with 4x Ruby Jewel of Fervor').",
+  "notes": "Anya's 'Sells Armor' (d2io NPC page) is the basis for armor shopping here; the comment explicitly recommends Hell Anya for the red-portal re-roll speed."
+ },
+ "AN-armor-4os": {
+  "mode": "shop",
+  "difficulty": "any",
+  "item": "White (non-magic) 4-socket armor from Anya - DOES NOT EXIST at the levels that matter.",
+  "affixes": "n/a",
+  "clvl": "Vendors sell normal and socketed (white) items only up to ilvl 25 (clvl 20); from ilvl 25 on they sell magic items only, never white/socketed (Hastmannen; purediablo). A5 Normal caps shop ilvl at 45 but the magic-only rule kicks in at 25 regardless.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "n/a",
+  "source": [
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "purediablo.com strategy 'Shuko-Jutsu: The Art of the Claw' (dateModified 2023-02-22, 'Updated for D2R Patch 2.6'; fetched 2026-09-18; pricing/raw/d2io/purediablo-claw-guide.html)"
+  ],
+  "date": "Hastmannen ~2021; purediablo 2023-02-22",
+  "value": "n/a",
+  "notes": "Settled from sources: the only 4-socket armor Anya can sell after clvl 20 is a magic 'Jeweler's' armor (see AN-armor-whale). Socket-quest/cube socketing of shopped white bases is therefore not an Anya play; Enigma-type 4os white bases come from drops (WP-D)."
+ },
+ "AN-gloves-jav": {
+  "mode": "shop",
+  "difficulty": "Hell and Nightmare (Anya NM/Hell; also Charsi Hell)",
+  "item": "Gloves, magic: 'Lancer's <gloves> of Alacrity' = +3 Javelin and Spear Skills, +20% IAS ('3/20 Javazon gloves').",
+  "affixes": "Lancer's (+3 Javelin and Spear Skills) + of Alacrity (20% IAS). Secondary: of Fortune (20-25% MF).",
+  "clvl": "55 minimum (Hastmannen '55**', d2runes 'Clvl: 55'); d2runes: 'Shop at clvl 68-74 or 75+'; Hastmannen: 68-74 at Charsi Hell, 75+ at Anya Nm/Hell.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "d2runes: 'Probability ~1 in 11,305 at clvl 75' (undated, method not given).",
+  "source": [
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "diablo2.io post4505103 'D2R RotW SC price guide - revised 28 Aug 2026' (NL column; author calls it an experiment; orientation only; pricing/raw/d2io/price-guide-2026-08-28.html)",
+   "maxroll.gg/d2/guides/lightning-fury-amazon-guide (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/guides/lightning-strike-amazon (Last Updated May 22, 2026)"
+  ],
+  "date": "Hastmannen ~2021; d2runes undated; VMI 2024-03-06; price guide 2026-08-28; LF/LStrike guides 2026-05-22",
+  "value": "WP-B. Orientation: d2runes 'Costs 1 x Lo'; diablo2.io 2026-08-28 NL '+3 Jav / 20 IAS gloves: Ist-Vex'; VMI High ('often BiS on Lightning Fury Amazons').",
+  "notes": "RotW demand: S-tier Lightning Fury Amazon guide (May 22, 2026) lists 'Lancer's Chain Gloves of Alacrity'; A-tier Lightning Strike Amazon lists 'Lancer's Gloves of Alacrity'. VMI: magic gloves 'best shopped from various Armor vendors, particularly Nightmare Anya and Gheed'."
+ },
+ "AN-gloves-ma": {
+  "mode": "shop",
+  "difficulty": "Hell and Nightmare",
+  "item": "Gloves, magic: 'Kenshi's <gloves> of Alacrity' = +3 Martial Arts, +20% IAS.",
+  "affixes": "Kenshi's (+3 Martial Arts) + of Alacrity (20% IAS); of Fortune (20-25% MF) secondary.",
+  "clvl": "55 minimum; shop at 68-74 or 75+ (d2runes).",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "None given (same slot/affix pool as AN-gloves-jav; assume similar - not sourced).",
+  "source": [
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "maxroll.gg/d2/guides/dragon-talon-assassin (Last Updated May 22, 2026)"
+  ],
+  "date": "d2runes undated; VMI 2024-03-06; Dragon Talon guide 2026-05-22",
+  "value": "WP-B. Orientation: d2runes 'Costs 1 x Lo'; VMI Medium ('due to the debut of Mosaic in Patch 2.6').",
+  "notes": "Demand signal weak: the A-tier Dragon Talon Assassin guide (May 22, 2026) lists Dracul's Grasp / Blood Crafted Gloves / Death's Hand / Magefist, no magic MA gloves. Bow variant 'Archer's Gloves of Alacrity' (+3 Bow and Crossbow, 20 IAS): same vendors and levels (Hastmannen), VMI Medium, listed by the Strafe Amazon guide (July 18, 2026)."
+ },
+ "AN-stick-warcry": {
+  "mode": "shop",
+  "difficulty": "Nightmare and Hell",
+  "item": "Any weapon with the 'Echoing' prefix (+3 Warcries) - 'BO stick'. At Anya this means throwing weapons: 'Echoing Glaive', 'Echoing Throwing Knife' (maxroll tips), 'Echoing Balanced Knife' (Gold Find Barbarian swap).",
+  "affixes": "Echoing (+3 Warcries). Any suffix. Not a spear if you care about resale (VMI).",
+  "clvl": "55 minimum, 75 recommended (Hastmannen '55**, 75***'; d2runes 'Clvl: 75').",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "None given.",
+  "source": [
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/resources/tips-tricks (Last Updated November 22, 2023; pricing/raw/mr/resources__tips-tricks.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "maxroll.gg/d2/guides/gold-find-barbarian (Last Updated May 22, 2026)",
+   "diablo2.io NPC page /npcs/anya-t3958.html ('Sells' line undated, index flags 'Missing v0.3 Data'; comments '5'/'4 years ago'; fetched 2026-09-18; pricing/raw/d2io/npc-anya.html)"
+  ],
+  "date": "Hastmannen ~2021; d2runes undated; tips 2023-11-22; VMI 2024-03-06; GF Barb guide 2026-05-22",
+  "value": "WP-B. Orientation: d2runes 'Costs ~1 x Ist'; VMI High/Medium by base ('purely aesthetic'), Echoing Throwing Spear Low.",
+  "notes": "Vendors per sources: Charsi Nm, Malah Nm, Anya Nm, Larzuk Nm (Hastmannen); Malah (NM/Hell), Anya (NM/Hell) (d2runes); 'best shopped from Hell Malah and Anya' (VMI). Warcries are not staff mods, so any weapon type works; Anya's weapon tab = katars + throwing weapons (d2io NPC page)."
+ },
+ "AN-jav-6": {
+  "mode": "shop",
+  "difficulty": "Hell",
+  "item": "Amazon javelin, magic: 'Lancer's Maiden/Matriarchal Javelin of Quickness' = +3 Javelin and Spear Skills prefix + up to +3 automod = '+6 Javelin & Spear', +40% IAS.",
+  "affixes": "Lancer's (+3 Javelin and Spear Skills) + of Quickness (40% IAS) + Amazon auto-mod +3 to a javelin skill. Valkyrie's (+2) / Harpoonist's (+1) variants are lower tiers (VMI).",
+  "clvl": "75 (d2runes 'Anya (Hell) Clvl: 75, higher character level is better'; Hastmannen '75**').",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "None given.",
+  "source": [
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "diablo2.io post4505103 'D2R RotW SC price guide - revised 28 Aug 2026' (NL column; author calls it an experiment; orientation only; pricing/raw/d2io/price-guide-2026-08-28.html)",
+   "maxroll.gg/d2/guides/lightning-fury-amazon-guide (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/resources/staff-mods (Last Updated February 10, 2026; pricing/raw/mr/resources__staff-mods.html)"
+  ],
+  "date": "d2runes undated; Hastmannen ~2021; VMI 2024-03-06; price guide 2026-08-28; LF guide 2026-05-22; staff-mods 2026-02-10",
+  "value": "WP-B. Orientation: d2runes 'Costs 20-30 x Jah'; diablo2.io 2026-08-28 NL '+3 Jav / 40 IAS Matriarchal: OFFER / multi-Jah'; VMI Very High.",
+  "notes": "VENDOR CONFLICT: d2runes says Anya (Hell); Hastmannen says 'Malah Nm/Hell'; VMI says these javelins are 'found anywhere throughout Hell, extremely rare' and names no vendor. Which A5 vendor actually stocks Amazon javelins -> verify in-game. Amazon items carry auto-mods, not staff mods (maxroll staff-mods page)."
+ },
+ "AN-dagger-warlock": {
+  "mode": "shop",
+  "difficulty": "unknown",
+  "item": "Daggers (Blade/Kris/Dirk/Dagger; exc. Stiletto/Cinquedeas/Rondel/Poignard; elite Legend Spike/Fanged Knife/Mithril Point/Bone Knife - list from maxroll warlock-overview). RotW: daggers carry Warlock skill staff-mods and are the Void / Ritual runeword bases.",
+  "affixes": "Observed on live diablo2.io Kris listings (2026-09-18): '+2 to Chaos Skills (Warlock)', '+2 to Apocalypse (Warlock)', '+1 to Engorge (Warlock)', '+3 Abyss', '+3 Summon Defiler', '+1 Sigil: Death', '+3 Eldritch Blast', '+1 Enhanced Entropy', '+1 Hex Siphon'; a maxroll guide names 'Arch-Devil's Kris of Lower Resistance'. Rare Kris also listed. For runeword bases: white 3-socket dagger with good staff mods (Echoing Strike guide).",
+  "clvl": "Unknown - no source gives Warlock affix/staff-mod level brackets. White (socketable) daggers can only be shopped below ilvl 25 (clvl < 20) by the general rule; after that only magic daggers. Verify in-game.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "None.",
+  "source": [
+   "news.blizzard.com/en-us/article/24271875/reign-of-the-warlock-3-1-2-patch-notes (fetched 2026-09-18; mirrored on diablo2.io t1764155 'ROTW - 3.1.2 Patch Notes (1 Apr 2026)'; pricing/raw/d2io/blizz-news-3.1.2.html)",
+   "icy-veins.com RotW overview (fetched 2026-09-18, undated in text; pricing/raw/d2io/icy-veins-rotw-overview.html)",
+   "maxroll.gg/d2/resources/warlock-overview (Last Updated February 18, 2026; pricing/raw/mr/resources__warlock-overview.html)",
+   "diablo2.io /base/kris-t1659.html 'On the trade market' listings (30 min - 1 day old on 2026-09-18; pricing/raw/d2io/base-kris.html)",
+   "maxroll.gg/d2/guides/abyss-warlock-build-guide (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/guides/echoing-strike-warlock-guide (Last Updated August 26, 2026)",
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "diablo2.io NPC page /npcs/anya-t3958.html ('Sells' line undated, index flags 'Missing v0.3 Data'; comments '5'/'4 years ago'; fetched 2026-09-18; pricing/raw/d2io/npc-anya.html)",
+   "diablo2.io /npcs/ index 'Sells' lines (pre-RotW data, 'Missing v0.3 Data' marker; fetched 2026-09-18; pricing/raw/d2io/npcs-index.html)"
+  ],
+  "date": "patch 3.1.2 = 2026-04-01; icy-veins 2026 (undated); warlock-overview 2026-02-18; Kris listings 2026-09-18; Abyss guide 2026-05-22; Echoing Strike guide 2026-08-26",
+  "value": "WP-B ('thin market' per plan). Kris page 'Sold for' rows (2026-08/09): 1 Ist, 2 Ber, 1 Jah, 1 Um, 1 Ohm - unbucketed, do not use as a price.",
+  "notes": "DOES ANYA SELL DAGGERS? Not settled. Patch 3.1.2 (Blizzard news page, fetched): 'Updated the number of daggers that can be found on vendors' - no vendor names. Pre-RotW sources put daggers at Malah Hell / Drognan Hell (Hastmannen) and Anya's stock at 'Katars, Throwing Weapons' (d2io NPC page). No fetched RotW-era page lists Anya as a dagger vendor. -> verify in-game (check Anya's, Malah's and Larzuk's weapon tabs in Hell). Abyss Warlock guide (May 22, 2026): 'check any Daggers and Books you find for chances at bonus Skill ranks'."
+ },
+ "AN-grimoire": {
+  "mode": "shop",
+  "difficulty": "unknown",
+  "item": "Grimoires (RotW Warlock off-hand): Normal Grimoire/Compendium/Tome/Codex/Old Book; Exceptional Possessed Grimoire/Possessed Compendium/Dark Tome/Dark Codex/Burnt Text; Elite Blasphemous Grimoire/Blasphemous Compendium/Occult Tome/Occult Codex/Forgotten Volume (maxroll new-items).",
+  "affixes": "0-3 staff mods, +1-3 each, to Warlock skills (warlock-overview); Abyss guide: 'good affixes like All Resistance on a Magic Grimoire'. Runewords in grimoires: Rhyme, Splendor, Vigilance (d2io Grimoire page). Grimoire base: qlvl 24, max sockets 2.",
+  "clvl": "Unknown. If a vendor sells them, the general rules apply (magic only after ilvl 25; qlvl 24 base needs ilvl >= 24). Verify in-game.",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "None.",
+  "source": [
+   "maxroll.gg/d2/items/new-items-in-reign-of-the-warlock (Last Updated February 19, 2026; pricing/raw/mr/items__new-items-in-reign-of-the-warlock.html)",
+   "maxroll.gg/d2/resources/warlock-overview (Last Updated February 18, 2026; pricing/raw/mr/resources__warlock-overview.html)",
+   "diablo2.io /base/grimoire-t1673943.html ('Patch 3.0 New in RotW', entry by Teebling '7 months ago'; pricing/raw/d2io/base-grimoire.html)",
+   "maxroll.gg/d2/guides/abyss-warlock-build-guide (Last Updated May 22, 2026)"
+  ],
+  "date": "new-items 2026-02-19; warlock-overview 2026-02-18; d2io Grimoire page (entry '7 months ago'); Abyss guide 2026-05-22",
+  "value": "WP-B. d2io Grimoire page: one 'Sold for 1 Ist (Sup)' 6 months ago; no bucketed data.",
+  "notes": "NO fetched source says any vendor sells grimoires (Anya's d2io 'Sells' line predates RotW; maxroll pages describe grimoires as drops/bases only). -> verify in-game."
+ },
+ "AN-circlet-gamble": {
+  "mode": "gamble",
+  "difficulty": "any (gambling ignores difficulty; 'only your character level matters' - d2runes)",
+  "item": "Circlet / Coronet / Tiara / Diadem from the gamble window.",
+  "affixes": "Targets named by sources: '+2 Class Skills, 20% FCR, 30% FRW, all res, 1-2 sockets' coronets (d2runes); '<class-tree> Circlet of the Magus' (needs 2 Larzuk sockets to have value, VMI); 'Artisan's Tiara of Speed' (30 FRW, 3 sockets; VMI Very High; diablo2.io 2026-08-28 NL Lo-Ber/offer); 'Artisan's Tiara of Luck' (30-35 MF); 'Cunning Circlet of the Magus' is in the LS Assassin helmet list.",
+  "clvl": "87 for the coronet row (d2runes: 'Always gamble coronets ... for a better chance at getting Griffon's'). Gamble ilvl rules are not in any fetched source - do not assert them.",
+  "ilvl": "n/a (gamble); the shop rule does not apply. Rarity odds per d2runes: Unique 1:2000 (0.05%), Set 2:2000 (0.1%), Rare 200:2000 (10%), Magic 1797:2000 (89%).",
+  "odds": "Rarity odds above (d2runes, undated). Magic Find has no effect on gambling (maxroll gold-magic-find, Feb 11, 2026).",
+  "source": [
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "diablo2.io post4505103 'D2R RotW SC price guide - revised 28 Aug 2026' (NL column; author calls it an experiment; orientation only; pricing/raw/d2io/price-guide-2026-08-28.html)",
+   "maxroll.gg/d2/guides/lightning-sentry-assassin (Last Updated May 22, 2026)",
+   "maxroll.gg/d2/resources/gold-magic-find (Last Updated February 11, 2026)",
+   "maxroll.gg/d2/resources/tips-tricks (Last Updated November 22, 2023; pricing/raw/mr/resources__tips-tricks.html)"
+  ],
+  "date": "d2runes undated; VMI 2024-03-06; price guide 2026-08-28; LS guide 2026-05-22; gold-magic-find 2026-02-11; tips 2023-11-22",
+  "value": "WP-B/WP-H. Orientation: Artisan's Tiara of Speed 30 FRW NL 'Lo-Ber / offer' (diablo2.io 2026-08-28).",
+  "notes": "Anya gambles (d2io NPC page) but 'it doesn't matter which vendor you gamble from' (d2runes) - Anya is simply the gambler next to the red portal. Price discount: Edge + Gheed's Fortune = 30% off (d2runes; maxroll tips). Price rises with clvl (d2runes)."
+ },
+ "AN-ring-amulet-gamble": {
+  "mode": "gamble",
+  "difficulty": "any",
+  "item": "Amulets and rings from the gamble window.",
+  "affixes": "d2runes rows: '+3 Tree Skills Amulet + 10% FCR' (clvl 65); 'Dual Leech Ring' (life+mana leech, FCR, life/mana/str; clvl 91, '~50,000 gold per ring with discounts'); '+2 Class Skills Amulet + res + FCR + life/mana/str' (clvl 95, 'usually making caster amulets is better'). VMI (2024) values '<tree> Amulet of the Whale' (50-100 life) High, 'of Luck' 20-35 MF Medium-High.",
+  "clvl": "65 (+3 tree amulet) / 91 (dual leech ring) / 95 (+2 class amulet) per d2runes.",
+  "ilvl": "n/a (gamble). Rarity odds as AN-circlet-gamble.",
+  "odds": "Rarity odds only (d2runes).",
+  "source": [
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/items/valuable-magic-items (Last Updated March 6, 2024 = pre-RotW; pricing/raw/mr/items__valuable-magic-items.html)",
+   "maxroll.gg/d2/guides/gold-find-barbarian (Last Updated May 22, 2026)"
+  ],
+  "date": "d2runes undated; VMI 2024-03-06; GF Barb guide 2026-05-22",
+  "value": "WP-H / WP-I (jewelry is priced there).",
+  "notes": "Other d2runes gamble rows: Tri-res boots (clvl 43), 'Gull Dagger +100% MF' (clvl 11, 'limited dagger pool'). The plan's search snippet says daggers were removed from gambling in RotW; the live d2runes page still lists the Gull gamble -> conflict, verify in-game. Gold source: Gold Find Barbarian guide (May 22, 2026): 'sole purpose is to generate Gold for gambling'."
+ },
+ "AN-mechanics": {
+  "mode": "rules",
+  "difficulty": "all",
+  "item": "Shop mechanics that gate every row above.",
+  "affixes": "n/a",
+  "clvl": "n/a",
+  "ilvl": "shop ilvl = clvl + 5, capped at 99 (purediablo 2023-02-22; Hastmannen ~2021). Brackets: clvl 20 -> ilvl 25 (magic-only from here); 55 -> 60; 70 -> 75; 75 -> 80; 94 -> 99.",
+  "odds": "Upgrade formulas (purediablo/BMAY): Exceptional in Nightmare ((ilvl*64)+4000)/100,000; Exceptional in Hell ((ilvl*128)+5000)/100,000; Elite in Hell ((ilvl*16)+1000)/100,000; upgrades need ilvl 25+. Affix level (purediablo; maxroll staff-mods Feb 10, 2026): if ilvl < 99 - qlvl/2 then alvl = ilvl - qlvl/2 else alvl = 2*ilvl - 99 (integers). Example: Greater Talons qlvl 50 at clvl 75 -> ilvl 80 -> alvl 55; Runic Talons qlvl 81 at ilvl 80 -> alvl 61; at ilvl 99 -> 99.",
+  "source": [
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)",
+   "purediablo.com strategy 'Shuko-Jutsu: The Art of the Claw' (dateModified 2023-02-22, 'Updated for D2R Patch 2.6'; fetched 2026-09-18; pricing/raw/d2io/purediablo-claw-guide.html)",
+   "diablo2.io forum t8592 'Claw Shopping Guide by BMAY' ('5 years ago', pre-RotW; fetched 2026-09-18; pricing/raw/d2io/claw-guide-bmay.html)",
+   "maxroll.gg/d2/resources/staff-mods (Last Updated February 10, 2026; pricing/raw/mr/resources__staff-mods.html)",
+   "diablo2.io /base/greater-talons-t1866.html (description by Aelanwyr, post #1980 '5 years ago'; pricing/raw/d2io/base-greater-talons.html)"
+  ],
+  "date": "Hastmannen ~2021; purediablo 2023-02-22; BMAY ~2021; staff-mods 2026-02-10",
+  "value": "n/a",
+  "notes": "Never ethereal from shops (Hastmannen). Magic only from ilvl 25 (both). Elite bases only in Hell and only from A3 Hell on; A1/A2 Hell never elite; items tagged 'hell upgrade' never roll exceptional/elite (Hastmannen). Item type appears only when qlvl <= ilvl (Hastmannen). Staff mods only on exceptional/elite claws (BMAY, purediablo). Staff-mod tier base by ilvl: 1-11 t1, 12-18 t2, 19-24 t3, 25-36 t4, 37+ t5; 20% +1 / 50% same / 20% -1 / 10% -2; +3 if RND[100] >= 90; 3 skills if >= 91 (purediablo). Shop window does not refresh while another player is in town (Hastmannen). Gold: purediablo 'load up with gold, at least 1,000,000'; d2runes ~50,000 per gambled ring; a Hastmannen-thread reply ('1 year ago') says vendor orbs 'regularly go for >300k'."
+ },
+ "AN-refresh-loop": {
+  "mode": "rules",
+  "difficulty": "Hell (same in Nightmare)",
+  "item": "Inventory refresh via the Red Portal to Nihlathak's Temple (Pindleskin's portal).",
+  "affixes": "n/a",
+  "clvl": "n/a",
+  "ilvl": "n/a",
+  "odds": "Throughput per BMAY: ~20 inventory checks per minute with Burst of Speed + FRW gear + Harmony bow; 3.5 claws per refresh average (1,756 claws / 500 refreshes) -> ~4,200 claws/hour. Per source, verify.",
+  "source": [
+   "purediablo.com strategy 'Shuko-Jutsu: The Art of the Claw' (dateModified 2023-02-22, 'Updated for D2R Patch 2.6'; fetched 2026-09-18; pricing/raw/d2io/purediablo-claw-guide.html)",
+   "diablo2.io forum t8592 'Claw Shopping Guide by BMAY' ('5 years ago', pre-RotW; fetched 2026-09-18; pricing/raw/d2io/claw-guide-bmay.html)",
+   "maxroll.gg/d2/resources/tips-tricks (Last Updated November 22, 2023; pricing/raw/mr/resources__tips-tricks.html)",
+   "d2runes.io/cheatsheet/shopping/ (undated; page header shows the RotW Dclone tracker so it is live in 2026; fetched 2026-09-18; pricing/raw/d2runes-shopping.html)",
+   "maxroll.gg/d2/meta/pindleskin-farming-guide (Last Updated February 10, 2026; pricing/raw/mr/meta__pindleskin-farming-guide.html)",
+   "diablo2.io forum t6614 'The complete overview guide to shopping in Diablo 2 by Hastmannen' (posted '5 years ago' = ~2021, pre-RotW; fetched 2026-09-18; pricing/raw/d2io/shopping-guide-hastmannen.html)"
+  ],
+  "date": "purediablo 2023-02-22; BMAY ~2021; tips 2023-11-22; d2runes undated; Pindle guide 2026-02-10; Hastmannen ~2021",
+  "value": "n/a",
+  "notes": "As the sources state it: (1) Anya and the Red Portal are SW of the Harrogath waypoint; the portal exists once 'Prison of Ice' (rescue Anya) is done (maxroll Pindle guide). (2) Click Trade, check the weapons tab for claws / armor tab for gloves and armor (purediablo). (3) Nothing good -> 'go to the red portal and go through and quickly back again. If you are quick you won't wake up any of the zombies. This refreshes what she has to sell. Rinse & repeat' (purediablo); BMAY: 'Keep Nihlathak's portal open and run between it and Anya'. (4) maxroll tips: the Red Portal 'no longer disappears in Diablo 2 Resurrected. Use Nihlathak's Temple Red Portal next to Anya to reset the shops in Harrogath quickly'. (5) Caveat: no refresh while another player is in town (Hastmannen). Synthesis (ours, not a source): every Pindleskin run already passes through this portal, so check Anya once per run and use pure portal-hopping only when shopping is the goal."
+ }
+}

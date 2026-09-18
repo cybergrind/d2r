@@ -1,0 +1,3670 @@
+{
+ "Rare Ring": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "summoner-necromancer-guide"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +xx% Magic Skill Damage -xx% Enemy Magic Resistance +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx Level 5 Telekinesis )32/32 Charges)",
+   "berserk-barbarian": "+x% Faster Cast Rate +x to Attack Rating +x Life X Resist +x% Lightning Absorb x% Fire Absorb x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "blessed-hammer-paladin": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana X Resist +x% Fire Absorb x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Cast Rate +x to Attack Rating +x Minimum Damage +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana X Resist +x% Lightning Absorb x% Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "dragon-talon-assassin": "+x% Faster Cast Rate +x to Attack Rating X Resist +x% Resistances +x Lightning Absorb x% Cannot Be Frozen",
+   "dream-paladin": "+x to All Skills +x% Faster Cast Rate +x to Attack Rating +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist +x% Cold Absorb x% Fire Absorb x% Lightning Absorb x% Damage Reduced by x Magic Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "echoing-strike-warlock-guide": "+x to All Skills +x to all Attributes x% Life stolen per hit x% Mana stolen per hit +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate -xx% Enemy Magic Resistance +xx% Magic Damage All Resistances +xx",
+   "enchant-sorceress": "+x to All Skills +x% Faster Cast Rate +x to Attack Rating +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Cold Absorb x% Lightning Absorb x% Fire Absorb x% Damage Reduced by x Magic Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x to All Skills +x% Faster Cast Rate X Resist +x% x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage All Resistances +xx",
+   "fissure-druid": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% Fire Absorb x% x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x% Faster Cast Rate +xx% Magic Skill Damage -xx% Enemy Magic Resist +x Life +x Mana +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "lightning-fury-amazon-guide": "+x to All Skills +x% Faster Cast Rate +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Cold Absorb x% Fire Absorb x% Magic Damage Reduced by x Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+x to All Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to All Skills +x% Faster Cast Rate Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% Fire Absorb x% Damage Reduced by x Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to All Skills +x% Faster Cast Rate +x to Attack Rating +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Cold Absorb x% Fire Absorb x% Magic Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana X Resist +x% Fire Absorb x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "mirrored-blades-warlock-guide": "+x to All Skills +x to all Attributes x% Life stolen per hit x% Mana stolen per hit +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx +x to Attack Rating",
+   "nova-sorceress-guide": "+x to All Skills +x% Faster Cast Rate +x to Strength +x to Life +x to Mana Increased Maximum Mana x% X Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to All Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x to All Skills +x to Attribute +x Life X Resist +x% Lightning Absorb x% Magic Damage Reduced by x",
+   "summoner-necromancer-guide": "+ to All Skills + xx% Faster Cast Rate Elemental Resist +xx% xx% Better Chance of Getting Magic Items + Attributes Teleport (From Charges)"
+  },
+  "ethereal_named": false,
+  "weight": 37
+ },
+ "Caster Crafted Amulet": {
+  "kind": "crafted",
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +x to Warlock Skill Levels +xx% Magic Skill Damage -xx% Enemy Magic Resistance +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx",
+   "berserk-barbarian": "+x to All Skills +x to Barbarian Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "blessed-hammer-paladin": "+x to All Skills +x To Paladin Skills +x% Faster Cast Rate +x Life +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to All Skills +x to Cold Skills [Class Only] +x to Sorceress Skills +x% Faster Cast Rate +x to all Attributes +x Life X Resist +x%",
+   "double-throw-barbarian-guide": "5% Chance to cast level 2 Amplify Damage on striking +x to All Skills +x to Barbarian Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate x% Bonus to Attack Rating +x to Attack Rating x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "dream-paladin": "+x to All Skills +x to Defensive Auras [Paladin Only] +x to Paladin Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Damage to Demons +x% Damage to Undead x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "enchant-sorceress": "+x to All Skills +x to Fire Skills [Sorceress Only] +x to Sorceress Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x to All Skills +x% Faster Cast Rate X Resist +x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x To Paladin Skills +x% Faster Cast Rate +xx% Magic Skill Damage +x Life +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to All Skills +x to Warcries [Barbarian Only] +x to Barbarian Skills +x% Faster Cast Rate +x to Attribute X Resist +x% x% Extra Gold From Monsters x% Better Chance of Getting Magic Items",
+   "lightning-fury-amazon-guide": "+x to All Skills +x to Amazon Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to All Skills +x to Lightning Skills [Sorceress Only] +x to Sorceress Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level 22 Iron Golem [x/x Charges]",
+   "meteor-sorceress": "+x to All Skills +x to Fire Skills [Class Only] +x to Character Skills +x% Faster Cast Rate +x to all Attributes +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x to All Skills +x to Sorceress Skills +x to Lightning Skills (Sorceress Only) +x% Faster Cast Rate +x to Strength +x to all Attributes +x to Life +x to Mana X Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 30
+ },
+ "Rare Boots": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "strafe-amazon",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x to Combat Skills [Barbarian Only] +x% Faster Run/Walk +x to Attack Rating Adds x Damage x% Chance of Crushing Blow x% Deadly Strike +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "blessed-hammer-paladin": "+x % Faster Run / Walk +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x to Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "enchant-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x to Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x % Faster Run / Walk +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x% to Maximum Fire Resist X Resist +x% x% Extra Gold From Monsters x% Better Chance of Getting Magic Items",
+   "lightning-fury-amazon-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life Increased Maximum Mana x% X Resist x% +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist +x% +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist x% +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x to Life X Resist +x% x% Better Chance of Getting Magic Items Level x Bone Prison [x/x Charges]",
+   "nova-sorceress-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x Mana Increased Maximum Mana x% Regenerate Mana x% X Resist +x% +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x% Faster Run Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x % Faster Run / Walk +x% Faster Hit Recovery x% Chance of Crushing Blow x% Chance of Open Wounds +x to Attribute +x Life X Resist +x%",
+   "strafe-amazon": "+x% Faster Run/Walk +x% Faster Hit Recovery +x Minimum Damage +x Maximum Damage x% Chance of Crushing Blow x% Deadly Strike x% Chance of Open Wounds +x to Attribute X Resist +x%",
+   "wake-of-fire-assassin": "+x% Faster Run/Walk +x% Faster Hit Recovery +x Life Elemental Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 29
+ },
+ "Grand Charm": {
+  "kind": "charm_base",
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "fire-blast-assassin",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x% Faster Hit Recovery",
+   "blessed-hammer-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to Cold Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "dragon-talon-assassin": "+x to Martial Arts [Assassin Only] +x% Faster Hit Recovery +x to Attack Rating +x to Attribute +x to Life X Resist +x%",
+   "echoing-strike-warlock-guide": "+x to Eldritch Levels +xx to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x to All Assassin Skills +x to All Attribute All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x to Life",
+   "fist-of-the-heavens-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to Warcries [Barbarian Only] + x % Faster Run / Walk + x% Faster Hit Recovery + Life X Resist +x% +x to Attribute x% Better Chance of Getting Magic Items x% Extra Gold From Monsters",
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to Fire Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "mirrored-blades-warlock-guide": "+x to Maximum Damage +x to Attack Rating +x to Demon Levels +x to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x to Lightning Skills (Sorceress Only) +x% Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x to Life +x to Mana X Resist +x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x to Combat Skills [Paladin Only] +x% Faster Run / Walk +x% Faster Hit Recovery +x to Maximum Damage +x to Attack Rating +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "strafe-amazon": "+ Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute x% Better Chance of Getting Magic Items",
+   "summoner-necromancer-guide": "+x to Skill [Necromancer Only] +x% Faster Hit Recovery +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 27
+ },
+ "Large Charm": {
+  "kind": "charm_base",
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "fire-blast-assassin",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x% Faster Hit Recovery",
+   "blessed-hammer-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to Cold Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "dragon-talon-assassin": "+x to Martial Arts [Assassin Only] +x% Faster Hit Recovery +x to Attack Rating +x to Attribute +x to Life X Resist +x%",
+   "echoing-strike-warlock-guide": "+x to Eldritch Levels +xx to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x to All Assassin Skills +x to All Attribute All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x to Life",
+   "fist-of-the-heavens-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to Warcries [Barbarian Only] + x % Faster Run / Walk + x% Faster Hit Recovery + Life X Resist +x% +x to Attribute x% Better Chance of Getting Magic Items x% Extra Gold From Monsters",
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to Fire Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "mirrored-blades-warlock-guide": "+x to Maximum Damage +x to Attack Rating +x to Demon Levels +x to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x to Lightning Skills (Sorceress Only) +x% Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x to Life +x to Mana X Resist +x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x to Combat Skills [Paladin Only] +x% Faster Run / Walk +x% Faster Hit Recovery +x to Maximum Damage +x to Attack Rating +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "strafe-amazon": "+ Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute x% Better Chance of Getting Magic Items",
+   "summoner-necromancer-guide": "+x to Skill [Necromancer Only] +x% Faster Hit Recovery +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 27
+ },
+ "Small Charm": {
+  "kind": "charm_base",
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "fire-blast-assassin",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x% Faster Hit Recovery",
+   "blessed-hammer-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to Cold Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "dragon-talon-assassin": "+x to Martial Arts [Assassin Only] +x% Faster Hit Recovery +x to Attack Rating +x to Attribute +x to Life X Resist +x%",
+   "echoing-strike-warlock-guide": "+x to Eldritch Levels +xx to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-blast-assassin": "+x to All Assassin Skills +x to All Attribute All Resistances +x x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x to Life",
+   "fist-of-the-heavens-paladin": "+x to Combat Skills [Paladin Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x Life X Resist +x% +x to Attribute +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to Warcries [Barbarian Only] + x % Faster Run / Walk + x% Faster Hit Recovery + Life X Resist +x% +x to Attribute x% Better Chance of Getting Magic Items x% Extra Gold From Monsters",
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to Fire Skills [Sorceress Only] +x % Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "mirrored-blades-warlock-guide": "+x to Maximum Damage +x to Attack Rating +x to Demon Levels +x to Life All Resistances +x x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x to Lightning Skills (Sorceress Only) +x% Faster Run / Walk +x% Faster Hit Recovery +x to Attribute +x to Life +x to Mana X Resist +x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x to Combat Skills [Paladin Only] +x% Faster Run / Walk +x% Faster Hit Recovery +x to Maximum Damage +x to Attack Rating +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "strafe-amazon": "+ Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute x% Better Chance of Getting Magic Items",
+   "summoner-necromancer-guide": "+x to Skill [Necromancer Only] +x% Faster Hit Recovery +x to Attribute + Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 27
+ },
+ "Staff of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "dream-paladin",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "berserk-barbarian": "Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Increased Maximum Mana x% All Resistances +x x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "blessed-hammer-paladin": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Life Tap [x/x Charges] Level x Teleport [x/x Charges] Level 23 Enchant [x/x Charges]",
+   "echoing-strike-warlock-guide": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "fissure-druid": "Level 10 Vigor Aura When Equipped +x to All Skills +x to Battle Orders +x to Battle Command Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]",
+   "lightning-fury-amazon-guide": "5% Chance to cast level 1 Burst of Speed when striking Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]",
+   "mirrored-blades-warlock-guide": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "Level 10 Vigor Aura When Equipped +x to All Skills +x to Battle Orders +x to Battle Command Level x Teleport [x/x Charges]",
+   "wake-of-fire-assassin": "+x to All Skills +x to battlecommand +x to battleorders Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 18
+ },
+ "Caster Crafted Belt": {
+  "kind": "crafted",
+  "builds": [
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "mirrored-blades-warlock-guide"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx",
+   "dream-paladin": "+x to All Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Life stolen per hit x% Chance of Open Wounds Slows target by x% +x to Attribute +x Life +x Mana Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Damage Reduced by x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "echoing-strike-warlock-guide": "+x to All Skills x% Life stolen per hit x% Mana stolen per hit +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx",
+   "enchant-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Piercing Attack +x to Attribute +x Life +x Mana Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx",
+   "fissure-druid": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% Regenerate Mana x% +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x Life Resist +x% +x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "mirrored-blades-warlock-guide": "+x to All Skills x% Life stolen per hit x% Mana stolen per hit +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Increased Attack Speed All Resistances +xx",
+   "poison-nova-necromancer": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 16
+ },
+ "Fortuitous Ring of Fortune": {
+  "kind": "magic_rare",
+  "builds": [
+   "blessed-hammer-paladin",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "enchant-sorceress",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [
+   "Fortuitous",
+   "of Fortune"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blessed-hammer-paladin": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "enchant-sorceress": "+x to All Skills +x% Faster Cast Rate +x to Attack Rating +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Cold Absorb x% Lightning Absorb x% Fire Absorb x% Damage Reduced by x Magic Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% Fire Absorb x% x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x% Faster Cast Rate +xx% Magic Skill Damage -xx% Enemy Magic Resist +x Life +x Mana +x to Attribute All Resistances +x X Resist +x% +x% Better Chance of Getting Magic Items",
+   "lightning-fury-amazon-guide": "+x to All Skills +x% Faster Cast Rate +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Cold Absorb x% Fire Absorb x% Magic Damage Reduced by x Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+x to All Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to All Skills +x% Faster Cast Rate Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% Fire Absorb x% Damage Reduced by x Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to All Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to All Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 16
+ },
+ "Rare Diadem": {
+  "kind": "magic_rare",
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "double-throw-barbarian-guide",
+   "summoner-necromancer-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blessed-hammer-paladin": "+x to All Skills +x to Paladin Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x Life +x Mana X Resist +x% Damage Reduced by x% +x% Better Chance of Getting Magic Items",
+   "blizzard-sorceress": "+x to All Skills +x to Sorceress Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% to Cold Skill Damage -x% Enemy Cold Resistance +x Life +x Mana X Resist +x% Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x Minimum Damage +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike +x to Throwing Mastery [Barbarian Only] +x to Find Item [Barbarian Only] +x to Battle Orders [Barbarian Only] Knockback +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]",
+   "echoing-strike-warlock-guide": "+x to All Skills +x to Class Skill Levels +x to Life +x to Mana x% Life stolen per hit x% Mana stolen per hit +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx",
+   "fire-warlock-guide": "+x to All Skills +x to Class Skill Levels +x to Fire Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage -xx% to Enemy Fire Resistance All Resistances +xx",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x to Paladin Skills +x% Faster Cast Rate -xx% to Enemy Lightning Resistance +xx% to Lightning Skill Damage -xx% Enemy Magic Resist +x% Faster Hit Recovery +x Life +x Mana X Resist +x% Damage Reduced by x% +x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to All Skills +x to Fire Skills +x to Sorceress Skills +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Fire Resistance +x Life +x Mana X Resist +x% Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x to All Skills +x to Sorceress Skills +x to Lightning Skills (Sorceress Only) +x% Faster Cast Rate -x% to Enemy Lightning Resistance +x to Strength +x to Life +x to Mana X Resist +x% All Resistances +x x% Better Chance of Getting Magic Items Socketed [2]",
+   "summoner-necromancer-guide": "+ to All Skills + xx% Faster Cast Rate Elemental Resist +xx% xx% Better Chance of Getting Magic Items Damage Reduced By xx% + Attributes"
+  },
+  "ethereal_named": false,
+  "weight": 16
+ },
+ "Rare Gloves": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "enchant-sorceress",
+   "lightning-strike-amazon",
+   "strafe-amazon",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating +x% Damage to Demons x% Chance of Crushing Blow +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "enchant-sorceress": "+x to Fire Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attribute Increased Maximum Mana x% Regenerate Mana x% X Resist +x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Fire Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to Attribute X Resist +x% x% Extra Gold From Monsters x% Better Chance of Getting Magic Items",
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x% Increased Attack Speed +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life +x Mana X Resist x% +x to Mana after each Kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x% Faster Cast Rate +x to Attribute Increased Maximum Mana x% Regenerate Mana x% X Resist +x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Increased Attack Speed +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life X Resist x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to Fire Skills +x% Faster Cast Rate Regenerate Mana x% +x to Attribute X Resist +x% x% Better Chance of Getting Magic Items",
+   "strafe-amazon": "+x to Bow and Crossbow Skills +x% Increased Attack Speed +x to Attack Rating +x% Damage to Demons +x% Mana stolen per hit +x% Life stolen per hit Knockback +x to Attribute X Resist +x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to Fire Skills +x% Faster Cast Rate +x% Increased Attack Speed Elemental Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 16
+ },
+ "Shimmering Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 13
+ },
+ "Blood Crafted Ring": {
+  "kind": "crafted",
+  "builds": [
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +xx% Magic Skill Damage -xx% Enemy Magic Resistance +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx Level 5 Telekinesis )32/32 Charges)",
+   "double-throw-barbarian-guide": "+x% Faster Cast Rate +x to Attack Rating +x Minimum Damage +x% Mana stolen per hit +x% Life stolen per hit Slain Monsters Rest in Peace +x to Attribute +x Life +x Mana X Resist +x% Lightning Absorb x% Damage Reduced by x Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "echoing-strike-warlock-guide": "+x to All Skills +x to all Attributes x% Life stolen per hit x% Mana stolen per hit +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate -xx% Enemy Magic Resistance +xx% Magic Damage All Resistances +xx",
+   "fire-warlock-guide": "+x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage All Resistances +xx",
+   "mirrored-blades-warlock-guide": "+x to All Skills +x to all Attributes x% Life stolen per hit x% Mana stolen per hit +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx +x to Attack Rating",
+   "poison-nova-necromancer": "+x to All Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist x% Lightning Absorb x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x to All Skills +x to Attribute +x Life X Resist +x% Lightning Absorb x% Magic Damage Reduced by x",
+   "strafe-amazon": "+x to All Skills +x to Attack Rating +x Minimum Damage +x Maximum Damage Adds x Cold damage +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life All Resistances +x Cold Absorb x% Cannot Be Frozen"
+  },
+  "ethereal_named": false,
+  "weight": 12
+ },
+ "Rare Belt": {
+  "kind": "magic_rare",
+  "builds": [
+   "blessed-hammer-paladin",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-sorceress",
+   "lightning-strike-amazon",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blessed-hammer-paladin": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x Life Resist +x% +x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% Regenerate Mana x% +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x Life Resist +x% +x% Better Chance of Getting Magic Items",
+   "gold-find-barbarian": "+x to All Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attribute +x Life X Resist +x% Cannot Be Frozen x% Extra Gold From Monsters x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to All Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Life stolen per hit +x to Lightning Strike [Amazon Only] +x to Attribute +x Life Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to All Skills +x% Faster Cast Rate +x% Increased Attack Speed +x Life Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 12
+ },
+ "Jeweler's Monarch of Deflecting": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "fissure-druid",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Off-Hand",
+   "Off-Hand-Swap"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Deflecting"
+  ],
+  "notes": [
+   "(4x Rainbow Facet Jewel ) [blizzard-sorceress]",
+   "(4x Rainbow Facet Jewel ) [blizzard-sorceress]",
+   "(4x 5/5 Fire Rainbow Facets ) [fissure-druid]",
+   "(4x Rainbow Facet ) [lightning-sentry-assassin]",
+   "(4x Rainbow Facet ) [lightning-sentry-assassin]",
+   "(4x 5/5 Lightning Rainbow Facets ) [lightning-sorceress]",
+   "(4x 5/5 Lightning Rainbow Facets ) [lightning-strike-amazon]",
+   "(4x 5/5 Poison Rainbow Facets ) [poison-nova-necromancer]"
+  ],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery x% Increased Chance of Blocking +x to Attribute +x Mana X Resist +x% +x Magic Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "Level 10-15 Redemption Aura When Equipped +x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% Faster Block Rate x% Increased Chance of Blocking -x% to Enemy Fire Resistance +x% to Fire Skill Damage +x Life +x Mana +x% to Maximum Lightning Resist +x% to Maximum Fire Resist X Resist x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] + to Assassin Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x to Lightning Sentry [Assassin Only] +x to Death Sentry [Assassin Only] +x to Weapon Block [Assassin Only] 2 -x% to Enemy Lightning Resistance Elemental Resist +x% All Resistances +x Damage Reduced by x% Cannot Be Frozen Socketed [x]",
+   "lightning-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% Faster Block Rate x% Increased Chance of Blocking -x% to Enemy Lightning Resistance +x% to Lightning Skill Damage +x Life +x Mana X Resist +x% Damage Reduced by x% Damage Reduced by x Magic Damage Reduced by x",
+   "lightning-strike-amazon": "None +x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% Faster Block Rate x% Increased Chance of Blocking -x% to Enemy Lightning Resistance +x% to Lightning Skill Damage +x to Attribute +x Life +x Mana X Resist x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% Faster Block Rate x% Increased Chance of Blocking -x% to Enemy Poison Resistance +x% to Poison Skill Damage +x to Poison Nova +x Life +x Mana Increased Maximum Mana x% X Resist x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Resistance Small Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Resistance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Shimmering Small Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Shimmering Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 11
+ },
+ "Caster Crafted Boots": {
+  "kind": "crafted",
+  "builds": [
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "lightning-sorceress",
+   "nova-sorceress-guide",
+   "abyss-warlock-build-guide"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+1 to all Chaos Skills +x % Faster Run / Walk +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items All Resistances +xx",
+   "echoing-strike-warlock-guide": "+x % Faster Run / Walk +xx% Deadly Strike +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items",
+   "fire-warlock-guide": "+x % Faster Run / Walk +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% X Resist +x% +x to Mana after each Kill x% Better Chance of Getting Magic Items",
+   "nova-sorceress-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x Mana Increased Maximum Mana x% Regenerate Mana x% X Resist +x% +x to Mana after each Kill x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 9
+ },
+ "Resistance Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Resistance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 9
+ },
+ "Shimmering Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 9
+ },
+ "Shimmering Small Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 9
+ },
+ "Wand of Lower Resistance": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x to battlecommand +x to battleorders +x to Energy Shield [Sorceress Only] -x% Enemy Cold Resistance x% Better Chance of Getting Magic Items Level x Lower Resist [x/x Charges]",
+   "lightning-fury-amazon-guide": "5% Chance to cast level 1 Burst of Speed when striking Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]",
+   "lightning-sentry-assassin": "-x% to Enemy Lightning Resistance +x to All Skills +x to battlecommand +x to battleorders Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]",
+   "meteor-sorceress": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry +x to Fire Mastery [Sorceress Only] +x to Energy Shield [Sorceress Only] +x to Fire Ball [Sorceress Only] x% Better Chance of Getting Magic Items Level x Lower Resist [x/x Charges]",
+   "wake-of-fire-assassin": "+x to All Skills +x to battlecommand +x to battleorders Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 9
+ },
+ "Shimmering Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 8
+ },
+ "Blood Crafted Gloves": {
+  "kind": "crafted",
+  "builds": [
+   "berserk-barbarian",
+   "smite-paladin",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating +x% Damage to Demons x% Chance of Crushing Blow +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating +x% Damage to Demons +x% Life stolen per hit x% Chance of Crushing Blow Knockback +x to Attribute +x Life X Resist +x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items",
+   "dragon-talon-assassin": "x% Chance to cast level x Life Tap on striking +x to Martial Arts (Assassin Only) +x% Increased Attack Speed +x% Faster Cast Rate X Resist +x%",
+   "dream-paladin": "5% Chance to cast level 10 Life Tap on striking +x% Increased Attack Speed +x% Faster Hit Recovery +x% Damage to Demons +x% Life stolen per hit x% Chance of Crushing Blow x% Chance of Open Wounds +x to Attribute +x Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "smite-paladin": "x% Chance to cast level x LifeTap on striking +x% Increased Attack Speed +x% Faster Hit Recovery +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Chance of Open Wounds +x to Attribute +x Life X Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 7
+ },
+ "Rare Circlet": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "lightning-sentry-assassin",
+   "poison-nova-necromancer",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery x% Bonus to Attack Rating x% Chance of Crushing Blow x% Deadly Strike +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items Socketed [2]",
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Run/Walk +x% Faster Cast Rate -x% to Enemy Lightning Resistance +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x Damage Reduced by x% Socketed [x]",
+   "poison-nova-necromancer": "Level 1 Cleansing Aura When Equipped +x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Run/Walk +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Poison Resistance +x% to Poison Skill Damage +x Life +x Mana X Resist x% Damage Reduced by x% Damage Reduced by x +x to Mana after each Kill x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges] Socketed [2]",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Run/Walk +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x Damage Reduced by x% Cannot Be Frozen Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 7
+ },
+ "Jeweler's Sacred Armor of Stability": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Body Armor"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Stability"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {},
+  "ethereal_named": false,
+  "weight": 6
+ },
+ "Rare Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "gold-find-barbarian",
+   "lightning-sentry-assassin",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "gold-find-barbarian": "+x to All Skills +x to Warcries [Barbarian Only] +x to Barbarian Skills +x% Faster Cast Rate +x to Attribute X Resist +x% x% Extra Gold From Monsters x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "summoner-necromancer-guide": "+ to All Skills + xx% Faster Cast Rate Elemental Resist +xx% xx% Better Chance of Getting Magic Items + Attributes Teleport (From Charges)",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 6
+ },
+ "Lower Resist Charge Wand": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid",
+   "lightning-sorceress",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [
+   "Lower Resist Charge"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "Level 10 Vigor Aura When Equipped +x to All Skills +x to Battle Orders +x to Battle Command Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]",
+   "lightning-sorceress": "Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x x% Better Chance of Getting Magic Items Level x Lower Resist [x/x Charges]",
+   "lightning-strike-amazon": "Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 5
+ },
+ "Magic Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress",
+   "fire-blast-assassin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x to Cold Skills [Class Only] +x to Sorceress Skills +x% Faster Cast Rate +x to all Attributes +x Life X Resist +x%",
+   "fire-blast-assassin": "+x to All Skills +x% Faster Cast Rate X Resist +x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to All Skills +x to Fire Skills [Class Only] +x to Character Skills +x% Faster Cast Rate +x to all Attributes +x Life X Resist +x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 5
+ },
+ "Amber Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Amber",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Amulet of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x to All Skills +x to Barbarian Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Battle Staff of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "fist-of-the-heavens-paladin",
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [
+   "Battle",
+   "of Teleportation"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fist-of-the-heavens-paladin": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "-x% to Enemy Lightning Resistance +x to All Skills +x to battlecommand +x to battleorders Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Blood Crafted Belt": {
+  "kind": "crafted",
+  "builds": [
+   "smite-paladin",
+   "dragon-talon-assassin",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "dragon-talon-assassin": "+x% Faster Cast Rate +x to Strength +x% to Maximum Lightning Resist +x Lightning Absorb Damage Reduced by x% Cannot Be Frozen",
+   "dream-paladin": "+x to All Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Life stolen per hit x% Chance of Open Wounds Slows target by x% +x to Attribute +x Life +x Mana Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Damage Reduced by x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "smite-paladin": "+x% Faster Hit Recovery +x% Life stolen per hit x% Chance of Open Wounds +x to Attribute +x Life +x% to Maximum Lightning Resist X Resist +x% +x Lightning Absorb Damage Reduced by x% Damage Reduced by x Magic Damage Reduced by x Cannot Be Frozen"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Fine Small Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fine"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Fine Small Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fine",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Fine Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fine",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Fine Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fine",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Garnet Gloves of Fortune": {
+  "kind": "magic_rare",
+  "builds": [
+   "blessed-hammer-paladin",
+   "fist-of-the-heavens-paladin"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Garnet",
+   "of Fortune"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blessed-hammer-paladin": "+x% Faster Cast Rate +x% Faster Hit Recovery +x Life Resist +x% +x% Better Chance of Getting Magic Items",
+   "fist-of-the-heavens-paladin": "+x% Faster Cast Rate +x% Faster Hit Recovery +x Life Resist +x% +x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Magic Belt": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Blizzard [Sorceress Only] +x to Glacial Spike [Sorceress Only] +x to Attribute Increased Maximum Life x% +x% to Maximum Cold Resist X Resist +x% +x Cold Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute X Resist +x% Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Magic Boots": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x to Life X Resist +x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x to Life X Resist +x% x% Better Chance of Getting Magic Items Level x Bone Prison [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Magic Gloves": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x% Faster Cast Rate Regenerate Mana x% X Resist +x% x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to Fire Skills +x% Faster Cast Rate Regenerate Mana x% +x to Attribute X Resist +x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Magic Ring": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana X Resist +x% Fire Absorb x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items",
+   "meteor-sorceress": "+x to All Skills +x% Faster Cast Rate +x Life +x Mana X Resist +x% Fire Absorb x% Magic Damage Reduced by x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Ruby Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid",
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Ruby",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Sharp Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Sharp Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "dream-paladin": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Teleport Charge Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid",
+   "double-throw-barbarian-guide",
+   "dream-paladin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Teleport Charge"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "5% Chance to cast level 2 Amplify Damage on striking +x to All Skills +x to Barbarian Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate x% Bonus to Attack Rating +x to Attack Rating x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "dream-paladin": "+x to All Skills +x to Defensive Auras [Paladin Only] +x to Paladin Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Damage to Demons +x% Damage to Undead x% Deadly Strike +x to Attribute +x Life +x Mana X Resist +x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 4
+ },
+ "Amber Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Amber",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Berserker's Diadem of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Berserker's",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery x% Bonus to Attack Rating x% Chance of Crushing Blow x% Deadly Strike +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items Socketed [2]",
+   "double-throw-barbarian-guide": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x Minimum Damage +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike +x to Throwing Mastery [Barbarian Only] +x to Find Item [Barbarian Only] +x to Battle Orders [Barbarian Only] Knockback +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Cunning Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Cunning",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Cunning Amulet of the Whale": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Cunning",
+   "of the Whale"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Cunning Circlet of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Cunning",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Run/Walk +x% Faster Cast Rate -x% to Enemy Lightning Resistance +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x Damage Reduced by x% Socketed [x]",
+   "wake-of-fire-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] +x to Assassin Skills +x% Faster Run/Walk +x% Faster Cast Rate +x to Strength +x to Dexterity +x Life Elemental Resist +x% All Resistances +x Damage Reduced by x% Cannot Be Frozen Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Cunning Greater Talons of Quickness": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [
+   "Cunning Greater",
+   "of Quickness"
+  ],
+  "notes": [
+   "(2x Rainbow Facet ) [lightning-sentry-assassin]",
+   "(2x Rainbow Facet ) [lightning-sentry-assassin]",
+   "( Jewel + Jewel ) [lightning-sentry-assassin]",
+   "(2x Rainbow Facet ) [lightning-sentry-assassin]"
+  ],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x to All Skills +x to Trap Skills [Assassin Only] + to Assassin Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x to Lightning Sentry [Assassin Only] +x to Death Sentry [Assassin Only] +x to fade [Assassin Only] +x to Weapon Block [Assassin Only] 2 -x% to Enemy Lightning Resistance All Resistances +x Socketed [x]",
+   "wake-of-fire-assassin": "x% Chance to cast level x Lower Resist when struck Level x Cleansing When Equipped +x to All Skills +x to Trap Skills [Assassin Only] + to Assassin Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x to Weapon Block [Assassin Only] 2 +x to Wake of Fire [Assassin Only] +x to Fire Blast [Assassin Only] All Resistances +x Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Garnet Belt of the Squid": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [
+   "Garnet",
+   "of the Squid"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x to All Skills +x% Faster Cast Rate +x% Increased Attack Speed +x Life Damage Reduced by x% x% Better Chance of Getting Magic Items",
+   "wake-of-fire-assassin": "+x to All Skills +x% Faster Cast Rate +x% Increased Attack Speed +x Life Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Lancer's Matriarchal Javelin of Quickness": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-fury-amazon-guide",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [
+   "Lancer's Matriarchal",
+   "of Quickness"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x to Amazon Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Enhanced Damage +x% Mana stolen per hit +x% Life stolen per hit -x% to Enemy Lightning Resistance +x to Attribute Increased Stack Size Replenish Quantity Ethereal",
+   "lightning-strike-amazon": "Level 12 Conviction Aura When Equipped +x to Javelin and Spear Skills [Amazon Only] +x to Amazon Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Enhanced Damage +x% Life stolen per hit -x% to Enemy Lightning Resistance +x% Chance of Crushing Blow Prevent Monster Heal +x to Attribute x% Better Chance of Getting Magic Items Replenish Quantity Ethereal"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Sharp Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Sharp Large Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian",
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 3
+ },
+ "Arch-Devil's Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "fire-warlock-guide"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Arch-Devil's",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fire-warlock-guide": "+x to All Skills +x to Warlock Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Artisan's Tiara of Luck": {
+  "kind": "magic_rare",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Artisan's",
+   "of Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery x% Bonus to Attack Rating x% Chance of Crushing Blow x% Deadly Strike +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items Socketed [2]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Cobalt Demonhide Sash of the Whale": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [
+   "Cobalt Demonhide",
+   "of the Whale"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana Increased Maximum Mana x% Regenerate Mana x% +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Cobalt Heavy Gloves of Alacrity": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Cobalt Heavy",
+   "of Alacrity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+x% Faster Cast Rate +x% Increased Attack Speed Elemental Resist +x% All Resistances +x"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Echoing Balanced Knife": {
+  "kind": "magic_rare",
+  "builds": [
+   "gold-find-barbarian"
+  ],
+  "slot": [
+   "Weapon-Swap",
+   "Off-Hand-Swap"
+  ],
+  "affixes_named": [
+   "Echoing Balanced"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "gold-find-barbarian": "+x to All Skills +x to Warcries [Barbarian Only] +x to battlecommand +x to battleorders +x to battlecry +x% Faster Cast Rate All Resistances +x x% Extra Gold From Monsters x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Emerald Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Emerald",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Emerald Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Emerald",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Entrapping Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Entrapping",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Forbidden Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "echoing-strike-warlock-guide"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Forbidden",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "echoing-strike-warlock-guide": "+x to All Skills +x to Warlock Skill Levels x% Life stolen per hit x% Mana stolen per hit +xx% Deadly Strike +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Forbidden Diadem of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "echoing-strike-warlock-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Forbidden",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "echoing-strike-warlock-guide": "+x to All Skills +x to Class Skill Levels +x to Life +x to Mana x% Life stolen per hit x% Mana stolen per hit +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Fungal Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fungal"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Fungal Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fungal",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Fungal Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fungal",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to Poison and Bone Skills [Necromancer Only] +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Gaean"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Amulet of Luck": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Amulet of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of Teleportation"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Amulet of the Whale": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of the Whale"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to All Skills +x to Elemental Skills [Druid Only] +x to Druid Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Antlers of the Colossus": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of the Colossus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "Level 4-8 Resist Fire Aura When Equipped +x to All Skills +x to Elemental Skills [Druid Only] +x to Fire Skills +x% Faster Run/Walk +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Fire Resistance +x% to Fire Skill Damage +x to Fissure [Druid Only] +x to Molten Boulder [Druid Only] +x to Firestorm [Druid Only] +x to Volcano [Druid Only] +x to Armageddon [Druid Only] +x to Attribute +x Life +x Mana +x% to Maximum Fire Resist X Resist x% Fire Absorb x% Damage Reduced by x% +x to Mana after each Kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Gaean Diadem of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Gaean",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "Level 4-8 Resist Fire Aura When Equipped +x to All Skills +x to Elemental Skills [Druid Only] +x to Fire Skills +x% Faster Run/Walk +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Fire Resistance +x% to Fire Skill Damage +x to Fissure [Druid Only] +x to Molten Boulder [Druid Only] +x to Firestorm [Druid Only] +x to Volcano [Druid Only] +x to Armageddon [Druid Only] +x to Attribute +x Life +x Mana +x% to Maximum Fire Resist X Resist x% Fire Absorb x% Damage Reduced by x% +x to Mana after each Kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Garnet Ring of Greed": {
+  "kind": "magic_rare",
+  "builds": [
+   "gold-find-barbarian"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [
+   "Garnet",
+   "of Greed"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "gold-find-barbarian": "+x Life X Absorb x% X Resist +x% Magic Damage Reduced by x Cannot Be Frozen x% Extra Gold From Monsters x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Garnet Sharkskin Belt of the Squid": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [
+   "Garnet Sharkskin",
+   "of the Squid"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to All Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x to Attribute +x Life +x Mana +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Glacial Diadem of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "blizzard-sorceress"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Glacial",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blizzard-sorceress": "+x to All Skills +x to Sorceress Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% to Cold Skill Damage -x% Enemy Cold Resistance +x Life +x Mana X Resist +x% Damage Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Hit Power Crafted Gloves": {
+  "kind": "crafted",
+  "builds": [
+   "double-throw-barbarian-guide",
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Increased Attack Speed +x% Faster Cast Rate +x to Attack Rating +x% Damage to Demons +x% Life stolen per hit x% Chance of Crushing Blow Knockback +x to Attribute +x Life X Resist +x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items",
+   "strafe-amazon": "+x to Bow and Crossbow Skills +x% Increased Attack Speed +x to Attack Rating +x% Damage to Demons +x% Mana stolen per hit +x% Life stolen per hit Knockback +x to Attribute X Resist +x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Lancer's Chain Gloves of Alacrity": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-fury-amazon-guide"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Lancer's Chain",
+   "of Alacrity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-fury-amazon-guide": "+x to Javelin and Spear Skills [Amazon Only] +x% Increased Attack Speed +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life +x Mana X Resist x% +x to Mana after each Kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Lapis Grand Charm of Life": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Lapis",
+   "of Life"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Natural Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Natural"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Natural Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Natural",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Natural Grand Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Natural",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Natural Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Natural",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Powered Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Powered"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to All Skills +x to Lightning Skills [Sorceress Only] +x to Sorceress Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level 22 Iron Golem [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Powered Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Powered",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to All Skills +x to Lightning Skills [Sorceress Only] +x to Sorceress Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level 22 Iron Golem [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Powered Amulet of the Whale": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Powered",
+   "of the Whale"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to All Skills +x to Lightning Skills [Sorceress Only] +x to Sorceress Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level 22 Iron Golem [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Powered Eldritch Orb of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [
+   "Powered Eldritch",
+   "of the Magus"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "x% Chance to cast level 10 Weaken when struck +x to All Skills +x to Lightning Skills [Sorceress Only] +x to Sorceress Skills +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Lightning Resistance +x% to Lightning Skill Damage +x to Lightning [Sorceress Only] +x to Chain Lightning [Sorceress Only] +x to Lightning Mastery [Sorceress Only] +x to Attribute +x Mana Increased Maximum Mana x% +x to Mana after each Kill X Resist +x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Prismatic Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "smite-paladin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Prismatic"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "smite-paladin": "+x to All Skills +x to Paladin Skills x% Increased Chance of Blocking +x Life +x to Attribute X Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Rose Branded War Scepter of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "fist-of-the-heavens-paladin"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [
+   "Rose Branded War",
+   "of the Apprentice"
+  ],
+  "notes": [
+   "(2x Rainbow Facet Jewel / istrune ) [fist-of-the-heavens-paladin]"
+  ],
+  "desirable_stats_from_guides": {
+   "fist-of-the-heavens-paladin": "+x to fistoftheheavens +x to holybolt +x to All Skills +x to Paladin Skills +x% Faster Cast Rate +xx% Chance of Crushing Blow +xx% Magic Skill Damage +x Mana X Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Ruby Heavy Boots of Acceleration": {
+  "kind": "magic_rare",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [
+   "Ruby Heavy",
+   "of Acceleration"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Ruby Large Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Ruby"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Ruby Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "fissure-druid"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Ruby",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fissure-druid": "+x to Elemental Skills [Druid Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Safety Crafted Amulet": {
+  "kind": "crafted",
+  "builds": [
+   "smite-paladin"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "smite-paladin": "+x to All Skills +x to Paladin Skills x% Increased Chance of Blocking +x Life +x to Attribute X Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Sapphire Chain Boots of Acceleration": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [
+   "Sapphire Chain",
+   "of Acceleration"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x% Faster Run Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Sapphire Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sapphire",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Scepter of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "blessed-hammer-paladin"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "blessed-hammer-paladin": "+x to All Skills +x to Combat Skills (Paladin Only) +x to Paladin Skills +x% Faster Cast Rate +x Mana X Resist +x%"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Scintillating Ring of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "fire-warlock-guide"
+  ],
+  "slot": [
+   "Rings"
+  ],
+  "affixes_named": [
+   "Scintillating",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fire-warlock-guide": "+x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Serpent's Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Serpent's",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Shimmering Grand Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "double-throw-barbarian-guide",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items",
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Small Charm of Sustenance": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sentry-assassin"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sentry-assassin": "+1 to Traps (Assassin) Grand Charm + Life + xx% Faster Hit Recovery + xx % Faster Run / Walk + Maximum Damage Elemental Resist +xx% +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Sparking Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sparking"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Sparking Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sparking",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Sparking Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-sorceress"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sparking",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-sorceress": "+x to Lightning Skills [Sorceress Only] +x% Faster Hit Recovery +x Life +x Mana X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Steel Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Steel"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Steel Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Steel",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Steel Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Steel",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Steel Small Charm of Good Luck": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Steel",
+   "of Good Luck"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Steel Small Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Steel",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "berserk-barbarian": "+x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Teleport Charge Staff": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide",
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [
+   "Teleport Charge"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "5% Chance to cast level 1 Burst of Speed on striking Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Increased Maximum Mana x% All Resistances +x x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]",
+   "lightning-strike-amazon": "Level 10 Vigor Aura When Equipped +x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Lower Resist [x/x Charges] Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Torrid Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "fire-warlock-guide"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Torrid",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "fire-warlock-guide": "+x to All Skills +x to Warlock Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Venomous Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Venomous"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Venomous Amulet of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Venomous",
+   "of Teleportation"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Venomous Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Venomous",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Venomous Circlet of the Magus": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Venomous",
+   "of the Magus"
+  ],
+  "notes": [
+   "(2x 5/5 Poison Rainbow Facets ) [poison-nova-necromancer]",
+   "(2x Ber Rune s ) [poison-nova-necromancer]"
+  ],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "Level 1 Cleansing Aura When Equipped +x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Run/Walk +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Poison Resistance +x% to Poison Skill Damage +x Life +x Mana X Resist x% Damage Reduced by x% Damage Reduced by x +x to Mana after each Kill x% Better Chance of Getting Magic Items Level x Teleport [x/x Charges] Socketed [2]"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Venomous Demon Head": {
+  "kind": "magic_rare",
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "slot": [
+   "Off-Hand"
+  ],
+  "affixes_named": [
+   "Venomous Demon"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "poison-nova-necromancer": "+x to All Skills +x to Poison and Bone Skills [Necromancer Only] +x to Necromancer Skills +x% Faster Cast Rate +x% Faster Hit Recovery +x% Faster Block Rate x% Increased Chance of Blocking -x% to Enemy Poison Resistance +x% to Poison Skill Damage +x to Poison Nova +x Life +x Mana Increased Maximum Mana x% X Resist x% Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 2
+ },
+ "Arch-Devil's Kris of Lower Resistance": {
+  "kind": "magic_rare",
+  "builds": [
+   "abyss-warlock-build-guide"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [
+   "Arch-Devil's",
+   "of Lower Resistance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +x to Warlock Skill Levels +xx% Magic Skill Damage -xx% Enemy Magic Resistance +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Archer's Gloves of Alacrity": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Archer's",
+   "of Alacrity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to Bow and Crossbow Skills +x% Increased Attack Speed +x to Attack Rating +x% Damage to Demons +x% Mana stolen per hit +x% Life stolen per hit Knockback +x to Attribute X Resist +x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Artisan's Crown": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Artisan's"
+  ],
+  "notes": [
+   "(3x Perfect Topaz es ) [lightning-strike-amazon]",
+   "( Ral Rune , Ort Rune , Thul Rune ) [lightning-strike-amazon]"
+  ],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to All Skills +x to Amazon Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery -x% to Enemy Lightning Resistance +x% to Lightning Skill Damage +x to Attribute +x Life +x Mana X Resist x% Lightning Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Artisan's Diadem of Luck": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Artisan's",
+   "of Luck"
+  ],
+  "notes": [
+   "(3x Ruby Jewels of Fervor ) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x Minimum Damage +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike +x to Throwing Mastery [Barbarian Only] +x to Find Item [Barbarian Only] +x to Battle Orders [Barbarian Only] Knockback +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Artisan's Diadem of Nirvana": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Artisan's",
+   "of Nirvana"
+  ],
+  "notes": [
+   "(3x Ruby Jewels of Fervor ) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x Minimum Damage +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike +x to Throwing Mastery [Barbarian Only] +x to Find Item [Barbarian Only] +x to Battle Orders [Barbarian Only] Knockback +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Artisan's Diadem of Speed": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Artisan's",
+   "of Speed"
+  ],
+  "notes": [
+   "(3x Ruby Jewels of Fervor ) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x to All Skills +x to Barbarian Skills +x to Combat Skills [Barbarian Only] +x to Warcries [Barbarian Only] +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x Minimum Damage +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike +x to Throwing Mastery [Barbarian Only] +x to Find Item [Barbarian Only] +x to Battle Orders [Barbarian Only] Knockback +x to Attribute +x Life +x Mana All Resistances +x Fire Absorb x% Damage Reduced by x% Cannot Be Frozen +x to Mana after each Kill x% Better Chance of Getting Magic Items Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Blood Crafted Amulet": {
+  "kind": "crafted",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "5% Chance to cast level 2 amplifydamage on striking +x to All Skills +x to Character Skills +x% Faster Run/Walk +x% Increased Attack Speed +x to Attack Rating x% Deadly Strike +x to Oskill ( teleport ) +x to all Attributes All Resistances +x"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Blood Crafted Elite Throwing Axe": {
+  "kind": "crafted",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Bone Wand of Life Tap": {
+  "kind": "magic_rare",
+  "builds": [
+   "dream-paladin"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [
+   "Bone",
+   "of Life Tap"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "dream-paladin": "+x to All Skills +x% Faster Cast Rate +x to Battle Orders +x to Battle Command +x Mana All Resistances +x Level x Life Tap [x/x Charges] Level x Teleport [x/x Charges] Level 23 Enchant [x/x Charges]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Caster Crafted Bramble Mitts": {
+  "kind": "crafted",
+  "builds": [
+   "abyss-warlock-build-guide"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Caster Crafted Bramble"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Chromatic Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Chromatic"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to All Skills +x% Faster Run/Walk +x% Increased Attack Speed +x to Attribute X Resist x%"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Coral Belt of the Squid": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Belts"
+  ],
+  "affixes_named": [
+   "Coral",
+   "of the Squid"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to All Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Life stolen per hit +x to Lightning Strike [Amazon Only] +x to Attribute +x Life Increased Maximum Mana x% +x% to Maximum Lightning Resist X Resist x% +x Lightning Absorb Damage Reduced by x% Cannot Be Frozen x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Coral Gloves of Alacrity": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Coral",
+   "of Alacrity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Increased Attack Speed +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life X Resist x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Cruel Elite Throwing Weapon": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Cunning Greater Claws of Quickness": {
+  "kind": "magic_rare",
+  "builds": [
+   "fire-blast-assassin"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [
+   "Cunning Greater",
+   "of Quickness"
+  ],
+  "notes": [
+   "(2x Rainbow Facet ) [fire-blast-assassin]",
+   "(2x Shael Rune ) [fire-blast-assassin]"
+  ],
+  "desirable_stats_from_guides": {
+   "fire-blast-assassin": "+x to All Skills +x% Faster Cast Rate All Resistances +x"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Fine Small Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Fine",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Harpoonist's Grand Charm": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Harpoonist's"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Harpoonist's Grand Charm of Balance": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Harpoonist's",
+   "of Balance"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Harpoonist's Grand Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Harpoonist's",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Harpoonist's Grand Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Harpoonist's",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Javelin of Quickness": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "Level 12 Conviction Aura When Equipped +x to Javelin and Spear Skills [Amazon Only] +x to Amazon Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Enhanced Damage +x% Life stolen per hit -x% to Enemy Lightning Resistance +x% Chance of Crushing Blow Prevent Monster Heal +x to Attribute x% Better Chance of Getting Magic Items Replenish Quantity Ethereal"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Jeweler's Diadem of Nirvana": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Nirvana"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to All Skills +x% Increased Attack Speed +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow +x to Attribute Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Jeweler's Diadem of Speed": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Speed"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to All Skills +x% Increased Attack Speed +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow +x to Attribute Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Jeweler's Dusk Shroud of Precision": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Body Armor"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Precision"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to All Skills +x to Skill Tree Skills [Class Only] +x to Character Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Hit Recovery +x% Enhanced Damage +x% Damage to Demons +x% Mana stolen per hit +x% Life stolen per hit +x to all Attributes +x Life Increased Maximum Life x% All Resistances +x Damage Reduced by x% Damage Reduced by x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Jeweler's Dusk Shroud of Stability": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Body Armor"
+  ],
+  "affixes_named": [
+   "Jeweler's",
+   "of Stability"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to All Skills +x to Skill Tree Skills [Class Only] +x to Character Skills +x% Faster Run/Walk +x% Increased Attack Speed +x% Faster Hit Recovery +x% Enhanced Damage +x% Damage to Demons +x% Mana stolen per hit +x% Life stolen per hit +x to all Attributes +x Life Increased Maximum Life x% All Resistances +x Damage Reduced by x% Damage Reduced by x x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Lancer's Gloves of Alacrity": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Gloves"
+  ],
+  "affixes_named": [
+   "Lancer's",
+   "of Alacrity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Increased Attack Speed +x% Mana stolen per hit +x% Life stolen per hit +x to Attribute +x Life X Resist x% Poison Length Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Large Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Long Staff of Teleportation": {
+  "kind": "magic_rare",
+  "builds": [
+   "summoner-necromancer-guide"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [
+   "Long",
+   "of Teleportation"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "summoner-necromancer-guide": "+x to All Skills +x to battlecommand +x to battleorders +x to battlecry"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Magic Diadem": {
+  "kind": "magic_rare",
+  "builds": [
+   "summoner-necromancer-guide"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "summoner-necromancer-guide": "+ to All Skills + xx% Faster Cast Rate Elemental Resist +xx% xx% Better Chance of Getting Magic Items Damage Reduced By xx% + Attributes"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Rare Bow": {
+  "kind": "magic_rare",
+  "builds": [
+   "strafe-amazon"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "strafe-amazon": "+x to All Skills +x to Skill Tree Skills [Class Only] +x to Character Skills +x% Increased Attack Speed +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x Maximum Damage +x% Mana stolen per hit +x% Life stolen per hit x% Chance of Crushing Blow x% Deadly Strike x% Chance of Open Wounds Knockback +x to Attribute"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Rare Flying Axe": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [],
+  "notes": [
+   "(Imbue) [double-throw-barbarian-guide]",
+   "(Imbue) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": true,
+  "weight": 1
+ },
+ "Rare Flying Knife": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [
+   "Rare Flying"
+  ],
+  "notes": [
+   "(Imbue) [double-throw-barbarian-guide]",
+   "(Imbue) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": true,
+  "weight": 1
+ },
+ "Rare Ghost Glaive": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": true,
+  "weight": 1
+ },
+ "Rare Kris": {
+  "kind": "magic_rare",
+  "builds": [
+   "abyss-warlock-build-guide"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "abyss-warlock-build-guide": "+x to All Skills +x to Warlock Skill Levels +xx% Magic Skill Damage -xx% Enemy Magic Resistance +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Rare Winged Axe": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon",
+   "Off-Hand"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": true,
+  "weight": 1
+ },
+ "Rare Winged Harpoon": {
+  "kind": "magic_rare",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [],
+  "notes": [
+   "(Imbue) [double-throw-barbarian-guide]"
+  ],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "x% Chance to cast level x Amplify Damage on striking +x to Combat Skills [Barbarian Only] +x% Increased Attack Speed Piercing Attack +x% Enhanced Damage x% Bonus to Attack Rating +x to Attack Rating +x% Damage to Demons +x% Damage to Undead +x Minimum Damage +x Maximum Damage Adds x fire damage Adds x lightning damage Adds x cold damage +x% Mana stolen per hit +x% Life stolen per hit x% Deadly Strike Knockback +x Life X Resist +x% Replenish Quantity Ethereal"
+  },
+  "ethereal_named": true,
+  "weight": 1
+ },
+ "Ruby Boots of Acceleration": {
+  "kind": "magic_rare",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Boots"
+  ],
+  "affixes_named": [
+   "Ruby",
+   "of Acceleration"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attribute +x Life X Resist x% +x to Mana after each Kill x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Sharp Grand Charm of Dexterity": {
+  "kind": "magic_charm",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Dexterity"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Sharp Grand Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Sharp Grand Charm of Maiming": {
+  "kind": "magic_charm",
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Sharp",
+   "of Maiming"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "double-throw-barbarian-guide": "+x% Faster Run/Walk +x% Faster Hit Recovery +x to Attack Rating +x Maximum Damage +x to Attribute +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Shimmering Large Charm of Vita": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Vita"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Shimmering Small Charm of Inertia": {
+  "kind": "magic_charm",
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "slot": [
+   "Charms"
+  ],
+  "affixes_named": [
+   "Shimmering",
+   "of Inertia"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "lightning-strike-amazon": "+x to Javelin and Spear Skills [Amazon Only] +x% Faster Run/Walk +x% Faster Hit Recovery +x Life X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Volcanic Amulet": {
+  "kind": "magic_rare",
+  "builds": [
+   "enchant-sorceress"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Volcanic"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "enchant-sorceress": "+x to All Skills +x to Fire Skills [Sorceress Only] +x to Sorceress Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Volcanic Amulet of the Apprentice": {
+  "kind": "magic_rare",
+  "builds": [
+   "enchant-sorceress"
+  ],
+  "slot": [
+   "Amulets"
+  ],
+  "affixes_named": [
+   "Volcanic",
+   "of the Apprentice"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "enchant-sorceress": "+x to All Skills +x to Fire Skills [Sorceress Only] +x to Sorceress Skills +x% Increased Attack Speed +x% Faster Cast Rate +x to Attribute +x Life +x Mana Regenerate Mana x% X Resist x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Volcanic Circlet": {
+  "kind": "magic_rare",
+  "builds": [
+   "enchant-sorceress"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Volcanic"
+  ],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "enchant-sorceress": "Level x Resist Fire Aura When Equipped +x to All Skills +x to Fire Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Piercing Attack +x% Mana stolen per hit -x% to Enemy Fire Resistance +x% to Fire Skill Damage +x to Attribute +x Life +x Mana All Resistances +x Damage Reduced by x% +x to Mana after each kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Volcanic Diadem": {
+  "kind": "magic_rare",
+  "builds": [
+   "enchant-sorceress"
+  ],
+  "slot": [
+   "Helmets"
+  ],
+  "affixes_named": [
+   "Volcanic"
+  ],
+  "notes": [
+   "(2x 5%/-x Fire Rainbow Facets ) [enchant-sorceress]"
+  ],
+  "desirable_stats_from_guides": {
+   "enchant-sorceress": "Level x Resist Fire Aura When Equipped +x to All Skills +x to Fire Skills +x% Increased Attack Speed +x% Faster Cast Rate +x% Faster Hit Recovery +x% Piercing Attack +x% Mana stolen per hit -x% to Enemy Fire Resistance +x% to Fire Skill Damage +x to Attribute +x Life +x Mana All Resistances +x Damage Reduced by x% +x to Mana after each kill Poison Length Reduced by x% x% Better Chance of Getting Magic Items"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Volcanic Eldritch Orb": {
+  "kind": "magic_rare",
+  "builds": [
+   "enchant-sorceress"
+  ],
+  "slot": [
+   "Weapon"
+  ],
+  "affixes_named": [
+   "Volcanic Eldritch"
+  ],
+  "notes": [
+   "(2x 5%/-x Fire Rainbow Facets ) [enchant-sorceress]"
+  ],
+  "desirable_stats_from_guides": {
+   "enchant-sorceress": "+x to All Skills +x to Fire Skills +x to Sorceress Skills +x% Increased Attack Speed Fires Explosive Arrows or Bolts +x% Piercing Attack +x% to Fire Skill Damage +x to Enchant [Sorceress Only] +x to Fire Mastery [Sorceress Only] +x to Guided Arrow +x Defense +x to Attribute +x Mana All Resistances +x Socketed [x]"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ },
+ "Wand of Life Tap": {
+  "kind": "magic_rare",
+  "builds": [
+   "dragon-talon-assassin"
+  ],
+  "slot": [
+   "Weapon-Swap"
+  ],
+  "affixes_named": [],
+  "notes": [],
+  "desirable_stats_from_guides": {
+   "dragon-talon-assassin": "+x to All Skills +x to battlecommand +x to battleorders Level x Life Tap (xx/xx Charges)"
+  },
+  "ethereal_named": false,
+  "weight": 1
+ }
+}

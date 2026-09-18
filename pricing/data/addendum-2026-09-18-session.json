@@ -1,0 +1,411 @@
+{
+ "_meta": {
+  "date": "2026-09-18",
+  "scope": "SC/NL/PC/RotW asks, Traderie JSON cached under pricing/raw/traderie/*.json (pulled 2026-09-18); Ist via pricing/data/wp-f-ladder.json joint 'ist'; price per listing = cheapest OR-group; one vote per seller (cheapest) for min/median/max; asks not fills",
+  "why": "session 2026-09-18 Q&A (grimoire/Codex, Tiara) exposed gaps in guides/pindle-anya.html and guides/pricing-primer.html"
+ },
+ "grimoires": {
+  "n_listings": 358,
+  "no_staff_mods_any_rarity": 6,
+  "by_rarity": {
+   "normal": {
+    "n": 76,
+    "n_priced": 29,
+    "sellers": 24,
+    "min": 0.57,
+    "median": 2.29,
+    "max": 114.21
+   },
+   "superior": {
+    "n": 41,
+    "n_priced": 24,
+    "sellers": 24,
+    "min": 0.67,
+    "median": 5.88,
+    "max": 18.64
+   },
+   "magic": {
+    "n": 36,
+    "n_priced": 15,
+    "sellers": 15,
+    "min": 0.2,
+    "median": 5.88,
+    "max": 114.21
+   },
+   "rare": {
+    "n": 107,
+    "n_priced": 61,
+    "sellers": 40,
+    "min": 0.57,
+    "median": 6.14,
+    "max": 456.84
+   },
+   "unset": {
+    "n": 97,
+    "n_priced": 25,
+    "sellers": 22,
+    "min": 0.2,
+    "median": 1.0,
+    "max": 22.84
+   }
+  },
+  "by_base_tier_white_or_superior_2os": {
+   "grimoire": {
+    "n": 29,
+    "n_priced": 15,
+    "sellers": 14,
+    "min": 0.57,
+    "median": 3.32,
+    "max": 228.42
+   },
+   "possessed-grimoire": {
+    "n": 15,
+    "n_priced": 6,
+    "sellers": 6,
+    "min": 1.0,
+    "median": 4.97,
+    "max": 11.42
+   },
+   "blasphemous-grimoire": {
+    "n": 10,
+    "n_priced": 1,
+    "sellers": 1,
+    "min": 1.0,
+    "median": 1.0,
+    "max": 1.0
+   }
+  },
+  "with_plus2_warlock_skills": {
+   "n": 108,
+   "n_priced": 60,
+   "sellers": 43,
+   "min": 0.2,
+   "median": 4.05,
+   "max": 456.84
+  },
+  "plus2_warlock_skills_rarity_split": {
+   "rare": 75,
+   "magic": 8,
+   "normal": 3,
+   "unset": 22
+  },
+  "rare_without_plus2_warlock_skills": {
+   "n": 32,
+   "n_priced": 17,
+   "sellers": 12,
+   "min": 0.57,
+   "median": 5.41,
+   "max": 228.42
+  },
+  "magic_with_plus3_tree": {
+   "n": 19,
+   "n_priced": 8,
+   "sellers": 8,
+   "min": 2.43,
+   "median": 51.39,
+   "max": 114.21
+  },
+  "white_superior_plus3_staffmod_ranking": {
+   "Summon Tainted": {
+    "n": 3,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 8.23,
+    "median": 118.32,
+    "max": 228.42
+   },
+   "Consume": {
+    "n": 2,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 1.0,
+    "median": 29.05,
+    "max": 57.1
+   },
+   "Miasma Chain": {
+    "n": 5,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 4.05,
+    "median": 19.16,
+    "max": 34.26
+   },
+   "Bind Demon": {
+    "n": 7,
+    "n_priced": 4,
+    "sellers": 4,
+    "min": 5.88,
+    "median": 10.37,
+    "max": 57.1
+   },
+   "Sigil: Death": {
+    "n": 10,
+    "n_priced": 5,
+    "sellers": 5,
+    "min": 5.88,
+    "median": 9.32,
+    "max": 114.21
+   },
+   "Sigil: Rancor": {
+    "n": 1,
+    "n_priced": 1,
+    "sellers": 1,
+    "min": 8.23,
+    "median": 8.23,
+    "max": 8.23
+   },
+   "Apocalypse": {
+    "n": 24,
+    "n_priced": 10,
+    "sellers": 10,
+    "min": 0.67,
+    "median": 5.55,
+    "max": 18.64
+   },
+   "Abyss": {
+    "n": 30,
+    "n_priced": 13,
+    "sellers": 12,
+    "min": 0.67,
+    "median": 4.97,
+    "max": 9.32
+   },
+   "Enhanced Entropy": {
+    "n": 7,
+    "n_priced": 3,
+    "sellers": 3,
+    "min": 0.79,
+    "median": 2.58,
+    "max": 4.02
+   },
+   "Eldritch Blast": {
+    "n": 2,
+    "n_priced": 1,
+    "sellers": 1,
+    "min": 2.0,
+    "median": 2.0,
+    "max": 2.0
+   },
+   "Engorge": {
+    "n": 3,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 0.57,
+    "median": 1.58,
+    "max": 2.58
+   },
+   "Summon Defiler": {
+    "n": 3,
+    "n_priced": 3,
+    "sellers": 3,
+    "min": 1.0,
+    "median": 1.43,
+    "max": 2.58
+   },
+   "Blood Boil": {
+    "n": 8,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 1.0,
+    "median": 1.0,
+    "max": 1.0
+   },
+   "Flame Wave": {
+    "n": 5,
+    "n_priced": 0,
+    "sellers": 0,
+    "min": null,
+    "median": null,
+    "max": null
+   },
+   "Mirrored Blades": {
+    "n": 1,
+    "n_priced": 0,
+    "sellers": 0,
+    "min": null,
+    "median": null,
+    "max": null
+   },
+   "Psychic Ward": {
+    "n": 1,
+    "n_priced": 0,
+    "sellers": 0,
+    "min": null,
+    "median": null,
+    "max": null
+   },
+   "Ring of Fire": {
+    "n": 2,
+    "n_priced": 0,
+    "sellers": 0,
+    "min": null,
+    "median": null,
+    "max": null
+   }
+  },
+  "white_superior_by_sockets": {
+   "0": {
+    "n": 61,
+    "n_priced": 29,
+    "sellers": 25,
+    "min": 0.67,
+    "median": 5.88,
+    "max": 114.21
+   },
+   "1": {
+    "n": 2,
+    "n_priced": 2,
+    "sellers": 2,
+    "min": 0.67,
+    "median": 1.63,
+    "max": 2.58
+   },
+   "2": {
+    "n": 54,
+    "n_priced": 22,
+    "sellers": 21,
+    "min": 0.57,
+    "median": 4.05,
+    "max": 228.42
+   }
+  },
+  "max_sockets_seen": 2,
+  "echoing_strike_offhand": "maxroll Echoing Strike Warlock guide (2026-08-26): Off-Hand = Spirit, Lidless Wall, Splendor, Ancients' Pledge, Rhyme (shields; 125 % FCR breakpoint); Starter variant: 'you can wield a 2-Handed Weapon in a single hand if you have a Book equipped' -> Rhyme Codex + 2H Spirit sword at low level. No grimoire in the Standard/MF/Ubers setups. Maxed: Hex Purge, Mirrored Blades, Hex Bane, Demonic Mastery, Eldritch Blast, Blood Oath; 1 pt Echoing Strike, Sigil: Lethargy, Summon Defiler."
+ },
+ "tiara": {
+  "n_listings": 200,
+  "white_or_superior": 0,
+  "by_rarity_sockets": {
+   "rare/0os": {
+    "n": 118,
+    "n_priced": 107,
+    "sellers": 11,
+    "min": 0.79,
+    "median": 11.42,
+    "max": 228.42
+   },
+   "rare/1os": {
+    "n": 1,
+    "n_priced": 0,
+    "sellers": 0,
+    "min": null,
+    "median": null,
+    "max": null
+   },
+   "rare/2os": {
+    "n": 36,
+    "n_priced": 33,
+    "sellers": 4,
+    "min": 34.26,
+    "median": 114.21,
+    "max": 571.05
+   },
+   "magic/0os": {
+    "n": 7,
+    "n_priced": 7,
+    "sellers": 3,
+    "min": 2.58,
+    "median": 11.42,
+    "max": 34.26
+   },
+   "magic/2os": {
+    "n": 17,
+    "n_priced": 17,
+    "sellers": 5,
+    "min": 22.84,
+    "median": 45.68,
+    "max": 228.42
+   },
+   "magic/3os": {
+    "n": 21,
+    "n_priced": 21,
+    "sellers": 3,
+    "min": 5.88,
+    "median": 9.32,
+    "max": 22.84
+   }
+  },
+  "rare_plus2_20fcr_2os": {
+   "n": 13,
+   "n_priced": 11,
+   "sellers": 4,
+   "min": 34.26,
+   "median": 142.76,
+   "max": 571.05
+  },
+  "rare_plus2_20fcr_0os": {
+   "n": 91,
+   "n_priced": 84,
+   "sellers": 8,
+   "min": 0.79,
+   "median": 11.42,
+   "max": 228.42
+  },
+  "rare_plus2_no_fcr": {
+   "n": 39,
+   "n_priced": 35,
+   "sellers": 6,
+   "min": 1.0,
+   "median": 34.26,
+   "max": 171.31
+  },
+  "rare_no_plus2": {
+   "n": 11,
+   "n_priced": 10,
+   "sellers": 3,
+   "min": 11.42,
+   "median": 22.84,
+   "max": 342.63
+  },
+  "mods_on_listings_ge20_ist": [
+   [
+    "+N% Faster Cast Rate",
+    106
+   ],
+   [
+    "Required Level N",
+    83
+   ],
+   [
+    "Socketed (N)",
+    62
+   ],
+   [
+    "Defense",
+    51
+   ],
+   [
+    "+N to All Resistances",
+    50
+   ],
+   [
+    "+N% Faster Run/Walk",
+    45
+   ],
+   [
+    "+N Defense",
+    40
+   ],
+   [
+    "+N to Strength",
+    37
+   ],
+   [
+    "+N to Life",
+    32
+   ],
+   [
+    "+N to Paladin Skill Levels",
+    32
+   ],
+   [
+    "+N to Dexterity",
+    31
+   ],
+   [
+    "N% Bonus to Attack Rating (Based on Character Level)",
+    23
+   ]
+  ]
+ }
+}

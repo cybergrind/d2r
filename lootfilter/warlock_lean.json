@@ -1,0 +1,367 @@
+{
+    "name": "Warlock Lean",
+    "rules": [
+        {
+            "name": "HIDE All - Gold too",
+            "enabled": true,
+            "ruleType": "hide",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce",
+                "weap",
+                "armo"
+            ],
+            "itemCategory": [
+                "misc"
+            ],
+            "goldFilterValue": 5037
+        },
+        {
+            "name": "SHOW Important Mats and Items",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "rare",
+                "lowQuality",
+                "set",
+                "unique",
+                "magic",
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce"
+            ],
+            "itemCategory": [
+                "uberm",
+                "runes",
+                "terrt",
+                "absol"
+            ],
+            "itemCode": [
+                "gzv",
+                "glw",
+                "glg",
+                "glr",
+                "glb",
+                "gly",
+                "skl",
+                "gpv",
+                "gpw",
+                "gpg",
+                "gpr",
+                "gpb",
+                "gpy",
+                "skz"
+            ]
+        },
+        {
+            "name": "SHOW Potions and TP Scrolls",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "itemCode": [
+                "mp5",
+                "hp5",
+                "rvl",
+                "tsc"
+            ]
+        },
+        {
+            "name": "SHOW Unique Set",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "set",
+                "unique"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "acce",
+                "weap",
+                "armo"
+            ]
+        },
+        {
+            "name": "SHOW Rare ARMOR",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "rare"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "glove",
+                "boots",
+                "belts",
+                "circl",
+                "warlo",
+                "barbh",
+                "necro",
+                "druid"
+            ],
+            "equipmentItemCode": [
+                "pab",
+                "pac",
+                "pae",
+                "paf"
+            ]
+        },
+        {
+            "name": "SHOW Rare WEAPONS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "rare"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "circl",
+                "sorce"
+            ],
+            "equipmentItemCode": [
+                "kri",
+                "bld",
+                "9kr",
+                "9bl",
+                "7kr",
+                "7bl",
+                "9lw",
+                "9tw",
+                "7lw",
+                "7tw",
+                "amb",
+                "amc",
+                "7cr",
+                "7wa",
+                "7gd",
+                "am9",
+                "amd",
+                "ame",
+                "7di",
+                "7dg",
+                "amf",
+                "7ws"
+            ]
+        },
+        {
+            "name": "SHOW Magic ARMOR",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "circl",
+                "warlo",
+                "druid",
+                "barbh"
+            ],
+            "equipmentItemCode": [
+                "uit",
+                "pab",
+                "pac",
+                "utp",
+                "uui",
+                "utu",
+                "uar",
+                "lbt",
+                "xlb",
+                "ulb",
+                "vbl",
+                "zvb",
+                "uvc",
+                "ne1",
+                "ne5",
+                "nef",
+                "lgl",
+                "vgl",
+                "mgl",
+                "tgl",
+                "hgl",
+                "xlg",
+                "xvg",
+                "xmg",
+                "xtg",
+                "xhg",
+                "ulg",
+                "uvg",
+                "umg",
+                "utg",
+                "uhg"
+            ]
+        },
+        {
+            "name": "SHOW Magic WEAPONS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "circl"
+            ],
+            "equipmentItemCode": [
+                "kri",
+                "bld",
+                "9kr",
+                "9bl",
+                "7kr",
+                "7bl",
+                "9lw",
+                "9tw",
+                "7lw",
+                "7tw",
+                "am5",
+                "ama",
+                "amf",
+                "wsp",
+                "obc",
+                "7di",
+                "7dg",
+                "obd",
+                "obe",
+                "obf",
+                "7ws"
+            ]
+        },
+        {
+            "name": "SHOW Bases ARMOR",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "warlo"
+            ],
+            "equipmentItemCode": [
+                "utp",
+                "uui",
+                "utu",
+                "uar",
+                "xtp",
+                "uit",
+                "pab",
+                "pac",
+                "pa1",
+                "ci3",
+                "ci2",
+                "xrn"
+            ]
+        },
+        {
+            "name": "SHOW Bases WEAPONS",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality",
+                "normal"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "circl"
+            ],
+            "equipmentItemCode": [
+                "kri",
+                "9kr",
+                "7kr",
+                "7bl",
+                "fla",
+                "9tw",
+                "7tw"
+            ]
+        },
+        {
+            "name": "SHOW Bases WEAPONS Gray",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "circl"
+            ],
+            "equipmentItemCode": [
+                "7cr",
+                "7wa",
+                "7gd",
+                "7s8",
+                "7wc",
+                "7pa",
+                "7h7",
+                "7vo",
+                "7br",
+                "amd",
+                "amb",
+                "amc",
+                "crs"
+            ]
+        }
+    ]
+}

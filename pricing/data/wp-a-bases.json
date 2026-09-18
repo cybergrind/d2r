@@ -1,0 +1,3647 @@
+{
+ "Archon Plate": {
+  "runewords": [
+   "Enigma",
+   "Chains of Honor",
+   "Fortitude",
+   "Dragon",
+   "Bramble"
+  ],
+  "sockets": [
+   3,
+   4
+  ],
+  "sockets_by_runeword": {
+   "Enigma": 3,
+   "Chains of Honor": 4,
+   "Fortitude": 4,
+   "Dragon": 3,
+   "Bramble": 4
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Enigma: runewords page lists \"Superior Archon Plate\"",
+   "Chains of Honor: runewords page lists \"Superior Archon Plate\"",
+   "Fortitude: runewords page lists \"Superior Archon Plate\" (Character)",
+   "Dragon: runewords page lists \"Superior Archon Plate\"",
+   "Bramble: runewords page lists \"Superior Archon Plate\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "meteor-sorceress",
+   "blizzard-sorceress",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "lightning-fury-amazon-guide",
+   "mirrored-blades-warlock-guide",
+   "lightning-strike-amazon",
+   "strafe-amazon",
+   "dream-paladin",
+   "blessed-hammer-paladin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide",
+   "lightning-sorceress",
+   "wake-of-fire-assassin",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin"
+  ],
+  "weight": 41,
+  "named_by_guides": {
+   "Enigma": [
+    "gold-find-barbarian"
+   ],
+   "Chains of Honor": [
+    "nova-sorceress-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Crystal Sword": {
+  "runewords": [
+   "Spirit",
+   "Plague",
+   "Call to Arms",
+   "Lawbringer",
+   "Crescent Moon"
+  ],
+  "sockets": [
+   3,
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Spirit": 4,
+   "Plague": 3,
+   "Call to Arms": 5,
+   "Lawbringer": 3,
+   "Crescent Moon": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Spirit: runewords page lists \"Crystal Sword\"",
+   "Plague: runewords page lists \"Crystal Sword\"",
+   "Call to Arms: runewords page lists \"Crystal Sword\" (Ethereal for style)",
+   "Lawbringer: runewords page lists \"Crystal Sword\" (Act 3 Mercenary)",
+   "Crescent Moon: runewords page lists \"Crystal Sword\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "nova-sorceress-guide",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "gold-find-barbarian"
+  ],
+  "builds_merc": [
+   "fissure-druid",
+   "dragon-talon-assassin",
+   "lightning-sentry-assassin",
+   "fire-blast-assassin",
+   "double-throw-barbarian-guide"
+  ],
+  "weight": 41,
+  "named_by_guides": {
+   "Spirit": [
+    "blessed-hammer-paladin",
+    "fire-blast-assassin",
+    "fist-of-the-heavens-paladin",
+    "lightning-sentry-assassin",
+    "wake-of-fire-assassin"
+   ],
+   "Call to Arms": [
+    "blizzard-sorceress",
+    "dragon-talon-assassin",
+    "gold-find-barbarian",
+    "lightning-sentry-assassin",
+    "meteor-sorceress",
+    "nova-sorceress-guide",
+    "smite-paladin",
+    "strafe-amazon",
+    "summoner-necromancer-guide",
+    "wake-of-fire-assassin"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Crystal Sword ((6x Ist Rune s )) — double-throw-barbarian-guide [gear/Weapon-Swap]",
+   "Gemmed Crystal Sword ((6x Ist Rune s )) — double-throw-barbarian-guide [gear/Off-Hand-Swap]",
+   "Gemmed Crystal Sword ((6x 5/5 Fire Rainbow Facets )) — fissure-druid [gear/Weapon]",
+   "Gemmed Crystal Sword ((2x 5/5 Fire Rainbow Facets + 4x Ist Rune s )) — fissure-druid [gear/Weapon]",
+   "Gemmed Crystal Sword ((6x Ist Rune s )) — fissure-druid [gear/Weapon]",
+   "Gemmed Crystal Sword — gold-find-barbarian [gear/Weapon]",
+   "Gemmed Crystal Sword — gold-find-barbarian [gear/Off-Hand]",
+   "Gemmed Crystal Sword — gold-find-barbarian [gear/Weapon-Swap]",
+   "Gemmed Crystal Sword — gold-find-barbarian [gear/Off-Hand-Swap]",
+   "Gemmed Crystal Sword ((6x 5/5 Lightning Rainbow Facets )) — lightning-sorceress [gear/Weapon]",
+   "Gemmed Crystal Sword ((6x Ist Rune s )) — lightning-sorceress [gear/Weapon-Swap]",
+   "Gemmed Crystal Sword ((6x 5/5 Poison Rainbow Facets )) — poison-nova-necromancer [gear/Weapon]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Diadem": {
+  "runewords": [
+   "Lore",
+   "Bulwark",
+   "Temper",
+   "Ground",
+   "Cure",
+   "Wisdom",
+   "Dream",
+   "Flickering Flame",
+   "Coven",
+   "Hearth"
+  ],
+  "sockets": [
+   2,
+   3
+  ],
+  "sockets_by_runeword": {
+   "Lore": 2,
+   "Bulwark": 3,
+   "Temper": 3,
+   "Ground": 3,
+   "Cure": 3,
+   "Wisdom": 3,
+   "Dream": 3,
+   "Flickering Flame": 3,
+   "Coven": 3,
+   "Hearth": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Lore: runewords page lists \"Diadem\"",
+   "Bulwark: runewords page lists \"Diadem\"",
+   "Temper: runewords page lists \"Diadem\"",
+   "Ground: runewords page lists \"Diadem\"",
+   "Cure: runewords page lists \"Diadem\"",
+   "Wisdom: runewords page lists \"Diadem\"",
+   "Dream: runewords page lists \"Diadem\"",
+   "Flickering Flame: runewords page lists \"Diadem\"",
+   "Coven: base named only by guide(s) ['fire-warlock-guide'] (not on runewords page)",
+   "Hearth: runewords page lists \"Diadem\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress",
+   "double-throw-barbarian-guide",
+   "strafe-amazon",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "berserk-barbarian",
+   "nova-sorceress-guide",
+   "dream-paladin"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide",
+   "dragon-talon-assassin"
+  ],
+  "weight": 41,
+  "named_by_guides": {
+   "Cure": [
+    "nova-sorceress-guide"
+   ],
+   "Wisdom": [
+    "strafe-amazon"
+   ],
+   "Flickering Flame": [
+    "meteor-sorceress"
+   ],
+   "Coven": [
+    "fire-warlock-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords ; runeword types/runes: https://maxroll.gg/d2/items/new-items-in-reign-of-the-warlock (February 19, 2026)",
+  "date": "June 2, 2026",
+  "base_tier": "exceptional"
+ },
+ "Dusk Shroud": {
+  "runewords": [
+   "Enigma",
+   "Chains of Honor",
+   "Fortitude",
+   "Dragon"
+  ],
+  "sockets": [
+   3,
+   4
+  ],
+  "sockets_by_runeword": {
+   "Enigma": 3,
+   "Chains of Honor": 4,
+   "Fortitude": 4,
+   "Dragon": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Enigma: runewords page lists \"Superior Dusk Shroud\"",
+   "Chains of Honor: runewords page lists \"Superior Dusk Shroud\"",
+   "Fortitude: runewords page lists \"Superior Dusk Shroud\" (Character)",
+   "Dragon: runewords page lists \"Superior Dusk Shroud\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "meteor-sorceress",
+   "blizzard-sorceress",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "lightning-fury-amazon-guide",
+   "mirrored-blades-warlock-guide",
+   "lightning-strike-amazon",
+   "strafe-amazon",
+   "dream-paladin",
+   "blessed-hammer-paladin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide",
+   "lightning-sorceress",
+   "wake-of-fire-assassin",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin"
+  ],
+  "weight": 41,
+  "named_by_guides": {
+   "Chains of Honor": [
+    "dragon-talon-assassin"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Dusk Shroud ((4x Perfect Topaz )) — berserk-barbarian [gear/Body Armor]",
+   "Gemmed Dusk Shroud — berserk-barbarian [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud ((4x Perfect Topaz es )) — double-throw-barbarian-guide [gear/Body Armor]",
+   "Gemmed Dusk Shroud — double-throw-barbarian-guide [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — dream-paladin [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — enchant-sorceress [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud ((4x Perfect Topaz es )) — fissure-druid [gear/Body Armor]",
+   "Gemmed Dusk Shroud — fissure-druid [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — lightning-fury-amazon-guide [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — lightning-sorceress [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud ((4x Perfect Topaz es )) — lightning-strike-amazon [gear/Body Armor]",
+   "Gemmed Dusk Shroud — lightning-strike-amazon [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — poison-nova-necromancer [merc-early/Body Armor]",
+   "Gemmed Dusk Shroud — summoner-necromancer-guide [merc-early/Body Armor]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Flail": {
+  "runewords": [
+   "Heart of the Oak",
+   "Call to Arms",
+   "Black"
+  ],
+  "sockets": [
+   3,
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Heart of the Oak": 4,
+   "Call to Arms": 5,
+   "Black": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Heart of the Oak: runewords page lists \"Flail\" (Ethereal for style)",
+   "Call to Arms: runewords page lists \"Flail\" (Ethereal for style)",
+   "Black: runewords page lists \"Flail\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "gold-find-barbarian",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "fire-warlock-guide",
+   "fire-blast-assassin",
+   "berserk-barbarian",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide",
+   "lightning-sorceress",
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "lightning-fury-amazon-guide",
+   "strafe-amazon",
+   "lightning-strike-amazon",
+   "enchant-sorceress",
+   "smite-paladin",
+   "dragon-talon-assassin"
+  ],
+  "builds_merc": [],
+  "weight": 41,
+  "named_by_guides": {
+   "Heart of the Oak": [
+    "berserk-barbarian",
+    "blessed-hammer-paladin",
+    "double-throw-barbarian-guide",
+    "fissure-druid",
+    "fist-of-the-heavens-paladin",
+    "gold-find-barbarian",
+    "lightning-sentry-assassin",
+    "lightning-sorceress",
+    "nova-sorceress-guide",
+    "poison-nova-necromancer",
+    "wake-of-fire-assassin"
+   ],
+   "Black": [
+    "dragon-talon-assassin",
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Mage Plate": {
+  "runewords": [
+   "Enigma",
+   "Smoke",
+   "Lionheart",
+   "Treachery",
+   "Duress",
+   "Wealth",
+   "Hustle",
+   "Principle",
+   "Enlightenment",
+   "Rain",
+   "Hysteria",
+   "Peace",
+   "Bone"
+  ],
+  "sockets": [
+   2,
+   3
+  ],
+  "sockets_by_runeword": {
+   "Enigma": 3,
+   "Smoke": 2,
+   "Lionheart": 3,
+   "Treachery": 3,
+   "Duress": 3,
+   "Wealth": 3,
+   "Hustle": 3,
+   "Principle": 3,
+   "Enlightenment": 3,
+   "Rain": 3,
+   "Hysteria": 3,
+   "Peace": 3,
+   "Bone": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Enigma: base named only by guide(s) ['dragon-talon-assassin', 'fire-blast-assassin', 'fist-of-the-heavens-paladin', 'lightning-sentry-assassin', 'wake-of-fire-assassin'] (not on runewords page)",
+   "Smoke: runewords page lists \"Superior Mage Plate\"",
+   "Lionheart: runewords page lists \"Superior Mage Plate\"",
+   "Treachery: runewords page lists \"Superior Mage Plate\" (Character)",
+   "Treachery: runewords page lists \"Ethereal Mage Plate\" (Mercenary)",
+   "Duress: runewords page lists \"Superior Mage Plate\"",
+   "Wealth: runewords page lists \"Superior Mage Plate\"",
+   "Hustle: runewords page lists \"Superior Mage Plate\"",
+   "Principle: runewords page lists \"Superior Mage Plate\"",
+   "Enlightenment: runewords page lists \"Superior Mage Plate\"",
+   "Rain: runewords page lists \"Superior Mage Plate\"",
+   "Hysteria: runewords page lists \"Superior Mage Plate\"",
+   "Peace: runewords page lists \"Superior Mage Plate\"",
+   "Bone: runewords page lists \"Superior Mage Plate\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "wake-of-fire-assassin",
+   "fire-blast-assassin",
+   "fist-of-the-heavens-paladin",
+   "dragon-talon-assassin",
+   "lightning-sentry-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "smite-paladin",
+   "lightning-sorceress",
+   "double-throw-barbarian-guide",
+   "strafe-amazon",
+   "dream-paladin",
+   "enchant-sorceress",
+   "berserk-barbarian",
+   "gold-find-barbarian",
+   "summoner-necromancer-guide"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide",
+   "wake-of-fire-assassin",
+   "smite-paladin"
+  ],
+  "weight": 41,
+  "named_by_guides": {
+   "Enigma": [
+    "dragon-talon-assassin",
+    "fire-blast-assassin",
+    "fist-of-the-heavens-paladin",
+    "lightning-sentry-assassin",
+    "wake-of-fire-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "exceptional"
+ },
+ "Colossus Voulge": {
+  "runewords": [
+   "Insight"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Insight": 4
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Insight: runewords page lists \"Ethereal Superior Colossus Voulge\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide"
+  ],
+  "weight": 40,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Giant Thresher": {
+  "runewords": [
+   "Insight",
+   "Infinity",
+   "Pride",
+   "Obedience"
+  ],
+  "sockets": [
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Insight": 4,
+   "Infinity": 4,
+   "Pride": 4,
+   "Obedience": 5
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Insight: runewords page lists \"Ethereal Superior Giant Thresher\"",
+   "Infinity: runewords page lists \"Ethereal Superior Giant Thresher\"",
+   "Pride: runewords page lists \"Ethereal Superior Giant Thresher\"",
+   "Obedience: runewords page lists \"Ethereal Superior Giant Thresher\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-strike-amazon",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide"
+  ],
+  "weight": 40,
+  "named_by_guides": {
+   "Insight": [
+    "echoing-strike-warlock-guide",
+    "fire-warlock-guide",
+    "nova-sorceress-guide"
+   ],
+   "Infinity": [
+    "fire-warlock-guide"
+   ],
+   "Pride": [
+    "mirrored-blades-warlock-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Matriarchal Bow": {
+  "runewords": [
+   "Insight",
+   "Harmony",
+   "Hustle",
+   "Faith",
+   "Mania",
+   "Mist"
+  ],
+  "sockets": [
+   3,
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Insight": 4,
+   "Harmony": 4,
+   "Hustle": 3,
+   "Faith": 4,
+   "Mania": 3,
+   "Mist": 5
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Insight: runewords page lists \"Matriarchal Bow\"",
+   "Harmony: runewords page lists \"Matriarchal Bow\"",
+   "Hustle: runewords page lists \"Matriarchal Bow\"",
+   "Faith: runewords page lists \"Matriarchal Bow\"",
+   "Mania: runewords page lists \"Matriarchal Bow\"",
+   "Mist: runewords page lists \"Superior Matriarchal Bow\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-strike-amazon",
+   "double-throw-barbarian-guide",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "smite-paladin"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide"
+  ],
+  "weight": 40,
+  "named_by_guides": {
+   "Faith": [
+    "dream-paladin",
+    "lightning-strike-amazon"
+   ],
+   "Mist": [
+    "strafe-amazon"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Thresher": {
+  "runewords": [
+   "Insight",
+   "Infinity",
+   "Pride",
+   "Obedience"
+  ],
+  "sockets": [
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Insight": 4,
+   "Infinity": 4,
+   "Pride": 4,
+   "Obedience": 5
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Insight: runewords page lists \"Ethereal Superior Thresher\"",
+   "Infinity: runewords page lists \"Ethereal Superior Thresher\"",
+   "Pride: runewords page lists \"Ethereal Superior Thresher\"",
+   "Obedience: runewords page lists \"Ethereal Superior Thresher\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-strike-amazon",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "nova-sorceress-guide"
+  ],
+  "weight": 40,
+  "named_by_guides": {
+   "Infinity": [
+    "wake-of-fire-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Berserker Axe": {
+  "runewords": [
+   "Fortitude",
+   "Breath of the Dying",
+   "Doom",
+   "Beast",
+   "Death"
+  ],
+  "sockets": [
+   4,
+   5,
+   6
+  ],
+  "sockets_by_runeword": {
+   "Fortitude": 4,
+   "Breath of the Dying": 6,
+   "Doom": 5,
+   "Beast": 5,
+   "Death": 5
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Fortitude: runewords page lists \"Superior Berserker Axe\"",
+   "Breath of the Dying: runewords page lists \"Ethereal Superior Berserker Axe\"",
+   "Doom: runewords page lists \"Superior Berserker Axe\"",
+   "Beast: runewords page lists \"Superior Berserker Axe\"",
+   "Death: runewords page lists \"Ethereal Superior Berserker Axe\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "strafe-amazon",
+   "dream-paladin",
+   "double-throw-barbarian-guide",
+   "echoing-strike-warlock-guide",
+   "lightning-sorceress",
+   "blizzard-sorceress",
+   "dragon-talon-assassin",
+   "summoner-necromancer-guide",
+   "smite-paladin"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "weight": 39,
+  "named_by_guides": {
+   "Beast": [
+    "dragon-talon-assassin"
+   ],
+   "Death": [
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Monarch": {
+  "runewords": [
+   "Spirit",
+   "Phoenix"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Spirit": 4,
+   "Phoenix": 4
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Spirit: runewords page lists \"Superior Monarch\"",
+   "Spirit: lightning-sorceress names \"Ethereal Spirit Monarch\" (char)",
+   "Spirit: dragon-talon-assassin names \"Ethereal Spirit Monarch\" (merc)",
+   "Phoenix: runewords page lists \"Superior Monarch\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "nova-sorceress-guide",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin"
+  ],
+  "builds_merc": [
+   "fissure-druid",
+   "dragon-talon-assassin"
+  ],
+  "weight": 39,
+  "named_by_guides": {
+   "Spirit": [
+    "berserk-barbarian",
+    "blizzard-sorceress",
+    "double-throw-barbarian-guide",
+    "dragon-talon-assassin",
+    "enchant-sorceress",
+    "fire-blast-assassin",
+    "fissure-druid",
+    "lightning-fury-amazon-guide",
+    "lightning-sentry-assassin",
+    "lightning-sorceress",
+    "lightning-strike-amazon",
+    "meteor-sorceress",
+    "nova-sorceress-guide",
+    "poison-nova-necromancer",
+    "strafe-amazon",
+    "summoner-necromancer-guide",
+    "wake-of-fire-assassin"
+   ],
+   "Phoenix": [
+    "fire-blast-assassin",
+    "lightning-fury-amazon-guide"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Superior Monarch ((4x Rainbow Facet )) — blizzard-sorceress [gear/Off-Hand]",
+   "Monarch ((4x Rainbow Facet )) — fire-blast-assassin [gear/Off-Hand]",
+   "Gemmed Monarch ((4x 5/5 Fire Rainbow Facets )) — fissure-druid [gear/Off-Hand]",
+   "Gemmed Monarch ((4x Ist Rune s )) — fissure-druid [gear/Off-Hand]",
+   "Gemmed Monarch ((4x Rainbow Facet )) — lightning-sentry-assassin [gear/Off-Hand]",
+   "Gemmed Monarch ((4x Rainbow Facet )) — lightning-sentry-assassin [gear/Off-Hand-Swap]",
+   "Gemmed Monarch ((4x Ist Rune s )) — lightning-sorceress [gear/Off-Hand Swap]",
+   "Gemmed Monarch ((4x 5/5 Lightning Rainbow Facets )) — lightning-strike-amazon [gear/Off-Hand]",
+   "Gemmed Monarch ((4x 5/5 Poison Rainbow Facets )) — poison-nova-necromancer [gear/Off-Hand]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Sacred Targe": {
+  "runewords": [
+   "Spirit",
+   "Phoenix",
+   "Sanctuary",
+   "Dream",
+   "Exile"
+  ],
+  "sockets": [
+   3,
+   4
+  ],
+  "sockets_by_runeword": {
+   "Spirit": 4,
+   "Phoenix": 4,
+   "Sanctuary": 3,
+   "Dream": 3,
+   "Exile": 4
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Spirit: runewords page lists \"Superior Sacred Targe\"",
+   "Phoenix: runewords page lists \"Superior Sacred Targe\"",
+   "Sanctuary: runewords page lists \"Superior Sacred Targe\"",
+   "Dream: runewords page lists \"Superior Sacred Targe\"",
+   "Exile: runewords page lists \"Superior Sacred Targe\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dragon-talon-assassin",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "nova-sorceress-guide",
+   "berserk-barbarian",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin"
+  ],
+  "builds_merc": [
+   "fissure-druid",
+   "dragon-talon-assassin"
+  ],
+  "weight": 39,
+  "named_by_guides": {
+   "Spirit": [
+    "blessed-hammer-paladin",
+    "fist-of-the-heavens-paladin"
+   ],
+   "Phoenix": [
+    "blessed-hammer-paladin"
+   ],
+   "Sanctuary": [
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Phase Blade": {
+  "runewords": [
+   "Plague",
+   "Grief",
+   "Unbending Will",
+   "Hustle",
+   "Phoenix",
+   "Lawbringer",
+   "Crescent Moon",
+   "Hand of Justice",
+   "Last Wish",
+   "Silence",
+   "Venom",
+   "Mania",
+   "Kingslayer"
+  ],
+  "sockets": [
+   3,
+   4,
+   5,
+   6
+  ],
+  "sockets_by_runeword": {
+   "Plague": 3,
+   "Grief": 5,
+   "Unbending Will": 6,
+   "Hustle": 3,
+   "Phoenix": 4,
+   "Lawbringer": 3,
+   "Crescent Moon": 3,
+   "Hand of Justice": 4,
+   "Last Wish": 6,
+   "Silence": 6,
+   "Venom": 3,
+   "Mania": 3,
+   "Kingslayer": 4
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Plague: runewords page lists \"Phase Blade\"",
+   "Grief: runewords page lists \"Superior Phase Blade\"",
+   "Unbending Will: runewords page lists \"Superior Phase Blade\"",
+   "Hustle: runewords page lists \"Phase Blade\"",
+   "Phoenix: runewords page lists \"Superior Phase Blade\"",
+   "Lawbringer: runewords page lists \"Superior Phase Blade\"",
+   "Crescent Moon: runewords page lists \"Superior Phase Blade\"",
+   "Hand of Justice: runewords page lists \"Superior Phase Blade\"",
+   "Last Wish: runewords page lists \"Superior Phase Blade\"",
+   "Silence: runewords page lists \"Superior Phase Blade\"",
+   "Venom: runewords page lists \"Superior Phase Blade\"",
+   "Mania: runewords page lists \"Phase Blade\"",
+   "Kingslayer: runewords page lists \"Superior Phase Blade\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "gold-find-barbarian",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "abyss-warlock-build-guide",
+   "wake-of-fire-assassin",
+   "fire-blast-assassin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "lightning-sentry-assassin",
+   "dream-paladin",
+   "berserk-barbarian",
+   "smite-paladin",
+   "gold-find-barbarian",
+   "double-throw-barbarian-guide",
+   "strafe-amazon",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "nova-sorceress-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "dream-paladin",
+   "double-throw-barbarian-guide",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "summoner-necromancer-guide",
+   "enchant-sorceress",
+   "fist-of-the-heavens-paladin",
+   "meteor-sorceress"
+  ],
+  "weight": 37,
+  "named_by_guides": {
+   "Grief": [
+    "berserk-barbarian",
+    "dream-paladin",
+    "gold-find-barbarian",
+    "smite-paladin"
+   ],
+   "Unbending Will": [
+    "berserk-barbarian",
+    "gold-find-barbarian"
+   ],
+   "Hustle": [
+    "double-throw-barbarian-guide"
+   ],
+   "Crescent Moon": [
+    "dream-paladin"
+   ],
+   "Hand of Justice": [
+    "dream-paladin"
+   ],
+   "Last Wish": [
+    "dream-paladin",
+    "smite-paladin"
+   ],
+   "Kingslayer": [
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Phase Blade ((6x Ist Rune s )) — berserk-barbarian [gear/Off-Hand]",
+   "Gemmed Phase Blade ((6x Ist Rune s )) — berserk-barbarian [gear/Weapon-Swap]",
+   "Gemmed Phase Blade ((6x Ist Rune s )) — berserk-barbarian [gear/Off-Hand-Swap]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Bone Shield": {
+  "runewords": [
+   "Splendor",
+   "Rhyme"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Splendor": 2,
+   "Rhyme": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Splendor: runewords page lists \"Bone Shield\"",
+   "Rhyme: runewords page lists \"Bone Shield\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "summoner-necromancer-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "lightning-strike-amazon",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-blast-assassin",
+   "berserk-barbarian",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 32,
+  "named_by_guides": {
+   "Rhyme": [
+    "lightning-fury-amazon-guide",
+    "lightning-sentry-assassin",
+    "wake-of-fire-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Sacred Armor": {
+  "runewords": [
+   "Fortitude",
+   "Bramble"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Fortitude": 4,
+   "Bramble": 4
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Fortitude: runewords page lists \"Ethereal Sacred Armor\" (Mercenary) - Any 850+ Defense Armor",
+   "Bramble: base named only by guide(s) ['summoner-necromancer-guide'] (not on runewords page)"
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "strafe-amazon",
+   "dream-paladin",
+   "double-throw-barbarian-guide",
+   "echoing-strike-warlock-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "fissure-druid",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "blessed-hammer-paladin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "poison-nova-necromancer",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide"
+  ],
+  "weight": 32,
+  "named_by_guides": {
+   "Bramble": [
+    "summoner-necromancer-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Targe": {
+  "runewords": [
+   "Splendor",
+   "Ancient's Pledge",
+   "Rhyme"
+  ],
+  "sockets": [
+   2,
+   3
+  ],
+  "sockets_by_runeword": {
+   "Splendor": 2,
+   "Ancient's Pledge": 3,
+   "Rhyme": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Splendor: runewords page lists \"Targe\"",
+   "Ancient's Pledge: base named only by guide(s) ['blessed-hammer-paladin', 'fist-of-the-heavens-paladin'] (not on runewords page)",
+   "Rhyme: runewords page lists \"Targe\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "summoner-necromancer-guide",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "fist-of-the-heavens-paladin",
+   "blessed-hammer-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "lightning-strike-amazon",
+   "wake-of-fire-assassin",
+   "fire-blast-assassin",
+   "berserk-barbarian",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 32,
+  "named_by_guides": {
+   "Ancient's Pledge": [
+    "blessed-hammer-paladin",
+    "fist-of-the-heavens-paladin"
+   ],
+   "Rhyme": [
+    "blessed-hammer-paladin",
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Targe — blessed-hammer-paladin [gear/Off-Hand]",
+   "Gemmed Targe — smite-paladin [gear/Off-Hand]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Mask": {
+  "runewords": [
+   "Wisdom"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Wisdom": 3
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Wisdom: base named only by guide(s) ['smite-paladin'] (not on runewords page)"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon"
+  ],
+  "builds_char": [
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 31,
+  "named_by_guides": {
+   "Wisdom": [
+    "smite-paladin"
+   ]
+  },
+  "other_demand": [
+   "Gemmed Mask — abyss-warlock-build-guide [merc-early/Helmet]",
+   "Gemmed Mask — berserk-barbarian [merc-early/Helmet]",
+   "Gemmed Mask — blessed-hammer-paladin [merc-early/Helmet]",
+   "Gemmed Mask — blizzard-sorceress [gear/Helmets]",
+   "Gemmed Mask — double-throw-barbarian-guide [merc-early/Helmet]",
+   "Gemmed Mask — dream-paladin [merc-early/Helmet]",
+   "Gemmed Mask — echoing-strike-warlock-guide [merc-early/Helmet]",
+   "Gemmed Mask — enchant-sorceress [merc-early/Helmet]",
+   "Gemmed Mask — fire-warlock-guide [merc-early/Helmet]",
+   "Gemmed Mask ((3x Perfect Topaz es )) — fissure-druid [gear/Helmets]",
+   "Gemmed Mask — fissure-druid [merc-early/Helmet]",
+   "Mask ((3x perfecttopaz )) — fist-of-the-heavens-paladin [gear/Helmets]",
+   "Gemmed Mask — lightning-fury-amazon-guide [merc-early/Helmet]",
+   "Gemmed Mask — lightning-sorceress [merc-early/Helmet]",
+   "Gemmed Mask — lightning-strike-amazon [merc-early/Helmet]",
+   "Gemmed Mask — meteor-sorceress [gear/Helmets]",
+   "Gemmed Mask — mirrored-blades-warlock-guide [merc-early/Helmet]",
+   "Gemmed Mask — poison-nova-necromancer [merc-early/Helmet]",
+   "Gemmed Mask — strafe-amazon [merc-early/Helmet]"
+  ],
+  "source": "guide(s): https://maxroll.gg/d2/guides/smite-paladin",
+  "date": "July 9, 2026",
+  "base_tier": "normal"
+ },
+ "Preserved Head": {
+  "runewords": [
+   "Rhyme"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Rhyme": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Rhyme: runewords page lists \"Preserved Head\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "fire-blast-assassin",
+   "berserk-barbarian",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "smite-paladin",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 31,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Mancatcher": {
+  "runewords": [
+   "Infinity",
+   "Pride",
+   "Obedience"
+  ],
+  "sockets": [
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Infinity": 4,
+   "Pride": 4,
+   "Obedience": 5
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Infinity: runewords page lists \"Ethereal Superior Mancatcher\"",
+   "Pride: runewords page lists \"Ethereal Superior Mancatcher\"",
+   "Obedience: runewords page lists \"Ethereal Superior Mancatcher\""
+  ],
+  "builds": [
+   "blizzard-sorceress",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-strike-amazon",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "double-throw-barbarian-guide",
+   "strafe-amazon",
+   "mirrored-blades-warlock-guide"
+  ],
+  "weight": 27,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Matriarchal Spear": {
+  "runewords": [
+   "Infinity",
+   "Pride",
+   "Obedience"
+  ],
+  "sockets": [
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Infinity": 4,
+   "Pride": 4,
+   "Obedience": 5
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Infinity: runewords page lists \"Ethereal Superior Matriarchal Spear\"",
+   "Pride: runewords page lists \"Ethereal Superior Matriarchal Spear\"",
+   "Obedience: runewords page lists \"Ethereal Superior Matriarchal Spear\""
+  ],
+  "builds": [
+   "blizzard-sorceress",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "nova-sorceress-guide",
+   "poison-nova-necromancer",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "enchant-sorceress",
+   "fire-blast-assassin",
+   "lightning-strike-amazon",
+   "mirrored-blades-warlock-guide",
+   "strafe-amazon",
+   "summoner-necromancer-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-strike-amazon",
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "lightning-strike-amazon",
+   "dream-paladin",
+   "wake-of-fire-assassin",
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fire-blast-assassin",
+   "blizzard-sorceress",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "double-throw-barbarian-guide",
+   "strafe-amazon",
+   "mirrored-blades-warlock-guide"
+  ],
+  "weight": 27,
+  "named_by_guides": {
+   "Infinity": [
+    "lightning-strike-amazon"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Kite Shield": {
+  "runewords": [
+   "Ancient's Pledge",
+   "Sanctuary"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Ancient's Pledge": 3,
+   "Sanctuary": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Ancient's Pledge: runewords page lists \"Kite Shield\"",
+   "Sanctuary: runewords page lists \"Kite Shield\""
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "abyss-warlock-build-guide",
+   "dragon-talon-assassin",
+   "lightning-strike-amazon",
+   "summoner-necromancer-guide"
+  ],
+  "builds_char": [
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress",
+   "lightning-strike-amazon",
+   "dragon-talon-assassin",
+   "lightning-fury-amazon-guide",
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 26,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Hard Leather Armor": {
+  "runewords": [
+   "Stealth"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Stealth": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Stealth: runewords page lists \"Hard Leather Armor\""
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 21,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Leather Armor": {
+  "runewords": [
+   "Stealth"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Stealth": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Stealth: runewords page lists \"Leather Armor\""
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 21,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Quilted Armor": {
+  "runewords": [
+   "Stealth"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Stealth": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Stealth: runewords page lists \"Quilted Armor\""
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 21,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Studded Leather": {
+  "runewords": [
+   "Stealth",
+   "Smoke"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Stealth": 2,
+   "Smoke": 2
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Stealth: runewords page lists \"Studded Leather\"",
+   "Smoke: base named only by guide(s) ['lightning-sentry-assassin'] (not on runewords page)",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fist-of-the-heavens-paladin",
+   "lightning-sentry-assassin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "meteor-sorceress",
+   "mirrored-blades-warlock-guide",
+   "wake-of-fire-assassin",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin"
+  ],
+  "weight": 21,
+  "named_by_guides": {
+   "Smoke": [
+    "lightning-sentry-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Large Shield": {
+  "runewords": [
+   "Ancient's Pledge"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Ancient's Pledge": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Ancient's Pledge: runewords page lists \"Large Shield\""
+  ],
+  "builds": [
+   "blessed-hammer-paladin",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "summoner-necromancer-guide"
+  ],
+  "builds_char": [
+   "meteor-sorceress",
+   "summoner-necromancer-guide",
+   "blessed-hammer-paladin",
+   "fire-warlock-guide",
+   "fissure-druid",
+   "blizzard-sorceress",
+   "fist-of-the-heavens-paladin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 20,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Archon Staff": {
+  "runewords": [
+   "Obsession",
+   "Breath of the Dying"
+  ],
+  "sockets": 6,
+  "sockets_by_runeword": {
+   "Obsession": 6,
+   "Breath of the Dying": 6
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Obsession: runewords page lists \"Archon Staff\" with +x to Skills (depending on your build)",
+   "Breath of the Dying: runewords page lists \"Ethereal Superior Archon Staff\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "fire-warlock-guide",
+   "gold-find-barbarian",
+   "lightning-sorceress",
+   "meteor-sorceress",
+   "abyss-warlock-build-guide",
+   "enchant-sorceress"
+  ],
+  "builds_char": [
+   "meteor-sorceress",
+   "fire-warlock-guide",
+   "blizzard-sorceress",
+   "echoing-strike-warlock-guide",
+   "abyss-warlock-build-guide",
+   "lightning-sorceress"
+  ],
+  "builds_merc": [
+   "enchant-sorceress",
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "weight": 16,
+  "named_by_guides": {
+   "Obsession": [
+    "blizzard-sorceress",
+    "meteor-sorceress"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Hunter's Bow": {
+  "runewords": [
+   "Harmony",
+   "Hustle",
+   "Mania"
+  ],
+  "sockets": [
+   3,
+   4
+  ],
+  "sockets_by_runeword": {
+   "Harmony": 4,
+   "Hustle": 3,
+   "Mania": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Harmony: runewords page lists \"Hunter's Bow\"",
+   "Hustle: runewords page lists \"Hunter's Bow\"",
+   "Mania: runewords page lists \"Hunter's Bow\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "poison-nova-necromancer",
+   "smite-paladin",
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon",
+   "strafe-amazon"
+  ],
+  "builds_char": [
+   "lightning-strike-amazon",
+   "double-throw-barbarian-guide",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress",
+   "strafe-amazon",
+   "smite-paladin"
+  ],
+  "builds_merc": [
+   "lightning-strike-amazon",
+   "dream-paladin",
+   "double-throw-barbarian-guide",
+   "berserk-barbarian",
+   "poison-nova-necromancer",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "lightning-sorceress"
+  ],
+  "weight": 16,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Crown": {
+  "runewords": [
+   "Wisdom"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Wisdom": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Wisdom: runewords page lists \"Crown\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "lightning-fury-amazon-guide",
+   "smite-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "strafe-amazon",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "strafe-amazon",
+   "wake-of-fire-assassin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "lightning-fury-amazon-guide",
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 10,
+  "named_by_guides": {},
+  "other_demand": [
+   "Gemmed Crown ((3x Perfect Topaz es )) — berserk-barbarian [gear/Helmets]"
+  ],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Ward": {
+  "runewords": [
+   "Venom"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Venom": 3
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Venom: base named only by guide(s) ['enchant-sorceress', 'fissure-druid', 'fist-of-the-heavens-paladin', 'lightning-fury-amazon-guide', 'meteor-sorceress', 'summoner-necromancer-guide'] (not on runewords page)",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "fissure-druid",
+   "fist-of-the-heavens-paladin",
+   "lightning-fury-amazon-guide",
+   "meteor-sorceress",
+   "enchant-sorceress",
+   "summoner-necromancer-guide"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "summoner-necromancer-guide",
+   "enchant-sorceress",
+   "fist-of-the-heavens-paladin",
+   "fissure-druid",
+   "lightning-fury-amazon-guide",
+   "meteor-sorceress"
+  ],
+  "weight": 10,
+  "named_by_guides": {
+   "Venom": [
+    "enchant-sorceress",
+    "fissure-druid",
+    "fist-of-the-heavens-paladin",
+    "lightning-fury-amazon-guide",
+    "meteor-sorceress",
+    "summoner-necromancer-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/enchant-sorceress, https://maxroll.gg/d2/guides/fissure-druid, https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin, https://maxroll.gg/d2/guides/lightning-fury-amazon-guide, https://maxroll.gg/d2/guides/meteor-sorceress, https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+  "date": "May 22, 2026",
+  "base_tier": "elite"
+ },
+ "Kris": {
+  "runewords": [
+   "Plague"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Plague": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Plague: runewords page lists \"Kris\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "echoing-strike-warlock-guide",
+   "lightning-sentry-assassin",
+   "poison-nova-necromancer",
+   "abyss-warlock-build-guide",
+   "fire-blast-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "abyss-warlock-build-guide",
+   "wake-of-fire-assassin",
+   "fire-blast-assassin",
+   "poison-nova-necromancer",
+   "echoing-strike-warlock-guide",
+   "lightning-sentry-assassin"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin",
+   "fire-blast-assassin"
+  ],
+  "weight": 9,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Wolf Head": {
+  "runewords": [
+   "Flickering Flame"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Flickering Flame": 3
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Flickering Flame: runewords page lists \"Superior Wolf Head\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "fire-warlock-guide",
+   "fissure-druid",
+   "meteor-sorceress",
+   "dragon-talon-assassin",
+   "enchant-sorceress",
+   "fire-blast-assassin"
+  ],
+  "builds_char": [
+   "enchant-sorceress",
+   "fire-warlock-guide",
+   "fire-blast-assassin",
+   "fissure-druid",
+   "meteor-sorceress"
+  ],
+  "builds_merc": [
+   "fire-warlock-guide",
+   "fissure-druid",
+   "dragon-talon-assassin"
+  ],
+  "weight": 9,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Carnage Helm": {
+  "runewords": [
+   "Wisdom"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Wisdom": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Wisdom: runewords page lists \"Carnage Helm\""
+  ],
+  "builds": [
+   "lightning-fury-amazon-guide",
+   "smite-paladin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "strafe-amazon",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "strafe-amazon",
+   "wake-of-fire-assassin",
+   "double-throw-barbarian-guide",
+   "enchant-sorceress",
+   "lightning-fury-amazon-guide",
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 8,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Colossus Blade": {
+  "runewords": [
+   "Unbending Will",
+   "Death"
+  ],
+  "sockets": [
+   5,
+   6
+  ],
+  "sockets_by_runeword": {
+   "Unbending Will": 6,
+   "Death": 5
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Unbending Will: runewords page lists \"Superior Colossus Blade\"",
+   "Death: runewords page lists \"Ethereal Superior Colossus Blade\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "gold-find-barbarian",
+   "smite-paladin"
+  ],
+  "builds_char": [
+   "berserk-barbarian",
+   "gold-find-barbarian",
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 6,
+  "named_by_guides": {
+   "Unbending Will": [
+    "berserk-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Hydra Bow": {
+  "runewords": [
+   "Breath of the Dying",
+   "Mist"
+  ],
+  "sockets": [
+   5,
+   6
+  ],
+  "sockets_by_runeword": {
+   "Breath of the Dying": 6,
+   "Mist": 5
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Breath of the Dying: runewords page lists \"Superior Hydra Bow\"",
+   "Mist: runewords page lists \"Hydra Bow\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "gold-find-barbarian",
+   "enchant-sorceress",
+   "strafe-amazon"
+  ],
+  "builds_char": [
+   "strafe-amazon"
+  ],
+  "builds_merc": [
+   "enchant-sorceress",
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "weight": 6,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Greater Talons": {
+  "runewords": [
+   "Plague",
+   "Mosaic"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Plague": 3,
+   "Mosaic": 3
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Plague: base named only by guide(s) ['fire-blast-assassin', 'lightning-sentry-assassin', 'wake-of-fire-assassin'] (not on runewords page)",
+   "Mosaic: base named only by guide(s) ['dragon-talon-assassin'] (not on runewords page)"
+  ],
+  "builds": [
+   "lightning-sentry-assassin",
+   "dragon-talon-assassin",
+   "fire-blast-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "fire-blast-assassin",
+   "wake-of-fire-assassin",
+   "dragon-talon-assassin"
+  ],
+  "builds_merc": [
+   "lightning-sentry-assassin",
+   "fire-blast-assassin"
+  ],
+  "weight": 5,
+  "named_by_guides": {
+   "Plague": [
+    "fire-blast-assassin",
+    "lightning-sentry-assassin",
+    "wake-of-fire-assassin"
+   ],
+   "Mosaic": [
+    "dragon-talon-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/dragon-talon-assassin, https://maxroll.gg/d2/guides/fire-blast-assassin, https://maxroll.gg/d2/guides/lightning-sentry-assassin, https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+  "date": "May 22, 2026",
+  "base_tier": "exceptional"
+ },
+ "Short Staff": {
+  "runewords": [
+   "Leaf"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Leaf": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Leaf: runewords page lists \"Short Staff\""
+  ],
+  "builds": [
+   "fire-warlock-guide",
+   "fissure-druid",
+   "enchant-sorceress"
+  ],
+  "builds_char": [
+   "enchant-sorceress",
+   "fissure-druid",
+   "fire-warlock-guide"
+  ],
+  "builds_merc": [],
+  "weight": 5,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "War Pike": {
+  "runewords": [
+   "Breath of the Dying"
+  ],
+  "sockets": 6,
+  "sockets_by_runeword": {
+   "Breath of the Dying": 6
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Breath of the Dying: runewords page lists \"Ethereal Superior War Pike\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "gold-find-barbarian",
+   "enchant-sorceress"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "enchant-sorceress",
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "weight": 5,
+  "named_by_guides": {
+   "Breath of the Dying": [
+    "berserk-barbarian",
+    "gold-find-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Balrog Blade": {
+  "runewords": [
+   "Oath"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Oath": 4
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Oath: runewords page lists \"Superior Balrog Blade\""
+  ],
+  "builds": [
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "builds_char": [
+   "berserk-barbarian",
+   "gold-find-barbarian"
+  ],
+  "builds_merc": [],
+  "weight": 4,
+  "named_by_guides": {
+   "Oath": [
+    "berserk-barbarian",
+    "gold-find-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Battle Staff": {
+  "runewords": [
+   "Memory"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Memory": 4
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Memory: base named only by guide(s) ['blizzard-sorceress', 'meteor-sorceress'] (not on runewords page)"
+  ],
+  "builds": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "builds_char": [
+   "blizzard-sorceress",
+   "meteor-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 4,
+  "named_by_guides": {
+   "Memory": [
+    "blizzard-sorceress",
+    "meteor-sorceress"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/blizzard-sorceress, https://maxroll.gg/d2/guides/meteor-sorceress",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Grand Matron Bow": {
+  "runewords": [
+   "Faith",
+   "Mist"
+  ],
+  "sockets": [
+   4,
+   5
+  ],
+  "sockets_by_runeword": {
+   "Faith": 4,
+   "Mist": 5
+  },
+  "eth_wanted": "mixed",
+  "eth_evidence": [
+   "Faith: runewords page lists \"Superior Grand Matron Bow\"",
+   "Mist: runewords page lists \"Grand Matron Bow\"",
+   "also used on mercenaries; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon",
+   "strafe-amazon"
+  ],
+  "builds_char": [
+   "strafe-amazon"
+  ],
+  "builds_merc": [
+   "double-throw-barbarian-guide",
+   "dream-paladin",
+   "lightning-strike-amazon"
+  ],
+  "weight": 4,
+  "named_by_guides": {
+   "Faith": [
+    "strafe-amazon"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Cap": {
+  "runewords": [
+   "Lore"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Lore": 2
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Lore: base named only by guide(s) ['lightning-sentry-assassin', 'wake-of-fire-assassin'] (not on runewords page)"
+  ],
+  "builds": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "builds_char": [
+   "lightning-sentry-assassin",
+   "wake-of-fire-assassin"
+  ],
+  "builds_merc": [],
+  "weight": 3,
+  "named_by_guides": {
+   "Lore": [
+    "lightning-sentry-assassin",
+    "wake-of-fire-assassin"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/lightning-sentry-assassin, https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Legend Sword": {
+  "runewords": [
+   "Lawbringer"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Lawbringer": 3
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Lawbringer: runewords page lists \"Superior Legend Sword\" (Act 5 Mercenary)",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "fissure-druid",
+   "double-throw-barbarian-guide"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "double-throw-barbarian-guide",
+   "fissure-druid"
+  ],
+  "weight": 3,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Troll Nest": {
+  "runewords": [
+   "Sanctuary",
+   "Dream"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Sanctuary": 3,
+   "Dream": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Sanctuary: base named only by guide(s) ['lightning-fury-amazon-guide'] (not on runewords page)",
+   "Dream: runewords page lists \"Superior Troll Nest\""
+  ],
+  "builds": [
+   "lightning-fury-amazon-guide",
+   "dream-paladin"
+  ],
+  "builds_char": [
+   "lightning-fury-amazon-guide",
+   "dream-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 3,
+  "named_by_guides": {
+   "Sanctuary": [
+    "lightning-fury-amazon-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Bone Wand": {
+  "runewords": [
+   "White"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "White": 2
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "White: runewords page lists \"Bone Wand\""
+  ],
+  "builds": [
+   "poison-nova-necromancer"
+  ],
+  "builds_char": [
+   "poison-nova-necromancer"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Cryptic Sword": {
+  "runewords": [
+   "Oath"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Oath": 4
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Oath: base named only by guide(s) ['berserk-barbarian'] (not on runewords page)"
+  ],
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "builds_char": [
+   "berserk-barbarian"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Oath": [
+    "berserk-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/berserk-barbarian",
+  "date": "May 22, 2026",
+  "base_tier": "elite"
+ },
+ "Double Axe": {
+  "runewords": [
+   "Doom"
+  ],
+  "sockets": 5,
+  "sockets_by_runeword": {
+   "Doom": 5
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Doom: base named only by guide(s) ['blizzard-sorceress'] (not on runewords page)"
+  ],
+  "builds": [
+   "blizzard-sorceress"
+  ],
+  "builds_char": [
+   "blizzard-sorceress"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Doom": [
+    "blizzard-sorceress"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/blizzard-sorceress",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Gothic Plate": {
+  "runewords": [],
+  "sockets": null,
+  "sockets_by_runeword": {},
+  "eth_wanted": "n/a",
+  "eth_evidence": [],
+  "builds": [
+   "fist-of-the-heavens-paladin"
+  ],
+  "builds_char": [],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {},
+  "other_demand": [
+   "Gothic Plate ((4x perfecttopaz )) — fist-of-the-heavens-paladin [gear/Body Armors]"
+  ],
+  "source": "guide(s) (gemmed/plain base mention): https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Grand Crown": {
+  "runewords": [
+   "Cure"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Cure": 3
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Cure: base named only by guide(s) ['echoing-strike-warlock-guide'] (not on runewords page)",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "echoing-strike-warlock-guide"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "echoing-strike-warlock-guide"
+  ],
+  "weight": 2,
+  "named_by_guides": {
+   "Cure": [
+    "echoing-strike-warlock-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+  "date": "August 26, 2026",
+  "base_tier": "exceptional"
+ },
+ "Highland Blade": {
+  "runewords": [
+   "Oath"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Oath": 4
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Oath: base named only by guide(s) ['berserk-barbarian'] (not on runewords page)"
+  ],
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "builds_char": [
+   "berserk-barbarian"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Oath": [
+    "berserk-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/berserk-barbarian",
+  "date": "May 22, 2026",
+  "base_tier": "elite"
+ },
+ "Legend Spike": {
+  "runewords": [
+   "Void"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Void": 3
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Void: base named only by guide(s) ['echoing-strike-warlock-guide'] (not on runewords page)"
+  ],
+  "builds": [
+   "echoing-strike-warlock-guide"
+  ],
+  "builds_char": [
+   "echoing-strike-warlock-guide"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Void": [
+    "echoing-strike-warlock-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/echoing-strike-warlock-guide ; runeword types/runes: https://maxroll.gg/d2/items/new-items-in-reign-of-the-warlock (February 19, 2026)",
+  "date": "August 26, 2026",
+  "base_tier": "elite"
+ },
+ "Scythe": {
+  "runewords": [
+   "Infinity"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Infinity": 4
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Infinity: base named only by guide(s) ['nova-sorceress-guide'] (not on runewords page)"
+  ],
+  "builds": [
+   "nova-sorceress-guide"
+  ],
+  "builds_char": [
+   "nova-sorceress-guide"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Infinity": [
+    "nova-sorceress-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/nova-sorceress-guide",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Vortex Shield": {
+  "runewords": [
+   "Exile"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Exile": 4
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Exile: runewords page lists \"Superior Vortex Shield\""
+  ],
+  "builds": [
+   "smite-paladin"
+  ],
+  "builds_char": [
+   "smite-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "War Scepter": {
+  "runewords": [
+   "Call to Arms"
+  ],
+  "sockets": 5,
+  "sockets_by_runeword": {
+   "Call to Arms": 5
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Call to Arms: base named only by guide(s) ['blessed-hammer-paladin'] (not on runewords page)"
+  ],
+  "builds": [
+   "blessed-hammer-paladin"
+  ],
+  "builds_char": [
+   "blessed-hammer-paladin"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Call to Arms": [
+    "blessed-hammer-paladin"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Zweihander": {
+  "runewords": [
+   "Grief"
+  ],
+  "sockets": 5,
+  "sockets_by_runeword": {
+   "Grief": 5
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Grief: base named only by guide(s) ['berserk-barbarian'] (not on runewords page)"
+  ],
+  "builds": [
+   "berserk-barbarian"
+  ],
+  "builds_char": [
+   "berserk-barbarian"
+  ],
+  "builds_merc": [],
+  "weight": 2,
+  "named_by_guides": {
+   "Grief": [
+    "berserk-barbarian"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/berserk-barbarian",
+  "date": "May 22, 2026",
+  "base_tier": "exceptional"
+ },
+ "Brandistock": {
+  "runewords": [
+   "Strength"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Strength": 2
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Strength: runewords page lists \"Brandistock\" (Mercenary)",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "strafe-amazon"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "strafe-amazon"
+  ],
+  "weight": 1,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Feral Claws": {
+  "runewords": [
+   "Mosaic"
+  ],
+  "sockets": 3,
+  "sockets_by_runeword": {
+   "Mosaic": 3
+  },
+  "eth_wanted": false,
+  "eth_evidence": [
+   "Mosaic: runewords page lists \"Feral Claws\"",
+   "Mosaic: runewords page lists \"Feral Claws\"",
+   "Mosaic: runewords page lists \"Feral Claws\""
+  ],
+  "builds": [
+   "dragon-talon-assassin"
+  ],
+  "builds_char": [
+   "dragon-talon-assassin"
+  ],
+  "builds_merc": [],
+  "weight": 1,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "elite"
+ },
+ "Maiden Spear": {
+  "runewords": [
+   "Infinity"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Infinity": 4
+  },
+  "eth_wanted": "n/a",
+  "eth_evidence": [
+   "Infinity: base named only by guide(s) ['lightning-strike-amazon'] (not on runewords page)"
+  ],
+  "builds": [
+   "lightning-strike-amazon"
+  ],
+  "builds_char": [
+   "lightning-strike-amazon"
+  ],
+  "builds_merc": [
+   "lightning-strike-amazon"
+  ],
+  "weight": 1,
+  "named_by_guides": {
+   "Infinity": [
+    "lightning-strike-amazon"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/lightning-strike-amazon",
+  "date": "May 22, 2026",
+  "base_tier": "normal"
+ },
+ "Partizan": {
+  "runewords": [
+   "Insight"
+  ],
+  "sockets": 4,
+  "sockets_by_runeword": {
+   "Insight": 4
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Insight: base named only by guide(s) ['mirrored-blades-warlock-guide'] (not on runewords page)",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "mirrored-blades-warlock-guide"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "mirrored-blades-warlock-guide"
+  ],
+  "weight": 1,
+  "named_by_guides": {
+   "Insight": [
+    "mirrored-blades-warlock-guide"
+   ]
+  },
+  "other_demand": [],
+  "source": "guide(s): https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+  "date": "June 6, 2026",
+  "base_tier": "exceptional"
+ },
+ "Scimitar": {
+  "runewords": [
+   "Strength"
+  ],
+  "sockets": 2,
+  "sockets_by_runeword": {
+   "Strength": 2
+  },
+  "eth_wanted": true,
+  "eth_evidence": [
+   "Strength: runewords page lists \"Scimitar\"",
+   "merc-only use; \"Ethereal gear is preferred since it doesn't lose durability.\" — Mercenary Gear Options section, present in 18/26 guides"
+  ],
+  "builds": [
+   "strafe-amazon"
+  ],
+  "builds_char": [],
+  "builds_merc": [
+   "strafe-amazon"
+  ],
+  "weight": 1,
+  "named_by_guides": {},
+  "other_demand": [],
+  "source": "https://maxroll.gg/d2/items/runewords",
+  "date": "June 2, 2026",
+  "base_tier": "normal"
+ },
+ "Slayer Guard": {
+  "runewords": [],
+  "sockets": null,
+  "sockets_by_runeword": {},
+  "eth_wanted": "n/a",
+  "eth_evidence": [],
+  "builds": [
+   "double-throw-barbarian-guide"
+  ],
+  "builds_char": [],
+  "builds_merc": [],
+  "weight": 1,
+  "named_by_guides": {},
+  "other_demand": [
+   "Gemmed Slayer Guard ((3x Vermilion Jewels )) — double-throw-barbarian-guide [gear/Helmets]",
+   "Gemmed Slayer Guard ((3x Perfect Topaz es )) — double-throw-barbarian-guide [gear/Helmets]"
+  ],
+  "source": "guide(s) (gemmed/plain base mention): https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+  "date": "May 22, 2026",
+  "base_tier": "exceptional"
+ }
+}
