@@ -300,7 +300,26 @@
                 "pac",
                 "pa1",
                 "ci3",
-                "ci2",
+                "ci2"
+            ]
+        },
+        {
+            "name": "SHOW Bases ARMOR Gray",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": true,
+            "equipmentRarity": [
+                "hiQuality"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentCategory": [
+                "warlo"
+            ],
+            "equipmentItemCode": [
                 "xrn"
             ]
         },
