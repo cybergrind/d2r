@@ -17,6 +17,13 @@ def main():
     commands = parser.add_subparsers(dest='command', required=True)
     probe_parser = commands.add_parser('probe', help='Run on host with D2R running; writes log and report')
     probe_parser.add_argument('--pid', type=int, help='Select one actual D2R.exe process')
+    probe_parser.add_argument('--images', action='store_true', help='Also discover loaded PE image candidates')
+    probe_parser.add_argument(
+        '--units', action='store_true', help='Capture image and inspect candidate player/item units'
+    )
+    probe_parser.add_argument(
+        '--capture', action='store_true', help='Discover and capture readable image ranges (64 MiB max)'
+    )
     watch_parser = commands.add_parser('watch', help='Wait inside sandbox for a host probe report')
     watch_parser.add_argument('--timeout', type=float, default=300)
     watch_parser.add_argument('--include-existing', action='store_true', help='Also accept already recorded runs')

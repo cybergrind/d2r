@@ -1,7 +1,7 @@
-# Host memory-access diagnostic
+# Host memory and image diagnostics
 
 Python package in the D2R repository; no third-party runtime dependencies.
-This establishes process visibility and read access, not HP/belt offsets.
+This establishes process visibility, read access and PE-image candidates, not HP/belt offsets.
 
 ## User: run on the host
 
@@ -41,6 +41,34 @@ It neither attaches a debugger nor stops/writes the game. It also hashes the
 mapped game's on-disk file, or a clearly labeled D2R.exe candidate in the game's
 working directory. That hash identifies a disk artifact; it is not a validated
 game version or proof that the file has not changed since launch.
+
+## Discover the loaded game image
+
+```sh
+uv run -m inventory_tracking probe --images
+```
+
+After the access probe, this compares bounded PE32+ headers at readable mapping
+starts and the disk preferred base against the fingerprinted disk executable.
+Anonymous Wine mappings are supported. It reads headers only: at most 16,384
+candidate addresses, with each header constrained to 64 KiB. It does not dump
+runtime code or assume a fixed game base.
+
+`report.json` gains an `images` result. One matching header with a readable/executable entrypoint inside a declared code
+section gives `candidate`
+and `candidate_base`; multiple matches give `ambiguous`, no match gives
+`unavailable`, and reaching the scan limit gives `incomplete`. Process restarts
+or changes to mappings covering parsed PE headers or matching-image entrypoints give `stale`. Unrelated allocations
+are ignored. These before/after checks are not an atomic snapshot, and a header
+match does not prove code identity or validate game structures. Only `candidate`
+returns success with `--images`; other discovery outcomes return exit code 2
+(or 1 for an execution failure). Plain `probe` retains access-only semantics.
+
+Code pages can have fragmented permissions in the live game: full executable
+section coverage is recorded as evidence but is not required. Header matches
+include bounded mapping metadata and entrypoint permissions to distinguish an
+ordinary non-executable copy from a loaded-image candidate. Neither this heuristic
+nor permission checks establish that every code page can be read or decrypted.
 
 ## Agent: detect a user run without a chat reply
 
@@ -90,19 +118,67 @@ ordinary host user had UID 1000, no effective capabilities and `ptrace_scope=1`;
 no permission changes were required for this run. The sandbox watcher detected
 completion through the shared output directory without a user chat reply.
 
+Image-discovery host validation, run `20260920T213011Z-4a49130c`:
+selected `0x140000000` as the sole matching-header candidate with an executable
+entrypoint. A second matching header at `0x3370000` belonged to a non-executable
+writable mapping. Runtime code is fragmented across mappings; this validates
+candidate discovery, not HP/belt offsets or complete code readability.
+
 The sandbox test suite verifies `/proc/<pid>/mem` against an owned child process.
 Its real `process_vm_readv` child test explicitly skips on environment permission
 denial; the successful host run supplies separate evidence for that interface.
 
 Module responsibilities: `probe.py` coordinates diagnostics; `linux_process.py`
 handles procfs and file fingerprints; `memory.py` wraps memory-read interfaces;
+`images.py` parses bounded PE headers and finds candidates; `image_probe.py`
+coordinates disk fingerprint matching and live consistency checks;
 `reports.py` handles atomic report publication and watching; `common.py` provides
 shared logging and helpers; `diagnostics.py` defines the CLI.
 
 ```sh
-uv run python -m unittest inventory_tracking.test_diagnostics -v
+uv run python -m unittest inventory_tracking.test_diagnostics inventory_tracking.test_images -v
 uv run ruff check inventory_tracking
 ```
 
 Interface references: [process_vm_readv](https://man7.org/linux/man-pages/man2/process_vm_readv.2.html)
 and [Yama permissions](https://cdn.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html).
+
+## Runtime location research
+
+With the character in a game, preferably standing in town:
+
+```sh
+uv run -m inventory_tracking probe --capture
+uv run -m inventory_tracking probe --units
+```
+
+`--capture` implies image discovery and saves `image.bin` plus `capture.json` in
+that run's directory. The binary is a compact stream of captured ranges, **not a
+loadable PE file**. The manifest maps each block's address, length and file offset;
+missing pages are omitted, never filled with invented zero bytes. Image size and
+read volume are bounded to 64 MiB, with reads up to 64 KiB. Changed mappings are
+marked and excluded from signature scanning. Process/image identity changes
+invalidate candidates. Captures are sequential, not atomic. Only local, Git-ignored
+artifacts contain runtime bytes; the binary has owner-only permissions.
+
+The unit-table search uses the d2go signature and decodes its module-relative
+32-bit displacement; it does not adopt an older build's fixed table address.
+Only readable portions of executable sections are scanned, so no match does not
+prove that the signature is absent from unreadable pages.
+
+`--units` implies a fresh capture, then inspects a single candidate table. It
+writes `units.json` with bounded player/item chains, owner IDs, item modes, path
+coordinates and candidate stat arrays. Reads are limited to 8 MiB total, units
+to 2,048 per type, and stat arrays to 1,024 entries. Cycles, type/bucket mismatches,
+short reads and changed identities/heads are reported. A successful research run
+is **not** validated gameplay state: `validated` remains false, and no input is
+sent. Displayed base maximum HP may exclude bonuses; compare candidate arrays
+with the game before deriving a health percentage.
+
+Tests for all diagnostics and research modules:
+
+```sh
+uv run python -m unittest discover -s inventory_tracking -t . -v
+uv run ruff check inventory_tracking
+uv run ruff format --check inventory_tracking
+```

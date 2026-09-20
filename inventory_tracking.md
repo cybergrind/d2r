@@ -1,7 +1,9 @@
 # D2R inventory and health OSD implementation plan
 
-Written: 2026-09-20. Updated: 2026-09-21. Status: host memory-access diagnostic
-implemented and validated; HP/belt layouts, overlay and controller remain planned.
+Written: 2026-09-20. Updated: 2026-09-21. Status: host access, image discovery,
+runtime capture and unit research implemented. Belt move and effective HP
+locations confirmed in controlled samples; lifecycle validation, OSD and
+controller remain planned.
 
 ## Objective
 
@@ -116,6 +118,44 @@ Validated host run `20260920T210805Z-de6e8b64` (2026-09-21 00:08 local time):
 Reader placement is now established: user-run host helper, sandboxed agents
 consuming logs/reports. Revalidate after a game restart, then investigate the
 loaded PE image and player/HP/belt structures without assuming named mappings.
+
+## PE-image discovery continuation — 2026-09-21
+
+`uv run -m inventory_tracking probe --images` now performs bounded PE32+ header
+matching against the fingerprinted disk executable, including anonymous mappings.
+The disk hash is unchanged; preferred image base is `0x140000000`, entry RVA
+`0x5f3d0`, and image size 41,455,616 bytes. Binary Ninja's active disk view agrees
+with the parsed section layout. None of these establishes the runtime base.
+
+Initial host scans detected map churn and returned `stale` despite successful
+memory access. The consistency check now focuses on parsed PE header mappings;
+regression tests cover unrelated allocations, changed header mappings and process
+restarts. Host run `20260920T212621Z-621c7470` then found two matching headers
+(`0x3370000`, `0x140000000`) and correctly reported ambiguity. Mapping evidence from
+`20260920T212841Z-06ebd375` shows a non-executable writable copy at `0x3370000`
+and fragmented executable pages at `0x140000000`, including the PE entrypoint.
+Candidate selection now checks the entrypoint rather than requiring every code
+page to be readable/executable. Host run `20260920T213011Z-4a49130c` successfully selected `0x140000000`
+as the sole executable-entrypoint candidate. HP/belt layouts and restart
+revalidation remain outstanding. See [handoff.md](handoff.md) for next steps.
+
+## HP and belt location findings — 2026-09-21
+
+The runtime scan located the unit table at RVA `0x1ead470`; linked units use
+`+0x158`. Player/item chains and ownership yielded the user-confirmed full belt:
+8 full rejuvenations and 8 super healing potions. A controlled column-1 move
+changed the same potion from belt cell 12 to inventory `(3,1)`, leaving 7/8.
+
+Effective stats are reached through player `+0x88`, then the array descriptor at
+stat list `+0xe8`. Life/max-life IDs 6/7 use 8-bit fractional values. The user
+confirmed readings matching gear changes **1722 → 1700 → 1545**. Base max life
+from `+0x30` excludes bonuses; the old reference's `+0xa8` descriptor is empty.
+
+Run `uv run -m inventory_tracking probe --units` on the host for a fresh research
+snapshot. See [layout notes](inventory_tracking/layout_notes.md) for exact fields,
+run IDs and evidence. New games/restarts, damage/healing, local-player selection,
+belt consumption order, capacity and row orientation still need validation.
+These findings do not establish controller-ready state.
 
 ## Architecture
 

@@ -6,7 +6,9 @@ import platform
 import uuid
 from datetime import UTC, datetime
 
+from .capture_probe import capture_image
 from .common import LOG, error, log_to_file, read_text, timestamp
+from .image_probe import inspect_images
 from .linux_process import (
     find_game_processes,
     fingerprint_executable,
@@ -19,6 +21,7 @@ from .linux_process import (
 )
 from .memory import proc_read, vm_read
 from .reports import publish
+from .unit_probe import inspect_units
 
 
 def select_game_process(requested_pid):
@@ -89,12 +92,22 @@ def create_run(output):
     return directory, report
 
 
-def run_diagnostics(report, requested_pid):
+def run_diagnostics(report, requested_pid, images=False, capture_directory=None, units=False):
     try:
         report.update(reader_environment())
         pid = select_game_process(requested_pid)
         report['game'] = inspect_game(pid)
         access = report['game'].get('memory_access', False)
+        if images and access:
+            report['images'] = inspect_images(pid, report['game'])
+            LOG.info('Image discovery: %s', json.dumps(report['images']))
+            access = report['images']['status'] == 'candidate'
+        if capture_directory is not None and access:
+            report['capture'] = capture_image(pid, report['images'], capture_directory)
+            access = report['capture']['status'] == 'captured' and report['capture']['bytes_read'] > 0
+        if units and access:
+            report['units'] = inspect_units(pid, report['images'], report['capture'], capture_directory)
+            access = report['units']['status'] == 'research' and report['units']['complete']
         report['state'] = 'complete' if access else 'blocked'
         report['exit_code'] = 0 if access else 2
         LOG.info('Game diagnostic result: %s', json.dumps(report['game']))
@@ -110,6 +123,7 @@ def probe(args):
     with log_to_file(directory / 'probe.log'):
         publish(directory / 'report.json', report)
         LOG.info('Started run %s; output %s', report['run_id'], directory)
-        run_diagnostics(report, args.pid)
+        capture = args.capture or args.units
+        run_diagnostics(report, args.pid, args.images or capture, directory if capture else None, args.units)
         publish(directory / 'report.json', report)
     return report['exit_code']
