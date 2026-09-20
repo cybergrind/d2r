@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Pindleskin runs &amp; the Anya shop — farm/shop guide (D2R RotW, SC/NL/PC)</title>
 <style>
 :root{
@@ -70,9 +71,43 @@ footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var
 .ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
 .key{font:600 .8rem/1.6 ui-monospace,monospace;white-space:nowrap}
 </style>
+<link rel="stylesheet" href="toc.css">
 
+<nav class="guide-toc" aria-label="Table of contents">
+<strong class="guide-toc-title">On this page</strong>
+<ul>
+<li><a href="#guide-pindleskin-runs-the-anya-shop-farm-shop-guide">Back to top</a></li>
+<li><a href="#s1">1 · Pindleskin facts (game facts, cited)</a>
+<ul>
+<li><a href="#guide-1-1-max-sockets-at-ilvl-86-sockets-table-ilvl-41-june-16-2026-vs-the-runeword-co">1.1 Max sockets at ilvl 86 (Sockets table &quot;ilvl 41+&quot;, June 16, 2026) vs the runeword count that sells (WP-A)</a></li>
+</ul>
+</li>
+<li><a href="#s2">2 · The run loop</a>
+</li>
+<li><a href="#s3">3 · Pickup rules (WP-D, 25 rules; max sockets from the Sockets table June 16, 2026; prices in §5)</a>
+</li>
+<li><a href="#s4">4 · Anya checklist (WP-C)</a>
+<ul>
+<li><a href="#guide-4-1-shop-at-anya-trade-window">4.1 Shop at Anya (Trade window)</a></li>
+<li><a href="#guide-4-2-gamble-at-anya-any-vendor-is-equivalent-anya-is-the-one-next-to-the-portal">4.2 Gamble at Anya (any vendor is equivalent; Anya is the one next to the portal)</a></li>
+</ul>
+</li>
+<li><a href="#s5">5 · Value table (WP-B Traderie asks, SC/NL/PC/RotW, pulled 2026-09-18, Ist via the WP-F ladder; WP-G fills 2026-09-18)</a>
+</li>
+<li><a href="#s6">6 · Builds that want these bases (WP-A: maxroll S/A tier list May 22, 2026; runewords page June 2, 2026; weight S=2, A=1 over 26 builds)</a>
+</li>
+<li><a href="#s7">7 · Out of scope, one paragraph: is Pindle still the right spot?</a>
+</li>
+<li><a href="#s8">8 · Appendix</a>
+<ul>
+<li><a href="#guide-stands-on-a-fetched-page-or-a-dated-pull">Stands on a fetched page or a dated pull</a></li>
+<li><a href="#guide-verify-in-game-not-asserted-anywhere-above">Verify in-game (not asserted anywhere above)</a></li>
+</ul>
+</li>
+</ul>
+</nav>
 <main>
-<h1>Pindleskin runs &amp; the Anya shop — farm/shop guide</h1>
+<h1 id="guide-pindleskin-runs-the-anya-shop-farm-shop-guide">Pindleskin runs &amp; the Anya shop — farm/shop guide</h1>
 <p class="sub">Diablo II: Resurrected, <b>Reign of the Warlock</b> (RotW; 3.1.2 patch notes dated 2026-04-01, sites cite "3.2"/"3.3" — ledger 26) ·
 market scope <b>Softcore · Non-Ladder · PC · RotW economy</b> · game facts from pages fetched <b>2026-09-18</b> (each claim carries its page date) ·
 prices = <b>Traderie asks pulled 2026-09-18</b> in Ist via the WP-F ladder, plus <b>7 diablo2.io fills</b> (sold ≤3 days, WP-G, 2026-09-18) ·
@@ -166,6 +201,7 @@ shop <b>ilvl = clvl + 5</b>, cap 99, magic-only from ilvl 25 ·
 <p class="sub"><b>Pass 3 — 2026-09-18, in-game Q&amp;A lens</b> (seven drops price-checked against the guide: rare Razor Bow, Superior Heraldic Shield 28@, white Ceremonial Javelin +3, Superior Codex with no staff mods, white 0os Tiara, white 3os Wire Fleece, magic Hyperion Spear; evidence <code>pricing/data/addendum-2026-09-18-session.json</code>). <b>Fixed 4:</b> (1) <span class="key">PK-rotw-daggers-grimoires</span> said "keep elite 2os only" — wrong gate: base tier does not price grimoires (2os white medians by tier 3.3 / 5.0 / 1.0), the roll does; rule rewritten as rarity + staff-mod gates with the demanded skills named, and "no staff mods = vendor" added (the ledger question is answered for grimoires). (2) §5 grimoire row re-bucketed one vote per seller. (3) <span class="key">PK-pala-shields</span> lacked the normal-tier case (Heraldic / Aerin / Crown, 3|4|4 on the Sockets table): self-use Spirit, no market. (4) §6 grimoire row names the Echoing Strike off-hand list (shields; Rhyme Codex = Starter only). (5) <span class="key">PK-self-use-bases</span>: white circlets gain the Charsi-imbue use (no cube craft takes a circlet). <b>Confirmed, no change:</b> rare non-elite bows/weapons = leave (<span class="key">PK-rare-misc</span>), white javelins/circlets/plain 3os Wire Fleece = leave/floor, blue non-class weapons = vendor (<span class="key">PK-leave-blue-misc</span>) — each of the seven drops resolved to the rule already in §3.</p>
 <p class="sub"><b>Pass 4 — 2026-09-19, Anya shop check</b> (Lancer's Throwing Spear +3 Jav &amp; Spear offered at 14.6 k; <code>pricing/raw/traderie/throwing-spear.json</code>, 117 SC/NL/PC asks). <b>Fixed:</b> AN-stick-warcry now lists Throwing Spear among the Echoing bases and names Lancer's on a throwing spear as the false positive (2 stale 1-Ist asks vs 63 Echoing sellers at a 1-Ist median). Worked example in <code>guides/pricing.html</code> §8. Same day, Gymnastic Gauntlets of Alacrity (+2 Passive &amp; Magic, 20 IAS) at 22.9 k: <code>pricing/raw/traderie/gauntlets.json</code> (982 asks) — magic +3 Passive / 20 IAS caps at 1 Ist, no +2 listed; AN-gloves-jav price column now carries the magic-of-Alacrity ladder by tree, which also closes the old "no +3 seen" ledger note (+3 Jav / 20 IAS magic: 5 sellers, 1–2 Jah).</p>
 <p class="sub"><b>Pass 5 — 2026-09-20, Sazabi's correction</b>. A Sazabi's Mental Sheath drop was priced as vendor; the Echoing Strike guide's Uber / Colossal Ancients variant puts the full Sazabi's set on an Act 5 Frenzy merc, which the build ledger (player slots only) never captured. PK-unique-set already says keep every gold/green item, so the pickup rule was right and only the valuation was wrong; the Warlock page now carries the uber merc row, the primer's trash line names the exception. Traderie 2026-09-20: helm and armor Mal–Ist medians with Lo–Jah post-guide asks, sword a Perfect Amethyst.</p>
+<p class="sub"><b>Navigation pass — 2026-09-20.</b> Added a pinned, independently scrollable table of contents on the left for desktop screens, with section and subsection links. Smaller screens use a compact contents panel above the guide; print omits it. Existing anchors are preserved and navigation works without JavaScript. Shared styles: <code>toc.css</code>.</p>
 </details>
 
 <h2 id="s1">1 · Pindleskin facts (game facts, cited)</h2>
@@ -183,7 +219,7 @@ shop <b>ilvl = clvl + 5</b>, cap 99, magic-only from ilvl 25 ·
 <tr><td>Terrorized temple (RotW)</td><td>Not asserted — a plan search snippet says the temple "may sometimes become terrorized"; a terrorized pack would change mlvl/ilvl. Ledger 2.</td><td>plan.html §1.1 (unverified snippet)</td></tr>
 </table></div>
 
-<h3>1.1 Max sockets at ilvl 86 (Sockets table "ilvl 41+", June 16, 2026) vs the runeword count that sells (WP-A)</h3>
+<h3 id="guide-1-1-max-sockets-at-ilvl-86-sockets-table-ilvl-41-june-16-2026-vs-the-runeword-co">1.1 Max sockets at ilvl 86 (Sockets table "ilvl 41+", June 16, 2026) vs the runeword count that sells (WP-A)</h3>
 <div class="tblwrap"><table>
 <tr><th>Max 2</th><th>Max 3</th><th>Max 4</th><th>Max 5</th><th>Max 6</th></tr>
 <tr>
@@ -274,7 +310,7 @@ Exceptional/elite chance in Hell = ((ilvl×128)+5000)/100,000 and ((ilvl×16)+10
 Affix level (purediablo, verbatim): <code>if ilvl &lt; 99 − qlvl/2 then alvl = ilvl − qlvl/2 else alvl = 2·ilvl − 99</code>, integers. Worked: Greater Talons qlvl 50 (purediablo qlvl list; d2io base page "Quality level: 50") at clvl 75 → ilvl 80: 99 − 25 = 74, 80 &lt; 74 is false → <b>alvl = 2×80 − 99 = 61</b>; Runic Talons qlvl 81 → 99 − 40 = 59 → alvl 61 too; at ilvl 99 → 99. Runic Talons need ilvl ≥ 81 → clvl ≥ 76 (qlvl ≤ ilvl rule, Hastmannen; derived).
 Staff mods appear only on exceptional/elite claws (BMAY; purediablo). The clvl brackets below are the sources' numbers; where no reason is given, none is claimed.</div>
 
-<h3>4.1 Shop at Anya (Trade window)</h3>
+<h3 id="guide-4-1-shop-at-anya-trade-window">4.1 Shop at Anya (Trade window)</h3>
 <div class="tblwrap"><table>
 <tr><th>Key</th><th>Look for (sources + dates below)</th><th>clvl (→ ilvl)</th><th>Odds (source)</th><th>Value pointer (WP-B asks 2026-09-18; d2runes/d2io = orientation, undated / 2026-08-28)</th></tr>
 <tr><td class="key">AN-claw-traps</td><td>Greater/Runic Talons, magic, exceptional/elite: <b>Cunning</b> (+3 Traps) or <b>Witch-hunter's</b> (+2 Asn) + <b>of Quickness</b> (40 IAS) + staff mod <b>+3 Lightning Sentry</b> (or Death Sentry / Wake of Fire). Then Larzuk: 1–2 sockets, random — the 2os roll is the sellable one.<small>BMAY ~2021; Hastmannen ~2021; purediablo 2023-02-22; VMI 2024-03-06; LS/WoF guides May 22, 2026 ("Cunning Greater Talons of Quickness" top weapon)</small></td><td>75 min (→80); <b>94+</b> best (→99); Runic base 76+</td><td>15.24 % exc + 2.28 % elite at ilvl 80; 17.67 % + 2.58 % at 99; per claw at 94+: +5/6 LS 1:41,118, +6 LS 1:328,947; 3.5 claws/refresh (BMAY ~2021)</td><td>asks: 3os staff-mod claws 22.8→114 (GT n=21); d2runes "10–20 Jah" (undated); VMI Very High</td></tr>
@@ -290,7 +326,7 @@ Staff mods appear only on exceptional/elite claws (BMAY; purediablo). The clvl b
 <tr><td class="key">AN-skip</td><td><b>Rest of the armor tab</b> (helms, shields, boots, belts, non-Jeweler's body armor) and keys/arrows: no source names a target at Anya; whether she shows boots/belts is unverified (ledger) — the magic Boots of Acceleration / Belt of the Squid patterns of §3 are drop targets, not shop targets, until verified.<small>d2io Anya page stock line (pre-RotW); WP-C</small></td><td>—</td><td>—</td><td>skip</td></tr>
 </table></div>
 
-<h3>4.2 Gamble at Anya (any vendor is equivalent; Anya is the one next to the portal)</h3>
+<h3 id="guide-4-2-gamble-at-anya-any-vendor-is-equivalent-anya-is-the-one-next-to-the-portal">4.2 Gamble at Anya (any vendor is equivalent; Anya is the one next to the portal)</h3>
 <div class="tblwrap"><table>
 <tr><th>Key</th><th>Look for (sources below)</th><th>clvl</th><th>Odds</th><th>Value pointer (asks 2026-09-18; orientation undated / 2026-08-28)</th></tr>
 <tr><td class="key">AN-circlet-gamble</td><td>Coronet → +2 class skills / 20 FCR / 30 FRW / res / sockets; "&lt;tree&gt; Circlet of the Magus" (worth it only with 2 Larzuk sockets, 1–2 random); <b>Artisan's Tiara of Speed</b> (30 FRW, 3os); Artisan's Tiara of Luck.<small>d2runes (undated); VMI 2024; d2io guide 2026-08-28; LS guide May 22, 2026; MF page Feb 11, 2026</small></td><td>87 (d2runes coronet row; gamble ilvl rule not in any source — ledger)</td><td>Unique 0.05 % · Set 0.1 % · Rare 10 % · Magic 89 % (d2runes); MF has no effect</td><td>asks: 30-FRW magic Tiara any sockets n=4 11.4→34.3 (Artisan's 3os only n=2: 11.4 / 45.7, thin); d2io NL "Lo–Ber/offer"</td></tr>
@@ -448,14 +484,14 @@ Staff mods appear only on exceptional/elite claws (BMAY; purediablo). The clvl b
 
 <h2 id="s8">8 · Appendix</h2>
 <details><summary>Verified vs. verify-in-game ledger (merged from WP-A/B/C/D/G and the two review passes)</summary>
-<h3>Stands on a fetched page or a dated pull</h3>
+<h3 id="guide-stands-on-a-fetched-page-or-a-dated-pull">Stands on a fetched page or a dated pull</h3>
 <ul>
 <li>TC 87 / mlvl 86 / the 3 undroppable items / 2 magic+ guarantee / portal access (Pindle guide Feb 10, 2026); drop ilvl = mlvl, socket table, Hell no socket cap, gray rule, cube/Larzuk rules (Sockets June 16, 2026); MF facts (Feb 11, 2026); quality rules (Base Items 2024).</li>
 <li>Shop mechanics ilvl = clvl + 5, magic-only ≥25, no ethereal, qlvl ≤ ilvl, no refresh with another player in town, the portal refresh, the affix-level formula (Hastmannen ~2021; BMAY ~2021; purediablo 2023-02-22; Tips 2023-11-22) — all <b>pre-RotW</b> pages; mechanics assumed unchanged.</li>
 <li>Every ask in §5 (Traderie, 2026-09-18, n per bucket; re-verified by pass 1 incl. four live re-pulls), the WP-F ladder (n per rune; Ber/Jah fills 9.3–12 Ist), and the seven WP-G fills (diablo2.io sold rows, 2026-09-18, quoted verbatim in §5).</li>
 <li>WP-A base ↔ runeword ↔ build mapping (tier list May 22, 2026; runewords June 2, 2026; 26 guides May 22–Aug 26, 2026); Mania/Hysteria = Hustle (diablo2.io, 2026-09-18).</li>
 </ul>
-<h3>Verify in-game (not asserted anywhere above)</h3>
+<h3 id="guide-verify-in-game-not-asserted-anywhere-above">Verify in-game (not asserted anywhere above)</h3>
 <ol>
 <li><b>Minion ilvl = 86</b> rests on the Cow King mlvl→ilvl example plus "both he and his minions" mlvl 86; a native 4os Monarch or 6os Phase Blade from the pack confirms ilvl ≥ 41. (WP-D 1)</li>
 <li><b>Terrorized Nihlathak's Temple</b> (plan snippet, RotW): would change mlvl/ilvl and re-open 41–45-life GCs. (WP-D 1)</li>

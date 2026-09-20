@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>HTML planning documents — authoring guide</title>
 <style>
 :root{
@@ -68,6 +69,7 @@ details{margin:.8rem 0}
 summary{cursor:pointer;font-weight:600}
 footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
 </style>
+<link rel="stylesheet" href="toc.css">
 <script type="module">
 try{
   const m = await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs");
@@ -76,8 +78,46 @@ try{
 }catch(e){ /* offline: the diagram source stays readable as text */ }
 </script>
 
+<nav class="guide-toc" aria-label="Table of contents">
+<strong class="guide-toc-title">On this page</strong>
+<ul>
+<li><a href="#guide-html-planning-documents-authoring-guide">Back to top</a></li>
+<li><a href="#guide-1-why-html-and-what-a-document-is">1 · Why HTML, and what a document is</a>
+</li>
+<li><a href="#guide-2-anatomy-the-canonical-section-order">2 · Anatomy — the canonical section order</a>
+</li>
+<li><a href="#guide-3-writing-for-the-two-audiences">3 · Writing for the two audiences</a>
+<ul>
+<li><a href="#guide-3-1-what-collapses-and-what-stays-open">3.1 What collapses and what stays open</a></li>
+<li><a href="#guide-3-2-repeated-units-uniform-template-stable-keys">3.2 Repeated units: uniform template + stable keys</a></li>
+<li><a href="#guide-3-3-atomic-checkable-claims">3.3 Atomic, checkable claims</a></li>
+</ul>
+</li>
+<li><a href="#guide-4-the-review-discipline-the-load-bearing-part">4 · The review discipline (the load-bearing part)</a>
+<ul>
+<li><a href="#guide-4-1-clean-context-reviews-append-to-the-review-log-never-to-the-body">4.1 Clean-context reviews append to the review log — never to the body</a></li>
+<li><a href="#guide-4-2-rejected-ideas-kill-alternatives-permanently">4.2 Rejected ideas: kill alternatives permanently</a></li>
+<li><a href="#guide-4-3-rule-zero-and-the-verified-vs-not-appendix">4.3 Rule zero and the verified-vs-not appendix</a></li>
+<li><a href="#guide-4-4-state-grounding-before-asserting-what-the-base-has">4.4 State grounding — before asserting what the base has</a></li>
+</ul>
+</li>
+<li><a href="#guide-5-visual-language">5 · Visual language</a>
+<ul>
+<li><a href="#guide-5-1-callouts-with-fixed-meanings">5.1 Callouts with fixed meanings</a></li>
+<li><a href="#guide-5-2-css-flows-first-mermaid-when-the-graph-earns-it">5.2 CSS flows first, mermaid when the graph earns it</a></li>
+<li><a href="#guide-5-3-degrade-gracefully">5.3 Degrade gracefully</a></li>
+</ul>
+</li>
+<li><a href="#guide-6-lifecycle">6 · Lifecycle</a>
+</li>
+<li><a href="#guide-7-document-backlog-topics-waiting-for-this-treatment">7 · Document backlog — topics waiting for this treatment</a>
+</li>
+<li><a href="#guide-8-appendix">8 · Appendix</a>
+</li>
+</ul>
+</nav>
 <main>
-<h1>HTML planning documents — authoring guide</h1>
+<h1 id="guide-html-planning-documents-authoring-guide">HTML planning documents — authoring guide</h1>
 <p class="sub">How we design, review and maintain planning documents in
 <code>guides/*.html</code>. Distilled from <code>guides/ore-processing.html</code>
 (the reference implementation) on 2026-08-09. This document follows its own rules —
@@ -198,9 +238,10 @@ protocol) added, checklist extended, pack-fact KB split out to
 <code>guides/KB-GTNH29.md</code>. Don't weaken §4.4 — it exists because every one of
 its rules was violated at once.</li>
 </ol>
+<p class="sub"><b>Navigation pass — 2026-09-20.</b> Added a pinned, independently scrollable table of contents on the left for desktop screens, with section and subsection links. Smaller screens use a compact contents panel above the guide; print omits it. Existing anchors are preserved and navigation works without JavaScript. Shared styles: <code>toc.css</code>.</p>
 </details>
 
-<h2>1 · Why HTML, and what a document is</h2>
+<h2 id="guide-1-why-html-and-what-a-document-is">1 · Why HTML, and what a document is</h2>
 <p>A planning document is the <b>settled state of a design</b>, not a chat transcript.
 Markdown was fine for bootstrap notes (<code>AE2-PLANNING.md</code>), but for real
 designs HTML wins because it gives us, in one self-contained file (zero build step; the
@@ -224,7 +265,7 @@ No server, no toolchain, works offline (diagrams degrade gracefully, §5.3).</li
 part of the record: commit after every meaningful revision with a message saying what
 changed and which review pass caused it.</p>
 
-<h2>2 · Anatomy — the canonical section order</h2>
+<h2 id="guide-2-anatomy-the-canonical-section-order">2 · Anatomy — the canonical section order</h2>
 <p>Every document follows this skeleton. Sections marked <b>▸ collapsed</b> are
 <code>&lt;details&gt;</code> blocks — agent payload, human-optional.</p>
 
@@ -272,9 +313,9 @@ sources, which baseline architecture</div>
 <b>never omit</b> the TL;DR, the assumptions block, the review log (create it empty at
 draft time), and the verified-vs-not appendix.</p>
 
-<h2>3 · Writing for the two audiences</h2>
+<h2 id="guide-3-writing-for-the-two-audiences">3 · Writing for the two audiences</h2>
 
-<h3>3.1 What collapses and what stays open</h3>
+<h3 id="guide-3-1-what-collapses-and-what-stays-open">3.1 What collapses and what stays open</h3>
 <p>The rule: <b>anything a human needs to <em>decide or build</em> stays open; anything
 an agent needs to <em>not repeat mistakes</em> collapses.</b></p>
 <div class="tblwrap">
@@ -294,7 +335,7 @@ warning</td></tr>
 </table>
 </div>
 
-<h3>3.2 Repeated units: uniform template + stable keys</h3>
+<h3 id="guide-3-2-repeated-units-uniform-template-stable-keys">3.2 Repeated units: uniform template + stable keys</h3>
 <p>When the design has N instances of the same shape (processing stages, generator
 options, farm plots…), give each a <b>stable key</b> that is not a section number —
 <code>S0…S7</code>, <code>G-benzene</code>, <code>P-passive-1</code> — and render each
@@ -311,7 +352,7 @@ deviate. Why it matters: section numbers drift when sections are inserted (ore-p
 carried stale §5.7→§5.8 references for a day); stable keys don't. And a uniform template
 lets an agent diff two units — or audit all of them — mechanically.</p>
 
-<h3>3.3 Atomic, checkable claims</h3>
+<h3 id="guide-3-3-atomic-checkable-claims">3.3 Atomic, checkable claims</h3>
 <ul>
 <li><b>Absolute dates</b>, never "today"/"currently" — a document is read weeks later
 by an agent with a different clock.</li>
@@ -324,12 +365,12 @@ is a claim the next review pass must re-derive.</li>
 at a time; compound sentences hide the one wrong half.</li>
 </ul>
 
-<h2>4 · The review discipline (the load-bearing part)</h2>
+<h2 id="guide-4-the-review-discipline-the-load-bearing-part">4 · The review discipline (the load-bearing part)</h2>
 <p>Documents at this depth are wrong in a dozen places on the first draft — ore-processing
 went through <b>six</b> review passes and every one found real errors. The process that
 makes this safe:</p>
 
-<h3>4.1 Clean-context reviews append to the review log — never to the body</h3>
+<h3 id="guide-4-1-clean-context-reviews-append-to-the-review-log-never-to-the-body">4.1 Clean-context reviews append to the review log — never to the body</h3>
 <p>Reviews are run by <b>clean-context sub-agents</b>: a fresh agent gets the file, rule
 zero, and the tool cookbook — no conversation history, so it can't inherit the author's
 blind spots. Its findings are handled in exactly two motions:</p>
@@ -353,7 +394,7 @@ source-level verification against the shipped jars, closure audit ("simulate eve
 this system can emit — does each one have a handler?"). Each lens catches a class the
 others miss.</p>
 
-<h3>4.2 Rejected ideas: kill alternatives permanently</h3>
+<h3 id="guide-4-2-rejected-ideas-kill-alternatives-permanently">4.2 Rejected ideas: kill alternatives permanently</h3>
 <p>Every alternative that was considered and dropped gets a numbered entry: the idea,
 and the <b>specific killing argument</b> (with numbers — "86 pairs → bus explosion",
 "only 2 input slots → permanent stall"). Purpose is the same cutoff: the obvious-looking
@@ -365,7 +406,7 @@ crops").</p>
 <b>never silently re-litigated</b>. Reopening one is allowed — but explicitly, with new
 evidence, and the entry gets updated either way.</p>
 
-<h3>4.3 Rule zero and the verified-vs-not appendix</h3>
+<h3 id="guide-4-3-rule-zero-and-the-verified-vs-not-appendix">4.3 Rule zero and the verified-vs-not appendix</h3>
 <p><b>Rule zero: LLM recall of GTNH facts is not evidence.</b> Every recipe, quantity,
 voltage and behavior claim is verified against the tools —
 <code>databin.py</code> for recipes, <code>craft_plan.py --explain</code> for routes,
@@ -382,7 +423,7 @@ which on convention.</p>
 that changed since 2.7/2.8) are collected in <code>guides/KB-GTNH29.md</code> — consult
 it before web research, and feed newly verified cross-topic facts back into it.</p>
 
-<h3>4.4 State grounding — before asserting what the base has</h3>
+<h3 id="guide-4-4-state-grounding-before-asserting-what-the-base-has">4.4 State grounding — before asserting what the base has</h3>
 <div class="warnbox"><b>The costliest failure mode observed so far is not a wrong
 recipe — it's a wrong "the base doesn't have X".</b> A field-test draft asserted five
 major capabilities missing (petrochem fluids, an LCR, banked titanium, bees, automated
@@ -414,9 +455,9 @@ include the one-paragraph conclusion with a pointer — a reader of THIS documen
 not be able to miss it.</li>
 </ul>
 
-<h2>5 · Visual language</h2>
+<h2 id="guide-5-visual-language">5 · Visual language</h2>
 
-<h3>5.1 Callouts with fixed meanings</h3>
+<h3 id="guide-5-1-callouts-with-fixed-meanings">5.1 Callouts with fixed meanings</h3>
 <div class="tblwrap">
 <table>
 <tr><th>Class</th><th>Meaning</th><th>Rule</th></tr>
@@ -433,7 +474,7 @@ blue, buffers amber, fluids teal, machines gray in ore-processing) and put a leg
 the top if you use more than two colors. The palette lives in the shared stylesheet —
 reuse the CSS variables, don't invent new hex values.</p>
 
-<h3>5.2 CSS flows first, mermaid when the graph earns it</h3>
+<h3 id="guide-5-2-css-flows-first-mermaid-when-the-graph-earns-it">5.2 CSS flows first, mermaid when the graph earns it</h3>
 <p>Two diagram tools, one decision rule:</p>
 <ul>
 <li><b><code>.flow</code>/<code>.fbox</code> CSS boxes</b> (as in §2 above) for linear
@@ -462,7 +503,7 @@ flowchart TD
     STABLE -. "world changes,<br>new tier reached" .-> D
 </pre>
 
-<h3>5.3 Degrade gracefully</h3>
+<h3 id="guide-5-3-degrade-gracefully">5.3 Degrade gracefully</h3>
 <p>Mermaid loads from a CDN — offline, the <code>&lt;pre class="mermaid"&gt;</code>
 simply shows its source text, which is deliberately kept legible (short node labels,
 meaningful IDs). Never encode information <em>only</em> in a rendered diagram: the
@@ -470,7 +511,7 @@ ladder a diagram shows must also exist as the stage tables. Diagrams are a view,
 are the truth. The same rule keeps the raw HTML readable for agents, who never render
 anything.</p>
 
-<h2>6 · Lifecycle</h2>
+<h2 id="guide-6-lifecycle">6 · Lifecycle</h2>
 <table class="stg">
 <tr><th>Draft</th><td>design session against the tools; skeleton from the appendix;
 review log created empty; every number sourced on first write</td></tr>
@@ -488,7 +529,7 @@ for re-verification, not a claim to delete</td></tr>
 the document, rule zero, and the shared tool cookbook
 (<code>guides/AE2-PLANNING.md</code>).</div>
 
-<h2>7 · Document backlog — topics waiting for this treatment</h2>
+<h2 id="guide-7-document-backlog-topics-waiting-for-this-treatment">7 · Document backlog — topics waiting for this treatment</h2>
 <p class="sub">Candidate future documents, explicitly <b>not</b> in scope here — listed
 so each starts from the right evidence instead of from memory.</p>
 <div class="tblwrap">
@@ -522,7 +563,7 @@ prioritize at this progression stage — a web-research pass distilled, then re-
 section becomes a ranked findings section, and its review passes lean on fact-checking
 rather than closure audits.</p>
 
-<h2>8 · Appendix</h2>
+<h2 id="guide-8-appendix">8 · Appendix</h2>
 
 <details><summary>Starter skeleton — copy this to begin a new document</summary>
 <p>Copy the full <code>&lt;style&gt;</code> block from this file — it is the complete

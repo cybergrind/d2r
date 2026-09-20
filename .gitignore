@@ -12,3 +12,4 @@ __pycache__/
 *.bak
 *.tmp
 .DS_Store
+/.envrc

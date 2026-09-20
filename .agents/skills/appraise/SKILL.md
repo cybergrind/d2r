@@ -51,6 +51,11 @@ never from web search (core rule 1 in `AGENTS.md`).
   other P.gems 0.06; keys ≈ 0.45–0.51. Never the cube 2:1 ladder.
 - Tiers: Top ≥ 8 (sell as "offer"; chase rolls fill at 32–63 % of the ask median) · High 2.5–8 and
   Mid 0.8–2.5 (sell at the bucket median) · Low 0.2–0.8 (bulk lots or self-use) · Floor < 0.2 (vendor).
+- **Always land on one concrete asking price in exact runes/gems**, composed from the ladder above
+  (e.g. Lo + Gul ≈ 7.3 Ist, Ist + Mal + 2× P.Skull ≈ 2.0 Ist), never a bare decimal the player can't
+  list at. Pick it by tier: Top → the low end of the 32–63 % fill range as an offer floor · High/Mid →
+  the bucket median rounded to the nearest payable rune combination · Low → the cheapest-bucket value as
+  a bulk-lot line · Floor → "vendor". State the Ist total in brackets.
 - "Keep" has a second meaning for this player: `guides/pricing.html` §6 lists per slot what the Echoing
   Strike Warlock wears and when a drop beats it; `guides/warlock.html` §3 lists craft bases to keep.
 
@@ -59,10 +64,11 @@ never from web search (core rule 1 in `AGENTS.md`).
 **A pasted screenshot with no question, or just "worth?", means all three parts.** A specific question
 ("why is this in the filter?", "should I wear it?") gets only the part it asks for.
 
-### 1 · Price as is (four lines, then at most three bullets)
+### 1 · Price as is (five lines, then at most three bullets)
 
 ```
 Verdict: VENDOR | SELL <band> | KEEP (<why>) | LIST AS OFFER   — tier
+Price: <exact runes/gems> (= <X.YZ> Ist) — the one number to list at, per the tier rule above
 Band: <min → median Ist> (<runes>), <n sellers>, asks <date>[; fills: <what was seen>]
 Deciding step: pricing.html §<n> — <one sentence: the gate or pattern that decided it>
 Source: <file and bucket key / example row / tool command used>

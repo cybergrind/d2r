@@ -1,5 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>D2R pricing primer — what is worth what, and why (Softcore / Non-Ladder / PC / Reign of the Warlock)</title>
 <style>
 :root{
@@ -69,7 +70,61 @@ summary{cursor:pointer;font-weight:600}
 footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
 .ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
 </style>
+<link rel="stylesheet" href="toc.css">
 
+<nav class="guide-toc" aria-label="Table of contents">
+<strong class="guide-toc-title">On this page</strong>
+<ul>
+<li><a href="#top">Back to top</a></li>
+<li><a href="#s1">1 · Currency — how to read a price</a>
+<ul>
+<li><a href="#s1-1">1.1 Glossary — trade slang (maxroll Trading guide 2026-02-10 unless marked obs = observed listing 2026-09-18, WP-F) and stat abbreviations</a></li>
+</ul>
+</li>
+<li><a href="#s2">2 · White bases — which are worth a lot, and why</a>
+<ul>
+<li><a href="#s2-why">Why each base is priced the way it is (one line, cited)</a></li>
+<li><a href="#s2-1">2.1 How value multiplies (same base, one ladder per row — asks 2026-09-18, WP-B via WP-G)</a></li>
+<li><a href="#s2-2">2.2 What Larzuk / the cube can fix — and what they cannot (sockets 2026-06-16)</a></li>
+<li><a href="#s2-3">2.3 Why the Low tier is the Low tier (supply vs demand, WP-G)</a></li>
+<li><a href="#s2-4">2.4 Reign of the Warlock bases (thin-market flags, WP-G/WP-B)</a></li>
+</ul>
+</li>
+<li><a href="#s3">3 · Jewels — which are worth something, and why</a>
+<ul>
+<li><a href="#s3-1">3.1 Rainbow Facets (unique jewels; −5 enemy res / +5 skill dmg = &quot;5/5&quot;)</a></li>
+<li><a href="#s3-2">3.2 Magic and rare jewels by affix bucket (Traderie asks 2026-09-18; fills diablo2.io ≤3 d)</a></li>
+<li><a href="#s3-3">3.3 Blue (magic) items worth identifying — asks only, WP-B 2026-09-18 (rarity 797 + affix props)</a></li>
+</ul>
+</li>
+<li><a href="#s4">4 · Charms — skillers, small charms, Anni / Torch, sunders, Colossal jewels</a>
+<ul>
+<li><a href="#s4-1">4.1 Skillers (Grand Charm +1 to a class tree; 202 in-scope, Traderie 2026-09-18) — ranked by tree demand × life</a></li>
+<li><a href="#s4-2">4.2 Small charms (158 in-scope, Traderie 2026-09-18)</a></li>
+<li><a href="#s4-3">4.3 Annihilus and Hellfire Torch (one per character; price = the roll × class demand)</a></li>
+<li><a href="#s4-4">4.4 Sunder charms — three tiers (maxroll Sunder Charms 2026-05-22; new-items 2026-02-19; asks 2026-09-18)</a></li>
+<li><a href="#s4-5">4.5 Colossal Ancient Jewels (RotW; new-items + Colossal Ancients pages 2026-02-19)</a></li>
+</ul>
+</li>
+<li><a href="#s5">5 · Uniques and sets — keep, sell, or vendor</a>
+<ul>
+<li><a href="#s5-2">5.1 Reign of the Warlock items — what is new and whether it trades (new-items 2026-02-19; asks 2026-09-18, min · median, sellers)</a></li>
+</ul>
+</li>
+<li><a href="#s6">6 · Rares, crafts, misc — when is any of it worth something?</a>
+<ul>
+<li><a href="#s6-1">6.1 Rares and crafts — the few patterns, with the price-check reasoning (diablo2.io threads, 2026-09-18)</a></li>
+<li><a href="#s6-2">6.2 Misc — per-unit prices (Traderie SC/NL/PC 2026-09-18; an ask is for the whole stack, price ÷ amount; one vote per seller)</a></li>
+</ul>
+</li>
+<li><a href="#s7">7 · How to refresh the numbers (the sequence below was run offline on 2026-09-18 — see the note)</a>
+</li>
+<li><a href="#s8">8 · Drop in hand → keep / sell / vendor</a>
+</li>
+<li><a href="#s9">9 · Appendix</a>
+</li>
+</ul>
+</nav>
 <main>
 <h1 id="top">D2R pricing primer — what is worth what, and why</h1>
 <p class="sub">Diablo II: Resurrected, <b>Reign of the Warlock</b> era · market scope: <b>Softcore · Non-Ladder · PC · RotW economy</b> ·
@@ -219,6 +274,7 @@ Value tiers used everywhere: <b>Top ≥ 8 Ist (Sur+) · High 2.5–8 (Vex–Lo) 
 </ol>
 <p class="sub"><b>Pass 3 — 2026-09-18, in-game Q&amp;A lens</b> (seven drops price-checked against the file: rare Razor Bow, Superior Heraldic Shield 28@, white Ceremonial Javelin +3, Superior Codex with no staff mods, white 0os Tiara, white 3os Wire Fleece, magic Hyperion Spear of Butchery; plus the questions "what makes a Codex / a Tiara worth anything", "which +skills for Echoing Strike", "which jewels"; evidence <code>pricing/data/addendum-2026-09-18-session.json</code>, computed one vote per seller at the cheapest OR-group from the cached Traderie pulls). <b>Fixed 7:</b> (1) §2.4 grimoires — "every grimoire carries automods" was false (6 of 358 do not; one seen in-game) and the file gave no roll brackets: rarity brackets (+2 Warlock Skills on rares → triple-digit asks; +3 tree on magics; +3 to a demanded skill on whites), the staff-mod ranking, "base tier does not price" (2os white medians by tier 3.3 / 5.0 / 1.0) and the Echoing Strike off-hand fact (shields; a Book only in its Starter) added. (2) §3.3 had Diadem numbers but no Tiara row — added (rare +2 / 20 FCR / 2os 34 → 143 behind 4 sellers; 0 white Tiara in 200 listings; few-seller caveat). (3) §3.3 grimoire cell now points at the roll brackets. (4) Appendix A ledger updated for the automod question. (6) §2.2 lacked the Charsi imbue row — the reader asked whether a blank white Tiara has any crafting use: no cube craft takes a circlet, the imbue (ilvl = clvl + 4; maxroll Important Quests names Diadems / Circlets / Coronets first) is what a white circlet is for; row and checklist cell added. (7) Claw sockets: two rows said "3–4os"; Greater / Runic Talons cap at 3 (maxroll sockets table), and a magic claw gets at most 2 from Larzuk — reworded, and the "Greater / Runic Talons only" base gate made explicit after a Gold Fascia of Concentration was checked in-game. (5) <b>A "things a runner throws away" checklist</b> (<a href="#miss">under the TL;DR</a>) — the reader asked for the misses in one place (Jeweler's Monarch of Deflecting, circlets, grimoires, class blues, 45@ Sacred Targe …) and for the false positives (rare non-elite bows, +3 javelins, white circlets, blue one-affix weapons, finished self-use runewords). Every row cites the section that carries its evidence; no new numbers except the addendum's. <b>Confirmed, no change:</b> the seven drops each resolved to an existing rule (D-2 / D-6 / §3.3 trash line); the chat answers given before the addendum used raw ask sums without seller de-duplication — the file's numbers supersede them.</p>
 <p class="sub"><b>Pass 4 — 2026-09-20, Sazabi's correction</b>. A Sazabi's Mental Sheath drop was called vendor from the §5 trash line and appendix B; the user knew the Echoing Strike uber variant uses the set. Root cause: WP-A (<code>wp-a-builds.json</code>) extracted the player's main slot lists only — no mercenary gear, no Uber / Ancients / Starter / MF variants — so appendix B under-reports demand for merc and uber items. <b>Fixed:</b> appendix B rows for Echoing Strike and Mirrored Blades carry their variant + merc gear; the trash line names Sazabi's as the known exception; D-5 readers must check variant sections before "vendor". Pulls: <code>pricing/raw/traderie/sazabis-{mental-sheath,ghost-liberator,cobalt-redeemer,grand-tribute}.json</code>. Done the same day: five sub-agents re-read all 26 guides (cached HTML + live page + the embedded d2planner profiles, which turned out to be readable at <code>planners.maxroll.gg/profiles/d2/&lt;id&gt;</code>) into <code>pricing/data/wp-a-variants/&lt;slug&gt;.json</code>; <code>pricing/tools/wp_a_variants.py --write</code> merged them into <code>wp-a-builds.json</code> ("variants") and wrote <code>wp-a-variants/new-demand.md</code> (386 items named only in variant / merc / prose sections). Every appendix-B row now ends with a Variants line (tabs, merc types, sets worn, variant-only items).</p>
+<p class="sub"><b>Navigation pass — 2026-09-20.</b> Added a pinned, independently scrollable table of contents on the left for desktop screens, with section and subsection links. Smaller screens use a compact contents panel above the guide; print omits it. Existing anchors are preserved and navigation works without JavaScript. Shared styles: <code>toc.css</code>.</p>
 </details>
 
 <h2 id="s1">1 · Currency — how to read a price</h2>

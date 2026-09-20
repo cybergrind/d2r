@@ -32,6 +32,10 @@ rule table, so an appraisal never needs the whole filter skill.
 6. Edit guides in place (body = settled truth) and log changes as a dated pass in the guide's Review log
    (conventions in `guides/planning-with-html.html`). Do not commit unless asked.
 
+## Development
+
+Follow [development practices](development.md) for code changes.
+
 ## File map
 
 - `guides/pricing.html` — the appraisal method (§0 currency card, §2 colour triage, §3 gates, §4 ladder
