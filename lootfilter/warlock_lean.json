@@ -290,17 +290,11 @@
                 "warlo"
             ],
             "equipmentItemCode": [
-                "utp",
-                "uui",
-                "utu",
-                "uar",
-                "xtp",
-                "uit",
                 "pab",
                 "pac",
                 "pa1",
-                "ci3",
-                "ci2"
+                "ci0",
+                "ci1"
             ]
         },
         {
@@ -320,7 +314,13 @@
                 "warlo"
             ],
             "equipmentItemCode": [
-                "xrn"
+                "xrn",
+                "xtp",
+                "uit",
+                "uui",
+                "utp",
+                "utu",
+                "uar"
             ]
         },
         {
@@ -337,12 +337,7 @@
                 "exceptional",
                 "elite"
             ],
-            "equipmentCategory": [
-                "circl"
-            ],
             "equipmentItemCode": [
-                "kri",
-                "9kr",
                 "7kr",
                 "7bl",
                 "fla",
@@ -363,9 +358,6 @@
                 "exceptional",
                 "elite"
             ],
-            "equipmentCategory": [
-                "circl"
-            ],
             "equipmentItemCode": [
                 "7cr",
                 "7wa",
@@ -379,7 +371,9 @@
                 "amd",
                 "amb",
                 "amc",
-                "crs"
+                "crs",
+                "kri",
+                "9kr"
             ]
         }
     ]
