@@ -2,8 +2,9 @@
 
 Written: 2026-09-20. Updated: 2026-09-21. Status: host access, image discovery,
 runtime capture and unit research implemented. Belt move and effective HP
-locations confirmed in controlled samples; lifecycle validation, OSD and
-controller remain planned.
+locations confirmed in controlled samples; belt use/gaps, damage/healing and
+new-game and process-restart research samples collected. Production reader,
+experimental OSD implemented; visual validation and controller remain planned.
 
 ## Objective
 
@@ -153,9 +154,28 @@ from `+0x30` excludes bonuses; the old reference's `+0xa8` descriptor is empty.
 
 Run `uv run -m inventory_tracking probe --units` on the host for a fresh research
 snapshot. See [layout notes](inventory_tracking/layout_notes.md) for exact fields,
-run IDs and evidence. New games/restarts, damage/healing, local-player selection,
-belt consumption order, capacity and row orientation still need validation.
+run IDs and evidence. Later live samples below cover damage/healing, character selection, a new game,
+column-1 consumption/row orientation and one full process restart. Robust
+local-player selection, mixed columns and belt capacity still need validation.
+Live continuation confirmed 1565 displayed HP and tracked column-1 consumption,
+compaction, refill and bottom/top placement. Column-1 rows run 0/4/8/12 from
+bottom to top. With only cell 12 occupied, the user pressed `1` and the potion
+remained: column totals must not be treated as usable stock. See the dated run
+evidence in the layout notes. A damaged reading of 1526/1545 matched the user,
+followed by 1545/1545 after healing. Character selection yielded empty tables;
+a new game yielded a new player ID/pointer with HP recovered correctly. A full
+restart then rediscovered PID 2532947 and read 1545/1545 with new unit IDs.
 These findings do not establish controller-ready state.
+
+## Snapshot consistency — 2026-09-21
+
+Research probes now recheck interpreted unit-header fields (including item mode
+and data/path/stat pointers), then all unit headers and table heads after traversal.
+Incomplete snapshots suppress the HP/belt summary and return a blocked report;
+raw research evidence remains available. Start/end monotonic timestamps bound
+the sampling interval. In-place mutations are not fully detected, so these checks
+do not establish controller-ready state. Regression coverage and the next
+controlled live experiment are recorded in [handoff.md](handoff.md).
 
 ## Architecture
 
@@ -313,3 +333,14 @@ Reviewed as leads on 2026-09-20; none has been validated against this setup:
 - [XDG Desktop Portal RemoteDesktop API](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.RemoteDesktop.html):
   possible capture/input integration to investigate if the actual Linux session
   and isolation mechanism support it; not a selected backend.
+
+
+## OSD implementation — 2026-09-21
+
+The [OSD submodule](inventory_tracking/osd/README.md) now provides a live read-only
+window and a fixed-value preview for visual tuning. Health is always represented;
+missing rejuvenations and super healing potions appear only below configurable
+stock targets (default 8/8). The GTK4 Wayland layer-shell backend requests no
+keyboard or pointer input. Live reads use the build-gated research adapter;
+local-player selection remains heuristic. Actual in-game visual/focus behavior
+and performance still need validation. Tests are under `tests/inventory_tracking/`.

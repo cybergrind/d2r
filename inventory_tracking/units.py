@@ -46,6 +46,33 @@ def walk_units(read, heads, expected_type, *, max_units=2048):
     return result
 
 
+def unit_matches(read, unit):
+    """Recheck every header field used to locate or interpret unit details."""
+    data = read(unit['address'], 0x160)
+    if len(data) != 0x160:
+        raise ValueError('short unit verification read')
+    fields = [
+        ('type', '<I', 0),
+        ('txt_id', '<I', 4),
+        ('unit_id', '<I', 8),
+        ('mode', '<I', 0x0C),
+        ('data_pointer', '<Q', 0x10),
+        ('path_pointer', '<Q', 0x38),
+        ('stats_pointer', '<Q', 0x88),
+        ('inventory_pointer', '<Q', 0x90),
+        ('next_pointer', '<Q', 0x158),
+    ]
+    if unit['type'] == 1:
+        # Monster animation changes are normal during combat. For hirelings,
+        # preserve the dead/dying boundary; other monsters are traversal only.
+        fields = [field for field in fields if field[0] != 'mode']
+        if unit['txt_id'] == 338:
+            mode = struct.unpack_from('<I', data, 0x0C)[0]
+            if (mode in (0, 12)) != (unit['mode'] in (0, 12)):
+                return False
+    return all(struct.unpack_from(fmt, data, offset)[0] == unit[name] for name, fmt, offset in fields)
+
+
 def read_stats(read, address):
     header = read(address, 16)
     pointer, count = struct.unpack('<QQ', header)

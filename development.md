@@ -14,4 +14,12 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
 - Use Python with `uv run` for inventory-tracking tooling. The user runs host
   probes; agents remain sandboxed and consume shared logs/status files. Provide
   completion detection so an active agent can proceed without a user chat reply.
-- Run meaningful tests and the applicable lint/format checks before delivery.
+- Use pytest with plain test functions, assertions and pytest parametrization;
+  do not use unittest test cases or its runner. Standard-library `unittest.mock`
+  remains suitable for mocks. Run meaningful tests and applicable lint/format
+  checks before delivery.
+
+- Keep tests under `tests/`, mirroring module paths: `inventory_tracking/images.py`
+  → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/state.py`
+  → `tests/inventory_tracking/osd/test_state.py`. Import production modules by
+  their absolute package name. Run `uv run pytest tests -v`.

@@ -3,19 +3,23 @@
 import os
 import struct
 import time
+from bisect import bisect_right
 
 from .common import LOG
+from .game_ui import read_ui_state
 from .image_probe import read_mappings
 from .images import read_pe
 from .linux_process import identity, process_mappings
+from .mercenary import describe_monster
 from .reports import publish
-from .units import describe_item, describe_player, summarize_research, walk_units
+from .units import describe_item, describe_player, summarize_research, unit_matches, walk_units
 
 
 class ResearchReader:
     def __init__(self, fd, mappings):
         self.fd = fd
         self.mappings = mappings
+        self.starts = [m['start'] for m in mappings]
         self.bytes_requested = 0
         self.ranges = set()
 
@@ -24,7 +28,11 @@ class ResearchReader:
         if not 0 < size <= 8192 or self.bytes_requested > 8 * 1024 * 1024:
             raise ValueError('research read budget exceeded')
         cursor = address
-        for mapping in self.mappings:
+        start_index = max(0, bisect_right(self.starts, address) - 1)
+        for index in range(start_index, len(self.mappings)):
+            mapping = self.mappings[index]
+            if mapping['start'] > cursor:
+                break
             if mapping['start'] <= cursor < mapping['end']:
                 if not mapping['permissions'].startswith('r'):
                     break
@@ -38,7 +46,7 @@ class ResearchReader:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def inspect_units(pid, images, capture, directory):
+def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False):
     candidates = capture['unit_table_candidates']
     addresses = sorted({x['table_address'] for x in candidates})
     if len(addresses) != 1:
@@ -65,19 +73,19 @@ def inspect_units(pid, images, capture, directory):
             'atomic_snapshot': False,
             'groups': {},
         }
-        for unit_type, label, describe in [(0, 'players', describe_player), (4, 'items', describe_item)]:
+        table_heads = {}
+        group_specs = [(0, 'players', describe_player), (4, 'items', describe_item)]
+        if merc:
+            group_specs.append((1, 'monsters', describe_monster))
+        for unit_type, label, describe in group_specs:
             table = table_address + unit_type * 1024
             heads = read(table, 1024)
+            table_heads[label] = (table, heads)
             group = walk_units(read, struct.unpack('<128Q', heads), unit_type)
             for unit in group['units']:
                 try:
                     unit['details'] = describe(read, unit)
-                    check = read(unit['address'], 0x160)
-                    stable = (
-                        struct.unpack_from('<I', check)[0] == unit['type']
-                        and struct.unpack_from('<I', check, 8)[0] == unit['unit_id']
-                        and struct.unpack_from('<Q', check, 0x158)[0] == unit['next_pointer']
-                    )
+                    stable = unit_matches(read, unit)
                     unit['identity_stable'] = stable
                     if not stable:
                         group['complete'] = False
@@ -88,9 +96,44 @@ def inspect_units(pid, images, capture, directory):
             if not group['heads_stable']:
                 group['complete'] = False
             result['groups'][label] = group
+        # A unit checked early can change while later chains are traversed.
+        # Recheck all headers and table heads at the end; this is still non-atomic.
+        for label, group in result['groups'].items():
+            for unit in group['units']:
+                try:
+                    stable = unit_matches(read, unit)
+                    unit['identity_stable'] = unit.get('identity_stable', False) and stable
+                    if not unit['identity_stable']:
+                        raise ValueError('unit header changed during research')
+                except (OSError, ValueError) as exc:
+                    group['complete'] = False
+                    group['errors'].append({'address': unit['address'], 'error': str(exc)})
+            table, heads = table_heads[label]
+            try:
+                group['heads_stable'] = group['heads_stable'] and heads == read(table, 1024)
+            except (OSError, ValueError) as exc:
+                group['heads_stable'] = False
+                group['errors'].append({'address': table, 'error': str(exc)})
+            if not group['heads_stable']:
+                group['complete'] = False
+        if merc:
+            try:
+                result['ui'] = read_ui_state(read, capture.get('ui_candidates', []))
+            except (OSError, ValueError) as exc:
+                result['ui'] = {'ready': False, 'reason': str(exc)}
+            result['gameplay_ready'] = result['ui']['ready']
+        result['sample_finished_monotonic'] = time.monotonic()
         after = process_mappings(pid)
+        before_starts = [m['start'] for m in before]
+        after_starts = [m['start'] for m in after]
+
+        def relevant(mappings, starts, address, size):
+            first = max(0, bisect_right(starts, address) - 1)
+            last = bisect_right(starts, address + size - 1)
+            return read_mappings(mappings[first:last], address, size)
+
         result['mappings_stable'] = all(
-            read_mappings(before, a, n) == read_mappings(after, a, n) for a, n in reader.ranges
+            relevant(before, before_starts, a, n) == relevant(after, after_starts, a, n) for a, n in reader.ranges
         )
         if identity(pid) != token or not result['mappings_stable']:
             result['status'] = 'stale'
@@ -99,14 +142,16 @@ def inspect_units(pid, images, capture, directory):
         os.close(fd)
     publish(directory / 'units.json', result)
     counts = {name: len(group['units']) for name, group in result['groups'].items()}
-    LOG.info('Unit research: %s; counts=%s', result['status'], counts)
-    summary = summarize_research(result['groups']) if result['status'] == 'research' else {}
-    LOG.info('Candidate summary (unvalidated): %s', summary)
+    log = LOG.info if log_summary else LOG.debug
+    log('Unit research: %s; counts=%s', result['status'], counts)
+    complete = all(g['complete'] for g in result['groups'].values())
+    summary = summarize_research(result['groups']) if result['status'] == 'research' and complete else {}
+    log('Candidate summary (unvalidated): %s', summary)
     return {
         'status': result['status'],
         'validated': False,
         'manifest': 'units.json',
         'counts': counts,
-        'complete': all(g['complete'] for g in result['groups'].values()),
+        'complete': complete,
         'summary': summary,
     }

@@ -48,7 +48,8 @@ Item data `+0x0c` matched the active belt owner's unit ID. Path `+0x10` (u16)
 contained distinct cell indices 0–15; path `+0x14` (u16) was zero. All 16 cells
 were occupied: IDs `531` in indices `0,1,4,5,8,9,12,13`, and `606` in
 `2,3,6,7,10,11,14,15`. Column = index modulo 4 is consistent with the column-1 move below;
-visual row orientation, drinking order, capacity and mixed columns are unvalidated.
+later controlled samples below support bottom-to-top row ordering and low-index
+consumption/compaction. Capacity and mixed columns remain unvalidated.
 
 Verified against cached `pricing/raw/d2data-misc.json` on 2026-09-21:
 
@@ -109,3 +110,106 @@ Compare a controlled belt move, refill and drink; confirm current/effective max
 life against the display and a gear/health change. Repeat through new games and
 process restarts. Local-player selection, stale-pointer rejection and complete
 belt capacity/consumption semantics remain prerequisites for a usable reader.
+
+
+### Belt-key sample — 2026-09-21
+
+Run `20260920T220447Z-1c0cbce6` passed consistency checks with the same process
+identity. Compared with the pre-key baseline `20260920T220350Z-e785d99d`,
+column-1 items `534817104` (cell 0) and `267400360` (cell 4) disappeared from
+the item traversal; item `2592217162` moved from cell 8 to cell 0. Other belt
+items were unchanged. Totals: 5 full rejuvenations, 8 super healing potions;
+effective HP still 1565/1565. This demonstrates cell compaction toward index 0,
+and the user confirmed pressing `1` twice, accounting for the two missing
+potions. This supports consumption from the low-index end with compaction;
+the intermediate state was not sampled. Visual row orientation remains open.
+
+
+Run `20260920T220644Z-25a9fb89` completed with stable checks after the requested
+single additional `1` press. The remaining column-1 item `2592217162` at cell 0
+was absent; column 1 was empty, with 4 rejuvenations and 8 healing potions total.
+Effective HP remained 1565/1565. Together with the user-confirmed two-press
+sample, this supports key `1` consuming from the low-index end of column 1.
+Visual row mapping, mixed columns, refill and capacity changes remain open.
+
+
+Refill run `20260920T220745Z-e0e00dfb` passed consistency checks. Following the
+instruction to place one full rejuvenation in the lowest visible column-1 slot,
+new item `1512026217` appeared at cell 0; other belt cells were unchanged.
+Totals returned to 5 rejuvenations / 8 healing potions; HP stayed 1565/1565.
+This supports bottom visual row = indices 0–3, subject to correct requested
+placement. Next requested action is moving that same item to the highest visible
+column-1 slot to cross-check orientation.
+
+
+Row check `20260920T220840Z-e4a53156` passed: the same item `1512026217`
+moved from cell 0 to cell 12 following the instruction to move it from the
+lowest to the highest visible slot. These controlled placements support
+column-1 visual rows bottom-to-top = 0, 4, 8, 12. This supersedes the ambiguous
+"bottom" wording in the older manual-move sample. A key-use test with only
+cell 12 occupied is pending to check gaps below a potion.
+
+
+Gap sample `20260920T220954Z-ee251a0c` passed checks, but item `1512026217`
+remained at cell 12, with lower column-1 cells empty and HP 1565/1565.
+User confirmed pressing `1` with the game focused and observing the potion
+stay in place. In this controlled case the key did not skip the empty lower
+slots to consume cell 12. An occupied column is not necessarily usable; retain
+individual cells when deriving next-potion availability.
+
+
+### Damage validation — 2026-09-21
+
+Host run `20260920T221144Z-bad7ad0f` completed with stable checks. Effective
+life/max raw values were 390656/395520 (8-bit fractional format), displaying
+1526/1545, exactly matching the user's report. This validates one below-maximum
+health sample. Effective maximum differs from the preceding 1565 baseline;
+its cause was not established. Next requested sample is after healing to full
+without further gear changes. Regeneration and update latency are not measured.
+
+
+Healing follow-up `20260920T221233Z-a19c71a0` completed with stable checks and
+effective HP 1545/1545 after the request to heal without gear changes. The
+sample pair shows current life recovering from 1526 to 1545 with max 1545
+unchanged. The damaged display was explicitly user-confirmed; the healed
+sample is memory evidence after the requested action. Next: character selection,
+new game, then process restart to establish lifecycle behavior.
+
+
+Character-selection sample `20260920T221324Z-0fa21cef` completed with stable
+empty player and item tables (0/0); both candidate summary lists were empty.
+No previous session's HP or belt candidates were retained. `complete` here means
+research traversal completed, not gameplay readiness: the production reader
+must publish unavailable/outside-game state rather than zero HP or zero stock.
+Next requested sample: same character after joining a new game.
+
+
+New-game run `20260920T221417Z-f81f2565` passed in the same process. The table
+was rescanned at `0x141ead470`; belt owner/player ID changed from `2018320017`
+to `44171616`, and player address changed from `0x8614ca20` to `0x8617a920`.
+Effective HP was 1545/1545. Seven player-like units remained, but only the
+belt-owner candidate had effective life/max stats. Its inventory marker `+0x70`
+was 4032 (earlier 8800); other candidates had zero. This correlation is research,
+not a robust selector or a fixed marker value. No local-player rule is adopted.
+Next requested experiment: fully close/reopen D2R, enter a game, then probe.
+
+
+### Process restart — 2026-09-21
+
+Run `20260920T221700Z-a2ce2a59` completed after fully restarting D2R. New
+process identity: PID 2532947, start ticks 270903159 (previous PID 2487980,
+start ticks 270397116). Both memory interfaces succeeded without permission
+changes. Disk SHA-256 is unchanged; image candidate `0x140000000` and scanned
+table `0x141ead470` were rediscovered. Seven player-like units and
+330 items passed traversal/header/mapping checks. New belt-owner/player ID
+44347742 at `0x7b53bfc0` had effective HP 1545/1545; belt candidates
+contained 5 full rejuvenations and 7 super healing potions. The top-only
+column-1 potion remained at index 12. These are fresh post-restart research
+readings, not reused pointers or a production reconnect implementation.
+
+Live validation now covers column-1 consumption/compaction, bottom/top placement,
+refill, a top-only gap, one below-max HP display match, healing, character
+selection, a new game and one full process restart. Remaining reader work:
+robust local-player identification (including empty belt/multiple players),
+build gating, explicit unavailable/stale state, in-place mutation checks,
+mixed columns/other keys and belt capacity. No overlay or controller exists yet.

@@ -136,8 +136,8 @@ coordinates disk fingerprint matching and live consistency checks;
 shared logging and helpers; `diagnostics.py` defines the CLI.
 
 ```sh
-uv run python -m unittest inventory_tracking.test_diagnostics inventory_tracking.test_images -v
-uv run ruff check inventory_tracking
+uv run pytest tests/inventory_tracking/test_diagnostics.py tests/inventory_tracking/test_images.py -v
+uv run ruff check inventory_tracking tests
 ```
 
 Interface references: [process_vm_readv](https://man7.org/linux/man-pages/man2/process_vm_readv.2.html)
@@ -170,7 +170,12 @@ prove that the signature is absent from unreadable pages.
 writes `units.json` with bounded player/item chains, owner IDs, item modes, path
 coordinates and candidate stat arrays. Reads are limited to 8 MiB total, units
 to 2,048 per type, and stat arrays to 1,024 entries. Cycles, type/bucket mismatches,
-short reads and changed identities/heads are reported. A successful research run
+short reads and changed unit headers/heads are reported. All interpreted header
+fields and both table heads are checked again after traversal. Incomplete research
+returns exit 2 and suppresses the candidate summary; raw evidence remains in
+`units.json`. Start/end monotonic timestamps bound the read interval. In-place
+stat/path mutations and changes that revert between checks can still escape these
+non-atomic checks. A successful research run
 is **not** validated gameplay state: `validated` remains false, and no input is
 sent. Displayed base maximum HP may exclude bonuses; compare candidate arrays
 with the game before deriving a health percentage.
@@ -178,7 +183,22 @@ with the game before deriving a health percentage.
 Tests for all diagnostics and research modules:
 
 ```sh
-uv run python -m unittest discover -s inventory_tracking -t . -v
-uv run ruff check inventory_tracking
-uv run ruff format --check inventory_tracking
+uv run pytest tests -v
+uv run ruff check inventory_tracking tests
+uv run ruff format --check inventory_tracking tests
 ```
+
+
+## Experimental live OSD
+
+The [OSD submodule](osd/README.md) displays health and missing belt potions:
+
+```sh
+uv run -m inventory_tracking.osd
+uv run -m inventory_tracking.osd --demo
+```
+
+Defaults target 8 full rejuvenations and 8 super healing potions. Zero-deficit
+lines are hidden. The live adapter remains research-only; visual validation
+in-game is the next step. Tests now live under `tests/inventory_tracking/`,
+mirroring module paths.

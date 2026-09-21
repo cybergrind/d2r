@@ -24,6 +24,7 @@ def main():
     probe_parser.add_argument(
         '--capture', action='store_true', help='Discover and capture readable image ranges (64 MiB max)'
     )
+    probe_parser.add_argument('--merc', action='store_true', help='Also research mercenary/monster health')
     watch_parser = commands.add_parser('watch', help='Wait inside sandbox for a host probe report')
     watch_parser.add_argument('--timeout', type=float, default=300)
     watch_parser.add_argument('--include-existing', action='store_true', help='Also accept already recorded runs')
