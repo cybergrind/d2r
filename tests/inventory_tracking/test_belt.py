@@ -1,6 +1,6 @@
 import pytest
 
-from inventory_tracking.belt import column_shortages, potion_count, potion_kind
+from inventory_tracking.belt import column_shortages, column_stock, potion_count, potion_kind
 from inventory_tracking.models import PotionType
 
 
@@ -26,3 +26,12 @@ def test_classification_and_family_counts(class_id, kind):
 
 def test_unrecognized_column_target_does_not_request_health_or_rejuvenation():
     assert column_shortages([999, 531, 606, 531] + [None, 531, 606, 531] * 3) == (0, 0)
+
+
+def test_column_stock_counts_only_the_requested_kind_in_that_column():
+    contents = [531, 606, 606, 606, None, 531, 606, 606, None, None, None, 606, None, None, None, 606]
+    assert column_stock(contents, 1, PotionType.REJUVENATION) == 1
+    assert column_stock(contents, 2, PotionType.REJUVENATION) == 1
+    assert column_stock(contents, 2, PotionType.HEALING) == 1
+    assert column_stock(contents, 3, PotionType.HEALING) == 2
+    assert column_stock(contents, 4, PotionType.HEALING) == 4

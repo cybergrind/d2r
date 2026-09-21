@@ -3,6 +3,7 @@
 import time
 from collections.abc import Callable, Sequence
 
+from .belt import column_stock
 from .common import LOG
 from .config import HealingConfig
 from .models import (
@@ -129,10 +130,12 @@ class PotionsController:
             for record in data.actors.values()
             if record.pending and record.session.core == session.core and record.pending.item_id in belt_ids
         }
+        contents = state.belt.contents if state.belt else ()
         for potion in choices:
-            item = next((cell for cell in state.usable_cells(potion) if cell.item_id not in reserved), None)
-            if item is not None:
-                return potion, item
+            usable = [cell for cell in state.usable_cells(potion) if cell.item_id not in reserved]
+            if usable:
+                # Drain the fullest column first so short stacks keep a reserve; ties keep the lowest column.
+                return potion, max(usable, key=lambda cell: (column_stock(contents, cell.column, potion), -cell.column))
         return None
 
     def _deliver(

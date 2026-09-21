@@ -126,3 +126,21 @@ def test_rejected_attempt_reserves_only_its_type_cooldown(healing_setup, sample,
     assert make(PLAYER_HEALING).step(sample(100.1)).outcome == Outcome.COOLDOWN
     assert make(MERC_HEALING).step(sample(100.1)).outcome == Outcome.SENT
     assert sent.call_count == 1
+
+
+def test_fullest_column_is_used_first_and_reserved_columns_are_skipped(healing_setup, sample, clock):
+    make, sent = healing_setup
+    # Column 3 holds two healing potions, column 4 holds four; the merc must not follow the player into 4.
+    contents = tuple(606 if index % 4 == 3 or index in (2, 6) else None for index in range(16))
+    state = sample(belt_contents=contents)
+    assert make(PLAYER_HEALING).step(state).outcome == Outcome.SENT
+    clock.now = 100.1
+    assert make(MERC_HEALING).step(replace(state, sampled_at=100.1)).outcome == Outcome.SENT
+    assert [c.args[0].item.column for c in sent.call_args_list] == [4, 3]
+
+
+def test_equal_stock_prefers_the_lowest_column(healing_setup, sample):
+    make, sent = healing_setup
+    contents = tuple(606 if index % 4 in (2, 3) else None for index in range(16))
+    assert make(PLAYER_HEALING).step(sample(belt_contents=contents)).outcome == Outcome.SENT
+    assert sent.call_args.args[0].item.column == 3

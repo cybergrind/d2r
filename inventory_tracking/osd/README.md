@@ -68,7 +68,8 @@ is not persisted across OSD restarts. Exact rules: [widget contracts](design.md)
 
 Thresholds are strict. Rejuvenation has emergency priority with healing fallback;
 player is considered first and does not require a merc. Each sample identifies
-potion types in all four bottom slots. Player uses plain column keys, merc uses
+potion types in all four bottom slots and drains the fullest column of the chosen
+type first (ties go to the lowest column). Player uses plain column keys, merc uses
 Shift+column. Potions above empty bottom slots are unusable.
 
 Cooldowns are independent per actor/type, shared across columns and instances.

@@ -6,6 +6,8 @@ under Proton Experimental / Steam Linux Runtime 4; the OSD targets Niri Wayland.
 
 - [OSD runbook](osd/README.md): startup, configuration, behavior and diagnostics.
 - [Widget contracts](osd/design.md): presentation architecture and resource latches.
+- [Input sub-module design](input/design.md): proposed facade for focus and key delivery.
+- [Input sub-module plan](input/plan.md): resolved contract and implementation steps.
 - [Layout reference](layout_notes.md): supported build, memory fields and evidence.
 - [Merc HP research](merc_health_research.md): unresolved panel mismatch and external readers.
 - [Current handoff](../handoff.md): acceptance and current work status.

@@ -29,3 +29,8 @@ def column_shortages(contents: Sequence[int | None]) -> tuple[int, int]:
 
 def potion_count(contents: Sequence[int | None], kind: PotionType) -> int:
     return sum(potion_kind(item) == kind for item in contents)
+
+
+def column_stock(contents: Sequence[int | None], column: int, kind: PotionType) -> int:
+    """Potions of `kind` stacked in hotkey column 1..4."""
+    return potion_count(contents[column - 1 :: BELT_COLUMNS], kind)
