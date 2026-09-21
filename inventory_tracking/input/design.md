@@ -1,7 +1,8 @@
 # Input sub-module design
 
-Proposal, 2026-09-21. Not implemented; the step order and the resolved contract
-are in the [implementation plan](plan.md). Companion to the
+Implemented and host-verified, 2026-09-21. Native X11 ownership and FocusTracker
+passed their host gates; connection reuse was measured and closed as unnecessary.
+The step order and the resolved contract are in the [implementation plan](plan.md). Companion to the
 [widget contracts](../osd/design.md); operational defaults stay in the
 [runbook](../osd/README.md).
 
@@ -14,7 +15,7 @@ tracking, subprocess removal, connection reuse) and low-level detail (XTest, Nir
 IPC, future backends) then change inside the package, and the controllers and
 their tests do not move.
 
-## Today
+## Before migration
 
 `potion_input.py`, `focus.py` and `keyboard.py` sit at the package top level.
 `PotionsController` calls `deliver(state, request, max_age=..., before_send=...)`
@@ -35,109 +36,145 @@ consumption.
 
 ```
 inventory_tracking/input/
-  __init__.py     re-exports the facade: PotionInput, Target, Refusal, InputError
+  __init__.py     exports PotionInput, Target, Refusal, Refused, InputError, Attempt, Delivery
+  __main__.py     guard-only --check with optional atomic report
   facade.py       PotionInput: attempt() → Attempt; owns guards and the key sequence
-  bindings.py     PotionRequest → key names, from InputConfig.bindings
-  focus.py        FocusProbe protocol; NiriX11FocusProbe (today's probe); later FocusTracker
+  bindings.py     PotionRequest → key names, from InputConfig.bindings and column_keys
+  focus.py        FocusTracker heartbeat/reconnect; NiriFocusProbe fallback; owns_process
   keyboard.py     Keyboard / KeyConnection protocols; X11Keyboard, X11Connection
 tests/inventory_tracking/input/
-  conftest.py     FakeKeyboard, FakeFocus, FakeDelivery
-  test_facade.py  test_bindings.py  test_focus.py  test_keyboard.py
+  fakes.py        FakeKeyboard, FakeFocus, FakeDelivery
+  test_facade.py  test_contract.py  test_main.py  test_focus.py  test_keyboard.py
 ```
 
-`InputConfig` stays in `config.py` with the other configs and gains `bindings`.
+`InputConfig` stays in `config.py` with the other configs and gains frozen `bindings` and `column_keys`.
 Nothing outside the package imports `focus`, `keyboard` or `bindings`.
 
 ## Facade contract
 
-The facade separates *may I press* from *press*, so the controller writes its
-reservation between the two in straight-line code.
+### Types
 
 ```python
+# models.py — next to Outcome, so PotionResult can carry it without importing the package
+class Refusal(StrEnum):
+    UNFOCUSED = 'unfocused'
+    NO_DISPLAY = 'no_display'
+    UNKNOWN_KEY = 'unknown_key'
+    KEY_HELD = 'key_held'
+    STALE = 'stale'
+
+
+@dataclass(frozen=True)
+class PotionResult:
+    outcome: Outcome
+    event: PotionSent | None = None
+    reason: Refusal | None = None  # only with Outcome.REJECTED
+
+
+# inventory_tracking/input/facade.py
 @dataclass(frozen=True)
 class Target:
-    """What a guard needs from a sample. Nothing else crosses the boundary."""
     session: SessionIdentity
     sampled_at: float
     max_age: float
 
 
-class Refusal(StrEnum):
-    UNFOCUSED = 'unfocused'      # compositor focus or X11 owner is not this game process
-    NO_DISPLAY = 'no_display'    # XOpenDisplay failed
-    UNKNOWN_KEY = 'unknown_key'  # a bound key name has no keycode
-    KEY_HELD = 'key_held'        # the player is physically holding a key
-    STALE = 'stale'              # the sample aged past max_age before key-down
+class Refused(Exception):
+    """Clean refusal after entry: no key event was attempted."""
+
+    def __init__(self, refusal: Refusal) -> None: ...
 
 
 class InputError(RuntimeError):
-    """A key may still be down, or a release was not confirmed. Caller must suspend."""
+    """Uncertain: a key may be down, a release was unconfirmed, or the backend failed unexpectedly."""
 
 
 class Attempt(Protocol):
-    refusal: Refusal | None       # set on entry; when set, send() is not allowed
-    def send(self) -> float: ...  # re-checks focus/held/stale, presses, holds, releases; returns sent_at
+    refusal: Refusal | None
+
+    def send(self) -> float: ...
 
 
-class PotionInput:
-    def __init__(self, config: InputConfig = INPUT, *, clock=time.monotonic, sleep=time.sleep,
-                 focus: FocusProbe | None = None, keyboard: Keyboard | None = None) -> None: ...
+class Delivery(Protocol):  # what PotionsController depends on
     def attempt(self, target: Target, request: PotionRequest) -> AbstractContextManager[Attempt]: ...
+
+
+class PotionInput:  # implements Delivery
+    def __init__(
+        self,
+        config: InputConfig = INPUT,
+        *,
+        clock=time.monotonic,
+        sleep=time.sleep,
+        focus: FocusProbe | None = None,
+        keyboard: Keyboard | None = None,
+    ) -> None: ...
 ```
 
-Controller side, replacing `_deliver`'s callback:
+### Facade behaviour
 
-```python
-with self.input.attempt(Target(session, state.sampled_at, self.config.sample_max_age), request) as attempt:
-    if attempt.refusal:
-        return PotionResult(Outcome.REJECTED, reason=attempt.refusal)
-    record.pending = PendingReservation(item_id=item.item_id, sent_at=now)
-    data.last_delivery = LastDelivery(session=record.session.core, at=now)
-    transaction.save()                       # on disk before the first key-down
-    try:
-        sent_at = attempt.send()
-    except Exception:
-        record.suspended = True
-        LOG.exception('%s healing suspended after input error', actor)
-        return PotionResult(Outcome.SUSPENDED)
-```
+Entry (`attempt().__enter__`), in this order, each stopping at the first failure
+and setting `attempt.refusal` without raising: open the display (`NO_DISPLAY`),
+resolve keycodes for `bindings.keys_for(config, request)` (`UNKNOWN_KEY`), focus
+(`UNFOCUSED`), held keys (`KEY_HELD`), age by the injected clock (`STALE`). No key
+event is emitted on entry. `send()` re-checks focus, held keys and age; a failure
+raises `Refused(refusal)` before any key event. It then presses in order, syncs,
+`sleep(key_hold_seconds)`, releases in reverse order, syncs, and returns
+`clock()` taken after the final sync. A press returning false, a release returning
+false or raising, and any other exception after the first key-down become
+`InputError` (release is still attempted for every pressed key). A second `send()`
+and `send()` on a refused attempt raise `InputError`. Exit closes the display;
+any unexpected exception on entry or exit is re-raised as `InputError`. Backend exceptions escape only as `Refused` or `InputError`; caller-body
+exceptions such as ledger save failures propagate unchanged.
 
-`send()` may still refuse (focus lost or key held in the window between entry and
-key-down). It then raises `Refused(refusal)`, a subclass of `InputError`, and the
-controller suspends exactly as today: a reservation exists, so the outcome is
-uncertain. The ledger lock stays held across the whole `with`, as now, because the
-reservation must be durable before the press.
+### Controller behaviour (`PotionsController._deliver`)
 
-### Invariants the facade guarantees
+Under the still-held ledger lock, with `now` from the decision:
 
-- Entering an `attempt` performs no key events. A refusal is side-effect free.
-- `send()` is called at most once per attempt; a second call raises.
-- `send()` releases every key it pressed, in reverse order, even when a press or
-  the hold raises. If any release is not confirmed it raises `InputError`.
-- The X connection opens on entry and closes on exit of the `with`, never earlier.
-- All timing goes through the injected `clock` and `sleep`; the package never
-  calls `time` directly.
-- The facade never reads the ledger, the belt, health or cooldowns. It receives a
-  fully resolved `PotionRequest` and a `Target`.
+1. `cooldowns[key] = now`, `transaction.save()`. Unchanged: clean refusals still
+   reserve the attempt cooldown.
+2. `previous = (record.pending, data.last_delivery)`.
+3. `with delivery.attempt(Target(state.session, state.sampled_at, sample_max_age), request) as attempt:`
+   - `attempt.refusal` set: remember it, leave the block.
+   - Otherwise `reserved_at = clock()` (a fresh reading, not `now`);
+     `cooldowns[key] = reserved_at`; `record.pending = PendingReservation(item_id, reserved_at)`;
+     `data.last_delivery = LastDelivery(core, reserved_at)`; `transaction.save()`.
+     A save failure propagates: nothing is pressed, the transaction exits failed,
+     `step()` reports `UNAVAILABLE` as for any ledger error today.
+   - `finished_at = attempt.send()`. On `Refused`: restore `previous`,
+     `transaction.save()`, remember the refusal. No rollback is ever attempted for
+     `InputError`.
+4. The whole `with` (entry, body, exit) sits in `try/except InputError`: mark
+   `record.suspended = True`, log with traceback, return `SUSPENDED`. The
+   transaction's normal exit persists the suspension.
+5. After the block, a remembered refusal returns `PotionResult(REJECTED, reason=refusal)`.
+   Otherwise `pending.sent_at = last_delivery.at = finished_at` and
+   `PotionResult(SENT, PotionSent(request, finished_at))`. A failure of the final
+   save in the transaction exit surfaces as `UNAVAILABLE`; the reservation saved in
+   step 3 remains the recovery guard.
 
-### Guards and who owns them
-
-The set of conditions that must hold before a key-down is unchanged; only
-duplication goes. Conditions that cannot change between decision and press stay
-with the controller, which already checks them against the same `State`: actor is
-valid, column is 1–4, the cell is usable stock, the player is alive, the sample
-is fresh at decision time. Conditions that can change in that window belong to
-the facade and are checked at entry and again immediately before key-down: the
-game process owns compositor and X11 focus, no key is physically held, the sample
-has not aged past `max_age` by the injected clock.
+A late refusal (focus lost, key held, sample aged between entry and key-down) is `REJECTED` with its reason and
+does not suspend. The old final guards already refused before reservation; the
+new explicit `Refused` path preserves this distinction after moving reservation
+between entry and send. `REJECTED` now carries a reason; the ledger timeline is
+otherwise preserved.
 
 ### Bindings
 
-`InputConfig.bindings: Mapping[Actor, tuple[str, ...]]` holds modifier key names,
-default `{PLAYER: (), MERC: ('Shift_L',)}`; the column digit is appended by
-`bindings.keys_for(request)`. The validator requires every actor. Rebinding the
-in-game potion keys becomes a config change, and tests assert the mapping through
-config instead of through the sequence.
+```python
+class InputConfig(Config):
+    game_app_id: str = 'steam_app_2536520'
+    focus_timeout: Positive = 0.3
+    key_hold_seconds: Positive = 0.025
+    bindings: Mapping[Actor, tuple[str, ...]] = {Actor.PLAYER: (), Actor.MERC: ('Shift_L',)}
+    column_keys: Mapping[int, str] = {1: '1', 2: '2', 3: '3', 4: '4'}
+```
+
+Validators: `bindings` names every actor; `column_keys` has exactly the keys 1–4;
+every name is non-empty; both are frozen with `MappingProxyType` and serialized
+back to plain dicts, as `HealingConfig` does. `bindings.keys_for(config, request)`
+returns `(*bindings[actor], column_keys[column])` as key names; the facade encodes
+them for `keycodes()`.
 
 ## Performance roadmap, all inside the package
 
@@ -148,13 +185,21 @@ changes the facade.
    returned by `XGetInputFocus` on the connection the attempt already holds. The
    Niri `app_id` query stays: X focus alone cannot see a Wayland-native window
    taking over. Saves two subprocess spawns per delivery.
-2. **`FocusTracker` over `niri msg --json event-stream`.** A daemon thread keeps
-   the focused `app_id` and the time it was observed. `focused()` becomes a lookup
-   that refuses when the stream is disconnected or older than a bound (start at
-   1 s). Falls back to the one-shot probe when the stream cannot start. Saves the
-   remaining two spawns and removes the 0.3 s worst case from the reader thread.
+2. **`FocusTracker` over `niri msg --json event-stream`.** A daemon uses a
+   select loop waking at least every 0.25 s to stamp `alive_at`. Trust the cached
+   app id only after the complete WindowsChanged snapshot (which includes
+   `is_focused`) and while that heartbeat is within 1 s. Niri's
+   [state implementation](https://raw.githubusercontent.com/YaLTeR/niri/main/niri-ipc/src/state.rs)
+   sends no separate initial WindowFocusChanged; subsequent focus events update
+   the initialized snapshot. Unchanged focus stays valid indefinitely.
+   Otherwise use the one-shot probe. EOF, process exit, malformed JSON or unknown
+   event shape clears readiness and reconnects with 0.5 s backoff doubling to 5 s;
+   a fresh initial snapshot is required. Check exact X11 ownership on every attempt,
+   regardless of cache health. Verify long silence, switching, reconnect and stalled
+   reader fallback; record host switch latency through `--check`.
 3. **Reuse the X connection** for the facade's lifetime, reopening on error, if
-   `XOpenDisplay` shows up in timings after 1 and 2. Probably unnecessary.
+   `XOpenDisplay` shows up in timings after 1 and 2. Closed as unnecessary on
+   2026-09-21: median 0.130 ms, p95 0.296 ms over 1,560 host checks.
 4. **Off-thread delivery** is deliberately not planned. The reservation must be
    written under the ledger lock before key-down, and moving the press to a worker
    would hold the lock across threads or split the transaction. After steps 1–2
@@ -176,89 +221,19 @@ changes the facade.
 - Controller tests use `FakeDelivery`, a scripted `Attempt` factory. A contract
   test parametrized over the real facade with fakes and over `FakeDelivery`
   keeps the fake honest on the invariants above.
-- `FocusTracker` tests feed recorded event-stream lines and assert staleness
-  refusal and fallback. `X11Keyboard` tests keep the current ctypes stubs.
+- `FocusTracker` tests feed protocol-shaped event-stream lines through pipes and assert heartbeat health, long quiet focus, reconnection
+  and fallback. `X11Keyboard` tests keep the current ctypes stubs.
 - No test monkeypatches `time`; `clock` and `sleep` are injected.
 
 ## Migration
 
-1. Create the package; move `focus.py`, `keyboard.py`, `potion_input.py` and their
-   tests; keep `inventory_tracking.potion_input` as a one-line re-export for one
-   step. Green, no behavior change.
-2. Add `attempt()` beside `__call__`; switch `PotionsController._deliver` to it;
-   delete `__call__`, the `before_send` callback, the `nonlocal` state and the
-   "omitted delivery reservation" checks; add `reason` to `PotionResult`. Update
-   `test_potions.py` to `FakeDelivery`.
-3. Add `InputConfig.bindings` and `bindings.py`; remove the hard-coded names.
-4. Inject `sleep`; remove the `time.sleep` monkeypatches from tests.
-5. Roadmap steps 1–3, each with `--check` output recorded in the runbook.
-
-Steps 1–4 keep default thresholds, cooldowns, OSD text and the guard set
-unchanged and are verifiable by the existing test suite plus one demo run.
+Follow the [implementation plan](plan.md): settle this contract, move the modules,
+switch the facade/controller together (including injected sleep), configure actor
+and column bindings, then add the guard-only check CLI. Steps 0–4 are verified by
+the suite and demo. Roadmap steps 5–7 each require host verification before the
+next step. Default thresholds, cooldowns, OSD text and guards remain unchanged.
 
 ## Non-goals
 
 Menu detection (excluded by user authorization), Wayland-native injection (the
 game runs under XWayland), any change to healing policy or ledger schema.
-
-## Review suggestions — 2026-09-21
-
-The proposal above is still a draft. Resolve the following before implementation;
-the controller sketch and stream-age rule above must not be copied as-is.
-
-1. **Separate focus state from stream health.** Niri sends an initial snapshot
-   followed by change events; it does not promise a periodic focus heartbeat
-   ([event-stream contract](https://niri-wm.github.io/niri/niri_ipc/enum.Request.html#variant.EventStream)).
-   Unchanged focus must remain valid beyond one second. Track initialization,
-   connection state and reader health separately from the last focus change.
-   Invalidate cached focus on EOF, process exit or an unreadable state update;
-   reconnect with bounded backoff and require a fresh initial snapshot before
-   trusting the cache again. Specify how reader lag is detected rather than
-   treating silence as failure. Keep the exact X11 process-identity check on
-   every attempt. Test long periods without events, focus loss, disconnect and
-   reconnection. Startup fallback remains explicit and must retain all guards.
-
-2. **Spell out the complete ledger timing contract.** Preserve the current
-   cooldown write before attempting input, including clean entry refusals.
-   Read the clock again when creating the durable reservation, and refresh the
-   cooldown then; do not reuse the earlier decision-time `now`. Define the
-   successful `send()` timestamp as completion after release and synchronization.
-   After successful context exit, advance both `pending.sent_at` and
-   `last_delivery.at` to that completion timestamp and emit `PotionSent` with
-   the same value. Preserve the existing tests for rejected-attempt cooldowns
-   and samples taken during delivery; add a delayed-entry case to ensure the
-   cooldown is measured from reservation rather than the initial decision.
-
-3. **Handle the entire attempt lifecycle inside the ledger transaction.** Put
-   the exception boundary around entry, `send()` and context exit, not just
-   `send()`. Return success only after cleanup succeeds. Represent expected
-   pre-input refusals explicitly; preserve suspension for unexpected input
-   errors, including cleanup failures after a press. Catch those failures
-   inside the transaction so its normal exit can persist suspension. A failed
-   reservation save must prevent sending; a failed final save must not report
-   success, and the already-persisted reservation remains the recovery guard.
-   Test entry, send and exit failures, including restart behavior after a
-   post-press cleanup error.
-
-4. **Distinguish a clean refusal from uncertain delivery.** Make `Refused` a
-   separate exception from `InputError`, with a strict guarantee that no key
-   event was attempted. Catch it inside the attempt context, but finalize its
-   result only after successful context exit. Under the still-held ledger lock,
-   restore the previous pending and last-delivery values, retain the attempt
-   cooldown, persist the rollback, and return `REJECTED` with its reason. Never
-   roll back after a press was attempted or cleanup failed; those paths remain
-   suspended. A crash before rollback leaves the durable reservation in place.
-   Test focus loss, a held key and sample expiry between entry and sending;
-   these must cause no key events and no permanent suspension after successful
-   rollback. The draft's claim that these cases suspend "exactly as today" is
-   incorrect: today's final guards reject before creating the reservation.
-
-5. **Configure column keys as well as actor modifiers.** Keep actor bindings
-   for modifiers, and add `InputConfig.column_keys: Mapping[int, str]` with
-   defaults `{1: '1', 2: '2', 3: '3', 4: '4'}`. Resolve modifiers followed by the
-   configured column key. Validate exactly columns 1–4, every actor and nonempty
-   key names; freeze both mappings like the existing configuration mappings.
-   Resolve keycodes before reserving, returning `UNKNOWN_KEY` for an unresolved
-   name. Test a non-digit column binding and a changed merc modifier through
-   actual fake-keyboard sequences, as well as unchanged defaults. Include both
-   mappings in migration step 3 and the `--check` diagnostics.

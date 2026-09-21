@@ -51,5 +51,5 @@ Follow [development practices](development.md) for code changes.
 - `pricing/data/*.json` — ladder (`wp-f-ladder.json`), base buckets (`wp-b-prices.json`), uniques/sets/misc
   (`wp-i-uniques-misc.json`), jewels/charms (`wp-h-jewels-charms.json`), builds (`wp-a-builds.json`,
   `wp-a-blues.json`, `wp-a-variants/`), pickup rules (`wp-d-pickup.json`), session addendum.
-- `pricing/tools/` — `traderie.py`, `d2io_search.py`, `fetch.sh`, `html2text.py`, `tables.py`, rebuild scripts.
+- `pricing/tools/` — `traderie.py`, `pricecheck.py` (name → ask band in one call), `d2io_search.py`, `fetch.sh`, `html2text.py`, `tables.py`, rebuild scripts.
 - `pricing/raw/` — cached pulls (git-ignored, ~200 MB). `lootfilter/` — in-game filter profiles.

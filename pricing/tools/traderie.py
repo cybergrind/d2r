@@ -36,6 +36,7 @@ Facts verified against the live API on 2026-09-18:
   * prop_1076 is "+x to Dragon Flight (Assassin Only)" — the filter in the user's original URL; it returns 0 listings for bases. Almost certainly a mis-copied id; intended filter is probably Ethereal (738).
 """
 import json, subprocess, sys
+from urllib.parse import quote
 UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
 API='https://traderie.com/api/diablo2resurrected'
 def get(url):
@@ -64,7 +65,7 @@ def main(a):
             if not it: break
             for i in it: print(i['id'], '|', i['name'], '|', (i.get('description') or '').replace('\n',' ')[:160])
     elif cmd=='search':
-        for i in get(f'{API}/items?search={"%20".join(a[1:])}').get('items',[]): print(i['id'],'|',i['type'],'|',i['name'])
+        for i in get(f'{API}/items?search={quote(" ".join(a[1:]))}').get('items',[]): print(i['id'],'|',i['type'],'|',i['name'])
     elif cmd=='props':
         f=a[1].lower() if len(a)>1 else ''
         for p in get(f'{API}/properties')['properties']:
@@ -95,7 +96,7 @@ def main(a):
     elif cmd=='runes':
         # rune-for-rune asks: prints "1 Ist asked as: 1x Gul + 1x Pul" lines, SC/NL/PC only, asks paid purely in runes
         for name in a[1:]:
-            hits=[i for i in get(f'{API}/items?search={name}%20rune').get('items',[]) if i['type']=='runes' and i['name'].lower()==f'{name.lower()} rune']
+            hits=[i for i in get(f'{API}/items?search={quote(name)}%20rune').get('items',[]) if i['type']=='runes' and i['name'].lower()==f'{name.lower()} rune']
             if not hits: print(f'# no rune item for {name}'); continue
             iid=hits[0]['id']; out=[]
             for pg in range(2):
@@ -110,4 +111,4 @@ def main(a):
                 ask=fmt_price(pr)
                 print(f"{name} x{l['amount']} | {l['updated_at'][:10]} | stack ask: {ask}  (per-unit = divide by {l['amount']})")
     else: sys.exit(__doc__)
-main(sys.argv[1:])
+if __name__=='__main__': main(sys.argv[1:])

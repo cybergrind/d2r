@@ -74,3 +74,38 @@ def test_with_overrides_revalidates_and_rejects_unknown_fields():
         with_overrides(OSD, monitor=-1)
     with pytest.raises(ValueError, match='Extra inputs'):
         with_overrides(OSD, unknown=1)
+
+
+def test_input_bindings_are_complete_frozen_and_round_trip():
+    from inventory_tracking.config import INPUT, InputConfig
+    from inventory_tracking.models import Actor
+
+    assert INPUT.bindings == {Actor.PLAYER: (), Actor.MERC: ('Shift_L',)}
+    assert INPUT.column_keys == {1: '1', 2: '2', 3: '3', 4: '4'}
+    columns = {1: '1', 2: '2', 3: 'F3', 4: '4'}
+    changed = with_overrides(INPUT, column_keys=columns)
+    columns[3] = 'unknown'
+    assert changed.column_keys[3] == 'F3'
+    with pytest.raises(TypeError):
+        changed.column_keys[3] = 'unknown'  # pyrefly: ignore[unsupported-operation]
+    with pytest.raises(TypeError):
+        INPUT.bindings[Actor.MERC] = ()  # pyrefly: ignore[unsupported-operation]
+    assert with_overrides(changed, focus_timeout=0.5).column_keys == changed.column_keys
+    assert InputConfig.model_validate_json(changed.model_dump_json()) == changed
+
+
+@pytest.mark.parametrize(
+    'changes',
+    [
+        {'bindings': {}},
+        {'bindings': {'player': (), 'merc': ('',)}},
+        {'column_keys': {1: '1', 2: '2', 3: '3'}},
+        {'column_keys': {1: '1', 2: '2', 3: '3', 5: '5'}},
+        {'column_keys': {1: '1', 2: '2', 3: ' ', 4: '4'}},
+    ],
+)
+def test_input_bindings_reject_missing_entries_and_empty_names(changes):
+    from inventory_tracking.config import INPUT
+
+    with pytest.raises(ValueError, match=r'bindings|column_keys'):
+        with_overrides(INPUT, **changes)

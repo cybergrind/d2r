@@ -1,14 +1,14 @@
 import copy
 from dataclasses import replace
-from unittest.mock import Mock
 
 import pytest
 
 from inventory_tracking.automation import Automation
 from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING
-from inventory_tracking.models import Actor, Outcome
+from inventory_tracking.models import Actor, Outcome, Refusal
 from inventory_tracking.state import from_research
 from tests.inventory_tracking.conftest import belt_of
+from tests.inventory_tracking.input.fakes import FakeDelivery
 
 
 def test_player_first_and_uniform_statuses(healing_setup, sample, clock):
@@ -24,7 +24,7 @@ def test_player_first_and_uniform_statuses(healing_setup, sample, clock):
 def test_rejected_input_does_not_create_notification(healing_setup, sample):
     make, _ = healing_setup
     controller = make(PLAYER_HEALING)
-    controller.potions.deliver = Mock(return_value=False)
+    controller.potions.delivery = FakeDelivery(refusal=Refusal.UNFOCUSED)
     automation = Automation([controller])
     assert automation.step(sample())[Actor.PLAYER].outcome == Outcome.REJECTED
     assert automation.events == ()

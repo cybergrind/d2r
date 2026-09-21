@@ -152,6 +152,38 @@ class InputConfig(Config):
     game_app_id: str = 'steam_app_2536520'
     focus_timeout: Positive = 0.3
     key_hold_seconds: Positive = 0.025
+    bindings: Mapping[Actor, tuple[str, ...]] = Field(
+        default_factory=lambda: {Actor.PLAYER: (), Actor.MERC: ('Shift_L',)}, validate_default=True
+    )
+    column_keys: Mapping[int, str] = Field(
+        default_factory=lambda: {1: '1', 2: '2', 3: '3', 4: '4'}, validate_default=True
+    )
+
+    @field_validator('bindings', mode='after')
+    @classmethod
+    def _actor_bindings(cls, values: Mapping[Actor, tuple[str, ...]]) -> Mapping[Actor, tuple[str, ...]]:
+        if set(values) != set(Actor):
+            raise ValueError('bindings must configure every actor')
+        if any(not name.strip() for names in values.values() for name in names):
+            raise ValueError('Binding names must be non-empty')
+        return MappingProxyType(dict(values))
+
+    @field_validator('column_keys', mode='after')
+    @classmethod
+    def _column_bindings(cls, values: Mapping[int, str]) -> Mapping[int, str]:
+        if set(values) != {1, 2, 3, 4}:
+            raise ValueError('column_keys must configure exactly columns 1-4')
+        if any(not name.strip() for name in values.values()):
+            raise ValueError('Column key names must be non-empty')
+        return MappingProxyType(dict(values))
+
+    @field_serializer('bindings')
+    def _plain_bindings(self, values: Mapping[Actor, tuple[str, ...]]) -> dict[Actor, tuple[str, ...]]:
+        return dict(values)
+
+    @field_serializer('column_keys')
+    def _plain_columns(self, values: Mapping[int, str]) -> dict[int, str]:
+        return dict(values)
 
 
 OSD = OSDConfig()

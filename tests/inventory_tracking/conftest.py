@@ -66,14 +66,13 @@ def healing_setup(tmp_path, clock):
 
     sent = Mock()
 
-    def deliver(state, request, *, max_age, before_send):
-        before_send()
-        sent(request)
-        return True
+    from tests.inventory_tracking.input.fakes import FakeDelivery
+
+    delivery = FakeDelivery(clock=clock, on_send=sent)
 
     def make(config):
         return HealController(
-            config, PotionsController(config, PotionLedger(tmp_path, boot_id='test'), deliver, clock=clock)
+            config, PotionsController(config, PotionLedger(tmp_path, boot_id='test'), delivery, clock=clock)
         )
 
     return make, sent

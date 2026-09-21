@@ -2,7 +2,40 @@
 
 2026-09-21. Executes [design.md](design.md) with its review suggestions resolved.
 Where this plan and the design body disagree, this plan wins; step 0 folds the
-resolutions back into the design. Nothing here is implemented yet.
+resolutions back into the design.
+
+## Execution status — complete, 2026-09-21
+
+- Steps 0–4 implemented and verified: package move, explicit facade/controller
+  contract, frozen actor/column bindings and the guard-only CLI. The module-move
+  checkpoint passed the unchanged suite (242 passed, 1 skipped).
+- Step 5 implemented with a bounded X11 ancestor walk, buffer cleanup and a scoped
+  X error trap for disappearing windows. `xdotool` is no longer used by production
+  input. Host verification passed at 13:05 UTC: all eight game checks ready,
+  owner PID 2911790 matched xdotool; all eight kitty checks refused, with no X11
+  owner and empty xdotool stdout. Reports: `runs/input-{game,terminal}.json`.
+- Validation through step 6: 318 tests passed, 1 environment-dependent syscall test skipped;
+  all pre-commit hooks (including ruff and pyrefly) passed; the input-free
+  `osd --demo --once` still prints `PREVIEW · juv 3 · hp 1`.
+- Step 6 implemented: stream heartbeat, initial focus snapshot, reconnect/backoff,
+  one-shot fallback and explicit process shutdown. A timed `--check --duration 20`
+  captures focus switches. Host gate passed at 13:17 UTC: 1,560 checks, all
+  cached, one stream connection, no errors. All 648 terminal checks refused;
+  game checks gave 864 held-key refusals and 48 ready results with exact identity.
+  Evidence: `runs/input-tracker.json` and `runs/input-tracker.log`.
+- Step 6 contract correction: Niri replicates windows and their `is_focused`
+  flags in `WindowsChanged`; it does not send a separate initial focus event.
+  Readiness now follows that full snapshot, then subsequent focus updates.
+  Verified against [Niri's state implementation](https://raw.githubusercontent.com/YaLTeR/niri/main/niri-ipc/src/state.rs).
+- Step 7 closed as not needed: post-tracker display-open median 0.130 ms,
+  p95 0.296 ms, max 2.720 ms across 1,560 checks. Keep one connection per
+  attempt. Total guard time median 0.316 ms, p95 0.678 ms. No reuse code added.
+- CLI adds `--output PATH` for an atomic, timestamped completion report and
+  `display_open_ms`/total timings supporting the reuse decision.
+- Fakes live in `tests/inventory_tracking/input/fakes.py` so both parent-level
+  controller tests and input contract tests can import them. Binding behavior is
+  covered through configuration validation and actual facade key sequences.
+
 
 Rules for every step: red/green per [development.md](../../development.md), then
 `uv run pytest tests -q`, `uv run pre-commit run --all-files` (ruff, pyrefly).
@@ -16,14 +49,19 @@ roadmap steps. Commit only when asked.
 ```python
 # models.py — next to Outcome, so PotionResult can carry it without importing the package
 class Refusal(StrEnum):
-    UNFOCUSED = 'unfocused'; NO_DISPLAY = 'no_display'; UNKNOWN_KEY = 'unknown_key'
-    KEY_HELD = 'key_held'; STALE = 'stale'
+    UNFOCUSED = 'unfocused'
+    NO_DISPLAY = 'no_display'
+    UNKNOWN_KEY = 'unknown_key'
+    KEY_HELD = 'key_held'
+    STALE = 'stale'
+
 
 @dataclass(frozen=True)
 class PotionResult:
     outcome: Outcome
     event: PotionSent | None = None
-    reason: Refusal | None = None       # only with Outcome.REJECTED
+    reason: Refusal | None = None  # only with Outcome.REJECTED
+
 
 # inventory_tracking/input/facade.py
 @dataclass(frozen=True)
@@ -32,23 +70,37 @@ class Target:
     sampled_at: float
     max_age: float
 
+
 class Refused(Exception):
     """Clean refusal after entry: no key event was attempted."""
+
     def __init__(self, refusal: Refusal) -> None: ...
+
 
 class InputError(RuntimeError):
     """Uncertain: a key may be down, a release was unconfirmed, or the backend failed unexpectedly."""
 
+
 class Attempt(Protocol):
     refusal: Refusal | None
+
     def send(self) -> float: ...
 
-class Delivery(Protocol):               # what PotionsController depends on
+
+class Delivery(Protocol):  # what PotionsController depends on
     def attempt(self, target: Target, request: PotionRequest) -> AbstractContextManager[Attempt]: ...
 
-class PotionInput:                      # implements Delivery
-    def __init__(self, config: InputConfig = INPUT, *, clock=time.monotonic, sleep=time.sleep,
-                 focus: FocusProbe | None = None, keyboard: Keyboard | None = None) -> None: ...
+
+class PotionInput:  # implements Delivery
+    def __init__(
+        self,
+        config: InputConfig = INPUT,
+        *,
+        clock=time.monotonic,
+        sleep=time.sleep,
+        focus: FocusProbe | None = None,
+        keyboard: Keyboard | None = None,
+    ) -> None: ...
 ```
 
 ### Facade behaviour
@@ -232,8 +284,10 @@ Rules (replacing the design's one-second age rule):
 - A daemon thread runs `niri msg --json event-stream` and consumes lines with a
   `select`-based loop that wakes at least every 0.25 s; each wake stamps
   `alive_at`. Focus is cached as `app_id | None` from `WindowFocusChanged` and the
-  initial `WindowsChanged` snapshot, with `ready = True` once both initial events
-  arrived. Unchanged focus stays valid indefinitely.
+  initial `WindowsChanged` snapshot. Its `is_focused` flags initialize both
+  window identity and focus; no separate initial focus event is promised.
+  `ready = True` only after a complete valid snapshot has been consumed and the
+  pending pipe data drained. Unchanged focus stays valid indefinitely.
 - `focused(session)` is a lookup that returns `app_id == game_app_id` only when
   `ready` and `alive_at` is within 1 s (the thread is being scheduled); otherwise
   it falls back to `NiriFocusProbe` for that call. The X11 owner check from step 5

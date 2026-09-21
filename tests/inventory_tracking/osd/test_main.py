@@ -26,6 +26,7 @@ def test_observation_modes_cannot_deliver_keys(tmp_path, mode, capsys):
         assert all(not controller.config.enabled for controller in automation.controllers)
         automation.step(State(sampled_at=100, health=PlayerHealth(100, 1000)))
         sender.return_value.assert_not_called()
+        sender.return_value.close.assert_called_once()
 
 
 def test_cli_resolves_configuration_before_opening_window(tmp_path):

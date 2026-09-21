@@ -147,6 +147,14 @@ class State:
         return self.belt.cells(kind) if self.belt else ()
 
 
+class Refusal(StrEnum):
+    UNFOCUSED = 'unfocused'
+    NO_DISPLAY = 'no_display'
+    UNKNOWN_KEY = 'unknown_key'
+    KEY_HELD = 'key_held'
+    STALE = 'stale'
+
+
 class Outcome(StrEnum):
     IDLE = 'idle'
     DISABLED = 'disabled'
@@ -178,3 +186,4 @@ class PotionSent:
 class PotionResult:
     outcome: Outcome
     event: PotionSent | None = None
+    reason: Refusal | None = None

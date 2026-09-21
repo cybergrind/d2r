@@ -6,6 +6,7 @@ from collections.abc import Callable, Sequence
 from .belt import column_stock
 from .common import LOG
 from .config import HealingConfig
+from .input import Delivery, InputError, Refused, Target
 from .models import (
     Actor,
     BeltCell,
@@ -28,9 +29,6 @@ from .potion_ledger import (
 )
 
 
-type Deliver = Callable[..., bool]
-
-
 def actor_session(state: State, session: SessionIdentity, actor: Actor) -> SessionIdentity:
     """The merc actor's record is bound to the hireling; the player's record ignores it."""
     if actor == Actor.MERC:
@@ -43,13 +41,13 @@ class PotionsController:
         self,
         config: HealingConfig,
         ledger: PotionLedger,
-        deliver: Deliver,
+        delivery: Delivery,
         *,
         clock: Callable[[], float] = time.monotonic,
     ) -> None:
         self.config = config
         self.ledger = ledger
-        self.deliver = deliver
+        self.delivery = delivery
         self.clock = clock
 
     def step(self, state: State, choices: Sequence[PotionType]) -> PotionResult:
@@ -147,36 +145,37 @@ class PotionsController:
         # Reserve attempts even on clean focus rejection, avoiding retry bursts.
         data.cooldowns[key] = now
         transaction.save()
-        reservation: PendingReservation | None = None
-        delivery: LastDelivery | None = None
-
-        def before_send() -> None:
-            nonlocal reservation, delivery
-            sent_at = self.clock()
-            data.cooldowns[key] = sent_at
-            reservation = PendingReservation(item_id=item.item_id, sent_at=sent_at)
-            delivery = LastDelivery(session=record.session.core, at=sent_at)
-            record.pending = reservation
-            data.last_delivery = delivery
-            # Persist before the first key-down: interrupted delivery is uncertain.
-            transaction.save()
-
+        previous = (record.pending, data.last_delivery)
+        refusal = None
+        completion: tuple[PendingReservation, LastDelivery, float] | None = None
         try:
-            sent = self.deliver(state, request, max_age=self.config.sample_max_age, before_send=before_send)
-            if sent and reservation is None:
-                raise RuntimeError('Input backend omitted delivery reservation')
-        except Exception:
+            with self.delivery.attempt(
+                Target(record.session, state.sampled_at, self.config.sample_max_age), request
+            ) as attempt:
+                refusal = attempt.refusal
+                if refusal is None:
+                    reserved_at = self.clock()
+                    data.cooldowns[key] = reserved_at
+                    reservation = PendingReservation(item_id=item.item_id, sent_at=reserved_at)
+                    delivery = LastDelivery(session=record.session.core, at=reserved_at)
+                    record.pending = reservation
+                    data.last_delivery = delivery
+                    # A ledger save failure propagates without pressing or suspending.
+                    transaction.save()
+                    try:
+                        finished_at = attempt.send()
+                        completion = (reservation, delivery, finished_at)
+                    except Refused as exc:
+                        record.pending, data.last_delivery = previous
+                        transaction.save()
+                        refusal = exc.refusal
+        except InputError:
             record.suspended = True
             LOG.exception('%s healing suspended after input error', actor)
             return PotionResult(Outcome.SUSPENDED)
-        if not sent:
-            if reservation is not None:
-                record.suspended = True
-                return PotionResult(Outcome.SUSPENDED)
-            return PotionResult(Outcome.REJECTED)
-        finished_at = self.clock()
-        if reservation is None or delivery is None:
-            raise RuntimeError('Input backend omitted delivery reservation')
+        if completion is None:
+            return PotionResult(Outcome.REJECTED, reason=refusal)
+        reservation, delivery, finished_at = completion
         delivery.at = finished_at
         reservation.sent_at = finished_at
         LOG.info('%s %s potion: column %s; item %s', actor, potion, item.column, item.item_id)

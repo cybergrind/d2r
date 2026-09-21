@@ -1,7 +1,11 @@
 from dataclasses import replace
 
+import pytest
+
 from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING, with_overrides
-from inventory_tracking.models import BeltCell, Outcome, PotionType, SessionIdentity
+from inventory_tracking.input.facade import InputError
+from inventory_tracking.models import Actor, BeltCell, Outcome, PotionType, Refusal, SessionIdentity
+from tests.inventory_tracking.input.fakes import FakeDelivery
 
 
 PLAYER_8 = SessionIdentity(1, '2', 8)
@@ -89,12 +93,7 @@ def test_sample_must_start_after_key_delivery_finishes(healing_setup, sample, cl
     make, _ = healing_setup
     player, merc = make(PLAYER_HEALING), make(MERC_HEALING)
 
-    def slow_delivery(state, request, *, max_age, before_send):
-        before_send()
-        clock.now = 100.1
-        return True
-
-    player.potions.deliver = slow_delivery
+    player.potions.delivery = FakeDelivery(clock=clock, on_send=lambda request: setattr(clock, 'now', 100.1))
     assert player.step(sample()).outcome == Outcome.SENT
     assert merc.step(sample(100.05)).outcome == Outcome.STALE_BELT
 
@@ -103,11 +102,7 @@ def test_partial_delivery_suspends_across_instances_without_success_event(healin
     make, _ = healing_setup
     controller = make(PLAYER_HEALING)
 
-    def partial(state, request, *, max_age, before_send):
-        before_send()
-        raise OSError('input failed after key-down')
-
-    controller.potions.deliver = partial
+    controller.potions.delivery = FakeDelivery(error=InputError('input failed after key-down'))
     result = controller.step(sample())
     assert result.outcome == Outcome.SUSPENDED
     assert result.event is None
@@ -116,11 +111,9 @@ def test_partial_delivery_suspends_across_instances_without_success_event(healin
 
 
 def test_rejected_attempt_reserves_only_its_type_cooldown(healing_setup, sample, clock):
-    from unittest.mock import Mock
-
     make, sent = healing_setup
     player = make(PLAYER_HEALING)
-    player.potions.deliver = Mock(return_value=False)
+    player.potions.delivery = FakeDelivery(refusal=Refusal.UNFOCUSED)
     assert player.step(sample()).outcome == Outcome.REJECTED
     clock.now = 100.1
     assert make(PLAYER_HEALING).step(sample(100.1)).outcome == Outcome.COOLDOWN
@@ -144,3 +137,107 @@ def test_equal_stock_prefers_the_lowest_column(healing_setup, sample):
     contents = tuple(606 if index % 4 in (2, 3) else None for index in range(16))
     assert make(PLAYER_HEALING).step(sample(belt_contents=contents)).outcome == Outcome.SENT
     assert sent.call_args.args[0].item.column == 3
+
+
+@pytest.mark.parametrize('late', [False, True])
+@pytest.mark.parametrize('reason', [Refusal.UNFOCUSED, Refusal.KEY_HELD, Refusal.STALE])
+def test_refusal_rolls_back_reservation_and_preserves_prior_delivery(late, reason, healing_setup, sample, clock):
+    from inventory_tracking.potion_ledger import LastDelivery
+
+    make, _ = healing_setup
+    player = make(PLAYER_HEALING)
+    ledger = player.potions.ledger
+    previous = LastDelivery(session=(1, '2', 7), at=99)
+    with ledger.transaction() as tx:
+        tx.data.last_delivery = previous
+    player.potions.delivery = FakeDelivery(**{'late_refusal' if late else 'refusal': reason})
+    result = player.step(sample())
+    assert (result.outcome, result.reason, result.event) == (Outcome.REJECTED, reason, None)
+    with ledger.transaction() as tx:
+        assert tx.data.actors[Actor.PLAYER].pending is None
+        assert not tx.data.actors[Actor.PLAYER].suspended
+        assert tx.data.last_delivery == previous
+        assert tx.data.cooldowns['player:healing'] == 100
+    clock.now = 100.1
+    assert make(PLAYER_HEALING).step(sample(100.1)).outcome == Outcome.COOLDOWN
+    clock.now = 103
+    assert make(PLAYER_HEALING).step(sample(103)).outcome == Outcome.SENT
+
+
+@pytest.mark.parametrize('stage', ['entry_error', 'error', 'exit_error'])
+def test_entire_input_lifecycle_suspends_durably(stage, healing_setup, sample, clock):
+    make, _ = healing_setup
+    player = make(PLAYER_HEALING)
+    player.potions.delivery = FakeDelivery(**{stage: InputError(stage)})
+    result = player.step(sample())
+    assert (result.outcome, result.event) == (Outcome.SUSPENDED, None)
+    clock.now = 105
+    assert make(PLAYER_HEALING).step(sample(105)).outcome == Outcome.SUSPENDED
+
+
+def test_delayed_entry_uses_fresh_reservation_and_completion_times(healing_setup, sample, clock):
+    make, _ = healing_setup
+    player = make(PLAYER_HEALING)
+    ledger = player.potions.ledger
+
+    def on_send(request):
+        from inventory_tracking.potion_ledger import LedgerData
+
+        saved = LedgerData.model_validate_json(ledger.path.read_text())
+        assert saved.cooldowns['player:healing'] == pytest.approx(100.5)
+        assert saved.last_delivery is not None
+        pending = saved.actors[Actor.PLAYER].pending
+        assert pending is not None
+        assert saved.last_delivery.at == pytest.approx(100.5)
+        assert pending.sent_at == pytest.approx(100.5)
+        clock.now = 100.7
+
+    player.potions.delivery = FakeDelivery(
+        clock=clock,
+        on_entry=lambda: setattr(clock, 'now', 100.5),
+        on_send=on_send,
+    )
+    result = player.step(sample())
+    assert result.event.sent_at == pytest.approx(100.7)
+    with ledger.transaction() as tx:
+        assert tx.data.last_delivery.at == pytest.approx(100.7)
+        assert tx.data.actors[Actor.PLAYER].pending.sent_at == pytest.approx(100.7)
+    clock.now = 103.1
+    assert make(PLAYER_HEALING).step(sample(103.1, belt_ids=(102, 103))).outcome == Outcome.COOLDOWN
+
+
+@pytest.mark.parametrize('save_number', [2, 3])
+def test_failed_reservation_or_final_save_reports_unavailable(save_number, healing_setup, sample, clock, monkeypatch):
+    from inventory_tracking.potion_ledger import LedgerData, LedgerTransaction
+
+    make, sent = healing_setup
+    player = make(PLAYER_HEALING)
+    original = LedgerTransaction.save
+    calls = 0
+
+    def save(tx):
+        nonlocal calls
+        calls += 1
+        if calls == save_number:
+            raise OSError('disk failure')
+        original(tx)
+
+    monkeypatch.setattr(LedgerTransaction, 'save', save)
+    # Advance completion to ensure the final transaction is dirty.
+    sent.side_effect = lambda request: setattr(clock, 'now', 100.1)
+    result = player.step(sample())
+    assert (result.outcome, result.event) == (Outcome.UNAVAILABLE, None)
+    assert sent.call_count == (0 if save_number == 2 else 1)
+    saved = LedgerData.model_validate_json(player.potions.ledger.path.read_text())
+    if save_number == 3:
+        pending = saved.actors[Actor.PLAYER].pending
+        assert pending is not None
+        assert pending.sent_at == 100
+        assert saved.last_delivery is not None
+        pending = saved.actors[Actor.PLAYER].pending
+        assert pending is not None
+        assert saved.last_delivery.at == 100
+        clock.now = 100.2
+        assert make(PLAYER_HEALING).step(sample(100.2)).outcome == Outcome.PENDING
+    else:
+        assert saved.actors[Actor.PLAYER].pending is None

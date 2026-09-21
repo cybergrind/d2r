@@ -4,14 +4,15 @@ import argparse
 import math
 import time
 from collections.abc import Callable
+from contextlib import ExitStack
 from pathlib import Path
 
 from ..automation import Automation
 from ..common import LOG, configure_logging, log_to_file
 from ..config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
 from ..heal import HealController
+from ..input import PotionInput
 from ..models import BeltSnapshot, PlayerHealth, State
-from ..potion_input import PotionInput
 from ..potion_ledger import PotionLedger
 from ..potions import PotionsController
 from ..probe import create_run
@@ -96,7 +97,7 @@ def main():
         parser.error(str(exc))
     configure_logging()
     directory, _ = create_run(args.output.resolve())
-    with log_to_file(directory / 'osd.log'):
+    with log_to_file(directory / 'osd.log'), ExitStack() as resources:
         LOG.info('OSD session: %s', directory)
         presenter = Presenter(osd_config)
         reader = None
@@ -117,6 +118,7 @@ def main():
         else:
             ledger = PotionLedger(directory.parent)
             deliver = PotionInput()
+            resources.callback(deliver.close)
             configs = (
                 with_overrides(PLAYER_HEALING, enabled=args.player_heal and not args.once),
                 with_overrides(MERC_HEALING, enabled=args.merc_heal and not args.once),

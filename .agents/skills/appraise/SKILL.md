@@ -35,7 +35,7 @@ never from web search (core rule 1 in `AGENTS.md`).
    player main-slot gear only). Rare class items with staff-mods, rare Warlock daggers, rare Amazon
    javelins and magic gloves all have real buckets (eth rare +2 Warlock Mithril Points ask 171 Ist median;
    Sazabi's set is the S-tier guide's uber-merc kit).
-6. **Recompute from the cache** when no bucket matches the roll: `pricing/raw/traderie/<slug>.json`
+6. **Recompute with `pricing/tools/pricecheck.py`** when no bucket matches the roll: `python3 pricing/tools/pricecheck.py "<Item Name>" [--cache] [--save] [--pages N]` searches the catalog, reads `pricing/raw/traderie/<slug>.json` or pulls live, and prints the band (in-scope count, sellers, offer-only, min · median · max, distribution, unconverted price items). It already implements everything below — scope filters, OR-group cheapest, one vote per seller, ladder + gem/key/essence/statue conversion, per-stack division for runes/gems — do not re-implement it by hand. Manual recipe, for reference: `pricing/raw/traderie/<slug>.json`
    (a bare list, or `{"listings": [...]}` for `wpi-*` / `wph-*`). Keep property 799 = "softcore",
    800 = false, 798 = "PC", 1854 not "lord of destruction"/"classic"; price = cheapest OR-group of
    `prices[]` (different `group` = alternatives, same group = summed); convert with the ladder; **one vote
