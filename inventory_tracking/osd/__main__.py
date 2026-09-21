@@ -16,7 +16,8 @@ from ..potion_ledger import PotionLedger
 from ..potions import PotionsController
 from ..probe import create_run
 from ..reader import LiveReader
-from .state import display_lines
+from .demo import resource_frame
+from .presenter import Presenter
 
 
 def positive_float(value):
@@ -31,6 +32,7 @@ def main():
     parser.add_argument(
         '--demo', action='store_true', help='Preview 1526/1545 HP, 3 missing rejuvenations, 1 missing HP potion'
     )
+    parser.add_argument('--demo-resources', action='store_true', help='Cycle staff repair and portal refill previews')
     parser.add_argument('--text', action='store_true', help='Print state changes instead of opening a window')
     parser.add_argument('--once', action='store_true', help='Print one sample and exit (implies --text)')
     parser.add_argument(
@@ -80,6 +82,7 @@ def main():
     )
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'runs' / 'osd')
     args = parser.parse_args()
+    args.demo = args.demo or args.demo_resources
     try:
         osd_config = replace(
             OSD,
@@ -95,12 +98,17 @@ def main():
     directory, _ = create_run(args.output.resolve())
     with log_to_file(directory / 'osd.log'):
         LOG.info('OSD session: %s', directory)
+        presenter = Presenter(osd_config)
         reader = None
         if args.demo:
+            started = time.monotonic()
 
-            def latest():
+            def latest(now=None):
+                now = time.monotonic() if now is None else now
+                if args.demo_resources:
+                    return resource_frame(now=now, elapsed=now - started)
                 return State(
-                    time.monotonic(),
+                    now,
                     1526 * 256,
                     1545 * 256,
                     belt_contents=(531, 531, 606, 606) * 2 + (531, None, 606, 606) + (None, None, 606, None),
@@ -120,6 +128,7 @@ def main():
                 pid=args.pid,
                 config=reader_config,
                 automation=automation,
+                observer=presenter.update,
             )
             latest = reader.latest
             reader.start()
@@ -128,11 +137,9 @@ def main():
                 previous = None
                 while True:
                     state = latest()
-                    lines = display_lines(
-                        state,
-                        now=time.monotonic(),
-                        config=osd_config,
-                    )
+                    if args.demo:
+                        presenter.update(state)
+                    lines = presenter.render(now=time.monotonic())
                     if lines != previous:
                         print(('PREVIEW · ' if args.demo else '') + ' · '.join(lines), flush=True)
                         previous = lines
@@ -141,7 +148,12 @@ def main():
                     time.sleep(osd_config.refresh_interval)
             from .window import show
 
-            return show(latest, osd_config, demo=args.demo)
+            def render(*, now):
+                if args.demo:
+                    presenter.update(latest(now))
+                return presenter.render(now=now)
+
+            return show(render, osd_config, demo=args.demo)
         except KeyboardInterrupt:
             return 0
         except (ImportError, OSError, RuntimeError, ValueError) as exc:

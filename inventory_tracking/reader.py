@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 from .automation import Automation
 from .capture_probe import capture_image
 from .common import LOG
-from .config import READER
+from .config import READER, RESOURCE_READER
 from .image_probe import inspect_images
 from .models import State
 from .probe import inspect_game, select_game_process
@@ -22,7 +22,12 @@ SUPPORTED_SHA256 = '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bf
 
 
 class LiveReader:
-    def __init__(self, directory, *, pid=None, config=READER, automation=None):
+    def __init__(
+        self, directory, *, pid=None, config=READER, automation=None, observer=None, resource_config=RESOURCE_READER
+    ):
+        self.resource_config = resource_config
+        self.observer = observer
+        self.observer_error = None
         self.directory = directory
         self.pid = pid
         self.config = config
@@ -42,6 +47,14 @@ class LiveReader:
         state = replace(state, events=self.automation.events)
         with self.lock:
             self.state = state
+        if self.observer is not None:
+            try:
+                self.observer(state)
+                self.observer_error = None
+            except Exception as exc:
+                if str(exc) != self.observer_error:
+                    LOG.exception('State observer failed')
+                self.observer_error = str(exc)
         if state.reason != self.last_reason:
             LOG.info('Reader state: %s', state.reason or 'available')
             self.last_reason = state.reason
@@ -74,11 +87,17 @@ class LiveReader:
                     pid, images, capture = self.connect(Path(temporary))
                     last_error = None
                     while not self.stop_event.is_set():
-                        snapshot = sample_units(pid, images, capture, merc=True)
+                        snapshot = sample_units(
+                            pid,
+                            images,
+                            capture,
+                            merc=True,
+                            **({'resources': True} if self.resource_config.enabled else {}),
+                        )
                         publish(self.directory / 'units.json', snapshot)
                         if snapshot['status'] != 'research':
                             raise ValueError('game changed; reconnecting')
-                        state = from_research(snapshot)
+                        state = from_research(snapshot, resource_config=self.resource_config)
                         results = self.automation.step(state)
                         for actor, result in results.items():
                             publish(self.directory / f'{actor}-heal.json', asdict(result))

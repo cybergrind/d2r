@@ -12,6 +12,7 @@ from .images import read_pe
 from .linux_process import identity, process_mappings
 from .mercenary import describe_monster
 from .reports import publish
+from .resource_probe import collect_resources
 from .units import describe_item, describe_player, summarize_research, unit_matches, walk_units
 
 
@@ -46,7 +47,7 @@ class ResearchReader:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def sample_units(pid, images, capture, *, merc=False):
+def sample_units(pid, images, capture, *, merc=False, resources=False):
     """Return the complete in-memory research snapshot."""
     candidates = capture['unit_table_candidates']
     addresses = sorted({x['table_address'] for x in candidates})
@@ -138,14 +139,35 @@ def sample_units(pid, images, capture, *, merc=False):
         )
         if identity(pid) != token or not result['mappings_stable']:
             result['status'] = 'stale'
+        if resources:
+            # Separate budget and mappings: optional research cannot invalidate core data.
+            optional = ResearchReader(fd, after)
+            try:
+                result['resources'] = collect_resources(optional.read, result['groups'])
+                for label in ('players', 'items'):
+                    table, heads = table_heads[label]
+                    if optional.read(table, 1024) != heads or any(
+                        not unit_matches(optional.read, unit) for unit in result['groups'][label]['units']
+                    ):
+                        result['resources'].update(complete=False, reason='Resource traversal changed')
+                final_mappings = process_mappings(pid)
+                final_starts = [m['start'] for m in final_mappings]
+                stable = all(
+                    relevant(after, after_starts, a, n) == relevant(final_mappings, final_starts, a, n)
+                    for a, n in optional.ranges
+                )
+                if identity(pid) != token or not stable:
+                    result['resources'].update(complete=False, reason='Resource process/mappings changed')
+            except (OSError, ValueError) as exc:
+                result['resources'] = {'complete': False, 'reason': str(exc)}
         result['bytes_requested'] = reader.bytes_requested
     finally:
         os.close(fd)
     return result
 
 
-def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False):
-    result = sample_units(pid, images, capture, merc=merc)
+def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False, resources=False):
+    result = sample_units(pid, images, capture, merc=merc, **({'resources': True} if resources else {}))
     if 'groups' not in result:
         return result
     publish(directory / 'units.json', result)

@@ -213,3 +213,62 @@ selection, a new game and one full process restart. Remaining reader work:
 robust local-player identification (including empty belt/multiple players),
 build gating, explicit unavailable/stale state, in-place mutation checks,
 mixed columns/other keys and belt capacity. No overlay or controller exists yet.
+
+## Optional resource research — 2026-09-21
+
+`probe --resources` adds **unvalidated** item and area records to `units.json`.
+No new memory layout is promoted by this change. `RESOURCE_READER` defaults keep
+all new live widgets unavailable until controlled samples establish each source.
+
+Verified identifiers from the existing local d2data dumps: portal tome class 533,
+capacity 20; staff class IDs 63–67, 91–92, 156–160 and 259–263. These identify item
+classes, not the presence of Teleport charges. Research reads descriptors +0x30,
++0xa8 and +0xe8 independently of the existing HP/belt path and records raw stats.
+
+External leads: [d2go item reader](https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/memory/item.go)
+for item stat lists and secondary body slots 11/12;
+[d2go stat definitions](https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/data/stat/stats.go)
+for quantity 70 and charged skill 204;
+[d2go skills](https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/data/skill/skill.go)
+for Teleport 54;
+[d2go player reader](https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/memory/player.go)
+for path +0x20 → room +0x18 → room2 +0x90 → level +0x1f8;
+[d2go areas](https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/data/area/area.go)
+for town IDs 1, 40, 75, 103, 109. These are candidates for this build.
+
+The decoder's charge packing hypothesis is skill ID in layer >>6, remaining
+charges in raw low byte, maximum in the next byte. Verify against tooltip values
+and one charge use before setting a teleport descriptor. An unexpected encoding,
+linked-list-only modifier, or active-swap slot remapping requires additional
+reader work; do not silently normalize it. Tome absence and staff absence also
+require a complete owned-item traversal, never a failed read.
+
+### Controlled resource validation and promotion — 2026-09-21
+
+The initial research-only status above is superseded for the current supported
+build by these host captures:
+
+| Run | Staff slot | Charged stat raw | Decoded charges | Tome quantity | Area |
+|---|---:|---:|---|---:|---:|
+| `20260921T012249Z-6e86409a` | 4 | 8480 | 32/33 | 18 | 109 |
+| `20260921T012338Z-da966c41` | 11 | 8480 | 32/33 | 18 | 109 |
+| `20260921T012457Z-c7fd3e4d` | 11 | 8479 | 31/33 | 16 | 111 |
+
+User confirmed initial staff 32/33 and tome 18/20, switched to main weapons
+(staff inactive in slot 11), then used one staff Teleport and two tome portals
+outside town. The same staff unit 1569161438 has charged stat 204 at descriptor
++0xe8, layer 3457 (Teleport 54, skill level 1). Low byte is remaining charges;
+next byte is capacity. Tome unit 103593502 has layer-zero stat 70 at +0x30
+(and +0xe8). Player 50929427 owns both; unrelated stash staffs were excluded.
+Town 109 (Harrogath) changed to field 111; the subsequent live OSD reported area
+110, 14 portals and 29/33 staff charges. The user supplied the actions; the agent
+sent no game input.
+
+The single-slot assumption was disproved: body slots represent active/inactive
+hands here. Select a unique charged staff across slots 4/5/11/12; do not restrict
+to 11/12 or it disappears while active. These captures are preserved as minimal
+research snapshots in `tests/inventory_tracking/fixtures/resources_*.json` and
+replayed through production decoders and the presenter. `RESOURCE_READER` enables
+these verified descriptors and selection/location rules. Repair/refill/removal
+transitions and the low-charge display boundary have synthetic test coverage;
+visual confirmation of those transitions remains pending.

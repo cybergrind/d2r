@@ -6,7 +6,6 @@ import time
 
 from ..common import LOG
 from ..config import OSD
-from .state import display_lines
 
 
 def load_toolkit():
@@ -30,7 +29,7 @@ def apply_display(window, label, lines):
     window.set_visible(bool(lines))
 
 
-def show(latest, config=OSD, *, demo=False):
+def show(render, config=OSD, *, demo=False):
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.InventoryOSD', flags=Gio.ApplicationFlags.NON_UNIQUE)
     failure = []
@@ -81,11 +80,7 @@ def show(latest, config=OSD, *, demo=False):
         )
 
         def refresh():
-            lines = display_lines(
-                latest(),
-                now=time.monotonic(),
-                config=config,
-            )
+            lines = render(now=time.monotonic())
             if demo:
                 lines.insert(0, 'PREVIEW')
             apply_display(window, label, lines)

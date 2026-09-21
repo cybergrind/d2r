@@ -40,3 +40,15 @@ def test_cli_resolves_configuration_before_opening_window(tmp_path):
     config = show.call_args.args[1]
     assert (config.font_size, config.y, config.max_age) == (12, -180, 4)
     assert show.call_args.kwargs['demo']
+
+
+def test_window_demo_uses_frame_timestamp_for_freshness(tmp_path):
+    import time
+
+    with (
+        patch('sys.argv', ['osd', '--demo', '--output', str(tmp_path)]),
+        patch('inventory_tracking.osd.window.show', return_value=0) as show,
+    ):
+        assert main() == 0
+    render = show.call_args.args[0]
+    assert render(now=time.monotonic()) == ['juv 3', 'hp 1']

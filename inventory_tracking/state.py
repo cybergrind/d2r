@@ -1,11 +1,13 @@
 """Validate research snapshots into domain state."""
 
 from .belt import potion_kind
+from .config import RESOURCE_READER
 from .mercenary import select_mercenary
 from .models import BeltCell, PotionType, State
+from .resources import resource_observations
 
 
-def from_research(snapshot):
+def from_research(snapshot, *, resource_config=RESOURCE_READER):
     sampled = snapshot['sample_monotonic']
     groups = snapshot['groups']
     if snapshot['status'] != 'research' or not all(g['complete'] for g in groups.values()):
@@ -69,4 +71,5 @@ def from_research(snapshot):
         # The research UI flag is invalid for this build and must not gate input.
         gameplay_ready=bool(identity.get('pid') and identity.get('start_ticks') and current > 0),
         belt_ids=tuple(sorted(item_ids)),
+        **resource_observations(snapshot, player_id, config=resource_config),
     )

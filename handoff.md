@@ -13,6 +13,22 @@ red/green TDD, separate low-level modules, shared logging, readable workflows.
 
 This summary supersedes older research status and decisions recorded below.
 
+- [OSD widgets](inventory_tracking/osd/design.md) are implemented: persistent
+  presenter, independent widgets, typed optional observations, teleport display
+  rules and portal refill latch (<=16 triggers, 20 clears). GUI/text share the
+  presenter; existing health/belt/notification rules remain. Preview with
+  `uv run -m inventory_tracking.osd --demo-resources`.
+- Live resource output is enabled on the supported build: tome stat descriptor
+  +0x30, charged staff +0xe8, and room/level area chain. User-controlled probes
+  confirmed 32/33→31/33 charges, 18→16 portals, town 109→field 111, and staff
+  body slot 4→11 on switching to main weapons. Track a unique equipped charged
+  Teleport staff across both weapon sets. See layout notes and captured fixtures.
+  Restart the OSD after code/config changes; the restarted session published
+  14/20 portals, 29/33 charges and field area 110. Partial/full refill, repair and
+  removal are tested with fixtures but still need visual confirmation in-game.
+  `probe --resources` captures further evidence without sending input. The latch
+  is in-memory and resets on confirmed absence/replacement or identity change.
+
 - Run `uv run -m inventory_tracking.osd`; player and merc automation default on.
   Observation only: add `--no-player-heal --no-merc-heal`. Demo/once never send keys.
 - Edit `inventory_tracking/config.py`: `PLAYER_HEALING` and `MERC_HEALING` are
@@ -53,11 +69,11 @@ This summary supersedes older research status and decisions recorded below.
   `potion_ledger.py` atomically persists `potions.json` under the old shared lock,
   conservatively migrating the old timestamp. Stop older OSD instances before use.
   See [plan and completion log](inventory_tracking/refactoring_plan.md).
-- Latest checks: `uv run pytest tests -q` => **151 passed, 1 skipped**;
+- Latest checks: `uv run pytest tests -q` => **189 passed, 1 skipped**;
   `uv run ruff check inventory_tracking tests` and format check both pass.
   Demo CLI prints `PREVIEW · juv 3 · hp 1` without accessing the game.
   All tests are pytest under `tests/`, mirroring module layout. Refactored live
-  behavior is not yet verified in-game. This refactor is staged at the user’s request; no commit made.
+  behavior is not yet verified in-game. User confirmed the updated OSD looks good. Widget/resource changes are staged; no commit made.
 
 Older sections below preserve probe evidence and the development history; their
 pending questions and previous defaults are superseded by this summary.

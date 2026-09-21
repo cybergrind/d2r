@@ -1,0 +1,523 @@
+{
+  "status": "research",
+  "sample_monotonic": 2610534.136583084,
+  "resources": {
+    "complete": true,
+    "validated": false,
+    "items": [
+      {
+        "unit_id": 1827093901,
+        "txt_id": 156,
+        "mode": 0,
+        "details": {
+          "quality": 7,
+          "owner_id": 2333615352,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 1,
+          "y": 0
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 21
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 20
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 20480
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 44800
+                },
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 21
+                },
+                {
+                  "layer": 0,
+                  "id": 35,
+                  "raw": 15
+                },
+                {
+                  "layer": 0,
+                  "id": 39,
+                  "raw": 50
+                },
+                {
+                  "layer": 0,
+                  "id": 41,
+                  "raw": 50
+                },
+                {
+                  "layer": 0,
+                  "id": 43,
+                  "raw": 50
+                },
+                {
+                  "layer": 0,
+                  "id": 45,
+                  "raw": 50
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 78,
+                  "raw": 15
+                },
+                {
+                  "layer": 0,
+                  "id": 105,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 127,
+                  "raw": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 103593502,
+        "txt_id": 533,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 50929427,
+          "inventory_page": 0,
+          "body_location": 0,
+          "x": 9,
+          "y": 0
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 18
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 18
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 2991955138,
+        "txt_id": 261,
+        "mode": 0,
+        "details": {
+          "quality": 5,
+          "owner_id": 3636602820,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 0,
+          "y": 6
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 80
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 93
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 35
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 1,
+                  "raw": 35
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 17920
+                },
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 200
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 232
+                },
+                {
+                  "layer": 0,
+                  "id": 50,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 51,
+                  "raw": 45
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 35
+                },
+                {
+                  "layer": 0,
+                  "id": 105,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 127,
+                  "raw": 1
+                },
+                {
+                  "layer": 3467,
+                  "id": 204,
+                  "raw": 17727
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 970892120,
+        "txt_id": 156,
+        "mode": 0,
+        "details": {
+          "quality": 6,
+          "owner_id": 2333615352,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 0,
+          "y": 0
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 21
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 18
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 20
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 9472
+                },
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 21
+                },
+                {
+                  "layer": 0,
+                  "id": 50,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 51,
+                  "raw": 78
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 18
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 105,
+                  "raw": 20
+                },
+                {
+                  "layer": 60,
+                  "id": 107,
+                  "raw": 1
+                },
+                {
+                  "layer": 65,
+                  "id": 107,
+                  "raw": 3
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 1569161438,
+        "txt_id": 64,
+        "mode": 1,
+        "details": {
+          "quality": 4,
+          "owner_id": 50929427,
+          "inventory_page": 255,
+          "body_location": 4,
+          "x": 4,
+          "y": 0
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 8
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 30
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 8
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 30
+                },
+                {
+                  "layer": 3457,
+                  "id": 204,
+                  "raw": 8480
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "locations": [
+      {
+        "unit_id": 2441383817,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 50929427,
+        "area_id": 109
+      },
+      {
+        "unit_id": 3636602820,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 1818301410,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 909150705,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 2333615352,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 1166807676,
+        "reason": "Null location field"
+      }
+    ]
+  },
+  "player_id": 50929427,
+  "evidence": {
+    "run": "20260921T012249Z-6e86409a",
+    "date": "2026-09-21",
+    "user_staff": [
+      32,
+      33
+    ],
+    "user_tome": [
+      18,
+      20
+    ]
+  }
+}

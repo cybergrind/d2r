@@ -92,7 +92,9 @@ def create_run(output):
     return directory, report
 
 
-def run_diagnostics(report, requested_pid, images=False, capture_directory=None, units=False, merc=False):
+def run_diagnostics(
+    report, requested_pid, images=False, capture_directory=None, units=False, merc=False, resources=False
+):
     try:
         report.update(reader_environment())
         pid = select_game_process(requested_pid)
@@ -106,7 +108,14 @@ def run_diagnostics(report, requested_pid, images=False, capture_directory=None,
             report['capture'] = capture_image(pid, report['images'], capture_directory)
             access = report['capture']['status'] == 'captured' and report['capture']['bytes_read'] > 0
         if units and access:
-            report['units'] = inspect_units(pid, report['images'], report['capture'], capture_directory, merc=merc)
+            report['units'] = inspect_units(
+                pid,
+                report['images'],
+                report['capture'],
+                capture_directory,
+                merc=merc,
+                **({'resources': True} if resources else {}),
+            )
             access = report['units']['status'] == 'research' and report['units']['complete']
         report['state'] = 'complete' if access else 'blocked'
         report['exit_code'] = 0 if access else 2
@@ -123,8 +132,11 @@ def probe(args):
     with log_to_file(directory / 'probe.log'):
         publish(directory / 'report.json', report)
         LOG.info('Started run %s; output %s', report['run_id'], directory)
-        units = args.units or args.merc
+        resources = getattr(args, 'resources', False)
+        units = args.units or args.merc or resources
         capture = args.capture or units
-        run_diagnostics(report, args.pid, args.images or capture, directory if capture else None, units, args.merc)
+        run_diagnostics(
+            report, args.pid, args.images or capture, directory if capture else None, units, args.merc, resources
+        )
         publish(directory / 'report.json', report)
     return report['exit_code']

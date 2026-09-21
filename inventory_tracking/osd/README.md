@@ -198,3 +198,51 @@ not coordinate cooldown policy with a concurrently running older implementation.
 Ledger cooldown timestamps are discarded after a system reboot. Pending actor
 state resets only on a verified session identity change (or a new boot).
 See [refactoring plan and completion log](../refactoring_plan.md).
+
+## Extending the OSD
+
+The persistent `Presenter` in `presenter.py` owns an ordered list of widgets in
+`widgets/`. Each implements `update(snapshot)`, pure `render(now=...)`, and
+`reset()`. The reader delivers every published sample to the presenter; GUI and
+text output render the same state. Widgets have no GTK or input dependencies.
+To add one, implement the protocol, add configuration in `config.py`, add it to
+`default_widgets`, and mirror its tests under `tests/inventory_tracking/osd/`.
+The old `display_lines` function is a single-sample compatibility adapter and
+must not be used for a stream requiring latch memory.
+
+`OSD.teleport` controls the low-charge threshold (strictly below 20%) and town
+repair reminder. `OSD.portal` controls the refill latch (trigger at 16 or fewer,
+clear at 20). The portal reminder survives partial refill and unavailable reads;
+unknown readings are hidden. Confirmed absence, replacement or session change
+resets it. It is not persisted across OSD restarts.
+
+Preview a repeating sequence of repair and portal-refill states, without reading
+D2R or sending keys:
+
+```sh
+uv run -m inventory_tracking.osd --demo-resources
+# Also works with --text; the sequence advances every three seconds.
+```
+
+Live resource readings are enabled for the supported build. `RESOURCE_READER`
+in `config.py` selects the verified tome +0x30 and staff +0xe8 stat descriptors
+and the room/level location chain. Controlled probes matched 32/33→31/33 staff
+charges, 18→16 portals and a town-to-field transition. Weapon swaps move the
+staff between slots 4 and 11: selection checks both equipped weapon sets and
+requires a unique charged Teleport staff. Inventory/stash staffs are excluded.
+No staff is a normal, hidden state. These settings require new verification
+when the supported game build changes.
+
+Capture the missing evidence with the read-only host command:
+
+```sh
+uv run -m inventory_tracking probe --resources
+```
+
+It writes candidate item stat arrays, item ownership/location and player area
+records under `resources` in `units.json`, using a separate bounded read budget.
+Normal probe completion/report watching still works. Capture tome use/refill,
+staff charge use/repair/removal and both weapon-swap positions, and town/field
+transitions. Compare with visible counts before changing the relevant
+`RESOURCE_READER` settings. Missing or ambiguous evidence stays unavailable and
+does not affect healing. See [design and implementation status](design.md).

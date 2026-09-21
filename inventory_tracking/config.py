@@ -63,7 +63,35 @@ MERC_HEALING = HealingConfig(
 
 
 @dataclass(frozen=True)
+class TeleportWidgetConfig:
+    enabled: bool = True
+    low_percent: float = 20
+    show_repair_in_town: bool = True
+
+    def __post_init__(self):
+        if not math.isfinite(self.low_percent) or not 0 <= self.low_percent <= 100:
+            raise ValueError('Teleport low_percent must be in 0..100')
+
+
+@dataclass(frozen=True)
+class PortalWidgetConfig:
+    enabled: bool = True
+    trigger_remaining: int = 16
+    capacity: int = 20
+
+    def __post_init__(self):
+        if (
+            type(self.trigger_remaining) is not int
+            or type(self.capacity) is not int
+            or not 0 <= self.trigger_remaining < self.capacity
+        ):
+            raise ValueError('Portal trigger must be an integer in 0..capacity-1')
+
+
+@dataclass(frozen=True)
 class OSDConfig:
+    teleport: TeleportWidgetConfig = TeleportWidgetConfig()
+    portal: PortalWidgetConfig = PortalWidgetConfig()
     player_health_percent: float = 70
     merc_health_percent: float = 65
     notification_seconds: float = 1.0
@@ -121,3 +149,31 @@ class InputConfig:
 OSD = OSDConfig()
 READER = ReaderConfig()
 INPUT = InputConfig()
+
+
+@dataclass(frozen=True)
+class ResourceReaderConfig:
+    # Promote each candidate only after controlled host validation on this build.
+    portal_stats_offset: int | None = None
+    teleport_stats_offset: int | None = None
+    weapon_slots_verified: bool = False
+    location_verified: bool = False
+
+    def __post_init__(self):
+        for offset in (self.portal_stats_offset, self.teleport_stats_offset):
+            if offset is not None and (type(offset) is not int or not 0 <= offset <= 0x1F0 or offset % 8):
+                raise ValueError('Resource stat descriptor must be aligned within the research header')
+
+    @property
+    def enabled(self):
+        return self.portal_stats_offset is not None or self.teleport_stats_offset is not None or self.location_verified
+
+
+# Controlled 2026-09-21 probes: 32/33 -> 31/33 charges, 18 -> 16 portals,
+# staff slot 4 -> 11 on swap, and Harrogath 109 -> field 111.
+RESOURCE_READER = ResourceReaderConfig(
+    portal_stats_offset=0x30,
+    teleport_stats_offset=0xE8,
+    weapon_slots_verified=True,
+    location_verified=True,
+)

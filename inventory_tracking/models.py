@@ -1,6 +1,7 @@
 """Domain identifiers shared by healing, belt tracking and presentation."""
 
-from dataclasses import dataclass
+import math
+from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import NamedTuple
 
@@ -22,6 +23,64 @@ class BeltCell(NamedTuple):
     item_id: int
 
 
+class ObservationStatus(StrEnum):
+    AVAILABLE = 'available'
+    UNAVAILABLE = 'unavailable'
+
+
+@dataclass(frozen=True)
+class Observation[T]:
+    sampled_at: float
+    value: T | None = None
+    status: ObservationStatus = ObservationStatus.AVAILABLE
+    reason: str = ''
+
+    def __post_init__(self):
+        object.__setattr__(self, 'status', ObservationStatus(self.status))
+        if not math.isfinite(self.sampled_at):
+            raise ValueError('Observation timestamp must be finite')
+        if self.status == ObservationStatus.UNAVAILABLE and self.value is not None:
+            raise ValueError('Unavailable observation cannot contain a value')
+
+    @classmethod
+    def unavailable(cls, sampled_at=0, reason='not sampled'):
+        return cls(sampled_at, status=ObservationStatus.UNAVAILABLE, reason=reason)
+
+    def fresh(self, now, max_age):
+        return self.status == ObservationStatus.AVAILABLE and 0 <= now - self.sampled_at <= max_age
+
+
+def validate_quantity(current, maximum):
+    if type(current) is not int or type(maximum) is not int or not 0 <= current <= maximum or maximum <= 0:
+        raise ValueError('Quantity must be an integer in 0..maximum with positive maximum')
+
+
+@dataclass(frozen=True)
+class TeleportCharges:
+    item_id: int
+    current: int
+    maximum: int
+
+    def __post_init__(self):
+        validate_quantity(self.current, self.maximum)
+
+
+@dataclass(frozen=True)
+class PortalTome:
+    item_id: int
+    quantity: int
+    capacity: int
+
+    def __post_init__(self):
+        validate_quantity(self.quantity, self.capacity)
+
+
+@dataclass(frozen=True)
+class Location:
+    area_id: int
+    in_town: bool
+
+
 @dataclass(frozen=True)
 class State:
     sampled_at: float
@@ -39,6 +98,11 @@ class State:
     gameplay_ready: bool = False
     belt_ids: tuple[int, ...] = ()
     events: tuple[PotionSent, ...] = ()
+    teleport: Observation[TeleportCharges] = field(default_factory=Observation.unavailable)
+    portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
+    location: Observation[Location] = field(default_factory=Observation.unavailable)
+    # Only set by a reader that can positively establish the game boundary.
+    session_ended: bool = False
 
 
 class Outcome(StrEnum):
