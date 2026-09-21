@@ -6,10 +6,10 @@ Implemented and live-accepted 2026-09-21. Operational defaults are in the
 ## Composition
 
 `Presenter` owns ordered widgets: notifications, player HP, merc HP, belt shortages,
-Teleport charges, portal tome. `default_widgets(config)` builds that list explicitly;
+Teleport charges, portal tome, Show Items warning. `default_widgets(config)` builds that list explicitly;
 each widget receives only its own nested config (`config.belt`, `config.portal`, …)
 plus the window's `max_age` as an explicit argument, so `--max-age` reaches every
-widget without being copied into six configs. Widgets subclass
+widget without being copied into seven configs. Widgets subclass
 `SampleWidget[ConfigType]` and implement:
 
 - `update(snapshot)`: consume a domain state.
@@ -73,19 +73,32 @@ does not. Repair/replacement applies on the next valid observation; no latch.
 ## Portal widget
 
 The latch belongs to the current tome and session. Defaults: capacity 20, trigger
-16; configuration requires `0 <= trigger < capacity` and matching reader capacity.
+19; configuration requires `0 <= trigger < capacity` and matching reader capacity.
 
 | Observation | Latch/output |
 | --- | --- |
-| Initial 17–20 | Off/hidden |
-| <=16 | On/`tp: 20 - quantity` (computed number) |
-| Latched, partial refill to 17–19 | On/updated missing count |
 | Full 20 | Off/hidden |
+| <=19 | On/`tp: 20 - quantity` (computed number) |
+| Partial refill below 20 | On/updated missing count |
 | Unavailable or stale | Preserve/hidden |
 | Confirmed absence | Reset/hidden |
 | New tome/session | Reset, then evaluate new quantity |
 
 `20 → 17 → 16 → 18 → 19 → 20` displays
-`hidden → hidden → tp: 4 → tp: 2 → tp: 1 → hidden`.
-The latch is in-memory: restart or remove/return at 18 starts hidden; startup at
-16 or fewer latches immediately. No persistence is implied by potion-ledger state.
+`hidden → tp: 3 → tp: 4 → tp: 2 → tp: 1 → hidden`.
+As of 2026-09-21, even one missing scroll shows immediately, including on startup
+or tome/session change. A lower configured trigger retains the optional latch:
+once reached, the reminder stays until full. No persistence is implied by
+potion-ledger state.
+
+## Show Items widget
+
+`State.show_items` is an optional boolean observation, acquired only after the
+live reader accepts the executable hash and establishes an in-game session.
+The byte is read twice with process identity and mapping checks. Invalid values,
+read failures or detected changes yield unavailable without disabling healing.
+
+Fresh false displays `loot is not enabled`; true, unknown, stale, future or
+out-of-game state displays nothing. No toggle count or cross-game latch is kept.
+This reflects Show Items, not whether a filter profile is enabled. Controlled
+capture evidence and the build-specific RVA are in [layout notes](../layout_notes.md).

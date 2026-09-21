@@ -109,9 +109,13 @@ class TeleportWidgetConfig(Config):
     show_repair_in_town: bool = True
 
 
+class LootWidgetConfig(Config):
+    enabled: bool = True
+
+
 class PortalWidgetConfig(Config):
     enabled: bool = True
-    trigger_remaining: Annotated[int, Field(ge=0)] = 16
+    trigger_remaining: Annotated[int, Field(ge=0)] = 19
     capacity: Annotated[int, Field(gt=0)] = 20
 
     @model_validator(mode='after')
@@ -130,6 +134,7 @@ class OSDConfig(Config):
     belt: BeltWidgetConfig = BeltWidgetConfig()
     teleport: TeleportWidgetConfig = TeleportWidgetConfig()
     portal: PortalWidgetConfig = PortalWidgetConfig()
+    loot: LootWidgetConfig = LootWidgetConfig()
     # Seconds before any reading displays as stale; handed to every widget by the factory.
     max_age: Positive = 2.0
     font_size: Positive = 16

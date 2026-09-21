@@ -205,6 +205,7 @@ def test_factory_order_and_max_age_reach_every_widget():
         'BeltWidget',
         'TeleportWidget',
         'PortalWidget',
+        'LootWidget',
     ]
     assert {widget.max_age for widget in widgets} == {4}
     presenter = Presenter(with_overrides(OSD, max_age=4), widgets=widgets)

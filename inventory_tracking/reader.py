@@ -15,6 +15,7 @@ from .layout import SUPPORTED_SHA256
 from .models import State
 from .probe import inspect_game, select_game_process
 from .reports import publish
+from .show_items import observe_show_items
 from .state import from_research
 from .unit_probe import sample_units
 
@@ -96,6 +97,8 @@ class LiveReader:
                         if snapshot['status'] != 'research':
                             raise ValueError('game changed; reconnecting')
                         state = from_research(snapshot, resource_config=self.resource_config)
+                        if state.session is not None:
+                            state = replace(state, show_items=observe_show_items(pid, images))
                         results = self.automation.step(state)
                         for actor, result in results.items():
                             publish(self.directory / f'{actor}-heal.json', asdict(result))

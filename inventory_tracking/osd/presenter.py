@@ -10,6 +10,7 @@ from ..models import State
 from .widgets.base import SampleWidget
 from .widgets.belt import BeltWidget
 from .widgets.health import MercHealthWidget, PlayerHealthWidget
+from .widgets.loot import LootWidget
 from .widgets.notifications import NotificationsWidget
 from .widgets.portal import PortalWidget
 from .widgets.teleport import TeleportWidget
@@ -25,6 +26,7 @@ def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:
         BeltWidget(config.belt, max_age=age),
         TeleportWidget(config.teleport, max_age=age),
         PortalWidget(config.portal, max_age=age),
+        LootWidget(config.loot, max_age=age),
     ]
 
 

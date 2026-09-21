@@ -6,7 +6,7 @@ def test_resource_preview_sequence():
     presenter = Presenter()
     expected = [
         [],
-        ['tele 18/20 repair'],
+        ['tele 18/20 repair', 'tp: 3'],
         ['tele 3/20', 'tp: 4'],
         ['tele 0/20', 'tp: 2'],
         ['tele 10/20 repair', 'tp: 1'],

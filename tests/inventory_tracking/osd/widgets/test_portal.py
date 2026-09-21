@@ -1,5 +1,6 @@
 from dataclasses import replace
 
+from inventory_tracking.config import OSDConfig, PortalWidgetConfig
 from inventory_tracking.models import Observation, PortalTome, SessionIdentity, State
 from inventory_tracking.osd.presenter import Presenter
 
@@ -9,8 +10,19 @@ def sample(quantity, *, at=100, item=1, player=2):
     return State(sampled_at=at, portal_tome=Observation(at, tome), session=SessionIdentity(1, 'a', player))
 
 
-def test_latch_sequence_and_render_is_pure():
+def latched_presenter():
+    return Presenter(OSDConfig(portal=PortalWidgetConfig(trigger_remaining=16)))
+
+
+def test_default_shows_every_missing_scroll():
     presenter = Presenter()
+    for quantity, expected in [(20, []), (19, ['tp: 1']), (17, ['tp: 3']), (20, [])]:
+        presenter.update(sample(quantity))
+        assert presenter.render(now=100) == expected
+
+
+def test_latch_sequence_and_render_is_pure():
+    presenter = latched_presenter()
     for quantity, expected in [(20, []), (17, []), (16, ['tp: 4']), (18, ['tp: 2']), (19, ['tp: 1']), (20, [])]:
         presenter.update(sample(quantity))
         assert presenter.render(now=100) == expected
@@ -18,7 +30,7 @@ def test_latch_sequence_and_render_is_pure():
 
 
 def test_unavailable_hides_but_preserves_latch_absence_resets():
-    presenter = Presenter()
+    presenter = latched_presenter()
     presenter.update(sample(15))
     presenter.update(replace(sample(18), portal_tome=Observation.unavailable(100, 'failed')))
     assert presenter.render(now=100) == []
@@ -31,7 +43,7 @@ def test_unavailable_hides_but_preserves_latch_absence_resets():
 
 
 def test_item_and_session_changes_reset_latch():
-    presenter = Presenter()
+    presenter = latched_presenter()
     presenter.update(sample(16))
     presenter.update(sample(18, item=3))
     assert presenter.render(now=100) == []

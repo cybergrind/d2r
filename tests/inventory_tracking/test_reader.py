@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
+from inventory_tracking.models import Observation
 from inventory_tracking.reader import LiveReader
 
 
@@ -48,10 +49,14 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
         patch.object(reader, 'set_state', side_effect=record),
         patch.object(reader.stop_event, 'wait', return_value=False),
         patch('inventory_tracking.reader.sample_units', side_effect=inspect),
+        patch('inventory_tracking.reader.observe_show_items', return_value=Observation(100, False)) as show_items,
     ):
         reader.run()
     assert [state.session.player_id if state.session else None for state in observed] == [7, None, 17]
     assert observed[1].health is None
+    assert observed[0].show_items.value is False
+    assert observed[1].show_items.value is None
+    assert show_items.call_count == 2
     assert json.loads((tmp_path / 'state.json').read_text())['session'][2] == 17
 
 

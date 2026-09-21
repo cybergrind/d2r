@@ -112,8 +112,8 @@ def test_live_defaults_decode_captured_consumption_and_town_transition():
 
     presenter = Presenter()
     for fixture, charges, quantity, town, expected in [
-        ('resources_baseline.json', 32, 18, True, ['tele 32/33 repair']),
-        ('resources_swapped.json', 32, 18, True, ['tele 32/33 repair']),
+        ('resources_baseline.json', 32, 18, True, ['tele 32/33 repair', 'tp: 2']),
+        ('resources_swapped.json', 32, 18, True, ['tele 32/33 repair', 'tp: 2']),
         ('resources_consumed.json', 31, 16, False, ['tp: 4']),
     ]:
         data = json.loads((Path(__file__).parent / 'fixtures' / fixture).read_text())

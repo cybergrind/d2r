@@ -8,6 +8,10 @@ probes on 2026-09-21 and never change at runtime.
 # Only this D2R.exe is read; `LiveReader.connect` refuses anything else.
 SUPPORTED_SHA256 = '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7'
 
+# Controlled 2026-09-21 OFF/ON/OFF/ON and new-game OFF/ON captures.
+# A byte in the loaded image, not the old UI panel-offset interpretation.
+SHOW_ITEMS_RVA = 0x1EBD164
+
 # Potion class IDs (misc.json): rejuvenation / full rejuvenation, minor..super healing.
 REJUVENATION_POTIONS = frozenset((530, 531))
 HEALING_POTIONS = frozenset((602, 603, 604, 605, 606))

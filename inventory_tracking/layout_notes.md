@@ -72,6 +72,46 @@ text (`Undead`, `Minion`), not flags. Its scanner/reader was removed during clea
 No menu state is inferred; the user authorized existing focus/death/freshness/belt
 checks without menu detection. Keep this failed lead to avoid repeating it.
 
+## Show Items state (2026-09-21)
+
+Live reader uses one byte at image RVA `0x1ebd164`: 0 means Show Items OFF,
+1 means ON. This was isolated by labelled captures, not by interpreting the old
+UI panel array. The previously rejected menu layout remains rejected.
+The address is bound to `SUPPORTED_SHA256`; a different build must be revalidated.
+
+| Label | Host capture | Byte |
+| --- | --- | --- |
+| off-1 | `20260921T133808Z-92dc8ff7` | 0 |
+| on-1 | `20260921T133830Z-ddd96b43` | 1 |
+| off-2 | `20260921T133904Z-cadf55ca` | 0 |
+| on-2 | `20260921T133935Z-2caee4ca` | 1 |
+| new-game-off | `20260921T134119Z-90d9c47e` | 0 |
+| new-game-on | `20260921T134152Z-eb24a8c4` | 1 |
+
+All captures used the same process identity (`2911790`, start ticks `276227122`).
+The first four alternations left six boolean candidates in the captured `.data`
+section. Of those, only this byte had direct RIP-relative code references in the
+captured executable sections. Examples: `0x14007460d` compares it with zero;
+`0x140106a4d` loads it into EAX; `0x140d16a8d` loads it into R12D. Code references
+support the candidate but do not by themselves prove its meaning; the labelled
+user-controlled toggles and new-game reset provide the behavioral evidence.
+Raw captures and comparison output are under `runs/show-items/` (Git-ignored).
+
+`observe_show_items` reads the byte twice, checks process identity and the mapping
+before/after, and accepts only 0/1. The live reader calls it after the executable
+hash gate and only with an in-game domain session. Invalid/changed/unreadable
+state becomes unavailable. The OSD shows `loot is not enabled` only for a fresh,
+confirmed false observation. It neither sends a toggle key nor infers state from
+keypress counts, and does not change healing policy.
+
+Validation covers keyboard Show Items toggles on this build and a new-game reset;
+controller behavior and hold-mode behavior have not been established. Reads and
+unit snapshots remain non-atomic; rapid changes between samples can be missed.
+
+The external [d2go key-binding reader](https://github.com/relentlessricktrinidad/d2go/blob/1fb1e7a6569fef21e6e3a63749244f65a80673a0/pkg/memory/keybindings.go)
+only exposes the binding. Its panel-tree reader was a research lead, but was not
+needed for this implementation.
+
 ## Optional resources
 
 - Tome class 533, owned inventory mode 0/page 0: layer-zero stat 70 (quantity),
