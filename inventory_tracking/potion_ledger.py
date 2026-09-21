@@ -86,5 +86,7 @@ class PotionLedger:
                 raise ValueError('Unsupported potion ledger version')
             validate_ledger(data)
             transaction = LedgerTransaction(self.path, data)
-            yield transaction
+            # Exceptions propagate and skip save on purpose: a failed step must not publish
+            # partial state, and the lock file closes with the enclosing `with`.
+            yield transaction  # ruff: ignore[fallible-context-manager]
             transaction.save()

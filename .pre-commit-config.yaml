@@ -1,5 +1,8 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+#
+# Install once per clone: uv run pre-commit install
+# Ruff and pyrefly run from the uv environment so hook and CLI versions match uv.lock.
 
 exclude: ".git|.venv"
 default_stages: [pre-commit]
@@ -22,19 +25,27 @@ repos:
       - id: check-docstring-first
       - id: check-executables-have-shebangs
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.8
-    hooks:
-      - id: ruff
-        args: [--fix, --preview]
-        types: [python]
-      - id: ruff-format
-
   - repo: local
     hooks:
+      # pricing/tools are standalone scripts not yet brought under the ruff config
+      # (hundreds of findings); clean them up in their own pass before removing the exclude.
+      - id: ruff-check
+        name: ruff check
+        entry: uv run ruff check --fix --preview --force-exclude
+        language: system
+        types_or: [python, pyi]
+        exclude: ^pricing/tools/
+        require_serial: true
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format --force-exclude
+        language: system
+        types_or: [python, pyi]
+        exclude: ^pricing/tools/
+        require_serial: true
       - id: pyrefly-check
-        name: pyrefly-check
+        name: pyrefly check
         entry: uv run pyrefly check
         language: system
         pass_filenames: false
-        types: [python]
+        types_or: [python, pyi]

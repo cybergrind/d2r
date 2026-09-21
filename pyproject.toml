@@ -27,7 +27,7 @@ quote-style = 'single'
 
 [tool.ruff.lint.isort]
 combine-as-imports = true
-known-first-party = ['snapshot_manager']
+known-first-party = ['inventory_tracking']
 lines-after-imports = 2
 
 [tool.ruff.lint]
@@ -64,3 +64,14 @@ multiline-quotes = 'single'
 
 [tool.pytest.ini_options]
 testpaths = ['tests']
+
+[tool.pyrefly]
+# Scope the type checker to the package under active development; pricing/tools are
+# standalone scripts with their own import style and an undeclared numpy dependency.
+project-includes = ['inventory_tracking', 'tests']
+project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
+python-version = '3.14'
+# `basic` matches the gate that applied before this section existed (0 errors). The default preset
+# reports ~90 inference errors on untyped dict-heavy code; raise it as boundaries gain annotations
+# (see inventory_tracking/followup_plan.md).
+preset = 'basic'
