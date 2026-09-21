@@ -36,7 +36,12 @@ def snapshot(items):
     return {
         'sample_monotonic': 100,
         'status': 'research',
-        'resources': {'complete': True, 'items': items, 'locations': [{'unit_id': 7, 'area_id': 40}]},
+        'resources': {
+            'complete': True,
+            'keys_sampled': True,
+            'items': items,
+            'locations': [{'unit_id': 7, 'area_id': 40}],
+        },
     }
 
 
@@ -123,3 +128,58 @@ def test_live_defaults_decode_captured_consumption_and_town_transition():
         assert value(observations.location).in_town == town
         presenter.update(State(sampled_at=data['sample_monotonic'], session=SESSION, **observations._asdict()))
         assert presenter.render(now=data['sample_monotonic']) == expected
+
+
+def test_keys_sum_only_owned_inventory_stacks():
+    config = with_overrides(CONFIG, key_stats_offset=0x30)
+
+    def keys(quantity, **kwargs):
+        return record(558, 0, stats=[{'id': 70, 'layer': 0, 'raw': quantity}], **kwargs)
+
+    data = snapshot(
+        [
+            keys(2),
+            keys(3, item_id=10),
+            keys(12, page=1, item_id=11),
+            keys(12, page=5, item_id=12),
+            keys(12, owner=999, item_id=13),
+        ]
+    )
+    assert value(resource_observations(data, 7, config=config).keys) == 5
+    assert value(resource_observations(snapshot([]), 7, config=config).keys) == 0
+    data['resources']['items'][0]['resource_stats']['complete'] = False
+    assert resource_observations(data, 7, config=config).keys.status == ObservationStatus.UNAVAILABLE
+
+
+@pytest.mark.parametrize('quantity', [-1, 13, True])
+def test_invalid_key_stack_does_not_claim_zero(quantity):
+    config = with_overrides(CONFIG, key_stats_offset=0x30)
+    item = record(558, 0, stats=[{'id': 70, 'layer': 0, 'raw': quantity}])
+    assert resource_observations(snapshot([item]), 7, config=config).keys.status == ObservationStatus.UNAVAILABLE
+
+
+def test_missing_key_capture_and_duplicate_stacks_are_unavailable():
+    config = with_overrides(CONFIG, key_stats_offset=0x30)
+    data = snapshot([])
+    del data['resources']['keys_sampled']
+    assert resource_observations(data, 7, config=config).keys.status == ObservationStatus.UNAVAILABLE
+    item = record(558, 0, stats=[{'id': 70, 'layer': 0, 'raw': 2}])
+    assert resource_observations(snapshot([item, item]), 7, config=config).keys.status == ObservationStatus.UNAVAILABLE
+    ground = dict(item, mode=3)
+    assert value(resource_observations(snapshot([ground]), 7, config=config).keys) == 0
+
+
+def test_live_key_baseline_excludes_other_inventory_pages():
+    import json
+    from pathlib import Path
+
+    from inventory_tracking.models import State
+    from inventory_tracking.osd.presenter import Presenter
+    from tests.inventory_tracking.conftest import SESSION
+
+    data = json.loads((Path(__file__).parent / 'fixtures' / 'keys_baseline.json').read_text())
+    observation = resource_observations(data, data['player_id']).keys
+    assert value(observation) == 12
+    presenter = Presenter()
+    presenter.update(State(sampled_at=data['sample_monotonic'], session=SESSION, keys=observation))
+    assert presenter.render(now=data['sample_monotonic']) == []

@@ -113,6 +113,11 @@ class LootWidgetConfig(Config):
     enabled: bool = True
 
 
+class KeysWidgetConfig(Config):
+    enabled: bool = True
+    low_count: Annotated[int, Field(ge=0)] = 5
+
+
 class PortalWidgetConfig(Config):
     enabled: bool = True
     trigger_remaining: Annotated[int, Field(ge=0)] = 19
@@ -135,6 +140,7 @@ class OSDConfig(Config):
     teleport: TeleportWidgetConfig = TeleportWidgetConfig()
     portal: PortalWidgetConfig = PortalWidgetConfig()
     loot: LootWidgetConfig = LootWidgetConfig()
+    key_stock: KeysWidgetConfig = KeysWidgetConfig()
     # Seconds before any reading displays as stale; handed to every widget by the factory.
     max_age: Positive = 2.0
     font_size: Positive = 16
@@ -199,11 +205,12 @@ INPUT = InputConfig()
 class ResourceReaderConfig(Config):
     # Promote each candidate only after controlled host validation on this build.
     portal_stats_offset: int | None = None
+    key_stats_offset: int | None = None
     teleport_stats_offset: int | None = None
     weapon_slots_verified: bool = False
     location_verified: bool = False
 
-    @field_validator('portal_stats_offset', 'teleport_stats_offset', mode='after')
+    @field_validator('portal_stats_offset', 'teleport_stats_offset', 'key_stats_offset', mode='after')
     @classmethod
     def _aligned_within_header(cls, offset: int | None) -> int | None:
         if offset is not None and (not 0 <= offset <= 0x1F0 or offset % 8):
@@ -212,13 +219,19 @@ class ResourceReaderConfig(Config):
 
     @property
     def enabled(self) -> bool:
-        return self.portal_stats_offset is not None or self.teleport_stats_offset is not None or self.location_verified
+        return (
+            self.portal_stats_offset is not None
+            or self.teleport_stats_offset is not None
+            or self.key_stats_offset is not None
+            or self.location_verified
+        )
 
 
 # Controlled 2026-09-21 probes: 32/33 -> 31/33 charges, 18 -> 16 portals,
 # staff slot 4 -> 11 on swap, and Harrogath 109 -> field 111.
 RESOURCE_READER = ResourceReaderConfig(
     portal_stats_offset=0x30,
+    key_stats_offset=0x30,
     teleport_stats_offset=0xE8,
     weapon_slots_verified=True,
     location_verified=True,

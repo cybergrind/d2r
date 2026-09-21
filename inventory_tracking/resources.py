@@ -6,6 +6,7 @@ from typing import Any, NamedTuple
 from .config import RESOURCE_READER, ResourceReaderConfig
 from .layout import (
     CHARGED_SKILL_STAT,
+    KEY_CLASS_ID,
     QUANTITY_STAT,
     STAFF_CLASS_IDS,
     TELEPORT_SKILL,
@@ -71,6 +72,28 @@ def select_teleport(items, config):
     return matches[0] if matches else None
 
 
+def select_keys(items, config):
+    if config.key_stats_offset is None:
+        raise ValueError('Key quantity layout not verified')
+    total = 0
+    seen = set()
+    for item in items:
+        if item['txt_id'] != KEY_CLASS_ID or item['mode'] != 0 or item['details'].get('inventory_page') != 0:
+            continue
+        if item['unit_id'] in seen:
+            raise ValueError('Duplicate key stack')
+        seen.add(item['unit_id'])
+        values = [
+            stat['raw']
+            for stat in item_stats(item, config.key_stats_offset)
+            if stat['id'] == QUANTITY_STAT and stat['layer'] == 0
+        ]
+        if len(values) != 1 or type(values[0]) is not int or not 0 <= values[0] <= 12:
+            raise ValueError('Key quantity unavailable or invalid')
+        total += values[0]
+    return total
+
+
 def select_location(records, player_id, config):
     if not config.location_verified:
         raise ValueError('Town location layout not verified')
@@ -87,6 +110,7 @@ class ResourceObservations(NamedTuple):
     teleport: Observation[TeleportCharges]
     portal_tome: Observation[PortalTome]
     location: Observation[Location]
+    keys: Observation[int]
 
 
 def resource_observations(
@@ -99,6 +123,7 @@ def resource_observations(
     if snapshot['status'] != 'research' or not research.get('complete'):
         reason = research.get('reason', 'resources not sampled')
         return ResourceObservations(
+            Observation.unavailable(sampled, reason),
             Observation.unavailable(sampled, reason),
             Observation.unavailable(sampled, reason),
             Observation.unavailable(sampled, reason),
@@ -117,4 +142,9 @@ def resource_observations(
         teleport=observe(lambda: select_teleport(owned_items(), config)),
         portal_tome=observe(lambda: select_portal(owned_items(), config)),
         location=observe(lambda: select_location(research.get('locations', []), player_id, config)),
+        keys=(
+            observe(lambda: select_keys(owned_items(), config))
+            if research.get('keys_sampled') is True
+            else Observation.unavailable(sampled, 'keys not sampled')
+        ),
     )

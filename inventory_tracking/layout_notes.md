@@ -166,3 +166,19 @@ Resource fixtures preserve the three complete run IDs in
 including the resource follow-up, on 2026-09-21; no additional raw records were
 supplied with that acceptance. Exact merc HP, other belt capacities and robust
 multiplayer identity remain open research limitations.
+
+## Inventory keys (2026-09-21)
+
+Ordinary Key is class ID 558, max stack 12, verified against
+[d2data misc.json](https://github.com/blizzhackers/d2data/blob/master/json/misc.json).
+The live OSD run `20260921T135103Z-4cead4c1` supplied a complete resource snapshot:
+owned item `3718130058`, main inventory page 0, quantity stat 70/layer 0 at stat
+list +0x30 read **12**, matching the user's stated stock. +0xe8 also read 12;
++0xa8 was empty. Six other owned key stacks were on page 4 and excluded.
+The reduced snapshot is `tests/inventory_tracking/fixtures/keys_baseline.json`.
+
+`RESOURCE_READER.key_stats_offset=0x30` enables counting. Sum only class 558,
+mode 0, inventory page 0, matching the selected player's owner ID. Unknown or
+incomplete records never imply zero; an explicitly complete key scan with no
+matching stacks does. The alert is `keys: N` strictly below 5, with no latch.
+The live baseline verifies 12; threshold/refill/zero behavior is covered by tests.

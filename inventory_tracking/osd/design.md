@@ -6,10 +6,10 @@ Implemented and live-accepted 2026-09-21. Operational defaults are in the
 ## Composition
 
 `Presenter` owns ordered widgets: notifications, player HP, merc HP, belt shortages,
-Teleport charges, portal tome, Show Items warning. `default_widgets(config)` builds that list explicitly;
+Teleport charges, portal tome, Show Items warning, key stock. `default_widgets(config)` builds that list explicitly;
 each widget receives only its own nested config (`config.belt`, `config.portal`, …)
 plus the window's `max_age` as an explicit argument, so `--max-age` reaches every
-widget without being copied into seven configs. Widgets subclass
+widget without being copied into eight configs. Widgets subclass
 `SampleWidget[ConfigType]` and implement:
 
 - `update(snapshot)`: consume a domain state.
@@ -102,3 +102,16 @@ Fresh false displays `loot is not enabled`; true, unknown, stale, future or
 out-of-game state displays nothing. No toggle count or cross-game latch is kept.
 This reflects Show Items, not whether a filter profile is enabled. Controlled
 capture evidence and the build-specific RVA are in [layout notes](../layout_notes.md).
+
+## Keys widget
+
+`State.keys` carries the total ordinary-key quantity in owned main-inventory
+stacks. Fresh counts strictly below `OSD.key_stock.low_count` (default 5) display
+`keys: N`, including zero. At least 5, unknown, stale, future or out-of-game samples
+hide the warning. There is no refill latch.
+
+The resource collector marks `keys_sampled` so older snapshots that never scanned
+keys cannot be mistaken for zero stock. Quantity stat 70 is read from the separately
+verified key-stat descriptor. Each stack must have exactly one plausible quantity;
+duplicate item IDs or unreadable stacks make the total unavailable. Stash, cube,
+ground, equipped and other-owner items do not contribute.

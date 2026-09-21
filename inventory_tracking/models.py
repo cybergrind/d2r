@@ -130,6 +130,7 @@ class State:
     portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
     location: Observation[Location] = field(default_factory=Observation.unavailable)
     show_items: Observation[bool] = field(default_factory=Observation.unavailable)
+    keys: Observation[int] = field(default_factory=Observation.unavailable)
     # Only set by a reader that can positively establish the game boundary.
     session_ended: bool = False
 

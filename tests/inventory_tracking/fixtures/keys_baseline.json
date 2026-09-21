@@ -1,0 +1,337 @@
+{
+  "source_run": "20260921T135103Z-4cead4c1",
+  "player_id": 2076518671,
+  "sample_monotonic": 2655508.279879376,
+  "status": "research",
+  "resources": {
+    "complete": true,
+    "validated": false,
+    "keys_sampled": true,
+    "items": [
+      {
+        "unit_id": 3718130058,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 0,
+          "body_location": 0,
+          "x": 7,
+          "y": 0
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 199496894,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 5
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 1
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 99748447,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 3
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 5
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 5
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 3192032224,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 9
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 1596007920,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 8
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 798003960,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 6
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 1
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 1
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "unit_id": 398993788,
+        "txt_id": 558,
+        "mode": 0,
+        "details": {
+          "quality": 2,
+          "owner_id": 2076518671,
+          "inventory_page": 4,
+          "body_location": 0,
+          "x": 9,
+          "y": 7
+        },
+        "resource_stats": {
+          "complete": true,
+          "arrays": [
+            {
+              "header_offset": 48,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            },
+            {
+              "header_offset": 168,
+              "stats": []
+            },
+            {
+              "header_offset": 232,
+              "stats": [
+                {
+                  "layer": 0,
+                  "id": 70,
+                  "raw": 12
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "locations": [
+      {
+        "unit_id": 2917307527,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 2076518671,
+        "area_id": 40
+      },
+      {
+        "unit_id": 3921422992,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 4084765985,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 980355748,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 3337693763,
+        "reason": "Null location field"
+      },
+      {
+        "unit_id": 1960711496,
+        "reason": "Null location field"
+      }
+    ]
+  }
+}

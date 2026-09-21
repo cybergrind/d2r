@@ -21,7 +21,7 @@ send keys. Once exits 0 for a health sample, 2 for unavailable state.
 Edit [config.py](../config.py): `PLAYER_HEALING`/`MERC_HEALING` hold thresholds,
 cooldowns, input freshness and acknowledgement timeout; `OSD` holds window settings
 plus one nested config per widget (`notifications`, `player_health`, `merc_health`,
-`belt`, `teleport`, `portal`, `loot`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
+`belt`, `teleport`, `portal`, `loot`, `key_stock`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
 `RESOURCE_READER` contains supported-build resource settings, requiring revalidation
 after updates. Configs are frozen, strictly typed pydantic models: derive variants
 with `with_overrides(model, **changes)`, which re-validates; invalid values raise
@@ -53,7 +53,12 @@ Only belt stock counts; an empty four-row belt shows `juv 16`.
 | `tele N/M repair` | Equipped Teleport staff missing charges in town |
 | `tele N/M` | Below 20% charges outside town or with unknown location |
 | `tp: N` | Missing portals whenever tome is below 20, including one missing scroll |
+| `keys: N` | Fewer than 5 ordinary keys in character inventory; 5 or more stays hidden |
 | `loot is not enabled` | Show Items is confirmed OFF in a fresh in-game sample |
+
+Key counts sum all owned inventory stacks, excluding stash, cube, ground and
+vendor items. A confirmed empty inventory shows `keys: 0`; unavailable readings
+hide the warning. `OSD.key_stock.low_count` sets the strict threshold.
 
 The loot warning reads the Show Items state, not whether a loot-filter profile is
 selected. Enabling Show Items clears it; unknown/stale readings hide it. The memory

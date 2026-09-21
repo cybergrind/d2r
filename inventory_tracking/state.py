@@ -109,4 +109,5 @@ def from_research(snapshot: Snapshot, *, resource_config: ResourceReaderConfig =
         teleport=resources.teleport,
         portal_tome=resources.portal_tome,
         location=resources.location,
+        keys=resources.keys,
     )

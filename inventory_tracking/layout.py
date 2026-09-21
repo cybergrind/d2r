@@ -16,6 +16,7 @@ SHOW_ITEMS_RVA = 0x1EBD164
 REJUVENATION_POTIONS = frozenset((530, 531))
 HEALING_POTIONS = frozenset((602, 603, 604, 605, 606))
 TOME_CLASS_ID = 533  # Tome of Town Portal
+KEY_CLASS_ID = 558  # Ordinary Key; d2data misc.json, maxstack 12 (2026-09-21).
 STAFF_CLASS_IDS = frozenset((63, 64, 65, 66, 67, 91, 92, 156, 157, 158, 159, 160, 259, 260, 261, 262, 263))
 
 # Unit stat IDs (layer 0) and the client-side life scale for monsters.
