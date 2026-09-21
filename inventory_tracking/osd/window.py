@@ -5,6 +5,7 @@ import signal
 import time
 
 from ..common import LOG
+from ..config import OSD
 from .state import display_lines
 
 
@@ -29,7 +30,7 @@ def apply_display(window, label, lines):
     window.set_visible(bool(lines))
 
 
-def show(latest, args):
+def show(latest, config=OSD, *, demo=False):
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.InventoryOSD', flags=Gio.ApplicationFlags.NON_UNIQUE)
     failure = []
@@ -52,28 +53,28 @@ def show(latest, args):
         for edge in (LayerShell.Edge.TOP, LayerShell.Edge.BOTTOM, LayerShell.Edge.LEFT, LayerShell.Edge.RIGHT):
             LayerShell.set_anchor(window, edge, False)
         monitors = Gdk.Display.get_default().get_monitors()
-        if args.monitor is not None:
-            if args.monitor >= monitors.get_n_items():
-                failure.append(f'Monitor {args.monitor} does not exist ({monitors.get_n_items()} available)')
+        if config.monitor is not None:
+            if config.monitor >= monitors.get_n_items():
+                failure.append(f'Monitor {config.monitor} does not exist ({monitors.get_n_items()} available)')
                 application.quit()
                 return
-            LayerShell.set_monitor(window, monitors.get_item(args.monitor))
+            LayerShell.set_monitor(window, monitors.get_item(config.monitor))
         label = Gtk.Label(xalign=0.5)
         # Transparent widget margins shift the label inside the centered window.
         # Twice the requested offset compensates for centering the whole window.
-        label.set_margin_start(max(0, 2 * args.x))
-        label.set_margin_end(max(0, -2 * args.x))
-        label.set_margin_top(max(0, 2 * args.y))
-        label.set_margin_bottom(max(0, -2 * args.y))
+        label.set_margin_start(max(0, 2 * config.x))
+        label.set_margin_end(max(0, -2 * config.x))
+        label.set_margin_top(max(0, 2 * config.y))
+        label.set_margin_bottom(max(0, -2 * config.y))
         label.set_selectable(False)
         window.set_child(label)
         css = Gtk.CssProvider()
         css.load_from_string(f"""
             window {{ background: transparent; }}
-            label {{ color: #ffffff; background: transparent;
+            label {{ color: {config.color}; background: transparent;
                      border-radius: 6px; padding: 6px 10px;
-                     font-family: monospace; font-size: {args.font_size}px;
-                     font-weight: bold; }}
+                     font-family: {config.font_family}; font-size: {config.font_size}px;
+                     font-weight: {config.font_weight}; }}
         """)
         Gtk.StyleContext.add_provider_for_display(
             Gdk.Display.get_default(), css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
@@ -83,11 +84,9 @@ def show(latest, args):
             lines = display_lines(
                 latest(),
                 now=time.monotonic(),
-                max_age=args.max_age,
-                rejuvenation_target=args.rejuvenation_target,
-                healing_target=args.healing_target,
+                config=config,
             )
-            if args.demo:
+            if demo:
                 lines.insert(0, 'PREVIEW')
             apply_display(window, label, lines)
             surface = window.get_surface()
@@ -97,7 +96,7 @@ def show(latest, args):
 
         window.connect('realize', lambda *_: window.get_surface().set_input_region(cairo.Region()))
         refresh()
-        GLib.timeout_add(100, refresh)
+        GLib.timeout_add(max(1, round(config.refresh_interval * 1000)), refresh)
         LOG.info('OSD window ready; stop with Ctrl+C in the launching terminal')
 
     app.connect('activate', activate)

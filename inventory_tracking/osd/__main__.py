@@ -3,12 +3,20 @@
 import argparse
 import math
 import time
+from dataclasses import replace
 from pathlib import Path
 
+from ..automation import Automation
 from ..common import LOG, configure_logging, log_to_file
+from ..config import MERC_HEALING, OSD, PLAYER_HEALING, READER
+from ..heal import HealController
+from ..models import State
+from ..potion_input import PotionInput
+from ..potion_ledger import PotionLedger
+from ..potions import PotionsController
 from ..probe import create_run
-from .reader import LiveReader
-from .state import State, display_lines
+from ..reader import LiveReader
+from .state import display_lines
 
 
 def positive_float(value):
@@ -28,23 +36,27 @@ def main():
     parser.add_argument(
         '--merc-heal',
         action=argparse.BooleanOptionalAction,
-        default=True,
-        help='Heal merc using healing_config.py thresholds; Shift+1/2/3/4',
+        default=MERC_HEALING.enabled,
+        help='Heal merc using config.py thresholds; Shift+1/2/3/4',
     )
     parser.add_argument(
         '--player-heal',
         action=argparse.BooleanOptionalAction,
-        default=True,
-        help='Heal player using healing_config.py thresholds; keys 1/2/3/4',
+        default=PLAYER_HEALING.enabled,
+        help='Heal player using config.py thresholds; keys 1/2/3/4',
     )
     parser.add_argument('--pid', type=int, help='Pin a game PID; omit to rediscover after restarts')
-    parser.add_argument('--interval', type=positive_float, default=0.1, help='Delay between reads in seconds')
-    parser.add_argument('--max-age', type=positive_float, default=2.0, help='Seconds before readings display as stale')
+    parser.add_argument(
+        '--interval', type=positive_float, default=READER.interval, help='Delay between reads in seconds'
+    )
+    parser.add_argument(
+        '--max-age', type=positive_float, default=OSD.max_age, help='Seconds before readings display as stale'
+    )
     parser.add_argument(
         '--rejuvenation-target',
         type=int,
         choices=range(17),
-        default=None,
+        default=OSD.rejuvenation_target,
         metavar='0..16',
         help='Override automatic column target',
     )
@@ -52,24 +64,33 @@ def main():
         '--healing-target',
         type=int,
         choices=range(17),
-        default=None,
+        default=OSD.healing_target,
         metavar='0..16',
         help='Override automatic column target',
     )
     parser.add_argument(
-        '--x', type=int, default=0, help='Horizontal offset from center in logical pixels (positive = right)'
+        '--x', type=int, default=OSD.x, help='Horizontal offset from center in logical pixels (positive = right)'
     )
     parser.add_argument(
-        '--y', type=int, default=-130, help='Vertical offset from center in logical pixels (negative = up)'
+        '--y', type=int, default=OSD.y, help='Vertical offset from center in logical pixels (negative = up)'
     )
-    parser.add_argument('--font-size', type=positive_float, default=16)
-    parser.add_argument('--monitor', type=int, help='Zero-based monitor index; compositor default when omitted')
+    parser.add_argument('--font-size', type=positive_float, default=OSD.font_size)
+    parser.add_argument(
+        '--monitor', type=int, default=OSD.monitor, help='Zero-based monitor index; compositor default when omitted'
+    )
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'runs' / 'osd')
     args = parser.parse_args()
-    if args.monitor is not None and args.monitor < 0:
-        parser.error('monitor must be nonnegative')
-    if (args.rejuvenation_target or 0) + (args.healing_target or 0) > 16:
-        parser.error('combined potion targets must fit the maximum 16 belt cells')
+    try:
+        osd_config = replace(
+            OSD,
+            **{
+                name: getattr(args, name)
+                for name in ('x', 'y', 'font_size', 'monitor', 'max_age', 'rejuvenation_target', 'healing_target')
+            },
+        )
+        reader_config = replace(READER, interval=args.interval)
+    except ValueError as exc:
+        parser.error(str(exc))
     configure_logging()
     directory, _ = create_run(args.output.resolve())
     with log_to_file(directory / 'osd.log'):
@@ -78,14 +99,27 @@ def main():
         if args.demo:
 
             def latest():
-                return State(time.monotonic(), 1526 * 256, 1545 * 256, 5, 7)
+                return State(
+                    time.monotonic(),
+                    1526 * 256,
+                    1545 * 256,
+                    belt_contents=(531, 531, 606, 606) * 2 + (531, None, 606, 606) + (None, None, 606, None),
+                )
         else:
+            ledger = PotionLedger(directory.parent)
+            deliver = PotionInput()
+            configs = (
+                replace(PLAYER_HEALING, enabled=args.player_heal and not args.once),
+                replace(MERC_HEALING, enabled=args.merc_heal and not args.once),
+            )
+            automation = Automation(
+                [HealController(config, PotionsController(config, ledger, deliver)) for config in configs]
+            )
             reader = LiveReader(
                 directory,
                 pid=args.pid,
-                interval=args.interval,
-                merc_heal=args.merc_heal and not args.once,
-                player_heal=args.player_heal and not args.once,
+                config=reader_config,
+                automation=automation,
             )
             latest = reader.latest
             reader.start()
@@ -97,19 +131,17 @@ def main():
                     lines = display_lines(
                         state,
                         now=time.monotonic(),
-                        max_age=args.max_age,
-                        rejuvenation_target=args.rejuvenation_target,
-                        healing_target=args.healing_target,
+                        config=osd_config,
                     )
                     if lines != previous:
                         print(('PREVIEW · ' if args.demo else '') + ' · '.join(lines), flush=True)
                         previous = lines
                     if args.once and state.reason != 'connecting':
                         return 0 if state.current_raw is not None else 2
-                    time.sleep(0.1)
+                    time.sleep(osd_config.refresh_interval)
             from .window import show
 
-            return show(latest, args)
+            return show(latest, osd_config, demo=args.demo)
         except KeyboardInterrupt:
             return 0
         except (ImportError, OSError, RuntimeError, ValueError) as exc:

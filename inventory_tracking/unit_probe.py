@@ -46,7 +46,8 @@ class ResearchReader:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False):
+def sample_units(pid, images, capture, *, merc=False):
+    """Return the complete in-memory research snapshot."""
     candidates = capture['unit_table_candidates']
     addresses = sorted({x['table_address'] for x in candidates})
     if len(addresses) != 1:
@@ -140,6 +141,13 @@ def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=Fal
         result['bytes_requested'] = reader.bytes_requested
     finally:
         os.close(fd)
+    return result
+
+
+def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False):
+    result = sample_units(pid, images, capture, merc=merc)
+    if 'groups' not in result:
+        return result
     publish(directory / 'units.json', result)
     counts = {name: len(group['units']) for name, group in result['groups'].items()}
     log = LOG.info if log_summary else LOG.debug

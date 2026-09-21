@@ -25,8 +25,8 @@ Current/max player health appears only at or below 70%. Empty alerts unmap the
 window. Startup, incomplete, unavailable and stale readings stay blank; diagnostic
 files remain available. Only text is visible, with transparent backgrounds.
 Inventory/stash potions are not counted. Optional `--rejuvenation-target` and
-`--healing-target` override automatic tracking with global full-rejuvenation and
-super-healing stock targets respectively.
+`--healing-target` override automatic tracking with global rejuvenation and
+healing stock targets respectively, counting all supported tiers.
 
 Preview without accessing D2R:
 
@@ -51,7 +51,7 @@ x moves right; negative y moves up.
 Use `--monitor 0` (zero-based) to select an output; otherwise the compositor chooses.
 The window requests the overlay layer, no keyboard interaction, an empty mouse
 input region and no reserved screen space. It is currently desktop-wide; it does
-not automatically hide when D2R loses focus. Mercenary healing is enabled by default; use `--no-player-heal --no-merc-heal` for read-only mode.
+not automatically hide when D2R loses focus. Player and mercenary healing are enabled by default; use `--no-player-heal --no-merc-heal` for read-only mode.
 
 Terminal diagnostics (no GTK needed):
 
@@ -72,7 +72,7 @@ expire after 2 seconds (`--max-age`). Unknown, ambiguous, incomplete and stale
 readings suppress pickup advice. Each sample selects the sole player candidate
 with plausible effective life/max stats, then counts its owned belt items. This
 is a research heuristic, not a verified local-player selector for all multiplayer
-states. It has no controller-ready guarantee for player potion automation.
+states. Automation retains the configured freshness and input checks; it does not resolve this research limitation.
 
 Run artifacts are under `inventory_tracking/runs/osd/<run-id>/`: `osd.log`, atomic
 `state.json` and the latest `units.json`. Capture bytes live only in a temporary
@@ -114,7 +114,7 @@ relationship to the inventory HP text is still under investigation after a
 persistent user-reported mismatch; quantization alone is not established.
 
 Normal startup enables mercenary healing using fresh, complete readings, death
-checks, exact game focus, usable belt potions and the shared cooldown. As authorized
+checks, exact game focus, usable belt potions and per-actor/type cooldowns. As authorized
 by the user on 2026-09-21, open in-game menus are not detected: the old menu-state
 layout is invalid for this build. Merc healing and its debug notification were confirmed working in-game; the new player/rejuvenation paths still need live validation. Use
 `uv run -m inventory_tracking.osd --no-player-heal --no-merc-heal` to observe without input.
@@ -122,18 +122,23 @@ Stop with Ctrl+C in the launching terminal. Demo and `--once` never send input.
 
 Standard healing potions (minor through super) are detected in any bottom belt
 cell, using its column key (with Shift for the merc). Higher potions across gaps and other potion types are
-not used. Cooldowns are measured from the last delivered potion across columns, recipients
-and OSD instances using the same output root, and survive an OSD restart on the
-same system boot. Player rejuvenation can follow after one second; all other
-potions require three seconds. Keys are released in a finally block. Physical held keys, stale
+not used. Each actor has an independent cooldown for each potion type, shared across
+columns and OSD instances using the same output root. Player rejuvenation uses
+one second; player healing and both merc potion types use three seconds.
+A healing potion does not delay the same actor's rejuvenation, but consumption
+must still be acknowledged before another potion is sent to that actor. Shared
+item reservations prevent double selection, and the next send requires a sample
+started after the preceding key delivery finished. Physical held keys, stale
 samples, incomplete readings, missing process identity and player/merc death
 suppress input. Both Niri game-window focus and the exact X11 game PID must match.
 
 Consumption acknowledgement uses the selected item's disappearance from the
 belt. Without acknowledgement within two seconds, healing suspends until a new
-identified session or an OSD restart. No blind retries for that recipient. `merc-heal.json` records
-pending/suspended status; `osd.log` records sends, acknowledgements and errors.
-After successful input, the OSD shows `merc potion sent (Shift+3)` (or `Shift+4`)
+identified session. Suspension and pending consumption survive an OSD restart;
+restarting is not a way to bypass an uncertain delivery. No blind retries for
+that recipient. `player-heal.json` and `merc-heal.json` record uniform outcome/event
+objects; `osd.log` records sends, acknowledgements and errors.
+After successful input, the OSD shows `merc potion sent (Shift+N)` for the selected column
 for one second. This debug message reports key delivery, not confirmed consumption;
 rejected or failed input produces no message.
 The input backend requires `niri`, `xdotool`, libX11 and libXtst on the host.
@@ -142,7 +147,15 @@ Mercenary ownership remains specific to the supported build.
 
 ## Potion defaults
 
-Edit `inventory_tracking/healing_config.py` to change thresholds or cooldowns:
+Edit `inventory_tracking/config.py`. `PLAYER_HEALING` and `MERC_HEALING` are
+complete, immutable `HealingConfig` values: actor, enabled flag, thresholds and
+cooldowns keyed by `PotionType`, sample freshness, and consumption timeout.
+`OSD` controls visibility thresholds, notification duration, font, position,
+monitor, display freshness, refresh interval, and optional stock targets.
+`READER` and `INPUT` contain polling/reconnect and platform input settings.
+CLI overrides are applied to these objects once at startup.
+
+Current healing thresholds:
 
 | Recipient | Healing potion below | Rejuvenation below |
 | --- | --- | --- |
@@ -162,3 +175,26 @@ when switching to all rejuvenations.
 Player sends also show a one-second `player potion sent (1)` notification.
 Each recipient waits for its selected item to disappear from the belt before
 sending again, and suspends after an unacknowledged consumption timeout.
+
+
+## Runtime structure and persisted state
+
+- `state.py` converts research snapshots; `models.py` defines domain records.
+- `belt.py` classifies supported potion families and computes column shortages.
+- `heal.py` chooses eligible potion types from health and injected configuration.
+- `potions.py` owns per-actor cooldown, pending consumption, and suspension policy.
+- `potion_ledger.py` serializes instances and atomically saves `potions.json` in
+  the output root. It keeps the existing `merc-input.lock` path and imports its
+  old same-boot timestamp conservatively on first use. Corrupt state refuses input.
+- `potion_input.py` handles focus/freshness checks and key delivery; it contains
+  no cooldown selection. All key releases are attempted; release errors suspend
+  the actor and do not produce success feedback.
+- `automation.py` runs player before merc and collects typed delivery events.
+- `reader.py` owns attachment, in-memory sampling, reconnect, and reports.
+- `osd/` formats and renders state; neither healing nor sampling depends on GTK.
+
+Stop the previous OSD process before launching this version. The migration does
+not coordinate cooldown policy with a concurrently running older implementation.
+Ledger cooldown timestamps are discarded after a system reboot. Pending actor
+state resets only on a verified session identity change (or a new boot).
+See [refactoring plan and completion log](../refactoring_plan.md).

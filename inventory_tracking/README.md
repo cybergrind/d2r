@@ -198,7 +198,11 @@ uv run -m inventory_tracking.osd
 uv run -m inventory_tracking.osd --demo
 ```
 
-Defaults target 8 full rejuvenations and 8 super healing potions. Zero-deficit
-lines are hidden. The live adapter remains research-only; visual validation
-in-game is the next step. Tests now live under `tests/inventory_tracking/`,
-mirroring module paths.
+Belt targets follow each column dynamically; zero-deficit lines are hidden.
+Player and merc healing are enabled by default; add `--no-player-heal
+--no-merc-heal` for observation only. Configuration dataclasses live in
+`config.py`, including separate actor thresholds/cooldowns and OSD settings.
+The live reader remains build-gated and uses the documented research selectors.
+Tests live under `tests/inventory_tracking/`, mirroring module paths.
+See the [refactoring completion log](refactoring_plan.md) for architecture and
+validation limits.

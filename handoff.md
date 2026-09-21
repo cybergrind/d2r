@@ -15,22 +15,26 @@ This summary supersedes older research status and decisions recorded below.
 
 - Run `uv run -m inventory_tracking.osd`; player and merc automation default on.
   Observation only: add `--no-player-heal --no-merc-heal`. Demo/once never send keys.
-- Edit `inventory_tracking/healing_config.py`: player healing <65%, rejuvenation
-  <40%; merc healing <55%, rejuvenation <20%. Player rejuvenation cooldown is
-  1 second; all other potions require 3 seconds since the last delivered potion.
-  The backend shares cooldown across recipients and OSD instances/restarts.
+- Edit `inventory_tracking/config.py`: `PLAYER_HEALING` and `MERC_HEALING` are
+  complete dataclasses with potion-type threshold/cooldown maps. Player healing
+  <65%, rejuvenation <40%; merc healing <55%, rejuvenation <20%. Player rejuvenation
+  cooldown is 1 second; other actor/type combinations use 3 seconds independently.
+  Same actor/type history is shared across columns and OSD instances/restarts.
+  `OSD`, `READER`, and `INPUT` centralize presentation and runtime defaults.
 - Potion types are detected in all four bottom slots every sample. Player uses
   plain column keys; merc uses Shift+column. Rejuvenation has emergency priority,
   with healing fallback. Player is considered first. Higher potions across empty
   bottom slots cannot be used. Each recipient tracks consumption acknowledgement
-  and suspends on timeout instead of retrying blindly.
+  and suspends on timeout instead of retrying blindly. Pending/suspended state now
+  survives an OSD restart; a verified new session resets it. Shared item reservations
+  prevent double selection; a sample must start after the previous delivery ends.
 - Shortage tracking is automatic per four-row column: bottom item defines type;
   if bottom is empty, lowest remaining item defines type; entirely empty means
   rejuvenation. Normal/full rejuvenations count together, as do healing tiers.
   Empty belt shows `juv 16`. Explicit CLI targets remain optional overrides.
 - OSD is one transparent text line, 16px, centered 130 logical pixels above
   center. Player HP appears at/below 70%; merc HP strictly below 65%, controlled
-  by `MERC_HEALTH_DISPLAY_BELOW_PERCENT` in `osd/state.py`. Dead merc still shows
+  by `OSD.merc_health_percent` in `config.py`. Dead merc still shows
   `merc dead`. Successful potion sends show a one-second debug message. Empty
   alerts unmap the window; stale/incomplete health and stock readings stay blank.
 - User confirmed merc healing and debug feedback work in-game. Subsequent player,
@@ -42,9 +46,18 @@ This summary supersedes older research status and decisions recorded below.
   exact Niri/X11 process focus, held-key and usable-belt checks remain active.
 - Outstanding: exact merc HP source, live verification of the latest changes,
   belt capacities other than four rows, and robust multiplayer player selection.
-- Latest checks: `uv run pytest tests -q` => **107 passed, 1 skipped**;
+- Refactoring completed with red/green pytest cycles: `HealController` receives
+  configuration and a per-actor `PotionsController`; generic `PotionInput` no longer
+  contains cooldown policy. Domain parsing/belt logic are outside OSD. `reader.py`
+  samples in memory; `automation.py` runs player-first and emits uniform outcomes.
+  `potion_ledger.py` atomically persists `potions.json` under the old shared lock,
+  conservatively migrating the old timestamp. Stop older OSD instances before use.
+  See [plan and completion log](inventory_tracking/refactoring_plan.md).
+- Latest checks: `uv run pytest tests -q` => **151 passed, 1 skipped**;
   `uv run ruff check inventory_tracking tests` and format check both pass.
-  All tests are pytest under `tests/`, mirroring module layout. No commit made.
+  Demo CLI prints `PREVIEW · juv 3 · hp 1` without accessing the game.
+  All tests are pytest under `tests/`, mirroring module layout. Refactored live
+  behavior is not yet verified in-game. This refactor is staged at the user’s request; no commit made.
 
 Older sections below preserve probe evidence and the development history; their
 pending questions and previous defaults are superseded by this summary.
