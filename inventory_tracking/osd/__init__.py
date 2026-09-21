@@ -1,1 +1,1 @@
-"""Read-only health and potion-deficit overlay."""
+"""Health/resource overlay and optional potion automation."""

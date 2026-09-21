@@ -1,8 +1,4 @@
-"""Bounded optional resource research, isolated from health and belt reads.
-
-Candidate room chain: d2go/pkg/memory/player.go. Item descriptors include this
-build's player +0xe8 as a research lead, not proof of the item layout.
-"""
+"""Bounded item-stat and location reads with independent consistency checks."""
 
 import struct
 

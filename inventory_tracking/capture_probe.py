@@ -5,7 +5,6 @@ import os
 
 from .capture import MAX_CAPTURE, capture_ranges, scan_unit_table
 from .common import LOG
-from .game_ui import scan_ui_flags
 from .image_probe import read_mappings
 from .images import read_pe
 from .linux_process import identity, process_mappings
@@ -67,9 +66,6 @@ def capture_image(pid, images, directory):
                             stream.seek(block['file_offset'] + start - block['address'])
                             yield start, stream.read(stop - start)
 
-            result['ui_candidates'] = (
-                scan_ui_flags(code_blocks(), base, pe['image_size']) if result['status'] != 'stale' else []
-            )
             result['unit_table_candidates'] = (
                 scan_unit_table(code_blocks(), base, pe['image_size']) if result['status'] != 'stale' else []
             )

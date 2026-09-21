@@ -1,14 +1,6 @@
-"""Widget contract and storage for the latest immutable sample."""
-
-from typing import Protocol
+"""Shared widget storage for the latest immutable sample."""
 
 from ...models import State
-
-
-class Widget(Protocol):
-    def update(self, snapshot: State) -> None: ...
-    def render(self, *, now: float) -> tuple[str, ...]: ...
-    def reset(self) -> None: ...
 
 
 class SampleWidget:

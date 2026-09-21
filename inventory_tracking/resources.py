@@ -1,8 +1,4 @@
-"""Convert independently verified optional item/location records into facts.
-
-Candidate identifiers: local d2data misc/weapons dumps and d2go stat/skill/area
-lists (2026-09-21). Memory layouts remain gated in RESOURCE_READER until tested.
-"""
+"""Decode optional item/location facts using supported-build resource settings."""
 
 from .config import RESOURCE_READER
 from .models import Location, Observation, PortalTome, TeleportCharges

@@ -1,4 +1,4 @@
-"""Mercenary location research; ownership fields are candidates until verified."""
+"""Act 2 mercenary selection and approximate health from client monster stats."""
 
 import struct
 from dataclasses import dataclass

@@ -1,1 +1,1 @@
-"""Host diagnostics and shared-file handoff for D2R inventory tracking."""
+"""D2R memory sampling, inventory overlay and potion automation."""

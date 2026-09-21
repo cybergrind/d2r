@@ -1,4 +1,4 @@
-"""Research-only D2R unit traversal; every layout is still a candidate.
+"""Bounded D2R unit traversal using the supported build layout.
 
 Layout lead: d2go/pkg/memory/{player,item,game_reader}.go (2026-09-21).
 The live signature's following instructions independently use next link +0x158.

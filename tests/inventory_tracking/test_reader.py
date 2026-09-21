@@ -60,13 +60,14 @@ def test_delivery_message_survives_incomplete_samples_for_one_second(tmp_path, h
     from inventory_tracking.automation import Automation
     from inventory_tracking.config import MERC_HEALING
     from inventory_tracking.models import BeltCell, State
-    from inventory_tracking.osd.state import display_lines
+    from inventory_tracking.osd.presenter import Presenter
 
     make, _ = healing_setup
     automation = Automation([make(MERC_HEALING)])
-    reader = LiveReader(tmp_path, automation=automation)
+    presenter = Presenter()
+    reader = LiveReader(tmp_path, automation=automation, observer=presenter.update)
     automation.step(sample(healing_cells=(BeltCell(column, 101),)))
     reader.set_state(State(100.5, reason='incomplete read'))
     expected = [f'merc potion sent (Shift+{column})']
-    assert display_lines(reader.latest(), now=100.999) == expected
-    assert display_lines(reader.latest(), now=101) == []
+    assert presenter.render(now=100.999) == expected
+    assert presenter.render(now=101) == []

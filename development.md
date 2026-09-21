@@ -20,6 +20,6 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   checks before delivery.
 
 - Keep tests under `tests/`, mirroring module paths: `inventory_tracking/images.py`
-  → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/state.py`
-  → `tests/inventory_tracking/osd/test_state.py`. Import production modules by
+  → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/presenter.py`
+  → `tests/inventory_tracking/osd/test_presenter.py`. Import production modules by
   their absolute package name. Run `uv run pytest tests -v`.

@@ -1,4 +1,4 @@
-"""Bounded live unit research; never publishes controller-ready state."""
+"""Bounded unit snapshots shared by diagnostics and the validated live reader."""
 
 import os
 import struct
@@ -6,7 +6,6 @@ import time
 from bisect import bisect_right
 
 from .common import LOG
-from .game_ui import read_ui_state
 from .image_probe import read_mappings
 from .images import read_pe
 from .linux_process import identity, process_mappings
@@ -118,12 +117,6 @@ def sample_units(pid, images, capture, *, merc=False, resources=False):
                 group['errors'].append({'address': table, 'error': str(exc)})
             if not group['heads_stable']:
                 group['complete'] = False
-        if merc:
-            try:
-                result['ui'] = read_ui_state(read, capture.get('ui_candidates', []))
-            except (OSError, ValueError) as exc:
-                result['ui'] = {'ready': False, 'reason': str(exc)}
-            result['gameplay_ready'] = result['ui']['ready']
         result['sample_finished_monotonic'] = time.monotonic()
         after = process_mappings(pid)
         before_starts = [m['start'] for m in before]
