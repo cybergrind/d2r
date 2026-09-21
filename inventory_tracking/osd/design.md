@@ -6,7 +6,11 @@ Implemented and live-accepted 2026-09-21. Operational defaults are in the
 ## Composition
 
 `Presenter` owns ordered widgets: notifications, player HP, merc HP, belt shortages,
-Teleport charges, portal tome. Each receives `OSDConfig` and implements:
+Teleport charges, portal tome. `default_widgets(config)` builds that list explicitly;
+each widget receives only its own nested config (`config.belt`, `config.portal`, …)
+plus the window's `max_age` as an explicit argument, so `--max-age` reaches every
+widget without being copied into six configs. Widgets subclass
+`SampleWidget[ConfigType]` and implement:
 
 - `update(snapshot)`: consume a domain state.
 - `render(now=...)`: return text segments.
@@ -25,8 +29,10 @@ cannot be recovered. The UI timer still expires notifications if reading stops.
 Widget exceptions are logged without repeated identical messages and suppress only
 the affected widget until successful update. They neither clear its latch nor stop
 healing. The window joins segments with ` · ` and clears/unmaps when empty.
-To add a widget: implement the protocol, add config and a `default_widgets` entry,
-and test observable behavior under `tests/inventory_tracking/osd/`.
+To add a widget: subclass `SampleWidget` with a typed config, add that config as a
+field of `OSDConfig`, add one `default_widgets` line, and test observable behavior
+under `tests/inventory_tracking/osd/`. `OSDConfig` itself gains no widget-specific
+fields.
 
 ## Observation and identity rules
 
@@ -37,8 +43,11 @@ own dependencies; resource failures do not gate valid player health/belt reading
 
 Owned-item selection excludes stash/cube/vendors/ground/other owners. Multiple
 matching tomes or equipped charged staffs yield unavailable instead of guessing.
-Identity is process PID/start/player ID. A verified change resets display state;
-temporary unavailable identity preserves it while stale output stays hidden.
+Identity is `State.session` (`SessionIdentity`: process PID/start/player ID; the
+ledger's merc record also binds the hireling). A sample without a session is
+incomplete and never fresh. A verified change of the core identity resets display
+state and clears automation's delivery events; temporary unavailable identity
+preserves both while stale output stays hidden.
 The current reader cannot positively establish game exit.
 
 Notifications use delivery timestamps, survive unavailable samples for their

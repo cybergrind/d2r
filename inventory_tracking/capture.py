@@ -5,13 +5,14 @@ The displacement is module-relative, not RIP-relative. No old fixed RVA is used.
 """
 
 import struct
+from typing import Any
 
 
 MAX_CAPTURE = 64 * 1024 * 1024
 SIGNATURE = bytes.fromhex('48 03 C7 49 8B 8C C6')
 
 
-def capture_ranges(read, ranges, stream, *, max_bytes=MAX_CAPTURE, chunk_size=65536):
+def capture_ranges(read, ranges, stream, *, max_bytes=MAX_CAPTURE, chunk_size=65536) -> dict[str, Any]:
     if chunk_size <= 0 or any(end <= start for start, end in ranges):
         raise ValueError('Invalid capture ranges or chunk size')
     if sum(end - start for start, end in ranges) > max_bytes:

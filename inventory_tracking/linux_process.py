@@ -3,6 +3,7 @@
 import hashlib
 import os
 from pathlib import Path
+from typing import Any
 
 from .common import error, read_text
 
@@ -51,9 +52,9 @@ def is_game(pid):
         return False
 
 
-def process_info(pid):
+def process_info(pid) -> dict[str, Any]:
     base = Path(f'/proc/{pid}')
-    result = {'identity': identity(pid), 'status': status(pid)}
+    result: dict[str, Any] = {'identity': identity(pid), 'status': status(pid)}
     for name in ('exe', 'cwd', 'ns/user', 'ns/pid', 'ns/mnt'):
         try:
             result[name] = os.readlink(base / name)
@@ -73,7 +74,7 @@ def find_game_processes():
     return sorted(int(p.name) for p in Path('/proc').iterdir() if p.name.isdigit() and is_game(int(p.name)))
 
 
-def process_mappings(pid):
+def process_mappings(pid) -> list[dict[str, Any]]:
     mappings = []
     for line in Path(f'/proc/{pid}/maps').read_text().splitlines():
         fields = line.split(maxsplit=5)

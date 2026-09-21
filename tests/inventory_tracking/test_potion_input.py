@@ -1,109 +1,138 @@
-from unittest.mock import Mock, call, patch
+from contextlib import contextmanager
+from unittest.mock import Mock
 
 import pytest
 
 from inventory_tracking.models import Actor, BeltCell, PotionRequest, PotionType
-from inventory_tracking.potion_input import PotionInput, game_is_focused
+from inventory_tracking.potion_input import PotionInput
 
 
 def request(actor=Actor.MERC):
     return PotionRequest(actor, PotionType.HEALING, BeltCell(3, 101))
 
 
-def test_non_game_focus_never_queries_or_injects_into_game(sample):
-    with patch('inventory_tracking.potion_input.subprocess.check_output', return_value='{"app_id":"kitty"}') as query:
-        assert not game_is_focused(sample())
-    assert query.call_count == 1
+class FakeKeyboard:
+    """Records the key sequence; `results` scripts press/release return values in call order."""
+
+    def __init__(self, *, results=(), held=False, display=True):
+        self.results = list(results)
+        self.held = held
+        self.display = display
+        self.events = []
+        self.connections = 0
+        self.closed = 0
+
+    def keycodes(self, names):
+        return [50 if name == b'Shift_L' else int(name) + 9 for name in names]
+
+    def any_key_held(self):
+        return self.held
+
+    def _event(self, kind, key):
+        self.events.append((kind, key))
+        return self.results.pop(0) if self.results else True
+
+    def press(self, key):
+        return self._event('press', key)
+
+    def release(self, key):
+        return self._event('release', key)
+
+    def sync(self):
+        self.events.append(('sync', None))
+
+    @contextmanager
+    def connect(self):
+        self.connections += 1
+        try:
+            yield self if self.display else None
+        finally:
+            self.closed += 1
+
+
+def sender(keyboard, *, clock=lambda: 100, focused=None):
+    return PotionInput(clock=clock, focused=focused or (lambda session: True), keyboard=keyboard)
 
 
 @pytest.mark.parametrize('actor', [Actor.PLAYER, Actor.MERC])
-def test_key_sequence_and_reservation_before_delivery(actor, sample):
-    x11, xtst = Mock(), Mock()
-    x11.XOpenDisplay.return_value = 123
-    x11.XKeysymToKeycode.side_effect = [50, 12] if actor == Actor.MERC else [12]
-    events = []
-    xtst.XTestFakeKeyEvent.side_effect = lambda *args: events.append(args) or 1
-    sender = PotionInput(clock=lambda: 100)
-    with (
-        patch('inventory_tracking.potion_input.ctypes.CDLL', side_effect=[x11, xtst]),
-        patch('inventory_tracking.potion_input.game_is_focused', return_value=True),
-        patch('inventory_tracking.potion_input.time.sleep'),
-    ):
-        assert sender(sample(), request(actor), max_age=1, before_send=lambda: events.append('reserved'))
-    assert events[0] == 'reserved'
+def test_key_sequence_and_reservation_before_delivery(actor, sample, monkeypatch):
+    keyboard = FakeKeyboard()
+    reserved = []
+    monkeypatch.setattr(
+        'inventory_tracking.potion_input.time.sleep', lambda seconds: keyboard.events.append(('hold', None))
+    )
+    assert sender(keyboard)(
+        sample(), request(actor), max_age=1, before_send=lambda: reserved.append(len(keyboard.events))
+    )
     keys = [50, 12] if actor == Actor.MERC else [12]
-    assert events[1:] == [(123, k, 1, 0) for k in keys] + [(123, k, 0, 0) for k in reversed(keys)]
-    x11.XCloseDisplay.assert_called_once_with(123)
+    assert reserved == [0]
+    assert keyboard.events == (
+        [('press', key) for key in keys]
+        + [('sync', None), ('hold', None)]
+        + [('release', key) for key in reversed(keys)]
+        + [('sync', None)]
+    )
+    assert (keyboard.connections, keyboard.closed) == (1, 1)
 
 
 def test_failed_press_releases_both_keys_and_closes_display(sample):
-    x11, xtst = Mock(), Mock()
-    x11.XOpenDisplay.return_value = 123
-    x11.XKeysymToKeycode.side_effect = [50, 12]
-    xtst.XTestFakeKeyEvent.side_effect = [1, 0, 1, 1]
-    with (
-        patch('inventory_tracking.potion_input.ctypes.CDLL', side_effect=[x11, xtst]),
-        patch('inventory_tracking.potion_input.game_is_focused', return_value=True),
-        pytest.raises(RuntimeError, match='Potion key press failed'),
-    ):
-        PotionInput(clock=lambda: 100)(sample(), request(), max_age=1, before_send=Mock())
-    assert xtst.XTestFakeKeyEvent.call_args_list == [
-        call(123, 50, 1, 0),
-        call(123, 12, 1, 0),
-        call(123, 12, 0, 0),
-        call(123, 50, 0, 0),
+    keyboard = FakeKeyboard(results=[True, False])
+    with pytest.raises(RuntimeError, match='Potion key press failed'):
+        sender(keyboard)(sample(), request(), max_age=1, before_send=Mock())
+    assert [event for event in keyboard.events if event[0] != 'sync'] == [
+        ('press', 50),
+        ('press', 12),
+        ('release', 12),
+        ('release', 50),
     ]
-    x11.XCloseDisplay.assert_called_once_with(123)
+    assert keyboard.closed == 1
 
 
 @pytest.mark.parametrize('max_age', [0.01, 0.1])
 def test_injected_freshness_prevents_input(sample, max_age):
-    with patch('inventory_tracking.potion_input.ctypes.CDLL') as libraries:
-        assert not PotionInput(clock=lambda: 101)(sample(), request(), max_age=max_age, before_send=Mock())
-    libraries.assert_not_called()
+    keyboard = FakeKeyboard()
+    assert not sender(keyboard, clock=lambda: 101)(sample(), request(), max_age=max_age, before_send=Mock())
+    assert keyboard.connections == 0
 
 
-def test_failed_release_attempts_remaining_keys_and_reports_uncertain_delivery(sample):
-    x11, xtst = Mock(), Mock()
-    x11.XOpenDisplay.return_value = 123
-    x11.XKeysymToKeycode.side_effect = [50, 12]
-    xtst.XTestFakeKeyEvent.side_effect = [1, 1, 0, 1]
-    with (
-        patch('inventory_tracking.potion_input.ctypes.CDLL', side_effect=[x11, xtst]),
-        patch('inventory_tracking.potion_input.game_is_focused', return_value=True),
-        patch('inventory_tracking.potion_input.time.sleep'),
-        pytest.raises(RuntimeError, match='release'),
-    ):
-        PotionInput(clock=lambda: 100)(sample(), request(), max_age=1, before_send=Mock())
-    assert xtst.XTestFakeKeyEvent.call_args_list[-1] == call(123, 50, 0, 0)
-    x11.XCloseDisplay.assert_called_once_with(123)
+def test_failed_release_attempts_remaining_keys_and_reports_uncertain_delivery(sample, monkeypatch):
+    keyboard = FakeKeyboard(results=[True, True, False, True])
+    monkeypatch.setattr('inventory_tracking.potion_input.time.sleep', lambda seconds: None)
+    with pytest.raises(RuntimeError, match='release'):
+        sender(keyboard)(sample(), request(), max_age=1, before_send=Mock())
+    assert keyboard.events[-2] == ('release', 50)
+    assert keyboard.closed == 1
 
 
-@pytest.mark.parametrize('reason', ['held_key', 'focus_changed', 'sample_aged'])
+@pytest.mark.parametrize('reason', ['held_key', 'focus_changed', 'sample_aged', 'no_display'])
 def test_last_moment_checks_prevent_reservation_and_input(reason, sample):
-    x11, xtst = Mock(), Mock()
-    x11.XOpenDisplay.return_value = 123
-    x11.XKeysymToKeycode.return_value = 12
-    if reason == 'held_key':
-        x11.XQueryKeymap.side_effect = lambda display, buffer: setattr(buffer, 'value', b'\x01')
+    keyboard = FakeKeyboard(held=reason == 'held_key', display=reason != 'no_display')
     clock = Mock(side_effect=[100, 102] if reason == 'sample_aged' else [100, 100])
+    focused = Mock(side_effect=[True, reason != 'focus_changed'])
     reserve = Mock()
-    with (
-        patch('inventory_tracking.potion_input.ctypes.CDLL', side_effect=[x11, xtst]),
-        patch('inventory_tracking.potion_input.game_is_focused', side_effect=[True, reason != 'focus_changed']),
-    ):
-        assert not PotionInput(clock=clock)(sample(), request(), max_age=1, before_send=reserve)
+    assert not sender(keyboard, clock=clock, focused=focused)(sample(), request(), max_age=1, before_send=reserve)
     reserve.assert_not_called()
-    xtst.XTestFakeKeyEvent.assert_not_called()
+    assert not [event for event in keyboard.events if event[0] == 'press']
 
 
-def test_focus_requires_exact_pid_and_process_start(sample):
-    with (
-        patch(
-            'inventory_tracking.potion_input.subprocess.check_output',
-            side_effect=['{"app_id":"steam_app_2536520"}', '1'],
-        ),
-        patch('inventory_tracking.potion_input.is_game', return_value=True),
-        patch('inventory_tracking.potion_input.identity', return_value={'pid': 1, 'start_ticks': 'different'}),
-    ):
-        assert not game_is_focused(sample())
+@pytest.mark.parametrize(
+    'changes',
+    [
+        {'session': None},
+        {'current_raw': 0},
+        {'healing_cells': ()},
+        {'healing_cells': (BeltCell(5, 101),)},
+    ],
+)
+def test_guards_refuse_without_focus_query_or_display(changes, sample):
+    keyboard = FakeKeyboard()
+    focused = Mock(return_value=True)
+    assert not sender(keyboard, focused=focused)(sample(**changes), request(), max_age=1, before_send=Mock())
+    focused.assert_not_called()
+    assert keyboard.connections == 0
+
+
+def test_unfocused_game_never_opens_a_display(sample):
+    keyboard = FakeKeyboard()
+    assert not sender(keyboard, focused=lambda session: False)(sample(), request(), max_age=1, before_send=Mock())
+    assert keyboard.connections == 0

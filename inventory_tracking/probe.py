@@ -5,6 +5,7 @@ import os
 import platform
 import uuid
 from datetime import UTC, datetime
+from typing import Any
 
 from .capture_probe import capture_image
 from .common import LOG, error, log_to_file, read_text, timestamp
@@ -35,7 +36,7 @@ def select_game_process(requested_pid):
     return candidates[0]
 
 
-def inspect_game(pid):
+def inspect_game(pid) -> dict[str, Any]:
     result = process_info(pid)
     LOG.info('Game process: %s', json.dumps(result))
     try:

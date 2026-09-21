@@ -11,14 +11,12 @@ from .capture_probe import capture_image
 from .common import LOG
 from .config import READER, RESOURCE_READER
 from .image_probe import inspect_images
+from .layout import SUPPORTED_SHA256
 from .models import State
 from .probe import inspect_game, select_game_process
 from .reports import publish
 from .state import from_research
 from .unit_probe import sample_units
-
-
-SUPPORTED_SHA256 = '1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7'
 
 
 class LiveReader:
@@ -36,7 +34,7 @@ class LiveReader:
         self.lock = threading.Lock()
         self.last_reason = None
         self.last_merc = None
-        self.state = State(time.monotonic(), reason='connecting')
+        self.state = State(sampled_at=time.monotonic(), reason='connecting')
         self.thread = threading.Thread(target=self.run, daemon=True, name='game-reader')
 
     def latest(self):
@@ -61,7 +59,7 @@ class LiveReader:
         if state.merc != self.last_merc:
             LOG.info('Mercenary sample: %s', state.merc)
             self.last_merc = state.merc
-        publish(self.directory / 'state.json', asdict(state) | {'validated': False})
+        publish(self.directory / 'state.json', asdict(state))
 
     def connect(self, directory):
         pid = select_game_process(self.pid)
@@ -106,7 +104,7 @@ class LiveReader:
                             break
             except Exception as exc:
                 message = str(exc)
-                self.set_state(State(time.monotonic(), reason='reader unavailable'))
+                self.set_state(State(sampled_at=time.monotonic(), reason='reader unavailable'))
                 if message != last_error:
                     LOG.warning('Reader unavailable: %s', message)
                     last_error = message

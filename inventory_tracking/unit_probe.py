@@ -4,6 +4,7 @@ import os
 import struct
 import time
 from bisect import bisect_right
+from typing import Any
 
 from .common import LOG
 from .image_probe import read_mappings
@@ -46,7 +47,7 @@ class ResearchReader:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def sample_units(pid, images, capture, *, merc=False, resources=False):
+def sample_units(pid, images, capture, *, merc=False, resources=False) -> dict[str, Any]:
     """Return the complete in-memory research snapshot."""
     candidates = capture['unit_table_candidates']
     addresses = sorted({x['table_address'] for x in candidates})
@@ -65,7 +66,7 @@ def sample_units(pid, images, capture, *, merc=False, resources=False):
         if identity(pid) != token or read_pe(lambda o, n: read(base + o, n)) != pe:
             return {'status': 'stale', 'error': 'Image identity changed'}
         table_address = addresses[0]
-        result = {
+        result: dict[str, Any] = {
             'status': 'research',
             'validated': False,
             'identity': token,

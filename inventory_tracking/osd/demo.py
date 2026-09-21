@@ -1,6 +1,18 @@
 """Deterministic optional-resource preview, without game access or input."""
 
-from ..models import Location, Observation, PortalTome, State, TeleportCharges
+from ..models import (
+    BeltSnapshot,
+    Location,
+    Observation,
+    PlayerHealth,
+    PortalTome,
+    SessionIdentity,
+    State,
+    TeleportCharges,
+)
+
+
+DEMO_SESSION = SessionIdentity(0, 'demo', 0)
 
 
 def resource_frame(*, now, elapsed):
@@ -14,10 +26,10 @@ def resource_frame(*, now, elapsed):
         (20, 20, True),
     )[int(elapsed // 3) % 6]
     return State(
-        now,
-        1000,
-        1000,
-        belt_contents=(531,) * 16,
+        sampled_at=now,
+        session=DEMO_SESSION,
+        health=PlayerHealth(1000, 1000),
+        belt=BeltSnapshot((531,) * 16),
         teleport=Observation(now, TeleportCharges(1, charges, 20)),
         portal_tome=Observation(now, PortalTome(2, quantity, 20)),
         location=Observation(now, Location(40 if town else 41, town)),

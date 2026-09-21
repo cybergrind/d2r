@@ -19,9 +19,13 @@ send keys. Once exits 0 for a health sample, 2 for unavailable state.
 ## Configuration and alerts
 
 Edit [config.py](../config.py): `PLAYER_HEALING`/`MERC_HEALING` hold thresholds,
-cooldowns, input freshness and acknowledgement timeout; `OSD` holds display/widget
-settings; `READER` polling/reconnect; `INPUT` focus/key timing. `RESOURCE_READER`
-contains supported-build resource settings, requiring revalidation after updates.
+cooldowns, input freshness and acknowledgement timeout; `OSD` holds window settings
+plus one nested config per widget (`notifications`, `player_health`, `merc_health`,
+`belt`, `teleport`, `portal`); `READER` polling/reconnect; `INPUT` focus/key timing.
+`RESOURCE_READER` contains supported-build resource settings, requiring revalidation
+after updates. Configs are frozen, strictly typed pydantic models: derive variants
+with `with_overrides(model, **changes)`, which re-validates; invalid values raise
+`ValueError` at import or CLI parse time, never at first use.
 
 Default appearance is one transparent line, 16px, centered 130 logical pixels
 above center. The window requests no keyboard interaction, an empty pointer input
@@ -92,8 +96,12 @@ freshness limit, independently of controller freshness.
 
 `--output` defaults to `inventory_tracking/runs/osd/`. Each run contains `osd.log`,
 `state.json`, latest `units.json`, and player/merc outcome reports. The output root
-holds `potions.json` and `merc-input.lock`, shared by instances; keep them to retain
-cooldowns/reservations/suspension. Legacy same-boot timestamps migrate conservatively.
+holds `potions.json` (schema version 2) and `potions.lock`, shared by instances; keep
+them to retain cooldowns/reservations/suspension. The ledger is rewritten only when a
+step changed it, so it stays quiet while idle. Version 0/1 files migrate on first
+use: the retired shared timestamp seeds every per-type cooldown. The old
+`merc-input.lock` keeps serializing instances started in the same boot; after a
+reboot only `potions.lock` is used.
 Do not run an older implementation alongside this one. Temporary image captures
 are removed on disconnect/normal shutdown. See [host probes](../README.md#host-probes)
 for read-only evidence collection.
@@ -102,15 +110,18 @@ for read-only evidence collection.
 
 | Module | Responsibility |
 | --- | --- |
-| `models.py`, `state.py` | Domain records and validated research-to-state conversion |
+| `layout.py` | Verified build facts: executable hash, class/stat IDs, belt geometry, town IDs |
+| `config.py` | Pydantic settings models (`HealingConfig`, `OSDConfig` + widget configs, `ReaderConfig`, `InputConfig`, `ResourceReaderConfig`) and `with_overrides` |
+| `models.py` | `State` (`session`, `health`, `belt`, `merc`, observations, events), `SessionIdentity`, `PlayerHealth`, `BeltSnapshot`, `Observation`, outcomes |
+| `state.py` | Research snapshot → `State`: player selection, identity, belt walk as separate helpers |
 | `belt.py`, `mercenary.py`, `resources.py` | Belt classification, owned merc and optional resource decoding |
 | `reader.py` | Attachment, in-memory sampling, lifecycle, reports and observer delivery |
-| `heal.py` | Health thresholds and potion priority |
+| `heal.py` | Health thresholds and potion priority via `State.health_for(actor)` |
 | `potions.py` | Actor/type cooldown, consumption and suspension policy |
-| `potion_ledger.py` | Locked persistent delivery/reservation state |
-| `potion_input.py` | Focus/freshness checks and platform key delivery |
-| `automation.py` | Player-first orchestration and uniform outcomes/events |
-| `osd/presenter.py`, `osd/widgets/` | Stateful presentation, independent of GTK/input |
+| `potion_ledger.py` | Locked, pydantic-validated ledger; publishes only when a transaction changed it |
+| `potion_input.py`, `focus.py`, `keyboard.py` | Last-moment guards and key sequence; Niri/X11 focus probe; cached XTest helper |
+| `automation.py` | Player-first orchestration; clears delivery events on a verified new game |
+| `osd/presenter.py`, `osd/widgets/` | Explicit widget factory and stateful presentation, independent of GTK/input |
 | `osd/window.py`, `osd/__main__.py` | Window and configured component assembly |
 
 ## Known limits

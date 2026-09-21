@@ -2,7 +2,13 @@
 
 import pytest
 
-from inventory_tracking.mercenary import select_mercenary
+from inventory_tracking.mercenary import Mercenary, select_mercenary
+
+
+def selected(monsters, player_id) -> Mercenary:
+    merc = select_mercenary(monsters, player_id)
+    assert merc is not None
+    return merc
 
 
 def monster(*, owner=7, life=32768, mode=1):
@@ -20,16 +26,16 @@ def monster(*, owner=7, life=32768, mode=1):
 
 
 def test_full_health_matches_2090_and_wrong_owner_is_rejected():
-    assert select_mercenary([monster()], 7).maximum_raw == 2090 * 256
-    assert select_mercenary([monster()], 7).current_raw == 2090 * 256
+    assert selected([monster()], 7).maximum_raw == 2090 * 256
+    assert selected([monster()], 7).current_raw == 2090 * 256
     assert select_mercenary([monster(owner=8)], 7) is None
     assert select_mercenary([monster(), monster()], 7) is None
 
 
 @pytest.mark.parametrize(('life', 'mode'), [(0, 1), (32768, 0), (32768, 12)])
 def test_dead_or_dying_never_alive(life, mode):
-    assert not select_mercenary([monster(life=life, mode=mode)], 7).alive
+    assert not selected([monster(life=life, mode=mode)], 7).alive
 
 
 def test_half_health_uses_normalized_client_life():
-    assert select_mercenary([monster(life=16384)], 7).current_raw == 1045 * 256
+    assert selected([monster(life=16384)], 7).current_raw == 1045 * 256

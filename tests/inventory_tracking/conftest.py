@@ -3,30 +3,46 @@ from dataclasses import replace
 import pytest
 
 from inventory_tracking.mercenary import Mercenary
-from inventory_tracking.models import BeltCell, State
+from inventory_tracking.models import BeltCell, BeltSnapshot, PlayerHealth, SessionIdentity, State
+
+
+SESSION = SessionIdentity(1, '2', 7)
+HEALING_CELLS = (BeltCell(3, 101), BeltCell(4, 102))
+REJUVENATION_CELLS = (BeltCell(1, 103),)
+
+
+def make_state(
+    now=100,
+    *,
+    current_raw=500,
+    maximum_raw=1000,
+    belt_contents=(None,) * 16,
+    healing_cells=HEALING_CELLS,
+    rejuvenation_cells=REJUVENATION_CELLS,
+    belt_ids=(101, 102, 103),
+    **changes,
+):
+    """A complete, healthy, in-game sample; flat keywords fill the nested records, others replace fields."""
+    return replace(
+        State(
+            sampled_at=now,
+            session=SESSION,
+            health=PlayerHealth(current_raw, maximum_raw),
+            merc=Mercenary(99, 500, 1000, 16384, True),
+            belt=BeltSnapshot(belt_contents, healing_cells, rejuvenation_cells, belt_ids),
+        ),
+        **changes,
+    )
+
+
+def belt_of(state: State) -> BeltSnapshot:
+    assert state.belt is not None
+    return state.belt
 
 
 @pytest.fixture
 def sample():
-    def make(now=100, **changes):
-        return replace(
-            State(
-                now,
-                500,
-                1000,
-                player_id=7,
-                process_id=1,
-                process_start='2',
-                merc=Mercenary(99, 500, 1000, 16384, True),
-                healing_cells=(BeltCell(3, 101), BeltCell(4, 102)),
-                rejuvenation_cells=(BeltCell(1, 103),),
-                belt_ids=(101, 102, 103),
-                gameplay_ready=True,
-            ),
-            **changes,
-        )
-
-    return make
+    return make_state
 
 
 @pytest.fixture

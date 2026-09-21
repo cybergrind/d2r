@@ -1,103 +1,74 @@
 """Focused XWayland key delivery; cooldown policy is owned by PotionsController."""
 
-import ctypes
-import json
-import subprocess
 import time
+from collections.abc import Callable
 
-from .belt import usable_cells
-from .config import INPUT
-from .linux_process import identity, is_game
-from .models import Actor
-
-
-def game_is_focused(state, config=INPUT):
-    """Require both compositor focus and the exact X11 game process."""
-    try:
-        window = json.loads(
-            subprocess.check_output(
-                ['niri', 'msg', '--json', 'focused-window'], timeout=config.focus_timeout, text=True
-            )
-        )
-        if not window or window.get('app_id') != config.game_app_id:
-            return False
-        pid = int(
-            subprocess.check_output(
-                ['xdotool', 'getwindowfocus', 'getwindowpid'], timeout=config.focus_timeout, text=True
-            ).strip()
-        )
-        return (
-            pid == state.process_id
-            and is_game(pid)
-            and identity(pid) == {'pid': pid, 'start_ticks': state.process_start}
-        )
-    except OSError, ValueError, subprocess.SubprocessError:
-        return False
+from .config import INPUT, InputConfig
+from .focus import FocusProbe
+from .keyboard import Keyboard, X11Keyboard
+from .models import Actor, PotionRequest, SessionIdentity, State
 
 
 class PotionInput:
-    def __init__(self, config=INPUT, *, clock=time.monotonic):
+    """Last-moment guards, one press/release sequence and a guaranteed release. Nothing else."""
+
+    def __init__(
+        self,
+        config: InputConfig = INPUT,
+        *,
+        clock: Callable[[], float] = time.monotonic,
+        focused: Callable[[SessionIdentity], bool] | None = None,
+        keyboard: Keyboard | None = None,
+    ) -> None:
         self.config = config
         self.clock = clock
+        self.focused = focused if focused is not None else FocusProbe(config)
+        self.keyboard = keyboard if keyboard is not None else X11Keyboard()
 
-    def __call__(self, state, request, *, max_age, before_send):
-        cells = usable_cells(state, request.potion)
+    def __call__(
+        self, state: State, request: PotionRequest, *, max_age: float, before_send: Callable[[], None]
+    ) -> bool:
+        session = state.session
+        player = state.health_for(Actor.PLAYER)
         if (
-            request.actor not in Actor
+            session is None
+            or request.actor not in Actor
             or request.item.column not in (1, 2, 3, 4)
-            or request.item not in cells
-            or not state.gameplay_ready
-            or not 0 <= self.clock() - state.sampled_at <= max_age
+            or request.item not in state.usable_cells(request.potion)
+            or not state.fresh(self.clock(), max_age)
+            or player is None
+            or player[0] <= 0
         ):
             return False
-        if not game_is_focused(state, self.config):
+        if not self.focused(session):
             return False
-        x11 = ctypes.CDLL('libX11.so.6')
-        xtst = ctypes.CDLL('libXtst.so.6')
-        x11.XOpenDisplay.argtypes = [ctypes.c_char_p]
-        x11.XOpenDisplay.restype = ctypes.c_void_p
-        x11.XCloseDisplay.argtypes = [ctypes.c_void_p]
-        x11.XStringToKeysym.argtypes = [ctypes.c_char_p]
-        x11.XStringToKeysym.restype = ctypes.c_ulong
-        x11.XKeysymToKeycode.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
-        x11.XKeysymToKeycode.restype = ctypes.c_ubyte
-        x11.XQueryKeymap.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
-        x11.XSync.argtypes = [ctypes.c_void_p, ctypes.c_int]
-        xtst.XTestFakeKeyEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_int, ctypes.c_ulong]
-        display = x11.XOpenDisplay(None)
-        if not display:
-            return False
-        try:
-            column = request.item.column
-            names = [b'Shift_L', str(column).encode()] if request.actor == Actor.MERC else [str(column).encode()]
-            keys = [x11.XKeysymToKeycode(display, x11.XStringToKeysym(name)) for name in names]
-            if not all(keys):
+        column = str(request.item.column).encode()
+        names = [b'Shift_L', column] if request.actor == Actor.MERC else [column]
+        with self.keyboard.connect() as keys:
+            if keys is None:
                 return False
-            keymap = ctypes.create_string_buffer(32)
-            x11.XQueryKeymap(display, keymap)
-            # Never disturb keys physically held by the player.
-            if any(keymap.raw) or not game_is_focused(state, self.config):
+            codes = keys.keycodes(names)
+            if not codes:
                 return False
-            if not 0 <= self.clock() - state.sampled_at <= max_age:
+            # Never disturb keys physically held by the player; re-check focus and age right before sending.
+            if keys.any_key_held() or not self.focused(session) or not state.fresh(self.clock(), max_age):
                 return False
             before_send()
             try:
-                for key in keys:
-                    if not xtst.XTestFakeKeyEvent(display, key, 1, 0):
+                for key in codes:
+                    if not keys.press(key):
                         raise RuntimeError('Potion key press failed')
-                x11.XSync(display, 0)
+                keys.sync()
                 time.sleep(self.config.key_hold_seconds)
             finally:
                 release_failed = False
-                for key in reversed(keys):
+                for key in reversed(codes):
                     try:
-                        if not xtst.XTestFakeKeyEvent(display, key, 0, 0):
+                        if not keys.release(key):
                             release_failed = True
                     except Exception:
                         release_failed = True
-                x11.XSync(display, 0)
+                keys.sync()
                 if release_failed:
                     raise RuntimeError('Potion key release failed')
             return True
-        finally:
-            x11.XCloseDisplay(display)

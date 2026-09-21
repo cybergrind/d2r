@@ -50,9 +50,9 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
         patch('inventory_tracking.reader.sample_units', side_effect=inspect),
     ):
         reader.run()
-    assert [state.player_id for state in observed] == [7, None, 17]
-    assert observed[1].current_raw is None
-    assert json.loads((tmp_path / 'state.json').read_text())['player_id'] == 17
+    assert [state.session.player_id if state.session else None for state in observed] == [7, None, 17]
+    assert observed[1].health is None
+    assert json.loads((tmp_path / 'state.json').read_text())['session'][2] == 17
 
 
 @pytest.mark.parametrize('column', [3, 4])
@@ -67,7 +67,7 @@ def test_delivery_message_survives_incomplete_samples_for_one_second(tmp_path, h
     presenter = Presenter()
     reader = LiveReader(tmp_path, automation=automation, observer=presenter.update)
     automation.step(sample(healing_cells=(BeltCell(column, 101),)))
-    reader.set_state(State(100.5, reason='incomplete read'))
+    reader.set_state(State(sampled_at=100.5, reason='incomplete read'))
     expected = [f'merc potion sent (Shift+{column})']
     assert presenter.render(now=100.999) == expected
     assert presenter.render(now=101) == []

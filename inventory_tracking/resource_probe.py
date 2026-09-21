@@ -1,8 +1,9 @@
 """Bounded item-stat and location reads with independent consistency checks."""
 
 import struct
+from typing import Any
 
-from .resources import STAFF_CLASS_IDS, TOME_CLASS_ID
+from .layout import STAFF_CLASS_IDS, TOME_CLASS_ID
 from .units import describe_item, read_stats, unit_matches
 
 
@@ -28,7 +29,7 @@ def read_location(read, path):
     return area
 
 
-def read_item_arrays(read, pointer):
+def read_item_arrays(read, pointer) -> dict[str, Any]:
     arrays = []
     for offset in (0x30, 0xA8, 0xE8):
         try:
@@ -41,8 +42,8 @@ def read_item_arrays(read, pointer):
     return {'complete': True, 'arrays': arrays}
 
 
-def collect_resources(read, groups):
-    result = {'complete': True, 'validated': False, 'items': [], 'locations': []}
+def collect_resources(read, groups) -> dict[str, Any]:
+    result: dict[str, Any] = {'complete': True, 'validated': False, 'items': [], 'locations': []}
     if not all(groups[name]['complete'] for name in ('players', 'items')):
         return dict(result, complete=False, reason='Incomplete player/item traversal')
     for player in groups['players']['units']:

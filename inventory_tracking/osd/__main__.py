@@ -3,20 +3,20 @@
 import argparse
 import math
 import time
-from dataclasses import replace
+from collections.abc import Callable
 from pathlib import Path
 
 from ..automation import Automation
 from ..common import LOG, configure_logging, log_to_file
-from ..config import MERC_HEALING, OSD, PLAYER_HEALING, READER
+from ..config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
 from ..heal import HealController
-from ..models import State
+from ..models import BeltSnapshot, PlayerHealth, State
 from ..potion_input import PotionInput
 from ..potion_ledger import PotionLedger
 from ..potions import PotionsController
 from ..probe import create_run
 from ..reader import LiveReader
-from .demo import resource_frame
+from .demo import DEMO_SESSION, resource_frame
 from .presenter import Presenter
 
 
@@ -58,7 +58,7 @@ def main():
         '--rejuvenation-target',
         type=int,
         choices=range(17),
-        default=OSD.rejuvenation_target,
+        default=OSD.belt.rejuvenation_target,
         metavar='0..16',
         help='Override automatic column target',
     )
@@ -66,7 +66,7 @@ def main():
         '--healing-target',
         type=int,
         choices=range(17),
-        default=OSD.healing_target,
+        default=OSD.belt.healing_target,
         metavar='0..16',
         help='Override automatic column target',
     )
@@ -84,14 +84,14 @@ def main():
     args = parser.parse_args()
     args.demo = args.demo or args.demo_resources
     try:
-        osd_config = replace(
+        osd_config = with_overrides(
             OSD,
-            **{
-                name: getattr(args, name)
-                for name in ('x', 'y', 'font_size', 'monitor', 'max_age', 'rejuvenation_target', 'healing_target')
-            },
+            **{name: getattr(args, name) for name in ('x', 'y', 'font_size', 'monitor', 'max_age')},
+            belt=with_overrides(
+                OSD.belt, rejuvenation_target=args.rejuvenation_target, healing_target=args.healing_target
+            ),
         )
-        reader_config = replace(READER, interval=args.interval)
+        reader_config = with_overrides(READER, interval=args.interval)
     except ValueError as exc:
         parser.error(str(exc))
     configure_logging()
@@ -100,37 +100,41 @@ def main():
         LOG.info('OSD session: %s', directory)
         presenter = Presenter(osd_config)
         reader = None
+        latest: Callable[..., State]
         if args.demo:
             started = time.monotonic()
 
-            def latest(now=None):
+            def latest(now: float | None = None) -> State:
                 now = time.monotonic() if now is None else now
                 if args.demo_resources:
                     return resource_frame(now=now, elapsed=now - started)
                 return State(
-                    now,
-                    1526 * 256,
-                    1545 * 256,
-                    belt_contents=(531, 531, 606, 606) * 2 + (531, None, 606, 606) + (None, None, 606, None),
+                    sampled_at=now,
+                    session=DEMO_SESSION,
+                    health=PlayerHealth(1526 * 256, 1545 * 256),
+                    belt=BeltSnapshot((531, 531, 606, 606) * 2 + (531, None, 606, 606) + (None, None, 606, None)),
                 )
         else:
             ledger = PotionLedger(directory.parent)
             deliver = PotionInput()
             configs = (
-                replace(PLAYER_HEALING, enabled=args.player_heal and not args.once),
-                replace(MERC_HEALING, enabled=args.merc_heal and not args.once),
+                with_overrides(PLAYER_HEALING, enabled=args.player_heal and not args.once),
+                with_overrides(MERC_HEALING, enabled=args.merc_heal and not args.once),
             )
             automation = Automation(
                 [HealController(config, PotionsController(config, ledger, deliver)) for config in configs]
             )
-            reader = LiveReader(
+            live = reader = LiveReader(
                 directory,
                 pid=args.pid,
                 config=reader_config,
                 automation=automation,
                 observer=presenter.update,
             )
-            latest = reader.latest
+
+            def latest(now: float | None = None) -> State:
+                return live.latest()
+
             reader.start()
         try:
             if args.text or args.once:
@@ -144,7 +148,7 @@ def main():
                         print(('PREVIEW · ' if args.demo else '') + ' · '.join(lines), flush=True)
                         previous = lines
                     if args.once and state.reason != 'connecting':
-                        return 0 if state.current_raw is not None else 2
+                        return 0 if state.health is not None else 2
                     time.sleep(osd_config.refresh_interval)
             from .window import show
 

@@ -1,12 +1,15 @@
 from dataclasses import replace
 
-from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING
-from inventory_tracking.models import BeltCell, Outcome, PotionType
+from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING, with_overrides
+from inventory_tracking.models import BeltCell, Outcome, PotionType, SessionIdentity
+
+
+PLAYER_8 = SessionIdentity(1, '2', 8)
 
 
 def test_injected_thresholds_and_cooldowns_control_delivery(healing_setup, sample, clock):
     make, sent = healing_setup
-    custom = replace(
+    custom = with_overrides(
         PLAYER_HEALING,
         thresholds={PotionType.HEALING: 80, PotionType.REJUVENATION: 25},
         cooldowns={PotionType.HEALING: 7, PotionType.REJUVENATION: 0.5},
@@ -55,7 +58,7 @@ def test_missing_merc_does_not_skip_ack_timeout_and_restart_preserves_suspension
     assert merc.step(sample(clock.now, merc=None)).outcome == Outcome.SUSPENDED
     clock.now = 110
     assert make(MERC_HEALING).step(sample(clock.now)).outcome == Outcome.SUSPENDED
-    assert make(MERC_HEALING).step(sample(clock.now, player_id=8)).outcome == Outcome.SENT
+    assert make(MERC_HEALING).step(sample(clock.now, session=PLAYER_8)).outcome == Outcome.SENT
     assert sent.call_count == 2
 
 
@@ -64,9 +67,9 @@ def test_session_change_resets_pending_but_preserves_type_cooldown(healing_setup
     controller = make(MERC_HEALING)
     controller.step(sample())
     clock.now = 101
-    assert controller.step(sample(101, player_id=8)).outcome == Outcome.COOLDOWN
+    assert controller.step(sample(101, session=PLAYER_8)).outcome == Outcome.COOLDOWN
     clock.now = 103
-    assert controller.step(sample(103, player_id=8)).outcome == Outcome.SENT
+    assert controller.step(sample(103, session=PLAYER_8)).outcome == Outcome.SENT
     assert sent.call_count == 2
 
 

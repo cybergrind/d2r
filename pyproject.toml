@@ -10,6 +10,7 @@ dependencies = [
   "pytest>=9.1.1",
   "pycairo>=1.29.1",
   "pygobject>=3.58.0",
+  "pydantic>=2.13.5",
 ]
 
 # installed with: uv sync
@@ -71,7 +72,6 @@ testpaths = ['tests']
 project-includes = ['inventory_tracking', 'tests']
 project-excludes = ['**/__pycache__', '.venv', 'inventory_tracking/runs']
 python-version = '3.14'
-# `basic` matches the gate that applied before this section existed (0 errors). The default preset
-# reports ~90 inference errors on untyped dict-heavy code; raise it as boundaries gain annotations
-# (see inventory_tracking/followup_plan.md).
-preset = 'basic'
+preset = 'default'
+# gi.repository is populated by GObject introspection at import time.
+replace-imports-with-any = ['gi.repository']

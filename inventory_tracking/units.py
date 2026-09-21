@@ -5,10 +5,13 @@ The live signature's following instructions independently use next link +0x158.
 """
 
 import struct
+from typing import Any
+
+from .layout import BELT_ITEM_MODE, DEAD_MODES, HIRELING_CLASS_ID
 
 
-def walk_units(read, heads, expected_type, *, max_units=2048):
-    result = {'units': [], 'errors': [], 'complete': True}
+def walk_units(read, heads, expected_type, *, max_units=2048) -> dict[str, Any]:
+    result: dict[str, Any] = {'units': [], 'errors': [], 'complete': True}
     visited = set()
     for bucket, pointer in enumerate(heads):
         while pointer:
@@ -66,9 +69,9 @@ def unit_matches(read, unit):
         # Monster animation changes are normal during combat. For hirelings,
         # preserve the dead/dying boundary; other monsters are traversal only.
         fields = [field for field in fields if field[0] != 'mode']
-        if unit['txt_id'] == 338:
+        if unit['txt_id'] == HIRELING_CLASS_ID:
             mode = struct.unpack_from('<I', data, 0x0C)[0]
-            if (mode in (0, 12)) != (unit['mode'] in (0, 12)):
+            if (mode in DEAD_MODES) != (unit['mode'] in DEAD_MODES):
                 return False
     return all(struct.unpack_from(fmt, data, offset)[0] == unit[name] for name, fmt, offset in fields)
 
@@ -107,7 +110,7 @@ def describe_player(read, unit):
     return result
 
 
-def discover_stat_arrays(read, address):
+def discover_stat_arrays(read, address) -> list[dict[str, Any]]:
     """Inspect bounded adjacent descriptors without assuming a full-stat offset."""
     header = read(address, 0x200)
     candidates = []
@@ -166,7 +169,7 @@ def summarize_research(groups):
     # IDs/names verified against blizzhackers/d2data misc.json on 2026-09-21.
     names = {531: 'Full Rejuvenation Potion', 606: 'Super Healing Potion'}
     for unit in groups['items']['units']:
-        if unit['mode'] != 2 or 'error' in unit['details']:
+        if unit['mode'] != BELT_ITEM_MODE or 'error' in unit['details']:
             continue
         d = unit['details']
         belt.append(

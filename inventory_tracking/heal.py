@@ -1,22 +1,22 @@
 """Health policy; potion availability and execution belong to PotionsController."""
 
-from .models import Actor, PotionType
+from .config import HealingConfig
+from .models import PotionResult, PotionType, State
+from .potions import PotionsController
 
 
 class HealController:
-    def __init__(self, config, potions):
+    def __init__(self, config: HealingConfig, potions: PotionsController) -> None:
         if config != potions.config:
             raise ValueError('Healing and potion controllers must share configuration')
         self.config = config
         self.potions = potions
 
-    def step(self, state):
+    def step(self, state: State) -> PotionResult:
         choices = []
-        current, maximum = state.current_raw, state.maximum_raw
-        if self.config.actor == Actor.MERC:
-            merc = state.merc
-            current, maximum = (merc.life_fraction_raw, 32768) if merc and merc.alive else (None, None)
-        if current is not None and maximum is not None and 0 < current <= maximum:
+        health = state.health_for(self.config.actor)
+        if health is not None and 0 < health[0] <= health[1]:
+            current, maximum = health
             choices = [
                 potion
                 for potion in (PotionType.REJUVENATION, PotionType.HEALING)

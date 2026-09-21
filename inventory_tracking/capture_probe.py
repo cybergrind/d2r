@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+from typing import Any
 
 from .capture import MAX_CAPTURE, capture_ranges, scan_unit_table
 from .common import LOG
@@ -11,7 +12,7 @@ from .linux_process import identity, process_mappings
 from .reports import publish
 
 
-def capture_image(pid, images, directory):
+def capture_image(pid, images, directory) -> dict[str, Any]:
     token = images['identity']
     base = images['candidate_base']
     pe = next(x['pe'] for x in images['images'] if x['base'] == base)

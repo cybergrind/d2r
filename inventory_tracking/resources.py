@@ -1,16 +1,19 @@
 """Decode optional item/location facts using supported-build resource settings."""
 
-from .config import RESOURCE_READER
+from collections.abc import Callable
+from typing import Any, NamedTuple
+
+from .config import RESOURCE_READER, ResourceReaderConfig
+from .layout import (
+    CHARGED_SKILL_STAT,
+    QUANTITY_STAT,
+    STAFF_CLASS_IDS,
+    TELEPORT_SKILL,
+    TOME_CLASS_ID,
+    TOWN_IDS,
+    WEAPON_SLOTS,
+)
 from .models import Location, Observation, PortalTome, TeleportCharges
-
-
-TOME_CLASS_ID = 533
-STAFF_CLASS_IDS = frozenset((63, 64, 65, 66, 67, 91, 92, 156, 157, 158, 159, 160, 259, 260, 261, 262, 263))
-TOWN_IDS = frozenset((1, 40, 75, 103, 109))
-QUANTITY_STAT = 70
-CHARGED_SKILL_STAT = 204
-TELEPORT_SKILL = 54
-WEAPON_SLOTS = (4, 5, 11, 12)
 
 
 def item_stats(item, offset):
@@ -80,28 +83,38 @@ def select_location(records, player_id, config):
     return Location(area, area in TOWN_IDS)
 
 
-def resource_observations(snapshot, player_id, *, config=RESOURCE_READER):
+class ResourceObservations(NamedTuple):
+    teleport: Observation[TeleportCharges]
+    portal_tome: Observation[PortalTome]
+    location: Observation[Location]
+
+
+def resource_observations(
+    snapshot: dict[str, Any], player_id: int, *, config: ResourceReaderConfig = RESOURCE_READER
+) -> ResourceObservations:
     sampled = snapshot['sample_monotonic']
-    research = snapshot.get('resources', {})
+    research: dict[str, Any] = snapshot.get('resources', {})
     if not isinstance(research, dict):
         research = {'reason': 'Malformed resource records'}
     if snapshot['status'] != 'research' or not research.get('complete'):
-        return {
-            name: Observation.unavailable(sampled, research.get('reason', 'resources not sampled'))
-            for name in ('teleport', 'portal_tome', 'location')
-        }
+        reason = research.get('reason', 'resources not sampled')
+        return ResourceObservations(
+            Observation.unavailable(sampled, reason),
+            Observation.unavailable(sampled, reason),
+            Observation.unavailable(sampled, reason),
+        )
 
-    def owned_items():
+    def owned_items() -> list[dict[str, Any]]:
         return [item for item in research['items'] if item['details']['owner_id'] == player_id]
 
-    result = {}
-    for name, select in (
-        ('portal_tome', lambda: select_portal(owned_items(), config)),
-        ('teleport', lambda: select_teleport(owned_items(), config)),
-        ('location', lambda: select_location(research.get('locations', []), player_id, config)),
-    ):
+    def observe[T](select: Callable[[], T | None]) -> Observation[T]:
         try:
-            result[name] = Observation(sampled, select())
+            return Observation(sampled, select())
         except (AttributeError, KeyError, TypeError, ValueError) as exc:
-            result[name] = Observation.unavailable(sampled, str(exc))
-    return result
+            return Observation.unavailable(sampled, str(exc))
+
+    return ResourceObservations(
+        teleport=observe(lambda: select_teleport(owned_items(), config)),
+        portal_tome=observe(lambda: select_portal(owned_items(), config)),
+        location=observe(lambda: select_location(research.get('locations', []), player_id, config)),
+    )

@@ -1,9 +1,13 @@
 """Compose widgets and serialize reader updates with UI rendering."""
 
+from collections.abc import Iterable
 from threading import Lock
+from typing import Any
 
 from ..common import LOG
-from ..config import OSD
+from ..config import OSD, OSDConfig
+from ..models import State
+from .widgets.base import SampleWidget
 from .widgets.belt import BeltWidget
 from .widgets.health import MercHealthWidget, PlayerHealthWidget
 from .widgets.notifications import NotificationsWidget
@@ -11,22 +15,21 @@ from .widgets.portal import PortalWidget
 from .widgets.teleport import TeleportWidget
 
 
-def default_widgets(config):
+def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:
+    """Display order; each widget gets only its own config plus the window's staleness limit."""
+    age = config.max_age
     return [
-        widget(config)
-        for widget in (
-            NotificationsWidget,
-            PlayerHealthWidget,
-            MercHealthWidget,
-            BeltWidget,
-            TeleportWidget,
-            PortalWidget,
-        )
+        NotificationsWidget(config.notifications, max_age=age),
+        PlayerHealthWidget(config.player_health, max_age=age),
+        MercHealthWidget(config.merc_health, max_age=age),
+        BeltWidget(config.belt, max_age=age),
+        TeleportWidget(config.teleport, max_age=age),
+        PortalWidget(config.portal, max_age=age),
     ]
 
 
 class Presenter:
-    def __init__(self, config=OSD, *, widgets=None):
+    def __init__(self, config: OSDConfig = OSD, *, widgets: Iterable[SampleWidget[Any]] | None = None) -> None:
         self.widgets = default_widgets(config) if widgets is None else list(widgets)
         self.lock = Lock()
         self.session = None
@@ -41,10 +44,9 @@ class Presenter:
         self.errors[index] = signature
         self.failed.add(index)
 
-    def update(self, snapshot):
+    def update(self, snapshot: State) -> None:
         with self.lock:
-            identity = (snapshot.process_id, snapshot.process_start, snapshot.player_id)
-            identity = identity if all(part is not None for part in identity) else None
+            identity = snapshot.session.core if snapshot.session is not None else None
             changed = identity is not None and identity != self.session
             if not changed and self.last_sample is not None and snapshot.sampled_at < self.last_sample:
                 return
@@ -63,7 +65,7 @@ class Presenter:
             elif identity is not None:
                 self.session = identity
 
-    def render(self, *, now):
+    def render(self, *, now: float) -> list[str]:
         with self.lock:
             lines = []
             for index, widget in enumerate(self.widgets):

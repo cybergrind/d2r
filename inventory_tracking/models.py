@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import NamedTuple
 
+from .layout import LIFE_FRACTION_MAX
 from .mercenary import Mercenary
 
 
@@ -21,6 +22,20 @@ class PotionType(StrEnum):
 class BeltCell(NamedTuple):
     column: int
     item_id: int
+
+
+class SessionIdentity(NamedTuple):
+    """Which game we are looking at: process, player and, for the merc actor's ledger record, the hireling."""
+
+    process_id: int
+    process_start: str
+    player_id: int
+    merc_id: int | None = None
+
+    @property
+    def core(self) -> tuple[int, str, int]:
+        """Process and player only; hiring or losing a merc is not a new game."""
+        return self.process_id, self.process_start, self.player_id
 
 
 class ObservationStatus(StrEnum):
@@ -82,27 +97,54 @@ class Location:
 
 
 @dataclass(frozen=True)
-class State:
-    sampled_at: float
-    current_raw: int | None = None
-    maximum_raw: int | None = None
-    reason: str = ''
-    player_id: int | None = None
-    merc: Mercenary | None = None
-    process_id: int | None = None
-    process_start: str | None = None
-    belt_contents: tuple[int | None, ...] | None = None
+class PlayerHealth:
+    current_raw: int
+    maximum_raw: int
+
+
+@dataclass(frozen=True)
+class BeltSnapshot:
+    """Sixteen belt slots by index plus the bottom-row potions usable by hotkey column."""
+
+    contents: tuple[int | None, ...]
     healing_cells: tuple[BeltCell, ...] = ()
     rejuvenation_cells: tuple[BeltCell, ...] = ()
-    # Complete living-player sample with process identity; not a menu check.
-    gameplay_ready: bool = False
-    belt_ids: tuple[int, ...] = ()
+    item_ids: tuple[int, ...] = ()
+
+    def cells(self, kind: PotionType) -> tuple[BeltCell, ...]:
+        return self.rejuvenation_cells if kind == PotionType.REJUVENATION else self.healing_cells
+
+
+@dataclass(frozen=True, kw_only=True)
+class State:
+    """Published snapshot: either a complete in-game sample (`session` set) or a placeholder with a `reason`."""
+
+    sampled_at: float
+    reason: str = ''
+    session: SessionIdentity | None = None
+    health: PlayerHealth | None = None
+    merc: Mercenary | None = None
+    belt: BeltSnapshot | None = None
     events: tuple[PotionSent, ...] = ()
     teleport: Observation[TeleportCharges] = field(default_factory=Observation.unavailable)
     portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
     location: Observation[Location] = field(default_factory=Observation.unavailable)
     # Only set by a reader that can positively establish the game boundary.
     session_ended: bool = False
+
+    def fresh(self, now: float, max_age: float) -> bool:
+        """A complete sample taken at most `max_age` ago and not from the future."""
+        return self.session is not None and 0 <= now - self.sampled_at <= max_age
+
+    def health_for(self, actor: Actor) -> tuple[int, int] | None:
+        """(current, maximum) on a common scale per actor; None when unknown, missing or dead."""
+        if actor == Actor.PLAYER:
+            return (self.health.current_raw, self.health.maximum_raw) if self.health else None
+        merc = self.merc
+        return (merc.life_fraction_raw, LIFE_FRACTION_MAX) if merc and merc.alive else None
+
+    def usable_cells(self, kind: PotionType) -> tuple[BeltCell, ...]:
+        return self.belt.cells(kind) if self.belt else ()
 
 
 class Outcome(StrEnum):

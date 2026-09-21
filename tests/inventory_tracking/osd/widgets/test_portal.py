@@ -1,12 +1,12 @@
 from dataclasses import replace
 
-from inventory_tracking.models import Observation, PortalTome, State
+from inventory_tracking.models import Observation, PortalTome, SessionIdentity, State
 from inventory_tracking.osd.presenter import Presenter
 
 
-def sample(quantity, *, at=100, item=1):
+def sample(quantity, *, at=100, item=1, player=2):
     tome = None if quantity is None else PortalTome(item, quantity, 20)
-    return State(at, portal_tome=Observation(at, tome), process_id=1, process_start='a', player_id=2)
+    return State(sampled_at=at, portal_tome=Observation(at, tome), session=SessionIdentity(1, 'a', player))
 
 
 def test_latch_sequence_and_render_is_pure():
@@ -36,7 +36,7 @@ def test_item_and_session_changes_reset_latch():
     presenter.update(sample(18, item=3))
     assert presenter.render(now=100) == []
     presenter.update(sample(16, item=3))
-    presenter.update(replace(sample(18, item=3), player_id=8))
+    presenter.update(sample(18, item=3, player=8))
     assert presenter.render(now=100) == []
 
 

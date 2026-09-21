@@ -1,9 +1,8 @@
-from dataclasses import replace
 from unittest.mock import Mock
 
 import pytest
 
-from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING
+from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING, with_overrides
 from inventory_tracking.heal import HealController
 from inventory_tracking.mercenary import Mercenary
 from inventory_tracking.models import Outcome, PotionType, State
@@ -40,7 +39,7 @@ def test_threshold_boundaries_and_priority(config, percent, choices, sample):
         {'merc': Mercenary(99, 0, 1000, 0, False)},
         {'merc': Mercenary(99, 500, 1000, 16384, False)},
         {'merc': Mercenary(99, 600, 1000, 19661, True)},
-        {'gameplay_ready': False},
+        {'session': None},
         {'current_raw': 0},
         {'healing_cells': ()},
         {'sampled_at': 90},
@@ -67,7 +66,7 @@ def test_dead_player_never_receives_potion(sample, healing_setup):
 
 def test_disabled_actor_never_sends(sample, healing_setup):
     make, sent = healing_setup
-    assert make(replace(PLAYER_HEALING, enabled=False)).step(sample()).outcome == Outcome.DISABLED
+    assert make(with_overrides(PLAYER_HEALING, enabled=False)).step(sample()).outcome == Outcome.DISABLED
     sent.assert_not_called()
 
 
@@ -77,7 +76,7 @@ def test_invalid_sample_does_not_reset_suspension(sample, healing_setup, clock):
     controller.step(sample())
     clock.now = 103
     assert controller.step(sample(103)).outcome == Outcome.SUSPENDED
-    assert controller.step(State(103, reason='incomplete read')).outcome == Outcome.UNAVAILABLE
+    assert controller.step(State(sampled_at=103, reason='incomplete read')).outcome == Outcome.UNAVAILABLE
     clock.now = 106
     assert controller.step(sample(106)).outcome == Outcome.SUSPENDED
     assert sent.call_count == 1

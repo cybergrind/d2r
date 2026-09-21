@@ -2,14 +2,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from inventory_tracking.models import State
+from inventory_tracking.models import BeltSnapshot, PlayerHealth, State
 from inventory_tracking.osd.__main__ import main
 
 
 @pytest.mark.parametrize('mode', ['--demo', '--once'])
 def test_observation_modes_cannot_deliver_keys(tmp_path, mode, capsys):
     reader = Mock()
-    reader.latest.return_value = State(100, 1000, 1000, belt_contents=(531,) * 16)
+    reader.latest.return_value = State(sampled_at=100, health=PlayerHealth(1000, 1000), belt=BeltSnapshot((531,) * 16))
     flags = [mode] + (['--once'] if mode == '--demo' else [])
     with (
         patch('sys.argv', ['osd', *flags, '--output', str(tmp_path)]),
@@ -24,7 +24,7 @@ def test_observation_modes_cannot_deliver_keys(tmp_path, mode, capsys):
     else:
         automation = constructor.call_args.kwargs['automation']
         assert all(not controller.config.enabled for controller in automation.controllers)
-        automation.step(State(100, 100, 1000))
+        automation.step(State(sampled_at=100, health=PlayerHealth(100, 1000)))
         sender.return_value.assert_not_called()
 
 
@@ -52,3 +52,11 @@ def test_window_demo_uses_frame_timestamp_for_freshness(tmp_path):
         assert main() == 0
     render = show.call_args.args[0]
     assert render(now=time.monotonic()) == ['juv 3', 'hp 1']
+
+
+def test_invalid_cli_combination_reaches_parser_error(tmp_path, capsys):
+    argv = ['osd', '--demo', '--rejuvenation-target', '10', '--healing-target', '10', '--output', str(tmp_path)]
+    with patch('sys.argv', argv), pytest.raises(SystemExit) as exit_info:
+        main()
+    assert exit_info.value.code == 2
+    assert 'belt slots' in capsys.readouterr().err

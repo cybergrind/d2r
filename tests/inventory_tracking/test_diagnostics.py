@@ -108,13 +108,15 @@ def test_watcher_detects_running_then_complete():
         command = [sys.executable, '-m', 'inventory_tracking', '--output', directory, 'watch', '--timeout', '5']
         watcher = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         try:
+            stderr = watcher.stderr
+            assert stderr is not None
             # The first log is emitted after the baseline scan: no race with creating the run.
-            assert 'Watching' in watcher.stderr.readline()
+            assert 'Watching' in stderr.readline()
             run = Path(directory) / 'new-run'
             run.mkdir()
             path = run / 'report.json'
             publish(path, {'state': 'running'})
-            assert 'Detected run' in watcher.stderr.readline()
+            assert 'Detected run' in stderr.readline()
             publish(path, {'state': 'complete', 'exit_code': 0, 'run_id': 'new-run'})
             out, _ = watcher.communicate(timeout=5)
             assert watcher.returncode == 0
