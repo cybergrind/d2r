@@ -1,0 +1,109 @@
+{
+  "checked_out_at": "2026-09-23T18:23:49.773393+00:00",
+  "repositories": [
+    {
+      "directory": "d2go",
+      "url": "https://github.com/relentlessricktrinidad/d2go.git",
+      "purpose": "D2R memory layouts and stat readers; accessible fork",
+      "commit": "1fb1e7a6569fef21e6e3a63749244f65a80673a0",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "D2MOO",
+      "url": "https://github.com/ThePhrozenKeep/D2MOO.git",
+      "purpose": "Reconstructed legacy stat/item algorithms",
+      "commit": "5596f5cb6c5251a0a07c6637d26458b06099d516",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "d2data",
+      "url": "https://github.com/blizzhackers/d2data.git",
+      "purpose": "D2R static item, stat and skill tables",
+      "commit": "fc469993502d0498809b9fc1af140ee2a9eb8902",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "diablo2utils",
+      "url": "https://github.com/ChrisTitusTech/diablo2utils.git",
+      "purpose": "Linux memory structures and signatures",
+      "commit": "b7dcd531e7372be9855b14d1283125da59df6180",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "MapAssist",
+      "url": "https://github.com/dglEnraged/MapAssist.git",
+      "purpose": "C# item/stat readers and overlay; accessible fork",
+      "commit": "c503b29d014d0bdb0a8a14667fec2375ffcc2e3a",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "D2R-AutoPotion-Go",
+      "url": "https://github.com/Apethor/D2R-AutoPotion-Go.git",
+      "purpose": "Potion watcher and d2go lineage",
+      "commit": "e1d1e6e424db16b3d426b45ed34e872c4926e065",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "koolo",
+      "url": "https://github.com/dulingzhi/koolo.git",
+      "purpose": "Health/belt/recovery policies; accessible fork",
+      "commit": "91a04550a54684a2ff315919f1990651a97bb42e",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "d2r-mapview",
+      "url": "https://github.com/joffreybesos/d2r-mapview.git",
+      "purpose": "AutoHotkey memory and HUD reference",
+      "commit": "50131a7651833a468774374b7c7b07c4ff08b7f8",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "botty",
+      "url": "https://github.com/johannes-do/botty.git",
+      "purpose": "Visual health-bar cross-check",
+      "commit": "22ab86b3877e441a61cfb46f43bf5b368d8251cf",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "d2bs",
+      "url": "https://github.com/noah-/d2bs.git",
+      "purpose": "Legacy client APIs and item/stat logic",
+      "commit": "f4b99bbe8de6916384991dfdd198ecf234cef1c0",
+      "branch": "master",
+      "shallow": true
+    },
+    {
+      "directory": "d2rmanager-cartographer-wanderer",
+      "url": "https://github.com/cartographerwanders/d2rmanager-cartographer-wanderer.git",
+      "purpose": "HUD documentation reference",
+      "commit": "390698dc775f28688d70164006615da4583ff294",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "D2tools",
+      "url": "https://github.com/antoinemalloc/D2tools.git",
+      "purpose": "Rust ReadMem reference",
+      "commit": "ea6939b2fa7c8fd07a42dace15f1e6f7b9f7fd0d",
+      "branch": "main",
+      "shallow": true
+    },
+    {
+      "directory": "niri",
+      "url": "https://github.com/YaLTeR/niri.git",
+      "purpose": "Compositor IPC, focus and binding contracts",
+      "commit": "5f4469b6a992492cf7221b269e9379f42e737649",
+      "branch": "main",
+      "shallow": true
+    }
+  ]
+}

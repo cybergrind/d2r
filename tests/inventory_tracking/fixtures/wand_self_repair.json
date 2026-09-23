@@ -1,0 +1,46 @@
+{
+  "source": "inventory_tracking/runs/alt-d/20260923T174512Z-212f9290/request-1/frozen.json",
+  "class_id": 12,
+  "stats": [
+    {
+      "layer": 0,
+      "id": 21,
+      "raw": 3
+    },
+    {
+      "layer": 0,
+      "id": 22,
+      "raw": 7
+    },
+    {
+      "layer": 0,
+      "id": 45,
+      "raw": 39
+    },
+    {
+      "layer": 0,
+      "id": 68,
+      "raw": 20
+    },
+    {
+      "layer": 0,
+      "id": 72,
+      "raw": 15
+    },
+    {
+      "layer": 0,
+      "id": 73,
+      "raw": 15
+    },
+    {
+      "layer": 89,
+      "id": 107,
+      "raw": 2
+    },
+    {
+      "layer": 0,
+      "id": 252,
+      "raw": 3
+    }
+  ]
+}

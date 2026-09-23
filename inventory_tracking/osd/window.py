@@ -4,8 +4,8 @@ import ctypes
 import signal
 import time
 
-from ..common import LOG
-from ..config import OSD
+from inventory_tracking.common import LOG
+from inventory_tracking.config import OSD
 
 
 def load_toolkit():

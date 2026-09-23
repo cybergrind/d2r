@@ -1,0 +1,462 @@
+{
+  "request_id": 1,
+  "state": "complete",
+  "result": {
+    "offline": true,
+    "appraisal_ready": false,
+    "extraction": {
+      "item": {
+        "name": "Ring",
+        "base_name": "Ring",
+        "base_code": "rin",
+        "rarity": "magic",
+        "requirements": {},
+        "affixes": [
+          {
+            "property_id": "452",
+            "value": 11,
+            "label": "+{{value}} Maximum Stamina",
+            "memory_stat": {
+              "layer": 0,
+              "id": 11,
+              "raw": 2816
+            },
+            "descriptor_offset": 232
+          },
+          {
+            "property_id": "520",
+            "value": 10,
+            "label": "+{{value}}% Faster Cast Rate",
+            "memory_stat": {
+              "layer": 0,
+              "id": 105,
+              "raw": 10
+            },
+            "descriptor_offset": 232
+          }
+        ],
+        "sockets": null,
+        "ethereal": null,
+        "socket_contents": null
+      },
+      "source": {
+        "engine": "memory_snapshot",
+        "unit_id": 3014701145,
+        "owner_id": 3362948688,
+        "position": [
+          3,
+          0
+        ],
+        "run_id": null,
+        "captured_at": "2026-09-23T16:31:00.038492+00:00",
+        "snapshot_only": true,
+        "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+      },
+      "unresolved_stats": [],
+      "review": [
+        "Title, required level, flags and general affix coverage are not decoded.",
+        "Snapshot evidence is historical; it does not establish current inventory state."
+      ],
+      "appraisal_ready": false,
+      "offline": true,
+      "status": "needs_review"
+    },
+    "queries": [
+      {
+        "purpose": "identity_candidates",
+        "name": "Ring",
+        "facets": {
+          "rarity": "magic",
+          "properties": {
+            "452": 11,
+            "520": 10
+          }
+        }
+      }
+    ],
+    "evidence": {
+      "identity": {
+        "query": "Ring",
+        "facets": {
+          "rarity": "magic",
+          "properties": {
+            "452": 11,
+            "520": 10
+          }
+        },
+        "status": "known",
+        "price_status": "unresolved",
+        "evidence": {
+          "catalog": [
+            {
+              "base_code": "rin",
+              "category": "misc",
+              "kind": "catalog",
+              "name": "Ring",
+              "source_locator": "rin",
+              "source": {
+                "path": "pricing/raw/d2data-misc.json"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-catalog.json",
+                "locator": "/rows/343"
+              },
+              "details": {
+                "elite_code": null,
+                "exceptional_code": null,
+                "item_type": "ring",
+                "max_sockets": 1,
+                "normal_code": null,
+                "quality_level": 1,
+                "required_dexterity": null,
+                "required_level": 0,
+                "required_strength": null
+              }
+            },
+            {
+              "catalog_id": "2390453209",
+              "category": "misc",
+              "kind": "catalog",
+              "market_coverage": "observed",
+              "name": "Ring",
+              "source": "https://traderie.com/api/diablo2resurrected/items?type=misc",
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-trade-catalog.json",
+                "locator": "/rows/1184"
+              },
+              "details": {}
+            }
+          ],
+          "demand": [
+            {
+              "build": "dragon-talon-assassin",
+              "category": "misc",
+              "class": "Assassin",
+              "kind": "demand",
+              "name": "Ring",
+              "side": "player",
+              "slot": "unspecified",
+              "source_locator": "/item-spans/27",
+              "variant": "Guide mention",
+              "source": {
+                "fetched_at": "2026-09-18",
+                "path": "pricing/raw/mr/guides__dragon-talon-assassin.html",
+                "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/2247"
+              },
+              "details": {
+                "original_label": "Ring",
+                "profile_id": "1i01067a",
+                "raw_item_id": "53",
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "guide_mention"
+              }
+            },
+            {
+              "base_code": "rin",
+              "build": "wake-of-fire-assassin",
+              "category": "misc",
+              "class": "Assassin",
+              "ethereal": false,
+              "kind": "demand",
+              "name": "Magic Ring",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "player",
+              "slot": "lrin",
+              "sockets": 0,
+              "source_locator": "/profiles/0/items/lrin",
+              "variant": "Starter",
+              "source": {
+                "fetched_at": "2026-09-23",
+                "path": "pricing/raw/mr/planners/070106ih.json",
+                "source_updated_at": "2023-02-16 00:12:20",
+                "url": "https://planners.maxroll.gg/profiles/d2/070106ih"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/10725"
+              },
+              "details": {
+                "base": "rin",
+                "base_name": "Ring",
+                "canonical_id": "rin",
+                "container": "items",
+                "description": "10 fcr 20 fr",
+                "ethereal": false,
+                "historical": true,
+                "iconIndex": 1,
+                "ilvl": 99,
+                "item_ref": "60",
+                "mercenary_id": "11",
+                "mods": {
+                  "mp370": [
+                    20
+                  ],
+                  "ms174": [
+                    10
+                  ]
+                },
+                "profile_date": "2023-02-16 00:12:20",
+                "profile_uid": null,
+                "quality": 3,
+                "recommendation_status": "planner evidence; guide association is not set endorsement",
+                "recommended": false,
+                "resolution_status": "resolved",
+                "role": "items",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "related_builds",
+                "related_classes",
+                "stats"
+              ]
+            },
+            {
+              "base_code": "rin",
+              "build": "wake-of-fire-assassin",
+              "category": "misc",
+              "class": "Assassin",
+              "ethereal": false,
+              "kind": "demand",
+              "name": "Magic Ring",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "unspecified",
+              "slot": "61",
+              "sockets": 0,
+              "source_locator": "/items/61",
+              "variant": "Unreferenced definitions",
+              "source": {
+                "fetched_at": "2026-09-23",
+                "path": "pricing/raw/mr/planners/070106ih.json",
+                "source_updated_at": "2023-02-16 00:12:20",
+                "url": "https://planners.maxroll.gg/profiles/d2/070106ih"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/11032"
+              },
+              "details": {
+                "base": "rin",
+                "base_name": "Ring",
+                "canonical_id": "rin",
+                "container": "unreferenced_definition",
+                "description": "10 fcr 15 mf",
+                "ethereal": false,
+                "historical": true,
+                "iconIndex": 1,
+                "ilvl": 99,
+                "item_ref": "61",
+                "mercenary_id": null,
+                "mods": {
+                  "mp282": [
+                    15
+                  ],
+                  "ms174": [
+                    10
+                  ]
+                },
+                "profile_date": "2023-02-16 00:12:20",
+                "profile_uid": null,
+                "quality": 3,
+                "recommendation_status": "planner evidence; guide association is not set endorsement",
+                "recommended": false,
+                "resolution_status": "resolved",
+                "role": "unreferenced_definition",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "related_builds",
+                "related_classes",
+                "stats"
+              ]
+            }
+          ],
+          "leveling": [
+            {
+              "class": "amazon",
+              "kind": "leveling",
+              "name": "Ring",
+              "predicates": {
+                "stage": "playstyle-progression-header"
+              },
+              "source_locator": "playstyle-progression-header/item/0@(63, 663)",
+              "source": {
+                "path": "pricing/raw/mr/leveling/amazon-leveling-guide.html",
+                "source_date": "2026-05-22T13:11:54+00:00",
+                "url": "https://maxroll.gg/d2/guides/amazon-leveling-guide"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-utility.json",
+                "locator": "/rows/87"
+              },
+              "details": {
+                "context_excerpt": "e=\"na01067c\" data-d2planner-set=\"1\" data-d2planner-type=\"player\"> Clear out the Den of Evil and pick up items to sell, like Ring s , Amulet s , Charms, etc. Keep using Throw with your javelin to kill your enemies until you hit Level 6. Yes... This is painful... Important: Pick up and keep any type of Ruby for later use! When you come across <a href=\"/d2/resources/shrines-and-wells\" target=\"_blank\"",
+                "identity_status": "source_label",
+                "original_label": "Ring",
+                "requires_context": true,
+                "source_item_id": null,
+                "utility": "guide_item_mention"
+              }
+            },
+            {
+              "base_code": "rin",
+              "build": "amazon-leveling-guide",
+              "category": "misc",
+              "class": "amazon",
+              "ethereal": false,
+              "kind": "leveling",
+              "name": "Magic Ring",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "player",
+              "slot": "rrin",
+              "sockets": 0,
+              "source_locator": "/profiles/6/items/rrin",
+              "variant": "Level 31-40",
+              "source": {
+                "path": "pricing/raw/mr/leveling/6o0106xp.json",
+                "url": "https://planners.maxroll.gg/profiles/d2/6o0106xp"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-utility.json",
+                "locator": "/rows/372"
+              },
+              "details": {
+                "base": "rin",
+                "base_name": "Ring",
+                "canonical_id": "rin",
+                "container": "items",
+                "description": "10 fcr",
+                "ethereal": false,
+                "ilvl": 99,
+                "item_ref": "24",
+                "mercenary_id": "8",
+                "mods": {
+                  "ms174": [
+                    10
+                  ]
+                },
+                "profile_date": "2025-07-26 15:57:03",
+                "profile_uid": null,
+                "quality": 3,
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "items",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "stats"
+              ]
+            },
+            {
+              "base_code": "rin",
+              "build": "amazon-leveling-guide",
+              "category": "misc",
+              "class": "amazon",
+              "ethereal": false,
+              "kind": "leveling",
+              "name": "Magic Ring",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "player",
+              "slot": "lrin",
+              "sockets": 0,
+              "source_locator": "/profiles/6/items/lrin",
+              "variant": "Level 31-40",
+              "source": {
+                "path": "pricing/raw/mr/leveling/6o0106xp.json",
+                "url": "https://planners.maxroll.gg/profiles/d2/6o0106xp"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-utility.json",
+                "locator": "/rows/378"
+              },
+              "details": {
+                "base": "rin",
+                "base_name": "Ring",
+                "canonical_id": "rin",
+                "container": "items",
+                "description": "30 cr",
+                "ethereal": false,
+                "ilvl": 99,
+                "item_ref": "30",
+                "mercenary_id": "8",
+                "mods": {
+                  "mp353": [
+                    30
+                  ]
+                },
+                "profile_date": "2025-07-26 15:57:03",
+                "profile_uid": null,
+                "quality": 3,
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "items",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "stats"
+              ]
+            }
+          ]
+        },
+        "counts": {
+          "catalog": 2,
+          "demand": 265,
+          "leveling": 151,
+          "market_observations": 274
+        },
+        "market": {
+          "band_kind": "facet_matched",
+          "priced_sellers": 0,
+          "priced_observations": 0,
+          "thin": true,
+          "min_ist": null,
+          "median_ist": null,
+          "max_ist": null,
+          "observed_dates": [],
+          "unknown_observation_date": false,
+          "representatives": []
+        },
+        "gaps": [
+          "No priced, verified single-unit comparisons match the supplied facets."
+        ],
+        "offline": true,
+        "more_evidence": "Use --full and --limit N or search with facets; counts include omitted records."
+      }
+    },
+    "decision": {
+      "verdict": "REVIEW",
+      "price_status": "unresolved",
+      "reason": "Memory snapshot with limited stat decoding; local evidence requires review.",
+      "recipe_eligibility": "unconfirmed",
+      "next_step": "Review observed stats and unresolved fields against the local appraisal evidence."
+    },
+    "timings_ms": {
+      "retrieval": 73.67
+    }
+  },
+  "updated_at": "2026-09-23T16:31:00.215894+00:00"
+}

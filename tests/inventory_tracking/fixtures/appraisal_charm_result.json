@@ -1,0 +1,419 @@
+{
+  "request_id": 1,
+  "state": "complete",
+  "result": {
+    "offline": true,
+    "appraisal_ready": false,
+    "extraction": {
+      "item": {
+        "name": "Large Charm",
+        "base_name": "Large Charm",
+        "base_code": "cm2",
+        "category": "misc",
+        "rarity": "magic",
+        "requirements": {},
+        "affixes": [
+          {
+            "property_id": "418",
+            "value": 35,
+            "label": "+{{value}} to Life",
+            "memory_stat": {
+              "layer": 0,
+              "id": 7,
+              "raw": 8960
+            },
+            "descriptor_offset": 232
+          },
+          {
+            "property_id": "400",
+            "value": 4,
+            "label": "+{{value}} to Mana",
+            "memory_stat": {
+              "layer": 0,
+              "id": 9,
+              "raw": 1024
+            },
+            "descriptor_offset": 232
+          }
+        ],
+        "sockets": null,
+        "ethereal": null,
+        "socket_contents": null
+      },
+      "source": {
+        "engine": "memory_snapshot",
+        "container": {
+          "page": 0,
+          "name": "Main inventory"
+        },
+        "unit_id": 2608308324,
+        "owner_id": 284532388,
+        "owner_type": 0,
+        "item_owner_id": 284532388,
+        "player_id": 284532388,
+        "position": [
+          1,
+          2
+        ],
+        "run_id": null,
+        "captured_at": "2026-09-23T17:41:24.280727+00:00",
+        "snapshot_only": true,
+        "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+      },
+      "unresolved_stats": [],
+      "decoded_stats": [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 7,
+            "raw": 8960
+          },
+          "status": "decoded",
+          "name": "maxhp",
+          "value": 35,
+          "label": "+{{value}} to Life",
+          "text": "+35 to Life"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 9,
+            "raw": 1024
+          },
+          "status": "decoded",
+          "name": "maxmana",
+          "value": 4,
+          "label": "+{{value}} to Mana",
+          "text": "+4 to Mana"
+        }
+      ],
+      "review": [
+        "Base identity only: unique/set/runeword titles, identification flags, socket contents and requirements are unverified.",
+        "Values are from the captured total stat array; socket/set contributions are not separated.",
+        "Snapshot evidence is historical; it does not establish current inventory state."
+      ],
+      "appraisal_ready": false,
+      "offline": true,
+      "status": "needs_review"
+    },
+    "queries": [
+      {
+        "purpose": "identity_candidates",
+        "name": "Large Charm",
+        "facets": {
+          "rarity": "magic",
+          "properties": {
+            "418": 35,
+            "400": 4
+          }
+        }
+      }
+    ],
+    "evidence": {
+      "identity": {
+        "query": "Large Charm",
+        "facets": {
+          "rarity": "magic",
+          "properties": {
+            "418": 35,
+            "400": 4
+          }
+        },
+        "status": "known",
+        "price_status": "unresolved",
+        "evidence": {
+          "catalog": [
+            {
+              "base_code": "cm2",
+              "category": "misc",
+              "kind": "catalog",
+              "name": "Large Charm",
+              "source_locator": "cm2",
+              "source": {
+                "path": "pricing/raw/d2data-misc.json"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-catalog.json",
+                "locator": "/rows/233"
+              },
+              "details": {
+                "elite_code": null,
+                "exceptional_code": null,
+                "item_type": "mcha",
+                "max_sockets": 0,
+                "normal_code": null,
+                "quality_level": 14,
+                "required_dexterity": null,
+                "required_level": 0,
+                "required_strength": null
+              }
+            },
+            {
+              "catalog_id": "4152254204",
+              "category": "charms",
+              "kind": "catalog",
+              "market_coverage": "unresolved",
+              "name": "Large Charm",
+              "source": "https://traderie.com/api/diablo2resurrected/items?type=charms",
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-trade-catalog.json",
+                "locator": "/rows/125"
+              },
+              "details": {}
+            }
+          ],
+          "demand": [
+            {
+              "build": "abyss-warlock-build-guide",
+              "category": "misc",
+              "class": "Warlock",
+              "kind": "demand",
+              "name": "Large Charm",
+              "side": "player",
+              "slot": "Charms",
+              "source_locator": "/item-spans/85",
+              "variant": "Guide mention",
+              "source": {
+                "fetched_at": "2026-09-18",
+                "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+                "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/57"
+              },
+              "details": {
+                "original_label": "Large Charm",
+                "profile_id": null,
+                "raw_item_id": "",
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "guide_mention"
+              }
+            },
+            {
+              "build": "abyss-warlock-build-guide",
+              "category": "misc",
+              "class": "Warlock",
+              "kind": "demand",
+              "name": "Large Charm",
+              "side": "player",
+              "slot": "Charms",
+              "source_locator": "/abyss-warlock-build-guide/slots/Charms/1",
+              "variant": "Main alternatives",
+              "source": {
+                "path": "pricing/data/wp-a-builds.json"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/154"
+              },
+              "details": {
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "documented_alternative"
+              }
+            },
+            {
+              "build": "blessed-hammer-paladin",
+              "category": "misc",
+              "class": "Paladin",
+              "kind": "demand",
+              "name": "Large Charm",
+              "side": "player",
+              "slot": "Charms",
+              "source_locator": "/item-spans/100",
+              "variant": "Guide mention",
+              "source": {
+                "fetched_at": "2026-09-18",
+                "path": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+                "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-demand.json",
+                "locator": "/rows/875"
+              },
+              "details": {
+                "original_label": "Large Charm",
+                "profile_id": null,
+                "raw_item_id": "",
+                "recommended": true,
+                "resolution_status": "resolved",
+                "role": "guide_mention"
+              }
+            }
+          ],
+          "keep_pattern": [
+            {
+              "category": "charm_base",
+              "caveat": "Source condition text must be checked; name similarity does not prove applicability.",
+              "kind": "keep_pattern",
+              "name": "Large Charm",
+              "source_locator": "Large Charm",
+              "source": {
+                "path": "pricing/data/wp-a-blues.json"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-legacy.json",
+                "locator": "/rows/1192"
+              },
+              "details": {
+                "affixes_named": [],
+                "ethereal_named": false,
+                "kind": "charm_base",
+                "notes": [],
+                "slot": [
+                  "Charms"
+                ],
+                "weight": 27
+              },
+              "details_omitted": [
+                "builds",
+                "desirable_stats_from_guides"
+              ]
+            }
+          ],
+          "leveling": [
+            {
+              "base_code": "cm2",
+              "build": "druid",
+              "category": "misc",
+              "class": "druid",
+              "ethereal": false,
+              "kind": "leveling",
+              "name": "Magic Large Charm",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "unspecified",
+              "slot": "18",
+              "sockets": 0,
+              "source_locator": "/items/18",
+              "variant": "Unreferenced definitions",
+              "source": {
+                "path": "pricing/raw/mr/leveling/yd0106dr.json",
+                "url": "https://planners.maxroll.gg/profiles/d2/yd0106dr"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-utility.json",
+                "locator": "/rows/4029"
+              },
+              "details": {
+                "base": "cm2",
+                "base_name": "Large Charm",
+                "canonical_id": "cm2",
+                "container": "unreferenced_definition",
+                "description": "20 life 15 cr",
+                "ethereal": false,
+                "ilvl": 99,
+                "item_ref": "18",
+                "mercenary_id": null,
+                "mods": {
+                  "mp345": [
+                    15
+                  ],
+                  "ms343": [
+                    20
+                  ]
+                },
+                "profile_date": "2021-08-11 07:54:16",
+                "profile_uid": null,
+                "quality": 3,
+                "recommended": false,
+                "resolution_status": "resolved",
+                "role": "unreferenced_definition",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "stats"
+              ]
+            },
+            {
+              "base_code": "cm2",
+              "build": "paladin",
+              "category": "misc",
+              "class": "paladin",
+              "ethereal": false,
+              "kind": "leveling",
+              "name": "Magic Large Charm",
+              "predicates": {
+                "ethereal": false,
+                "quality": 3,
+                "sockets": 0
+              },
+              "rarity": "magic",
+              "side": "unspecified",
+              "slot": "18",
+              "sockets": 0,
+              "source_locator": "/items/18",
+              "variant": "Unreferenced definitions",
+              "source": {
+                "path": "pricing/raw/mr/leveling/yd0106dr.json",
+                "url": "https://planners.maxroll.gg/profiles/d2/yd0106dr"
+              },
+              "record": {
+                "path": "/mnt/extra/1000/games/d2r/pricing/data/appraisal-utility.json",
+                "locator": "/rows/5248"
+              },
+              "details": {
+                "base": "cm2",
+                "base_name": "Large Charm",
+                "canonical_id": "cm2",
+                "container": "unreferenced_definition",
+                "description": "20 life 15 cr",
+                "ethereal": false,
+                "ilvl": 99,
+                "item_ref": "18",
+                "mercenary_id": null,
+                "mods": {
+                  "mp345": [
+                    15
+                  ],
+                  "ms343": [
+                    20
+                  ]
+                },
+                "profile_date": "2021-08-11 07:54:16",
+                "profile_uid": null,
+                "quality": 3,
+                "recommended": false,
+                "resolution_status": "resolved",
+                "role": "unreferenced_definition",
+                "sockets": 0
+              },
+              "details_omitted": [
+                "stats"
+              ]
+            }
+          ]
+        },
+        "counts": {
+          "catalog": 2,
+          "demand": 169,
+          "keep_pattern": 1,
+          "leveling": 2,
+          "market_observations": 0
+        },
+        "market": null,
+        "gaps": [
+          "No normalized market observations; utility and demand are independent of resale value."
+        ],
+        "offline": true,
+        "more_evidence": "Use --full and --limit N or search with facets; counts include omitted records."
+      }
+    },
+    "decision": {
+      "verdict": "REVIEW",
+      "price_status": "unresolved",
+      "reason": "Memory snapshot with limited stat decoding; local evidence requires review.",
+      "recipe_eligibility": "unconfirmed",
+      "next_step": "Review observed stats and unresolved fields against the local appraisal evidence."
+    },
+    "timings_ms": {
+      "retrieval": 23.79
+    }
+  }
+}

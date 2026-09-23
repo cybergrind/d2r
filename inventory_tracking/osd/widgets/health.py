@@ -2,9 +2,9 @@
 
 from collections.abc import Sequence
 
-from ...config import MercHealthWidgetConfig, PlayerHealthWidgetConfig
-from ...models import Actor
-from .base import SampleWidget
+from inventory_tracking.config import MercHealthWidgetConfig, PlayerHealthWidgetConfig
+from inventory_tracking.models import Actor
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class PlayerHealthWidget(SampleWidget[PlayerHealthWidgetConfig]):

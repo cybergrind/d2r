@@ -4,19 +4,19 @@ from collections.abc import Iterable
 from threading import Lock
 from typing import Any
 
-from ..common import LOG
-from ..config import OSD, OSDConfig
-from ..models import State
-from .widgets.base import SampleWidget
-from .widgets.belt import BeltWidget
-from .widgets.consume import ConsumeWidget
-from .widgets.health import MercHealthWidget, PlayerHealthWidget
-from .widgets.identify import IdentifyWidget
-from .widgets.keys import KeysWidget
-from .widgets.loot import LootWidget
-from .widgets.notifications import NotificationsWidget
-from .widgets.portal import PortalWidget
-from .widgets.teleport import TeleportWidget
+from inventory_tracking.common import LOG
+from inventory_tracking.config import OSD, OSDConfig
+from inventory_tracking.models import State
+from inventory_tracking.osd.widgets.base import SampleWidget
+from inventory_tracking.osd.widgets.belt import BeltWidget
+from inventory_tracking.osd.widgets.consume import ConsumeWidget
+from inventory_tracking.osd.widgets.health import MercHealthWidget, PlayerHealthWidget
+from inventory_tracking.osd.widgets.identify import IdentifyWidget
+from inventory_tracking.osd.widgets.keys import KeysWidget
+from inventory_tracking.osd.widgets.loot import LootWidget
+from inventory_tracking.osd.widgets.notifications import NotificationsWidget
+from inventory_tracking.osd.widgets.portal import PortalWidget
+from inventory_tracking.osd.widgets.teleport import TeleportWidget
 
 
 def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:

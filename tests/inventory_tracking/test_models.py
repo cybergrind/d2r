@@ -1,6 +1,5 @@
 import pytest
 
-from inventory_tracking.mercenary import Mercenary
 from inventory_tracking.models import (
     Actor,
     Observation,
@@ -11,6 +10,7 @@ from inventory_tracking.models import (
     State,
     TeleportCharges,
 )
+from inventory_tracking.native.mercenary import Mercenary
 
 
 @pytest.mark.parametrize(('current', 'maximum'), [(-1, 20), (21, 20), (0, 0), (1.5, 20), (True, 20)])

@@ -1,0 +1,137 @@
+{
+  "source": "inventory_tracking/runs/alt-d/20260923T193029Z-9094d033/request-6/frozen.json",
+  "txt_id": 422,
+  "details": {
+    "quality": 7,
+    "owner_id": 2168163386,
+    "inventory_page": 255,
+    "body_location": 1,
+    "x": 1,
+    "y": 0
+  },
+  "arrays": {
+    "complete": true,
+    "arrays": [
+      {
+        "header_offset": 48,
+        "stats": [
+          {
+            "layer": 0,
+            "id": 31,
+            "raw": 99
+          },
+          {
+            "layer": 0,
+            "id": 72,
+            "raw": 12
+          },
+          {
+            "layer": 0,
+            "id": 73,
+            "raw": 12
+          },
+          {
+            "layer": 0,
+            "id": 194,
+            "raw": 1
+          }
+        ]
+      },
+      {
+        "header_offset": 168,
+        "stats": []
+      },
+      {
+        "header_offset": 232,
+        "stats": [
+          {
+            "layer": 0,
+            "id": 0,
+            "raw": 2
+          },
+          {
+            "layer": 0,
+            "id": 1,
+            "raw": 2
+          },
+          {
+            "layer": 0,
+            "id": 2,
+            "raw": 2
+          },
+          {
+            "layer": 0,
+            "id": 3,
+            "raw": 2
+          },
+          {
+            "layer": 0,
+            "id": 31,
+            "raw": 99
+          },
+          {
+            "layer": 0,
+            "id": 36,
+            "raw": 10
+          },
+          {
+            "layer": 0,
+            "id": 39,
+            "raw": 15
+          },
+          {
+            "layer": 0,
+            "id": 41,
+            "raw": 15
+          },
+          {
+            "layer": 0,
+            "id": 43,
+            "raw": 15
+          },
+          {
+            "layer": 0,
+            "id": 45,
+            "raw": 15
+          },
+          {
+            "layer": 0,
+            "id": 72,
+            "raw": 12
+          },
+          {
+            "layer": 0,
+            "id": 73,
+            "raw": 12
+          },
+          {
+            "layer": 0,
+            "id": 80,
+            "raw": 50
+          },
+          {
+            "layer": 0,
+            "id": 127,
+            "raw": 2
+          },
+          {
+            "layer": 0,
+            "id": 194,
+            "raw": 1
+          },
+          {
+            "layer": 0,
+            "id": 216,
+            "raw": 3072
+          },
+          {
+            "layer": 0,
+            "id": 217,
+            "raw": 3072
+          }
+        ]
+      }
+    ],
+    "item_data_hex": "07000000010000009a0200003a8c3b81000000000000000010088000000000000000000000000000000000000000000000000000f80000000100000000000000650000000000000000000000000000000000000001ff00000000000000000000"
+  }
+}

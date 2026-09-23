@@ -5,9 +5,9 @@ import pytest
 from inventory_tracking.config import OSD, with_overrides
 from inventory_tracking.models import Location, Observation, State
 from inventory_tracking.osd.presenter import Presenter
-from inventory_tracking.resources import resource_observations
+from inventory_tracking.tracking.resources import resource_observations
 from tests.inventory_tracking.conftest import SESSION
-from tests.inventory_tracking.test_resources import record, snapshot
+from tests.inventory_tracking.tracking.test_resources import record, snapshot
 
 
 @pytest.mark.parametrize('count', [0, 4, 5, 20])

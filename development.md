@@ -23,3 +23,8 @@ Applies to repository code changes. Linked from [AGENTS.md](AGENTS.md).
   → `tests/inventory_tracking/test_images.py`; `inventory_tracking/osd/presenter.py`
   → `tests/inventory_tracking/osd/test_presenter.py`. Import production modules by
   their absolute package name. Run `uv run pytest tests -v`.
+
+- External implementation references are checked out under `third-parties/`. Read
+  `third-parties/README.md` and use local sources before fetching GitHub pages.
+  `third-parties/repos.json` records revisions; layouts still require local build
+  validation. Do not update or execute these reference checkouts implicitly.

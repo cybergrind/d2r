@@ -1,0 +1,17 @@
+{
+  "inspected_on": "2026-09-21",
+  "sources": [
+    {
+      "file": "desecratedzones-d2data.json",
+      "url": "https://raw.githubusercontent.com/blizzhackers/d2data/fc469993502d0498809b9fc1af140ee2a9eb8902/json/desecratedzones.json",
+      "status": "Rejected for Patch 3.2: old token mechanics; no zone_chance_slope or zone_data_id.",
+      "sha256": "1a5c01b7f7f4dcf314efca415a05e4fdc81c2f32277516dada484bde555ed5a1"
+    },
+    {
+      "file": "desecratedzones-schema.js",
+      "url": "https://raw.githubusercontent.com/pinkufairy/D2R-Excel/1f16064e09b97e3e65abd6943662207cff00b07f/docs/data/files/desecratedzones.js",
+      "status": "Field documentation only; not runtime implementation or populated Patch 3.2 configuration.",
+      "sha256": "2e6b23e353b4f0835fe29e024f5eefe4c2a69a16670b5c610564b2725b4e8465"
+    }
+  ]
+}

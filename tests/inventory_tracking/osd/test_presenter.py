@@ -12,8 +12,8 @@ from inventory_tracking.config import (
 )
 from inventory_tracking.models import BeltSnapshot, Observation, PlayerHealth, PortalTome, SessionIdentity, State
 from inventory_tracking.osd.presenter import Presenter
-from inventory_tracking.reader import LiveReader
-from inventory_tracking.state import from_research
+from inventory_tracking.tracking.reader import LiveReader
+from inventory_tracking.tracking.state import from_research
 from tests.inventory_tracking.conftest import SESSION
 
 
@@ -151,7 +151,7 @@ def test_dynamic_shortages_follow_column_bottom_or_empty_default(contents, expec
 
 @pytest.mark.parametrize(('fraction', 'visible'), [(32768, False), (21300, False), (21299, True)])
 def test_merc_health_display_is_strictly_below_65_percent(fraction, visible, render):
-    from inventory_tracking.mercenary import Mercenary
+    from inventory_tracking.native.mercenary import Mercenary
 
     state = State(
         session=SESSION,

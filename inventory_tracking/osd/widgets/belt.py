@@ -2,10 +2,10 @@
 
 from collections.abc import Sequence
 
-from ...belt import column_shortages, potion_count
-from ...config import BeltWidgetConfig
-from ...models import PotionType
-from .base import SampleWidget
+from inventory_tracking.config import BeltWidgetConfig
+from inventory_tracking.models import PotionType
+from inventory_tracking.osd.widgets.base import SampleWidget
+from inventory_tracking.tracking.belt import column_shortages, potion_count
 
 
 class BeltWidget(SampleWidget[BeltWidgetConfig]):

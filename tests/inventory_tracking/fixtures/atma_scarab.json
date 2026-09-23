@@ -1,0 +1,76 @@
+{
+  "source": "inventory_tracking/runs/alt-d/20260923T194033Z-9a608f7d/request-4/frozen.json",
+  "txt_id": 535,
+  "details": {
+    "quality": 7,
+    "owner_id": 2957947662,
+    "inventory_page": 4,
+    "body_location": 0,
+    "x": 1,
+    "y": 9
+  },
+  "arrays": {
+    "complete": true,
+    "arrays": [
+      {
+        "header_offset": 48,
+        "stats": []
+      },
+      {
+        "header_offset": 168,
+        "stats": []
+      },
+      {
+        "header_offset": 232,
+        "stats": [
+          {
+            "layer": 0,
+            "id": 45,
+            "raw": 75
+          },
+          {
+            "layer": 0,
+            "id": 57,
+            "raw": 102
+          },
+          {
+            "layer": 0,
+            "id": 58,
+            "raw": 102
+          },
+          {
+            "layer": 0,
+            "id": 59,
+            "raw": 100
+          },
+          {
+            "layer": 0,
+            "id": 78,
+            "raw": 5
+          },
+          {
+            "layer": 0,
+            "id": 89,
+            "raw": 3
+          },
+          {
+            "layer": 0,
+            "id": 119,
+            "raw": 20
+          },
+          {
+            "layer": 4226,
+            "id": 198,
+            "raw": 5
+          },
+          {
+            "layer": 0,
+            "id": 326,
+            "raw": 1
+          }
+        ]
+      }
+    ],
+    "item_data_hex": "07000000010000009a0200000eb34eb00000000000000000100080000000000000000000000000000000000000000000000000001101000001000000000000006500000000000000000000000000000000000000000400000000000000000000"
+  }
+}

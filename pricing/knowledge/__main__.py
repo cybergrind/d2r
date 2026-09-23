@@ -69,7 +69,7 @@ def main(argv=None):
     output_indent = 2
     try:
         if command == 'snapshot':
-            from inventory_tracking.item_appraisal import decode_rings
+            from inventory_tracking.items.decode import decode_rings
             from pricing.knowledge.pipeline import retrieve_draft
 
             directory = args['directory']
@@ -93,6 +93,7 @@ def main(argv=None):
                     'appraisal-legacy.json',
                     'appraisal-market.jsonl',
                     'appraisal-item-facts.json',
+                    'appraisal-definitions.json',
                     'appraisal-recommendations.json',
                 )
             ]

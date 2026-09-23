@@ -54,3 +54,27 @@ def test_legacy_market_is_not_promoted_to_verified_exact_price(tmp_path):
     assert row['ethereal'] is True
     assert row['details']['n_priced'] == 2
     assert row['distinct_sellers'] is None
+
+
+def test_curated_base_research_is_retrievable_without_duplicating_asks(tmp_path):
+    data = tmp_path / 'pricing/data'
+    data.mkdir(parents=True)
+    (data / 'wp-g-bases.json').write_text(
+        json.dumps(
+            {
+                '_meta': {'date': '2026-09-18'},
+                'BS-test': {
+                    'base': 'Test Base',
+                    'demand': {'runewords': ['Insight']},
+                    'why': 'Mercenary demand',
+                    'asks': {'4os/eth/normal': {'median_ist': 1}},
+                },
+            }
+        )
+    )
+    rows = import_legacy(tmp_path)['rows']
+    assert len(rows) == 1
+    assert rows[0]['name'] == 'Test Base'
+    assert rows[0]['kind'] == 'base_research'
+    assert rows[0]['details']['demand']['runewords'] == ['Insight']
+    assert 'asks' not in rows[0]['details']

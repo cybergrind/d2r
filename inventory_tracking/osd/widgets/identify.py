@@ -1,7 +1,7 @@
 """Low identify-tome stock reminder, visible only in town."""
 
-from ...config import IdentifyWidgetConfig
-from .base import SampleWidget
+from inventory_tracking.config import IdentifyWidgetConfig
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class IdentifyWidget(SampleWidget[IdentifyWidgetConfig]):

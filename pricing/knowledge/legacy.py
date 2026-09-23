@@ -42,6 +42,11 @@ def import_catalog(root):
                         'normal_code': item.get('normcode'),
                         'exceptional_code': item.get('ubercode'),
                         'elite_code': item.get('ultracode'),
+                        'base_defense': [item.get('minac'), item.get('maxac')],
+                        'one_hand_damage': [item.get('mindam'), item.get('maxdam')],
+                        'two_hand_damage': [item.get('2handmindam'), item.get('2handmaxdam')],
+                        'weapon_speed': item.get('speed'),
+                        'durability': item.get('durability'),
                     },
                 }
             )
@@ -75,6 +80,7 @@ def import_legacy(root):
     result = {'schema_version': 1, 'sources': [], 'rows': []}
     files = (
         'wp-b-prices.json',
+        'wp-g-bases.json',
         'wp-h-jewels-charms.json',
         'wp-i-uniques-misc.json',
         'wp-a-blues.json',
@@ -95,7 +101,17 @@ def import_legacy(root):
             if key.startswith('_') or not isinstance(value, dict):
                 continue
             common = {'source_id': source['id'], 'source_locator': key, 'date': value.get('date', date)}
-            if filename == 'wp-b-prices.json':
+            if filename == 'wp-g-bases.json':
+                result['rows'].append(
+                    {
+                        **common,
+                        'name': value['base'],
+                        'kind': 'base_research',
+                        'details': {k: v for k, v in value.items() if k != 'asks'},
+                        'caveat': 'Curated dated research; inspect conditions. Historical asks are indexed separately.',
+                    }
+                )
+            elif filename == 'wp-b-prices.json':
                 for bucket, evidence in value.get('buckets', {}).items():
                     result['rows'].append(
                         {

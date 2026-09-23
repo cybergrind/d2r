@@ -10,10 +10,10 @@ from dataclasses import dataclass
 from threading import Event, Lock, Thread
 from typing import Protocol
 
-from ..common import LOG
-from ..config import INPUT, InputConfig
-from ..linux_process import identity, is_game
-from ..models import SessionIdentity
+from inventory_tracking.common import LOG
+from inventory_tracking.config import INPUT, InputConfig
+from inventory_tracking.models import SessionIdentity
+from inventory_tracking.native.process import identity, is_game
 
 
 class FocusProbe(Protocol):

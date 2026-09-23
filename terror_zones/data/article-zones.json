@@ -1,0 +1,42 @@
+{
+  "source": "Saved article image h4g5hfw2qi4h1.png; transcribed 2026-09-21",
+  "status": "Article mean populations, not verified game populations. Multi-level groups flattened. Cows use table value 501, not prose value 511.",
+  "acts": {
+    "1": [
+      ["Burial Grounds, Crypt and Mausoleum",203], ["Inner Cloister, Cathedral and Catacombs",374],
+      ["Cold Plains",209], ["Cave levels",181], ["Dark Wood",233], ["Underground Passage levels",255],
+      ["Blood Moor",113], ["Den of Evil",67], ["Barracks",102], ["Jail levels",252],
+      ["Cow Level",501], ["Stony Field and Tristram",229], ["Black Marsh",199], ["Hole levels",178],
+      ["Tower Cellar levels",260], ["Tamoe Highland and Outer Cloister",278], ["Pit levels",223]
+    ],
+    "2": [
+      ["Lut Gholein Sewer levels",315], ["Rocky Waste",152], ["Stony Tomb levels",115],
+      ["Dry Hills",147], ["Halls of the Dead levels",352], ["Far Oasis",200],
+      ["Maggot Lair Level 1",129], ["Maggot Lair Level 2",98], ["Maggot Lair Level 3",83],
+      ["Lost City",168], ["Claw Viper Temple levels",221], ["Ancient Tunnels",106],
+      ["Canyon of the Magi",182], ["Real Tal Rasha's Tomb",390], ["Big false Tal Rasha's Tomb",270],
+      ["Small false Tal Rasha's Tomb 1",124], ["Small false Tal Rasha's Tomb 2",124],
+      ["Small false Tal Rasha's Tomb 3",124], ["Small false Tal Rasha's Tomb 4",124],
+      ["Small false Tal Rasha's Tomb 5",124], ["Harem Level 2",84], ["Palace Cellar levels",247],
+      ["Arcane Sanctuary",469]
+    ],
+    "3": [
+      ["Spider Forest",341], ["Arachnid Lair",63], ["Spider Cavern",61], ["Great Marsh",326],
+      ["Flayer Jungle",475], ["Swampy Pit levels",187], ["Flayer Dungeon levels",212],
+      ["Lower Kurast",115], ["Kurast Bazaar",148], ["Upper Kurast and Kurast Causeway",135],
+      ["Kurast Sewer levels",188], ["All Kurast temple levels",170], ["Travincal",110],
+      ["Durance of Hate levels",409]
+    ],
+    "4": [
+      ["Outer Steppes",187], ["Plains of Despair",193], ["City of the Damned",211],
+      ["River of Flame",231], ["Chaos Sanctuary",189]
+    ],
+    "5": [
+      ["Bloody Foothills",488], ["Frigid Highlands",339], ["Abaddon",117], ["Arreat Plateau",277],
+      ["Pit of Acheron",87], ["Crystalline Passage",146], ["Frozen River",203],
+      ["Nihlathak's Temple and Halls of Anguish",414], ["Halls of Pain",405], ["Halls of Vaught",178],
+      ["Glacial Trail and Drifter Cavern",233], ["Ancients' Way and Icy Cellar",281],
+      ["Frozen Tundra",374], ["Infernal Pit",115], ["Worldstone Keep and Throne",580]
+    ]
+  }
+}

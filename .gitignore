@@ -22,3 +22,9 @@ __pycache__/
 
 # Optional local OCR regression images
 /tests/pricing/knowledge/fixtures/*.png
+
+# Local external reference checkouts; retain only the manifest and usage guide.
+/third-parties/*
+!/third-parties/README.md
+!/third-parties/repos.json
+/third-parties/

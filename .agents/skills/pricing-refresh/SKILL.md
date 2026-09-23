@@ -84,3 +84,7 @@ listed in primer §3–§5. Step 5 of the runbook (ladder monotonic check) is a 
   JSON (`https://planners.maxroll.gg/profiles/d2/<data-d2-id>`), names from the d2data dump for RotW ids.
 - Orientation pages (diablo2.io price guide 2026-08-28, maxroll trading guide) are never a price source.
 - The repo is under git on `main`; do not commit unless asked. `pricing/raw/` is git-ignored.
+
+For catalog-wide offline KB audits, base-variant gaps and folding existing research
+into runtime appraisal, use [update-kb](../update-kb/SKILL.md). It includes the
+coverage audit and preserves historical bucket limitations.

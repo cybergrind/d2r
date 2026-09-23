@@ -1,0 +1,2881 @@
+{
+  "date": "2026-09-21",
+  "objective": "T5 spawns per 1000 ordinary kills over a complete route; NOT Heralds/hour",
+  "limitations": "Compare explicit article-model routes by T5 spawns per ordinary kill, NOT per hour.\n\nNo time inputs, transit kills, revisits, population variation or weighted rooms.\nAll Heralds are assumed immediately killed without cost. See guides/terror_zones.html.\n",
+  "seed": 20260921,
+  "runs": 3000,
+  "scenarios": {
+    "A1": {
+      "best_tested": {
+        "order": "article-order",
+        "stop_after": 4,
+        "mean_kills": 3564.998371978331,
+        "mean_t5": 16.149043371941328,
+        "t5_per_1000_kills": 4.529888007488686,
+        "probability_unlock_t5": 0.9999999999769791
+      },
+      "ordered_zones": [
+        [
+          "Burial Grounds, Crypt and Mausoleum",
+          203
+        ],
+        [
+          "Inner Cloister, Cathedral and Catacombs",
+          374
+        ],
+        [
+          "Cold Plains",
+          209
+        ],
+        [
+          "Cave levels",
+          181
+        ],
+        [
+          "Dark Wood",
+          233
+        ],
+        [
+          "Underground Passage levels",
+          255
+        ],
+        [
+          "Blood Moor",
+          113
+        ],
+        [
+          "Den of Evil",
+          67
+        ],
+        [
+          "Barracks",
+          102
+        ],
+        [
+          "Jail levels",
+          252
+        ],
+        [
+          "Cow Level",
+          501
+        ],
+        [
+          "Stony Field and Tristram",
+          229
+        ],
+        [
+          "Black Marsh",
+          199
+        ],
+        [
+          "Hole levels",
+          178
+        ],
+        [
+          "Tower Cellar levels",
+          260
+        ],
+        [
+          "Tamoe Highland and Outer Cloister",
+          278
+        ],
+        [
+          "Pit levels",
+          223
+        ]
+      ],
+      "comparison_count": 6,
+      "comparisons": [
+        {
+          "order": "article-order",
+          "stop_after": 3,
+          "mean_kills": 3632.7673617372366,
+          "mean_t5": 16.356327531494127,
+          "t5_per_1000_kills": 4.502442876956569,
+          "probability_unlock_t5": 0.9999999999769791
+        },
+        {
+          "order": "article-order",
+          "stop_after": 4,
+          "mean_kills": 3564.998371978331,
+          "mean_t5": 16.149043371941328,
+          "t5_per_1000_kills": 4.529888007488686,
+          "probability_unlock_t5": 0.9999999999769791
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 3,
+          "mean_kills": 3761.7150074565425,
+          "mean_t5": 16.93347776613573,
+          "t5_per_1000_kills": 4.501531278305206,
+          "probability_unlock_t5": 0.9999999999753585
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 4,
+          "mean_kills": 3698.142370464162,
+          "mean_t5": 16.738949493462187,
+          "t5_per_1000_kills": 4.526312893508544,
+          "probability_unlock_t5": 0.9999999999753585
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 3,
+          "mean_kills": 3500.7473761051015,
+          "mean_t5": 15.703392024279069,
+          "t5_per_1000_kills": 4.485725571477972,
+          "probability_unlock_t5": 0.9999999999757864
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 4,
+          "mean_kills": 3406.5305559856897,
+          "mean_t5": 15.41537633530066,
+          "t5_per_1000_kills": 4.525242349056275,
+          "probability_unlock_t5": 0.9999999999757864
+        }
+      ],
+      "simulation": {
+        "mean_kills": 3564.4333333333334,
+        "mean_t5": 16.135,
+        "t5_per_1000_kills": 4.526666230256329
+      }
+    },
+    "A2": {
+      "best_tested": {
+        "order": "population-descending",
+        "stop_after": 4,
+        "mean_kills": 3847.3415783299306,
+        "mean_t5": 19.933027781152802,
+        "t5_per_1000_kills": 5.180987280522519,
+        "probability_unlock_t5": 0.9999999999998265
+      },
+      "ordered_zones": [
+        [
+          "Arcane Sanctuary",
+          469
+        ],
+        [
+          "Real Tal Rasha's Tomb",
+          390
+        ],
+        [
+          "Halls of the Dead levels",
+          352
+        ],
+        [
+          "Lut Gholein Sewer levels",
+          315
+        ],
+        [
+          "Big false Tal Rasha's Tomb",
+          270
+        ],
+        [
+          "Palace Cellar levels",
+          247
+        ],
+        [
+          "Claw Viper Temple levels",
+          221
+        ],
+        [
+          "Far Oasis",
+          200
+        ],
+        [
+          "Canyon of the Magi",
+          182
+        ],
+        [
+          "Lost City",
+          168
+        ],
+        [
+          "Rocky Waste",
+          152
+        ],
+        [
+          "Dry Hills",
+          147
+        ],
+        [
+          "Maggot Lair Level 1",
+          129
+        ],
+        [
+          "Small false Tal Rasha's Tomb 1",
+          124
+        ],
+        [
+          "Small false Tal Rasha's Tomb 2",
+          124
+        ],
+        [
+          "Small false Tal Rasha's Tomb 3",
+          124
+        ],
+        [
+          "Small false Tal Rasha's Tomb 4",
+          124
+        ],
+        [
+          "Small false Tal Rasha's Tomb 5",
+          124
+        ],
+        [
+          "Stony Tomb levels",
+          115
+        ],
+        [
+          "Ancient Tunnels",
+          106
+        ],
+        [
+          "Maggot Lair Level 2",
+          98
+        ],
+        [
+          "Harem Level 2",
+          84
+        ],
+        [
+          "Maggot Lair Level 3",
+          83
+        ]
+      ],
+      "comparison_count": 6,
+      "comparisons": [
+        {
+          "order": "article-order",
+          "stop_after": 3,
+          "mean_kills": 4183.682404829119,
+          "mean_t5": 21.266001666114008,
+          "t5_per_1000_kills": 5.083082224780542,
+          "probability_unlock_t5": 0.9999999999997337
+        },
+        {
+          "order": "article-order",
+          "stop_after": 4,
+          "mean_kills": 4096.449272586477,
+          "mean_t5": 21.003532174366345,
+          "t5_per_1000_kills": 5.127253085964574,
+          "probability_unlock_t5": 0.9999999999997337
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 3,
+          "mean_kills": 4281.810213988465,
+          "mean_t5": 21.777794004408715,
+          "t5_per_1000_kills": 5.086118467666251,
+          "probability_unlock_t5": 0.9999999999998206
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 4,
+          "mean_kills": 4246.097758638127,
+          "mean_t5": 21.670910716677035,
+          "t5_per_1000_kills": 5.103723924535279,
+          "probability_unlock_t5": 0.9999999999998206
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 3,
+          "mean_kills": 3966.5519319745526,
+          "mean_t5": 20.293830577421165,
+          "t5_per_1000_kills": 5.116239727969194,
+          "probability_unlock_t5": 0.9999999999998265
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 4,
+          "mean_kills": 3847.3415783299306,
+          "mean_t5": 19.933027781152802,
+          "t5_per_1000_kills": 5.180987280522519,
+          "probability_unlock_t5": 0.9999999999998265
+        }
+      ],
+      "simulation": {
+        "mean_kills": 3846.219,
+        "mean_t5": 19.951,
+        "t5_per_1000_kills": 5.1871721293041295
+      }
+    },
+    "A3": {
+      "best_tested": {
+        "order": "population-ascending",
+        "stop_after": 4,
+        "mean_kills": 2817.572163402632,
+        "mean_t5": 11.653537726442613,
+        "t5_per_1000_kills": 4.136021031798261,
+        "probability_unlock_t5": 0.9999998539846625
+      },
+      "ordered_zones": [
+        [
+          "Spider Cavern",
+          61
+        ],
+        [
+          "Arachnid Lair",
+          63
+        ],
+        [
+          "Travincal",
+          110
+        ],
+        [
+          "Lower Kurast",
+          115
+        ],
+        [
+          "Upper Kurast and Kurast Causeway",
+          135
+        ],
+        [
+          "Kurast Bazaar",
+          148
+        ],
+        [
+          "All Kurast temple levels",
+          170
+        ],
+        [
+          "Swampy Pit levels",
+          187
+        ],
+        [
+          "Kurast Sewer levels",
+          188
+        ],
+        [
+          "Flayer Dungeon levels",
+          212
+        ],
+        [
+          "Great Marsh",
+          326
+        ],
+        [
+          "Spider Forest",
+          341
+        ],
+        [
+          "Durance of Hate levels",
+          409
+        ],
+        [
+          "Flayer Jungle",
+          475
+        ]
+      ],
+      "comparison_count": 6,
+      "comparisons": [
+        {
+          "order": "article-order",
+          "stop_after": 3,
+          "mean_kills": 2702.6071924096477,
+          "mean_t5": 10.950273937909545,
+          "t5_per_1000_kills": 4.051744540850669,
+          "probability_unlock_t5": 0.9999998104086222
+        },
+        {
+          "order": "article-order",
+          "stop_after": 4,
+          "mean_kills": 2559.829145581215,
+          "mean_t5": 10.534746480799065,
+          "t5_per_1000_kills": 4.1154100065561705,
+          "probability_unlock_t5": 0.9999998104086222
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 3,
+          "mean_kills": 2866.4555125155816,
+          "mean_t5": 11.80194244447027,
+          "t5_per_1000_kills": 4.117259937557156,
+          "probability_unlock_t5": 0.9999998539846625
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 4,
+          "mean_kills": 2817.572163402632,
+          "mean_t5": 11.653537726442613,
+          "t5_per_1000_kills": 4.136021031798261,
+          "probability_unlock_t5": 0.9999998539846625
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 3,
+          "mean_kills": 2552.3222107621923,
+          "mean_t5": 10.32886582638365,
+          "t5_per_1000_kills": 4.046850269464674,
+          "probability_unlock_t5": 0.999999857444731
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 4,
+          "mean_kills": 2430.335346978846,
+          "mean_t5": 9.96068391998117,
+          "t5_per_1000_kills": 4.0984812784636135,
+          "probability_unlock_t5": 0.999999857444731
+        }
+      ],
+      "simulation": {
+        "mean_kills": 2816.6143333333334,
+        "mean_t5": 11.675666666666666,
+        "t5_per_1000_kills": 4.145284119480089
+      }
+    },
+    "A4": {
+      "best_tested": {
+        "order": "permutation-18",
+        "stop_after": 3,
+        "mean_kills": 862.463373928461,
+        "mean_t5": 0.9581545561529439,
+        "t5_per_1000_kills": 1.110951009767077,
+        "probability_unlock_t5": 0.8712196039719367
+      },
+      "ordered_zones": [
+        [
+          "Outer Steppes",
+          187
+        ],
+        [
+          "Chaos Sanctuary",
+          189
+        ],
+        [
+          "Plains of Despair",
+          193
+        ],
+        [
+          "City of the Damned",
+          211
+        ],
+        [
+          "River of Flame",
+          231
+        ]
+      ],
+      "comparison_count": 240,
+      "comparisons": [
+        {
+          "order": "permutation-0",
+          "stop_after": 3,
+          "mean_kills": 854.8594138431552,
+          "mean_t5": 0.9234403059881071,
+          "t5_per_1000_kills": 1.0802247609775222,
+          "probability_unlock_t5": 0.8726876578573437
+        },
+        {
+          "order": "permutation-0",
+          "stop_after": 4,
+          "mean_kills": 789.2627019416659,
+          "mean_t5": 0.72250985382209,
+          "t5_per_1000_kills": 0.915423789879647,
+          "probability_unlock_t5": 0.8726876578573437
+        },
+        {
+          "order": "permutation-1",
+          "stop_after": 3,
+          "mean_kills": 858.3583992352989,
+          "mean_t5": 0.9443555245715887,
+          "t5_per_1000_kills": 1.1001878998480166,
+          "probability_unlock_t5": 0.8713250628052253
+        },
+        {
+          "order": "permutation-1",
+          "stop_after": 4,
+          "mean_kills": 797.70555985458,
+          "mean_t5": 0.7586460073841373,
+          "t5_per_1000_kills": 0.9510351256952965,
+          "probability_unlock_t5": 0.8713250628052253
+        },
+        {
+          "order": "permutation-2",
+          "stop_after": 3,
+          "mean_kills": 850.7309458640816,
+          "mean_t5": 0.9094578413918039,
+          "t5_per_1000_kills": 1.0690311029747175,
+          "probability_unlock_t5": 0.8728895451476579
+        },
+        {
+          "order": "permutation-2",
+          "stop_after": 4,
+          "mean_kills": 790.3008518943392,
+          "mean_t5": 0.7243390665775187,
+          "t5_per_1000_kills": 0.9165358544676865,
+          "probability_unlock_t5": 0.8728895451476579
+        },
+        {
+          "order": "permutation-3",
+          "stop_after": 3,
+          "mean_kills": 852.4265432888618,
+          "mean_t5": 0.9198018496745262,
+          "t5_per_1000_kills": 1.079039427990727,
+          "probability_unlock_t5": 0.8721773814403886
+        },
+        {
+          "order": "permutation-3",
+          "stop_after": 4,
+          "mean_kills": 794.684146934805,
+          "mean_t5": 0.7430041950490438,
+          "t5_per_1000_kills": 0.9349679340086283,
+          "probability_unlock_t5": 0.8721773814403886
+        },
+        {
+          "order": "permutation-4",
+          "stop_after": 3,
+          "mean_kills": 862.4826780505934,
+          "mean_t5": 0.9581429473133332,
+          "t5_per_1000_kills": 1.1109126846222044,
+          "probability_unlock_t5": 0.8711729720776559
+        },
+        {
+          "order": "permutation-4",
+          "stop_after": 4,
+          "mean_kills": 796.6065639865129,
+          "mean_t5": 0.7562591286643504,
+          "t5_per_1000_kills": 0.9493508625886171,
+          "probability_unlock_t5": 0.8711729720776559
+        },
+        {
+          "order": "permutation-5",
+          "stop_after": 3,
+          "mean_kills": 860.6414267126253,
+          "mean_t5": 0.9474370590048926,
+          "t5_per_1000_kills": 1.1008499354066639,
+          "probability_unlock_t5": 0.8718302197426564
+        },
+        {
+          "order": "permutation-5",
+          "stop_after": 4,
+          "mean_kills": 792.5574837224794,
+          "mean_t5": 0.7387960837659575,
+          "t5_per_1000_kills": 0.9321671915783122,
+          "probability_unlock_t5": 0.8718302197426564
+        },
+        {
+          "order": "permutation-6",
+          "stop_after": 3,
+          "mean_kills": 854.9569924399075,
+          "mean_t5": 0.9234016665342134,
+          "t5_per_1000_kills": 1.0800562773327065,
+          "probability_unlock_t5": 0.8724868861806239
+        },
+        {
+          "order": "permutation-6",
+          "stop_after": 4,
+          "mean_kills": 789.372907797176,
+          "mean_t5": 0.7225098538220898,
+          "t5_per_1000_kills": 0.9152959858203465,
+          "probability_unlock_t5": 0.8724868861806239
+        },
+        {
+          "order": "permutation-7",
+          "stop_after": 3,
+          "mean_kills": 858.4530548145949,
+          "mean_t5": 0.9443058262733393,
+          "t5_per_1000_kills": 1.100008697012892,
+          "probability_unlock_t5": 0.8711254282278165
+        },
+        {
+          "order": "permutation-7",
+          "stop_after": 4,
+          "mean_kills": 797.8164338584963,
+          "mean_t5": 0.7586460073841373,
+          "t5_per_1000_kills": 0.9509029586105187,
+          "probability_unlock_t5": 0.8711254282278165
+        },
+        {
+          "order": "permutation-8",
+          "stop_after": 3,
+          "mean_kills": 847.2223551915033,
+          "mean_t5": 0.8972566600110359,
+          "t5_per_1000_kills": 1.0590568751083334,
+          "probability_unlock_t5": 0.872892695276154
+        },
+        {
+          "order": "permutation-8",
+          "stop_after": 4,
+          "mean_kills": 791.331646246653,
+          "mean_t5": 0.7261867131858325,
+          "t5_per_1000_kills": 0.9176768256775677,
+          "probability_unlock_t5": 0.872892695276154
+        },
+        {
+          "order": "permutation-9",
+          "stop_after": 3,
+          "mean_kills": 847.5034137355524,
+          "mean_t5": 0.8990156505368705,
+          "t5_per_1000_kills": 1.0607811555286448,
+          "probability_unlock_t5": 0.8727660656594264
+        },
+        {
+          "order": "permutation-9",
+          "stop_after": 4,
+          "mean_kills": 792.1222504164357,
+          "mean_t5": 0.7295272745072652,
+          "t5_per_1000_kills": 0.9209781370536391,
+          "probability_unlock_t5": 0.8727660656594264
+        },
+        {
+          "order": "permutation-10",
+          "stop_after": 3,
+          "mean_kills": 859.1910192161209,
+          "mean_t5": 0.9467551785251995,
+          "t5_per_1000_kills": 1.1019146584993025,
+          "probability_unlock_t5": 0.8710962567822893
+        },
+        {
+          "order": "permutation-10",
+          "stop_after": 4,
+          "mean_kills": 797.6179682550827,
+          "mean_t5": 0.7581881970779669,
+          "t5_per_1000_kills": 0.9505655931205077,
+          "probability_unlock_t5": 0.8710962567822893
+        },
+        {
+          "order": "permutation-11",
+          "stop_after": 3,
+          "mean_kills": 855.9617319819633,
+          "mean_t5": 0.9275584493532502,
+          "t5_per_1000_kills": 1.0836447643582219,
+          "probability_unlock_t5": 0.8723338118274673
+        },
+        {
+          "order": "permutation-11",
+          "stop_after": 4,
+          "mean_kills": 789.9689705635307,
+          "mean_t5": 0.725395491704921,
+          "t5_per_1000_kills": 0.9182582085312216,
+          "probability_unlock_t5": 0.8723338118274673
+        },
+        {
+          "order": "permutation-12",
+          "stop_after": 3,
+          "mean_kills": 850.9487470422594,
+          "mean_t5": 0.9093805598836253,
+          "t5_per_1000_kills": 1.0686666653479004,
+          "probability_unlock_t5": 0.8724879882825127
+        },
+        {
+          "order": "permutation-12",
+          "stop_after": 4,
+          "mean_kills": 790.5439084398322,
+          "mean_t5": 0.7243390665775186,
+          "t5_per_1000_kills": 0.916254061089445,
+          "probability_unlock_t5": 0.8724879882825127
+        },
+        {
+          "order": "permutation-13",
+          "stop_after": 3,
+          "mean_kills": 852.6413337993346,
+          "mean_t5": 0.9197130966811973,
+          "t5_per_1000_kills": 1.0786635132770233,
+          "probability_unlock_t5": 0.8717770879675594
+        },
+        {
+          "order": "permutation-13",
+          "stop_after": 4,
+          "mean_kills": 794.9278963994932,
+          "mean_t5": 0.7430041950490437,
+          "t5_per_1000_kills": 0.9346812439396955,
+          "probability_unlock_t5": 0.8717770879675594
+        },
+        {
+          "order": "permutation-14",
+          "stop_after": 3,
+          "mean_kills": 847.343432689199,
+          "mean_t5": 0.897218017956751,
+          "t5_per_1000_kills": 1.0588599419591487,
+          "probability_unlock_t5": 0.8726919100877286
+        },
+        {
+          "order": "permutation-14",
+          "stop_after": 4,
+          "mean_kills": 791.4653518529062,
+          "mean_t5": 0.7261867131858326,
+          "t5_per_1000_kills": 0.9175217986305411,
+          "probability_unlock_t5": 0.8726919100877286
+        },
+        {
+          "order": "permutation-15",
+          "stop_after": 3,
+          "mean_kills": 847.6242221004131,
+          "mean_t5": 0.8989759792388831,
+          "t5_per_1000_kills": 1.0605831638591217,
+          "probability_unlock_t5": 0.8725654016362451
+        },
+        {
+          "order": "permutation-15",
+          "stop_after": 4,
+          "mean_kills": 792.2560183045907,
+          "mean_t5": 0.7295272745072653,
+          "t5_per_1000_kills": 0.9208226351734589,
+          "probability_unlock_t5": 0.8725654016362451
+        },
+        {
+          "order": "permutation-16",
+          "stop_after": 3,
+          "mean_kills": 853.3988380209895,
+          "mean_t5": 0.9222367324791939,
+          "t5_per_1000_kills": 1.080663215593119,
+          "probability_unlock_t5": 0.8717400981455223
+        },
+        {
+          "order": "permutation-16",
+          "stop_after": 4,
+          "mean_kills": 794.7281294450374,
+          "mean_t5": 0.7425558239053079,
+          "t5_per_1000_kills": 0.9343520084331712,
+          "probability_unlock_t5": 0.8717400981455223
+        },
+        {
+          "order": "permutation-17",
+          "stop_after": 3,
+          "mean_kills": 851.9831711159788,
+          "mean_t5": 0.9136479483881904,
+          "t5_per_1000_kills": 1.0723779287699302,
+          "probability_unlock_t5": 0.8723252784609585
+        },
+        {
+          "order": "permutation-17",
+          "stop_after": 4,
+          "mean_kills": 791.1358654950101,
+          "mean_t5": 0.7272320101678011,
+          "t5_per_1000_kills": 0.9192251822798798,
+          "probability_unlock_t5": 0.8723252784609585
+        },
+        {
+          "order": "permutation-18",
+          "stop_after": 3,
+          "mean_kills": 862.463373928461,
+          "mean_t5": 0.9581545561529439,
+          "t5_per_1000_kills": 1.110951009767077,
+          "probability_unlock_t5": 0.8712196039719367
+        },
+        {
+          "order": "permutation-18",
+          "stop_after": 4,
+          "mean_kills": 796.5834714632322,
+          "mean_t5": 0.7562591286643504,
+          "t5_per_1000_kills": 0.9493783837558033,
+          "probability_unlock_t5": 0.8712196039719367
+        },
+        {
+          "order": "permutation-19",
+          "stop_after": 3,
+          "mean_kills": 860.6217914272506,
+          "mean_t5": 0.9474474243959858,
+          "t5_per_1000_kills": 1.1008870956250645,
+          "probability_unlock_t5": 0.8718769696971345
+        },
+        {
+          "order": "permutation-19",
+          "stop_after": 4,
+          "mean_kills": 792.5344663440077,
+          "mean_t5": 0.7387960837659575,
+          "t5_per_1000_kills": 0.9321942642747798,
+          "probability_unlock_t5": 0.8718769696971345
+        },
+        {
+          "order": "permutation-20",
+          "stop_after": 3,
+          "mean_kills": 859.0771782165538,
+          "mean_t5": 0.9468164856630599,
+          "t5_per_1000_kills": 1.1021320431636341,
+          "probability_unlock_t5": 0.871342523253979
+        },
+        {
+          "order": "permutation-20",
+          "stop_after": 4,
+          "mean_kills": 797.4841204297471,
+          "mean_t5": 0.758188197077967,
+          "t5_per_1000_kills": 0.9507251337736928,
+          "probability_unlock_t5": 0.871342523253979
+        },
+        {
+          "order": "permutation-21",
+          "stop_after": 3,
+          "mean_kills": 855.8446171644503,
+          "mean_t5": 0.9276073840281115,
+          "t5_per_1000_kills": 1.083850228679854,
+          "probability_unlock_t5": 0.8725813315515211
+        },
+        {
+          "order": "permutation-21",
+          "stop_after": 4,
+          "mean_kills": 789.8358701319606,
+          "mean_t5": 0.7253954917049211,
+          "t5_per_1000_kills": 0.9184129502547494,
+          "probability_unlock_t5": 0.8725813315515211
+        },
+        {
+          "order": "permutation-22",
+          "stop_after": 3,
+          "mean_kills": 853.1648520103528,
+          "mean_t5": 0.9223358508636159,
+          "t5_per_1000_kills": 1.0810757718045607,
+          "probability_unlock_t5": 0.8721871415728296
+        },
+        {
+          "order": "permutation-22",
+          "stop_after": 4,
+          "mean_kills": 794.4618023870881,
+          "mean_t5": 0.742555823905308,
+          "t5_per_1000_kills": 0.9346652308193796,
+          "probability_unlock_t5": 0.8721871415728296
+        },
+        {
+          "order": "permutation-23",
+          "stop_after": 3,
+          "mean_kills": 851.7464239332248,
+          "mean_t5": 0.9137365543610392,
+          "t5_per_1000_kills": 1.0727800301662016,
+          "probability_unlock_t5": 0.872773462208194
+        },
+        {
+          "order": "permutation-23",
+          "stop_after": 4,
+          "mean_kills": 790.8701731749048,
+          "mean_t5": 0.7272320101678013,
+          "t5_per_1000_kills": 0.9195339953817809,
+          "probability_unlock_t5": 0.872773462208194
+        },
+        {
+          "order": "permutation-24",
+          "stop_after": 3,
+          "mean_kills": 855.0601585646406,
+          "mean_t5": 0.9227557897346816,
+          "t5_per_1000_kills": 1.0791706062924034,
+          "probability_unlock_t5": 0.8725090950838916
+        },
+        {
+          "order": "permutation-24",
+          "stop_after": 4,
+          "mean_kills": 789.4838940345719,
+          "mean_t5": 0.7218880824038978,
+          "t5_per_1000_kills": 0.9143797458802699,
+          "probability_unlock_t5": 0.8725090950838916
+        },
+        {
+          "order": "permutation-25",
+          "stop_after": 3,
+          "mean_kills": 858.5644638664851,
+          "mean_t5": 0.9436845406490302,
+          "t5_per_1000_kills": 1.0991423246184833,
+          "probability_unlock_t5": 0.8711444305040524
+        },
+        {
+          "order": "permutation-25",
+          "stop_after": 4,
+          "mean_kills": 797.9175780405818,
+          "mean_t5": 0.7579931382205934,
+          "t5_per_1000_kills": 0.9499642056789507,
+          "probability_unlock_t5": 0.8711444305040524
+        },
+        {
+          "order": "permutation-26",
+          "stop_after": 3,
+          "mean_kills": 850.93525822536,
+          "mean_t5": 0.908785358049481,
+          "t5_per_1000_kills": 1.067984137764803,
+          "probability_unlock_t5": 0.8727108086357493
+        },
+        {
+          "order": "permutation-26",
+          "stop_after": 4,
+          "mean_kills": 790.5211653826836,
+          "mean_t5": 0.723715720990887,
+          "t5_per_1000_kills": 0.9154918965901985,
+          "probability_unlock_t5": 0.8727108086357493
+        },
+        {
+          "order": "permutation-27",
+          "stop_after": 3,
+          "mean_kills": 852.6336871016022,
+          "mean_t5": 0.9191368179772488,
+          "t5_per_1000_kills": 1.0779973063247288,
+          "probability_unlock_t5": 0.8719974567422136
+        },
+        {
+          "order": "permutation-27",
+          "stop_after": 4,
+          "mean_kills": 794.8996991964442,
+          "mean_t5": 0.7423647867840429,
+          "t5_per_1000_kills": 0.9339100109542019,
+          "probability_unlock_t5": 0.8719974567422136
+        },
+        {
+          "order": "permutation-28",
+          "stop_after": 3,
+          "mean_kills": 862.6851787918945,
+          "mean_t5": 0.9574600983271413,
+          "t5_per_1000_kills": 1.1098603776501292,
+          "probability_unlock_t5": 0.8709924706614349
+        },
+        {
+          "order": "permutation-28",
+          "stop_after": 4,
+          "mean_kills": 796.8195132841721,
+          "mean_t5": 0.7556083135807042,
+          "t5_per_1000_kills": 0.9482803834288499,
+          "probability_unlock_t5": 0.8709924706614349
+        },
+        {
+          "order": "permutation-29",
+          "stop_after": 3,
+          "mean_kills": 860.8414717125358,
+          "mean_t5": 0.9467482452329399,
+          "t5_per_1000_kills": 1.0997939531764231,
+          "probability_unlock_t5": 0.8716505938019585
+        },
+        {
+          "order": "permutation-29",
+          "stop_after": 4,
+          "mean_kills": 792.7748368120124,
+          "mean_t5": 0.7381602968817677,
+          "t5_per_1000_kills": 0.9311096450161481,
+          "probability_unlock_t5": 0.8716505938019585
+        },
+        {
+          "order": "permutation-30",
+          "stop_after": 3,
+          "mean_kills": 855.1796619424318,
+          "mean_t5": 0.9227072698871771,
+          "t5_per_1000_kills": 1.0789630658326987,
+          "probability_unlock_t5": 0.8722569846072654
+        },
+        {
+          "order": "permutation-30",
+          "stop_after": 4,
+          "mean_kills": 789.619253554404,
+          "mean_t5": 0.7218880824038978,
+          "t5_per_1000_kills": 0.9142229994448335,
+          "probability_unlock_t5": 0.8722569846072654
+        },
+        {
+          "order": "permutation-31",
+          "stop_after": 3,
+          "mean_kills": 858.6802967896776,
+          "mean_t5": 0.9436221341290276,
+          "t5_per_1000_kills": 1.0989213769745498,
+          "probability_unlock_t5": 0.8708937478914254
+        },
+        {
+          "order": "permutation-31",
+          "stop_after": 4,
+          "mean_kills": 798.0537765593002,
+          "mean_t5": 0.7579931382205934,
+          "t5_per_1000_kills": 0.9498020816198343,
+          "probability_unlock_t5": 0.8708937478914254
+        },
+        {
+          "order": "permutation-32",
+          "stop_after": 3,
+          "mean_kills": 846.27575179388,
+          "mean_t5": 0.8926498056710539,
+          "t5_per_1000_kills": 1.0547978053003093,
+          "probability_unlock_t5": 0.8727354919440176
+        },
+        {
+          "order": "permutation-32",
+          "stop_after": 4,
+          "mean_kills": 791.879592716012,
+          "mean_t5": 0.7262236288495941,
+          "t5_per_1000_kills": 0.9170884507312165,
+          "probability_unlock_t5": 0.8727354919440176
+        },
+        {
+          "order": "permutation-33",
+          "stop_after": 3,
+          "mean_kills": 846.1398362417895,
+          "mean_t5": 0.891795479872019,
+          "t5_per_1000_kills": 1.0539575631292972,
+          "probability_unlock_t5": 0.8727983078400402
+        },
+        {
+          "order": "permutation-33",
+          "stop_after": 4,
+          "mean_kills": 791.4852034041355,
+          "mean_t5": 0.7245648289805807,
+          "t5_per_1000_kills": 0.9154496203646842,
+          "probability_unlock_t5": 0.8727983078400402
+        },
+        {
+          "order": "permutation-34",
+          "stop_after": 3,
+          "mean_kills": 858.3131460612169,
+          "mean_t5": 0.942404806299164,
+          "t5_per_1000_kills": 1.0979731705425253,
+          "probability_unlock_t5": 0.8709086328512896
+        },
+        {
+          "order": "permutation-34",
+          "stop_after": 4,
+          "mean_kills": 798.152696018018,
+          "mean_t5": 0.7582267395354962,
+          "t5_per_1000_kills": 0.949977044891645,
+          "probability_unlock_t5": 0.8709086328512896
+        },
+        {
+          "order": "permutation-35",
+          "stop_after": 3,
+          "mean_kills": 854.6851071483983,
+          "mean_t5": 0.920666247609306,
+          "t5_per_1000_kills": 1.0771993567093379,
+          "probability_unlock_t5": 0.872333050325858
+        },
+        {
+          "order": "permutation-35",
+          "stop_after": 4,
+          "mean_kills": 789.321434778915,
+          "mean_t5": 0.7204611517032816,
+          "t5_per_1000_kills": 0.9127601506287223,
+          "probability_unlock_t5": 0.872333050325858
+        },
+        {
+          "order": "permutation-36",
+          "stop_after": 3,
+          "mean_kills": 851.1671888824783,
+          "mean_t5": 0.9087009755262705,
+          "t5_per_1000_kills": 1.0675939902233895,
+          "probability_unlock_t5": 0.8722723546990689
+        },
+        {
+          "order": "permutation-36",
+          "stop_after": 4,
+          "mean_kills": 790.7806719977366,
+          "mean_t5": 0.723715720990887,
+          "t5_per_1000_kills": 0.9151914641041687,
+          "probability_unlock_t5": 0.8722723546990689
+        },
+        {
+          "order": "permutation-37",
+          "stop_after": 3,
+          "mean_kills": 852.8623304556711,
+          "mean_t5": 0.9190399099109328,
+          "t5_per_1000_kills": 1.0775946798118097,
+          "probability_unlock_t5": 0.8715603822847118
+        },
+        {
+          "order": "permutation-37",
+          "stop_after": 4,
+          "mean_kills": 795.1599623996054,
+          "mean_t5": 0.7423647867840429,
+          "t5_per_1000_kills": 0.9336043335780652,
+          "probability_unlock_t5": 0.8715603822847118
+        },
+        {
+          "order": "permutation-38",
+          "stop_after": 3,
+          "mean_kills": 846.3894485046675,
+          "mean_t5": 0.8926139429953479,
+          "t5_per_1000_kills": 1.0546137414311416,
+          "probability_unlock_t5": 0.8725491484839631
+        },
+        {
+          "order": "permutation-38",
+          "stop_after": 4,
+          "mean_kills": 792.0050092426934,
+          "mean_t5": 0.7262236288495941,
+          "t5_per_1000_kills": 0.916943226841458,
+          "probability_unlock_t5": 0.8725491484839631
+        },
+        {
+          "order": "permutation-39",
+          "stop_after": 3,
+          "mean_kills": 846.253657300349,
+          "mean_t5": 0.8917600940569596,
+          "t5_per_1000_kills": 1.0537739912425095,
+          "probability_unlock_t5": 0.8726119069519234
+        },
+        {
+          "order": "permutation-39",
+          "stop_after": 4,
+          "mean_kills": 791.6105911672523,
+          "mean_t5": 0.7245648289805807,
+          "t5_per_1000_kills": 0.915304617024122,
+          "probability_unlock_t5": 0.8726119069519234
+        },
+        {
+          "order": "permutation-40",
+          "stop_after": 3,
+          "mean_kills": 852.4854756390177,
+          "mean_t5": 0.9177855150239455,
+          "t5_per_1000_kills": 1.0765995917243976,
+          "probability_unlock_t5": 0.8715792566327756
+        },
+        {
+          "order": "permutation-40",
+          "stop_after": 4,
+          "mean_kills": 795.259509377214,
+          "mean_t5": 0.7425935716919609,
+          "t5_per_1000_kills": 0.9337751550729686,
+          "probability_unlock_t5": 0.8715792566327756
+        },
+        {
+          "order": "permutation-41",
+          "stop_after": 3,
+          "mean_kills": 850.657192016676,
+          "mean_t5": 0.9066023662531002,
+          "t5_per_1000_kills": 1.06576700316116,
+          "probability_unlock_t5": 0.8723534497599421
+        },
+        {
+          "order": "permutation-41",
+          "stop_after": 4,
+          "mean_kills": 790.4850689926353,
+          "mean_t5": 0.7222851776615642,
+          "t5_per_1000_kills": 0.913723998078822,
+          "probability_unlock_t5": 0.8723534497599421
+        },
+        {
+          "order": "permutation-42",
+          "stop_after": 3,
+          "mean_kills": 862.6941160839787,
+          "mean_t5": 0.9574545893516464,
+          "t5_per_1000_kills": 1.1098424939975402,
+          "probability_unlock_t5": 0.8709703414933618
+        },
+        {
+          "order": "permutation-42",
+          "stop_after": 4,
+          "mean_kills": 796.8302483622358,
+          "mean_t5": 0.7556083135807043,
+          "t5_per_1000_kills": 0.9482676079801728,
+          "probability_unlock_t5": 0.8709703414933618
+        },
+        {
+          "order": "permutation-43",
+          "stop_after": 3,
+          "mean_kills": 860.8505661581554,
+          "mean_t5": 0.9467433263360095,
+          "t5_per_1000_kills": 1.0997766204199417,
+          "probability_unlock_t5": 0.8716284086084123
+        },
+        {
+          "order": "permutation-43",
+          "stop_after": 4,
+          "mean_kills": 792.7855362301027,
+          "mean_t5": 0.7381602968817679,
+          "t5_per_1000_kills": 0.9310970787785915,
+          "probability_unlock_t5": 0.8716284086084123
+        },
+        {
+          "order": "permutation-44",
+          "stop_after": 3,
+          "mean_kills": 858.2061783507227,
+          "mean_t5": 0.9424617038436716,
+          "t5_per_1000_kills": 1.0981763212831546,
+          "probability_unlock_t5": 0.8711371862958436
+        },
+        {
+          "order": "permutation-44",
+          "stop_after": 4,
+          "mean_kills": 798.0271604979775,
+          "mean_t5": 0.7582267395354962,
+          "t5_per_1000_kills": 0.950126483241942,
+          "probability_unlock_t5": 0.8711371862958436
+        },
+        {
+          "order": "permutation-45",
+          "stop_after": 3,
+          "mean_kills": 854.5746396116538,
+          "mean_t5": 0.9207098961270627,
+          "t5_per_1000_kills": 1.0773896783848662,
+          "probability_unlock_t5": 0.8725629764265039
+        },
+        {
+          "order": "permutation-45",
+          "stop_after": 4,
+          "mean_kills": 789.1966996745475,
+          "mean_t5": 0.7204611517032816,
+          "t5_per_1000_kills": 0.9129044153382657,
+          "probability_unlock_t5": 0.8725629764265039
+        },
+        {
+          "order": "permutation-46",
+          "stop_after": 3,
+          "mean_kills": 852.265688542645,
+          "mean_t5": 0.9178775041933311,
+          "t5_per_1000_kills": 1.0769851661667629,
+          "probability_unlock_t5": 0.8719941458967311
+        },
+        {
+          "order": "permutation-46",
+          "stop_after": 4,
+          "mean_kills": 795.0097074042199,
+          "mean_t5": 0.7425935716919609,
+          "t5_per_1000_kills": 0.9340685588816237,
+          "probability_unlock_t5": 0.8719941458967311
+        },
+        {
+          "order": "permutation-47",
+          "stop_after": 3,
+          "mean_kills": 850.4340067442951,
+          "mean_t5": 0.9066814005859164,
+          "t5_per_1000_kills": 1.0661396338758282,
+          "probability_unlock_t5": 0.872769776748705
+        },
+        {
+          "order": "permutation-47",
+          "stop_after": 4,
+          "mean_kills": 790.236049448074,
+          "mean_t5": 0.7222851776615642,
+          "t5_per_1000_kills": 0.914011931202115,
+          "probability_unlock_t5": 0.872769776748705
+        },
+        {
+          "order": "permutation-48",
+          "stop_after": 3,
+          "mean_kills": 855.8156466074327,
+          "mean_t5": 0.9207677954367511,
+          "t5_per_1000_kills": 1.0758950237551714,
+          "probability_unlock_t5": 0.871748710955869
+        },
+        {
+          "order": "permutation-48",
+          "stop_after": 4,
+          "mean_kills": 790.3133137400608,
+          "mean_t5": 0.7201268172511865,
+          "t5_per_1000_kills": 0.9111915549584693,
+          "probability_unlock_t5": 0.871748710955869
+        },
+        {
+          "order": "permutation-49",
+          "stop_after": 3,
+          "mean_kills": 859.3313150235851,
+          "mean_t5": 0.9417208562677042,
+          "t5_per_1000_kills": 1.09587633989791,
+          "probability_unlock_t5": 0.8703796259476058
+        },
+        {
+          "order": "permutation-49",
+          "stop_after": 4,
+          "mean_kills": 798.7218584219373,
+          "mean_t5": 0.7561437838221992,
+          "t5_per_1000_kills": 0.9466922381667866,
+          "probability_unlock_t5": 0.8703796259476058
+        },
+        {
+          "order": "permutation-50",
+          "stop_after": 3,
+          "mean_kills": 848.1066053012261,
+          "mean_t5": 0.8947090223488154,
+          "t5_per_1000_kills": 1.0549487726617073,
+          "probability_unlock_t5": 0.8721531815811894
+        },
+        {
+          "order": "permutation-50",
+          "stop_after": 4,
+          "mean_kills": 792.2656767078699,
+          "mean_t5": 0.7237915493196633,
+          "t5_per_1000_kills": 0.9135717608356585,
+          "probability_unlock_t5": 0.8721531815811894
+        },
+        {
+          "order": "permutation-51",
+          "stop_after": 3,
+          "mean_kills": 848.3896039640513,
+          "mean_t5": 0.8964731786548579,
+          "t5_per_1000_kills": 1.0566762893676902,
+          "probability_unlock_t5": 0.872025678511154
+        },
+        {
+          "order": "permutation-51",
+          "stop_after": 4,
+          "mean_kills": 793.0530088852261,
+          "mean_t5": 0.7271210925494337,
+          "t5_per_1000_kills": 0.9168631660215613,
+          "probability_unlock_t5": 0.872025678511154
+        },
+        {
+          "order": "permutation-52",
+          "stop_after": 3,
+          "mean_kills": 860.0668374373975,
+          "mean_t5": 0.9441621298809681,
+          "t5_per_1000_kills": 1.0977776246950015,
+          "probability_unlock_t5": 0.8703505507175434
+        },
+        {
+          "order": "permutation-52",
+          "stop_after": 4,
+          "mean_kills": 798.5240394349805,
+          "mean_t5": 0.7556874835005587,
+          "t5_per_1000_kills": 0.9463553333162869,
+          "probability_unlock_t5": 0.8703505507175434
+        },
+        {
+          "order": "permutation-53",
+          "stop_after": 3,
+          "mean_kills": 856.819931548238,
+          "mean_t5": 0.9249218354563491,
+          "t5_per_1000_kills": 1.0794821658560787,
+          "probability_unlock_t5": 0.8715948503714314
+        },
+        {
+          "order": "permutation-53",
+          "stop_after": 4,
+          "mean_kills": 790.9067383444399,
+          "mean_t5": 0.7230029375052007,
+          "t5_per_1000_kills": 0.9141443642503562,
+          "probability_unlock_t5": 0.8715948503714314
+        },
+        {
+          "order": "permutation-54",
+          "stop_after": 3,
+          "mean_kills": 855.8388747448827,
+          "mean_t5": 0.9207576330027964,
+          "t5_per_1000_kills": 1.075853948884088,
+          "probability_unlock_t5": 0.8716959066664962
+        },
+        {
+          "order": "permutation-54",
+          "stop_after": 4,
+          "mean_kills": 790.3398629307405,
+          "mean_t5": 0.7201268172511864,
+          "t5_per_1000_kills": 0.9111609461033765,
+          "probability_unlock_t5": 0.8716959066664962
+        },
+        {
+          "order": "permutation-55",
+          "stop_after": 3,
+          "mean_kills": 859.3537743879585,
+          "mean_t5": 0.9417077852839628,
+          "t5_per_1000_kills": 1.095832488726378,
+          "probability_unlock_t5": 0.870327120722932
+        },
+        {
+          "order": "permutation-55",
+          "stop_after": 4,
+          "mean_kills": 798.748583340102,
+          "mean_t5": 0.7561437838221989,
+          "t5_per_1000_kills": 0.9466605632779417,
+          "probability_unlock_t5": 0.870327120722932
+        },
+        {
+          "order": "permutation-56",
+          "stop_after": 3,
+          "mean_kills": 846.956755469475,
+          "mean_t5": 0.8907735030965105,
+          "t5_per_1000_kills": 1.0517343386708657,
+          "probability_unlock_t5": 0.8721732465393186
+        },
+        {
+          "order": "permutation-56",
+          "stop_after": 4,
+          "mean_kills": 792.5947543896725,
+          "mean_t5": 0.7244517858149938,
+          "t5_per_1000_kills": 0.9140254610602977,
+          "probability_unlock_t5": 0.8721732465393186
+        },
+        {
+          "order": "permutation-57",
+          "stop_after": 3,
+          "mean_kills": 846.8201260604321,
+          "mean_t5": 0.8899172515187065,
+          "t5_per_1000_kills": 1.0508928922825327,
+          "probability_unlock_t5": 0.8722363921189453
+        },
+        {
+          "order": "permutation-57",
+          "stop_after": 4,
+          "mean_kills": 792.2015694378765,
+          "mean_t5": 0.7227970330918966,
+          "t5_per_1000_kills": 0.912390306932581,
+          "probability_unlock_t5": 0.8722363921189453
+        },
+        {
+          "order": "permutation-58",
+          "stop_after": 3,
+          "mean_kills": 858.9875221766033,
+          "mean_t5": 0.9404934274949386,
+          "t5_per_1000_kills": 1.0948860177989619,
+          "probability_unlock_t5": 0.8703419693664172
+        },
+        {
+          "order": "permutation-58",
+          "stop_after": 4,
+          "mean_kills": 798.8472641961979,
+          "mean_t5": 0.7563768151957693,
+          "t5_per_1000_kills": 0.9468353327301402,
+          "probability_unlock_t5": 0.8703419693664172
+        },
+        {
+          "order": "permutation-59",
+          "stop_after": 3,
+          "mean_kills": 855.3444837817121,
+          "mean_t5": 0.9187175802525147,
+          "t5_per_1000_kills": 1.074090729141799,
+          "probability_unlock_t5": 0.8717722697417278
+        },
+        {
+          "order": "permutation-59",
+          "stop_after": 4,
+          "mean_kills": 790.043015580685,
+          "mean_t5": 0.7187033679812513,
+          "t5_per_1000_kills": 0.9097015653672998,
+          "probability_unlock_t5": 0.8717722697417278
+        },
+        {
+          "order": "permutation-60",
+          "stop_after": 3,
+          "mean_kills": 848.2986546090809,
+          "mean_t5": 0.8946412845984358,
+          "t5_per_1000_kills": 1.0546300878087693,
+          "probability_unlock_t5": 0.8718012143469116
+        },
+        {
+          "order": "permutation-60",
+          "stop_after": 4,
+          "mean_kills": 792.4798625113402,
+          "mean_t5": 0.7237915493196632,
+          "t5_per_1000_kills": 0.9133248471778119,
+          "probability_unlock_t5": 0.8718012143469116
+        },
+        {
+          "order": "permutation-61",
+          "stop_after": 3,
+          "mean_kills": 848.5811814943794,
+          "mean_t5": 0.8964036366874328,
+          "t5_per_1000_kills": 1.0563557809623312,
+          "probability_unlock_t5": 0.8716739236739965
+        },
+        {
+          "order": "permutation-61",
+          "stop_after": 4,
+          "mean_kills": 793.2673038660158,
+          "mean_t5": 0.7271210925494336,
+          "t5_per_1000_kills": 0.9166154825817018,
+          "probability_unlock_t5": 0.8716739236739965
+        },
+        {
+          "order": "permutation-62",
+          "stop_after": 3,
+          "mean_kills": 847.1261116981239,
+          "mean_t5": 0.8907159277800853,
+          "t5_per_1000_kills": 1.0514561120003523,
+          "probability_unlock_t5": 0.8718740835944133
+        },
+        {
+          "order": "permutation-62",
+          "stop_after": 4,
+          "mean_kills": 792.7829260607069,
+          "mean_t5": 0.7244517858149937,
+          "t5_per_1000_kills": 0.9138085117634323,
+          "probability_unlock_t5": 0.8718740835944133
+        },
+        {
+          "order": "permutation-63",
+          "stop_after": 3,
+          "mean_kills": 846.9896819217682,
+          "mean_t5": 0.8898604417726708,
+          "t5_per_1000_kills": 1.050615445224352,
+          "probability_unlock_t5": 0.8719371369768238
+        },
+        {
+          "order": "permutation-63",
+          "stop_after": 4,
+          "mean_kills": 792.3896949307801,
+          "mean_t5": 0.7227970330918964,
+          "t5_per_1000_kills": 0.9121736914499334,
+          "probability_unlock_t5": 0.8719371369768238
+        },
+        {
+          "order": "permutation-64",
+          "stop_after": 3,
+          "mean_kills": 848.19424019702,
+          "mean_t5": 0.8951102040201604,
+          "t5_per_1000_kills": 1.0553127592710871,
+          "probability_unlock_t5": 0.8716973669402586
+        },
+        {
+          "order": "permutation-64",
+          "stop_after": 4,
+          "mean_kills": 793.3677827122533,
+          "mean_t5": 0.7273451795955405,
+          "t5_per_1000_kills": 0.9167818449962714,
+          "probability_unlock_t5": 0.8716973669402586
+        },
+        {
+          "order": "permutation-65",
+          "stop_after": 3,
+          "mean_kills": 847.7754127198735,
+          "mean_t5": 0.8924928216923489,
+          "t5_per_1000_kills": 1.0527467632365166,
+          "probability_unlock_t5": 0.8718876850809241
+        },
+        {
+          "order": "permutation-65",
+          "stop_after": 4,
+          "mean_kills": 792.1870732991417,
+          "mean_t5": 0.7223608561031586,
+          "t5_per_1000_kills": 0.9118564041884892,
+          "probability_unlock_t5": 0.8718876850809241
+        },
+        {
+          "order": "permutation-66",
+          "stop_after": 3,
+          "mean_kills": 860.0742516191133,
+          "mean_t5": 0.9441577075717893,
+          "t5_per_1000_kills": 1.0977630196397423,
+          "probability_unlock_t5": 0.8703327866118256
+        },
+        {
+          "order": "permutation-66",
+          "stop_after": 4,
+          "mean_kills": 798.532896782571,
+          "mean_t5": 0.7556874835005587,
+          "t5_per_1000_kills": 0.9463448363183985,
+          "probability_unlock_t5": 0.8703327866118256
+        },
+        {
+          "order": "permutation-67",
+          "stop_after": 3,
+          "mean_kills": 856.8275818824745,
+          "mean_t5": 0.9249183056183994,
+          "t5_per_1000_kills": 1.079468407852053,
+          "probability_unlock_t5": 0.8715769958640144
+        },
+        {
+          "order": "permutation-67",
+          "stop_after": 4,
+          "mean_kills": 790.915541779771,
+          "mean_t5": 0.7230029375052007,
+          "t5_per_1000_kills": 0.9141341891932623,
+          "probability_unlock_t5": 0.8715769958640144
+        },
+        {
+          "order": "permutation-68",
+          "stop_after": 3,
+          "mean_kills": 858.9724745879305,
+          "mean_t5": 0.9405020761695011,
+          "t5_per_1000_kills": 1.0949152667792788,
+          "probability_unlock_t5": 0.8703767104853732
+        },
+        {
+          "order": "permutation-68",
+          "stop_after": 4,
+          "mean_kills": 798.8293942196087,
+          "mean_t5": 0.7563768151957695,
+          "t5_per_1000_kills": 0.9468565136297821,
+          "probability_unlock_t5": 0.8703767104853732
+        },
+        {
+          "order": "permutation-69",
+          "stop_after": 3,
+          "mean_kills": 855.3289042042072,
+          "mean_t5": 0.9187242150173096,
+          "t5_per_1000_kills": 1.0741180503797951,
+          "probability_unlock_t5": 0.871807219510388
+        },
+        {
+          "order": "permutation-69",
+          "stop_after": 4,
+          "mean_kills": 790.025267270764,
+          "mean_t5": 0.7187033679812515,
+          "t5_per_1000_kills": 0.9097220022646839,
+          "probability_unlock_t5": 0.871807219510388
+        },
+        {
+          "order": "permutation-70",
+          "stop_after": 3,
+          "mean_kills": 848.0101162913559,
+          "mean_t5": 0.8951762161496357,
+          "t5_per_1000_kills": 1.0556197372556753,
+          "probability_unlock_t5": 0.872031267269999
+        },
+        {
+          "order": "permutation-70",
+          "stop_after": 4,
+          "mean_kills": 793.1620944572223,
+          "mean_t5": 0.7273451795955405,
+          "t5_per_1000_kills": 0.917019591176099,
+          "probability_unlock_t5": 0.872031267269999
+        },
+        {
+          "order": "permutation-71",
+          "stop_after": 3,
+          "mean_kills": 847.5906180357191,
+          "mean_t5": 0.8925562662031792,
+          "t5_per_1000_kills": 1.0530511395603546,
+          "probability_unlock_t5": 0.8722218899917056
+        },
+        {
+          "order": "permutation-71",
+          "stop_after": 4,
+          "mean_kills": 791.9815402510037,
+          "mean_t5": 0.7223608561031586,
+          "t5_per_1000_kills": 0.9120930468584152,
+          "probability_unlock_t5": 0.8722218899917056
+        },
+        {
+          "order": "permutation-72",
+          "stop_after": 3,
+          "mean_kills": 852.6455265412546,
+          "mean_t5": 0.9048643987512421,
+          "t5_per_1000_kills": 1.061243354459165,
+          "probability_unlock_t5": 0.871121407551743
+        },
+        {
+          "order": "permutation-72",
+          "stop_after": 4,
+          "mean_kills": 792.3583632233551,
+          "mean_t5": 0.7201841536957682,
+          "t5_per_1000_kills": 0.9089121628829934,
+          "probability_unlock_t5": 0.871121407551743
+        },
+        {
+          "order": "permutation-73",
+          "stop_after": 3,
+          "mean_kills": 854.3556727036186,
+          "mean_t5": 0.9152415991592632,
+          "t5_per_1000_kills": 1.0712653153726601,
+          "probability_unlock_t5": 0.870403138632916
+        },
+        {
+          "order": "permutation-73",
+          "stop_after": 4,
+          "mean_kills": 796.7109175465467,
+          "mean_t5": 0.7387422163105637,
+          "t5_per_1000_kills": 0.927239981329117,
+          "probability_unlock_t5": 0.870403138632916
+        },
+        {
+          "order": "permutation-74",
+          "stop_after": 3,
+          "mean_kills": 849.0609468455991,
+          "mean_t5": 0.8927716229110786,
+          "t5_per_1000_kills": 1.0514811995862863,
+          "probability_unlock_t5": 0.8713241596322064
+        },
+        {
+          "order": "permutation-74",
+          "stop_after": 4,
+          "mean_kills": 793.2745751613654,
+          "mean_t5": 0.7220212019378639,
+          "t5_per_1000_kills": 0.9101781710210397,
+          "probability_unlock_t5": 0.8713241596322064
+        },
+        {
+          "order": "permutation-75",
+          "stop_after": 3,
+          "mean_kills": 849.3450009573029,
+          "mean_t5": 0.8945381496993026,
+          "t5_per_1000_kills": 1.0532094127722682,
+          "probability_unlock_t5": 0.8711961813926475
+        },
+        {
+          "order": "permutation-75",
+          "stop_after": 4,
+          "mean_kills": 794.0595765024215,
+          "mean_t5": 0.725342601319941,
+          "t5_per_1000_kills": 0.9134611845056302,
+          "probability_unlock_t5": 0.8711961813926475
+        },
+        {
+          "order": "permutation-76",
+          "stop_after": 3,
+          "mean_kills": 855.1088205547662,
+          "mean_t5": 0.9177507590199956,
+          "t5_per_1000_kills": 1.0732561013984037,
+          "probability_unlock_t5": 0.8703663609898089
+        },
+        {
+          "order": "permutation-76",
+          "stop_after": 4,
+          "mean_kills": 796.5122852664886,
+          "mean_t5": 0.7382964170880828,
+          "t5_per_1000_kills": 0.9269115250884943,
+          "probability_unlock_t5": 0.8703663609898089
+        },
+        {
+          "order": "permutation-77",
+          "stop_after": 3,
+          "mean_kills": 853.6788812009207,
+          "mean_t5": 0.9091259583270641,
+          "t5_per_1000_kills": 1.0649507424245317,
+          "probability_unlock_t5": 0.8709574355983698
+        },
+        {
+          "order": "permutation-77",
+          "stop_after": 4,
+          "mean_kills": 792.9457838356157,
+          "mean_t5": 0.723060502946267,
+          "t5_per_1000_kills": 0.911866255784473,
+          "probability_unlock_t5": 0.8709574355983698
+        },
+        {
+          "order": "permutation-78",
+          "stop_after": 3,
+          "mean_kills": 852.6643602617853,
+          "mean_t5": 0.9048563887717154,
+          "t5_per_1000_kills": 1.0612105195693955,
+          "probability_unlock_t5": 0.8710797874754215
+        },
+        {
+          "order": "permutation-78",
+          "stop_after": 4,
+          "mean_kills": 792.3798145814021,
+          "mean_t5": 0.7201841536957682,
+          "t5_per_1000_kills": 0.9088875567536088,
+          "probability_unlock_t5": 0.8710797874754215
+        },
+        {
+          "order": "permutation-79",
+          "stop_after": 3,
+          "mean_kills": 854.374194378134,
+          "mean_t5": 0.9152324001972313,
+          "t5_per_1000_kills": 1.071231324892009,
+          "probability_unlock_t5": 0.8703616495031407
+        },
+        {
+          "order": "permutation-79",
+          "stop_after": 4,
+          "mean_kills": 796.7324407234378,
+          "mean_t5": 0.7387422163105637,
+          "t5_per_1000_kills": 0.9272149325811075,
+          "probability_unlock_t5": 0.8703616495031407
+        },
+        {
+          "order": "permutation-80",
+          "stop_after": 3,
+          "mean_kills": 847.9099906170682,
+          "mean_t5": 0.8888478572824505,
+          "t5_per_1000_kills": 1.0482809108494993,
+          "probability_unlock_t5": 0.8713552305699137
+        },
+        {
+          "order": "permutation-80",
+          "stop_after": 4,
+          "mean_kills": 793.5982337925785,
+          "mean_t5": 0.72267982353737,
+          "t5_per_1000_kills": 0.910636884968491,
+          "probability_unlock_t5": 0.8713552305699137
+        },
+        {
+          "order": "permutation-81",
+          "stop_after": 3,
+          "mean_kills": 847.7728179545514,
+          "mean_t5": 0.8879903342269322,
+          "t5_per_1000_kills": 1.047439025433034,
+          "probability_unlock_t5": 0.8714186270426119
+        },
+        {
+          "order": "permutation-81",
+          "stop_after": 4,
+          "mean_kills": 793.2062138075769,
+          "mean_t5": 0.7210291182325571,
+          "t5_per_1000_kills": 0.9090058873485715,
+          "probability_unlock_t5": 0.8714186270426119
+        },
+        {
+          "order": "permutation-82",
+          "stop_after": 3,
+          "mean_kills": 853.9991829599091,
+          "mean_t5": 0.9139841264705694,
+          "t5_per_1000_kills": 1.0702400478917977,
+          "probability_unlock_t5": 0.8703804317487003
+        },
+        {
+          "order": "permutation-82",
+          "stop_after": 4,
+          "mean_kills": 796.8315063676123,
+          "mean_t5": 0.7389698848004257,
+          "t5_per_1000_kills": 0.9273853743171488,
+          "probability_unlock_t5": 0.8703804317487003
+        },
+        {
+          "order": "permutation-83",
+          "stop_after": 3,
+          "mean_kills": 852.1548123781447,
+          "mean_t5": 0.9027601795273281,
+          "t5_per_1000_kills": 1.0593851802678398,
+          "probability_unlock_t5": 0.8711614310626505
+        },
+        {
+          "order": "permutation-83",
+          "stop_after": 4,
+          "mean_kills": 792.0861318740501,
+          "mean_t5": 0.7187605910909062,
+          "t5_per_1000_kills": 0.9074273139845813,
+          "probability_unlock_t5": 0.8711614310626505
+        },
+        {
+          "order": "permutation-84",
+          "stop_after": 3,
+          "mean_kills": 849.1411820444195,
+          "mean_t5": 0.8927409234070713,
+          "t5_per_1000_kills": 1.0513456917231123,
+          "probability_unlock_t5": 0.8711646441558495
+        },
+        {
+          "order": "permutation-84",
+          "stop_after": 4,
+          "mean_kills": 793.3648428669053,
+          "mean_t5": 0.7220212019378639,
+          "t5_per_1000_kills": 0.9100746124932461,
+          "probability_unlock_t5": 0.8711646441558495
+        },
+        {
+          "order": "permutation-85",
+          "stop_after": 3,
+          "mean_kills": 849.4250223412862,
+          "mean_t5": 0.8945066325040064,
+          "t5_per_1000_kills": 1.0530730894157803,
+          "probability_unlock_t5": 0.8710367621770345
+        },
+        {
+          "order": "permutation-85",
+          "stop_after": 4,
+          "mean_kills": 794.1498936883404,
+          "mean_t5": 0.725342601319941,
+          "t5_per_1000_kills": 0.9133572982691823,
+          "probability_unlock_t5": 0.8710367621770345
+        },
+        {
+          "order": "permutation-86",
+          "stop_after": 3,
+          "mean_kills": 847.9715126384115,
+          "mean_t5": 0.88882516775797,
+          "t5_per_1000_kills": 1.0481780985689542,
+          "probability_unlock_t5": 0.8712373351698783
+        },
+        {
+          "order": "permutation-86",
+          "stop_after": 4,
+          "mean_kills": 793.667170683125,
+          "mean_t5": 0.72267982353737,
+          "t5_per_1000_kills": 0.9105577882418208,
+          "probability_unlock_t5": 0.8712373351698783
+        },
+        {
+          "order": "permutation-87",
+          "stop_after": 3,
+          "mean_kills": 847.8344186479894,
+          "mean_t5": 0.8879679464016723,
+          "t5_per_1000_kills": 1.0473365162712813,
+          "probability_unlock_t5": 0.871300695309107
+        },
+        {
+          "order": "permutation-87",
+          "stop_after": 4,
+          "mean_kills": 793.2751325000501,
+          "mean_t5": 0.7210291182325571,
+          "t5_per_1000_kills": 0.9089269141214529,
+          "probability_unlock_t5": 0.871300695309107
+        },
+        {
+          "order": "permutation-88",
+          "stop_after": 3,
+          "mean_kills": 849.0390293124289,
+          "mean_t5": 0.8932163634894985,
+          "t5_per_1000_kills": 1.052032159478988,
+          "probability_unlock_t5": 0.8710601481025813
+        },
+        {
+          "order": "permutation-88",
+          "stop_after": 4,
+          "mean_kills": 794.2501286048903,
+          "mean_t5": 0.7255661402636061,
+          "t5_per_1000_kills": 0.9135234784765747,
+          "probability_unlock_t5": 0.8710601481025813
+        },
+        {
+          "order": "permutation-89",
+          "stop_after": 3,
+          "mean_kills": 848.6182238931558,
+          "mean_t5": 0.8905938876900855,
+          "t5_per_1000_kills": 1.049463542751133,
+          "probability_unlock_t5": 0.8712513643693505
+        },
+        {
+          "order": "permutation-89",
+          "stop_after": 4,
+          "mean_kills": 793.0730027616805,
+          "mean_t5": 0.7205940081045621,
+          "t5_per_1000_kills": 0.9086099332536498,
+          "probability_unlock_t5": 0.8712513643693505
+        },
+        {
+          "order": "permutation-90",
+          "stop_after": 3,
+          "mean_kills": 855.1149378281089,
+          "mean_t5": 0.9177476467328842,
+          "t5_per_1000_kills": 1.0732447839864137,
+          "probability_unlock_t5": 0.8703523239622168
+        },
+        {
+          "order": "permutation-90",
+          "stop_after": 4,
+          "mean_kills": 796.5194180388761,
+          "mean_t5": 0.7382964170880827,
+          "t5_per_1000_kills": 0.9269032246644466,
+          "probability_unlock_t5": 0.8703523239622168
+        },
+        {
+          "order": "permutation-91",
+          "stop_after": 3,
+          "mean_kills": 853.6850851742277,
+          "mean_t5": 0.9091231761264775,
+          "t5_per_1000_kills": 1.064939744075458,
+          "probability_unlock_t5": 0.8709433627650791
+        },
+        {
+          "order": "permutation-91",
+          "stop_after": 4,
+          "mean_kills": 792.952896677428,
+          "mean_t5": 0.723060502946267,
+          "t5_per_1000_kills": 0.9118580762816821,
+          "probability_unlock_t5": 0.8709433627650791
+        },
+        {
+          "order": "permutation-92",
+          "stop_after": 3,
+          "mean_kills": 853.9867766134645,
+          "mean_t5": 0.9139902131454898,
+          "t5_per_1000_kills": 1.0702627232355664,
+          "probability_unlock_t5": 0.8704078838508835
+        },
+        {
+          "order": "permutation-92",
+          "stop_after": 4,
+          "mean_kills": 796.8171140178371,
+          "mean_t5": 0.7389698848004255,
+          "t5_per_1000_kills": 0.9274021250300145,
+          "probability_unlock_t5": 0.8704078838508835
+        },
+        {
+          "order": "permutation-93",
+          "stop_after": 3,
+          "mean_kills": 852.1421811835704,
+          "mean_t5": 0.9027654090156974,
+          "t5_per_1000_kills": 1.059407020271916,
+          "probability_unlock_t5": 0.8711889782952018
+        },
+        {
+          "order": "permutation-93",
+          "stop_after": 4,
+          "mean_kills": 792.0717912954512,
+          "mean_t5": 0.718760591090906,
+          "t5_per_1000_kills": 0.9074437430922224,
+          "probability_unlock_t5": 0.8711889782952018
+        },
+        {
+          "order": "permutation-94",
+          "stop_after": 3,
+          "mean_kills": 848.9651637736481,
+          "mean_t5": 0.893245098484208,
+          "t5_per_1000_kills": 1.0521575402620005,
+          "probability_unlock_t5": 0.8712054944849036
+        },
+        {
+          "order": "permutation-94",
+          "stop_after": 4,
+          "mean_kills": 794.1668761326794,
+          "mean_t5": 0.7255661402636061,
+          "t5_per_1000_kills": 0.913619243095185,
+          "probability_unlock_t5": 0.8712054944849036
+        },
+        {
+          "order": "permutation-95",
+          "stop_after": 3,
+          "mean_kills": 848.5440663653644,
+          "mean_t5": 0.8906215050037148,
+          "t5_per_1000_kills": 1.0495878061095683,
+          "probability_unlock_t5": 0.8713968433354066
+        },
+        {
+          "order": "permutation-95",
+          "stop_after": 4,
+          "mean_kills": 792.9898178508297,
+          "mean_t5": 0.7205940081045621,
+          "t5_per_1000_kills": 0.9087052467552792,
+          "probability_unlock_t5": 0.8713968433354066
+        },
+        {
+          "order": "permutation-96",
+          "stop_after": 3,
+          "mean_kills": 862.5302610646145,
+          "mean_t5": 0.957923829058632,
+          "t5_per_1000_kills": 1.1105973579133026,
+          "probability_unlock_t5": 0.871159745476936
+        },
+        {
+          "order": "permutation-96",
+          "stop_after": 4,
+          "mean_kills": 796.6537953127211,
+          "mean_t5": 0.7560389382352939,
+          "t5_per_1000_kills": 0.9490181841643219,
+          "probability_unlock_t5": 0.871159745476936
+        },
+        {
+          "order": "permutation-97",
+          "stop_after": 3,
+          "mean_kills": 860.6878391145974,
+          "mean_t5": 0.9472146469534996,
+          "t5_per_1000_kills": 1.1005321603334302,
+          "probability_unlock_t5": 0.8718174104669039
+        },
+        {
+          "order": "permutation-97",
+          "stop_after": 4,
+          "mean_kills": 792.6062820803033,
+          "mean_t5": 0.7385809778313593,
+          "t5_per_1000_kills": 0.9318384102291654,
+          "probability_unlock_t5": 0.8718174104669039
+        },
+        {
+          "order": "permutation-98",
+          "stop_after": 3,
+          "mean_kills": 859.1450555564297,
+          "mean_t5": 0.9465890597316841,
+          "t5_per_1000_kills": 1.101780256558214,
+          "probability_unlock_t5": 0.8712826289701217
+        },
+        {
+          "order": "permutation-98",
+          "stop_after": 4,
+          "mean_kills": 797.5541863364787,
+          "mean_t5": 0.7579674449863986,
+          "t5_per_1000_kills": 0.9503648253268915,
+          "probability_unlock_t5": 0.8712826289701217
+        },
+        {
+          "order": "permutation-99",
+          "stop_after": 3,
+          "mean_kills": 855.9108603288785,
+          "mean_t5": 0.9273758142514901,
+          "t5_per_1000_kills": 1.0834957905489733,
+          "probability_unlock_t5": 0.8725220628474233
+        },
+        {
+          "order": "permutation-99",
+          "stop_after": 4,
+          "mean_kills": 789.9087520836893,
+          "mean_t5": 0.7251842874516432,
+          "t5_per_1000_kills": 0.9180608336579252,
+          "probability_unlock_t5": 0.8725220628474233
+        },
+        {
+          "order": "permutation-100",
+          "stop_after": 3,
+          "mean_kills": 853.2330803184784,
+          "mean_t5": 0.9221103848411719,
+          "t5_per_1000_kills": 1.0807250751424033,
+          "probability_unlock_t5": 0.8721274920337674
+        },
+        {
+          "order": "permutation-100",
+          "stop_after": 4,
+          "mean_kills": 794.5330664430747,
+          "mean_t5": 0.7423396232946088,
+          "t5_per_1000_kills": 0.9343092876145195,
+          "probability_unlock_t5": 0.8721274920337674
+        },
+        {
+          "order": "permutation-101",
+          "stop_after": 3,
+          "mean_kills": 851.8138655409001,
+          "mean_t5": 0.913509023178889,
+          "t5_per_1000_kills": 1.0724279800245005,
+          "probability_unlock_t5": 0.8727141375638368
+        },
+        {
+          "order": "permutation-101",
+          "stop_after": 4,
+          "mean_kills": 790.942759205695,
+          "mean_t5": 0.7270202711986131,
+          "t5_per_1000_kills": 0.9191819037938017,
+          "probability_unlock_t5": 0.8727141375638368
+        },
+        {
+          "order": "permutation-102",
+          "stop_after": 3,
+          "mean_kills": 862.5584817502477,
+          "mean_t5": 0.9579067169448279,
+          "t5_per_1000_kills": 1.110541183249518,
+          "probability_unlock_t5": 0.8710910073163111
+        },
+        {
+          "order": "permutation-102",
+          "stop_after": 4,
+          "mean_kills": 796.6876003249328,
+          "mean_t5": 0.7560389382352939,
+          "t5_per_1000_kills": 0.9489779154676687,
+          "probability_unlock_t5": 0.8710910073163111
+        },
+        {
+          "order": "permutation-103",
+          "stop_after": 3,
+          "mean_kills": 860.7165479543685,
+          "mean_t5": 0.9471993677560986,
+          "t5_per_1000_kills": 1.1004777008264457,
+          "probability_unlock_t5": 0.8717484982785899
+        },
+        {
+          "order": "permutation-103",
+          "stop_after": 4,
+          "mean_kills": 792.6399763246379,
+          "mean_t5": 0.7385809778313593,
+          "t5_per_1000_kills": 0.9317987988141315,
+          "probability_unlock_t5": 0.8717484982785899
+        },
+        {
+          "order": "permutation-104",
+          "stop_after": 3,
+          "mean_kills": 858.0679760176072,
+          "mean_t5": 0.9429052869224175,
+          "t5_per_1000_kills": 1.098870151638277,
+          "probability_unlock_t5": 0.8712579472044133
+        },
+        {
+          "order": "permutation-104",
+          "stop_after": 4,
+          "mean_kills": 797.885184283387,
+          "mean_t5": 0.7586588564430853,
+          "t5_per_1000_kills": 0.9508371271794794,
+          "probability_unlock_t5": 0.8712579472044133
+        },
+        {
+          "order": "permutation-105",
+          "stop_after": 3,
+          "mean_kills": 854.440118641265,
+          "mean_t5": 0.9211628619661713,
+          "t5_per_1000_kills": 1.078089431745093,
+          "probability_unlock_t5": 0.8726822934791183
+        },
+        {
+          "order": "permutation-105",
+          "stop_after": 4,
+          "mean_kills": 789.0483730443087,
+          "mean_t5": 0.7208717458285993,
+          "t5_per_1000_kills": 0.9135963908617285,
+          "probability_unlock_t5": 0.8726822934791183
+        },
+        {
+          "order": "permutation-106",
+          "stop_after": 3,
+          "mean_kills": 852.1267579801101,
+          "mean_t5": 0.9183170948485647,
+          "t5_per_1000_kills": 1.0776766323185916,
+          "probability_unlock_t5": 0.8721144440022721
+        },
+        {
+          "order": "permutation-106",
+          "stop_after": 4,
+          "mean_kills": 794.8653952666467,
+          "mean_t5": 0.7430167791852652,
+          "t5_per_1000_kills": 0.9347705707279051,
+          "probability_unlock_t5": 0.8721144440022721
+        },
+        {
+          "order": "permutation-107",
+          "stop_after": 3,
+          "mean_kills": 850.2971164147206,
+          "mean_t5": 0.9071263715208688,
+          "t5_per_1000_kills": 1.0668345852397676,
+          "probability_unlock_t5": 0.8728892116577747
+        },
+        {
+          "order": "permutation-107",
+          "stop_after": 4,
+          "mean_kills": 790.0883055545905,
+          "mean_t5": 0.7226968113076683,
+          "t5_per_1000_kills": 0.9147038454143201,
+          "probability_unlock_t5": 0.8728892116577747
+        },
+        {
+          "order": "permutation-108",
+          "stop_after": 3,
+          "mean_kills": 859.265798811492,
+          "mean_t5": 0.9465234748691324,
+          "t5_per_1000_kills": 1.1015491087604468,
+          "probability_unlock_t5": 0.8710191791784565
+        },
+        {
+          "order": "permutation-108",
+          "stop_after": 4,
+          "mean_kills": 797.696332399826,
+          "mean_t5": 0.7579674449863986,
+          "t5_per_1000_kills": 0.9501954743932378,
+          "probability_unlock_t5": 0.8710191791784565
+        },
+        {
+          "order": "permutation-109",
+          "stop_after": 3,
+          "mean_kills": 856.0351058335564,
+          "mean_t5": 0.9273234651444073,
+          "t5_per_1000_kills": 1.0832773782582603,
+          "probability_unlock_t5": 0.872257272357319
+        },
+        {
+          "order": "permutation-109",
+          "stop_after": 4,
+          "mean_kills": 790.0500986036375,
+          "mean_t5": 0.7251842874516432,
+          "t5_per_1000_kills": 0.9178965849550041,
+          "probability_unlock_t5": 0.872257272357319
+        },
+        {
+          "order": "permutation-110",
+          "stop_after": 3,
+          "mean_kills": 858.1606869622684,
+          "mean_t5": 0.9428568141736698,
+          "t5_per_1000_kills": 1.098694951304761,
+          "probability_unlock_t5": 0.8710632355733734
+        },
+        {
+          "order": "permutation-110",
+          "stop_after": 4,
+          "mean_kills": 797.9937137097546,
+          "mean_t5": 0.7586588564430853,
+          "t5_per_1000_kills": 0.9507078106119314,
+          "probability_unlock_t5": 0.8710632355733734
+        },
+        {
+          "order": "permutation-111",
+          "stop_after": 3,
+          "mean_kills": 854.5358111943586,
+          "mean_t5": 0.921125676466292,
+          "t5_per_1000_kills": 1.0779251897926463,
+          "probability_unlock_t5": 0.8724864124406031
+        },
+        {
+          "order": "permutation-111",
+          "stop_after": 4,
+          "mean_kills": 789.1562205722192,
+          "mean_t5": 0.7208717458285993,
+          "t5_per_1000_kills": 0.9134715371132642,
+          "probability_unlock_t5": 0.8724864124406031
+        },
+        {
+          "order": "permutation-112",
+          "stop_after": 3,
+          "mean_kills": 847.19095078156,
+          "mean_t5": 0.8974916417314167,
+          "t5_per_1000_kills": 1.0593734988593217,
+          "probability_unlock_t5": 0.8727129143316037
+        },
+        {
+          "order": "permutation-112",
+          "stop_after": 4,
+          "mean_kills": 792.303342729756,
+          "mean_t5": 0.7295396303871658,
+          "t5_per_1000_kills": 0.9207832291526783,
+          "probability_unlock_t5": 0.8727129143316037
+        },
+        {
+          "order": "permutation-113",
+          "stop_after": 3,
+          "mean_kills": 846.7741019836004,
+          "mean_t5": 0.8948787771378788,
+          "t5_per_1000_kills": 1.056809336801387,
+          "probability_unlock_t5": 0.8729023340114881
+        },
+        {
+          "order": "permutation-113",
+          "stop_after": 4,
+          "mean_kills": 791.1183196667038,
+          "mean_t5": 0.7245402688455327,
+          "t5_per_1000_kills": 0.9158431183224017,
+          "probability_unlock_t5": 0.8729023340114881
+        },
+        {
+          "order": "permutation-114",
+          "stop_after": 3,
+          "mean_kills": 853.4714680151258,
+          "mean_t5": 0.9220085412804473,
+          "t5_per_1000_kills": 1.0803038834147727,
+          "probability_unlock_t5": 0.8716681575248266
+        },
+        {
+          "order": "permutation-114",
+          "stop_after": 4,
+          "mean_kills": 794.8046843768278,
+          "mean_t5": 0.7423396232946087,
+          "t5_per_1000_kills": 0.9339899951352769,
+          "probability_unlock_t5": 0.8716681575248266
+        },
+        {
+          "order": "permutation-115",
+          "stop_after": 3,
+          "mean_kills": 852.0550903257612,
+          "mean_t5": 0.913417981059619,
+          "t5_per_1000_kills": 1.0720175155697942,
+          "probability_unlock_t5": 0.8722536313828342
+        },
+        {
+          "order": "permutation-115",
+          "stop_after": 4,
+          "mean_kills": 791.2137249500229,
+          "mean_t5": 0.7270202711986129,
+          "t5_per_1000_kills": 0.9188671129845924,
+          "probability_unlock_t5": 0.8722536313828342
+        },
+        {
+          "order": "permutation-116",
+          "stop_after": 3,
+          "mean_kills": 852.3371128648489,
+          "mean_t5": 0.9182305304852413,
+          "t5_per_1000_kills": 1.0773091029662119,
+          "probability_unlock_t5": 0.8717240216816455
+        },
+        {
+          "order": "permutation-116",
+          "stop_after": 4,
+          "mean_kills": 795.1039949839275,
+          "mean_t5": 0.7430167791852652,
+          "t5_per_1000_kills": 0.9344900590020113,
+          "probability_unlock_t5": 0.8717240216816455
+        },
+        {
+          "order": "permutation-117",
+          "stop_after": 3,
+          "mean_kills": 850.5106690774651,
+          "mean_t5": 0.9070519980185683,
+          "t5_per_1000_kills": 1.0664792706274133,
+          "probability_unlock_t5": 0.8724974363981726
+        },
+        {
+          "order": "permutation-117",
+          "stop_after": 4,
+          "mean_kills": 790.3261689849847,
+          "mean_t5": 0.7226968113076683,
+          "t5_per_1000_kills": 0.9144285481977995,
+          "probability_unlock_t5": 0.8724974363981726
+        },
+        {
+          "order": "permutation-118",
+          "stop_after": 3,
+          "mean_kills": 847.3092546428305,
+          "mean_t5": 0.8974529487192298,
+          "t5_per_1000_kills": 1.0591799202022603,
+          "probability_unlock_t5": 0.8725171986407055
+        },
+        {
+          "order": "permutation-118",
+          "stop_after": 4,
+          "mean_kills": 792.434286535223,
+          "mean_t5": 0.7295396303871658,
+          "t5_per_1000_kills": 0.9206310766498346,
+          "probability_unlock_t5": 0.8725171986407055
+        },
+        {
+          "order": "permutation-119",
+          "stop_after": 3,
+          "mean_kills": 846.8927990217086,
+          "mean_t5": 0.8948415891354574,
+          "t5_per_1000_kills": 1.0566173076086336,
+          "probability_unlock_t5": 0.8727064397904012
+        },
+        {
+          "order": "permutation-119",
+          "stop_after": 4,
+          "mean_kills": 791.2491724976447,
+          "mean_t5": 0.7245402688455325,
+          "t5_per_1000_kills": 0.915691660767821,
+          "probability_unlock_t5": 0.8727064397904012
+        }
+      ],
+      "simulation": {
+        "mean_kills": 862.7756666666667,
+        "mean_t5": 0.966,
+        "t5_per_1000_kills": 1.119642147224829
+      }
+    },
+    "A5": {
+      "best_tested": {
+        "order": "population-ascending",
+        "stop_after": 4,
+        "mean_kills": 4081.817131512716,
+        "mean_t5": 16.043371231696316,
+        "t5_per_1000_kills": 3.930448306426374,
+        "probability_unlock_t5": 0.9999999999949662
+      },
+      "ordered_zones": [
+        [
+          "Pit of Acheron",
+          87
+        ],
+        [
+          "Infernal Pit",
+          115
+        ],
+        [
+          "Abaddon",
+          117
+        ],
+        [
+          "Crystalline Passage",
+          146
+        ],
+        [
+          "Halls of Vaught",
+          178
+        ],
+        [
+          "Frozen River",
+          203
+        ],
+        [
+          "Glacial Trail and Drifter Cavern",
+          233
+        ],
+        [
+          "Arreat Plateau",
+          277
+        ],
+        [
+          "Ancients' Way and Icy Cellar",
+          281
+        ],
+        [
+          "Frigid Highlands",
+          339
+        ],
+        [
+          "Frozen Tundra",
+          374
+        ],
+        [
+          "Halls of Pain",
+          405
+        ],
+        [
+          "Nihlathak's Temple and Halls of Anguish",
+          414
+        ],
+        [
+          "Bloody Foothills",
+          488
+        ],
+        [
+          "Worldstone Keep and Throne",
+          580
+        ]
+      ],
+      "comparison_count": 6,
+      "comparisons": [
+        {
+          "order": "article-order",
+          "stop_after": 3,
+          "mean_kills": 3939.697028151433,
+          "mean_t5": 15.2437766507202,
+          "t5_per_1000_kills": 3.869276378816575,
+          "probability_unlock_t5": 0.9999999999901708
+        },
+        {
+          "order": "article-order",
+          "stop_after": 4,
+          "mean_kills": 3861.0414935779686,
+          "mean_t5": 15.004910026559234,
+          "t5_per_1000_kills": 3.8862338183924594,
+          "probability_unlock_t5": 0.9999999999901708
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 3,
+          "mean_kills": 4145.523865219476,
+          "mean_t5": 16.23796413654037,
+          "t5_per_1000_kills": 3.9169872528717637,
+          "probability_unlock_t5": 0.9999999999949662
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 4,
+          "mean_kills": 4081.817131512716,
+          "mean_t5": 16.043371231696316,
+          "t5_per_1000_kills": 3.930448306426374,
+          "probability_unlock_t5": 0.9999999999949662
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 3,
+          "mean_kills": 3740.814076793658,
+          "mean_t5": 14.392704137422959,
+          "t5_per_1000_kills": 3.847479142764372,
+          "probability_unlock_t5": 0.999999999995046
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 4,
+          "mean_kills": 3573.433345012455,
+          "mean_t5": 13.900873868501861,
+          "t5_per_1000_kills": 3.890061049523623,
+          "probability_unlock_t5": 0.999999999995046
+        }
+      ],
+      "simulation": {
+        "mean_kills": 4081.008333333333,
+        "mean_t5": 16.064666666666668,
+        "t5_per_1000_kills": 3.93644544546793
+      }
+    },
+    "ALL": {
+      "best_tested": {
+        "order": "population-descending",
+        "stop_after": 4,
+        "mean_kills": 15651.107645149339,
+        "mean_t5": 86.4952730101545,
+        "t5_per_1000_kills": 5.5264633642055045,
+        "probability_unlock_t5": 1.0
+      },
+      "ordered_zones": [
+        [
+          "Act 5: Worldstone Keep and Throne",
+          580
+        ],
+        [
+          "Act 1: Cow Level",
+          501
+        ],
+        [
+          "Act 5: Bloody Foothills",
+          488
+        ],
+        [
+          "Act 3: Flayer Jungle",
+          475
+        ],
+        [
+          "Act 2: Arcane Sanctuary",
+          469
+        ],
+        [
+          "Act 5: Nihlathak's Temple and Halls of Anguish",
+          414
+        ],
+        [
+          "Act 3: Durance of Hate levels",
+          409
+        ],
+        [
+          "Act 5: Halls of Pain",
+          405
+        ],
+        [
+          "Act 2: Real Tal Rasha's Tomb",
+          390
+        ],
+        [
+          "Act 1: Inner Cloister, Cathedral and Catacombs",
+          374
+        ],
+        [
+          "Act 5: Frozen Tundra",
+          374
+        ],
+        [
+          "Act 2: Halls of the Dead levels",
+          352
+        ],
+        [
+          "Act 3: Spider Forest",
+          341
+        ],
+        [
+          "Act 5: Frigid Highlands",
+          339
+        ],
+        [
+          "Act 3: Great Marsh",
+          326
+        ],
+        [
+          "Act 2: Lut Gholein Sewer levels",
+          315
+        ],
+        [
+          "Act 5: Ancients' Way and Icy Cellar",
+          281
+        ],
+        [
+          "Act 1: Tamoe Highland and Outer Cloister",
+          278
+        ],
+        [
+          "Act 5: Arreat Plateau",
+          277
+        ],
+        [
+          "Act 2: Big false Tal Rasha's Tomb",
+          270
+        ],
+        [
+          "Act 1: Tower Cellar levels",
+          260
+        ],
+        [
+          "Act 1: Underground Passage levels",
+          255
+        ],
+        [
+          "Act 1: Jail levels",
+          252
+        ],
+        [
+          "Act 2: Palace Cellar levels",
+          247
+        ],
+        [
+          "Act 1: Dark Wood",
+          233
+        ],
+        [
+          "Act 5: Glacial Trail and Drifter Cavern",
+          233
+        ],
+        [
+          "Act 4: River of Flame",
+          231
+        ],
+        [
+          "Act 1: Stony Field and Tristram",
+          229
+        ],
+        [
+          "Act 1: Pit levels",
+          223
+        ],
+        [
+          "Act 2: Claw Viper Temple levels",
+          221
+        ],
+        [
+          "Act 3: Flayer Dungeon levels",
+          212
+        ],
+        [
+          "Act 4: City of the Damned",
+          211
+        ],
+        [
+          "Act 1: Cold Plains",
+          209
+        ],
+        [
+          "Act 1: Burial Grounds, Crypt and Mausoleum",
+          203
+        ],
+        [
+          "Act 5: Frozen River",
+          203
+        ],
+        [
+          "Act 2: Far Oasis",
+          200
+        ],
+        [
+          "Act 1: Black Marsh",
+          199
+        ],
+        [
+          "Act 4: Plains of Despair",
+          193
+        ],
+        [
+          "Act 4: Chaos Sanctuary",
+          189
+        ],
+        [
+          "Act 3: Kurast Sewer levels",
+          188
+        ],
+        [
+          "Act 3: Swampy Pit levels",
+          187
+        ],
+        [
+          "Act 4: Outer Steppes",
+          187
+        ],
+        [
+          "Act 2: Canyon of the Magi",
+          182
+        ],
+        [
+          "Act 1: Cave levels",
+          181
+        ],
+        [
+          "Act 1: Hole levels",
+          178
+        ],
+        [
+          "Act 5: Halls of Vaught",
+          178
+        ],
+        [
+          "Act 3: All Kurast temple levels",
+          170
+        ],
+        [
+          "Act 2: Lost City",
+          168
+        ],
+        [
+          "Act 2: Rocky Waste",
+          152
+        ],
+        [
+          "Act 3: Kurast Bazaar",
+          148
+        ],
+        [
+          "Act 2: Dry Hills",
+          147
+        ],
+        [
+          "Act 5: Crystalline Passage",
+          146
+        ],
+        [
+          "Act 3: Upper Kurast and Kurast Causeway",
+          135
+        ],
+        [
+          "Act 2: Maggot Lair Level 1",
+          129
+        ],
+        [
+          "Act 2: Small false Tal Rasha's Tomb 1",
+          124
+        ],
+        [
+          "Act 2: Small false Tal Rasha's Tomb 2",
+          124
+        ],
+        [
+          "Act 2: Small false Tal Rasha's Tomb 3",
+          124
+        ],
+        [
+          "Act 2: Small false Tal Rasha's Tomb 4",
+          124
+        ],
+        [
+          "Act 2: Small false Tal Rasha's Tomb 5",
+          124
+        ],
+        [
+          "Act 5: Abaddon",
+          117
+        ],
+        [
+          "Act 2: Stony Tomb levels",
+          115
+        ],
+        [
+          "Act 3: Lower Kurast",
+          115
+        ],
+        [
+          "Act 5: Infernal Pit",
+          115
+        ],
+        [
+          "Act 1: Blood Moor",
+          113
+        ],
+        [
+          "Act 3: Travincal",
+          110
+        ],
+        [
+          "Act 2: Ancient Tunnels",
+          106
+        ],
+        [
+          "Act 1: Barracks",
+          102
+        ],
+        [
+          "Act 2: Maggot Lair Level 2",
+          98
+        ],
+        [
+          "Act 5: Pit of Acheron",
+          87
+        ],
+        [
+          "Act 2: Harem Level 2",
+          84
+        ],
+        [
+          "Act 2: Maggot Lair Level 3",
+          83
+        ],
+        [
+          "Act 1: Den of Evil",
+          67
+        ],
+        [
+          "Act 3: Arachnid Lair",
+          63
+        ],
+        [
+          "Act 3: Spider Cavern",
+          61
+        ]
+      ],
+      "comparison_count": 6,
+      "comparisons": [
+        {
+          "order": "article-order",
+          "stop_after": 3,
+          "mean_kills": 16168.767361737186,
+          "mean_t5": 88.49672971125554,
+          "t5_per_1000_kills": 5.47331331643004,
+          "probability_unlock_t5": 1.0
+        },
+        {
+          "order": "article-order",
+          "stop_after": 4,
+          "mean_kills": 16100.998371975586,
+          "mean_t5": 88.2894455516946,
+          "t5_per_1000_kills": 5.483476459780644,
+          "probability_unlock_t5": 1.0
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 3,
+          "mean_kills": 16343.80539939631,
+          "mean_t5": 89.25069471692603,
+          "t5_per_1000_kills": 5.460827055627002,
+          "probability_unlock_t5": 0.9999999999999998
+        },
+        {
+          "order": "population-ascending",
+          "stop_after": 4,
+          "mean_kills": 16316.140399082307,
+          "mean_t5": 89.16928639208233,
+          "t5_per_1000_kills": 5.465096782146936,
+          "probability_unlock_t5": 0.9999999999999998
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 3,
+          "mean_kills": 15857.28535348299,
+          "mean_t5": 87.0831995489262,
+          "t5_per_1000_kills": 5.49168395521108,
+          "probability_unlock_t5": 1.0
+        },
+        {
+          "order": "population-descending",
+          "stop_after": 4,
+          "mean_kills": 15651.107645149339,
+          "mean_t5": 86.4952730101545,
+          "t5_per_1000_kills": 5.5264633642055045,
+          "probability_unlock_t5": 1.0
+        }
+      ],
+      "simulation": {
+        "mean_kills": 15653.088666666667,
+        "mean_t5": 86.47033333333333,
+        "t5_per_1000_kills": 5.524170671662542
+      }
+    }
+  }
+}

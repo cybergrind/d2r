@@ -1,9 +1,13 @@
 """Atomic report publication and polling across the host/sandbox boundary."""
 
 import json
+import os
+import platform
 import time
+import uuid
+from datetime import UTC, datetime
 
-from .common import LOG
+from inventory_tracking.common import LOG, timestamp
 
 
 def publish(path, report):
@@ -40,3 +44,19 @@ def watch(args):
         time.sleep(min(1, max(0, deadline - time.monotonic())))
     LOG.warning('Timed out waiting for a completed run; no new completion confirmed')
     return 124
+
+
+def create_run(output):
+    run_id = datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ') + '-' + uuid.uuid4().hex[:8]
+    directory = output / run_id
+    directory.mkdir(parents=True)
+    report = {
+        'schema_version': 1,
+        'run_id': run_id,
+        'started_at': timestamp(),
+        'state': 'running',
+        'log': 'probe.log',
+        'host': platform.node(),
+        'reader_pid': os.getpid(),
+    }
+    return directory, report

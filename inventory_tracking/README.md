@@ -13,6 +13,38 @@ under Proton Experimental / Steam Linux Runtime 4; the OSD targets Niri Wayland.
 - [Merc HP research](merc_health_research.md): unresolved panel mismatch and external readers.
 - [Current handoff](../handoff.md): acceptance and current work status.
 
+## Package structure
+
+| Package | Responsibility |
+| --- | --- |
+| `native/` | Linux process access, build/layout checks, memory/image/unit readers |
+| `tracking/` | Live reader lifecycle and player, belt, resource and buff observations |
+| `hover/` | Native UI traversal, selection validation and bounded hover sampling |
+| `items/` | Offline item decoding, stat-family strategies, metadata and its builder |
+| `appraisal/` | Frozen capture, worker lifecycle, local KB integration and readable results |
+| `automation/` | Healing decisions, potion delivery coordination and ledger |
+| `probes/` | Host research commands and diagnostic workflows |
+| `input/` | Focus checks and guarded keyboard delivery |
+| `osd/` | Overlay presentation and widgets |
+
+Shared `config.py`, `models.py`, `common.py` and `reports.py` remain at the root.
+Imports use explicit package paths. Tests mirror the packages, with shared captured
+fixtures under `tests/inventory_tracking/fixtures/`.
+
+Runtime code uses `hover.sampling` and `native.session` directly; it does not import
+research command modules. Offline `items` decoding does not depend on live capture,
+terminal formatting or the KB. Run artifacts remain under `inventory_tracking/runs/`.
+
+Preferred commands are `uv run --offline -m inventory_tracking.appraisal serve`,
+`uv run --offline -m inventory_tracking.probes.hover_ui`, and
+`uv run --offline -m inventory_tracking.items.build_metadata`. The old
+`appraisal_service`, `hover_ui_probe`, `hover_probe`, `buff_probe` and
+`build_item_metadata` module commands remain thin compatibility wrappers, so
+existing desktop bindings and host commands continue to work. `inventory_tracking`,
+`inventory_tracking.input` and `inventory_tracking.osd` commands are unchanged.
+The legacy hover implementation lives in `hover/legacy.py`; its removal remains
+separate follow-up work.
+
 ## Host probes
 
 Run as the desktop user, with D2R running, from the repository root:
@@ -126,8 +158,9 @@ commit-pinned source links, calculations and limitations.
 | [diablo2utils](https://github.com/ChrisTitusTech/diablo2utils) | Earlier Linux memory-structure/signature and patching references. Layouts remain build-specific and must be checked against local evidence. |
 
 Production changes require supported-build validation; related forks should not
-be counted as independent confirmation. External code was inspected in temporary
-checkouts outside this repository; no third-party runtime was installed or run.
+be counted as independent confirmation. External sources are now checked out under [third-parties](../third-parties/README.md),
+with origins and exact revisions recorded. Search these local copies first; no
+third-party runtime was installed or run.
 
 ### Appraisal item-stat research
 
@@ -181,3 +214,16 @@ needed before enabling a hotkey report. No Alt+D binding is installed yet.
 Layout lead: https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/memory/offset.go
 and game_reader.go, inspected 2026-09-23. Our saved supported-build executable
 contains one candidate at RVA 0x1e010a0; it is discovered rather than hardcoded.
+
+## Inventory hover research
+
+The original hover-table probe did not identify inventory items. The replacement
+[UI-path research probe](hover_research.md) captures **item A → empty → item B → A**:
+
+```sh
+uv run --offline -m inventory_tracking.hover_ui_probe
+```
+
+Run on the host with inventory open; follow the 5/3/3/3-second prompts and hold
+until `CAPTURED`. Output is under `runs/hover-ui/`. This records raw evidence only;
+item selection and Alt+D appraisal are not enabled yet.

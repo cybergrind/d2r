@@ -7,18 +7,18 @@ from collections.abc import Callable
 from contextlib import ExitStack
 from pathlib import Path
 
-from ..automation import Automation
-from ..common import LOG, configure_logging, log_to_file
-from ..config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
-from ..heal import HealController
-from ..input import PotionInput
-from ..models import BeltSnapshot, PlayerHealth, State
-from ..potion_ledger import PotionLedger
-from ..potions import PotionsController
-from ..probe import create_run
-from ..reader import LiveReader
-from .demo import DEMO_SESSION, resource_frame
-from .presenter import Presenter
+from inventory_tracking.automation.controller import Automation
+from inventory_tracking.automation.heal import HealController
+from inventory_tracking.automation.ledger import PotionLedger
+from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.common import LOG, configure_logging, log_to_file
+from inventory_tracking.config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
+from inventory_tracking.input import PotionInput
+from inventory_tracking.models import BeltSnapshot, PlayerHealth, State
+from inventory_tracking.osd.demo import DEMO_SESSION, resource_frame
+from inventory_tracking.osd.presenter import Presenter
+from inventory_tracking.reports import create_run
+from inventory_tracking.tracking.reader import LiveReader
 
 
 def positive_float(value):
@@ -152,7 +152,7 @@ def main():
                     if args.once and state.reason != 'connecting':
                         return 0 if state.health is not None else 2
                     time.sleep(osd_config.refresh_interval)
-            from .window import show
+            from inventory_tracking.osd.window import show
 
             def render(*, now):
                 if args.demo:

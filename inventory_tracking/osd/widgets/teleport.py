@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
-from ...config import TeleportWidgetConfig
-from .base import SampleWidget
+from inventory_tracking.config import TeleportWidgetConfig
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class TeleportWidget(SampleWidget[TeleportWidgetConfig]):

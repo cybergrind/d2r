@@ -2,8 +2,8 @@ from dataclasses import replace
 
 import pytest
 
-from inventory_tracking.mercenary import Mercenary
 from inventory_tracking.models import BeltCell, BeltSnapshot, PlayerHealth, SessionIdentity, State
+from inventory_tracking.native.mercenary import Mercenary
 
 
 SESSION = SessionIdentity(1, '2', 7)
@@ -60,9 +60,9 @@ def clock():
 def healing_setup(tmp_path, clock):
     from unittest.mock import Mock
 
-    from inventory_tracking.heal import HealController
-    from inventory_tracking.potion_ledger import PotionLedger
-    from inventory_tracking.potions import PotionsController
+    from inventory_tracking.automation.heal import HealController
+    from inventory_tracking.automation.ledger import PotionLedger
+    from inventory_tracking.automation.potions import PotionsController
 
     sent = Mock()
 

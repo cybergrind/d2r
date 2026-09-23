@@ -1,7 +1,7 @@
 """Warn when item labels are confirmed off in the current game."""
 
-from ...config import LootWidgetConfig
-from .base import SampleWidget
+from inventory_tracking.config import LootWidgetConfig
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class LootWidget(SampleWidget[LootWidgetConfig]):

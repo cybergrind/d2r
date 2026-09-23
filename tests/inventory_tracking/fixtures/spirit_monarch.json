@@ -1,0 +1,1042 @@
+{
+  "source": "inventory_tracking/runs/alt-d/20260923T182700Z-3723777e/request-3/frozen.json",
+  "snapshot": {
+    "status": "research",
+    "identity": {
+      "pid": 4104866,
+      "start_ticks": "294991045"
+    },
+    "mappings_stable": true,
+    "resources": {
+      "complete": true,
+      "items": [
+        {
+          "unit_id": 1107631772,
+          "txt_id": 447,
+          "mode": 1,
+          "details": {
+            "quality": 2,
+            "owner_id": 2168163386,
+            "inventory_page": 255,
+            "body_location": 5,
+            "x": 5,
+            "y": 0
+          },
+          "resource_stats": {
+            "complete": true,
+            "arrays": [
+              {
+                "header_offset": 48,
+                "stats": [
+                  {
+                    "layer": 0,
+                    "id": 20,
+                    "raw": 22
+                  },
+                  {
+                    "layer": 0,
+                    "id": 31,
+                    "raw": 140
+                  },
+                  {
+                    "layer": 0,
+                    "id": 72,
+                    "raw": 86
+                  },
+                  {
+                    "layer": 0,
+                    "id": 73,
+                    "raw": 86
+                  },
+                  {
+                    "layer": 0,
+                    "id": 194,
+                    "raw": 4
+                  }
+                ]
+              },
+              {
+                "header_offset": 168,
+                "stats": []
+              },
+              {
+                "header_offset": 232,
+                "stats": [
+                  {
+                    "layer": 0,
+                    "id": 3,
+                    "raw": 22
+                  },
+                  {
+                    "layer": 0,
+                    "id": 9,
+                    "raw": 26880
+                  },
+                  {
+                    "layer": 0,
+                    "id": 20,
+                    "raw": 22
+                  },
+                  {
+                    "layer": 0,
+                    "id": 31,
+                    "raw": 140
+                  },
+                  {
+                    "layer": 0,
+                    "id": 32,
+                    "raw": 250
+                  },
+                  {
+                    "layer": 0,
+                    "id": 41,
+                    "raw": 35
+                  },
+                  {
+                    "layer": 0,
+                    "id": 43,
+                    "raw": 35
+                  },
+                  {
+                    "layer": 0,
+                    "id": 45,
+                    "raw": 35
+                  },
+                  {
+                    "layer": 0,
+                    "id": 72,
+                    "raw": 86
+                  },
+                  {
+                    "layer": 0,
+                    "id": 73,
+                    "raw": 86
+                  },
+                  {
+                    "layer": 0,
+                    "id": 78,
+                    "raw": 14
+                  },
+                  {
+                    "layer": 0,
+                    "id": 99,
+                    "raw": 55
+                  },
+                  {
+                    "layer": 0,
+                    "id": 105,
+                    "raw": 27
+                  },
+                  {
+                    "layer": 0,
+                    "id": 127,
+                    "raw": 2
+                  },
+                  {
+                    "layer": 0,
+                    "id": 147,
+                    "raw": 5
+                  },
+                  {
+                    "layer": 0,
+                    "id": 194,
+                    "raw": 4
+                  }
+                ]
+              }
+            ],
+            "item_data_hex": "02000000010000009a0200003a8c3b8100000000000000001008800400000000000000000000000000000000000000000000000000000000010000000000000065000000000000009b500000000000000000000005ff00000000000000000000",
+            "stat_diagnostics": {
+              "validated": false,
+              "root_address": 760385424,
+              "chains": [
+                {
+                  "head_offset": 104,
+                  "complete": true,
+                  "lists": [
+                    {
+                      "address": 760388432,
+                      "header_hex": "203b93650000000004000000383d0a840000000000000000000000000000008000000000000000000000000000000000f0d867a30000000005000000000000000600000000000000000000000000000000000000000000000000000000000000",
+                      "stats": [
+                        {
+                          "layer": 0,
+                          "id": 21,
+                          "raw": 23
+                        },
+                        {
+                          "layer": 0,
+                          "id": 22,
+                          "raw": 49
+                        },
+                        {
+                          "layer": 0,
+                          "id": 68,
+                          "raw": 20
+                        },
+                        {
+                          "layer": 0,
+                          "id": 72,
+                          "raw": 25
+                        },
+                        {
+                          "layer": 0,
+                          "id": 73,
+                          "raw": 26
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "head_offset": 144,
+                  "complete": true,
+                  "lists": []
+                },
+                {
+                  "head_offset": 208,
+                  "complete": true,
+                  "lists": [
+                    {
+                      "address": 760400464,
+                      "header_hex": "602892650000000004000000e92920dc0000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                      "stats": []
+                    }
+                  ]
+                }
+              ],
+              "header_hex": "203b936500000000040000009c1e0542000000000000000000000000000000800000000000000000000000000000000040d967a300000000050000000000000006000000000000000000000000000000000000000000000000000000000000000000000000000000509b522d00000000d020502d0000000010ad4b2d00000000010000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000050ca522d0000000000000000000000006028926500000000f065e6b80000000010000000000000001300000000000000000000000000000000000000000000000000000000000000c090522d000000000000000000000000100000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "stable": true
+            }
+          }
+        }
+      ],
+      "selected_only": true
+    },
+    "groups": {
+      "players": {
+        "units": [
+          {
+            "address": 1704101600,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 1478965639,
+            "mode": 0,
+            "data_pointer": 1447091936,
+            "path_pointer": 1627533072,
+            "stats_pointer": 759979344,
+            "inventory_pointer": 1447091648,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704171040,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 2957947662,
+            "mode": 0,
+            "data_pointer": 1447150928,
+            "path_pointer": 1627533984,
+            "stats_pointer": 760039504,
+            "inventory_pointer": 1447150640,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704122656,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 1084073501,
+            "mode": 0,
+            "data_pointer": 1454242240,
+            "path_pointer": 1627542192,
+            "stats_pointer": 760153808,
+            "inventory_pointer": 1454241952,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704029920,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 4144281392,
+            "mode": 0,
+            "data_pointer": 1447076944,
+            "path_pointer": 1627537632,
+            "stats_pointer": 759856016,
+            "inventory_pointer": 1447076656,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704147744,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 2168163386,
+            "mode": 5,
+            "data_pointer": 1454241264,
+            "path_pointer": 1627587792,
+            "stats_pointer": 759934224,
+            "inventory_pointer": 1449958944,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 43424,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 0,
+                  "raw": 156
+                },
+                {
+                  "layer": 0,
+                  "id": 1,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 2,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 3,
+                  "raw": 269
+                },
+                {
+                  "layer": 0,
+                  "id": 6,
+                  "raw": 384768
+                },
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 262912
+                },
+                {
+                  "layer": 0,
+                  "id": 8,
+                  "raw": 187648
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 39680
+                },
+                {
+                  "layer": 0,
+                  "id": 10,
+                  "raw": 121088
+                },
+                {
+                  "layer": 0,
+                  "id": 11,
+                  "raw": 107520
+                },
+                {
+                  "layer": 0,
+                  "id": 12,
+                  "raw": 91
+                },
+                {
+                  "layer": 0,
+                  "id": 13,
+                  "raw": 1851463949
+                },
+                {
+                  "layer": 0,
+                  "id": 14,
+                  "raw": 13408
+                },
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 1905598
+                },
+                {
+                  "layer": 0,
+                  "id": 39,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 41,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 43,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 45,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 67,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 328,
+                  "raw": 2
+                }
+              ],
+              "base_stats_hp_candidate": {
+                "current": 1503.0,
+                "max": 1027.0
+              },
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 0,
+                  "raw": 172
+                },
+                {
+                  "layer": 0,
+                  "id": 1,
+                  "raw": 36
+                },
+                {
+                  "layer": 0,
+                  "id": 2,
+                  "raw": 135
+                },
+                {
+                  "layer": 0,
+                  "id": 3,
+                  "raw": 307
+                },
+                {
+                  "layer": 0,
+                  "id": 6,
+                  "raw": 384768
+                },
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 384896
+                },
+                {
+                  "layer": 0,
+                  "id": 8,
+                  "raw": 187648
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 187724
+                },
+                {
+                  "layer": 0,
+                  "id": 10,
+                  "raw": 121088
+                },
+                {
+                  "layer": 0,
+                  "id": 11,
+                  "raw": 121088
+                },
+                {
+                  "layer": 0,
+                  "id": 12,
+                  "raw": 91
+                },
+                {
+                  "layer": 0,
+                  "id": 13,
+                  "raw": 1851463949
+                },
+                {
+                  "layer": 0,
+                  "id": 14,
+                  "raw": 13408
+                },
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 1905598
+                },
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 41
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 41
+                },
+                {
+                  "layer": 0,
+                  "id": 19,
+                  "raw": 179
+                },
+                {
+                  "layer": 0,
+                  "id": 20,
+                  "raw": 22
+                },
+                {
+                  "layer": 0,
+                  "id": 21,
+                  "raw": 23
+                },
+                {
+                  "layer": 0,
+                  "id": 22,
+                  "raw": 49
+                },
+                {
+                  "layer": 0,
+                  "id": 27,
+                  "raw": 15
+                },
+                {
+                  "layer": 0,
+                  "id": 28,
+                  "raw": 22
+                },
+                {
+                  "layer": 0,
+                  "id": 31,
+                  "raw": 894
+                },
+                {
+                  "layer": 0,
+                  "id": 32,
+                  "raw": 250
+                },
+                {
+                  "layer": 0,
+                  "id": 34,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 35,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 36,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 39,
+                  "raw": 221
+                },
+                {
+                  "layer": 0,
+                  "id": 41,
+                  "raw": 190
+                },
+                {
+                  "layer": 0,
+                  "id": 43,
+                  "raw": 222
+                },
+                {
+                  "layer": 0,
+                  "id": 45,
+                  "raw": 185
+                },
+                {
+                  "layer": 0,
+                  "id": 48,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 49,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 50,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 51,
+                  "raw": 16
+                },
+                {
+                  "layer": 0,
+                  "id": 54,
+                  "raw": 15
+                },
+                {
+                  "layer": 0,
+                  "id": 55,
+                  "raw": 45
+                },
+                {
+                  "layer": 0,
+                  "id": 56,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 67,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 120
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 71,
+                  "raw": 37
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 277
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 278
+                },
+                {
+                  "layer": 0,
+                  "id": 77,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 78,
+                  "raw": 14
+                },
+                {
+                  "layer": 0,
+                  "id": 79,
+                  "raw": 127
+                },
+                {
+                  "layer": 0,
+                  "id": 80,
+                  "raw": 84
+                },
+                {
+                  "layer": 7,
+                  "id": 83,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 85,
+                  "raw": 9
+                },
+                {
+                  "layer": 0,
+                  "id": 87,
+                  "raw": 13
+                },
+                {
+                  "layer": 0,
+                  "id": 91,
+                  "raw": -15
+                },
+                {
+                  "layer": 0,
+                  "id": 96,
+                  "raw": 46
+                },
+                {
+                  "layer": 0,
+                  "id": 99,
+                  "raw": 75
+                },
+                {
+                  "layer": 0,
+                  "id": 105,
+                  "raw": 127
+                },
+                {
+                  "layer": 0,
+                  "id": 127,
+                  "raw": 6
+                },
+                {
+                  "layer": 0,
+                  "id": 147,
+                  "raw": 5
+                },
+                {
+                  "layer": 0,
+                  "id": 148,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 150,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 152,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 153,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                },
+                {
+                  "layer": 16,
+                  "id": 188,
+                  "raw": 2
+                },
+                {
+                  "layer": 57,
+                  "id": 188,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 194,
+                  "raw": 8
+                },
+                {
+                  "layer": 25551,
+                  "id": 198,
+                  "raw": 10
+                },
+                {
+                  "layer": 24778,
+                  "id": 201,
+                  "raw": 2
+                },
+                {
+                  "layer": 16429,
+                  "id": 203,
+                  "raw": -22
+                },
+                {
+                  "layer": 2309,
+                  "id": 204,
+                  "raw": 8224
+                },
+                {
+                  "layer": 17795,
+                  "id": 204,
+                  "raw": 2827
+                },
+                {
+                  "layer": 0,
+                  "id": 328,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 332,
+                  "raw": 25
+                },
+                {
+                  "layer": 16429,
+                  "id": 342,
+                  "raw": 90
+                },
+                {
+                  "layer": 16429,
+                  "id": 343,
+                  "raw": 65
+                },
+                {
+                  "layer": 16429,
+                  "id": 344,
+                  "raw": 24
+                },
+                {
+                  "layer": 0,
+                  "id": 349,
+                  "raw": 14
+                },
+                {
+                  "layer": 0,
+                  "id": 350,
+                  "raw": 1135
+                },
+                {
+                  "layer": 0,
+                  "id": 351,
+                  "raw": 22
+                }
+              ],
+              "full_stats_hp_candidate": {
+                "current": 1503.0,
+                "max": 1503.5
+              }
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704039776,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 3155401923,
+            "mode": 0,
+            "data_pointer": 1446885456,
+            "path_pointer": 1627532160,
+            "stats_pointer": 759922192,
+            "inventory_pointer": 1446885168,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1704034848,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 3456740961,
+            "mode": 0,
+            "data_pointer": 1446891760,
+            "path_pointer": 1627582320,
+            "stats_pointer": 759889104,
+            "inventory_pointer": 1446891472,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ]
+            },
+            "identity_stable": true
+          }
+        ],
+        "errors": [],
+        "complete": true,
+        "heads_stable": true
+      },
+      "items": {
+        "complete": true
+      }
+    }
+  },
+  "report": {
+    "state": "complete",
+    "game": {
+      "identity": {
+        "pid": 4104866,
+        "start_ticks": "294991045"
+      },
+      "executable_fingerprint": {
+        "sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+      }
+    }
+  }
+}

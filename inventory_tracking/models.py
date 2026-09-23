@@ -5,8 +5,8 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import NamedTuple
 
-from .layout import LIFE_FRACTION_MAX
-from .mercenary import Mercenary
+from inventory_tracking.native.layout import LIFE_FRACTION_MAX
+from inventory_tracking.native.mercenary import Mercenary
 
 
 class Actor(StrEnum):

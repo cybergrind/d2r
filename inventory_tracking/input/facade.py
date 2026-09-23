@@ -6,11 +6,11 @@ from contextlib import AbstractContextManager, ExitStack, contextmanager
 from dataclasses import dataclass
 from typing import Protocol
 
-from ..config import INPUT, InputConfig
-from ..models import PotionRequest, Refusal, SessionIdentity
-from .bindings import keys_for
-from .focus import FocusProbe, FocusTracker, owns_process
-from .keyboard import Keyboard, KeyConnection, X11Keyboard
+from inventory_tracking.config import INPUT, InputConfig
+from inventory_tracking.input.bindings import keys_for
+from inventory_tracking.input.focus import FocusProbe, FocusTracker, owns_process
+from inventory_tracking.input.keyboard import Keyboard, KeyConnection, X11Keyboard
+from inventory_tracking.models import PotionRequest, Refusal, SessionIdentity
 
 
 @dataclass(frozen=True)

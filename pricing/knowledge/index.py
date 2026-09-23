@@ -68,6 +68,14 @@ def _read_rows(path):
     source_map = sources if isinstance(sources, dict) else {s['id']: s for s in sources}
     for number, original in enumerate(data['rows']):
         row = dict(original)
+        if row.get('affix_table') and data.get('affix_pools'):
+            referenced = {
+                key
+                for field in ('range_pools', 'rare_range_pools')
+                for stats in row.get(field, {}).values()
+                for key in stats.values()
+            }
+            row['tier_pools'] = {key: data['affix_pools'][key] for key in referenced}
         if 'source' not in row and row.get('source_id') in source_map:
             row['source'] = source_map[row['source_id']]
         yield row, f'/rows/{number}'
@@ -284,6 +292,24 @@ def lookup(database, name, *, limit=5, **facets):
         if row['kind'] == 'market':
             market.append(row)
             continue
+        if (
+            row['kind'] == 'historical_market'
+            and row.get('bucket')
+            and facets.get('rarity') in ('normal', 'superior', 'low quality', 'low_quality')
+            and type(facets.get('ethereal')) is bool
+            and facets.get('sockets') is not None
+            and facets.get('socket_contents') == 'empty'
+        ):
+            from pricing.knowledge.bases import bucket_matches
+
+            candidate = {
+                **facets,
+                'affixes': [
+                    {'property_id': key, 'value': value} for key, value in facets.get('properties', {}).items()
+                ],
+            }
+            if not bucket_matches(row['bucket'], candidate):
+                continue
         if row['kind'] == 'base_rule':
             rarity = facets.get('rarity')
             if rarity and rarity not in ('normal', 'superior', 'low_quality'):
@@ -364,6 +390,20 @@ def compact_result(result):
             'market_coverage',
             'properties',
             'quality',
+            'set_definition',
+            'game_definition',
+            'tier_pools',
+            'range_pools',
+            'rare_range_pools',
+            'base_definition',
+            'base_defense_range',
+            'roll_ranges',
+            'quality_ranges',
+            'roll_tiers',
+            'table_id',
+            'base_codes',
+            'affix_table',
+            'runes',
         }
         projected = {key: value for key, value in row.items() if key in keep and value is not None}
         source = row.get('source')

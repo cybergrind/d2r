@@ -1,6 +1,6 @@
 """Run with uv run python -m inventory_tracking --help."""
 
-from .diagnostics import main
+from inventory_tracking.probes.cli import main
 
 
 raise SystemExit(main())

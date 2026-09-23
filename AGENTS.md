@@ -13,6 +13,7 @@ the Anya shop. Everything is quoted in **Ist = 1**. Numbers are dated snapshots 
 | asks about gear, upgrades, crafts, boots, what to wear, build variants, mercenary | `.agents/skills/warlock-build/SKILL.md` | appraise (unless they also ask a price) |
 | asks why the loot filter shows/hides something, or wants a filter change | `.agents/skills/lootfilter/SKILL.md` | — |
 | asks to refresh prices, pull Traderie / diablo2.io, rebuild data, extend a guide, run the plan | `.agents/skills/pricing-refresh/SKILL.md` | — |
+| asks to update/audit the offline KB, fold in research, or check base-variant coverage | `.agents/skills/update-kb/SKILL.md` | online refresh unless requested |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the
 rule table, so an appraisal never needs the whole filter skill.

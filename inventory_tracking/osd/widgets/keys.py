@@ -1,7 +1,7 @@
 """Low ordinary-key count in the player's inventory."""
 
-from ...config import KeysWidgetConfig
-from .base import SampleWidget
+from inventory_tracking.config import KeysWidgetConfig
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class KeysWidget(SampleWidget[KeysWidgetConfig]):

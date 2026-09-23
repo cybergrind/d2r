@@ -1,6 +1,6 @@
 """Deterministic optional-resource preview, without game access or input."""
 
-from ..models import (
+from inventory_tracking.models import (
     BeltSnapshot,
     Location,
     Observation,

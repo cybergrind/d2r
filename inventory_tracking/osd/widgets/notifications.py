@@ -2,9 +2,9 @@
 
 from collections.abc import Sequence
 
-from ...config import NotificationsWidgetConfig
-from ...models import Actor, State
-from .base import SampleWidget
+from inventory_tracking.config import NotificationsWidgetConfig
+from inventory_tracking.models import Actor, State
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class NotificationsWidget(SampleWidget[NotificationsWidgetConfig]):

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update D2R KB"
+  short_description: "Maintain offline appraisal data and audit coverage"
+  default_prompt: "Use $update-kb to audit and update the offline D2R appraisal knowledge base."

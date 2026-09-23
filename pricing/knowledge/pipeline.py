@@ -2,6 +2,7 @@
 
 import time
 
+from pricing.knowledge.bases import BASE_QUALITIES, assess_base
 from pricing.knowledge.index import compact_result, lookup, search
 
 
@@ -12,14 +13,23 @@ def retrieve_draft(extraction, database):
     facets = {
         key: item[key] for key in ('sockets', 'rarity', 'ethereal', 'socket_contents') if item.get(key) is not None
     }
+    if item.get('runeword'):
+        facets['rarity'] = 'runeword'
     properties = {row['property_id']: row['value'] for row in item.get('affixes', [])}
     if properties:
         facets['properties'] = properties
     queries = []
     evidence = {}
+    base_assessment = None
     if item.get('name'):
         queries.append({'purpose': 'identity_candidates', 'name': item['name'], 'facets': facets})
-        evidence['identity'] = compact_result(lookup(database, item['name'], **facets, limit=3))
+        is_base = item.get('rarity') in BASE_QUALITIES and not item.get('runeword')
+        found = lookup(database, item['name'], **facets, limit=1000 if is_base else 3)
+        if is_base:
+            base_assessment = assess_base(item, compact_result(found))
+            found['evidence']['historical_market'] = base_assessment['historical_asks']
+            found['evidence'] = {kind: rows[:3] for kind, rows in found['evidence'].items()}
+        evidence['identity'] = compact_result(found)
     for row in item.get('affixes', []):
         if 'Only)' not in row.get('label', ''):
             continue
@@ -32,9 +42,10 @@ def retrieve_draft(extraction, database):
         'extraction': extraction,
         'queries': queries,
         'evidence': evidence,
+        **({'base_assessment': base_assessment} if base_assessment else {}),
         'decision': {
             'verdict': 'REVIEW',
-            'price_status': 'unresolved',
+            'price_status': base_assessment['price_status'] if base_assessment else 'unresolved',
             'reason': 'Review OCR against the image; retrieved records are candidate evidence, not an approved price.',
             'recipe_eligibility': 'unconfirmed',
             'next_step': 'Calling agent reviews image and evidence, then applies the offline appraise skill.',

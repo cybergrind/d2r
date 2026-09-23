@@ -193,3 +193,73 @@ OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /tmp/d2r-easyocr-env/bin/python -m pricing.k
 This returns a draft plus local candidate evidence for the calling agent to review.
 It does not approve prices or automatically infer unreadable fields. Tesseract and
 its project extra have been retired. Missing models fail locally without downloads.
+
+## Named-item definitions and roll ranges
+
+`uv run --offline python -m pricing.knowledge.definitions` builds
+`pricing/data/appraisal-definitions.json` from cached set/unique/runeword tables
+and the pinned local `third-parties/d2data` / `d2go` reference checkouts. Rebuild
+the index afterward with `uv run --offline python -m pricing.knowledge rebuild`.
+Query these records with `lookup Spirit --rarity runeword --kind item_definition --full`
+or `lookup "Tancred's Crowbill" --rarity set --kind item_definition --full`.
+
+Definitions retain source dates/hashes, allowed bases, native identity IDs and
+unconditional scalar roll ranges keyed by native stat ID (not Traderie property ID).
+The inventory metadata builder projects the same definitions into its runtime
+bundle. Runtime reads stay offline and do not require the checkouts. Parameterized
+properties, conditional set bonuses and duplicate contributions are not treated
+as scalar ranges. Definition ranges are not observations or market prices; totals
+can include socket or set contributions. Magic charm prefix/suffix definitions are
+included, with ranges selected by captured affix IDs and compatible base codes.
+Query `lookup "of Vita" --rarity magic --kind item_definition --full`. Small, large,
+and grand charm tiers stay separate. Prefix IDs use the current suffix-table size;
+old d2go IDs must not be copied into RotW. Magic/rare scalar affix ranges are supported across base types; complex
+parameterized rolls remain unsupported. Fixed values are not ranked; perfect rolls are green and
+the bottom 20% red in Rich terminal output.
+
+For magic charms, the displayed range and highlight colors cover all spawnable
+tiers for the same modifier and charm size, regardless of item level. The tier label
+uses T1 for the strongest bracket, shows the current tier and the T1 range.
+Exact captured-tier bounds remain in structured roll_range evidence. A Large Charm with 20 life (16–20 tier) is not perfect; 35 life is.
+Disabled tiers and other charm sizes are excluded from this comparison.
+
+Audit every unique/set property's range classification with
+`uv run --offline python -m pricing.knowledge.range_audit`. This emits per-item JSON
+in `pricing/data/unique-set-range-audit.json` and the tracked summary
+`inventory_tracking/items/data/RANGE_COVERAGE.md`. Coverage is explicitly incomplete;
+encoded fields and conditional bonuses are not silently treated as scalar rolls.
+
+Magic and rare items now use captured affix IDs across all compatible bases.
+Rare comparison pools exclude magic-only affixes. Overlapping contributions remain
+explicit review gaps. Tier labels use `T2`, without a total count. Affix KB records
+retain referenced tier pools alongside complete source definitions. Every unique
+and set row retains `game_definition`, `base_definition`, and `set_definition` where
+applicable, including required-level and conditional/full-set-bonus source fields.
+
+### Base variants and coverage
+
+`uv run --offline python -m pricing.knowledge.bases` writes
+`pricing/data/appraisal-base-coverage.json`, covering every weapon/armor catalog
+base with explicit historical-bucket or unresearched status. On 2026-09-23 this
+finds 44 bases with historical buckets, 48 with scoped cached observations only,
+and 431 without base-market evidence. Cached observations may lack variant
+facets and do not guarantee an exact price. A catalog row is not a market price.
+
+The memory draft now decodes ethereal flags and compares clean-base historical
+buckets by quality, sockets, ethereal status, ED premium and resist/skill bands.
+Filled sockets and staffmod buckets are not treated as clean-base comparisons;
+completed runewords use their own identity. Unsocketed requires a matching flag,
+complete stat capture and complete empty child scan. Unknown stays unknown.
+WP-G curated research is indexed separately from WP-B asks, avoiding duplicate
+counts. Catalog records retain base defense/damage, speed and requirements.
+
+The latest saved Cryptic Axe replay resolves non-ethereal / normal / four empty
+sockets. Its 2026-09-18 historical bucket has four priced asks, median 0.837 Ist.
+Legacy buckets defaulted missing listing fields and do not prove scope or empty
+contents; the UI labels them historical context. Verified exact comparisons still
+require explicit facets and scope. No universal ethereal/ED/socket multiplier is
+used, and absent data is never a zero valuation.
+
+Use [$update-kb](../../.agents/skills/update-kb/SKILL.md) for maintenance, source
+selection, validation and coverage gaps. Offline maintenance does not silently
+start new market research.

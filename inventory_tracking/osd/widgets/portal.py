@@ -2,8 +2,8 @@
 
 from collections.abc import Sequence
 
-from ...config import PortalWidgetConfig
-from .base import SampleWidget
+from inventory_tracking.config import PortalWidgetConfig
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class PortalWidget(SampleWidget[PortalWidgetConfig]):

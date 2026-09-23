@@ -2,9 +2,9 @@
 
 import math
 
-from ...config import ConsumeWidgetConfig
-from ...models import ConsumeBuff
-from .base import SampleWidget
+from inventory_tracking.config import ConsumeWidgetConfig
+from inventory_tracking.models import ConsumeBuff
+from inventory_tracking.osd.widgets.base import SampleWidget
 
 
 class ConsumeWidget(SampleWidget[ConsumeWidgetConfig]):

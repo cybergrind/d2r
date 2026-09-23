@@ -2,7 +2,7 @@
 
 from collections.abc import Sequence
 
-from ...models import State
+from inventory_tracking.models import State
 
 
 class SampleWidget[C]:

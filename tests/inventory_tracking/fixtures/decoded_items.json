@@ -1,0 +1,1068 @@
+[
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T174119Z-2780bfa4/request-1/frozen.json",
+    "base": {
+      "name": "Large Charm",
+      "code": "cm2",
+      "category": "misc",
+      "type": "mcha"
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 7,
+        "raw": 8960
+      },
+      {
+        "layer": 0,
+        "id": 9,
+        "raw": 1024
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 7,
+            "raw": 8960
+          },
+          "status": "decoded",
+          "name": "maxhp",
+          "value": 35,
+          "label": "+{{value}} to Life",
+          "text": "+35 to Life"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 9,
+            "raw": 1024
+          },
+          "status": "decoded",
+          "name": "maxmana",
+          "value": 4,
+          "label": "+{{value}} to Mana",
+          "text": "+4 to Mana"
+        }
+      ],
+      [
+        {
+          "property_id": "418",
+          "value": 35,
+          "label": "+{{value}} to Life",
+          "memory_stat": {
+            "layer": 0,
+            "id": 7,
+            "raw": 8960
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "400",
+          "value": 4,
+          "label": "+{{value}} to Mana",
+          "memory_stat": {
+            "layer": 0,
+            "id": 9,
+            "raw": 1024
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      []
+    ]
+  },
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T174258Z-1734159c/request-2/frozen.json",
+    "base": {
+      "name": "Bone Wand",
+      "code": "bwn",
+      "category": "weapons",
+      "type": "wand",
+      "speed": -20,
+      "undead_damage_bonus": 50
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 21,
+        "raw": 3
+      },
+      {
+        "layer": 0,
+        "id": 22,
+        "raw": 7
+      },
+      {
+        "layer": 0,
+        "id": 68,
+        "raw": 20
+      },
+      {
+        "layer": 0,
+        "id": 72,
+        "raw": 15
+      },
+      {
+        "layer": 0,
+        "id": 73,
+        "raw": 15
+      },
+      {
+        "layer": 3075,
+        "id": 198,
+        "raw": 10
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 21,
+            "raw": 3
+          },
+          "status": "decoded",
+          "name": "mindamage",
+          "value": 3,
+          "text": "Minimum damage: 3"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 22,
+            "raw": 7
+          },
+          "status": "decoded",
+          "name": "maxdamage",
+          "value": 7,
+          "text": "Maximum damage: 7"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 68,
+            "raw": 20
+          },
+          "status": "decoded",
+          "name": "attackrate",
+          "value": -20,
+          "text": "Base weapon speed: -20 (lower is faster; not increased attack speed)"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 15
+          },
+          "status": "decoded",
+          "name": "durability",
+          "value": 15,
+          "text": "Durability: 15"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 15
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "value": 15,
+          "text": "Maximum durability: 15"
+        },
+        {
+          "memory_stat": {
+            "layer": 3075,
+            "id": 198,
+            "raw": 10
+          },
+          "status": "decoded",
+          "name": "item_skillonhit",
+          "text": "10% Chance to cast level 3 Nova on striking"
+        },
+        {
+          "status": "decoded",
+          "origin": "base_type",
+          "value": 50,
+          "text": "+50% Damage to Undead (inherent base-type bonus)"
+        }
+      ],
+      [],
+      []
+    ]
+  },
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T174512Z-212f9290/request-1/frozen.json",
+    "base": {
+      "name": "Bone Wand",
+      "code": "bwn",
+      "category": "weapons",
+      "type": "wand",
+      "speed": -20,
+      "undead_damage_bonus": 50
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 21,
+        "raw": 3
+      },
+      {
+        "layer": 0,
+        "id": 22,
+        "raw": 7
+      },
+      {
+        "layer": 0,
+        "id": 45,
+        "raw": 39
+      },
+      {
+        "layer": 0,
+        "id": 68,
+        "raw": 20
+      },
+      {
+        "layer": 0,
+        "id": 72,
+        "raw": 15
+      },
+      {
+        "layer": 0,
+        "id": 73,
+        "raw": 15
+      },
+      {
+        "layer": 89,
+        "id": 107,
+        "raw": 2
+      },
+      {
+        "layer": 0,
+        "id": 252,
+        "raw": 3
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 21,
+            "raw": 3
+          },
+          "status": "decoded",
+          "name": "mindamage",
+          "value": 3,
+          "text": "Minimum damage: 3"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 22,
+            "raw": 7
+          },
+          "status": "decoded",
+          "name": "maxdamage",
+          "value": 7,
+          "text": "Maximum damage: 7"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 45,
+            "raw": 39
+          },
+          "status": "decoded",
+          "name": "poisonresist",
+          "value": 39,
+          "label": "Poison Resist +{{value}}%",
+          "text": "Poison Resist +39%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 68,
+            "raw": 20
+          },
+          "status": "decoded",
+          "name": "attackrate",
+          "value": -20,
+          "text": "Base weapon speed: -20 (lower is faster; not increased attack speed)"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 15
+          },
+          "status": "decoded",
+          "name": "durability",
+          "value": 15,
+          "text": "Durability: 15"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 15
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "value": 15,
+          "text": "Maximum durability: 15"
+        },
+        {
+          "memory_stat": {
+            "layer": 89,
+            "id": 107,
+            "raw": 2
+          },
+          "status": "decoded",
+          "name": "item_singleskill",
+          "value": 2,
+          "text": "+2 to Summon Resist (Necromancer Only)"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 252,
+            "raw": 3
+          },
+          "status": "decoded",
+          "name": "item_replenish_durability",
+          "value": 33,
+          "text": "Repairs 1 durability in 33 seconds"
+        },
+        {
+          "status": "decoded",
+          "origin": "base_type",
+          "value": 50,
+          "text": "+50% Damage to Undead (inherent base-type bonus)"
+        }
+      ],
+      [
+        {
+          "property_id": "401",
+          "value": 39,
+          "label": "Poison Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 45,
+            "raw": 39
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      []
+    ]
+  },
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T175948Z-f4947a78/request-1/frozen.json",
+    "base": {
+      "name": "Blade",
+      "code": "bld",
+      "category": "weapons",
+      "type": "knif",
+      "speed": -10,
+      "undead_damage_bonus": 0
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 21,
+        "raw": 4
+      },
+      {
+        "layer": 0,
+        "id": 22,
+        "raw": 15
+      },
+      {
+        "layer": 0,
+        "id": 68,
+        "raw": 10
+      },
+      {
+        "layer": 0,
+        "id": 72,
+        "raw": 18
+      },
+      {
+        "layer": 0,
+        "id": 73,
+        "raw": 24
+      },
+      {
+        "layer": 0,
+        "id": 152,
+        "raw": 1
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 21,
+            "raw": 4
+          },
+          "status": "decoded",
+          "name": "mindamage",
+          "value": 4,
+          "text": "Minimum damage: 4"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 22,
+            "raw": 15
+          },
+          "status": "decoded",
+          "name": "maxdamage",
+          "value": 15,
+          "text": "Maximum damage: 15"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 68,
+            "raw": 10
+          },
+          "status": "decoded",
+          "name": "attackrate",
+          "value": -10,
+          "text": "Base weapon speed: -10 (lower is faster; not increased attack speed)"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 18
+          },
+          "status": "decoded",
+          "name": "durability",
+          "value": 18,
+          "text": "Durability: 18"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 24
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "value": 24,
+          "text": "Maximum durability: 24"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 152,
+            "raw": 1
+          },
+          "status": "decoded",
+          "name": "item_indesctructible",
+          "value": 1,
+          "label": "Indestructible",
+          "text": "Indestructible"
+        }
+      ],
+      [
+        {
+          "property_id": "432",
+          "value": 1,
+          "label": "Indestructible",
+          "memory_stat": {
+            "layer": 0,
+            "id": 152,
+            "raw": 1
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      []
+    ]
+  },
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T175948Z-f4947a78/request-3/frozen.json",
+    "base": {
+      "name": "Monarch",
+      "code": "uit",
+      "category": "armor",
+      "type": "shie"
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 3,
+        "raw": 22
+      },
+      {
+        "layer": 0,
+        "id": 9,
+        "raw": 26880
+      },
+      {
+        "layer": 0,
+        "id": 20,
+        "raw": 22
+      },
+      {
+        "layer": 0,
+        "id": 31,
+        "raw": 140
+      },
+      {
+        "layer": 0,
+        "id": 32,
+        "raw": 250
+      },
+      {
+        "layer": 0,
+        "id": 41,
+        "raw": 35
+      },
+      {
+        "layer": 0,
+        "id": 43,
+        "raw": 35
+      },
+      {
+        "layer": 0,
+        "id": 45,
+        "raw": 35
+      },
+      {
+        "layer": 0,
+        "id": 72,
+        "raw": 86
+      },
+      {
+        "layer": 0,
+        "id": 73,
+        "raw": 86
+      },
+      {
+        "layer": 0,
+        "id": 78,
+        "raw": 14
+      },
+      {
+        "layer": 0,
+        "id": 99,
+        "raw": 55
+      },
+      {
+        "layer": 0,
+        "id": 105,
+        "raw": 27
+      },
+      {
+        "layer": 0,
+        "id": 127,
+        "raw": 2
+      },
+      {
+        "layer": 0,
+        "id": 147,
+        "raw": 5
+      },
+      {
+        "layer": 0,
+        "id": 194,
+        "raw": 4
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 3,
+            "raw": 22
+          },
+          "status": "decoded",
+          "name": "vitality",
+          "value": 22,
+          "label": "+{{value}} to Vitality",
+          "text": "+22 to Vitality"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 9,
+            "raw": 26880
+          },
+          "status": "decoded",
+          "name": "maxmana",
+          "value": 105,
+          "label": "+{{value}} to Mana",
+          "text": "+105 to Mana"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 20,
+            "raw": 22
+          },
+          "status": "decoded",
+          "name": "toblock",
+          "value": 22,
+          "label": "{{value}}% Increased Chance of Blocking",
+          "text": "22% Increased Chance of Blocking"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 31,
+            "raw": 140
+          },
+          "status": "decoded",
+          "name": "armorclass",
+          "value": 140,
+          "text": "Defense: 140"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 32,
+            "raw": 250
+          },
+          "status": "decoded",
+          "name": "armorclass_vs_missile",
+          "value": 250,
+          "label": "+{{value}} Defense vs. Missile",
+          "text": "+250 Defense vs. Missile"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 41,
+            "raw": 35
+          },
+          "status": "decoded",
+          "name": "lightresist",
+          "value": 35,
+          "label": "Lightning Resist +{{value}}%",
+          "text": "Lightning Resist +35%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 43,
+            "raw": 35
+          },
+          "status": "decoded",
+          "name": "coldresist",
+          "value": 35,
+          "label": "Cold Resist +{{value}}%",
+          "text": "Cold Resist +35%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 45,
+            "raw": 35
+          },
+          "status": "decoded",
+          "name": "poisonresist",
+          "value": 35,
+          "label": "Poison Resist +{{value}}%",
+          "text": "Poison Resist +35%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 86
+          },
+          "status": "decoded",
+          "name": "durability",
+          "value": 86,
+          "text": "Durability: 86"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 86
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "value": 86,
+          "text": "Maximum durability: 86"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 78,
+            "raw": 14
+          },
+          "status": "decoded",
+          "name": "item_attackertakesdamage",
+          "value": 14,
+          "label": "Attacker Takes Damage of {{value}}",
+          "text": "Attacker Takes Damage of 14"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 99,
+            "raw": 55
+          },
+          "status": "decoded",
+          "name": "item_fastergethitrate",
+          "value": 55,
+          "label": "+{{value}}% Faster Hit Recovery",
+          "text": "+55% Faster Hit Recovery"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 105,
+            "raw": 27
+          },
+          "status": "decoded",
+          "name": "item_fastercastrate",
+          "value": 27,
+          "label": "+{{value}}% Faster Cast Rate",
+          "text": "+27% Faster Cast Rate"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 127,
+            "raw": 2
+          },
+          "status": "decoded",
+          "name": "item_allskills",
+          "value": 2,
+          "label": "+{{value}} to All Skills",
+          "text": "+2 to All Skills"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 147,
+            "raw": 5
+          },
+          "status": "decoded",
+          "name": "item_absorbmagic",
+          "value": 5,
+          "label": "+{{value}} Magic Absorb",
+          "text": "+5 Magic Absorb"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 194,
+            "raw": 4
+          },
+          "status": "decoded",
+          "name": "item_numsockets",
+          "value": 4,
+          "text": "Sockets: 4"
+        }
+      ],
+      [
+        {
+          "property_id": "582",
+          "value": 22,
+          "label": "+{{value}} to Vitality",
+          "memory_stat": {
+            "layer": 0,
+            "id": 3,
+            "raw": 22
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "400",
+          "value": 105,
+          "label": "+{{value}} to Mana",
+          "memory_stat": {
+            "layer": 0,
+            "id": 9,
+            "raw": 26880
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "446",
+          "value": 22,
+          "label": "{{value}}% Increased Chance of Blocking",
+          "memory_stat": {
+            "layer": 0,
+            "id": 20,
+            "raw": 22
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "612",
+          "value": 250,
+          "label": "+{{value}} Defense vs. Missile",
+          "memory_stat": {
+            "layer": 0,
+            "id": 32,
+            "raw": 250
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "428",
+          "value": 35,
+          "label": "Lightning Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 41,
+            "raw": 35
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "426",
+          "value": 35,
+          "label": "Cold Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 43,
+            "raw": 35
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "401",
+          "value": 35,
+          "label": "Poison Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 45,
+            "raw": 35
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "415",
+          "value": 14,
+          "label": "Attacker Takes Damage of {{value}}",
+          "memory_stat": {
+            "layer": 0,
+            "id": 78,
+            "raw": 14
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "430",
+          "value": 55,
+          "label": "+{{value}}% Faster Hit Recovery",
+          "memory_stat": {
+            "layer": 0,
+            "id": 99,
+            "raw": 55
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "520",
+          "value": 27,
+          "label": "+{{value}}% Faster Cast Rate",
+          "memory_stat": {
+            "layer": 0,
+            "id": 105,
+            "raw": 27
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "587",
+          "value": 2,
+          "label": "+{{value}} to All Skills",
+          "memory_stat": {
+            "layer": 0,
+            "id": 127,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      []
+    ]
+  },
+  {
+    "source": "inventory_tracking/runs/alt-d/20260923T175948Z-f4947a78/request-4/frozen.json",
+    "base": {
+      "name": "Mesh Boots",
+      "code": "xmb",
+      "category": "armor",
+      "type": "boot"
+    },
+    "stats": [
+      {
+        "layer": 0,
+        "id": 31,
+        "raw": 160
+      },
+      {
+        "layer": 0,
+        "id": 41,
+        "raw": 17
+      },
+      {
+        "layer": 0,
+        "id": 43,
+        "raw": 19
+      },
+      {
+        "layer": 0,
+        "id": 72,
+        "raw": 66
+      },
+      {
+        "layer": 0,
+        "id": 73,
+        "raw": 66
+      },
+      {
+        "layer": 0,
+        "id": 96,
+        "raw": 40
+      },
+      {
+        "layer": 0,
+        "id": 241,
+        "raw": 2
+      }
+    ],
+    "expected": [
+      [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 31,
+            "raw": 160
+          },
+          "status": "decoded",
+          "name": "armorclass",
+          "value": 160,
+          "text": "Defense: 160"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 41,
+            "raw": 17
+          },
+          "status": "decoded",
+          "name": "lightresist",
+          "value": 17,
+          "label": "Lightning Resist +{{value}}%",
+          "text": "Lightning Resist +17%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 43,
+            "raw": 19
+          },
+          "status": "decoded",
+          "name": "coldresist",
+          "value": 19,
+          "label": "Cold Resist +{{value}}%",
+          "text": "Cold Resist +19%"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 66
+          },
+          "status": "decoded",
+          "name": "durability",
+          "value": 66,
+          "text": "Durability: 66"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 66
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "value": 66,
+          "text": "Maximum durability: 66"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 96,
+            "raw": 40
+          },
+          "status": "decoded",
+          "name": "item_fastermovevelocity",
+          "value": 40,
+          "label": "+{{value}}% Faster Run/Walk",
+          "text": "+40% Faster Run/Walk"
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 241,
+            "raw": 2
+          },
+          "status": "unresolved",
+          "name": "item_regenstamina_perlevel",
+          "text": "item regenstamina perlevel: raw 2, parameter 0 (interpretation unresolved)"
+        }
+      ],
+      [
+        {
+          "property_id": "428",
+          "value": 17,
+          "label": "Lightning Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 41,
+            "raw": 17
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "426",
+          "value": 19,
+          "label": "Cold Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 43,
+            "raw": 19
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "480",
+          "value": 40,
+          "label": "+{{value}}% Faster Run/Walk",
+          "memory_stat": {
+            "layer": 0,
+            "id": 96,
+            "raw": 40
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      [
+        {
+          "layer": 0,
+          "id": 241,
+          "raw": 2
+        }
+      ]
+    ]
+  }
+]

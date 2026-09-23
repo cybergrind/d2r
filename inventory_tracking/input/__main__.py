@@ -9,13 +9,13 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from pathlib import Path
 
-from ..config import INPUT, MERC_HEALING, PLAYER_HEALING
-from ..linux_process import find_game_processes, identity, is_game
-from ..models import Actor, BeltCell, PotionRequest, PotionType, SessionIdentity
-from ..reports import publish
-from .facade import InputError, PotionInput, Target
-from .focus import FocusTracker
-from .keyboard import X11Keyboard
+from inventory_tracking.config import INPUT, MERC_HEALING, PLAYER_HEALING
+from inventory_tracking.input.facade import InputError, PotionInput, Target
+from inventory_tracking.input.focus import FocusTracker
+from inventory_tracking.input.keyboard import X11Keyboard
+from inventory_tracking.models import Actor, BeltCell, PotionRequest, PotionType, SessionIdentity
+from inventory_tracking.native.process import find_game_processes, identity, is_game
+from inventory_tracking.reports import publish
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -1,7 +1,6 @@
 """Public guarded-delivery interface."""
 
-from ..models import Refusal as Refusal
-from .facade import (
+from inventory_tracking.input.facade import (
     Attempt as Attempt,
     Delivery as Delivery,
     InputError as InputError,
@@ -9,3 +8,4 @@ from .facade import (
     Refused as Refused,
     Target as Target,
 )
+from inventory_tracking.models import Refusal as Refusal

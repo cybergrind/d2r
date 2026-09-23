@@ -6,8 +6,8 @@ from typing import Annotated, Self
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_serializer, field_validator, model_validator
 
-from .layout import BELT_SIZE
-from .models import Actor, PotionType
+from inventory_tracking.models import Actor, PotionType
+from inventory_tracking.native.layout import BELT_SIZE
 
 
 # Field types carry the range checks so models only spell out cross-field rules.

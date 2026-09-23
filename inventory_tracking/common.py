@@ -5,6 +5,10 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.text import Text
+
 
 LOG = logging.getLogger('inventory_tracking')
 
@@ -24,8 +28,30 @@ def read_text(path):
         return error(exc)
 
 
+class HighlightHandler(RichHandler):
+    """Highlight explicitly marked lines on the console without mutating records."""
+
+    def render_message(self, record, message):
+        text = Text(message)
+        highlights = getattr(record, 'highlight_lines', ())
+        styles = getattr(record, 'line_styles', {})
+        offset = 0
+        for line in message.splitlines(keepends=True):
+            style = 'bright_yellow' if line.strip() in highlights else styles.get(line.strip())
+            if style:
+                text.stylize(style, offset, offset + len(line.rstrip('\r\n')))
+            offset += len(line)
+        return text
+
+
 def configure_logging():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+    console = Console(stderr=True)
+    if console.is_terminal:
+        handler = HighlightHandler(console=console, show_path=False, markup=False, log_time_format='%Y-%m-%d %H:%M:%S')
+        logging.basicConfig(level=logging.INFO, format='%(message)s', handlers=[handler])
+    else:
+        # Preserve line-oriented diagnostics for pipes and host watcher tools.
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 
 @contextmanager
