@@ -205,6 +205,7 @@ def test_factory_order_and_max_age_reach_every_widget():
         'BeltWidget',
         'TeleportWidget',
         'PortalWidget',
+        'IdentifyWidget',
         'LootWidget',
         'KeysWidget',
         'ConsumeWidget',

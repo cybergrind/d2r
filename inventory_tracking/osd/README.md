@@ -21,7 +21,7 @@ send keys. Once exits 0 for a health sample, 2 for unavailable state.
 Edit [config.py](../config.py): `PLAYER_HEALING`/`MERC_HEALING` hold thresholds,
 cooldowns, input freshness and acknowledgement timeout; `OSD` holds window settings
 plus one nested config per widget (`notifications`, `player_health`, `merc_health`,
-`belt`, `teleport`, `portal`, `loot`, `key_stock`, `consume`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
+`belt`, `teleport`, `portal`, `identify`, `loot`, `key_stock`, `consume`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
 `RESOURCE_READER` contains supported-build resource settings, requiring revalidation
 after updates. Configs are frozen, strictly typed pydantic models: derive variants
 with `with_overrides(model, **changes)`, which re-validates; invalid values raise
@@ -53,6 +53,7 @@ Only belt stock counts; an empty four-row belt shows `juv 16`.
 | `tele N/M repair` | Equipped Teleport staff missing charges in town |
 | `tele N/M` | Below 20% charges outside town or with unknown location |
 | `tp: N` | Missing portals only when the tome has fewer than 3 scrolls; hides again at 3 or more |
+| `id: N` | Identify scrolls remaining in the inventory tome; shown only in town with fewer than 5 |
 | `keys: N` | Fewer than 5 ordinary keys in character inventory; 5 or more stays hidden |
 | `consume: ~15s left` | Estimated expiry approaching, using observed activation and the applied skill level |
 | `consume: no longer active` | Observed removal after being active; shown for 30 seconds by default |

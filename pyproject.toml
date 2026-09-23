@@ -13,6 +13,11 @@ dependencies = [
   "pydantic>=2.13.5",
 ]
 
+[project.optional-dependencies]
+ocr = [
+    "pyocr>=0.8.5",
+]
+
 # installed with: uv sync
 [dependency-groups]
 dev = ['ruff', 'pre-commit>=4.5.1', 'uv>=0.11.6', 'pyrefly>=0.59']

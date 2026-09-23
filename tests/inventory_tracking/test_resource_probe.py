@@ -59,3 +59,22 @@ def test_bad_candidate_descriptor_does_not_hide_other_arrays():
     assert result['arrays'][0]['stats'][0]['raw'] == 16
     assert result['arrays'][1]['reason'] == 'unmapped candidate'
     assert result['arrays'][2]['stats'] == []
+
+
+def test_identify_tome_is_collected_and_decoded(monkeypatch):
+    from inventory_tracking import resource_probe
+    from inventory_tracking.resources import resource_observations
+    from tests.inventory_tracking.test_resources import record
+
+    item = record(534, 0, stats=[{'id': 70, 'layer': 0, 'raw': 4}])
+    item['stats_pointer'] = 0x10000
+    monkeypatch.setattr(resource_probe, 'read_item_arrays', lambda read, pointer: item['resource_stats'])
+    monkeypatch.setattr(resource_probe, 'unit_matches', lambda read, unit: True)
+    monkeypatch.setattr(resource_probe, 'describe_item', lambda read, unit: item['details'])
+    resources = resource_probe.collect_resources(
+        lambda address, size: bytes(size),
+        {'players': {'complete': True, 'units': []}, 'items': {'complete': True, 'units': [item]}},
+    )
+    result = resource_observations({'status': 'research', 'sample_monotonic': 100, 'resources': resources}, 7)
+    assert result.identify_tome.value is not None
+    assert result.identify_tome.value.quantity == 4

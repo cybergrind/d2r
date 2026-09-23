@@ -9,12 +9,24 @@ the Anya shop. Everything is quoted in **Ist = 1**. Numbers are dated snapshots 
 | The user… | Read | Do not read |
 |---|---|---|
 | pastes a screenshot, or asks "worth?", "is it worth anything?", "does it cost anything?" | `.agents/skills/appraise/SKILL.md` | the other skills |
+| explicitly requests online/live item prices or names `appraise-online` | `.agents/skills/appraise-online/SKILL.md` | no bulk refresh unless also requested |
 | asks about gear, upgrades, crafts, boots, what to wear, build variants, mercenary | `.agents/skills/warlock-build/SKILL.md` | appraise (unless they also ask a price) |
 | asks why the loot filter shows/hides something, or wants a filter change | `.agents/skills/lootfilter/SKILL.md` | — |
 | asks to refresh prices, pull Traderie / diablo2.io, rebuild data, extend a guide, run the plan | `.agents/skills/pricing-refresh/SKILL.md` | — |
 
 The appraise skill's report has a "why the filter shows it" part; it links to the filter skill only for the
 rule table, so an appraisal never needs the whole filter skill.
+
+## Appraisal execution order (all agents, including Pi/Kimi)
+
+After transcribing an item screenshot, the first evidence command is
+`uv run --offline python -m pricing.knowledge lookup "<item/base>" --rarity <rarity> --limit 2`.
+Use `recommend` first for class-level unique/set keep lists. Read the appraise skill for
+facet refinement. Guides and raw wp-* files are targeted fallbacks after the KB identifies
+what is missing; do not start by scanning them. Missing/incompatible index → offline rebuild.
+No online refresh during default appraisal. Live item checking requires an explicit user
+request and the separate `appraise-online` skill; cache misses never trigger it.
+The full image-to-report command is not implemented yet.
 
 ## Rules that apply to every task
 
@@ -24,7 +36,8 @@ rule table, so an appraisal never needs the whole filter skill.
    with the scope filters (Traderie props 799 softcore / 800 Non-Ladder / 798 PC / 1854 RotW; diablo2.io
    `ladder=2 hc=2 plat_pc=1 legacy_resu=2`). Maxroll guides are the source for *demand*, never for prices.
 2. **Not named in a build list ≠ worthless.** Before "vendor" on a rare, magic class item, unique or
-   set, check the Traderie buckets and the variants index (the appraise skill says where).
+   set, check indexed market/demand/leveling evidence; consult specific bucket/variant rows only
+   when the index leaves a relevant gap (the appraise skill says where).
 3. **Never write a 3-letter item code from memory**; verify against the d2data dump (the filter skill).
 4. Guides are HTML. Read them as text: `python3 pricing/tools/html2text.py guides/<file>.html "keyword" 400`
    (no keyword = whole page). `rg` needs `--no-config` here (RIPGREP_CONFIG_PATH points to a missing file).

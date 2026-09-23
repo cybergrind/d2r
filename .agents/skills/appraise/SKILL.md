@@ -1,113 +1,161 @@
 ---
 name: appraise
-description: Price a D2R item from a pasted screenshot or tooltip ("worth?", "is it worth anything?"), SC/NL/PC/RotW, Ist = 1; produces the three-part report (price as is · what would make it worth more · why the loot filter shows it).
+description: Appraise D2R item screenshots or tooltips using the offline local knowledge base first; report trade value, leveling/self-use, better rolls and loot-filter rationale. Also retrieve class-specific unique/set leveling recommendations. SC/NL/PC/RotW, Ist = 1.
 ---
 
-# Appraise an item
+# Offline item appraisal
 
-Scope: Softcore · Non-Ladder · PC · RotW, Ist = 1, player = Echoing Strike Warlock. Price from the repo,
-never from web search (core rule 1 in `AGENTS.md`).
+Run commands from the repository root. Scope: Softcore / Non-Ladder / PC / Reign of the
+Warlock; player build: Echoing Strike Warlock. Use local evidence, never web prices.
 
-## Procedure — stop at the first step that settles it
+This is the default appraisal skill. Only an explicit request for online/live market
+checking or `appraise-online` selects [appraise-online](../appraise-online/SKILL.md).
+An expensive item, stale/missing prices or unresolved result does not trigger that skill.
 
-1. **Transcribe the tooltip** before pricing: colour/rarity, base name, Superior/Ethereal, socket count,
-   every affix with its number, required level, durability (3× normal = failed unique). Say what you read
-   if the screenshot is ambiguous.
-2. **Triage by colour** with `guides/pricing.html` §2 (white/gray → runeword base test; blue → pattern
-   table; yellow → slot must-affix table; gold/green → primer §5 table, then appendix B; orange → the two
-   sellable crafts), then the gates checklist §3 (exact sockets, ≥15 % ED for "Superior", 45@, +2 class,
-   5/5 facet, +life on a skiller). A failed gate = floor or vendor whatever the rest says.
-3. **Worked examples first**: `guides/pricing.html` §8 holds a verdict for every item the player already
-   asked about; the primer's `#miss` checklist is the one-screen "looks like junk / is not" table. Reuse
-   and cite the row when the item is there.
-4. **Band from the data files** (asks pulled 2026-09-18 unless dated otherwise):
-   - bases, rare/magic class items, gloves, circlets, grimoires, daggers →
-     `pricing/data/wp-b-prices.json[<slug>]['buckets']`, keys `<n>os/<eth|noneth>/<rarity>[/15ed][/filled]`,
-     fields `min_ist / median_ist / max_ist / n_priced / thin / cheapest[]`; `_blues` = build-named magic patterns.
-   - uniques, sets, keys/essences/shards → `pricing/data/wp-i-uniques-misc.json` (`UQ-*`, `ST-*`, `MS-*`:
-     `our_tier`, `roll_bucket`, `threshold`).
-   - jewels, charms, facets, sunders, torch/anni → `pricing/data/wp-h-jewels-charms.json`.
-   - runes, gems, currency → `pricing/data/wp-f-ladder.json` (field `ist`) or the card in `pricing.html` §0.
-   - session verdicts, grimoire/staff-mod rankings → `pricing/data/addendum-2026-09-18-session.json`.
-5. **Not in a data file ≠ worthless.** Before "vendor" on a rare, magic class item, unique or set: check
-   the base's rare/magic buckets in `wp-b-prices.json`, `wp-a-blues.json`, and
-   `pricing/data/wp-a-variants/index.json` (item name → builds / variants / merc slots; appendix B lists
-   player main-slot gear only). Rare class items with staff-mods, rare Warlock daggers, rare Amazon
-   javelins and magic gloves all have real buckets (eth rare +2 Warlock Mithril Points ask 171 Ist median;
-   Sazabi's set is the S-tier guide's uber-merc kit).
-6. **Recompute with `pricing/tools/pricecheck.py`** when no bucket matches the roll: `python3 pricing/tools/pricecheck.py "<Item Name>" [--cache] [--save] [--pages N]` searches the catalog, reads `pricing/raw/traderie/<slug>.json` or pulls live, and prints the band (in-scope count, sellers, offer-only, min · median · max, distribution, unconverted price items). It already implements everything below — scope filters, OR-group cheapest, one vote per seller, ladder + gem/key/essence/statue conversion, per-stack division for runes/gems — do not re-implement it by hand. Manual recipe, for reference: `pricing/raw/traderie/<slug>.json`
-   (a bare list, or `{"listings": [...]}` for `wpi-*` / `wph-*`). Keep property 799 = "softcore",
-   800 = false, 798 = "PC", 1854 not "lord of destruction"/"classic"; price = cheapest OR-group of
-   `prices[]` (different `group` = alternatives, same group = summed); convert with the ladder; **one vote
-   per `seller_id`** (its cheapest); report min → median and the seller count; rune/gem asks are per stack.
-7. **Pull live only for Top tier (≥ 8 Ist) or when the cache has no file** — commands in
-   `.agents/skills/pricing-refresh/SKILL.md`. diablo2.io fills (`activesold=1`) are the only fill source
-   and the only source for rares and crafts; the Traderie rare ring/amulet/circlet feeds are one-seller walls.
+## Required first evidence action
 
-## Converting to a verdict
+After reading the screenshot, run the local lookup **before opening guides, wp-* files,
+raw caches, or searching the repository**:
 
-- Ladder (Ist): Lem 0.20 · Pul 0.57 · Um 0.67 · Mal 0.79 · Ist 1 · Gul 1.43 · Vex 2.59 · Ohm 4.05 ·
-  Lo 5.89 · Sur 8.23 · Cham 8.57 · Ber 9.32 · Jah 11.4 · Zod 13.7; P.Amethyst 0.10 · P.Skull 0.12 ·
-  other P.gems 0.06; keys ≈ 0.45–0.51. Never the cube 2:1 ladder.
-- Tiers: Top ≥ 8 (sell as "offer"; chase rolls fill at 32–63 % of the ask median) · High 2.5–8 and
-  Mid 0.8–2.5 (sell at the bucket median) · Low 0.2–0.8 (bulk lots or self-use) · Floor < 0.2 (vendor).
-- **Always land on one concrete asking price in exact runes/gems**, composed from the ladder above
-  (e.g. Lo + Gul ≈ 7.3 Ist, Ist + Mal + 2× P.Skull ≈ 2.0 Ist), never a bare decimal the player can't
-  list at. Pick it by tier: Top → the low end of the 32–63 % fill range as an offer floor · High/Mid →
-  the bucket median rounded to the nearest payable rune combination · Low → the cheapest-bucket value as
-  a bulk-lot line · Floor → "vendor". State the Ist total in brackets.
-- "Keep" has a second meaning for this player: `guides/pricing.html` §6 lists per slot what the Echoing
-  Strike Warlock wears and when a drop beats it; `guides/warlock.html` §3 lists craft bases to keep.
+```sh
+uv run --offline python -m pricing.knowledge lookup "Ring" --rarity rare --limit 2
+```
+
+Replace Ring/rare with the observed item and rarity. For randomly named rare/magic items,
+query the base (Havoc Eye → Ring; Knight's Mithril Point → Mithril Point). For unique/set
+items, query the unique/set name. Unknown identity is a discovery/review case, not a guessed
+match. Supply only confirmed sockets/ethereal facets when relevant.
+
+This is the appraisal entry point for every agent, including Pi/Kimi. Do not substitute
+manual file scans for it. The full image-to-report orchestrator is still planned;
+`pricing.knowledge appraise` does not exist. Use the working commands here.
+
+If the index is missing or incompatible, run once:
+
+```sh
+uv run --offline python -m pricing.knowledge rebuild
+```
+
+Then retry. If local execution fails, report the exact blocker; do not silently replace
+lookup with online research. No dependency/model download during appraisal.
+
+## Read the image once
+
+Transcribe rarity, base/name, every modifier and number, requirements, sockets and ethereal
+status. Distinguish absent from unknown on clipped screenshots. Direct visual reading is
+appropriate for a clear attached image; OCR is optional, not a required detour.
+
+If an OCR draft exists, reuse it and review flagged fields against the image. When needed:
+
+```sh
+uv run --offline --extra ocr python -m pricing.knowledge.ocr IMAGE
+```
+
+OCR is a draft: never repair uncertain numbers from expected stats. Its `appraisal_ready:
+false` is not a reason to rerun successful OCR. Confirm rarity/omitted modifiers visually;
+unknown sockets, contents or ethereal status must not default to zero/empty/false. Read
+`pricing/knowledge/OCR.md` only for an actual OCR setup/problem.
+
+## Refine locally by the deciding facets
+
+Inspect lookup's evidence, counts, gaps, prepared facts and market status. Reuse all useful
+sections; `prepared` contains unique/set requirements and reviewed utility. Large counts
+mean evidence was omitted, not that the first two records are the best applicable records.
+
+Resolve property IDs from the local dictionary, not memory:
+
+```sh
+uv run --offline python -m pricing.knowledge properties "Faster Cast Rate"
+uv run --offline python -m pricing.knowledge lookup "Ring" --rarity rare --property '520=10' --limit 2
+```
+
+Add the other confirmed deciding affixes for actual comparables. Matching only FCR is not
+an exact-roll price. Preserve unknown properties; do not invent missing predicates.
+Choose further searches by the question, rather than always running every branch:
+
+```sh
+# Exact base identity:
+uv run --offline python -m pricing.knowledge search --base "Crystal Sword" --kind catalog
+# Skill discovery across bases (1577 is Sigil: Death in the local dictionary):
+uv run --offline python -m pricing.knowledge search --kind market --property-min '1577=3' --limit 3
+# Correct base AND sockets AND quality:
+uv run --offline python -m pricing.knowledge search --base "Crystal Sword" --kind base_rule --rarity normal --sockets 4 --limit 12
+# Specific recipe, without hiding it behind the first two unrelated rules:
+uv run --offline python -m pricing.knowledge search --base "Crystal Sword" --kind base_rule --runeword Spirit --sockets 4
+# Focused leveling or build evidence:
+uv run --offline python -m pricing.knowledge search "fcr" --kind leveling --class sorceress --limit 3
+```
+
+Exact `--property 'ID=JSON'` and numeric `--property-min 'ID=N'` can combine with other
+search facets. Search hits are discovery evidence: property search currently covers explicit
+observation properties, not all planner stats/prose. Cross-base hits cannot be pooled as a
+price for the photographed item. Recipe legality does not mean recommended or immediately
+usable: check rarity, empty sockets, exact count and mode; unknown item level stays conditional.
+
+## Fill only the remaining evidence gaps
+
+After lookup/refinement, state the missing question internally before a fallback read.
+Examples: the discard rule, a better-roll target, or the current filter explanation.
+Read only that local source/row; do not run the old full guide/bucket/variant checklist.
+
+- Guide criteria: `python3 pricing/tools/html2text.py guides/pricing.html "Ring (caster)" 450`.
+  Use a distinctive phrase, not broad repeated words like `ring`. Expand a clipped row.
+- Current filter: select the matching rule in `lootfilter/warlock_lean.json`, then its named
+  row in `guides/warlock.html` via html2text. Reuse a verified catalog base code from lookup;
+  consult cached d2data only if unresolved. Never guess codes. For unclear filter semantics,
+  read the relevant part of `.agents/skills/lootfilter/SKILL.md`.
+- Before vendor on rares, magic class items, uniques or sets: inspect indexed demand,
+  leveling, skill patterns and relevant base rules. If indexed coverage is insufficient,
+  read the specific wp-b-prices/wp-a-blues/wp-a-variants row needed. No build mention is
+  not proof of worthlessness. Incidental guide mentions are not keep recommendations.
+- Raw JSON/legacy buckets are targeted fallbacks only. `pricecheck.py --cache` is not
+  strictly offline and must not be used. Never run refresh tools during appraisal.
+
+Aim for a bounded first response (~2,000 evidence tokens), with focused expansion when
+needed. Do not truncate JSON with head/sed and then reason from incomplete records. Stop
+price research when supported or unresolved; complete utility and filter checks, then answer.
+
+## Decision rules
+
+- Distinguish name-level watch bands, requested-facet matches and actual comparable rolls.
+  `comparable_evidence_requires_roll_review` is not an approved quote. Check scope, affixes,
+  single-item quantity, seller counts and dates. Historical `legacy_unverified` buckets
+  cannot establish verified prices. Seller rarity labels may conflict with listed modifiers.
+- Missing/thin/stale evidence never automatically means vendor. An explicit applicable guide
+  rejection can support vendor independently of missing asks; complete keep checks first.
+- Keep trade value separate from leveling/self-use. Conditional sets need their companions;
+  base legality alone is not a keep reason. Attribute requirements and upgrades stay qualified.
+- Give a payable rune/gem asking price only when supported. Convert using the dated local
+  `pricing/data/wp-f-ladder.json`; distinguish asks from fills and heuristic offers from sales.
+  Otherwise write `Price: unresolved — no matching local comparisons`; do not invent zero Ist.
+- No live refresh, market browsing, code/filter edits or corpus maintenance just to answer a drop.
 
 ## Report
 
-**A pasted screenshot with no question, or just "worth?", means all three parts.** A specific question
-("why is this in the filter?", "should I wear it?") gets only the part it asks for.
+A screenshot alone requests all three parts; keep the answer concise:
 
-### 1 · Price as is (five lines, then at most three bullets)
+1. **Price as is:** KEEP / SELL / VENDOR / REVIEW, the deciding modifiers, supported payable
+   price or unresolved status, and dated source. Separate leveling keep from trade value.
+   For a supported discard: `vendor; no trade listing recommended`, with guide-based rationale.
+   Label thin samples (<5 sellers or priced observations), unknown dates and asks without fills.
+2. **What would make it worth more:** one to three relevant missing/chase rolls. Quote a band
+   only with actual comparable evidence; otherwise say the improved roll needs appraisal.
+3. **Why the filter shows it:** current matching rule and its intended target; whether this
+   item meets that target. Filter inclusion is not proof of trade value.
 
+Cite local source paths/locators. Do not claim OCR, full automation or timings you did not run.
+A question specifically about usefulness or filter behavior needs only the requested parts.
+
+## Unique/set leveling recommendations
+
+For a class/level shopping or keep list, the first command is instead:
+
+```sh
+uv run --offline python -m pricing.knowledge recommend --class sorc --quality unique,set --max-level 25
 ```
-Verdict: VENDOR | SELL <band> | KEEP (<why>) | LIST AS OFFER   — tier
-Price: <exact runes/gems> (= <X.YZ> Ist) — the one number to list at, per the tier rule above
-Band: <min → median Ist> (<runes>), <n sellers>, asks <date>[; fills: <what was seen>]
-Deciding step: pricing.html §<n> — <one sentence: the gate or pattern that decided it>
-Source: <file and bucket key / example row / tool command used>
-```
-Say plainly when the verdict rests on asks with no observed fill, a thin bucket (`thin: true`, < 5
-sellers), or a recompute you did yourself.
 
-### 2 · What would make it worth more
-
-One to three bullets, each "<roll> → <band>": the missing gate (sockets, ≥15 % ED, 45@, +2 class,
-20 FCR, +life on a skiller), the chase roll (eth, perfect ED, 5/5, 2os) or the second affix the slot's
-buyers demand, with the band it would reach from the neighbouring buckets or the primer's thresholds
-(`pricing.html` §2 tables, §6 per-slot wants, §7 staff-mod ranking; primer §2.1 "how value multiplies",
-§5 roll thresholds). If nothing can rescue the base (wrong socket count, normal-tier generic base) or the
-item is at its ceiling, say that instead.
-
-### 3 · Why the filter shows it, and what we hunt for
-
-Find the rule in `lootfilter/warlock_lean.json` (profile "Warlock Lean", 12 named rules such as
-"SHOW Rare WEAPONS", "SHOW Magic ARMOR", "SHOW Bases WEAPONS Gray"; match on `equipmentItemCode`,
-`equipmentCategory`, `equipmentRarity`, `filterEtherealSocketed`). The reason per rule is the table in
-`guides/warlock.html` §6; the pickup rules are `guides/pindle-anya.html` §3 (`PK-*`, with a `why` per key
-in `pricing/data/wp-d-pickup.json`). Then two or three sentences: which rule matched (base / rarity /
-eth-or-socketed flag), what pattern on this item type is the actual target (e.g. "rare Warlock daggers
-are shown because eth Mithril Points with +2 Warlock or 40 IAS + leech ask Jah+"; "magic Amazon javelins
-are shown for Lancer's … of Quickness, +6 Jav / 40 IAS"; "gray Kris is a 3os Void base"), and whether this
-drop is that target, a near miss, or the price of casting the net. If the type has no sellable pattern,
-say the rule is over-broad and name the narrower condition — but do not edit the filter unless asked.
-
-### Fold-back
-
-If nothing in the repo covers the item, say so in one line and offer to add the verdict to
-`guides/pricing.html` §8 and `pricing/data/addendum-2026-09-18-session.json` as a dated pass.
-
-## Mistakes already made once
-
-- Calling a rare/class item, unique or set "vendor" because no build list or thread named it (step 5).
-- Pricing from Ladder, Hardcore, console or pre-RotW listings, or from shop/forum prices on the web.
-- Treating "blue" or "no FCR" as automatic vendor for Warlock daggers/grimoires: `pricing.html` §7 decides
-  (+2 Warlock skills or a paid +3 staff-mod on the right base sells; +1 anything, Blood Oath, Levitation,
-  Demonic Mastery do not).
-- Quoting a Traderie bucket minimum, or a single seller's wall, as the price.
+Disclose the 1–25 default if no level was given. Sorc/necro default to caster; change archetype
+for attack variants. Use returned reasons/requirements/conditions/sources and pagination.
+`item "Magefist" --full` expands a specific identity only when needed. No three-part price
+report is required for a leveling list. See `pricing/knowledge/README.md` only for additional
+filters or coverage details, not as a prerequisite to the first command.

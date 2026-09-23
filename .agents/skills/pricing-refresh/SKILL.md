@@ -5,10 +5,40 @@ description: Pull or refresh D2R market data (Traderie asks, diablo2.io fills), 
 
 # Refreshing prices and extending the guides
 
+Ordinary item appraisal uses `appraise` offline. An explicit request for live prices on one
+item uses [appraise-online](../appraise-online/SKILL.md), which may consult this tool reference.
+Do not start bulk maintenance to answer a screenshot or a missing-price result.
+
 Scope filters are mandatory everywhere: Traderie props 799 = softcore, 800 = false (Non-Ladder),
 798 = PC, 1854 = RotW (filter client-side, the server ignores bool/string filters); diablo2.io
 `ladder=2 hc=2 plat_pc=1 legacy_resu=2`, `activesold=1` for fills. Ist conversion always via
 `pricing/data/wp-f-ladder.json` field `ist`.
+
+## Offline knowledge-base maintenance (2026-09-23)
+
+The active architecture and coverage plan is `pricing/plan.html`; it supersedes the old WP-A…J
+plan. Appraisal reads `pricing/knowledge/` offline, including expensive items and cache misses.
+See `pricing/knowledge/README.md` for commands. Portable `pricing/data/appraisal-*.json` and
+`appraisal-market.jsonl` are the source of the rebuildable SQLite index.
+
+- `uv run python -m pricing.knowledge.refresh --offline-import` re-normalizes cached observations
+  and saved jobs without networking.
+- Explicit online maintenance: `uv run python -m pricing.knowledge.refresh --refresh-limit 30 --pages 4`.
+  Inspect the manifest's maintenance hold first; the initial batch stopped on HTTP 429. Preserve
+  resumable jobs and source errors, and never weaken scope to fill a coverage gap.
+- Prepared leveling maintenance: run `uv run --offline python -m pricing.knowledge.facts`, then
+  `uv run --offline python -m pricing.knowledge.recommendations`, then rebuild. These adapters read
+  cached inputs only. Portable facts/recommendations publish indexed equip requirements, reviewed
+  use cases and provenance; raw source mentions are not automatically recommendations.
+- Read questions use `recommend --class sorc --quality unique,set --max-level 25` or `item NAME --full`.
+  See README for filters and explicit coverage gaps. Do not refresh merely to answer a read query.
+- `uv run python -m pricing.knowledge rebuild` publishes portable data to the offline index.
+- `uv run python -m pricing.knowledge coverage` reports indexed source counts. Adapter coverage
+  and missing-market states live in the demand/utility/watchlist/market manifest files.
+
+The new importer requires explicit RotW membership, quarantines unknown versions, preserves
+array properties, and separates name-level watch bands from facet-matched evidence. Legacy tools
+below remain research helpers; their old cache flags are not a strict offline or strict-scope contract.
 
 ## Tools (`pricing/tools/`, all verified 2026-09-18; run from the repo root)
 
@@ -42,8 +72,8 @@ listed in primer §3–§5. Step 5 of the runbook (ladder monotonic check) is a 
 
 ## Where things live and how to fold results back
 
-- Plan and work packages: `pricing/plan.html` (§2 access cookbook, §3 WP-A…WP-J, §4 sub-agent prompt
-  skeleton, §5 open questions). Hand-off notes per package: `pricing/data/wp-*.md`.
+- Active plan: `pricing/plan.html` (offline appraisal P0…P9). Historical work-package hand-offs remain
+  in `pricing/data/wp-*.md`; original tools and evidence have not been removed.
 - Guide conventions: `guides/planning-with-html.html` — body = settled truth, no inline revision markers;
   every review or Q&A pass is appended to the guide's collapsed Review log with a date; rejected ideas are
   recorded so they are not re-proposed; unverified claims go to the "verify in-game" appendix.

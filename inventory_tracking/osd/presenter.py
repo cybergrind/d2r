@@ -11,6 +11,7 @@ from .widgets.base import SampleWidget
 from .widgets.belt import BeltWidget
 from .widgets.consume import ConsumeWidget
 from .widgets.health import MercHealthWidget, PlayerHealthWidget
+from .widgets.identify import IdentifyWidget
 from .widgets.keys import KeysWidget
 from .widgets.loot import LootWidget
 from .widgets.notifications import NotificationsWidget
@@ -28,6 +29,7 @@ def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:
         BeltWidget(config.belt, max_age=age),
         TeleportWidget(config.teleport, max_age=age),
         PortalWidget(config.portal, max_age=age),
+        IdentifyWidget(config.identify, max_age=age),
         LootWidget(config.loot, max_age=age),
         KeysWidget(config.key_stock, max_age=age),
         ConsumeWidget(config.consume, max_age=age),

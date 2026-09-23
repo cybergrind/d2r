@@ -118,6 +118,11 @@ class KeysWidgetConfig(Config):
     low_count: Annotated[int, Field(ge=0)] = 5
 
 
+class IdentifyWidgetConfig(Config):
+    enabled: bool = True
+    low_count: Annotated[int, Field(ge=0)] = 5
+
+
 class PortalWidgetConfig(Config):
     enabled: bool = True
     trigger_remaining: Annotated[int, Field(ge=0)] = 2
@@ -145,6 +150,7 @@ class OSDConfig(Config):
     belt: BeltWidgetConfig = BeltWidgetConfig()
     teleport: TeleportWidgetConfig = TeleportWidgetConfig()
     portal: PortalWidgetConfig = PortalWidgetConfig()
+    identify: IdentifyWidgetConfig = IdentifyWidgetConfig()
     loot: LootWidgetConfig = LootWidgetConfig()
     key_stock: KeysWidgetConfig = KeysWidgetConfig()
     consume: ConsumeWidgetConfig = ConsumeWidgetConfig()

@@ -6,6 +6,7 @@ from typing import Any, NamedTuple
 from .config import RESOURCE_READER, ResourceReaderConfig
 from .layout import (
     CHARGED_SKILL_STAT,
+    IDENTIFY_TOME_CLASS_ID,
     KEY_CLASS_ID,
     QUANTITY_STAT,
     STAFF_CLASS_IDS,
@@ -14,7 +15,7 @@ from .layout import (
     TOWN_IDS,
     WEAPON_SLOTS,
 )
-from .models import Location, Observation, PortalTome, TeleportCharges
+from .models import Location, Observation, PortalTome, TeleportCharges, Tome
 
 
 def item_stats(item, offset):
@@ -28,17 +29,22 @@ def item_stats(item, offset):
 
 
 def select_portal(items, config):
+    tome = select_tome(items, config, TOME_CLASS_ID)
+    return PortalTome(tome.item_id, tome.quantity, tome.capacity) if tome is not None else None
+
+
+def select_tome(items, config, class_id):
     if config.portal_stats_offset is None:
-        raise ValueError('Portal quantity layout not verified')
+        raise ValueError('Tome quantity layout not verified')
     matches = [
         item
         for item in items
-        if item['txt_id'] == TOME_CLASS_ID and item['mode'] == 0 and item['details'].get('inventory_page') == 0
+        if item['txt_id'] == class_id and item['mode'] == 0 and item['details'].get('inventory_page') == 0
     ]
     if not matches:
         return None
     if len(matches) != 1:
-        raise ValueError('Ambiguous portal tome')
+        raise ValueError('Ambiguous tome')
     item = matches[0]
     values = [
         stat['raw']
@@ -46,8 +52,8 @@ def select_portal(items, config):
         if stat['id'] == QUANTITY_STAT and stat['layer'] == 0
     ]
     if len(values) != 1:
-        raise ValueError('Portal quantity unavailable')
-    return PortalTome(item['unit_id'], values[0], 20)
+        raise ValueError('Tome quantity unavailable')
+    return Tome(item['unit_id'], values[0], 20)
 
 
 def select_teleport(items, config):
@@ -111,6 +117,7 @@ class ResourceObservations(NamedTuple):
     portal_tome: Observation[PortalTome]
     location: Observation[Location]
     keys: Observation[int]
+    identify_tome: Observation[Tome]
 
 
 def resource_observations(
@@ -127,6 +134,7 @@ def resource_observations(
             Observation.unavailable(sampled, reason),
             Observation.unavailable(sampled, reason),
             Observation.unavailable(sampled, reason),
+            Observation.unavailable(sampled, reason),
         )
 
     def owned_items() -> list[dict[str, Any]]:
@@ -139,6 +147,7 @@ def resource_observations(
             return Observation.unavailable(sampled, str(exc))
 
     return ResourceObservations(
+        identify_tome=observe(lambda: select_tome(owned_items(), config, IDENTIFY_TOME_CLASS_ID)),
         teleport=observe(lambda: select_teleport(owned_items(), config)),
         portal_tome=observe(lambda: select_portal(owned_items(), config)),
         location=observe(lambda: select_location(research.get('locations', []), player_id, config)),

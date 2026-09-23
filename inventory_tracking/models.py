@@ -81,13 +81,17 @@ class TeleportCharges:
 
 
 @dataclass(frozen=True)
-class PortalTome:
+class Tome:
     item_id: int
     quantity: int
     capacity: int
 
     def __post_init__(self):
         validate_quantity(self.quantity, self.capacity)
+
+
+class PortalTome(Tome):
+    """Town Portal tome quantity."""
 
 
 @dataclass(frozen=True)
@@ -135,6 +139,7 @@ class State:
     events: tuple[PotionSent, ...] = ()
     teleport: Observation[TeleportCharges] = field(default_factory=Observation.unavailable)
     portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
+    identify_tome: Observation[Tome] = field(default_factory=Observation.unavailable)
     location: Observation[Location] = field(default_factory=Observation.unavailable)
     show_items: Observation[bool] = field(default_factory=Observation.unavailable)
     consume: Observation[ConsumeBuff] = field(default_factory=Observation.unavailable)

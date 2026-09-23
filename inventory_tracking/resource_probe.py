@@ -3,7 +3,7 @@
 import struct
 from typing import Any
 
-from .layout import KEY_CLASS_ID, STAFF_CLASS_IDS, TOME_CLASS_ID
+from .layout import IDENTIFY_TOME_CLASS_ID, KEY_CLASS_ID, STAFF_CLASS_IDS, TOME_CLASS_ID
 from .units import describe_item, read_stats, unit_matches
 
 
@@ -56,7 +56,11 @@ def collect_resources(read, groups) -> dict[str, Any]:
             location = {'unit_id': player['unit_id'], 'reason': str(exc)}
         result['locations'].append(location)
     for item in groups['items']['units']:
-        if item['mode'] not in (0, 1) or item['txt_id'] not in STAFF_CLASS_IDS | {TOME_CLASS_ID, KEY_CLASS_ID}:
+        if item['mode'] not in (0, 1) or item['txt_id'] not in STAFF_CLASS_IDS | {
+            TOME_CLASS_ID,
+            IDENTIFY_TOME_CLASS_ID,
+            KEY_CLASS_ID,
+        }:
             continue
         record = {key: item[key] for key in ('unit_id', 'txt_id', 'mode', 'details')}
         record['resource_stats'] = read_item_arrays(read, item['stats_pointer'])

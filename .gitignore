@@ -13,3 +13,15 @@ __pycache__/
 *.tmp
 .DS_Store
 /.envrc
+
+# Local KB datasets, observations, indexes and backups (distributed separately)
+/pricing/data/**
+!/pricing/data/**/
+!/pricing/data/**/*.md
+!/pricing/data/**/*.txt
+
+# Local session handoff
+/handoff.md
+
+# Optional local OCR regression images
+/tests/pricing/knowledge/fixtures/*.png
