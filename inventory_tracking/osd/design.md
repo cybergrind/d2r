@@ -6,10 +6,10 @@ Implemented and live-accepted 2026-09-21. Operational defaults are in the
 ## Composition
 
 `Presenter` owns ordered widgets: notifications, player HP, merc HP, belt shortages,
-Teleport charges, portal tome, Show Items warning, key stock. `default_widgets(config)` builds that list explicitly;
+Teleport charges, portal tome, Show Items warning, key stock, Consume. `default_widgets(config)` builds that list explicitly;
 each widget receives only its own nested config (`config.belt`, `config.portal`, …)
 plus the window's `max_age` as an explicit argument, so `--max-age` reaches every
-widget without being copied into eight configs. Widgets subclass
+widget without being copied into nine configs. Widgets subclass
 `SampleWidget[ConfigType]` and implement:
 
 - `update(snapshot)`: consume a domain state.
@@ -17,18 +17,16 @@ widget without being copied into eight configs. Widgets subclass
 - `reset()`: clear retained display state.
 
 Widgets perform no I/O. Update consumes facts/events and advances display state;
-render is pure and checks freshness/expiry. Repeated rendering cannot advance a
-latch. Reset discards observations/display memory on verified session change.
+render is pure and checks freshness/expiry. Repeated rendering cannot advance
+display state. Reset discards observations/display memory on verified session change.
 
 The reader calls `presenter.update` for every published sample, after automation
 events are attached and outside its state lock. A presenter lock serializes updates
-and rendering. GUI/text/demo share a persistent presenter, ensuring sampled portal
-threshold crossings are retained even between screen refreshes. Unsampled crossings
-cannot be recovered. The UI timer still expires notifications if reading stops.
+and rendering. GUI/text/demo share a persistent presenter and display the latest
+accepted resource sample. The UI timer still expires notifications if reading stops.
 
 Widget exceptions are logged without repeated identical messages and suppress only
-the affected widget until successful update. They neither clear its latch nor stop
-healing. The window joins segments with ` · ` and clears/unmaps when empty.
+the affected widget until successful update. They do not stop healing. The window joins segments with ` · ` and clears/unmaps when empty.
 To add a widget: subclass `SampleWidget` with a typed config, add that config as a
 field of `OSDConfig`, add one `default_widgets` line, and test observable behavior
 under `tests/inventory_tracking/osd/`. `OSDConfig` itself gains no widget-specific
@@ -72,24 +70,21 @@ does not. Repair/replacement applies on the next valid observation; no latch.
 
 ## Portal widget
 
-The latch belongs to the current tome and session. Defaults: capacity 20, trigger
-19; configuration requires `0 <= trigger < capacity` and matching reader capacity.
+As of 2026-09-22, the reminder appears only when the town portal tome has
+fewer than 3 scrolls. Defaults: capacity 20, inclusive trigger 2; configuration
+requires `0 <= trigger < capacity` and matching reader capacity.
 
-| Observation | Latch/output |
+| Observation | Output |
 | --- | --- |
-| Full 20 | Off/hidden |
-| <=19 | On/`tp: 20 - quantity` (computed number) |
-| Partial refill below 20 | On/updated missing count |
-| Unavailable or stale | Preserve/hidden |
-| Confirmed absence | Reset/hidden |
-| New tome/session | Reset, then evaluate new quantity |
+| 0–2 remaining | `tp: 20 - quantity` (missing scroll count) |
+| 3 or more remaining, including partial refill | Hidden |
+| Unavailable, stale, or absent tome | Hidden |
+| New tome/session | Evaluate its current quantity |
 
-`20 → 17 → 16 → 18 → 19 → 20` displays
-`hidden → tp: 3 → tp: 4 → tp: 2 → tp: 1 → hidden`.
-As of 2026-09-21, even one missing scroll shows immediately, including on startup
-or tome/session change. A lower configured trigger retains the optional latch:
-once reached, the reminder stays until full. No persistence is implied by
-potion-ledger state.
+`20 → 3 → 2 → 1 → 0 → 3` displays
+`hidden → hidden → tp: 18 → tp: 19 → tp: 20 → hidden`.
+There is no refill latch. This threshold uses the book quantity; the swap-weapon
+Teleport charge widget has its own independent rules.
 
 ## Show Items widget
 

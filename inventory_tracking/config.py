@@ -120,7 +120,7 @@ class KeysWidgetConfig(Config):
 
 class PortalWidgetConfig(Config):
     enabled: bool = True
-    trigger_remaining: Annotated[int, Field(ge=0)] = 19
+    trigger_remaining: Annotated[int, Field(ge=0)] = 2
     capacity: Annotated[int, Field(gt=0)] = 20
 
     @model_validator(mode='after')
@@ -128,6 +128,12 @@ class PortalWidgetConfig(Config):
         if self.trigger_remaining >= self.capacity:
             raise ValueError('Portal trigger must be an integer in 0..capacity-1')
         return self
+
+
+class ConsumeWidgetConfig(Config):
+    enabled: bool = True
+    warn_before_seconds: Positive = 15
+    ended_notice_seconds: Positive = 30
 
 
 class OSDConfig(Config):
@@ -141,6 +147,7 @@ class OSDConfig(Config):
     portal: PortalWidgetConfig = PortalWidgetConfig()
     loot: LootWidgetConfig = LootWidgetConfig()
     key_stock: KeysWidgetConfig = KeysWidgetConfig()
+    consume: ConsumeWidgetConfig = ConsumeWidgetConfig()
     # Seconds before any reading displays as stale; handed to every widget by the factory.
     max_age: Positive = 2.0
     font_size: Positive = 16

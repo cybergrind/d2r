@@ -9,6 +9,7 @@ from ..config import OSD, OSDConfig
 from ..models import State
 from .widgets.base import SampleWidget
 from .widgets.belt import BeltWidget
+from .widgets.consume import ConsumeWidget
 from .widgets.health import MercHealthWidget, PlayerHealthWidget
 from .widgets.keys import KeysWidget
 from .widgets.loot import LootWidget
@@ -29,6 +30,7 @@ def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:
         PortalWidget(config.portal, max_age=age),
         LootWidget(config.loot, max_age=age),
         KeysWidget(config.key_stock, max_age=age),
+        ConsumeWidget(config.consume, max_age=age),
     ]
 
 

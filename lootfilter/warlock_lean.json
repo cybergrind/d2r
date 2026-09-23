@@ -76,15 +76,13 @@
             ]
         },
         {
-            "name": "SHOW Potions and TP Scrolls",
+            "name": "SHOW Healing and Full Rejuv",
             "enabled": true,
             "ruleType": "show",
             "filterEtherealSocketed": false,
             "itemCode": [
-                "mp5",
                 "hp5",
-                "rvl",
-                "tsc"
+                "rvl"
             ]
         },
         {

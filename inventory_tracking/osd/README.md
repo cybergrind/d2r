@@ -21,7 +21,7 @@ send keys. Once exits 0 for a health sample, 2 for unavailable state.
 Edit [config.py](../config.py): `PLAYER_HEALING`/`MERC_HEALING` hold thresholds,
 cooldowns, input freshness and acknowledgement timeout; `OSD` holds window settings
 plus one nested config per widget (`notifications`, `player_health`, `merc_health`,
-`belt`, `teleport`, `portal`, `loot`, `key_stock`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
+`belt`, `teleport`, `portal`, `loot`, `key_stock`, `consume`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
 `RESOURCE_READER` contains supported-build resource settings, requiring revalidation
 after updates. Configs are frozen, strictly typed pydantic models: derive variants
 with `with_overrides(model, **changes)`, which re-validates; invalid values raise
@@ -52,13 +52,29 @@ Only belt stock counts; an empty four-row belt shows `juv 16`.
 | Potion sent, recipient/key | One second after successful key delivery; acknowledgement is separate |
 | `tele N/M repair` | Equipped Teleport staff missing charges in town |
 | `tele N/M` | Below 20% charges outside town or with unknown location |
-| `tp: N` | Missing portals whenever tome is below 20, including one missing scroll |
+| `tp: N` | Missing portals only when the tome has fewer than 3 scrolls; hides again at 3 or more |
 | `keys: N` | Fewer than 5 ordinary keys in character inventory; 5 or more stays hidden |
+| `consume: ~15s left` | Estimated expiry approaching, using observed activation and the applied skill level |
+| `consume: no longer active` | Observed removal after being active; shown for 30 seconds by default |
 | `loot is not enabled` | Show Items is confirmed OFF in a fresh in-game sample |
 
 Key counts sum all owned inventory stacks, excluding stash, cube, ground and
 vendor items. A confirmed empty inventory shows `keys: 0`; unavailable readings
 hide the warning. `OSD.key_stock.low_count` sets the strict threshold.
+
+Consume uses the level stored on the applied effect, so restoring +skills gear
+after casting does not extend the timer. `OSD.consume.warn_before_seconds`
+defaults to 15; `OSD.consume.ended_notice_seconds` defaults to 30. Set
+`OSD.consume.enabled=False` to disable it. Restart the OSD after editing config.
+If the OSD attaches mid-buff or cannot establish a start and level, it shows only
+the removal notice. That notice also covers cancellation by summoning a demon.
+It clears early on reapplication and does not repeat while Consume stays absent.
+Timers are best-effort estimates, not a game-provided countdown. While the game
+still reports an active buff after the estimate, the display says
+`consume: recast (estimated timer elapsed)`; it does not claim confirmed expiry.
+Unavailable/stale reads hide the message, uncertain tracking drops the estimate,
+and death/session changes clear tracking. An indistinguishable active-to-active
+refresh can still make an estimate wrong; restart mid-buff cannot recover its age.
 
 The loot warning reads the Show Items state, not whether a loot-filter profile is
 selected. Enabling Show Items clears it; unknown/stale readings hide it. The memory

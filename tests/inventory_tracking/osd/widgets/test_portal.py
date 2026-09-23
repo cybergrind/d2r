@@ -10,40 +10,49 @@ def sample(quantity, *, at=100, item=1, player=2):
     return State(sampled_at=at, portal_tome=Observation(at, tome), session=SessionIdentity(1, 'a', player))
 
 
-def latched_presenter():
+def configured_presenter():
     return Presenter(OSDConfig(portal=PortalWidgetConfig(trigger_remaining=16)))
 
 
-def test_default_shows_every_missing_scroll():
+def test_default_shows_only_below_three_remaining_including_partial_refills():
     presenter = Presenter()
-    for quantity, expected in [(20, []), (19, ['tp: 1']), (17, ['tp: 3']), (20, [])]:
+    for quantity, expected in [
+        (20, []),
+        (19, []),
+        (3, []),
+        (2, ['tp: 18']),
+        (1, ['tp: 19']),
+        (0, ['tp: 20']),
+        (3, []),
+        (20, []),
+    ]:
         presenter.update(sample(quantity))
         assert presenter.render(now=100) == expected
 
 
-def test_latch_sequence_and_render_is_pure():
-    presenter = latched_presenter()
-    for quantity, expected in [(20, []), (17, []), (16, ['tp: 4']), (18, ['tp: 2']), (19, ['tp: 1']), (20, [])]:
+def test_configured_threshold_and_render_is_pure():
+    presenter = configured_presenter()
+    for quantity, expected in [(20, []), (17, []), (16, ['tp: 4']), (18, []), (19, []), (20, [])]:
         presenter.update(sample(quantity))
         assert presenter.render(now=100) == expected
         assert presenter.render(now=100) == expected
 
 
-def test_unavailable_hides_but_preserves_latch_absence_resets():
-    presenter = latched_presenter()
+def test_unavailable_stale_and_absent_tome_hide():
+    presenter = configured_presenter()
     presenter.update(sample(15))
     presenter.update(replace(sample(18), portal_tome=Observation.unavailable(100, 'failed')))
     assert presenter.render(now=100) == []
     presenter.update(sample(18))
-    assert presenter.render(now=100) == ['tp: 2']
+    assert presenter.render(now=100) == []
     assert presenter.render(now=103) == []
     presenter.update(sample(None))
     presenter.update(sample(18))
     assert presenter.render(now=100) == []
 
 
-def test_item_and_session_changes_reset_latch():
-    presenter = latched_presenter()
+def test_item_and_session_changes_evaluate_new_quantity():
+    presenter = configured_presenter()
     presenter.update(sample(16))
     presenter.update(sample(18, item=3))
     assert presenter.render(now=100) == []

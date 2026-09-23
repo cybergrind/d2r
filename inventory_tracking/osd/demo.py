@@ -16,13 +16,13 @@ DEMO_SESSION = SessionIdentity(0, 'demo', 0)
 
 
 def resource_frame(*, now, elapsed):
-    # Full, small deficit, latch trigger, partial refill, nearly full, repaired.
+    # Full, threshold boundary, low stock, empty, partial refill, repaired.
     quantity, charges, town = (
         (20, 20, True),
-        (17, 18, True),
-        (16, 3, False),
-        (18, 0, False),
-        (19, 10, True),
+        (3, 18, True),
+        (2, 3, False),
+        (0, 0, False),
+        (3, 10, True),
         (20, 20, True),
     )[int(elapsed // 3) % 6]
     return State(

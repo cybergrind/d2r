@@ -10,6 +10,7 @@ from .automation import Automation
 from .capture_probe import capture_image
 from .common import LOG
 from .config import READER, RESOURCE_READER
+from .consume import observe_consume
 from .image_probe import inspect_images
 from .layout import SUPPORTED_SHA256
 from .models import State
@@ -98,7 +99,11 @@ class LiveReader:
                             raise ValueError('game changed; reconnecting')
                         state = from_research(snapshot, resource_config=self.resource_config)
                         if state.session is not None:
-                            state = replace(state, show_items=observe_show_items(pid, images))
+                            state = replace(
+                                state,
+                                show_items=observe_show_items(pid, images),
+                                consume=observe_consume(pid, images, snapshot, state.session.player_id),
+                            )
                         results = self.automation.step(state)
                         for actor, result in results.items():
                             publish(self.directory / f'{actor}-heal.json', asdict(result))

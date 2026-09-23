@@ -115,6 +115,13 @@ class BeltSnapshot:
         return self.rejuvenation_cells if kind == PotionType.REJUVENATION else self.healing_cells
 
 
+@dataclass(frozen=True)
+class ConsumeBuff:
+    active: bool
+    level: int | None = None
+    effect_id: int | None = None
+
+
 @dataclass(frozen=True, kw_only=True)
 class State:
     """Published snapshot: either a complete in-game sample (`session` set) or a placeholder with a `reason`."""
@@ -130,6 +137,7 @@ class State:
     portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
     location: Observation[Location] = field(default_factory=Observation.unavailable)
     show_items: Observation[bool] = field(default_factory=Observation.unavailable)
+    consume: Observation[ConsumeBuff] = field(default_factory=Observation.unavailable)
     keys: Observation[int] = field(default_factory=Observation.unavailable)
     # Only set by a reader that can positively establish the game boundary.
     session_ended: bool = False

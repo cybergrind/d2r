@@ -50,6 +50,7 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
         patch.object(reader.stop_event, 'wait', return_value=False),
         patch('inventory_tracking.reader.sample_units', side_effect=inspect),
         patch('inventory_tracking.reader.observe_show_items', return_value=Observation(100, False)) as show_items,
+        patch('inventory_tracking.reader.observe_consume', return_value=Observation.unavailable()) as consume,
     ):
         reader.run()
     assert [state.session.player_id if state.session else None for state in observed] == [7, None, 17]
@@ -57,6 +58,7 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
     assert observed[0].show_items.value is False
     assert observed[1].show_items.value is None
     assert show_items.call_count == 2
+    assert consume.call_count == 2
     assert json.loads((tmp_path / 'state.json').read_text())['session'][2] == 17
 
 
