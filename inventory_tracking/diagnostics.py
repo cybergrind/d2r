@@ -26,6 +26,7 @@ def main():
     )
     probe_parser.add_argument('--merc', action='store_true', help='Also research mercenary/monster health')
     probe_parser.add_argument('--resources', action='store_true', help='Research staff/tome stats and town location')
+    probe_parser.add_argument('--item-class', type=int, help='Also capture stat arrays for this verified item class ID')
     watch_parser = commands.add_parser('watch', help='Wait inside sandbox for a host probe report')
     watch_parser.add_argument('--timeout', type=float, default=300)
     watch_parser.add_argument('--include-existing', action='store_true', help='Also accept already recorded runs')

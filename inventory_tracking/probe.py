@@ -10,6 +10,7 @@ from typing import Any
 from .capture_probe import capture_image
 from .common import LOG, error, log_to_file, read_text, timestamp
 from .image_probe import inspect_images
+from .layout import SUPPORTED_SHA256
 from .linux_process import (
     find_game_processes,
     fingerprint_executable,
@@ -94,12 +95,24 @@ def create_run(output):
 
 
 def run_diagnostics(
-    report, requested_pid, images=False, capture_directory=None, units=False, merc=False, resources=False
+    report,
+    requested_pid,
+    images=False,
+    capture_directory=None,
+    units=False,
+    merc=False,
+    resources=False,
+    item_class=None,
 ):
     try:
         report.update(reader_environment())
         pid = select_game_process(requested_pid)
         report['game'] = inspect_game(pid)
+        if (
+            item_class is not None
+            and report['game'].get('executable_fingerprint', {}).get('sha256') != SUPPORTED_SHA256
+        ):
+            raise ValueError('Unsupported game build for item-stat probe')
         access = report['game'].get('memory_access', False)
         if images and access:
             report['images'] = inspect_images(pid, report['game'])
@@ -116,6 +129,7 @@ def run_diagnostics(
                 capture_directory,
                 merc=merc,
                 **({'resources': True} if resources else {}),
+                **({'item_class': item_class} if item_class is not None else {}),
             )
             access = report['units']['status'] == 'research' and report['units']['complete']
         report['state'] = 'complete' if access else 'blocked'
@@ -134,10 +148,18 @@ def probe(args):
         publish(directory / 'report.json', report)
         LOG.info('Started run %s; output %s', report['run_id'], directory)
         resources = getattr(args, 'resources', False)
-        units = args.units or args.merc or resources
+        item_class = getattr(args, 'item_class', None)
+        units = args.units or args.merc or resources or item_class is not None
         capture = args.capture or units
         run_diagnostics(
-            report, args.pid, args.images or capture, directory if capture else None, units, args.merc, resources
+            report,
+            args.pid,
+            args.images or capture,
+            directory if capture else None,
+            units,
+            args.merc,
+            resources,
+            item_class,
         )
         publish(directory / 'report.json', report)
     return report['exit_code']

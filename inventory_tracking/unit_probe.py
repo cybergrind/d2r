@@ -47,7 +47,7 @@ class ResearchReader:
         raise ValueError(f'Unmapped or unreadable range at {address:#x}')
 
 
-def sample_units(pid, images, capture, *, merc=False, resources=False) -> dict[str, Any]:
+def sample_units(pid, images, capture, *, merc=False, resources=False, item_class=None) -> dict[str, Any]:
     """Return the complete in-memory research snapshot."""
     candidates = capture['unit_table_candidates']
     addresses = sorted({x['table_address'] for x in candidates})
@@ -133,11 +133,13 @@ def sample_units(pid, images, capture, *, merc=False, resources=False) -> dict[s
         )
         if identity(pid) != token or not result['mappings_stable']:
             result['status'] = 'stale'
-        if resources:
+        if resources or item_class is not None:
             # Separate budget and mappings: optional research cannot invalidate core data.
             optional = ResearchReader(fd, after)
             try:
-                result['resources'] = collect_resources(optional.read, result['groups'])
+                result['resources'] = collect_resources(
+                    optional.read, result['groups'], **({'item_class': item_class} if item_class is not None else {})
+                )
                 for label in ('players', 'items'):
                     table, heads = table_heads[label]
                     if optional.read(table, 1024) != heads or any(
@@ -160,8 +162,15 @@ def sample_units(pid, images, capture, *, merc=False, resources=False) -> dict[s
     return result
 
 
-def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False, resources=False):
-    result = sample_units(pid, images, capture, merc=merc, **({'resources': True} if resources else {}))
+def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=False, resources=False, item_class=None):
+    result = sample_units(
+        pid,
+        images,
+        capture,
+        merc=merc,
+        **({'resources': True} if resources else {}),
+        **({'item_class': item_class} if item_class is not None else {}),
+    )
     if 'groups' not in result:
         return result
     publish(directory / 'units.json', result)
@@ -169,6 +178,19 @@ def inspect_units(pid, images, capture, directory, *, log_summary=True, merc=Fal
     log = LOG.info if log_summary else LOG.debug
     log('Unit research: %s; counts=%s', result['status'], counts)
     complete = all(g['complete'] for g in result['groups'].values())
+    if item_class is not None:
+        resources_result = result.get('resources', {})
+        selected = [row for row in resources_result.get('items', []) if row['txt_id'] == item_class]
+        complete = (
+            complete
+            and resources_result.get('complete', False)
+            and bool(selected)
+            and all(
+                row['resource_stats'].get('complete', False)
+                and any(array.get('stats') for array in row['resource_stats'].get('arrays', []))
+                for row in selected
+            )
+        )
     summary = summarize_research(result['groups']) if result['status'] == 'research' and complete else {}
     log('Candidate summary (unvalidated): %s', summary)
     return {

@@ -16,6 +16,11 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', type=Path, default=DEFAULT_DATABASE)
     commands = parser.add_subparsers(dest='command', required=True)
+    snapshot = commands.add_parser('snapshot', help='Decode verified ring fields from a saved host probe; offline')
+    snapshot.add_argument('directory', type=Path)
+    image = commands.add_parser('image', help='EasyOCR image to offline candidate evidence for agent review')
+    image.add_argument('image', type=Path)
+    image.add_argument('--model-dir', type=Path)
     rebuild = commands.add_parser('rebuild', help='Rebuild local index from portable evidence; no network')
     rebuild.add_argument('--input', action='append', type=Path, dest='inputs')
     commands.add_parser('coverage', help='Show indexed sources and record counts')
@@ -63,7 +68,21 @@ def main(argv=None):
     database = args.pop('database')
     output_indent = 2
     try:
-        if command == 'rebuild':
+        if command == 'snapshot':
+            from inventory_tracking.item_appraisal import decode_rings
+            from pricing.knowledge.pipeline import retrieve_draft
+
+            directory = args['directory']
+            observations = decode_rings(
+                json.loads((directory / 'units.json').read_text()),
+                json.loads((directory / 'report.json').read_text()),
+            )
+            result = [retrieve_draft(row, database) for row in observations]
+        elif command == 'image':
+            from pricing.knowledge.pipeline import extract_and_retrieve
+
+            result = extract_and_retrieve(args['image'], database, model_dir=args['model_dir'])
+        elif command == 'rebuild':
             paths = args['inputs'] or [
                 ROOT / 'data' / filename
                 for filename in (
@@ -127,7 +146,7 @@ def main(argv=None):
                 **({'separators': (',', ':')} if command in ('recommend', 'item') else {}),
             )
         )
-    except (FileNotFoundError, ValueError) as error:
+    except (OSError, ValueError, ImportError, RuntimeError) as error:
         print(json.dumps({'error': str(error), 'offline': True}), file=sys.stderr)
         return 2
     return 0

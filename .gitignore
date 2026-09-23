@@ -15,10 +15,7 @@ __pycache__/
 /.envrc
 
 # Local KB datasets, observations, indexes and backups (distributed separately)
-/pricing/data/**
-!/pricing/data/**/
-!/pricing/data/**/*.md
-!/pricing/data/**/*.txt
+/pricing/data/
 
 # Local session handoff
 /handoff.md

@@ -2,7 +2,7 @@
 
 The normal appraisal path reads a local SQLite index. Network research belongs to
 the separate refresh workflow. JSON evidence and SQLite are local data, excluded from Git. Restore a separate data
-snapshot into `pricing/data/` before appraisal; see [data setup](../data/README.md).
+snapshot into `pricing/data/` before appraisal; see [data setup](#local-data-setup) below.
 The SQLite index can be rebuilt from that snapshot without raw downloads.
 
 Independent appraisal facets (2026-09-23):
@@ -145,3 +145,51 @@ The initial refresh stopped on HTTP 429. Consult `appraisal-market-manifest.json
 and saved jobs before resuming. A completed catalog census does not imply that
 every item has a price, nor that name-level seller coverage covers every valuable
 roll. Existing observations without fetch timestamps retain unknown dates.
+
+## Local data setup
+
+The entire `pricing/data/` directory is excluded from Git, including research notes and
+schemas stored there. Keep a separate backup of this directory and `pricing/raw/`.
+Optional OCR screenshots under `tests/pricing/knowledge/fixtures/` are also local.
+
+
+Copy a trusted snapshot's pricing/data/ files into `pricing/data/`. For an offline
+rebuild, the minimum inputs are:
+
+- appraisal-catalog.json
+- appraisal-trade-catalog.json
+- appraisal-demand.json
+- appraisal-utility.json
+- appraisal-legacy.json
+- appraisal-market.jsonl
+- appraisal-item-facts.json
+- appraisal-recommendations.json
+
+Also restore appraisal-properties.json for property lookup/OCR and wp-f-ladder.json
+for currency conversion. Preserve the full data snapshot for legacy fallback evidence,
+maintenance and research; raw inputs/models are needed only by their respective adapters
+and OCR. Use matching artifacts from the same snapshot: rebuild validates dependencies.
+
+From the repository root:
+
+```sh
+uv run --offline python -m pricing.knowledge rebuild
+uv run --offline python -m pricing.knowledge lookup Ring --rarity rare --limit 2
+```
+
+A fresh clone alone contains no market database. Do not fetch online merely because data
+is absent. Restore a snapshot or explicitly request maintenance. Corpus integration tests
+skip when their optional local data is absent; synthetic behavior tests still run.
+
+
+### Image extraction (EasyOCR)
+
+Use the separate, explicitly provisioned OCR environment documented in [OCR.md](OCR.md):
+
+```sh
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /tmp/d2r-easyocr-env/bin/python -m pricing.knowledge image IMAGE
+```
+
+This returns a draft plus local candidate evidence for the calling agent to review.
+It does not approve prices or automatically infer unreadable fields. Tesseract and
+its project extra have been retired. Missing models fail locally without downloads.

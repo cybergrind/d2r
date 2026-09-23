@@ -78,3 +78,26 @@ def test_identify_tome_is_collected_and_decoded(monkeypatch):
     result = resource_observations({'status': 'research', 'sample_monotonic': 100, 'resources': resources}, 7)
     assert result.identify_tome.value is not None
     assert result.identify_tome.value.quantity == 4
+
+
+def test_opt_in_item_class_collects_ring_stats_without_changing_defaults(monkeypatch):
+    from inventory_tracking import resource_probe
+
+    item = {
+        'unit_id': 9,
+        'txt_id': 537,
+        'mode': 0,
+        'stats_pointer': 100,
+        'details': {'quality': 4, 'owner_id': 7, 'inventory_page': 0, 'x': 3, 'y': 0},
+    }
+    groups = {'players': {'complete': True, 'units': []}, 'items': {'complete': True, 'units': [item]}}
+    arrays = {'complete': True, 'arrays': [{'header_offset': 48, 'stats': [{'id': 105, 'layer': 0, 'raw': 10}]}]}
+    monkeypatch.setattr(resource_probe, 'read_item_arrays', lambda *args: arrays)
+    monkeypatch.setattr(resource_probe, 'unit_matches', lambda *args: True)
+    monkeypatch.setattr(resource_probe, 'describe_item', lambda *args: item['details'])
+    assert resource_probe.collect_resources(None, groups)['items'] == []
+    result = resource_probe.collect_resources(None, groups, item_class=537)
+    assert result['items'][0]['resource_stats'] == arrays
+    assert result['items'][0]['unit_id'] == 9
+    monkeypatch.setattr(resource_probe, 'unit_matches', lambda *args: False)
+    assert not resource_probe.collect_resources(None, groups, item_class=537)['complete']

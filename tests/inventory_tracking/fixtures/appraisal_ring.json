@@ -1,0 +1,99 @@
+{
+  "report": {
+    "state": "complete",
+    "run_id": "20260923T152509Z-1073f08b",
+    "finished_at": "2026-09-23T15:25:09.696508+00:00",
+    "game": {
+      "executable_fingerprint": {
+        "sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+      },
+      "identity": {
+        "pid": 3956498,
+        "start_ticks": "293144228"
+      }
+    }
+  },
+  "snapshot": {
+    "status": "research",
+    "identity": {
+      "pid": 3956498,
+      "start_ticks": "293144228"
+    },
+    "mappings_stable": true,
+    "sample_monotonic": 2833874.248658595,
+    "sample_finished_monotonic": 2833874.252887505,
+    "groups": {
+      "players": {
+        "complete": true,
+        "units": [
+          {
+            "unit_id": 104997884,
+            "details": {
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 6,
+                  "raw": 384768
+                },
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 384896
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "items": {
+        "complete": true
+      }
+    },
+    "resources": {
+      "complete": true,
+      "items": [
+        {
+          "unit_id": 438836750,
+          "txt_id": 537,
+          "mode": 0,
+          "details": {
+            "quality": 4,
+            "owner_id": 104997884,
+            "inventory_page": 0,
+            "body_location": 0,
+            "x": 3,
+            "y": 0
+          },
+          "resource_stats": {
+            "complete": true,
+            "arrays": [
+              {
+                "header_offset": 48,
+                "stats": []
+              },
+              {
+                "header_offset": 168,
+                "stats": []
+              },
+              {
+                "header_offset": 232,
+                "stats": [
+                  {
+                    "layer": 0,
+                    "id": 11,
+                    "raw": 2816
+                  },
+                  {
+                    "layer": 0,
+                    "id": 105,
+                    "raw": 10
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

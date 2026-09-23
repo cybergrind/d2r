@@ -42,7 +42,7 @@ def read_item_arrays(read, pointer) -> dict[str, Any]:
     return {'complete': True, 'arrays': arrays}
 
 
-def collect_resources(read, groups) -> dict[str, Any]:
+def collect_resources(read, groups, *, item_class=None) -> dict[str, Any]:
     result: dict[str, Any] = {'complete': True, 'validated': False, 'keys_sampled': True, 'items': [], 'locations': []}
     if not all(groups[name]['complete'] for name in ('players', 'items')):
         return dict(result, complete=False, reason='Incomplete player/item traversal')
@@ -60,6 +60,7 @@ def collect_resources(read, groups) -> dict[str, Any]:
             TOME_CLASS_ID,
             IDENTIFY_TOME_CLASS_ID,
             KEY_CLASS_ID,
+            item_class,
         }:
             continue
         record = {key: item[key] for key in ('unit_id', 'txt_id', 'mode', 'details')}

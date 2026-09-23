@@ -128,3 +128,56 @@ commit-pinned source links, calculations and limitations.
 Production changes require supported-build validation; related forks should not
 be counted as independent confirmation. External code was inspected in temporary
 checkouts outside this repository; no third-party runtime was installed or run.
+
+### Appraisal item-stat research
+
+To capture rings as well as the existing resource items (class ID 537 verified
+against cached d2data/misc.json), run on the host:
+
+```sh
+uv run --offline -m inventory_tracking --output inventory_tracking/runs/ring-appraisal probe --item-class 537
+```
+
+This opt-in diagnostic reuses bounded unit traversal and stat-array consistency
+checks; it does not change OSD polling. It requires the supported executable hash.
+`units.json` includes ring records under `resources.items`, with raw stat arrays
+at each candidate descriptor offset. They are research observations, not decoded
+or approved appraisal facts. Owner/page/coordinates identify candidate items;
+multiple rings must not be collapsed into one or matched solely by quality.
+Missing/changed arrays or no selected item prevent successful probe completion.
+The existing report watcher detects completion without another chat message:
+
+```sh
+uv run --offline -m inventory_tracking --output inventory_tracking/runs/ring-appraisal watch --timeout 60 --include-existing
+```
+
+The first validated decoder covers inventory magic rings' faster cast rate and
+maximum stamina only. Replay a completed probe without accessing the game:
+
+```sh
+uv run --offline python -m pricing.knowledge snapshot inventory_tracking/runs/ring-appraisal/RUN_DIRECTORY
+```
+
+It selects the captured player's inventory rings and retrieves local candidate
+KB evidence. Title/required level and unsupported stats remain unresolved.
+The capture is historical, not proof of current inventory state. Hover selection
+and hotkey-triggered reports are not implemented yet.
+
+### Hover selection prototype
+
+Run `uv run --offline -m inventory_tracking.hover_probe` on the host. After the
+initial build-gated connection it prompts for three samples: ring, empty space,
+same ring again. Default delays are 5, 3, 3 seconds (`--delay` for the first,
+`--interval` for later samples). Keep the cursor stationary during each capture.
+Results are in `runs/hover-appraisal/<run>/report.json` and sample-0/1/2.json.
+
+This scans the captured executable for a hover-layout candidate and checks its
+unit type/ID against the existing item traversal, reading hover before and after.
+Changed selection or unstable unit data is rejected. Empty hover ignores stale
+unit IDs. Success means the requested sequence matched, not general hover-layout
+validation; `validated` remains false. A ring-to-different-item test is still
+needed before enabling a hotkey report. No Alt+D binding is installed yet.
+
+Layout lead: https://github.com/relentlessricktrinidad/d2go/blob/main/pkg/memory/offset.go
+and game_reader.go, inspected 2026-09-23. Our saved supported-build executable
+contains one candidate at RVA 0x1e010a0; it is discovered rather than hardcoded.

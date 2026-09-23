@@ -1,109 +1,159 @@
-# Local screenshot preprocessing
+# Offline EasyOCR extraction
 
-The prototype uses **PyOCR's libtesseract C-API backend**, Pillow, and a local
-English Tesseract model. It makes no network requests. The new stage is separate
-from market lookup:
-
-```text
-Screenshot -> local OCR with word boxes -> tooltip grammar + catalog validation
-           -> structured draft + uncertain fields -> visual review -> appraisal
-```
-
-For the greatest workflow benefit, run this in the upload handler before sending
-the appraisal request to a model. Attach compact JSON and the original image.
-Running another tool after the model already sees an easy tooltip may add latency;
-local OCR timing alone cannot establish end-to-end improvement.
+EasyOCR is the supported CPU engine. Tesseract is removed from the runtime path;
+there is no engine fallback or automatic model download. Shared parsing lives in
+`tooltip.py`; `ocr.py` preserves the module entry point.
 
 ## Run
 
-```sh
-uv run --extra ocr python -m pricing.knowledge.ocr /path/to/item.png
-uv run --extra ocr python -m pricing.knowledge.ocr /path/to/item.png \
-  --diagnostics tmp/item-ocr/review --full
-```
-
-`--diagnostics` saves field crops, original OCR text, word boxes/confidences and
-structured evidence. The normal output keeps the item fields and review flags.
-This is a transcription draft, not an automatic appraisal: `appraisal_ready` is
-deliberately false until another step reviews the image and unresolved fields.
-
-Optional Python dependencies are in the `ocr` extra. Tesseract's native library
-must also be installed. The model is provisioned separately, never downloaded
-implicitly while parsing an image:
+Use the explicitly provisioned Python 3.12 environment (the main project remains
+Python 3.14; installing the OCR stack into it has not been validated):
 
 ```sh
-mkdir -p pricing/raw/ocr/tessdata
-curl -fsSL https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/eng.traineddata \
-  -o pricing/raw/ocr/tessdata/eng.traineddata
-sha256sum pricing/raw/ocr/tessdata/eng.traineddata
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /tmp/d2r-easyocr-env/bin/python -m pricing.knowledge.ocr IMAGE --output tmp/ocr/result.json
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /tmp/d2r-easyocr-env/bin/python -m pricing.knowledge image IMAGE
 ```
 
-Tested model SHA-256:
-`7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2`.
-Use `--tessdata DIR` for a different local model location. The output records the
-actual model and image hashes. A changed model requires renewed fixture testing.
+The first command extracts a draft; the second also retrieves local candidate KB
+evidence. The calling agent reviews the original image and bundle and performs the
+appraisal under the offline skill. No local LLM is installed or invoked. The bundle
+always reports REVIEW and unresolved pricing until that review; this is not an
+unattended appraisal. Unknown rarity/ethereal/socket contents stay unknown.
 
-## What the experiment established
+`--model-dir DIR` selects provisioned models. Extraction accepts `--retry-limit 1`
+(up to 3): grayscale greedy recognition of unparsed regions, with clipped crop
+coordinates. Both readings are retained; retry text never replaces observed values.
+Retries are disabled by default. No masks, beamsearch or numeric repair is enabled.
+Output includes raw geometry, region confidence, image/model hashes and timings.
+Region confidence is not word confidence or a calibrated correctness probability.
 
-On the supplied Cinquedeas screenshot, the parser extracts:
+## Explicit setup only
 
-- Damage 15–31; durability 14/24.
-- Dexterity 73, strength 21, required level 25.
-- Three sockets; +3 to Sigil: Death, mapped to local property 1577.
-- Name and verified base code from the local catalog.
+```sh
+uv venv --python 3.12 /tmp/d2r-easyocr-env
+uv pip install --python /tmp/d2r-easyocr-env/bin/python torch torchvision --index-url https://download.pytorch.org/whl/cpu
+uv pip install --python /tmp/d2r-easyocr-env/bin/python easyocr==1.7.2
+/tmp/d2r-easyocr-env/bin/python -c 'import easyocr; easyocr.Reader(["en"], gpu=False, model_storage_directory="pricing/raw/ocr/easyocr", user_network_directory="pricing/raw/ocr/easyocr/user_network", download_enabled=True)'
+```
 
-The source and measurements are in
-[appraisal-ocr-experiment-2026-09-23.json](../data/appraisal-ocr-experiment-2026-09-23.json).
-Raw PyOCR/C-API recognition initially took about 335 ms; the complete extraction
-stage took roughly half a second on this machine. This is one screenshot, not a
-representative accuracy or speed benchmark.
+Setup is a separate network operation, never part of appraisal. Models and PNG
+fixtures remain outside Git. The previous `ocr` project extra and `--tessdata`,
+`--diagnostics`, `--full` flags are retired; use `--output` for complete evidence.
 
-Preprocessing was not consistently beneficial: maximum-channel thresholding
-changed 31 damage to 3; enlarging a crop produced `I5`, `3l` and `2]`; an unscaled
-crop dropped the gray name. Therefore the implemented first pass preserves the
-original pixels. Alternative preprocessing must be compared against the original,
-and numeric disagreements require review.
+## Validation and limitations
 
-PyOCR's command-line backend failed in this machine's isolated model directory
-because hOCR configuration was absent. The C-API backend succeeded without those
-config files, so selection is explicit rather than relying on discovery order.
+The parser now distinguishes complete named titles from rare-title substrings and
+retains the separate base line. It supports explicit two-number elemental damage;
+unreadable digits remain raw. Compound labels with OCR errors still need review.
+Four development screenshots are not held-out validation. Real EasyOCR tests skip
+in the main environment; run installed-model probes separately. The provisional
+one-second warm latency target is not met on all images. Model hashes are currently
+computed per extraction and no persistent reader service is provided.
 
-## Safety and current scope
+## Historical experiments (prior parser/backend migration)
 
-- One English tooltip per screenshot; text-box segmentation and multiple-item
-  screenshots are not solved by this prototype.
-- Case and a small documented set of Diablo-font label errors are normalized.
-  Digits such as `I5` and `3l` are never silently corrected. Conflicting repeated
-  values are cleared and flagged.
-- Affix names must match an observed local property template. Unknown or compound
-  modifiers, including unsupported multi-value/charge patterns, remain raw lines.
-  No nearest-neighbor skill-name substitution occurs.
-- Word confidence is a review heuristic, not a probability of correctness.
-- Text alone does not establish name color/rarity, absence of ethereal/superior
-  modifiers, or whether sockets are empty. Those fields remain null; null is never
-  converted to false. This prevents blue staffmods from making a gray base “magic.”
-- Item codes and property IDs come from the existing portable catalog/dictionary.
-  Market evidence and typical item stats are not used to repair OCR numbers.
+The following measurements record earlier experiments, not current engine choices.
 
-Before enabling unattended extraction, collect a held-out fixture set spanning
-rarities, resolutions/UI scales, socket contents, long and negative affixes,
-charges, partial crops and multiple tooltips. Measure exact deciding-field
-accuracy and false acceptance, then benchmark a detector/recognizer alternative
-such as PP-OCR on those same fixtures. A larger OCR model is not yet justified by
-this single example. Keep a visual fallback for uncertain fields regardless.
+### EasyOCR first result (2026-09-23)
 
-## Primary references inspected 2026-09-23
+With four CPU threads and original Kelpie pixels, grouped regions correctly read
+KELPIE SNARE. Required level 33 and +10 Strength parse; Strength requirement 61
+is misread as 6 [, life 113 as +[3, and several numeric tokens split.
+This is not yet an accurate full-tooltip extractor. Region grouping is for one
+horizontal tooltip only. The shared parser now leaves damaged hand labels unknown.
+The initial CPU process took 5152.51 ms including reader initialization 3065.07 ms.
+A subsequent extraction with a preloaded reader took 1818.71 ms (recognition
+1625.30 ms); one sample, not p95. Python socket connections were blocked during
+the probe. Tesseract's earlier ~502 ms sample was faster but missed the unique title.
+Both remain review-only; preprocessing and held-out evaluation remain pending.
 
-- [PyOCR package documentation](https://pypi.org/project/pyocr/): wrappers, C-API
-  backend and bounding-box builders.
-- [Tesseract image-quality guidance](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html):
-  background, scaling, borders and segmentation affect recognition.
-- [PaddleOCR inference documentation](https://paddlepaddle.github.io/PaddleOCR/main/en/version3.x/pipeline_usage/OCR.html):
-  an alternative local detector/recognizer to evaluate if fixture results require it.
+### Step 1: preprocessing comparison (2026-09-23)
 
-## Local regression images
+One Kelpie screenshot, English CPU reader already loaded, four CPU threads,
+Python socket connections blocked. All variants used the same reader/settings;
+no numeric correction or parser change. Recognition-only single-run timings:
 
-The real screenshots in `tests/pricing/knowledge/fixtures/*.png` are excluded from Git.
-Restore `cinquedeas.png` and `circlet.png` from the separate local data backup to run
-image integration tests. Those tests skip when the image or local model is absent;
-tooltip grammar tests remain available in a code-only checkout.
+| Input | Recognition ms | Observed result |
+| --- | ---: | --- |
+| Original RGB | 1656.52 | Correct title/base; strength 61 becomes 6 [, life 113 becomes +[3 |
+| Inverted autocontrast grayscale | 1628.62 | Title becomes KELPTE SNARE; base and several labels degrade |
+| Gold/white/blue threshold mask | 1542.27 | Fire-resist +50% and slow 75 % clearer; base and ED degrade |
+| Same mask scaled 2x | 5225.95 | Damage 142 becomes [42; no reliable numeric improvement |
+
+Color masks use broad channel thresholds; this is an exploratory one-image
+comparison, not a calibrated pipeline. Timings exclude preprocessing, model
+initialization and parsing; single sequential samples cannot establish a speed
+advantage. No variant is adopted. Keep original pixels as the baseline.
+Next experiment: isolate detected line regions and compare recognition settings
+on development images, preserving the original OCR and flagging disagreements.
+Test selected settings on other screenshots before adopting them.
+
+Local reproducibility artifacts (ignored, outside the committed dataset):
+`tmp/easyocr-preprocess/probe.py`, `results.json`, and variant PNGs.
+
+### Step 2: detected line recognition (2026-09-23)
+
+Used the baseline's geometric line groups with four horizontal and three vertical
+pixels of padding, clipped to image bounds. Re-recognized these regions with
+grayscale/greedy, grayscale/beamsearch and inverted-autocontrast/greedy settings.
+No hand-selected text coordinates or KB-derived numeric corrections. Three
+development screenshots; none is held out. Same English reader, four CPU threads,
+network connections blocked, one sample per setting.
+
+| Screenshot | Baseline OCR ms | Gray greedy retry ms | Baseline + retry ms |
+| --- | ---: | ---: | ---: |
+| Kelpie Snare | 2122.57 | 406.29 | 2528.86 |
+| Cinquedeas | 1916.55 | 447.10 | 2363.65 |
+| Circlet | 356.57 | 77.51 | 434.08 |
+
+These are recognition timings, not upload-to-result or complete preprocessing
+timings. Readers were loaded in advance; ordering and warm-up can affect samples.
+
+- Gray greedy fixes Cinquedeas damage from `15 T0 3 [` to `15 Te 31`.
+  Strength remains `2[` instead of 21.
+- Gray greedy reads Circlet's title, defense 26, durability 22/35 and level 16
+  correctly (the documented @ -> O label normalization handles @F).
+- Kelpie gray greedy improves durability but changes life to `+3` instead of
+  113 and strength bonus to `+I0`. A syntactically valid number can still be wrong.
+- Inverted line recognition recovers Kelpie's `+113`, but damages Cinquedeas
+  damage/durability and Circlet name/level. It is not a global improvement.
+- Beam search emits numerical overflow warnings in this installed stack and
+  truncates text, including Circlet's maximum durability from 35 to 3.
+  Do not adopt beam search on this evidence; its root cause is not established.
+
+Decision: keep defaults unchanged. Gray greedy line recognition is a candidate
+for a bounded review retry, retaining both readings and explicit disagreements;
+it is not authoritative and does not justify automatic appraisal readiness.
+Next step: build a labeled field-level evaluation and disagreement gate before
+wiring retries into the appraiser. Correct digits must be evaluated independently
+of identity matches, and agreement alone is not proof of correctness.
+
+Reproduction:
+`OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 PYTHONPATH=. /tmp/d2r-easyocr-env/bin/python tmp/easyocr-preprocess/line_probe.py`.
+Raw results and automatic crop boxes: `tmp/easyocr-preprocess/line-results.json`.
+These local experiment artifacts are not staged; preserve with the data backup.
+
+### Fresh-image check: Stone Necklace (2026-09-23)
+
+Settings from step 2 were frozen before this image was tested. The supplied rare
+Amulet has level 37, +2 Eldritch Skills (Warlock Only), 1–6 fire damage, 1–16
+lightning damage, +4 Mana, +13% Fire Resist and Damage Reduced by 2.
+
+EasyOCR original recognition took 1245.94 ms; gray greedy line retry added
+241.68 ms (1487.62 ms total recognition). Base Amulet, level 37 and physical
+Damage Reduced by 2 parse. Only one of six modifiers parses. The skill text is
+read but contains label errors; damage minima become T or [, Mana loses its
+plus sign, and FIRE becomes FRE. The retry improves some labels but turns
+resistance 13 into [3 and leaves both damage ranges unreliable. Beam search
+again warns and truncates. No setting change is justified by this image.
+
+Tesseract comparison took 371.87 ms for complete extraction and parsed resistance
+13 plus physical damage reduction 2, but falsely identified the item as Stone
+from the rare title Stone Necklace. This is a separate catalog-substring bug:
+rare titles must not resolve to a named catalog item from one matching token.
+Add this negative case to E1a alongside exact unique-name/base resolution.
+Both engines remain needs_review; this sample is OCR evaluation, not appraisal.
+
+Local image: tests/pricing/knowledge/fixtures/stone-necklace.png (Git-ignored).
+Evidence: tmp/easyocr-preprocess/stone-necklace-results.json, visual truth in
+stone-necklace-truth.json, Tesseract full diagnostics in amulet-tesseract/result.json.

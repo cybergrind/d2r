@@ -45,10 +45,13 @@ Transcribe rarity, base/name, every modifier and number, requirements, sockets a
 status. Distinguish absent from unknown on clipped screenshots. Direct visual reading is
 appropriate for a clear attached image; OCR is optional, not a required detour.
 
-If an OCR draft exists, reuse it and review flagged fields against the image. When needed:
+If an OCR draft exists, reuse it and review flagged fields against the image. When needed,
+the EasyOCR command below returns a draft plus offline candidate evidence. Reuse that
+evidence instead of repeating equivalent lookups; the calling agent supplies the final
+review and decision. The dedicated OCR environment must already be provisioned:
 
 ```sh
-uv run --offline --extra ocr python -m pricing.knowledge.ocr IMAGE
+OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 /tmp/d2r-easyocr-env/bin/python -m pricing.knowledge image IMAGE
 ```
 
 OCR is a draft: never repair uncertain numbers from expected stats. Its `appraisal_ready:
