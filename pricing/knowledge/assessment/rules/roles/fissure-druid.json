@@ -357,6 +357,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -390,7 +393,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -401,7 +404,8 @@
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
-        "Keep this wand in inventory or the Cube; the guide uses a Teleport staff on Weapon-Swap."
+        "Keep this wand in inventory or the Cube; the guide uses a Teleport staff on Weapon-Swap.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -443,7 +447,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -454,7 +458,8 @@
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
-        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -496,7 +501,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -505,7 +510,8 @@
         }
       ],
       "conditions": [
-        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -1528,7 +1534,7 @@
           }
         },
         {
-          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31\u201340 enhanced damage, not the fire-resistance Ruby prefix.",
+          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31–40 enhanced damage, not the fire-resistance Ruby prefix.",
           "when": {
             "all": [
               {
@@ -1638,7 +1644,7 @@
       "required_socket_item": "Defender's Fire",
       "depends_on": [
         {
-          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender’s Fire",
           "when": {
             "all": [
               {
@@ -1761,7 +1767,7 @@
       "required_socket_item": "Defender's Fire",
       "depends_on": [
         {
-          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender’s Fire",
           "when": {
             "all": [
               {
@@ -1826,7 +1832,7 @@
       "variant": "Starter",
       "side": "player",
       "slot": "Helmet",
-      "role": "Starter +3 Fissure Lore pelt",
+      "role": "Starter Lore pelt / Fissure skill support",
       "review_status": "reviewed_candidate_rule",
       "names": [
         "Lore"
@@ -1868,13 +1874,14 @@
           {
             "op": "stat_at_least",
             "key": "107:234",
-            "value": 3,
+            "value": 1,
             "absent_is_zero": true
           }
         ]
       },
       "important_stats": [
-        "107:234"
+        "107:234",
+        "127:0"
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -1885,8 +1892,19 @@
         "quotes": [
           "Lore Antlers (+3 Fissure)"
         ],
-        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price."
-      }
+        "review": "2026-09-25: Starter prose prioritizes +skills without a numeric Fissure minimum; +3 belongs to the pictured Lore Antlers planner target. Reviewed inference: a positive Fissure staffmod provides skill support, with +3 preferred rather than mandatory. Completed non-ethereal Lore pelt and Druid remain required. Native Lore all-skills is recognized only when captured; no missing stat is invented. This does not establish farming readiness, perfect rolls, preferred base or price."
+      },
+      "preferences": [
+        {
+          "label": "+3 Fissure (planner target)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:234",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        }
+      ]
     },
     {
       "id": "fissure-player-standard-flickering-flame",

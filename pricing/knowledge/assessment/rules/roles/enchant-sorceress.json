@@ -237,7 +237,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -406,7 +406,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -502,7 +502,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -561,7 +561,10 @@
           "Death's Hand [Death's Disguise set]",
           "Death's Guard [Death's Disguise set]"
         ]
-      }
+      },
+      "types": [
+        "glov"
+      ]
     },
     {
       "build": "enchant-sorceress",
@@ -607,7 +610,10 @@
           "Death's Hand [Death's Disguise set]",
           "Death's Guard [Death's Disguise set]"
         ]
-      }
+      },
+      "types": [
+        "belt"
+      ]
     }
   ]
 }

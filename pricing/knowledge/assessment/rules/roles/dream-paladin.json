@@ -91,6 +91,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -124,7 +127,7 @@
       },
       "depends_on": [
         {
-          "label": "Life Tap charges are available; recharge when empty.",
+          "label": "Life Tap charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 82,
@@ -155,7 +158,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
+        "Available charges do not prove Life Tap is currently applied. Ethereal copies cannot be recharged by repair; their remaining charges are finite."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -212,7 +216,10 @@
           "Demon Limb (Enchant)"
         ],
         "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
-      }
+      },
+      "types": [
+        "club"
+      ]
     },
     {
       "id": "dream-hybrid-gaze-merc",
@@ -299,7 +306,8 @@
         "quotes": [
           "Vampire Gaze (Grim Helm, ethereal; 15 IAS / 15 All Res jewel)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -387,7 +395,8 @@
         "quotes": [
           "Vampire Gaze (ethereal; 15 IAS / 15 All Res jewel)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       }
     }
   ]

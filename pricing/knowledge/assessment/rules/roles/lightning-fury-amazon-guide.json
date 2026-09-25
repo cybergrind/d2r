@@ -407,7 +407,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -440,7 +440,7 @@
         "all": [
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           },
@@ -457,7 +457,7 @@
           "label": "90 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 90
           }
         },
@@ -471,7 +471,7 @@
         }
       ],
       "important_stats": [
-        "6:0",
+        "7:0",
         "39:0"
       ],
       "conditions": [
@@ -581,6 +581,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -614,7 +617,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -624,7 +627,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "Use Lower Resist according to the target and farm; the charge level determines the curse effect."
+        "Use Lower Resist according to the target and farm; the charge level determines the curse effect.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -666,7 +670,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -676,7 +680,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "Choose the mobility swap according to the farm and the rest of the loadout."
+        "Choose the mobility swap according to the farm and the rest of the loadout.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -988,7 +993,8 @@
         "quotes": [
           "Vampire Gaze Grim Helm (Um Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       },
       "required_rune": "Um Rune"
     }

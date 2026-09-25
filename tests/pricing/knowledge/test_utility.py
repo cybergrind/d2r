@@ -144,3 +144,30 @@ def test_actual_adapter_recommendations_preserve_all_crafting_prerequisites():
         assert row['details']['legality'] == 'recommendation_only'
         seen.add((row['name'], row['details']['runeword']))
     assert examples <= seen
+
+
+@pytest.mark.parametrize('method', ['larzuk', 'cube', 'drop'])
+def test_unknown_socket_count_does_not_become_an_unsocketed_base(method):
+    result = socket_options(
+        {'gemsockets': 6, 'type': 'sword'},
+        {'sword': {'maxsock1': 3, 'maxsock25': 4, 'maxsock40': 6}},
+        method=method,
+        current_sockets=None,
+        ilvl=80,
+        difficulty='hell',
+    )
+    assert result['eligible'] is False
+    assert result['conditional'] is True
+    assert result['possible_sockets'] == []
+    assert 'socket count' in result['reason']
+
+
+@pytest.mark.parametrize(
+    'record', [{}, {'maxsock1': 3, 'maxsock25': 4}, {'maxsock1': 3, 'maxsock25': 4, 'maxsock40': None}]
+)
+def test_missing_socket_caps_are_unverified_not_zero_socket_outcomes(record):
+    result = socket_options({'gemsockets': 6, 'type': 'sword'}, {'sword': record}, method='larzuk')
+    assert result['eligible'] is False
+    assert result['conditional'] is True
+    assert result['possible_sockets'] == []
+    assert result['maximum_by_ilvl_bracket'] == []

@@ -34,6 +34,15 @@ def load_candidates(facts):
     return loaded.bundle.candidates.select(facts), [loaded.bundle.scope, *loaded.issues]
 
 
+def load_stat_candidates(facts):
+    from pricing.knowledge.assessment.stat_bundle import configuration_from_row
+
+    loaded = _repository.load()
+    if loaded.bundle is None:
+        return ()
+    return tuple(configuration_from_row(row) for row in loaded.bundle.stat_candidates.select(facts))
+
+
 def validate_profiles(profiles):
     from inventory_tracking.items.metadata import metadata
 
@@ -114,22 +123,25 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
         for selector, value in [('qualities', facts.rarity), ('types', facts.item_type), ('names', facts.name)]:
             if p.get(selector) and value is None:
                 missing.append(f'Role selector {selector} is unknown.')
+        keys = p.get('required_any_stats', [])
+        skill_requirement = (
+            {'any': [{'op': 'stat_at_least', 'key': key, 'value': 1, 'absent_is_zero': True} for key in keys]}
+            if keys
+            else None
+        )
         trace = evaluate(p['must'], facts, loadout) if p.get('must') is not None else None
-        if trace:
+        if trace and p['must'] != skill_requirement:
             if trace.truth == Truth.FALSE:
                 failed.append('Required role properties are not satisfied.')
             elif trace.truth != Truth.TRUE:
                 missing.append('Required role properties are not fully known.')
             else:
                 matched.append('Required role properties are satisfied.')
-        keys = p.get('required_any_stats', [])
         skill_trace = (
-            evaluate(
-                {'any': [{'op': 'stat_at_least', 'key': key, 'value': 1, 'absent_is_zero': True} for key in keys]},
-                facts,
-                loadout,
-            )
-            if keys
+            trace
+            if trace is not None and p['must'] == skill_requirement
+            else evaluate(skill_requirement, facts, loadout)
+            if skill_requirement
             else None
         )
         if skill_trace:

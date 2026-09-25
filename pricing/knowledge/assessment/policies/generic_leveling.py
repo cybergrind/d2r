@@ -27,16 +27,28 @@ class Pattern:
     archetype: str
     condition: str
     qualities: tuple[str, ...] = ('magic', 'rare')
+    side: str = 'player'
 
     def matches(self, facts):
         return (
-            facts.rarity in self.qualities
+            (self.side == 'mercenary' or facts.ethereal is False)
+            and not (facts.rarity == 'set' and facts.ethereal is True)
+            and facts.rarity in self.qualities
             and facts.item_type in self.item_types
             and all(any(positive_stat(facts, stat) for stat in group) for group in self.stat_groups)
         )
 
 
 PATTERNS = (
+    Pattern(
+        6,
+        frozenset({'pole', 'spea'}),
+        ((136,),),
+        'attack',
+        'Act 2 mercenary boss-fight option; compare damage, attack speed, survival and wearer requirements.',
+        ('unique', 'set'),
+        'mercenary',
+    ),
     Pattern(
         6,
         next(f.types for f in FAMILIES if f.name == 'weapon'),
@@ -107,10 +119,11 @@ def positive_stat(facts, stat):
 
 
 def assess_generic_leveling(facts, *, loadout=None):
-    if facts.identified is not True or facts.ethereal is not False:
+    if facts.identified is not True:
         return []
     matches = [p for p in PATTERNS if p.matches(facts)]
-    matches.extend(Pattern(index, frozenset(), (), 'all', condition) for index, condition in socket_patterns(facts))
+    if facts.ethereal is False:
+        matches.extend(Pattern(index, frozenset(), (), 'all', condition) for index, condition in socket_patterns(facts))
     if not matches:
         return []
     try:
@@ -124,22 +137,23 @@ def assess_generic_leveling(facts, *, loadout=None):
     seen = set()
     for pattern in matches:
         index, archetype, condition = pattern.source_index, pattern.archetype, pattern.condition
-        if index in seen:
+        key = index, pattern.side
+        if key in seen:
             continue
-        seen.add(index)
+        seen.add(key)
         source = document['generic_patterns'][index]
         uses.append(
             {
                 'tier': 'med',
                 'status': 'conditional',
-                'side': 'player',
+                'side': pattern.side,
                 'classes': ['all classes'],
                 'archetypes': [archetype],
                 'reason': source['context'],
                 'conditions': [condition],
                 'required_level': None,
                 'requirements': {},
-                'requirements_fit': assess_requirements({}, 'player', loadout),
+                'requirements_fit': assess_requirements({}, pattern.side, loadout),
                 'stage': 'leveling',
                 'source': {
                     'id': document['source']['id'],

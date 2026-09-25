@@ -127,7 +127,27 @@
         "setup_label": [
           "Infinity Giant Thresher (ethereal) \u2014 merc holds Infinity since player uses Eschuta's"
         ]
-      }
+      },
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might or Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "review_notes": "2026-09-25: exact cached Hydra Hybrid /variants/3/merc/type and quotes specify Might or Holy Freeze. Preserve this as a typed dependency. Conviction supports player damage; wearer lightning pierce is not transferred. ED supports mercenary physical damage, not player spell damage. Equipment and complete loadout remain unverified."
     },
     {
       "id": "nova-starter-boots",

@@ -7,6 +7,13 @@ we never reinterpret a rejected specialized encoding as a generic scalar.
 
 from dataclasses import dataclass
 
+from inventory_tracking.items.effects import (
+    decode_magic_pierce,
+    decode_quest_difficulty,
+    decode_reanimate,
+    decode_set_state,
+    decode_visual_effect,
+)
 from inventory_tracking.items.poison import FRAMES_PER_SECOND
 from inventory_tracking.items.stat_constants import (
     CHARGE_COUNT_BITS,
@@ -15,6 +22,7 @@ from inventory_tracking.items.stat_constants import (
     CLASS_ABBREVIATIONS,
     CLASS_NAMES,
     FLEE_SCALE,
+    HIT_EFFECT_DESCRIPTION_FUNCTION,
     PERCENT_MAX,
     PROC_DESCRIPTION_FUNCTION,
     PROC_ENCODING,
@@ -51,7 +59,9 @@ class StatContext:
 
 
 def decode_total(ctx):
-    if ctx.layer == 0 and ctx.raw >= 0:
+    # Defense can be a signed modifier on weapons (Dimoak's Hew: -8).
+    # Damage totals, durability and counters still require nonnegative values.
+    if ctx.layer == 0 and (ctx.raw >= 0 or ctx.stat['id'] == StatId.DEFENSE):
         return {'value': ctx.raw, 'text': f'{TOTAL_LABELS[ctx.stat["id"]]}: {ctx.raw}'}
     return None
 
@@ -62,6 +72,18 @@ def decode_flee(ctx):
     value = ctx.raw * 100 // FLEE_SCALE
     label = 'Hit Causes Monster to Flee +{{value}}%'
     return {'value': value, 'range_label': label, 'text': label.replace('{{value}}', str(value))}
+
+
+def decode_hit_effect(ctx):
+    """Level 1 renders as the bare effect name; higher levels append +N like the market label."""
+    label = ctx.spec.get('label')
+    if not label or ctx.layer != 0 or ctx.raw < 1:
+        return None
+    suffix = ' +{{value}}'
+    if not label.endswith(suffix):
+        return None
+    text = label[: -len(suffix)] if ctx.raw == 1 else label.replace('{{value}}', str(ctx.raw))
+    return {'value': ctx.raw, 'label': label, 'text': text}
 
 
 def decode_repair(ctx):
@@ -206,9 +228,11 @@ def decode_single_skill(ctx):
 def decode_throw_modifier(ctx):
     if ctx.layer != 0 or ctx.raw < 0:
         return None
+    # d2data itemstatcost: 159/160 are the minimum/maximum throw components.
+    endpoint = 'Minimum' if ctx.stat['id'] == 159 else 'Maximum'
     return {
         'value': ctx.raw,
-        'text': f'Minimum throw damage modifier: +{ctx.raw} (internal weapon stat)',
+        'text': f'{endpoint} throw damage modifier: +{ctx.raw} (internal weapon stat)',
         'presentation': 'internal',
     }
 
@@ -251,7 +275,14 @@ def decode_class_skills(ctx):
 STAT_DECODERS = {
     56: decode_cold_duration,
     67: decode_armor_movement,
+    98: decode_set_state,
+    140: decode_visual_effect,
+    155: decode_reanimate,
     159: decode_throw_modifier,
+    160: decode_throw_modifier,
+    181: decode_visual_effect,
+    356: decode_quest_difficulty,
+    358: decode_magic_pierce,
     **dict.fromkeys(TOTAL_LABELS, decode_total),
     **dict.fromkeys(SUNDER_STATS, decode_sunder),
     StatId.SELF_REPAIR: decode_repair,
@@ -270,18 +301,21 @@ STAT_DECODERS = {
 
 
 def decode_stat(ctx):
-    # D2MOO D2StatList.cpp op4: same level scaling, evaluated on the wielder.
-    if (ctx.spec.get('op') == 2 or (ctx.stat['id'] in (214, 218) and ctx.spec.get('op') == 4)) and ctx.spec.get(
-        'op_base'
-    ) == 'level':
+    # D2MOO D2StatList.cpp op4/5 evaluate on the wielder. Op5 scales a
+    # percentage, not flat damage; only display its coefficient-derived bonus.
+    level_op = ctx.spec.get('op')
+    if ctx.spec.get('op_base') == 'level' and (
+        level_op == 2 or (ctx.stat['id'] in (214, 218) and level_op == 4) or (ctx.stat['id'] == 219 and level_op == 5)
+    ):
         return decode_per_level(ctx)
     decoder = STAT_DECODERS.get(ctx.stat['id'])
     if decoder is None:
-        decoder = (
-            decode_proc
-            if ctx.spec.get('encode') == PROC_ENCODING and ctx.spec.get('descfunc') == PROC_DESCRIPTION_FUNCTION
-            else decode_scalar
-        )
+        if ctx.spec.get('encode') == PROC_ENCODING and ctx.spec.get('descfunc') == PROC_DESCRIPTION_FUNCTION:
+            decoder = decode_proc
+        elif ctx.spec.get('descfunc') == HIT_EFFECT_DESCRIPTION_FUNCTION:
+            decoder = decode_hit_effect
+        else:
+            decoder = decode_scalar
     return decoder(ctx)
 
 

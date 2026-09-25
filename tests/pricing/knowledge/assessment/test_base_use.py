@@ -111,3 +111,169 @@ def test_archon_fortitude_has_separate_player_and_mercenary_ethereal_advice():
     assert any('ethereal mercenary' in s for s in merc['missing'])
     assert not any('ethereal mercenary' in s for s in player['missing'])
     assert 'Non-ethereal suits player use.' in player['strengths']
+
+
+def test_perfect_base_requires_complete_identified_capture_and_superior_quality():
+    from dataclasses import replace
+
+    item = normalize(capture())
+    for changed in (
+        replace(item, capture_complete=False, gaps=[]),
+        replace(item, identified=None, gaps=[]),
+        replace(item, identified=False, gaps=[]),
+        replace(item, rarity='normal', gaps=[]),
+    ):
+        result = word(assess_runeword_base(changed), 'Infinity')
+        assert result['status'] != 'perfect preferred base'
+
+
+def test_conflicting_native_rolls_do_not_produce_perfect_strength_claims():
+    from dataclasses import replace
+
+    item = normalize(capture())
+    item = replace(item, gaps=['Duplicate native stat 17:0.', 'Duplicate native stat 19:0.'])
+    result = word(assess_runeword_base(item), 'Infinity')
+    assert not any('Perfect superior' in value for value in result['strengths'])
+    grief = replace(normalize(capture('Phase Blade', sockets=5, ethereal=False)), gaps=item.gaps)
+    assert not any('Perfect superior' in value for value in word(assess_runeword_base(grief), 'Grief')['strengths'])
+
+
+def test_spirit_swords_keep_caster_priorities_separate_from_melee_premiums():
+    for base in ('Crystal Sword', 'Broad Sword', 'Long Sword'):
+        for ethereal in (True, False, None):
+            result = word(
+                assess_runeword_base(
+                    normalize(
+                        capture(
+                            base,
+                            quality='normal',
+                            ethereal=ethereal,
+                            ed=0,
+                            ar=0,
+                        )
+                    )
+                ),
+                'Spirit',
+            )
+            assert result['role'] == 'Spirit player caster'
+            assert result['ethereal_preference']['preference'] == 'neutral'
+            assert result['status'] == ('preferred base' if base == 'Crystal Sword' else 'usable alternative')
+            assert not any('premium' in line or 'Attack Rating' in line for line in result['missing'])
+            assert any('wearer' in line for line in result['missing'])
+            if ethereal is None:
+                assert any('Ethereal status' in line for line in result['missing'])
+            if ethereal:
+                assert 'cannot be repaired' in result['tradeoff']
+    blank = word(assess_runeword_base(normalize(capture('Crystal Sword', sockets=0))), 'Spirit')
+    assert any('item level' in line for line in blank['missing'])
+    wrong = word(assess_runeword_base(normalize(capture('Crystal Sword', sockets=5))), 'Spirit')
+    assert wrong['status'] == 'wrong socket count'
+    assert not assess_runeword_base(normalize(capture('Crystal Sword', quality='magic')))
+
+
+def test_call_to_arms_prebuff_bases_preserve_preparation_and_staffmod_gaps():
+    from dataclasses import replace
+
+    for base in ('Crystal Sword', 'Flail', 'War Scepter'):
+        facts = normalize(capture(base, sockets=5))
+        result = word(assess_runeword_base(facts), 'Call to Arms')
+        assert result['role'] == 'player prebuff'
+        assert result['status'] == 'preferred base'
+        assert result['ethereal_preference']['preference'] == 'neutral'
+        assert not any('premium' in line or '15%' in line for line in result['missing'])
+        assert 'cannot be repaired' in result['tradeoff']
+        if base == 'War Scepter':
+            assert any('staffmods' in line for line in result['missing'])
+        assert result['status'] != 'perfect preferred base'
+        blank = normalize(capture(base, sockets=0))
+        high = word(assess_runeword_base(replace(blank, item_level=50)), 'Call to Arms')
+        assert high['status'] == ('cannot prepare this base' if base == 'Crystal Sword' else 'needs sockets')
+        low = word(assess_runeword_base(replace(blank, item_level=20)), 'Call to Arms')
+        assert low['status'] == 'cannot prepare this base'
+    filled = word(assess_runeword_base(normalize(capture('Flail', sockets=5, contents='filled'))), 'Call to Arms')
+    assert filled['status'] == 'needs empty sockets'
+    assert filled['strengths'] == []
+
+
+def test_heart_of_the_oak_flail_keeps_charge_and_socket_limits():
+    from dataclasses import replace
+
+    for ethereal in (True, False, None):
+        result = word(assess_runeword_base(normalize(capture('Flail', ethereal=ethereal))), 'Heart of the Oak')
+        assert result['status'] == 'preferred base'
+        assert result['role'] == 'Heart of the Oak player caster'
+        assert 'charges' in result['tradeoff']
+        assert any('wearer' in s for s in result['missing'])
+        if ethereal:
+            assert 'cannot be recharged' in result['tradeoff']
+        if ethereal is None:
+            assert any('Ethereal status' in s for s in result['missing'])
+    superior = replace(normalize(capture('Flail', sockets=0)), item_level=50)
+    assert word(assess_runeword_base(superior), 'Heart of the Oak')['status'] == 'cannot prepare this base'
+    normal = replace(superior, rarity='normal')
+    result = word(assess_runeword_base(normal), 'Heart of the Oak')
+    assert result['status'] == 'needs sockets'
+    assert any('16.7%' in s for s in result['missing'])
+    assert 'Heart of the Oak' not in {r['runeword'] for r in assess_runeword_base(normalize(capture('Crystal Sword')))}
+
+
+def test_specialist_caster_bases_do_not_infer_staffmods_after_normalization():
+    for name, base, sockets in [('Leaf', 'Short Staff', 2), ('Memory', 'Battle Staff', 4), ('White', 'Bone Wand', 2)]:
+        result = word(assess_runeword_base(normalize(capture(base, sockets=sockets, ethereal=False))), name)
+        assert result['status'] == 'preferred base'
+        assert any('staffmods' in s for s in result['missing'])
+        assert result['status'] != 'perfect preferred base'
+        if name in ('Leaf', 'Memory'):
+            assert 'two-handed' in result['tradeoff']
+        low = word(assess_runeword_base(normalize(capture(base, sockets=0, quality='low_quality'))), name)
+        assert low['strengths'] == []
+        assert any('staffmods' in s and 'not assumed' in s for s in low['missing'])
+        assert low['status'] == 'needs normalization and sockets'
+        if name == 'Memory':
+            assert any('socket cap becomes 4' in s for s in low['missing'])
+    assert not assess_runeword_base(normalize(capture('Bone Wand', sockets=2, quality='magic')))
+
+
+def test_treachery_mage_plate_retains_player_and_mercenary_durability_tradeoffs():
+    for ethereal in (True, False, None):
+        rows = [
+            r
+            for r in assess_runeword_base(
+                normalize(
+                    capture(
+                        'Mage Plate',
+                        sockets=3,
+                        ethereal=ethereal,
+                    )
+                )
+            )
+            if r['runeword'] == 'Treachery'
+        ]
+        assert {r['role'] for r in rows} == {'mercenary', 'player'}
+        by_role = {r['role']: r for r in rows}
+        assert by_role['mercenary']['ethereal_preference']['preference'] == 'preferred'
+        assert by_role['player']['ethereal_preference']['preference'] == 'avoid'
+        assert all(r['status'] == 'preferred base' for r in rows)
+        assert all(any('defense' in s and 'requirements' in s for s in r['missing']) for r in rows)
+        assert all('Fade' in r['tradeoff'] for r in rows)
+        if ethereal is True:
+            assert any('non-ethereal' in s for s in by_role['player']['missing'])
+        if ethereal is False:
+            assert any('ethereal mercenary' in s for s in by_role['mercenary']['missing'])
+        if ethereal is None:
+            assert all(any('Ethereal status' in s for s in r['missing']) for r in rows)
+    filled = [
+        r
+        for r in assess_runeword_base(
+            normalize(
+                capture(
+                    'Mage Plate',
+                    sockets=3,
+                    contents='filled',
+                )
+            )
+        )
+        if r['runeword'] == 'Treachery'
+    ]
+    assert len(filled) == 2
+    assert all(r['status'] == 'needs empty sockets' and not r['strengths'] for r in filled)

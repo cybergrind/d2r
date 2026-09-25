@@ -3448,3 +3448,186 @@ affixed contracts retain captured totals and exact rune multiplicity; named
 contracts also bound the intrinsic gold roll after subtraction (including Crown
 of Thieves). Different contents, missing links and wrong recipient bonuses do
 not match. No rune-cost substitution or generic gold-find price premium is used.
+
+### Exact rune payload roles — 2026-09-25
+
+`socket_runes_equal` validates a bounded list of known rune names and compares
+the complete captured multiset. Unknown/conflicting occupancy, missing identities,
+duplicate child IDs, bad positions or code/name disagreements remain unknown.
+A complete but different payload is false; one matching rune is insufficient.
+Seven Gold Find Barbarian roles cover Standard off-hand, War Cry/Whirlwind swaps
+and Leap Only main hands with six Lem runes. Standard preserves both Phase Blade
+and the table's Crystal Sword alternative; other slots preserve Crystal Sword.
+Ethereal non-attacking use and full-loadout requirements remain conditional.
+No price or damage premium is inferred from this demand. Budget Ali Baba's
+gold-find jewels are separate; these profiles do not substitute Lem for them.
+
+### Guide-first inventory checkpoint — 2026-09-25
+
+Run `python -m pricing.knowledge.assessment.maintenance.guide_inventory` to rebuild
+the maintenance-only item-centric index from existing structured occurrences and
+cached variant slots. It includes catalog identities without mentions, original
+occurrence details, source hash checks, unresolved review buckets, and semantic
+configuration fingerprints with all attached profile provenance. Duplicate
+configuration sources do not create extra configurations; different predicates,
+stages, sides or dependencies remain separate. No demand votes, grades, matching
+or prices are inferred. See planning/GUIDE_FIRST.md and planning/STATUS.md for
+remaining census gates; the checkpoint is not a runtime publication.
+
+### Reviewed guide demand
+
+`rules/guide_use_reviews.json` holds explicit identity endorsements linked to
+reviewed profile IDs and complete profile fingerprints. `build_profiles` validates
+those links and embeds reviewed uses and deduplicated demand summaries into the
+profile artifact. A changed profile requires review before recompilation succeeds.
+Publication recomputes the summary from embedded uses and rejects mismatches.
+
+Runtime reads the prepared summary from the pinned profile artifact. Legacy bundles
+without this field make no demand claim and cannot read newer working-tree reviews.
+Incomplete corpus review renders Pending and a distinct-build lower bound; it does
+not change captured-item role matching, trade tiers or prices. Insight is the first
+reviewed batch, not a claim of complete demand coverage.
+
+Reviewed guide-use records may include `presentation.progression` (`Starter`,
+`Budget`, `Endgame`, `Ubers`). This is display metadata, not an equip predicate.
+The compact formatter can group variants only when this reviewed stage and the
+full evaluated rule/skill, dependency, base alternative and equipment signatures
+agree. Unreviewed variants retain their original names. Full role records and
+variant names remain available in the detailed view.
+
+Unnamed base/affixed configurations may use `pattern` instead of `item` in a
+reviewed use. Its value must equal the exact executable profile ID, with the same
+source and complete-profile fingerprint checks. Prepared summaries use a separate
+`pattern:` namespace. Named profiles cannot be registered as unnamed patterns;
+changing a required combination invalidates the review.
+
+`demand_for_item` preserves identity-level demand for named items. Otherwise it
+selects prepared pattern summaries only for evaluated roles with a true item rule
+and matched/conditional status. False, unknown and absent rule traces add no votes.
+The union counts each recommending build once even when several configurations
+match. No common base, rare title, skill label or partial modifier match supplies
+that vote. Reports label this scope “matching configurations”; unknown live
+loadout conditions remain separate in the evaluated roles. This selection does
+not parse guides, alter item matching or supply numerical price evidence.
+
+### Base coverage matrix
+
+Run `uv run --offline python -m pricing.knowledge.assessment.maintenance.base_matrix
+> pricing/data/appraisal-base-matrix.json` as one shell command. This maintenance
+artifact enumerates every native weapon/armor base in normal, superior and
+low-quality states. It retains source hashes, native socket limits, cached recipe
+links, potential type/quality profile links and base-level market evidence.
+Each dimension carries an independent state and reason. Candidate profile links
+are not validated template membership; base-level observations are not matched
+prices. Recipe/mode eligibility, usefulness, annotations and report validation
+remain pending until their exact membership is audited. This is the base portion
+of GUIDE_FIRST's coverage matrix; named and affixed configurations still need to
+be integrated. It is not a runtime artifact or an appraisal decision source.
+
+The matrix's `type_capacity_eligibility` dimension independently compares cached
+edges with completed native `runes.json` recipes: both type parents, excluded
+types, socket capacity, rune order and count. It records missing/unexpected edges
+and blocks conclusions from absent native catalogs or incomplete type ancestry.
+An excluded base has no fitting completed native recipe; this says nothing about
+other uses or value. Non-Ladder availability and quality-specific preparation
+remain in the separate pending `recipe_eligibility` dimension.
+
+### Prepared stat evaluation
+
+`rules/stat_use_reviews.json` holds explicitly reviewed priorities, not an automatic
+conversion from `important_stats`. The maintenance compiler binds each review to
+its exact role fingerprint and unchanged source bytes. `build_profiles` embeds the
+reviews and immutable configuration data in the existing profile artifact.
+Publication and repository validation recompute the prepared configuration and
+reject mismatches. Older bundles make no stat claim; runtime never reads a newer
+working-tree review. Quality/type indexing limits per-item configuration selection.
+
+`StatsEvaluator` uses existing typed predicates and supplied role outcomes.
+Mandatory combinations precede stat activation. Missing, failed and unknown roles
+cannot produce confirmed markers. A conditional role permits local stat annotations
+only when its remaining notes are explicitly reviewed as advisory and every typed
+rule, skill, dependency and equipment gate passes. The overall role stays conditional. Results retain complete role
+and activation traces, source provenance and separate configuration contributions.
+Only independently matched uses can produce `desirable` or `supporting` annotations.
+No default grey/trash inference exists; roll quality stays a separate unassessed
+channel. `AssessmentResult.stat_evaluation` and its JSON projection carry this
+immutable result when applicable. Explicit caller-supplied profiles do not inherit
+unrelated bundled stat configurations.
+
+The first three amulet configurations explicitly classify the whole-loadout reminder
+as advisory for their local skill/FCR annotations. The reminder and conditional
+build fit remain in the result. Advisory text must exactly match a reviewed role
+condition; changed role/source fingerprints invalidate the configuration. Scalar lines now render independent desirability markers and roll text in terminal
+and OSD when a prepared positive annotation exists. Lines with multiple semantic
+stat keys remain unmarked pending contribution-level attribution. Full §8.1 also requires reviewed roll policies,
+coverage-aware irrelevance, split/combined line attribution and all-family migration.
+
+Six rare-ring configurations also carry explicit stat priorities for Lightning,
+Nova and Blizzard variants. Supporting modifiers are scoped to the cited ring
+combination; unrelated modifiers do not inherit desirability. Nova's unresolved
+resistance mix and the Uber loadout condition remain mandatory gates. These ring reviews are incremental coverage, not all-family completion.
+
+Seven six-Lem sword configurations now annotate verified 450% gold find for the
+reviewed Barbarian roles. Exact socket payload, base, quality and class checks must
+pass; unknown or mismatched fillers cannot inherit a marker from a stat total.
+Preparation/durability reminders remain in the conditional role assessment.
+There are 16 prepared stat configurations in total; the all-item coverage matrix,
+roll policies and broader family annotation work remain incomplete.
+
+### Unified maintenance coverage matrix
+
+Run `uv run --offline python -m pricing.knowledge.assessment.maintenance.coverage_matrix`
+to emit the union of guide identities, base-quality mechanics, named tiers and
+reviewed use-quality assignments. Refresh guide_inventory and base_matrix first
+when their input hashes are stale. Each row has independent states/reasons/source
+locators; counts remain separated by row kind. Source validation rejects stale
+snapshots. This is a maintenance ledger, not an appraisal runtime artifact.
+Leveling and valuable-item records now retain exact identity links and full conditional
+evidence. Imported saved captures now enter a durable review ledger and dimension queues.
+Automatic discovery ingestion and reviewed template membership still need completion; matrix presence never establishes all-item coverage.
+
+Import fresh saved replay output with:
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.observed_review <replay.json>`.
+This preserves assessment history and unknown facets in
+`pricing/data/appraisal-observed-review.json`. Rebuild the coverage matrix afterward
+to refresh its independent review queues. The ledger consumes supplied historical
+replays; it does not watch live inventory or initiate market research.
+
+The generic-leveling audit confirms executable policies for all 13 cached patterns;
+the matrix now links each pattern to its source-bound policy applicability.
+Topaz armor utility requires complete distinct child linkage and observed magic
+find at least equal to the verified Topaz contribution. Remaining empty sockets
+are allowed. This establishes conditional leveling utility, not a price.
+
+Generic leveling policy links are built by maintenance.leveling_links from exact
+cached recommendation fields and reviewed source hashes. They preserve shared
+identity guards and separate alternatives, and do not turn conditional leveling
+utility into trade tiers or complete stat-annotation coverage. Changed recommendation
+text stays in the review queue until its policy link is reviewed.
+
+Named listing normalization can establish one filled socket from an explicit known
+rune/gem payload when all definitions of that identity lack native socket modifiers.
+The proof records definition generation and the quest socket cap. It never treats
+omitted socket fields as zero or infers ethereal state/base upgrades. Intrinsic
+socket-roll items and ambiguous/multiple filler descriptions remain unresolved.
+
+Prepared named definitions also expose native socket ranges after capacity and
+item-level clamping. Market normalization can supply a fixed count only if every
+variant/bracket agrees. Missing contents remain unknown; a count alone never
+establishes an empty or fully occupied item. Explicit contradictions are rejected.
+
+The base coverage audit uses runtime candidate selectors and evaluates required
+guards with partial catalog facts. It records excluded and unknown assignments
+with profile fingerprints and predicate traces. Routing coverage is separate from
+actual desirability, recipe legality, preparation and price coverage; omitted item
+rolls and flags are not zero/false defaults.
+
+Perfect base-use status requires complete identified capture and conflict-free
+required evidence. Superior roll strengths require superior quality; native stat
+conflicts are checked before any raw roll claim. Missing evidence preserves an
+unverified/conditional assessment rather than a perfect or worthless conclusion.
+
+Base coverage includes separate runtime base-use routes and build-role profile
+assignments. The CLI supplies the base-use evaluator; callers omitting it get a
+pending audit dimension. Full route evidence is retained in the unified matrix,
+while item-specific suitability and market pricing remain independent.

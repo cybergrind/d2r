@@ -43,7 +43,7 @@ def test_exact_rune_count_does_not_accept_one_matching_child_or_uncertain_links(
 
 @pytest.mark.parametrize('value', [[], ['Lem Rune'] * 7, ['Unknown Rune'], ['Perfect Topaz'], 'Lem Rune'])
 def test_rune_payload_schema_rejects_unsupported_or_malformed_names(value):
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match='exact rune payload'):
         validate({'op': 'socket_runes_equal', 'value': value})
 
 
@@ -74,3 +74,9 @@ def test_goldfind_variants_require_complete_six_lem_payload(key):
     assert assess(sword(), 'Druid')[0]['status'] == 'failed'
     assert not assess(replace(sword(), rarity='magic'))
     assert assess(replace(sword(), base_code=facts('Broad Sword').base_code))[0]['status'] == 'failed'
+
+
+def test_existing_wrong_socket_count_is_not_a_six_lem_preparation_candidate():
+    profile = next(p for p in build()['profiles'] if p['id'] == 'gold-find-leap-only-weapon-lem-sword')
+    item = replace(facts('Crystal Sword'), sockets=3, filled_sockets=0, empty_sockets=3)
+    assert assess_roles(item, [profile], {'player_class': 'Barbarian'})[0]['status'] == 'failed'

@@ -13,3 +13,7 @@ RUBIES = dict(
     zip(('Chipped Ruby', 'Flawed Ruby', 'Ruby', 'Flawless Ruby', 'Perfect Ruby'), (10, 17, 24, 31, 38), strict=True)
 )
 BOOLEAN_SOCKET_STATS = frozenset({152, 153})
+
+TOPAZ_MAGIC_FIND = dict(
+    zip(('Chipped Topaz', 'Flawed Topaz', 'Topaz', 'Flawless Topaz', 'Perfect Topaz'), (9, 13, 16, 20, 24), strict=True)
+)

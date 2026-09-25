@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "records": [
+    {
+      "id": "echoing-starter-dagger",
+      "review_date": "2026-09-25",
+      "disposition": "unsupported_quality_mapping",
+      "reason": "Starter dagger prose recommends future three-socket runeword bases with valuable staffmods, not magic/rare/crafted daggers. General attack-rating/skill priorities across gear do not establish this specific affixed weapon recommendation. Remove the executable affixed role without claiming the item is worthless.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/0",
+        "quotes": [
+          "Remember that you can wield a 2-Handed Weapon in a single hand if you have a Book equipped, so options like Bastard Sword open up at Item Level 26 or higher.",
+          "The biggest priority is to get as much Attack Rating as you can across your gear. Then find as many sources of +xx to All Skills or Warlock Skills to boost your damage even further.",
+          "Also keep an eye out for Daggers that can roll three sockets, with valuable Staffmods on them, for Runeword options later.",
+          "The Act 2 Blessed Aim Mercenary with an [Insight Partizan] helps to buff your damage further while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up. (bracketed items are d2planner tooltips whose text is blank in the HTML; resolved from planner profile ZWcxvtFt)"
+        ]
+      },
+      "previous_profile": {
+        "id": "echoing-starter-dagger",
+        "build": "echoing-strike-warlock-guide",
+        "variant": "Starter",
+        "side": "player",
+        "slot": "Weapon",
+        "role": "attack / skill support",
+        "review_status": "reviewed_candidate_rule",
+        "types": [
+          "knif"
+        ],
+        "qualities": [
+          "magic",
+          "rare",
+          "crafted"
+        ],
+        "required_any_stats": [
+          "127:0",
+          "83:7",
+          "188:57",
+          "107:388"
+        ],
+        "important_stats": [
+          "17:0",
+          "18:0",
+          "218:0",
+          "19:0",
+          "224:0",
+          "127:0",
+          "83:7",
+          "188:57",
+          "107:388"
+        ],
+        "conditions": [
+          "Guide alternatives include Spirit and two-handed weapons; this dagger is only a candidate."
+        ],
+        "alternatives": [
+          "Spirit Crystal Sword",
+          "Bastard Sword (any 2-Handed Weapon wielded one-handed with a Book equipped, Item Level 26+)"
+        ],
+        "source": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+          "source_date": "August 26, 2026",
+          "locator": "/echoing-strike-warlock-guide/variants/0",
+          "quotes": [
+            "Remember that you can wield a 2-Handed Weapon in a single hand if you have a Book equipped, so options like Bastard Sword open up at Item Level 26 or higher.",
+            "The biggest priority is to get as much Attack Rating as you can across your gear. Then find as many sources of +xx to All Skills or Warlock Skills to boost your damage even further.",
+            "Also keep an eye out for Daggers that can roll three sockets, with valuable Staffmods on them, for Runeword options later.",
+            "The Act 2 Blessed Aim Mercenary with an [Insight Partizan] helps to buff your damage further while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up. (bracketed items are d2planner tooltips whose text is blank in the HTML; resolved from planner profile ZWcxvtFt)"
+          ]
+        },
+        "depends_on": [
+          {
+            "label": "Retain at least 75% total Faster Cast Rate in the assessed loadout.",
+            "when": {
+              "op": "context_at_least",
+              "field": "player_total_fcr",
+              "value": 75
+            }
+          }
+        ]
+      },
+      "replacement_review": {
+        "state": "pending",
+        "scope": "normal/superior dagger runeword preparation",
+        "missing": [
+          "Exact intended recipe and preferred base/staffmod combination are not specified by this passage.",
+          "Review native legal socket outcomes by base/item level and independent recipe/build sources before promoting eligibility to desirability."
+        ]
+      }
+    },
+    {
+      "id": "poison-naj-fal-swap",
+      "review_date": "2026-09-25",
+      "disposition": "planner_example_without_endorsement",
+      "reason": "Cached Budget planner contains a Fal socket example; existing guide-use review explicitly classifies it as example rather than endorsed alternative. Do not emit an executable build-use recommendation or stat priority from it. The independently reviewed general Poison Nova Naj swap role remains; no negative item valuation follows.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/4/player/Weapon-Swap/0"
+      },
+      "previous_profile": {
+        "id": "poison-naj-fal-swap",
+        "build": "poison-nova-necromancer",
+        "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+        "side": "player",
+        "slot": "Weapon-Swap",
+        "role": "Teleport-charge weapon swap",
+        "review_status": "reviewed_candidate_rule",
+        "names": [
+          "Naj's Puzzler"
+        ],
+        "qualities": [
+          "set"
+        ],
+        "must": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "identified",
+              "value": true
+            },
+            {
+              "op": "context_eq",
+              "field": "player_class",
+              "value": "Necromancer"
+            }
+          ]
+        },
+        "conditions": [
+          "Requires level 78 and the staff equipment requirements.",
+          "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation.",
+          "This is a cached budget planner alternative, not a current main guide variant."
+        ],
+        "source": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+          "source_date": "May 22, 2026",
+          "locator": "/poison-nova-necromancer/variants/4/player/Weapon-Swap/0"
+        },
+        "required_rune": "Fal Rune",
+        "depends_on": [
+          {
+            "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+            "when": {
+              "op": "stat_at_least",
+              "key": "204:3467",
+              "value": 1
+            }
+          }
+        ],
+        "important_stats": [
+          "204:3467"
+        ]
+      },
+      "previous_guide_use": {
+        "profile_id": "poison-naj-fal-swap",
+        "item": "Naj's Puzzler",
+        "build": "poison-nova-necromancer",
+        "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+        "side": "player",
+        "strength": "example",
+        "review_state": "reviewed",
+        "scope": "softcore",
+        "source": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+          "source_date": "May 22, 2026",
+          "locator": "/poison-nova-necromancer/variants/4/player/Weapon-Swap/0"
+        },
+        "review_date": "2026-09-25",
+        "review_reason": "Planner-only Budget socket example does not establish a separate guide endorsement.",
+        "profile_fingerprint": "be802065cd66c09e1449958e6ca6d8fb0bb179d9daeb75a8d3be99456d6dae81"
+      },
+      "replacement_review": {
+        "state": "pending",
+        "scope": "Specific Fal-socketed Budget variant",
+        "missing": [
+          "Independent endorsement for this exact planner-only setup.",
+          "Verified socket-modified equipment requirements before claiming readiness."
+        ]
+      }
+    }
+  ]
+}

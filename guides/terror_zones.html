@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Terror Zones — Herald farming</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+</style>
+<link rel="stylesheet" href="toc.css">
+</head><body><nav class="guide-toc" aria-label="Table of contents"><strong class="guide-toc-title">On this page</strong><ul>
+<li><a href="#mechanics">1 · Available mechanics</a></li><li><a href="#diagnostic">2 · Diagnostic results</a></li>
+<li><a href="#skip">3 · Stay or leave</a></li><li><a href="#acts">4 · Ordered routes</a><ul><li><a href="#A1">A1</a></li><li><a href="#A2">A2</a></li><li><a href="#A3">A3</a></li><li><a href="#A4">A4</a></li><li><a href="#A5">A5</a></li><li><a href="#ALL">ALL</a></li></ul></li>
+<li><a href="#gaps">5 · Missing information</a></li><li><a href="#design">6 · Simulator plan</a></li>
+<li><a href="#verified">7 · Evidence ledger</a></li></ul></nav><main>
+<h1>Terror Zones — Herald progression and farming</h1>
+<p class="sub">Softcore · Non-Ladder · PC · RotW · Patch 3.2 article audited 2026-09-21. Research status: ordered model-ranked trial routes available; hourly optimum unverified.</p>
+<div class="tldr"><b>Start with the ordered queues in <a href="#acts">§4</a>.</b> Each act and ALL now has an explicit start, complete fallback order and stay/leave rule. These are simulator-selected trial routes for Tier 5 spawns per ordinary kill, including progression. The goal remains <b>Tier 5 Herald kills per hour</b>; missing travel/combat timings and runtime semantics prevent claiming these queues are optimal for that goal. After Tiers 1–4 move on in A1/A2/A3/A5/ALL; in A4 leave only after Tiers 1–3. At Tier 5, finish the remaining groups.</div>
+<details><summary>Links &amp; sources</summary><ul>
+<li><a href="../terror_zones/Patch 3.2 Update! Herald spawn mechanics, Sunder drop rates, Shard drop ratio and more.html">Saved Patch 3.2 article</a>: tier parameters, example group weights, average populations, author's model and caveats. Images were read as well as text. Community analysis, not runtime verification.</li>
+<li><a href="../terror_zones/data/sources.json">Pinned external sources and SHA-256 hashes</a>, retrieved 2026-09-21.</li>
+<li><a href="https://github.com/pinkufairy/D2R-Excel/blob/1f16064e09b97e3e65abd6943662207cff00b07f/docs/data/files/desecratedzones.js">D2R-Excel field documentation</a>: weighted shared zone data, base chance, room activation and queued spawn behavior. Describes fields, does not supply current game values or the full completion algorithm.</li>
+<li><a href="../terror_zones/data/desecratedzones-d2data.json">Audited d2data configuration</a>: retained as rejected evidence; this snapshot has old token fields and lacks the new slope/group fields. Do not feed it into a Patch 3.2 simulator.</li>
+<li><a href="../terror_zones/diagnostic.py">Probability diagnostic</a>, <a href="../tests/terror_zones/test_diagnostic.py">tests</a>, and <a href="planning-with-html.html">document conventions</a>.</li>
+</ul></details>
+<details><summary>Preconditions &amp; working assumptions</summary><ul>
+<li>Every recommendation requires evidence. Article-derived facts below are attributed; modeled numbers are not observed game rates.</li>
+<li>The requested scenarios are each act terrorized alone, then all acts terrorized together. The current manual-terrorization configuration must confirm zone membership and exclusions for these scenarios.</li>
+<li>Target metric is completed Tier 5 kills per total elapsed farming time. Include initial tiers, travel, loading, combat, looting policy, failed spawns, resets and new-game overhead. Spawning Tier 4, unlocking Tier 5, spawning Tier 5, and killing Tier 5 are separate milestones.</li>
+<li>Player count, actual Echoing Strike gear, mobility, session length and terrorization duration remain measurement inputs; no invented seconds-per-kill defaults. The route comparator scores spawns per ordinary kill, assumes every Herald is immediately killed at zero cost, treats all article groups as eligible, and ignores transit kills. It compares a full route without revisits or time limits.</li>
+<li>The diagnostic assumes all monsters already populated, equal monster weights, fixed original population denominator, zero base chance, pre-kill completion and immediate successful spawn/tier advancement. It resets only the local kill counter, leaves dead monsters dead, and excludes Herald/minion kills. Continuous completion is the default; integer flooring is an explicit alternative. These are model assumptions pending verification.</li>
+</ul></details>
+<details><summary>Rejected ideas (and why)</summary><ul>
+<li>Calling a size-only order an hourly optimum: size alone measures neither travel time nor progression failure. Ascending and descending populations are permitted candidate queues; the comparator evaluates their full stochastic progression instead of declaring either inherently best.</li>
+<li>“Always leave after a Herald”: can abandon useful Tier 5 opportunities after Tier 4, and queued Heralds may require another room entry in the same level.</li>
+<li>Replacing each random spawn with the expected kill number: loses no-spawn outcomes and the distribution of remaining monsters.</li>
+<li>Treating a flattened multi-level population as a faithful runtime model or verified farming recommendation: it ignores per-level weights and route-dependent room activation. The disclosed exploratory comparator may use this approximation, but cannot validate an hourly-optimal route.</li>
+<li>Publishing an optimal order from assumed travel times or the old public token-based configuration: unsupported.</li>
+</ul></details>
+<details id="reviews"><summary>Review log</summary>
+<p>2026-09-21 — Ordered-route pass: added all 74 article population groups, exact route expectation calculations, two departure policies, seeded kill-by-kill checks, and explicit queues for each act and ALL. Replaced the evidence-only act table. Scoring is clearly labeled T5 spawns per ordinary kill; timings were not invented. Independent source review confirmed all 74 populations and queue/result consistency; narrowed the rejected-idea wording to distinguish an exploratory flattened model from a faithful runtime emulator. Independent mathematical review checked 40 zone kernels against a forward kill-state probability calculation (maximum difference 3.9×10⁻¹²), recomputed all six selected routes, and confirmed the written departure rules; no structural findings.</p>
+<p>2026-09-21 — Initial evidence audit: inspected article images; recovered formula and parameters; identified stale d2data, missing runtime semantics and time measurements. Added finite-population probability diagnostic and tests. No optimal route claimed.</p>
+<p>2026-09-21 — Independent source/fact review: corrected the acquisition plan to distinguish local offline JSON from online protobuf configuration; require online provenance/parity before applying values to this setup. Confirmed article parameters, groups, populations and the cow-count inconsistency. Follow-up source review verified the correction; no remaining structural findings.</p>
+<p>2026-09-21 — Independent mathematical/model review: no structural findings. Confirmed finite failure mass, probability units, local reset, one-step tier progression, stated numerical results and total-time objective; all 9 diagnostic tests passed.</p>
+</details>
+<h2 id="mechanics">1 · What the available evidence says</h2>
+<p>The article describes one spawn roll per eligible monster kill in a terrorized area. A <code>zone_data_id</code> groups levels sharing completion; it is not necessarily one map, one displayed Terror Zone, or one act. On a Herald spawn, completion resets. Tier-specific slopes change the chance curve. The documentation also describes an added <code>herald_base_chance_to_spawn</code>; its effective Patch 3.2 value and any overrides must be extracted.</p>
+<pre>Article model, assuming zero base chance:
+p(tier, x) = clamp(a / (1 + exp(-m × (x − midpoint))) + k, 0, 100) / 100
+x = completion expressed on a 0..100 scale</pre>
+<table><thead><tr><th>Next Herald tier</th><th>Slope m</th><th>Midpoint</th><th>a</th><th>k</th><th>Positive chance above completion</th></tr></thead><tbody>
+<tr><td>1</td><td>0.04</td><td>56</td><td>10</td><td>−4.6</td><td>51.9914%</td></tr>
+<tr><td>2</td><td>0.04</td><td>44</td><td>7</td><td>−3.4</td><td>42.5710%</td></tr>
+<tr><td>3</td><td>0.04</td><td>44</td><td>7</td><td>−3.4</td><td>42.5710%</td></tr>
+<tr><td>4</td><td>0.05</td><td>47</td><td>4</td><td>−1.2</td><td>30.0540%</td></tr>
+<tr><td>5</td><td>0.08</td><td>42</td><td>2.5</td><td>−0.13</td><td>5.7111%</td></tr>
+</tbody></table>
+<p class="sub">Parameters: article image ending y3j5swnncx3h1.jpg. Thresholds: calculated on 2026-09-21 as midpoint − ln(a/(−k) − 1)/m, before integer rounding. These are curve thresholds, not guaranteed spawn points. Slope is tier-specific here, not evidence of a different slope for each map.</p>
+<p>Examples from the article: Blood Moor and Den of Evil have separate counters. Barracks is separate from the shared three Jail levels. Far Oasis and each Maggot Lair level are independent. Inner Cloister, Cathedral and Catacombs share one counter with weights 0.5, 1, 2, 2, 2, 1; fully clearing Catacombs 2–4 contributes 5/8.5 of that group in the article’s fully populated approximation.</p>
+<div class="warnbox">A successful roll is not necessarily an immediately visible Herald. The field documentation says a failed monster placement is queued and retried on entry to another room in the same level. The optimizer must account for collection of that Herald before recommending departure.</div>
+<h2 id="diagnostic">2 · What the executable diagnostic establishes</h2>
+<p>The tool rolls spawn/no-spawn once per kill, advances tiers only on success, resets the modeled local progress, and consumes a finite population. It also computes the exact first-spawn probability to check the random simulation. It does not emulate weighted rooms, travel or combat. The separate route comparator in §4 uses this same approximation to compare explicit queues.</p>
+<pre>uv run python -m terror_zones.diagnostic --monsters 511 --tier 1 --runs 20000
+uv run python -m terror_zones.diagnostic --monsters 511 --tier 2 --remaining 158
+uv run python -m terror_zones.diagnostic --monsters 67 --tier 1
+# Compare completion rounding explicitly:
+uv run python -m terror_zones.diagnostic --monsters 511 --tier 1 --floor-percent
+uv run pytest tests/terror_zones -v</pre>
+<table><thead><tr><th>Article-model scenario</th><th>Exact chance of at least one next-tier spawn</th><th>Expected kills spent until spawn or exhaustion</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Fresh population 67, Tier 1</td><td>49.9522%</td><td>61.0377</td><td>A small zone is cheap but unreliable; failures need fallback routes.</td></tr>
+<tr><td>Fresh population 511, Tier 1</td><td>99.5537%</td><td>356.7900</td><td>More reliable, more kills; elapsed time remains unknown.</td></tr>
+<tr><td>Original population 511, 158 left after reset, next Tier 2</td><td>0%</td><td>158 if continuing to exhaustion</td><td>Leaving avoids kills that cannot advance progression in this approximation.</td></tr>
+</tbody></table>
+<p class="sub">Computed 2026-09-21; <a href="../terror_zones/data/den-diagnostic.json">67-monster output</a> and <a href="../terror_zones/data/cows-diagnostic.json">511-monster output</a>. Continuous pre-kill model. Conditional mean kills among successful 511-monster attempts is 356.0986; do not confuse it with the unconditional stop cost or the article’s stated 353.</p>
+<p>Source consistency needs resolution: the article uses 511 cows in prose but 501 in its population table. Its broad claim that individual Terror Zones almost guarantee Tier 1 is not established for small populations by this model. The saved page also references an absent image ending <code>6si6upfwqi4h1.png</code> (the ordinary-monster Sunder table); that missing image is not a blocker for Herald routing.</p>
+<h2 id="skip">3 · When should we leave after a Herald?</h2>
+<p>For the simplified model, let N be the original population and R the monsters left immediately after the reset. Compute each remaining kill’s next-tier hazard using kills since reset, not kills already spent. If every remaining roll has zero hazard, there is no progression benefit to staying. The cow example above has this property.</p>
+<p>The next-tier threshold falls sharply after Tier 4, so leftovers that cannot produce Tier 2 may still produce Tier 5. “Skip below Tier 5” is therefore too broad. When the remaining chance is positive, compare expected Tier 5 reward and time for staying versus moving, including access cost, failed-zone fallback, and the value of preserving untouched monsters for later tiers. If revisits preserve progress, partial clears become possible actions too.</p>
+<p>This must be an adaptive policy keyed by actual tier, progress and monsters remaining. A fixed order alone cannot cover early spawns, late spawns, no spawn, delayed placement and revisits.</p>
+<h2 id="acts">4 · Ordered routes to try</h2>
+<div class="warnbox"><b>These are model-ranked trial routes, not verified Heralds/hour optima.</b> The comparison uses the article’s mean populations and tier slopes, flattens multi-level weights, and has no travel or combat times. Its score is Tier 5 spawns per 1,000 ordinary kills over a complete route, including unsuccessful progression. A slower trip can erase a small modeled advantage. In particular, the cross-act route assumes no cost for switching acts.</div>
+<h3 id="route-rules">How to follow every queue</h3>
+<ol>
+<li>Start a fresh game with only the listed act terrorized, or all acts for ALL. Begin at step 1. The model assumes progression starts with the next Herald at Tier 1.</li>
+<li>Clear the current listed Herald group until its Herald appears or the group runs out of monsters. <b>If it produces no Herald, move to the next step without advancing your tier.</b> A grouped entry means all its named levels contribute; clearing just one floor is not a complete attempt.</li>
+<li><b>Kill the Herald before moving.</b> Resolve a queued spawn by entering another room in that same level if needed. Track actual successful Heralds, not visited zones: the fourth zone does not necessarily produce Tier 4.</li>
+<li><b>Acts I, II, III, V and ALL:</b> after each Tier 1, 2, 3 or 4 Herald, abandon the remaining monsters in that group and move to the next listed step. <b>Act IV:</b> leave after Tiers 1–3, but after Tier 4 stay and finish the current group to seek Tier 5, then continue.</li>
+<li><b>Once Tier 5 is available:</b> fully clear each remaining listed group, killing every Herald that appears. Continue after a Tier 5 Herald; do not apply the progression departure rule to it. Do not return to groups abandoned earlier in this baseline.</li>
+<li>At the end of the queue, end the modeled run. If repeating, start a fresh game and restart from step 1. This is a reproducible full-route test, not a proven best remake point. Record total elapsed time and Tier 5 kills to compare actual hourly yield.</li>
+</ol>
+<p>Numbers in parentheses are article-average ordinary monsters, transcribed 2026-09-21; they are not kill targets. Follow the actual Herald event. These queues specify <b>where to fight</b>, not navigation through prerequisites. They assume reaching each entry without killing monsters in later entries. If access requires fighting through another group, that changes its state and this simulation no longer predicts the run. Tomb labels refer to the article’s size categories, not fixed symbols; identifying those categories on an unseen map is an unresolved practical limitation.</p>
+<p>Selection compared article order, ascending population and descending population with both departure rules for A1, A2, A3, A5 and ALL (six combinations each). A4 compared every permutation of its five groups with both rules (240 combinations). These are the <b>best tested</b> combinations for this surrogate metric. The larger scenarios were not exhaustively optimized. Each selected queue was independently checked with 3,000 kill-by-kill trials; rankings use exact expectations rather than Monte Carlo noise.</p>
+<table><thead><tr><th>Scenario</th><th>Leave after these tiers</th><th>Modeled T5 / 1,000 kills</th><th>Simulation check</th></tr></thead><tbody>
+<tr><td><a href="#A1">A1</a></td><td>1–4</td><td>4.530</td><td>4.527</td></tr>
+<tr><td><a href="#A2">A2</a></td><td>1–4</td><td>5.181</td><td>5.187</td></tr>
+<tr><td><a href="#A3">A3</a></td><td>1–4</td><td>4.136</td><td>4.145</td></tr>
+<tr><td><a href="#A4">A4</a></td><td>1–3</td><td>1.111</td><td>1.120</td></tr>
+<tr><td><a href="#A5">A5</a></td><td>1–4</td><td>3.930</td><td>3.936</td></tr>
+<tr><td><a href="#ALL">ALL</a></td><td>1–4</td><td>5.526</td><td>5.524</td></tr>
+</tbody></table>
+<p class="sub">Calculated 2026-09-21. These are spawns per kill, not kills per hour: every spawned Herald is assumed killed at zero additional cost. <a href="../terror_zones/data/ordered-route-results.json">Complete results, input seed and comparisons</a> · <a href="../terror_zones/data/article-zones.json">Transcribed population inputs</a> · <a href="../terror_zones/routes.py">Exact evaluation and kill-by-kill simulation</a>.</p>
+<h3 id="A1">A1 · Act 1 only</h3>
+<p>Start with Burial Grounds/Crypt/Mausoleum. If each group succeeds, the first four progression groups are Burial Grounds, Catacombs, Cold Plains and Cave. Failure pushes progression farther down this same list.</p>
+<ol>
+<li>Burial Grounds, Crypt and Mausoleum <span class="sub">(203)</span></li>
+<li>Inner Cloister, Cathedral and Catacombs <span class="sub">(374)</span></li>
+<li>Cold Plains <span class="sub">(209)</span></li>
+<li>Cave levels <span class="sub">(181)</span></li>
+<li>Dark Wood <span class="sub">(233)</span></li>
+<li>Underground Passage levels <span class="sub">(255)</span></li>
+<li>Blood Moor <span class="sub">(113)</span></li>
+<li>Den of Evil <span class="sub">(67)</span></li>
+<li>Barracks <span class="sub">(102)</span></li>
+<li>Jail levels <span class="sub">(252)</span></li>
+<li>Cow Level <span class="sub">(501)</span></li>
+<li>Stony Field and Tristram <span class="sub">(229)</span></li>
+<li>Black Marsh <span class="sub">(199)</span></li>
+<li>Hole levels <span class="sub">(178)</span></li>
+<li>Tower Cellar levels <span class="sub">(260)</span></li>
+<li>Tamoe Highland and Outer Cloister <span class="sub">(278)</span></li>
+<li>Pit levels <span class="sub">(223)</span></li>
+</ol>
+<h3 id="A2">A2 · Act 2 only</h3>
+<p>Start with Arcane Sanctuary. The model favors using larger populations for the early tiers here, leaving smaller groups for Tier 5. This is not evidence that travel to or through these levels is fast. In particular, the separated Maggot and Palace entries may make the queue impractical without transit control.</p>
+<ol>
+<li>Arcane Sanctuary <span class="sub">(469)</span></li>
+<li>Real Tal Rasha&#x27;s Tomb <span class="sub">(390)</span></li>
+<li>Halls of the Dead levels <span class="sub">(352)</span></li>
+<li>Lut Gholein Sewer levels <span class="sub">(315)</span></li>
+<li>Big false Tal Rasha&#x27;s Tomb <span class="sub">(270)</span></li>
+<li>Palace Cellar levels <span class="sub">(247)</span></li>
+<li>Claw Viper Temple levels <span class="sub">(221)</span></li>
+<li>Far Oasis <span class="sub">(200)</span></li>
+<li>Canyon of the Magi <span class="sub">(182)</span></li>
+<li>Lost City <span class="sub">(168)</span></li>
+<li>Rocky Waste <span class="sub">(152)</span></li>
+<li>Dry Hills <span class="sub">(147)</span></li>
+<li>Maggot Lair Level 1 <span class="sub">(129)</span></li>
+<li>Small false Tal Rasha&#x27;s Tomb 1 <span class="sub">(124)</span></li>
+<li>Small false Tal Rasha&#x27;s Tomb 2 <span class="sub">(124)</span></li>
+<li>Small false Tal Rasha&#x27;s Tomb 3 <span class="sub">(124)</span></li>
+<li>Small false Tal Rasha&#x27;s Tomb 4 <span class="sub">(124)</span></li>
+<li>Small false Tal Rasha&#x27;s Tomb 5 <span class="sub">(124)</span></li>
+<li>Stony Tomb levels <span class="sub">(115)</span></li>
+<li>Ancient Tunnels <span class="sub">(106)</span></li>
+<li>Maggot Lair Level 2 <span class="sub">(98)</span></li>
+<li>Harem Level 2 <span class="sub">(84)</span></li>
+<li>Maggot Lair Level 3 <span class="sub">(83)</span></li>
+</ol>
+<h3 id="A3">A3 · Act 3 only</h3>
+<p>Start with Spider Cavern, then Arachnid Lair. These small groups can fail; do not assume Travincal is already Tier 3. Keep following the queue until four Heralds have actually appeared and been killed.</p>
+<ol>
+<li>Spider Cavern <span class="sub">(61)</span></li>
+<li>Arachnid Lair <span class="sub">(63)</span></li>
+<li>Travincal <span class="sub">(110)</span></li>
+<li>Lower Kurast <span class="sub">(115)</span></li>
+<li>Upper Kurast and Kurast Causeway <span class="sub">(135)</span></li>
+<li>Kurast Bazaar <span class="sub">(148)</span></li>
+<li>All Kurast temple levels <span class="sub">(170)</span></li>
+<li>Swampy Pit levels <span class="sub">(187)</span></li>
+<li>Kurast Sewer levels <span class="sub">(188)</span></li>
+<li>Flayer Dungeon levels <span class="sub">(212)</span></li>
+<li>Great Marsh <span class="sub">(326)</span></li>
+<li>Spider Forest <span class="sub">(341)</span></li>
+<li>Durance of Hate levels <span class="sub">(409)</span></li>
+<li>Flayer Jungle <span class="sub">(475)</span></li>
+</ol>
+<h3 id="A4">A4 · Act 4 only</h3>
+<p>Start with Outer Steppes. After the Tier 4 Herald, remain in that group and finish it. Only five groups are available in this scenario, so forfeiting the Tier 4 leftovers is costly in the model. The modeled probability of unlocking Tier 5 before the queue ends is 87.12%; the route can fail to reach Tier 5.</p>
+<ol>
+<li>Outer Steppes <span class="sub">(187)</span></li>
+<li>Chaos Sanctuary <span class="sub">(189)</span></li>
+<li>Plains of Despair <span class="sub">(193)</span></li>
+<li>City of the Damned <span class="sub">(211)</span></li>
+<li>River of Flame <span class="sub">(231)</span></li>
+</ol>
+<h3 id="A5">A5 · Act 5 only</h3>
+<p>Start with Pit of Acheron, then Infernal Pit and Abaddon. Reaching these entries involves other levels; transit and any unavoidable kills are unmodeled. Count actual Heralds before switching to full clears.</p>
+<ol>
+<li>Pit of Acheron <span class="sub">(87)</span></li>
+<li>Infernal Pit <span class="sub">(115)</span></li>
+<li>Abaddon <span class="sub">(117)</span></li>
+<li>Crystalline Passage <span class="sub">(146)</span></li>
+<li>Halls of Vaught <span class="sub">(178)</span></li>
+<li>Frozen River <span class="sub">(203)</span></li>
+<li>Glacial Trail and Drifter Cavern <span class="sub">(233)</span></li>
+<li>Arreat Plateau <span class="sub">(277)</span></li>
+<li>Ancients&#x27; Way and Icy Cellar <span class="sub">(281)</span></li>
+<li>Frigid Highlands <span class="sub">(339)</span></li>
+<li>Frozen Tundra <span class="sub">(374)</span></li>
+<li>Halls of Pain <span class="sub">(405)</span></li>
+<li>Nihlathak&#x27;s Temple and Halls of Anguish <span class="sub">(414)</span></li>
+<li>Bloody Foothills <span class="sub">(488)</span></li>
+<li>Worldstone Keep and Throne <span class="sub">(580)</span></li>
+</ol>
+<h3 id="ALL">ALL · All acts terrorized together</h3>
+<p>Start with Worldstone Keep/Throne, then Cows, Bloody Foothills and Flayer Jungle. These are progression attempts, not guaranteed one-Herald steps. If one fails, continue to Arcane Sanctuary and onward. This whole-game choice preserves many small groups for Tier 5; it does not minimize the number of kills required to unlock Tier 5. Frequent cross-act travel is excluded from its score.</p>
+<ol>
+<li>Act 5: Worldstone Keep and Throne <span class="sub">(580)</span></li>
+<li>Act 1: Cow Level <span class="sub">(501)</span></li>
+<li>Act 5: Bloody Foothills <span class="sub">(488)</span></li>
+<li>Act 3: Flayer Jungle <span class="sub">(475)</span></li>
+<li>Act 2: Arcane Sanctuary <span class="sub">(469)</span></li>
+<li>Act 5: Nihlathak&#x27;s Temple and Halls of Anguish <span class="sub">(414)</span></li>
+<li>Act 3: Durance of Hate levels <span class="sub">(409)</span></li>
+<li>Act 5: Halls of Pain <span class="sub">(405)</span></li>
+<li>Act 2: Real Tal Rasha&#x27;s Tomb <span class="sub">(390)</span></li>
+<li>Act 1: Inner Cloister, Cathedral and Catacombs <span class="sub">(374)</span></li>
+<li>Act 5: Frozen Tundra <span class="sub">(374)</span></li>
+<li>Act 2: Halls of the Dead levels <span class="sub">(352)</span></li>
+<li>Act 3: Spider Forest <span class="sub">(341)</span></li>
+<li>Act 5: Frigid Highlands <span class="sub">(339)</span></li>
+<li>Act 3: Great Marsh <span class="sub">(326)</span></li>
+<li>Act 2: Lut Gholein Sewer levels <span class="sub">(315)</span></li>
+<li>Act 5: Ancients&#x27; Way and Icy Cellar <span class="sub">(281)</span></li>
+<li>Act 1: Tamoe Highland and Outer Cloister <span class="sub">(278)</span></li>
+<li>Act 5: Arreat Plateau <span class="sub">(277)</span></li>
+<li>Act 2: Big false Tal Rasha&#x27;s Tomb <span class="sub">(270)</span></li>
+<li>Act 1: Tower Cellar levels <span class="sub">(260)</span></li>
+<li>Act 1: Underground Passage levels <span class="sub">(255)</span></li>
+<li>Act 1: Jail levels <span class="sub">(252)</span></li>
+<li>Act 2: Palace Cellar levels <span class="sub">(247)</span></li>
+<li>Act 1: Dark Wood <span class="sub">(233)</span></li>
+<li>Act 5: Glacial Trail and Drifter Cavern <span class="sub">(233)</span></li>
+<li>Act 4: River of Flame <span class="sub">(231)</span></li>
+<li>Act 1: Stony Field and Tristram <span class="sub">(229)</span></li>
+<li>Act 1: Pit levels <span class="sub">(223)</span></li>
+<li>Act 2: Claw Viper Temple levels <span class="sub">(221)</span></li>
+<li>Act 3: Flayer Dungeon levels <span class="sub">(212)</span></li>
+<li>Act 4: City of the Damned <span class="sub">(211)</span></li>
+<li>Act 1: Cold Plains <span class="sub">(209)</span></li>
+<li>Act 1: Burial Grounds, Crypt and Mausoleum <span class="sub">(203)</span></li>
+<li>Act 5: Frozen River <span class="sub">(203)</span></li>
+<li>Act 2: Far Oasis <span class="sub">(200)</span></li>
+<li>Act 1: Black Marsh <span class="sub">(199)</span></li>
+<li>Act 4: Plains of Despair <span class="sub">(193)</span></li>
+<li>Act 4: Chaos Sanctuary <span class="sub">(189)</span></li>
+<li>Act 3: Kurast Sewer levels <span class="sub">(188)</span></li>
+<li>Act 3: Swampy Pit levels <span class="sub">(187)</span></li>
+<li>Act 4: Outer Steppes <span class="sub">(187)</span></li>
+<li>Act 2: Canyon of the Magi <span class="sub">(182)</span></li>
+<li>Act 1: Cave levels <span class="sub">(181)</span></li>
+<li>Act 1: Hole levels <span class="sub">(178)</span></li>
+<li>Act 5: Halls of Vaught <span class="sub">(178)</span></li>
+<li>Act 3: All Kurast temple levels <span class="sub">(170)</span></li>
+<li>Act 2: Lost City <span class="sub">(168)</span></li>
+<li>Act 2: Rocky Waste <span class="sub">(152)</span></li>
+<li>Act 3: Kurast Bazaar <span class="sub">(148)</span></li>
+<li>Act 2: Dry Hills <span class="sub">(147)</span></li>
+<li>Act 5: Crystalline Passage <span class="sub">(146)</span></li>
+<li>Act 3: Upper Kurast and Kurast Causeway <span class="sub">(135)</span></li>
+<li>Act 2: Maggot Lair Level 1 <span class="sub">(129)</span></li>
+<li>Act 2: Small false Tal Rasha&#x27;s Tomb 1 <span class="sub">(124)</span></li>
+<li>Act 2: Small false Tal Rasha&#x27;s Tomb 2 <span class="sub">(124)</span></li>
+<li>Act 2: Small false Tal Rasha&#x27;s Tomb 3 <span class="sub">(124)</span></li>
+<li>Act 2: Small false Tal Rasha&#x27;s Tomb 4 <span class="sub">(124)</span></li>
+<li>Act 2: Small false Tal Rasha&#x27;s Tomb 5 <span class="sub">(124)</span></li>
+<li>Act 5: Abaddon <span class="sub">(117)</span></li>
+<li>Act 2: Stony Tomb levels <span class="sub">(115)</span></li>
+<li>Act 3: Lower Kurast <span class="sub">(115)</span></li>
+<li>Act 5: Infernal Pit <span class="sub">(115)</span></li>
+<li>Act 1: Blood Moor <span class="sub">(113)</span></li>
+<li>Act 3: Travincal <span class="sub">(110)</span></li>
+<li>Act 2: Ancient Tunnels <span class="sub">(106)</span></li>
+<li>Act 1: Barracks <span class="sub">(102)</span></li>
+<li>Act 2: Maggot Lair Level 2 <span class="sub">(98)</span></li>
+<li>Act 5: Pit of Acheron <span class="sub">(87)</span></li>
+<li>Act 2: Harem Level 2 <span class="sub">(84)</span></li>
+<li>Act 2: Maggot Lair Level 3 <span class="sub">(83)</span></li>
+<li>Act 1: Den of Evil <span class="sub">(67)</span></li>
+<li>Act 3: Arachnid Lair <span class="sub">(63)</span></li>
+<li>Act 3: Spider Cavern <span class="sub">(61)</span></li>
+</ol>
+<p><b>Why the large starting zones in ALL?</b> The requested goal includes farming after progression, not merely reaching Tier 5 quickly. With no travel cost and constant ordinary-kill cost, the model can favor consuming large groups during progression and saving small groups for Tier 5. Actual seconds per group can reverse that result. Treat this as a controlled route to measure, not a general claim that Worldstone is the fastest start.</p>
+<pre>uv run python -m terror_zones.routes --runs 3000 &gt; terror_zones/data/ordered-route-results.json
+uv run pytest tests/terror_zones -v</pre>
+<h2 id="gaps">5 · Information still required</h2>
+<table><thead><tr><th>Input</th><th>Why it changes the answer</th><th>How to obtain it</th></tr></thead><tbody>
+<tr><td>Patch-matched configuration</td><td>Actual slopes, base chance, per-level overrides, group IDs, weights and manual-terrorized membership.</td><td>Extract current unmodified <code>hd/global/excel/desecratedzones.json</code>; record game build and hash. This is candidate offline configuration: the field documentation says online games use protobuf, so establish effective online configuration provenance or parity for this Non-Ladder setup. Check defaults and level/zone/difficulty inheritance.</td></tr>
+<tr><td>Exact completion calculation</td><td>Population is activated incrementally; weighted completion need not equal killed/total monsters.</td><td>Runtime/source verification of rooms populated, room totals, monsters spawned/killed and <code>Levels.CompletionTotalRoomsOverride</code>. Establish how empty/unvisited levels contribute.</td></tr>
+<tr><td>Reset, eligibility and tier lifecycle</td><td>Determines pre-clearing, revisits, global progression, queued spawns and which kills contribute.</td><td>Confirm pre/post-kill evaluation, precision/rounding, reset baseline/denominator, local versus global resets, progression on roll/spawn/kill, Herald/minion/revived/summoned eligibility, multiplayer scope and rotation/new-game behavior.</td></tr>
+<tr><td>Map and population distributions</td><td>Averages erase layout variability, dead ends, room order and the correlation between monster count and clear time.</td><td>Level/room data plus repeated map samples: group, level, room activation, spawned count, eligible deaths, timestamp and remaining accessible population. Game density settings alone are not actual populations.</td></tr>
+<tr><td>Player-specific time measurements</td><td>Heralds/hour cannot be inferred from kills or area size.</td><td>Record build, mobility, player count, entry/exit/loading times, pack kill times, Herald discovery and combat times by tier, looting time, death/recovery and remake overhead.</td></tr>
+<tr><td>Farming horizon and availability</td><td>A finite terrorization window can change progression investment and optimal restart policy.</td><td>Measure intended session duration, shard/rotation availability and whether all acts remain active together throughout the trial.</td></tr>
+</tbody></table>
+<h2 id="design">6 · Full runtime simulator and hourly optimizer — remaining work</h2>
+<ol>
+<li><b>Evidence ingestion:</b> validate patch/build, import the complete weighted level graph and input provenance. Reject missing time fields for time-based optimization; never silently insert equal clear speeds.</li>
+<li><b>Kill event engine:</b> maintain global tier plus each zone’s room, population, completion/reset and queued-spawn state. On every eligible death compute the verified probability and draw a Bernoulli outcome. Handle placement, combat and time explicitly. Keep an event log for replay.</li>
+<li><b>Policy actions:</b> enter a level, follow a room path, continue killing, resolve a pending Herald, leave after spawn/kill, revisit, travel between acts or remake. Restrict eligibility separately for A1–A5 and ALL.</li>
+<li><b>Objective:</b> for repeated sessions estimate <code>3600 × sum(Tier 5 Heralds killed) / sum(elapsed seconds)</code>. Include unsuccessful progression attempts. For a fixed duration, compare expected Tier 5 kills within that duration. Do not average individual session ratios.</li>
+<li><b>Search:</b> compare full clear, leave-after-success, zero-opportunity skip and adaptive continuation. Use exhaustive dynamic programming on small validated scenarios as an oracle; larger searches must report their coverage and bound/gap, or say “best policy tested” rather than “optimal”.</li>
+<li><b>Validation:</b> exact first-spawn and finite-population checks; weighted multi-level and room-activation fixtures; queued placement, persistence and tier-reset fixtures; seeded independent evaluation runs with uncertainty intervals. Compare held-out observed runs, not merely the article’s aggregate expectations.</li>
+<li><b>Guide output:</b> per scenario publish entry order with conditional branches, tier-specific stay/leave rules, expected progression time, Tier 5/hour, failure probability, uncertainty and the source/build/timing profile. Check whether the winning policy survives timing and map sensitivity tests.</li>
+</ol>
+<h2 id="verified">7 · Verified versus still to verify</h2>
+<details><summary>Evidence ledger and readiness</summary><ul>
+<li><b>Inspected:</b> saved article text, formula/parameter/group/population images, pinned public configuration and field documentation.</li>
+<li><b>Mathematically checked:</b> article-model probability conversion, negative-chance clamping, finite failure mass, reset/population handling and simulation agreement with exact first-spawn probabilities. This validates the diagnostic against its assumptions only.</li>
+<li><b>Article-derived:</b> tier constants, example population averages and zone groups. Not verified against the player’s current build.</li>
+<li><b>Still to verify in-game:</b> every runtime and measurement input in the information table; this includes room semantics, reset scope, base chance, delayed spawn handling, tier lifecycle, timings and access.</li>
+<li><b>Not delivered as settled advice:</b> an hourly-optimal route, full runtime emulator, Tier 5/hour estimates or gear changes. Ordered queues are now delivered as model-ranked experiments, with exact surrogate scores and independent stochastic checks. Their runtime assumptions and actual hourly performance remain to verify.</li>
+</ul></details>
+<footer>Evidence audit and article-model calculations · 2026-09-21 · No prices used · Route rankings apply only to the explicitly stated article approximation; no hourly ranking claimed.</footer>
+</main></body></html>

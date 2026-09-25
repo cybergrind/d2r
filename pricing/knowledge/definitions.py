@@ -19,6 +19,7 @@ from pricing.knowledge.charged_skills import charged_skills
 from pricing.knowledge.localization import merge_game_strings
 from pricing.knowledge.named_effects import fixed_elemental_effects, fixed_poison_effect
 from pricing.knowledge.named_triggers import fixed_triggers
+from pricing.knowledge.native_socket_counts import native_socket_range
 from pricing.knowledge.per_level_effects import fixed_per_level_effects, variable_per_level_effects
 from pricing.knowledge.rune_effects import socket_compound_effects
 
@@ -260,6 +261,7 @@ def build_definitions(root):
                     'set_definition': sets.get(record.get('set')),
                     'game_definition': dict(record),
                     'base_definition': dict(bases.get(code, {})),
+                    'native_socket_range': native_socket_range(record, bases.get(code, {}), types),
                     'base_code': code,
                     'base_codes': [code] if code in bases else [],
                     'base_name': bases.get(code, {}).get('name'),

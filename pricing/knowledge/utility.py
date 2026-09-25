@@ -50,10 +50,22 @@ def cube_outcomes(caps):
     ]
 
 
+def _unknown_socket_options(reason):
+    return {
+        'eligible': False,
+        'conditional': True,
+        'possible_sockets': [],
+        'maximum_by_ilvl_bracket': [],
+        'reason': reason,
+    }
+
+
 def socket_options(base, types, *, method, ilvl=None, quality='normal', current_sockets=0, difficulty=None):
     """Describe possibilities, never infer an unknown item level or reduce sockets."""
     if method not in {'cube', 'larzuk', 'drop'}:
         raise ValueError('Unknown socket method')
+    if current_sockets is None:
+        return _unknown_socket_options('Read the current socket count before choosing a socket method')
     if current_sockets:
         return {
             'eligible': False,
@@ -76,8 +88,13 @@ def socket_options(base, types, *, method, ilvl=None, quality='normal', current_
             'reason': 'This API covers nonmagical runeword bases only',
         }
     record = types.get(base.get('type'), {})
-    cap = base.get('gemsockets', 0)
-    brackets = [min(cap, record.get(key, 0)) for key in ('maxsock1', 'maxsock25', 'maxsock40')]
+    cap = base.get('gemsockets')
+    limits = [record.get(key) for key in ('maxsock1', 'maxsock25', 'maxsock40')]
+    if type(cap) is not int or not 0 <= cap <= 6:
+        return _unknown_socket_options('Base socket capacity is unverified')
+    if cap and any(type(limit) is not int or not 0 <= limit <= 6 for limit in limits):
+        return _unknown_socket_options('Item-type socket limits are unverified')
+    brackets = [min(cap, limit) for limit in limits] if cap else [0, 0, 0]
     caps = brackets if ilvl is None else [brackets[0 if ilvl <= 25 else 1 if ilvl <= 40 else 2]]
     if method == 'drop':
         if difficulty not in {'normal', 'nightmare', 'hell'}:
@@ -88,9 +105,9 @@ def socket_options(base, types, *, method, ilvl=None, quality='normal', current_
                 'reason': 'Natural drops require difficulty information',
             }
         caps = [min(n, {'normal': 3, 'nightmare': 4, 'hell': 6}[difficulty]) for n in caps]
-    values = sorted(set(caps)) if method == 'larzuk' else list(range(1, max(caps, default=0) + 1))
+    values = sorted({n for n in caps if n > 0}) if method == 'larzuk' else list(range(1, max(caps, default=0) + 1))
     return {
-        'eligible': bool(cap),
+        'eligible': bool(values),
         'conditional': ilvl is None,
         'possible_sockets': values if cap else [],
         **({'cube_outcomes': cube_outcomes(caps)} if method == 'cube' else {}),

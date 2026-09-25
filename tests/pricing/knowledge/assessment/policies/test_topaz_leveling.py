@@ -13,7 +13,9 @@ def topaz_armor(base='Cap', quality='normal'):
         facts(base, quality),
         sockets=2,
         socket_contents='filled',
-        socket_items=[{'base_code': gem['code'], 'name': gem['name']}],
+        filled_sockets=1,
+        empty_sockets=1,
+        socket_items=[{'base_code': gem['code'], 'name': gem['name'], 'unit_id': 1, 'position': 0}],
         stats={'80:0': {'status': 'decoded', 'value': 9}},
     )
 
@@ -51,3 +53,19 @@ def test_gem_display_name_cannot_substitute_for_topaz_identity():
     ruby = next(b for b in metadata()['bases'].values() if b['name'] == 'Ruby')
     item = replace(topaz_armor(), socket_items=[{'base_code': ruby['code'], 'name': 'Chipped Topaz'}])
     assert not assess_leveling(item)
+
+
+def test_topaz_bonus_requires_complete_unique_links_and_sufficient_observed_total():
+    item = topaz_armor()
+    child = item.socket_items[0]
+    for changed in (
+        replace(item, filled_sockets=None, empty_sockets=None),
+        replace(item, socket_items=[{k: v for k, v in child.items() if k != 'unit_id'}]),
+        replace(item, socket_items=[{**child, 'position': 1}]),
+        replace(item, filled_sockets=2, empty_sockets=0, socket_items=[child, {**child, 'position': 1}]),
+        replace(item, stats={'80:0': {'status': 'decoded', 'value': 8}}),
+    ):
+        assert not assess_leveling(changed)
+    two = replace(item, filled_sockets=2, empty_sockets=0, socket_items=[child, {**child, 'unit_id': 2, 'position': 1}])
+    assert not assess_leveling(two)  # two chipped topazes require at least 18 MF
+    assert assess_leveling(replace(two, stats={'80:0': {'status': 'decoded', 'value': 18}}))

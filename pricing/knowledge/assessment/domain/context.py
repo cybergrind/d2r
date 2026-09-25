@@ -33,6 +33,8 @@ class AssessmentContext:
     mercenary_items: tuple[str, ...] | frozenset[str] | None = None
     # Explicit total for the assessed loadout, never inferred from a hover.
     player_total_fcr: int | None = None
+    # Explicit intended encounter/activity; never inferred from gear or mercenary type.
+    activity: str | None = None
 
     def __post_init__(self):
         for field in fields(self):

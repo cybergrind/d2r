@@ -6,7 +6,7 @@ from collections import Counter
 from inventory_tracking.items.metadata import metadata
 from pricing.knowledge.assessment.domain.facts import FactStatus, StatKey
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
-from pricing.knowledge.assessment.mechanics.socket_effects import DIAMONDS, RESIST_RUNES, RUBIES
+from pricing.knowledge.assessment.mechanics.socket_effects import DIAMONDS, RESIST_RUNES, RUBIES, TOPAZ_MAGIC_FIND
 from pricing.knowledge.assessment.registry import FAMILIES
 
 
@@ -35,8 +35,9 @@ def topaz_magic_find(facts):
         or not positive_stat(facts, 80)
     ):
         return False
-    topazes = {b['code'] for b in metadata()['bases'].values() if b['type'] == 'gemt'}
-    return any(child.get('base_code') in topazes for child in facts.socket_items)
+    fillers = complete_fillers(facts)
+    bonus = sum(TOPAZ_MAGIC_FIND.get(name, 0) for name in fillers)
+    return bonus > 0 and minimum(facts, 80, bonus)
 
 
 def diamond_resistance(facts):

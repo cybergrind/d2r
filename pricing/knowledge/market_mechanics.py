@@ -3,6 +3,7 @@
 from pricing.knowledge.definition_store import catalog
 from pricing.knowledge.market_base_catalog import equipment_base
 from pricing.knowledge.market_named_bases import resolve_equipment_base
+from pricing.knowledge.market_named_sockets import fixed_native_socket_count, single_socket_payload
 from pricing.knowledge.named_ethereal import intrinsic_ethereal
 
 
@@ -182,6 +183,28 @@ def apply_named_equipment_facts(row):
         'generation': definitions.generation,
         'reviewed_at': '2026-09-24',
     }
+    fixed = fixed_native_socket_count(variants)
+    if fixed is not None:
+        if '402' not in row['properties']:
+            row['sockets'] = fixed
+            row.setdefault('facet_basis', {})['sockets'] = {
+                **source,
+                'kind': 'fixed_native_sockets',
+                'reference': 'third-parties/D2MOO/source/D2Common/src/Items/ItemMods.cpp:ITEMMODS_PropertyFunc14',
+            }
+        elif type(row['properties']['402']) not in (int, float) or row['properties']['402'] != fixed:
+            conflict(row, 'Explicit socket count contradicts fixed native named sockets.')
+    proof = single_socket_payload(row, variants)
+    if proof:
+        properties = row['properties']
+        if '402' not in properties:
+            row['sockets'] = 1
+            row['socket_contents'] = 'filled'
+            basis = row.setdefault('facet_basis', {})
+            basis['sockets'] = {**source, **proof}
+            basis['socket_contents'] = {**source, **proof}
+        elif type(properties['402']) not in (int, float) or properties['402'] != 1:
+            conflict(row, 'Explicit socket count contradicts named single-filler mechanics.')
     if quality == 'set':
         apply_expected(
             row,

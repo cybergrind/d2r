@@ -158,6 +158,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -191,17 +194,28 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
             "value": 1
           }
+        },
+        {
+          "label": "This Teleport-charge alternative requires Enigma not to be equipped.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "player_items",
+              "value": "Enigma"
+            }
+          }
         }
       ],
       "conditions": [
         "Check equipment requirements before using this Teleport-charge alternative.",
-        "Use until Enigma supplies Teleport."
+        "Use until Enigma supplies Teleport.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -442,7 +456,10 @@
           "Angelic Halo (Angelical Raiment)"
         ],
         "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
-      }
+      },
+      "types": [
+        "ring"
+      ]
     },
     {
       "id": "berserk-barbarian-angelic-amulet",
@@ -544,7 +561,10 @@
           "Sigon's Wrap (Sigon's Complete Steel)",
           "Sigon's Sabot (Sigon's Complete Steel)"
         ]
-      }
+      },
+      "types": [
+        "glov"
+      ]
     },
     {
       "build": "berserk-barbarian",
@@ -654,7 +674,10 @@
           "Sigon's Wrap (Sigon's Complete Steel)",
           "Sigon's Sabot (Sigon's Complete Steel)"
         ]
-      }
+      },
+      "types": [
+        "boot"
+      ]
     }
   ]
 }

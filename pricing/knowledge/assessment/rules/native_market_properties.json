@@ -5490,7 +5490,7 @@
     }
   },
   "inputs": {
-    "inventory_tracking/items/data/item_metadata.json": "a6c6274ff03390ad8f4eb358842b71aa8ad89c8041fab0e59b49629d4b0997ab",
+    "inventory_tracking/items/data/item_metadata.json": "381ba77a7512486f32dff7591f3c96074d49eb07fcbca2e655e16459795a7350",
     "pricing/data/appraisal-properties.json": "a045eb3cbe641497511cc4443f9bcb56f72619782ce382ae458dc6d8edcf596a"
   },
   "review": "2026-09-24: Scalar skill families; exact labels plus reviewed Warlock class wording alias."

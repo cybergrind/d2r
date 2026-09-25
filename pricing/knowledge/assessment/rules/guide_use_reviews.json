@@ -1,0 +1,2039 @@
+{
+  "schema_version": 1,
+  "complete": false,
+  "uses": [
+    {
+      "profile_id": "lightning-starter-insight-merc",
+      "item": "Insight",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Partizan"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "6b44339aed6e25dd001c85bace422126af549ef6b302b3ee6c3a07e4fef782a6",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "nova-starter-insight-merc",
+      "item": "Insight",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Partizan in an Exceptional Base (ethereal in planner)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "88d86ca60cb4ac60d781db803abc0dfbbcf94092d9a9f11b1e67bb221deee0b2",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "nova-standard-insight-merc",
+      "item": "Insight",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "f26112f94a38d76103a2ff2293c399943cef79458b4423348dee49851d5e900b",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "nova-mf-insight-merc",
+      "item": "Insight",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "826e78daddb866ff2df4bdf45a0a0bf941a0a300e65194377bc735558c6e9faa",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "blizzard-starter-insight-merc",
+      "item": "Insight",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Scythe"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "dc4d5d1b08c2ad093fc30d246451d6921714500b4ca900aa29c30077642e5ba2",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "blizzard-mf-insight-merc",
+      "item": "Insight",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "3963b2a093948fc738c584812465bfe12a7a6eba2ecd3e081714bec6cda9682d",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "poison-starter-insight-merc",
+      "item": "Insight",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight (planner: Insight Poleaxe) — 'for Damage and Mana Regeneration'"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "c623dc4740ffe9ed845aced0aed1e52252242f644cf3bd701cbd98d0f7f8be9d",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "poison-budget-insight-merc",
+      "item": "Insight",
+      "build": "poison-nova-necromancer",
+      "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+      "side": "merc",
+      "strength": "example",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/4/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Colossus Voulge (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Planner-only Budget reference does not establish guide endorsement.",
+      "profile_fingerprint": "3571f39c0ea8a1e9323eba00b2ba601fc147d7b4afd5d276c3d6bfa4ff6c4a79"
+    },
+    {
+      "profile_id": "hammer-starter-insight-merc",
+      "item": "Insight",
+      "build": "blessed-hammer-paladin",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Scythe (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "7f05da973d812ef7c3797ac7700cf359adb8951ad4712af8443e03cbee3025d8",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "hammer-standard-insight-merc",
+      "item": "Insight",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "1b10bb67a308b7ca77323eb0aa1c5c2f9fd6280a558de9057ba7cfe2ce8b76bf",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "hammer-mf-insight-merc",
+      "item": "Insight",
+      "build": "blessed-hammer-paladin",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "65e85968b186b20f8adcb06b60b9d1d14586d43bf305f1a8ca977e1f5361da49",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "hammer-ubers-insight-merc",
+      "item": "Insight",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary weapon in the reviewed guide variant; identity endorsement only. Base, rolls and gear dependencies remain in the linked executable role. Presentation: Standard/Magic Find are endgame contexts; Starter and Ubers remain separate. Evaluated base/dependency/rule signatures must still agree before grouping.",
+      "profile_fingerprint": "591ea131f189d9c8ce50ce5d409065725dc52b2f7d73b448a300f2b09d6f9376",
+      "presentation": {
+        "progression": "Ubers"
+      }
+    },
+    {
+      "profile_id": "echoing-ubers-sazabi-sword",
+      "item": "Sazabi's Cobalt Redeemer",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide explicitly recommends the full Sazabi set for the Act 5 Frenzy Ubers mercenary. Conditional piece demand only; the linked role retains other set pieces, mercenary and loadout requirements.",
+      "profile_fingerprint": "c82fcb402f08133870c66045d6ac22798699c143d9f12dcb081c5ad0197433a5"
+    },
+    {
+      "profile_id": "echoing-ubers-sazabi-armor",
+      "item": "Sazabi's Ghost Liberator",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide explicitly recommends the full Sazabi set for the Act 5 Frenzy Ubers mercenary. Conditional piece demand only; the linked role retains other set pieces, mercenary and loadout requirements.",
+      "profile_fingerprint": "be3aefb5da80cab1a4d827bb459e80dc9a6c31c3958eb6a81a1d1823335c256a"
+    },
+    {
+      "profile_id": "echoing-ubers-sazabi-helm",
+      "item": "Sazabi's Mental Sheath",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide explicitly recommends the full Sazabi set for the Act 5 Frenzy Ubers mercenary. Conditional piece demand only; the linked role retains other set pieces, mercenary and loadout requirements.",
+      "profile_fingerprint": "296235e04071d3c9e3abe6c3ad120009c4b2d26b644b5a1afae9a7546a8ecea0"
+    },
+    {
+      "profile_id": "nova-standard-infinity-player",
+      "item": "Infinity",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Scythe (Ber Mal Ber Ist, ethereal in planner)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit guide variant weapon; player and mercenary roles remain distinct. Identity demand does not establish fit for another base or beneficiary.",
+      "profile_fingerprint": "3a4a61459761de0651a34d7f374d74c72f30cf9957f174dc9874cc564083e244"
+    },
+    {
+      "profile_id": "nova-hybrid-infinity-merc",
+      "item": "Infinity",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/merc/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Giant Thresher (ethereal) — merc holds Infinity since player uses Eschuta's"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit guide variant weapon; player and mercenary roles remain distinct. Identity demand does not establish fit for another base or beneficiary.",
+      "profile_fingerprint": "cb8535ea5d37f2fbbe1eab7df65126512982c049646907b4bf6faee506e5356a"
+    },
+    {
+      "profile_id": "lightning-strike-infinity-player",
+      "item": "Infinity",
+      "build": "lightning-strike-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-strike-amazon.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "4f21f9eaf3102c170241dfe07f730660e524ebdd943ab8e7f027b42029668c39",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "setup_label": [
+          "Infinity Matriarchal Spear (+3 Javelin and Spear Skills)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit guide variant weapon; player and mercenary roles remain distinct. Identity demand does not establish fit for another base or beneficiary.",
+      "profile_fingerprint": "dfe704e8f55f410c51c515f7f7c7b74749ad44347acab1829c5ddeb9c8ddd430"
+    },
+    {
+      "profile_id": "strafe-amazon-deaths-guard-upgrade",
+      "item": "Death's Guard",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Guard Demonhide Sash — 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "presentation": {
+        "progression": "Starter"
+      },
+      "review_reason": "Scheduled specialist/early-gear tail review: explicit Starter/Budget named equipment in the cited guide. Keep paired Death set activation and Demonhide Sash upgrade/potion-slot conditions in the evaluator. Independent leveling evidence remains separate from guide breadth and trade value.",
+      "profile_fingerprint": "b25b5d4bbbdd9c819e5de6155497f68e049c005f59852d189cf5e3d153b5ddd4"
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-deaths-guard-upgrade",
+      "item": "Death's Guard",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Guard Demonhide Sash (Death's Disguise)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "presentation": {
+        "progression": "Starter"
+      },
+      "review_reason": "Scheduled specialist/early-gear tail review: explicit Starter/Budget named equipment in the cited guide. Keep paired Death set activation and Demonhide Sash upgrade/potion-slot conditions in the evaluator. Independent leveling evidence remains separate from guide breadth and trade value.",
+      "profile_fingerprint": "ee093037092f7ce5b259509e60d8e52a7e9a645d181ac24a87e0c6ab89f9388a"
+    },
+    {
+      "profile_id": "enchant-sorceress-starter-set-Death's Hand",
+      "item": "Death's Hand",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/0",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Hand [Death's Disguise set]",
+          "Death's Guard [Death's Disguise set]"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "presentation": {
+        "progression": "Budget"
+      },
+      "review_reason": "Scheduled specialist/early-gear tail review: explicit Starter/Budget named equipment in the cited guide. Keep paired Death set activation and Demonhide Sash upgrade/potion-slot conditions in the evaluator. Independent leveling evidence remains separate from guide breadth and trade value.",
+      "profile_fingerprint": "1e8d3c0f75709e1520c6d4e8b1b92834cf872f718b8fa594c653c81ada2251eb"
+    },
+    {
+      "profile_id": "enchant-sorceress-starter-set-Death's Guard",
+      "item": "Death's Guard",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/0",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Hand [Death's Disguise set]",
+          "Death's Guard [Death's Disguise set]"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "presentation": {
+        "progression": "Budget"
+      },
+      "review_reason": "Scheduled specialist/early-gear tail review: explicit Starter/Budget named equipment in the cited guide. Keep paired Death set activation and Demonhide Sash upgrade/potion-slot conditions in the evaluator. Independent leveling evidence remains separate from guide breadth and trade value.",
+      "profile_fingerprint": "a4502bd1b51a3fd1da9caf781e3a8d525c22a525f3208064d202b69590e3d4a3"
+    },
+    {
+      "profile_id": "abyss-warlock-build-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "abyss-warlock-build-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/abyss-warlock-build-guide/slots/Weapon-Swap/3"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "b5294e65c5d8744ea354e18cc0a4714f11d51b1c61fc25570f76329e8c48c7f1"
+    },
+    {
+      "profile_id": "berserk-barbarian-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "locator": "/berserk-barbarian/slots/Weapon-Swap/7"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "2a3f51fcac69f24ba3f629f82bec83469db83f1b3e5766c5126c21d0b332f226"
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/double-throw-barbarian-guide/slots/Weapon-Swap/8"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "1c4781b8a67a9ae07042a6132425355ac468b14c7ddb0b96577e4d26f5c4a9fa"
+    },
+    {
+      "profile_id": "dream-paladin-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "locator": "/dream-paladin/slots/Weapon-Swap/2"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "6bfefdb0cc6bf0fb66c9219bed4883f6fddf9ff9889ec30b53ac79650f90d4f9"
+    },
+    {
+      "profile_id": "echoing-strike-warlock-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "ff446f2395c672252c0947ccf82ffdf5369017157a346b7d0da7e59abac2799d"
+    },
+    {
+      "profile_id": "fire-warlock-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "fire-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "locator": "/fire-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "61e59021b654fee5a23c6b7d9a4c99c05533939ea2e842c600f93892f6029e5e"
+    },
+    {
+      "profile_id": "fissure-druid-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "locator": "/fissure-druid/slots/Weapon-Swap/2"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "b73a50ee03bd57cac62a7f71723d904cfa996f3e5e0605ff5d12f656ea6a0ccb"
+    },
+    {
+      "profile_id": "lightning-fury-amazon-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-fury-amazon-guide/slots/Weapon-Swap/2"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "4e30b6476b7c4ae2e4e8101d202812228cf8a8fec9981a3ed22b7ddd83c48b29"
+    },
+    {
+      "profile_id": "lightning-strike-amazon-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "lightning-strike-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-strike-amazon/slots/Weapon-Swap/2"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "61c705af8828e904361610d13c738838de03429357df84c33a480aee31684b60"
+    },
+    {
+      "profile_id": "mirrored-blades-warlock-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "a0d6595d6a0c755ca7fe4d59b6e120f05c0ff0eebf15d171fcd5586e4141e1e4"
+    },
+    {
+      "profile_id": "poison-nova-necromancer-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/1"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "3c14302f7b9152722d74f2fa8056de416cb027fa63d9825f4eea5a30975b5770"
+    },
+    {
+      "profile_id": "strafe-amazon-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "locator": "/strafe-amazon/slots/Weapon-Swap/3"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "ea0f4d8c6ccbb8f26a88a215e634f8a5542f7792f4f1bb18f63a5b434557e291"
+    },
+    {
+      "profile_id": "summoner-necromancer-guide-naj-teleport-swap",
+      "item": "Naj's Puzzler",
+      "build": "summoner-necromancer-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/summoner-necromancer-guide/slots/Weapon-Swap/1"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named weapon-swap alternative in the guide table. Teleport utility, equip requirements and remaining charges stay in the linked role; not a combat weapon or a price premium.",
+      "profile_fingerprint": "f469a1b13ec2e47844d550c03132cf206ca40604ea87be80e90f400d6a53759e"
+    },
+    {
+      "profile_id": "echoing-strike-warlock-guide-1-demon-limb-prebuff",
+      "item": "Demon Limb",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/1",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Demon Limb (in Horadric Cube)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prebuff placement/instructions; Strafe preserves the Lava Gout alternative. Enchant-charge availability and recharge/ethereal limitations remain separate from identity breadth; no claim of current buff activation.",
+      "profile_fingerprint": "2fe12076f1f5ed50d43eed3216168b985ded5fb424235683a622c18a42c677ed"
+    },
+    {
+      "profile_id": "echoing-strike-warlock-guide-3-demon-limb-prebuff",
+      "item": "Demon Limb",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/3",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Demon Limb (Enchant)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prebuff placement/instructions; Strafe preserves the Lava Gout alternative. Enchant-charge availability and recharge/ethereal limitations remain separate from identity breadth; no claim of current buff activation.",
+      "profile_fingerprint": "1e3a645474969571606f90bc2480ed78605f9a76b845503c1db6c28aacb3f094"
+    },
+    {
+      "profile_id": "strafe-amazon-1-demon-limb-prebuff",
+      "item": "Demon Limb",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/1",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube — cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prebuff placement/instructions; Strafe preserves the Lava Gout alternative. Enchant-charge availability and recharge/ethereal limitations remain separate from identity breadth; no claim of current buff activation.",
+      "profile_fingerprint": "ccaa2f5c42be95676e208d5a08f22d1095d043d479b7df125e4c0b4cf062eabd"
+    },
+    {
+      "profile_id": "dream-paladin-2-demon-limb-prebuff",
+      "item": "Demon Limb",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/dream-paladin.json",
+        "locator": "/variants/2",
+        "sha256": "7100b77dcb161fb368ebb63768751c3f06f0898a1de8e3df8f3fea4383503e95",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Demon Limb (Enchant)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prebuff placement/instructions; Strafe preserves the Lava Gout alternative. Enchant-charge availability and recharge/ethereal limitations remain separate from identity breadth; no claim of current buff activation.",
+      "profile_fingerprint": "a62d01aa224a297f6375c8d0c16af8236fa9bf2a0c662670ea0b2958a374d1e7"
+    },
+    {
+      "profile_id": "dragon-talon-budget-cbf-kira",
+      "item": "Kira's Guardian",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/quotes/1",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
+        ],
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prose lists this item as an alternative. Preserve player/mercenary context and Cannot Be Frozen or starter-survival purpose; no main-setup preference inferred.",
+      "profile_fingerprint": "5dc9c408699fb4c0a34dc5970333e2b65ba7a090d2decbbf68f32195b12b6efd"
+    },
+    {
+      "profile_id": "dragon-talon-budget-cbf-duriel",
+      "item": "Duriel's Shell",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/quotes/1",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
+        ],
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prose lists this item as an alternative. Preserve player/mercenary context and Cannot Be Frozen or starter-survival purpose; no main-setup preference inferred.",
+      "profile_fingerprint": "7c63207b521c486805ee905205d392c6ffdf28d2e3b38f0dce6b8f42fcdcbb2a"
+    },
+    {
+      "profile_id": "hammer-mf-stealskull-merc",
+      "item": "Stealskull",
+      "build": "blessed-hammer-paladin",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal, Ist Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "ad8e3f1536d10c5c6ded5c9b64a226d9fa183fa05c85ed14b57308d820e8906f"
+    },
+    {
+      "profile_id": "blizzard-mf-stealskull-merc",
+      "item": "Stealskull",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal, Ist Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "fec0c407bb69dfe884500bedfe5967c70c7401ce274e4854f7a54a47cb17c04d"
+    },
+    {
+      "profile_id": "meteor-mf-stealskull-merc",
+      "item": "Stealskull",
+      "build": "meteor-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/meteor-sorceress/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal) socketed with Ist Rune"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "e944e2c521bd4275d2cc8ac4801aff7a9fdf91540eed45553e0483536cbf6745"
+    },
+    {
+      "profile_id": "gold-find-standard-crown-merc",
+      "item": "Crown of Thieves",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "9a4409fecf0b277083ed2e7d1d8485a049e1856c035c34ea5b7d214f8306937d"
+    },
+    {
+      "profile_id": "gold-find-war-cry-crown-merc",
+      "item": "Crown of Thieves",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "363cd4f590341c94261d908c4b93f5219590924326a4de45abcf9cf123bada03"
+    },
+    {
+      "profile_id": "gold-find-whirlwind-crown-merc",
+      "item": "Crown of Thieves",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "0bb006a7f7b2d30c945d516301bdcaeb10b52af78873c6dd94ec938a21db643e"
+    },
+    {
+      "profile_id": "gold-find-leap-only-crown-merc",
+      "item": "Crown of Thieves",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "merc",
+      "strength": "example",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Planner-only Leap Only configuration retained as an example; not an independent guide endorsement.",
+      "profile_fingerprint": "4bb361c72438c8c17a9b81e4c91aaed2aece04fb1cba23d8b13eac8b6ede6a65"
+    },
+    {
+      "profile_id": "dream-hybrid-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (Grim Helm, ethereal; 15 IAS / 15 All Res jewel)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "42165b1f64551308f09d65a7243758a4b79bdddb25fae7cac398367f0203d481"
+    },
+    {
+      "profile_id": "dream-ubers-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (ethereal; 15 IAS / 15 All Res jewel)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "29574bccde4836cbddd1f2ed5a20e421e227ad4a77f2bced1138f6d1a4f98a9c"
+    },
+    {
+      "profile_id": "lightning-strike-standard-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "lightning-strike-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-strike-amazon/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (ethereal) socketed with Scintillating Jewel of Fervor (15% IAS / 15 All Res)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "f2f215c621413a6bca823628d6271632ff88a1477e9f30cee5d8e3ddf412935c"
+    },
+    {
+      "profile_id": "lightning-strike-ubers-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "lightning-strike-amazon",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-strike-amazon/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "2415535eae9cae161d26a817210459e92e7811fb21ae17e2b226e7f289e28ab6"
+    },
+    {
+      "profile_id": "lightning-fury-ubers-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze Grim Helm (Um Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "c6a32955e87efad64903ec77fa053ba98c561bb40bfb60782e6965dc60ad1c00"
+    },
+    {
+      "profile_id": "lightning-sorc-mephisto-gaze-merc",
+      "item": "Vampire Gaze",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "merc",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze socketed with Um Rune"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit named mercenary gear in the cited guide variant. Ethereal, socket payload, upgrades and equipment/companion conditions remain in the linked role; guide use does not establish market value.",
+      "profile_fingerprint": "c64cbd03c34813b1ca7d212d142ac06e0a3f756ad8757dbdb3bfc42f2b5d7842"
+    },
+    {
+      "profile_id": "fissure-starter-merc-rockstopper",
+      "item": "Rockstopper",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prose lists this item as an alternative. Preserve player/mercenary context and Cannot Be Frozen or starter-survival purpose; no main-setup preference inferred.",
+      "profile_fingerprint": "2d580c8b23cbd49703b10d26fa7052c0415efdfd8a017490c5e3b3ffa53f0bb3"
+    },
+    {
+      "profile_id": "fissure-starter-merc-undead-crown",
+      "item": "Undead Crown",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prose lists this item as an alternative. Preserve player/mercenary context and Cannot Be Frozen or starter-survival purpose; no main-setup preference inferred.",
+      "profile_fingerprint": "51deab4c6359e8def1af1cca655a881873f4048fe36b97565ecf7f3934266195"
+    },
+    {
+      "profile_id": "fissure-starter-merc-duriel",
+      "item": "Duriel's Shell",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit source prose lists this item as an alternative. Preserve player/mercenary context and Cannot Be Frozen or starter-survival purpose; no main-setup preference inferred.",
+      "profile_fingerprint": "c5438b85da4c08dcaa551ddb5d11dc9cb1c8893cb37860d382ed1953f8bed2f9"
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Visor",
+      "item": "Sigon's Visor",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "6f041ba78b87a8f02e5f4139337cbc8896819bd7e6fd83b77f4f8c4b7dda2cf7",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Gage",
+      "item": "Sigon's Gage",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "8cb6d06df86bd78162ac08671c78ba795ea3948e9e3519aa56ebda3e69bb7c1e",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Sabot",
+      "item": "Sigon's Sabot",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "2e7a68180f76411181d2d27194cd0daab211dcda470b8298f4b362f2d91f14bc",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Visor",
+      "item": "Sigon's Visor",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "75f2ed6cc958adcab155fc208de70c26f3abb4dfbfc2b81f16c3b7d3844a44bc",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Gage",
+      "item": "Sigon's Gage",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "7fd19902de366b96fae5ffc4173308f78e11db7aa15fc675aa96c0bcbb519360",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Sabot",
+      "item": "Sigon's Sabot",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "df7f9db5db740590eebd22ff53c26bf94bfb10e1b23d307769471fb87ecb1333",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Gage",
+      "item": "Sigon's Gage",
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "a117aafaf1bb9f0eb85415940f1b5ab089a2ff830cab0b0ee06917cb56e45aba",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Wrap",
+      "item": "Sigon's Wrap",
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "d2ffff5c6073926c63dfa05d471dec7dea0d2ad7305ee1a3d15ff7be5ffa16c0",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Sabot",
+      "item": "Sigon's Sabot",
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Named piece in the guide-linked Starter setup; reviewed alongside the full player combination. Demand is conditional on the linked companion and socket requirements, not a standalone endorsement or evidence for uncited pieces. Starter farming is not a claim of low character-level equipability.",
+      "profile_fingerprint": "22d6de09b4ab6030309e66a81822b419d7ed161d23dba777da55e51c057a62cb",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "lightning-starter-amulet",
+      "pattern": "lightning-starter-amulet",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-sorceress/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Powered Amulet (+3 Lightning Skills)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit Starter amulet choice. Exact magic quality, skill-tree identity and complete required skill/cast-rate combination retained in the linked rule. Demand applies only after those predicates succeed; full loadout and price remain independent.",
+      "profile_fingerprint": "d8c52e14b8e14819a43973966872b0a5d2078aa22e568536db994bcdf098582b",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "nova-starter-amulet",
+      "pattern": "nova-starter-amulet",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sparking Amulet of the Apprentice (+1 Lightning Skills / 10 FCR)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit Starter amulet choice. Exact magic quality, skill-tree identity and complete required skill/cast-rate combination retained in the linked rule. Demand applies only after those predicates succeed; full loadout and price remain independent.",
+      "profile_fingerprint": "6dfcee24359c2558181970a438720309e65058dcc062c88507d8b5433d00fd72",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "blizzard-starter-amulet",
+      "pattern": "blizzard-starter-amulet",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/blizzard-sorceress/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Amulet +1 Cold Skills / 10% FCR"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit Starter amulet choice. Exact magic quality, skill-tree identity and complete required skill/cast-rate combination retained in the linked rule. Demand applies only after those predicates succeed; full loadout and price remain independent.",
+      "profile_fingerprint": "8c931975ee371017d9ec782b6edbaadcabab1a4431edb7e7c821be952e57b56a",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "lightning-starter-ring",
+      "pattern": "lightning-starter-ring",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / 50 Mana / 15 Cold Res / 15 Fire Res",
+          "Rare Ring 10% FCR / 50 Mana / 15 Cold Res / 15 Fire Res"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "0f6780fa043a18d3f5fd91a1942c6fff08baf8857a5f1955349012871ae41a17",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "lightning-ubers-ring",
+      "pattern": "lightning-ubers-ring",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/3/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res",
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "c6766314d764246bbb6c2cbd9c25c791ee25700238f1f26541dc0be95e6e9976",
+      "presentation": {
+        "progression": "Ubers"
+      }
+    },
+    {
+      "profile_id": "nova-starter-ring",
+      "pattern": "nova-starter-ring",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10 FCR + tri-resist (x2)"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "08c05567c0695e0d3d33a6b4fc21879629cd5add66afe42e33d6f481590492bb",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "blizzard-starter-ring",
+      "pattern": "blizzard-starter-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Ring +20% Fire Resist",
+          "Rare Ring +10 Str / +20 Life / +20% Cold Resist / +1 Mana after Kill / 10% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "010bfc7cf4f57ddbbb6bc3f0910a2176b86326dfbfcddf115588fdab1217cb01",
+      "presentation": {
+        "progression": "Starter"
+      }
+    },
+    {
+      "profile_id": "blizzard-mf-ring",
+      "pattern": "blizzard-mf-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / +40 Life / 41% Fire Resist / 11 Cold+Light+Poison Resist / 25% MF",
+          "Rare Ring 10% FCR / +40 Life / 41% Lightning Resist / 11 Fire+Cold+Poison Resist / 25% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "c34cff915aca8c9d2878733f8c64831fa972c97aa3748f3e0018c3c488f89d2e",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "blizzard-set-ring",
+      "pattern": "blizzard-set-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/3/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / +40 Life / 41% Lightning Resist / 11 Fire+Cold+Poison Resist / 25% MF",
+          "Rare Ring 10% FCR / +40 Life / 41% Fire Resist / 11 Cold+Light+Poison Resist / 25% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Explicit rare-ring slot in the guide-linked variant. Retain the reviewed whole-item candidate combination, not each listed modifier independently. Planner roll magnitudes remain preferences; both ring slots and full loadout remain conditional. Repeated rings and variants provide one breadth vote per build, never price evidence.",
+      "profile_fingerprint": "9379f8909c87eb570eae7123f04c049f67098a8ba67b86b5df4a53f415312965",
+      "presentation": {
+        "progression": "Endgame"
+      }
+    },
+    {
+      "profile_id": "gold-find-standard-off-hand-lem-sword",
+      "pattern": "gold-find-standard-off-hand-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Phase Blade (6x Lem Rune) - table lists 'Gemmed Crystal Sword'"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide-linked six-Lem sword slot. Exact base, quality, class and socket-count applicability retained; an empty or differently filled sword is conditional preparation, not the completed 450% gold payload. Hand/swap and non-attacking ethereal conditions remain explicit. Multiple slots and variants do not multiply the single build vote.",
+      "profile_fingerprint": "ed363fe0694efa6f395e1c73c5722e67e26c5b81f4ca2ae0808d330f1aa7ec98"
+    },
+    {
+      "profile_id": "gold-find-war-cry-weapon-swap-lem-sword",
+      "pattern": "gold-find-war-cry-weapon-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide-linked six-Lem sword slot. Exact base, quality, class and socket-count applicability retained; an empty or differently filled sword is conditional preparation, not the completed 450% gold payload. Hand/swap and non-attacking ethereal conditions remain explicit. Multiple slots and variants do not multiply the single build vote.",
+      "profile_fingerprint": "aef065484e4995fdf9fcf9ac7d16a488862f104765351cb4eff4c7dd3c4a14e4"
+    },
+    {
+      "profile_id": "gold-find-war-cry-off-hand-swap-lem-sword",
+      "pattern": "gold-find-war-cry-off-hand-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide-linked six-Lem sword slot. Exact base, quality, class and socket-count applicability retained; an empty or differently filled sword is conditional preparation, not the completed 450% gold payload. Hand/swap and non-attacking ethereal conditions remain explicit. Multiple slots and variants do not multiply the single build vote.",
+      "profile_fingerprint": "3be80a4599a7f739103ad19dced13d5acd7983d5d5eb6d3744457a26b3ef1889"
+    },
+    {
+      "profile_id": "gold-find-whirlwind-weapon-swap-lem-sword",
+      "pattern": "gold-find-whirlwind-weapon-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide-linked six-Lem sword slot. Exact base, quality, class and socket-count applicability retained; an empty or differently filled sword is conditional preparation, not the completed 450% gold payload. Hand/swap and non-attacking ethereal conditions remain explicit. Multiple slots and variants do not multiply the single build vote.",
+      "profile_fingerprint": "8deefbf62074b275eb5522865f2ca1d08544e33676c3eea1b0f11c3fee799731"
+    },
+    {
+      "profile_id": "gold-find-whirlwind-off-hand-swap-lem-sword",
+      "pattern": "gold-find-whirlwind-off-hand-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "strength": "preferred",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Guide-linked six-Lem sword slot. Exact base, quality, class and socket-count applicability retained; an empty or differently filled sword is conditional preparation, not the completed 450% gold payload. Hand/swap and non-attacking ethereal conditions remain explicit. Multiple slots and variants do not multiply the single build vote.",
+      "profile_fingerprint": "1f490cd0f2990cab0f9a2e867fe5826b53aa070755a4e1578ffa6a1ae4e83cca"
+    },
+    {
+      "profile_id": "gold-find-leap-only-weapon-lem-sword",
+      "pattern": "gold-find-leap-only-weapon-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "strength": "example",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Planner-only Leap configuration retained without a demand vote.",
+      "profile_fingerprint": "84ed41de74008dcb66e8bbec2acd4ba2c4b6afc0ea5fd6566599261d96684e3e"
+    },
+    {
+      "profile_id": "gold-find-leap-only-off-hand-lem-sword",
+      "pattern": "gold-find-leap-only-off-hand-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "strength": "example",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_date": "2026-09-25",
+      "review_reason": "Planner-only Leap configuration retained without a demand vote.",
+      "profile_fingerprint": "c59752f835634e6dfa7f082b550389ff8dbe641601e184323cb519aea4c16d1a"
+    }
+  ]
+}

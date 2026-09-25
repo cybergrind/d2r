@@ -103,7 +103,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -170,7 +170,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -260,10 +260,10 @@
       ],
       "conditions": [
         "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
-        "Cited armor: Smoke \u2014 'a cheap Body Armor option for Resistances'. Cited helmet: Bulwark (planner: Bulwark Death Mask) \u2014 'the cheapest Helmet that provides Life Leech and Damage Reduction'."
+        "Cited armor: Smoke — 'a cheap Body Armor option for Resistances'. Cited helmet: Bulwark (planner: Bulwark Death Mask) — 'the cheapest Helmet that provides Life Leech and Damage Reduction'."
       ],
       "alternatives": [
-        "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
+        "Insight (planner: Insight Poleaxe) — 'for Damage and Mana Regeneration'"
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -272,9 +272,9 @@
         "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
         "source_date": "May 22, 2026",
         "quotes": [
-          "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
+          "Insight (planner: Insight Poleaxe) — 'for Damage and Mana Regeneration'"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
       }
     },
     {
@@ -374,7 +374,7 @@
         "quotes": [
           "Insight Colossus Voulge (ethereal)"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
       }
     },
     {
@@ -395,7 +395,7 @@
         "all": [
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           },
@@ -412,7 +412,7 @@
           "label": "80 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 80
           }
         },
@@ -426,7 +426,7 @@
         }
       ],
       "important_stats": [
-        "6:0",
+        "7:0",
         "39:0"
       ],
       "conditions": [
@@ -887,71 +887,9 @@
       ],
       "important_stats": [
         "204:3467"
-      ]
-    },
-    {
-      "id": "poison-naj-fal-swap",
-      "build": "poison-nova-necromancer",
-      "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
-      "side": "player",
-      "slot": "Weapon-Swap",
-      "role": "Teleport-charge weapon swap",
-      "review_status": "reviewed_candidate_rule",
-      "names": [
-        "Naj's Puzzler"
       ],
-      "qualities": [
-        "set"
-      ],
-      "must": {
-        "all": [
-          {
-            "op": "fact_eq",
-            "field": "base_code",
-            "value": "6cs"
-          },
-          {
-            "op": "fact_eq",
-            "field": "ethereal",
-            "value": false
-          },
-          {
-            "op": "fact_eq",
-            "field": "identified",
-            "value": true
-          },
-          {
-            "op": "context_eq",
-            "field": "player_class",
-            "value": "Necromancer"
-          }
-        ]
-      },
-      "conditions": [
-        "Requires level 78 and the staff equipment requirements.",
-        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation.",
-        "This is a cached budget planner alternative, not a current main guide variant."
-      ],
-      "source": {
-        "path": "pricing/data/wp-a-builds.json",
-        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
-        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
-        "source_date": "May 22, 2026",
-        "locator": "/poison-nova-necromancer/variants/4/player/Weapon-Swap/0"
-      },
-      "required_rune": "Fal Rune",
-      "depends_on": [
-        {
-          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
-          "when": {
-            "op": "stat_at_least",
-            "key": "204:3467",
-            "value": 1
-          }
-        }
-      ],
-      "important_stats": [
-        "204:3467"
+      "types": [
+        "staf"
       ]
     },
     {
@@ -985,17 +923,28 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
             "value": 1
           }
+        },
+        {
+          "label": "This Teleport-charge alternative requires Enigma not to be equipped.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "player_items",
+              "value": "Enigma"
+            }
+          }
         }
       ],
       "conditions": [
         "Check equipment requirements before using this Teleport-charge alternative.",
-        "Use before Enigma, or with the documented Bramble damage alternative."
+        "Use before Enigma, or with the documented Bramble damage alternative.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -1087,7 +1036,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -1097,7 +1046,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
-        "The guide also offers Harmony for faster movement; choose according to travel needs."
+        "The guide also offers Harmony for faster movement; choose according to travel needs.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",

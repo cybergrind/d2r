@@ -11,10 +11,10 @@ CASES = [
     ('hammer-starter-belt', 'magic', {99: 24, 39: 30}),
     ('blizzard-starter-belt', 'magic', {99: 24, 39: 30}),
     ('wake-starter-belt', 'magic', {99: 24, 39: 30}),
-    ('foh-starter-belt', 'magic', {6: 100, 43: 30}),
-    ('holybolt-starter-belt', 'magic', {6: 100, 43: 30}),
-    ('fury-starter-belt', 'magic', {6: 90, 39: 25}),
-    ('poison-starter-belt', 'magic', {6: 80, 39: 25}),
+    ('foh-starter-belt', 'magic', {7: 100, 43: 30}),
+    ('holybolt-starter-belt', 'magic', {7: 100, 43: 30}),
+    ('fury-starter-belt', 'magic', {7: 90, 39: 25}),
+    ('poison-starter-belt', 'magic', {7: 80, 39: 25}),
     ('goldfind-budget-belt', 'rare', {99: 24, 43: 25, 41: 25, 79: 80}),
 ]
 

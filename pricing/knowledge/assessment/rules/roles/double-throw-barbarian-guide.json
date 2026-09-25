@@ -175,6 +175,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -2088,7 +2091,10 @@
           "Angelic Halo (Angelical Raiment)"
         ],
         "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
-      }
+      },
+      "types": [
+        "ring"
+      ]
     },
     {
       "id": "double-throw-barbarian-guide-angelic-amulet",
@@ -2199,7 +2205,10 @@
           "Sigon's Gage (Sigon's Complete Steel)",
           "Sigon's Sabot (Sigon's Complete Steel)"
         ]
-      }
+      },
+      "types": [
+        "helm"
+      ]
     },
     {
       "build": "double-throw-barbarian-guide",
@@ -2254,7 +2263,10 @@
           "Sigon's Gage (Sigon's Complete Steel)",
           "Sigon's Sabot (Sigon's Complete Steel)"
         ]
-      }
+      },
+      "types": [
+        "glov"
+      ]
     },
     {
       "build": "double-throw-barbarian-guide",
@@ -2309,7 +2321,10 @@
           "Sigon's Gage (Sigon's Complete Steel)",
           "Sigon's Sabot (Sigon's Complete Steel)"
         ]
-      }
+      },
+      "types": [
+        "boot"
+      ]
     },
     {
       "build": "double-throw-barbarian-guide",
@@ -2366,7 +2381,10 @@
         "quotes": [
           "Death's Guard Demonhide Sash (Death's Disguise)"
         ]
-      }
+      },
+      "types": [
+        "belt"
+      ]
     }
   ]
 }

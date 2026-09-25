@@ -91,6 +91,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -288,8 +291,7 @@
       },
       "preferences": [],
       "important_stats": [
-        "99:0",
-        "31:0"
+        "99:0"
       ],
       "conditions": [
         "Check equipment requirements and the complete loadout before investing in socket contents.",
@@ -302,7 +304,7 @@
         "url": "https://maxroll.gg/d2/guides/strafe-amazon",
         "source_date": "July 18, 2026"
       },
-      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred. 2026-09-25: exact cached armor alternatives reviewed; no source-backed defense priority. Highlight the captured suffix only, not future socket payloads or completed loadout performance."
     },
     {
       "id": "strafe-amazon-precision-shroud-socket-base",
@@ -365,8 +367,7 @@
         }
       ],
       "important_stats": [
-        "2:0",
-        "31:0"
+        "2:0"
       ],
       "conditions": [
         "Check equipment requirements and the complete loadout before investing in socket contents.",
@@ -379,7 +380,7 @@
         "url": "https://maxroll.gg/d2/guides/strafe-amazon",
         "source_date": "July 18, 2026"
       },
-      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred. 2026-09-25: exact cached armor alternatives reviewed; no source-backed defense priority. Highlight the captured suffix only, not future socket payloads or completed loadout performance."
     },
     {
       "id": "strafe-amazon-angelic-ring",
@@ -435,7 +436,10 @@
           "Angelic Halo (2-Piece Set)"
         ],
         "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
-      }
+      },
+      "types": [
+        "ring"
+      ]
     },
     {
       "id": "strafe-amazon-angelic-amulet",
@@ -539,7 +543,10 @@
           "Sigon's Sabot (3-Piece Set)"
         ]
       },
-      "required_rune": "Ort Rune"
+      "required_rune": "Ort Rune",
+      "types": [
+        "helm"
+      ]
     },
     {
       "build": "strafe-amazon",
@@ -594,7 +601,10 @@
           "Sigon's Gage (3-Piece Set)",
           "Sigon's Sabot (3-Piece Set)"
         ]
-      }
+      },
+      "types": [
+        "glov"
+      ]
     },
     {
       "build": "strafe-amazon",
@@ -649,7 +659,10 @@
           "Sigon's Gage (3-Piece Set)",
           "Sigon's Sabot (3-Piece Set)"
         ]
-      }
+      },
+      "types": [
+        "boot"
+      ]
     },
     {
       "build": "strafe-amazon",
@@ -704,9 +717,12 @@
         "source_date": "July 18, 2026",
         "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
         "quotes": [
-          "Death's Guard Demonhide Sash \u2014 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
+          "Death's Guard Demonhide Sash — 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
         ]
-      }
+      },
+      "types": [
+        "belt"
+      ]
     },
     {
       "id": "strafe-amazon-1-demon-limb-prebuff",
@@ -761,10 +777,13 @@
         "url": "https://maxroll.gg/d2/guides/strafe-amazon",
         "source_date": "July 18, 2026",
         "quotes": [
-          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube \u2014 cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
+          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube — cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
         ],
         "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
-      }
+      },
+      "types": [
+        "club"
+      ]
     }
   ]
 }

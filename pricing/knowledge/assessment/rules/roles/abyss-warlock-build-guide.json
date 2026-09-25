@@ -47,7 +47,42 @@
           "Before you find the Runes and Base for Spirit and Ancients' Pledge, check any Daggers and Books you find for chances at bonus Skill ranks and good affixes like All Resistance on a Magic Grimoire.",
           "An Act 2 Might Mercenary offers a solid tank that provides tons of utility and added damage, especially against the small handful of Magic Immune monsters. Insight provides easy Mana Regeneration via Meditation Aura. Bulwark is a must have for early game survivability for Life Steal. Treachery provides the Attack Speed necessary to Leech as well as Resistances via Fade."
         ]
-      }
+      },
+      "must": {
+        "any": [
+          {
+            "op": "stat_at_least",
+            "key": "127:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:7",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:58",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:402",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:399",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "review_notes": "2026-09-25: cached Starter prose explicitly recommends checking daggers for skill ranks before Spirit. Typed any-skill predicate preserves existing alternatives. Whole-loadout FCR target does not require FCR on this item; present FCR is supporting only. No inferred ED/AR priority, ethereal premium, socket/runeword readiness, endgame fit or numerical price."
     },
     {
       "id": "abyss-standard-circlet",
@@ -359,6 +394,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -392,7 +430,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -401,7 +439,8 @@
         }
       ],
       "conditions": [
-        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",

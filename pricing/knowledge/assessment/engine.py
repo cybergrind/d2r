@@ -20,7 +20,12 @@ from pricing.knowledge.assessment.mechanics.upgrade_defense import with_defense_
 from pricing.knowledge.assessment.mechanics.upgrades import upgrade_paths
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from pricing.knowledge.assessment.policies.named_tiers import assess_tier
-from pricing.knowledge.assessment.profiles import assess_role_results, load_candidates, profile_snapshot
+from pricing.knowledge.assessment.profiles import (
+    assess_role_results,
+    load_candidates,
+    load_stat_candidates,
+    profile_snapshot,
+)
 from pricing.knowledge.assessment.registry import classify
 from pricing.knowledge.definition_store import definition_snapshot
 
@@ -49,6 +54,7 @@ def assess_result(extraction, *, profiles=None, loadout=None):
 
 def _assess(extraction, *, profiles=None, loadout=None):
     facts = normalize(extraction)
+    stat_configs = load_stat_candidates(facts) if profiles is None else ()
     family, policy = classify(facts)
     if profiles is None:
         profiles, cached_gaps = load_candidates(facts)
@@ -77,6 +83,11 @@ def _assess(extraction, *, profiles=None, loadout=None):
     requests += socket_outcome_requests(facts, contract, base_uses)
     requests += upgrade_outcome_requests(facts, contract, upgrades)
     requests += armor_upgrade_requests(facts, contract, upgrades)
+    from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
+
+    stat_evaluation = (
+        StatsEvaluator().evaluate(facts, stat_configs, loadout, role_outcomes=roles) if stat_configs else None
+    )
     return AssessmentResult(
         family=family,
         quality_policy=policy,
@@ -91,4 +102,5 @@ def _assess(extraction, *, profiles=None, loadout=None):
         contract=contract,
         comparison_requests=requests,
         upgrades=upgrades,
+        stat_evaluation=stat_evaluation,
     )

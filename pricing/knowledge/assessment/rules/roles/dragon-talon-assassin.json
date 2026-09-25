@@ -127,7 +127,7 @@
       },
       "depends_on": [
         {
-          "label": "Life Tap charges are available; recharge when empty.",
+          "label": "Life Tap charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 82,
@@ -137,7 +137,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
+        "Available charges do not prove Life Tap is currently applied. Ethereal copies cannot be recharged by repair; their remaining charges are finite."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -179,7 +180,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -189,7 +190,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
-        "Keep the travel staff in inventory; the Budget setup uses Life Tap on Weapon-Swap."
+        "Keep the travel staff in inventory; the Budget setup uses Life Tap on Weapon-Swap.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -286,7 +288,8 @@
         "quotes": [
           "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
         ],
-        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price."
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -375,7 +378,8 @@
         "quotes": [
           "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
         ],
-        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price."
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -422,7 +426,10 @@
           "Angelic Halo [Angelical Raiment set]"
         ],
         "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
-      }
+      },
+      "types": [
+        "ring"
+      ]
     },
     {
       "id": "dragon-talon-assassin-angelic-amulet",

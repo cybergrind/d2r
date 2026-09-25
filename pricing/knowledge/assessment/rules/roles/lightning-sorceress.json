@@ -167,7 +167,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -271,7 +271,7 @@
         "138:0"
       ],
       "conditions": [
-        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
+        "Compare both ring slots and the complete loadout with this variant’s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
       ],
       "alternatives": [],
       "source": {
@@ -373,8 +373,8 @@
         "138:0"
       ],
       "conditions": [
-        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate.",
-        "Uber setup assumes stacked lightning resistance, Thundergod\u2019s Vigor and Treachery Fade prebuff; this ring alone does not establish survival."
+        "Compare both ring slots and the complete loadout with this variant’s cast-rate, resistance and resource requirements; candidate fit is not a price estimate.",
+        "Uber setup assumes stacked lightning resistance, Thundergod’s Vigor and Treachery Fade prebuff; this ring alone does not establish survival."
       ],
       "alternatives": [],
       "source": {
@@ -426,7 +426,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -493,7 +493,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -550,7 +550,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -654,7 +654,7 @@
         "quotes": [
           "Insight Partizan"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
       }
     },
     {
@@ -719,7 +719,15 @@
         ],
         "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
       },
-      "required_rune": "Ist Rune"
+      "required_rune": "Ist Rune",
+      "types": [
+        "tors"
+      ],
+      "must": {
+        "op": "fact_eq",
+        "field": "name",
+        "value": "Tal Rasha's Guardianship"
+      }
     },
     {
       "id": "lightning-mf-tal-belt",
@@ -782,6 +790,14 @@
           "It exclusively uses Magic Find Charms in its inventory aside from Annihilus, Hellfire Torch, and Gheed's Fortune. 3-Piece Tal Rasha's Set (Tal Rasha's Adjudication, Tal Rasha's Guardianship, and Tal Rasha's Fine-Spun Cloth) is used for solid Magic Find, Faster Cast Rate, and Resistances."
         ],
         "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
+      },
+      "types": [
+        "belt"
+      ],
+      "must": {
+        "op": "fact_eq",
+        "field": "name",
+        "value": "Tal Rasha's Fine-Spun Cloth"
       }
     },
     {
@@ -845,6 +861,14 @@
           "It exclusively uses Magic Find Charms in its inventory aside from Annihilus, Hellfire Torch, and Gheed's Fortune. 3-Piece Tal Rasha's Set (Tal Rasha's Adjudication, Tal Rasha's Guardianship, and Tal Rasha's Fine-Spun Cloth) is used for solid Magic Find, Faster Cast Rate, and Resistances."
         ],
         "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
+      },
+      "types": [
+        "amul"
+      ],
+      "must": {
+        "op": "fact_eq",
+        "field": "name",
+        "value": "Tal Rasha's Adjudication"
       }
     },
     {
@@ -1455,7 +1479,7 @@
         "all": [
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           },
@@ -1494,7 +1518,7 @@
           "label": "20 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 20,
             "absent_is_zero": true
           }
@@ -1532,7 +1556,7 @@
         }
       ],
       "important_stats": [
-        "6:0",
+        "7:0",
         "39:0",
         "41:0",
         "43:0",
@@ -1737,7 +1761,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -1747,7 +1771,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken."
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -1789,7 +1814,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -1809,7 +1834,8 @@
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
         "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
-        "The guide uses this Infinity combination against Ubers other than Uber Mephisto; his setup is separate."
+        "The guide uses this Infinity combination against Ubers other than Uber Mephisto; his setup is separate.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -1935,6 +1961,14 @@
             "field": "mercenary_type",
             "value": "Act 5 Frenzy"
           }
+        },
+        {
+          "label": "Activity: Uber Mephisto",
+          "when": {
+            "op": "context_eq",
+            "field": "activity",
+            "value": "Uber Mephisto"
+          }
         }
       ],
       "important_stats": [
@@ -1957,7 +1991,8 @@
         "quotes": [
           "Vampire Gaze socketed with Um Rune"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       },
       "required_rune": "Um Rune"
     }

@@ -9,11 +9,34 @@ import json
 import re
 from pathlib import Path
 
+from inventory_tracking.items.stat_constants import HIT_EFFECT_DESCRIPTION_FUNCTION
 from pricing.knowledge.assessment.maintenance.comparison_fillers import compile_fillers
 from pricing.knowledge.assessment.maintenance.socket_scalars import compile_scalars
 from pricing.knowledge.definitions import build_definitions
 from pricing.knowledge.localization import merge_game_strings
 from pricing.knowledge.named_upgrades import named_upgrade_variants
+
+
+SCALAR_DESCRIPTION_FUNCTIONS = (19, 29)
+
+
+def stat_label(row, template):
+    """Market-style label for plain scalar rows and level-suffixed hit effects; None otherwise."""
+    if (
+        not template
+        or row.get('descstr2')
+        or row.get('Encode')
+        or row.get('Save Param Bits')
+        or row.get('Send Param Bits')
+        or '%s' in template
+        or row['*ID'] in (57, 58)
+    ):
+        return None
+    if row.get('descfunc') in SCALAR_DESCRIPTION_FUNCTIONS:
+        return template.replace('%+d', '+{{value}}').replace('%d', '{{value}}').replace('%%', '%')
+    if row.get('descfunc') == HIT_EFFECT_DESCRIPTION_FUNCTION and '%' not in template:
+        return template + ' +{{value}}'
+    return None
 
 
 def build_skills(rows, descriptions, strings):
@@ -57,18 +80,7 @@ def build(stats_path, skills_path, output):
     rows = {}
     for key, r in json.loads(stats_path.read_text()).items():
         template = strings.get(r.get('descstrpos'))
-        label = None
-        if (
-            template
-            and r.get('descfunc') in (19, 29)
-            and not r.get('descstr2')
-            and not r.get('Encode')
-            and not r.get('Save Param Bits')
-            and not r.get('Send Param Bits')
-            and '%s' not in template
-            and r['*ID'] not in (57, 58)
-        ):
-            label = template.replace('%+d', '+{{value}}').replace('%d', '{{value}}').replace('%%', '%')
+        label = stat_label(r, template)
         pids = labels.get(norm(label or ''), set())
         previous = rows.get(str(r['*ID']))
         rows[str(r['*ID'])] = {

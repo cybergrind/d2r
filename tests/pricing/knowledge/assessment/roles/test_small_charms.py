@@ -12,11 +12,11 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
     [
         ('lightning-standard-sc-mf-res', {80: 7, 39: 5, 41: 5, 43: 5, 45: 5}),
         ('lightning-standard-sc-fhr-res', {99: 5, 39: 5, 41: 5, 43: 5, 45: 5}),
-        ('lightning-ubers-sc-life-res', {6: 20, 39: 5, 41: 5, 43: 5, 45: 5}),
+        ('lightning-ubers-sc-life-res', {7: 20, 39: 5, 41: 5, 43: 5, 45: 5}),
         ('nova-mf-sc-mana-mf', {9: 17, 80: 7}),
         ('nova-standard-sc-light-mf', {41: 11, 80: 7}),
         ('nova-hydra-sc-fire-mf', {39: 11, 80: 7}),
-        ('blizzard-standard-sc-life-cold', {6: 20, 43: 11}),
+        ('blizzard-standard-sc-life-cold', {7: 20, 43: 11}),
     ],
 )
 def test_small_charm_combination_preserves_roll_targets_and_cannot_use_another_charm_size(role_id, values):

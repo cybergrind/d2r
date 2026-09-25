@@ -46,7 +46,6 @@ def test_reviewed_whole_loadout_breakpoints_are_executable_across_builds():
     from pricing.knowledge.assessment.build_profiles import build
 
     expected = {
-        'echoing-starter-dagger': 75,
         'lightning-mf-tal-armor': 117,
         'lightning-mf-tal-belt': 117,
         'lightning-mf-tal-amulet': 117,

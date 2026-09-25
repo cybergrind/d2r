@@ -234,7 +234,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -243,7 +243,8 @@
         }
       ],
       "conditions": [
-        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",

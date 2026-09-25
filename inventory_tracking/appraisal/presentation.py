@@ -15,6 +15,7 @@ from inventory_tracking.appraisal.sections import (
     tier_lines,
     value_watch_lines,
 )
+from inventory_tracking.appraisal.stat_markers import stat_line
 from inventory_tracking.presentation import StyledLine, Tone, render_rich
 
 
@@ -130,14 +131,15 @@ class ItemAssessment:
         if decoded is not None:
             for stat in display_stats(result):
                 if stat['status'] == 'decoded' and stat.get('presentation') != 'internal':
-                    add('  ' + stat['text'], ROLL_TONES.get(stat.get('roll_quality'), Tone.DEFAULT))
+                    annotations = result.get('assessment', {}).get('stat_evaluation', {}).get('annotations', {})
+                    lines.append(stat_line(stat, annotations))
         else:
             for affix in affixes:
                 add('  ' + affix['label'].replace('{{value}}', str(affix['value'])))
         if not decoded and not affixes:
             add('  No supported stats decoded.', Tone.WARNING)
         for line in assessment_lines(result):
-            add(line, Tone.HEADING if line == 'Build use:' else Tone.DEFAULT)
+            add(line, Tone.HEADING if line.startswith('Build use') else Tone.DEFAULT)
         watches = watch_tones(result)
         for line in value_watch_lines(result):
             add(line, watches.get(line, Tone.DEFAULT))

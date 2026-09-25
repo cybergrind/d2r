@@ -33,6 +33,8 @@ class Tone(StrEnum):
     ETHEREAL_TARGET = 'ethereal_target'
     ETHEREAL_DESIRED = 'ethereal_desired'
     ETHEREAL_UNDESIRED = 'ethereal_undesired'
+    STAT_DESIRABLE = 'stat_desirable'
+    STAT_SUPPORTING = 'stat_supporting'
 
 
 PALETTE = MappingProxyType(
@@ -59,8 +61,16 @@ PALETTE = MappingProxyType(
         Tone.ETHEREAL_TARGET: '#77aaff',
         Tone.ETHEREAL_DESIRED: 'bright_green',
         Tone.ETHEREAL_UNDESIRED: 'bright_red',
+        Tone.STAT_DESIRABLE: 'bright_green',
+        Tone.STAT_SUPPORTING: '#77aaff',
     }
 )
+
+
+@dataclass(frozen=True)
+class StyledSpan:
+    text: str
+    tone: Tone
 
 
 @dataclass(frozen=True)
@@ -68,30 +78,52 @@ class StyledLine:
     text: str
     tone: Tone = Tone.DEFAULT
     osd: bool = True
+    spans: tuple[StyledSpan, ...] = ()
 
-    def to_payload(self) -> dict[str, str]:
-        return {'text': self.text, 'tone': self.tone.value}
+    def __post_init__(self):
+        object.__setattr__(self, 'spans', tuple(self.spans))
+        if self.spans and ''.join(span.text for span in self.spans) != self.text:
+            raise ValueError('Styled spans must preserve the complete literal line')
+
+    def to_payload(self) -> dict:
+        result = {'text': self.text, 'tone': self.tone.value}
+        if self.spans:
+            result['spans'] = [{'text': span.text, 'tone': span.tone.value} for span in self.spans]
+        return result
 
     @classmethod
     def from_payload(cls, value) -> StyledLine:
         if not isinstance(value, dict) or not isinstance(value.get('text'), str):
             raise ValueError('Invalid styled line')
-        return cls(value['text'], Tone(value.get('tone', 'default')))
+        spans = value.get('spans', [])
+        if not isinstance(spans, list) or any(
+            not isinstance(span, dict) or not isinstance(span.get('text'), str) for span in spans
+        ):
+            raise ValueError('Invalid styled spans')
+        return cls(
+            value['text'],
+            Tone(value.get('tone', 'default')),
+            spans=tuple(StyledSpan(span['text'], Tone(span.get('tone', 'default'))) for span in spans),
+        )
 
 
 def render_rich(lines: Iterable[StyledLine]) -> Text:
     text = Text()
     for line in lines:
-        text.append(line.text, style=PALETTE[line.tone])
+        for span in line.spans or (StyledSpan(line.text, line.tone),):
+            text.append(span.text, style=PALETTE[span.tone])
         text.append('\n')
     return text
 
 
 def render_markup(lines: Iterable[StyledLine]) -> str:
-    spans = []
+    rendered = []
     for line in lines:
-        style = Style.parse(PALETTE[line.tone])
-        color = style.color.get_truecolor().hex if style.color else '#ffffff'
-        weight = 'bold' if style.bold else 'normal'
-        spans.append(f'<span foreground="{color}" weight="{weight}">{escape(line.text)}</span>')
-    return '\n'.join(spans)
+        spans = []
+        for span in line.spans or (StyledSpan(line.text, line.tone),):
+            style = Style.parse(PALETTE[span.tone])
+            color = style.color.get_truecolor().hex if style.color else '#ffffff'
+            weight = 'bold' if style.bold else 'normal'
+            spans.append(f'<span foreground="{color}" weight="{weight}">{escape(span.text)}</span>')
+        rendered.append(''.join(spans))
+    return '\n'.join(rendered)

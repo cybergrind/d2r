@@ -1,0 +1,58 @@
+[
+  {
+    "role_id": "lightning-strike-amazon-resist-crown-socket-base",
+    "profile_fingerprint": "3f20760b9cd5440800c1623fd291c1c69d4b228ab8282b4b772c65d3a9ba64f9",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "Reviewed empty Crown preparation base: the cited source specifies socket fillers, not a captured defense or other stat priority. Future filler bonuses are not present on the empty base."
+  },
+  {
+    "role_id": "lightning-strike-amazon-topaz-crown-socket-base",
+    "profile_fingerprint": "1d6cc41c8a8e7c8f1d6467667c2136ce346a3e021f46b265a80679ffcf10dfd8",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "Reviewed empty Crown preparation base: the cited source specifies socket fillers, not a captured defense or other stat priority. Future filler bonuses are not present on the empty base."
+  },
+  {
+    "role_id": "berserk-barbarian-angelic-amulet",
+    "profile_fingerprint": "6e84d097ee2d6b4bff050b9457af26b137bb13c2784e78b269fc21fd3c9f41bf",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This reviewed attack-rating pairing uses Wings to enable Halo: native setitems assigns att/lvl to Halo, not Wings. The cited use establishes no separate priority for captured amulet stats. Preserve conditional Build use and companions; do not fabricate or transfer ring/set bonuses to the amulet."
+  },
+  {
+    "role_id": "double-throw-barbarian-guide-angelic-amulet",
+    "profile_fingerprint": "2896128fe58394303f687475ac9de3ae8b8cfb5419a5a05c6576076deb4ad73b",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This reviewed attack-rating pairing uses Wings to enable Halo: native setitems assigns att/lvl to Halo, not Wings. The cited use establishes no separate priority for captured amulet stats. Preserve conditional Build use and companions; do not fabricate or transfer ring/set bonuses to the amulet."
+  },
+  {
+    "role_id": "dragon-talon-assassin-angelic-amulet",
+    "profile_fingerprint": "a2a3c535734b788214958b9df2d6d54b8c58c57a27a1afbb458447c808c30ab1",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This reviewed attack-rating pairing uses Wings to enable Halo: native setitems assigns att/lvl to Halo, not Wings. The cited use establishes no separate priority for captured amulet stats. Preserve conditional Build use and companions; do not fabricate or transfer ring/set bonuses to the amulet."
+  },
+  {
+    "role_id": "echoing-strike-warlock-guide-angelic-amulet",
+    "profile_fingerprint": "3ebbe02d47aefc50124d37512eecf80b0b1c542a964c21f26e01741ac5bf7716",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This reviewed attack-rating pairing uses Wings to enable Halo: native setitems assigns att/lvl to Halo, not Wings. The cited use establishes no separate priority for captured amulet stats. Preserve conditional Build use and companions; do not fabricate or transfer ring/set bonuses to the amulet."
+  },
+  {
+    "role_id": "strafe-amazon-angelic-amulet",
+    "profile_fingerprint": "ca025b33ca93e9f69610fb4cdc4042b011444b580f304bb0e3bce64907c283a9",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This reviewed attack-rating pairing uses Wings to enable Halo: native setitems assigns att/lvl to Halo, not Wings. The cited use establishes no separate priority for captured amulet stats. Preserve conditional Build use and companions; do not fabricate or transfer ring/set bonuses to the amulet."
+  },
+  {
+    "role_id": "berserk-barbarian-starter-set-Sigon's Wrap",
+    "profile_fingerprint": "d2ffff5c6073926c63dfa05d471dec7dea0d2ad7305ee1a3d15ff7be5ffa16c0",
+    "review_date": "2026-09-25",
+    "disposition": "no_stat_priority",
+    "reason": "This starter Wrap source specifies a three-piece combination but no belt-specific roll priority. Native Wrap properties do not include the other pieces attack-rating/IAS bonuses. Retain its set-enabling Build use without transferring those bonuses or inventing priorities for defense/life/fire resistance."
+  }
+]

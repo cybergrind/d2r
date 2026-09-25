@@ -11,9 +11,11 @@ from pathlib import Path
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.adapters.capture import bases_by_code
-from pricing.knowledge.assessment.domain.facts import freeze
+from pricing.knowledge.assessment.caster_base_templates import caster_ethereal_preference, evaluate_caster_base
+from pricing.knowledge.assessment.domain.facts import FactStatus, StatKey, freeze
 from pricing.knowledge.assessment.mechanics.preparation import prepare_sockets
 from pricing.knowledge.assessment.mechanics.recipe_index import compile_recipe_index
+from pricing.knowledge.assessment.progression_base_templates import evaluate_progression_base
 
 
 MERC_WORDS = frozenset({'Insight', 'Infinity', 'Pride', 'Obedience'})
@@ -53,7 +55,13 @@ def recipe_index():
 
 def roll(facts, stat):
     row = facts.stats.get(f'{stat}:0')
-    return row['raw'] if row and row['status'] == 'decoded' and type(row['raw']) is int else None
+    if facts.stat(StatKey(stat, 0)).status != FactStatus.KNOWN:
+        return None
+    return row['raw'] if row and type(row.get('raw')) is int else None
+
+
+def superior_roll(facts, stat):
+    return roll(facts, stat) if facts.rarity == 'superior' else None
 
 
 def weapon_quality(facts):
@@ -64,12 +72,12 @@ def weapon_quality(facts):
         missing.append('Ethereal would improve mercenary damage; this base cannot be made ethereal.')
     else:
         missing.append('Ethereal status has not been read.')
-    damage = roll(facts, 17)
-    if damage == 15 and roll(facts, 18) == 15:
+    damage = superior_roll(facts, 17)
+    if damage == 15 and superior_roll(facts, 18) == 15:
         strengths.append('Perfect superior damage: 15% Enhanced Damage.')
     else:
         missing.append('15% superior Enhanced Damage is an optional premium; it cannot be added later.')
-    if roll(facts, 19) == 3:
+    if superior_roll(facts, 19) == 3:
         strengths.append('Perfect superior Attack Rating: +3 (small practical benefit).')
     else:
         missing.append('+3 superior Attack Rating is an optional collector roll; it cannot be added later.')
@@ -79,10 +87,14 @@ def weapon_quality(facts):
 def player_quality(facts, name, *, wearer=None):
     """Role-specific priorities; no mercenary ethereal rule leaks into player gear."""
     strengths, missing = [], []
-    if name == 'Grief' and facts.base_name == 'Phase Blade':
+    if result := evaluate_caster_base(facts, name):
+        return result
+    if progression := evaluate_progression_base(facts, name):
+        role, strengths, missing, tradeoff = progression
+    elif name == 'Grief' and facts.base_name == 'Phase Blade':
         role = 'player melee'
         strengths.append('Fast, inherently indestructible base: no durability repairs.')
-        if roll(facts, 17) == 15 and roll(facts, 18) == 15 and roll(facts, 19) == 3:
+        if superior_roll(facts, 17) == 15 and superior_roll(facts, 18) == 15 and superior_roll(facts, 19) == 3:
             strengths.append('Perfect superior rolls: 15% Enhanced Damage and +3 Attack Rating.')
         else:
             missing.append('Optional premium: 15% Enhanced Damage / +3 Attack Rating; cannot be added later.')
@@ -100,9 +112,19 @@ def player_quality(facts, name, *, wearer=None):
             strengths.append('Lowest strength requirement among non-Paladin four-socket shields (156).')
         missing.append('Premium defense needs a separate base-defense roll check; it is optional for Spirit.')
         tradeoff = 'Caster utility mainly depends on the completed Spirit FCR roll; base defense does not improve FCR.'
+    elif name == 'Treachery' and facts.base_name == 'Mage Plate':
+        # The cached recipe recommendation explicitly distinguishes Character
+        # and Mercenary bases; aggregate per-base build lists are not role proof.
+        role = wearer or 'mercenary'
+        strengths.append('Light three-socket armor option for Treachery attack-speed utility.')
+        missing.append('Compare actual base defense and wearer requirements against the intended setup.')
+        tradeoff = (
+            'Fade must trigger before its benefits apply; compare survival before and after activation. '
+            'A superior defense roll alone does not establish the best armor or a trade premium.'
+        )
     elif name in ('Enigma', 'Fortitude') and facts.item_type == 'tors':
         role = wearer or ('mercenary' if name == 'Fortitude' else 'player')
-        if roll(facts, 16) == 15:
+        if superior_roll(facts, 16) == 15:
             strengths.append('Perfect superior Enhanced Defense: 15%.')
         else:
             missing.append('15% superior Enhanced Defense is an optional premium; it cannot be added later.')
@@ -171,7 +193,7 @@ def assess_runeword_base(facts):
             missing = ['Assess base rolls again after normalization.']
         if status == 'ready':
             status = 'preferred base' if preferred else 'usable alternative'
-            if preferred and not missing and not facts.gaps:
+            if preferred and not missing and not facts.gaps and facts.capture_complete and facts.identified is True:
                 status = 'perfect preferred base'
         missing = needs + missing
         if not facts.capture_complete or facts.identified is not True:
@@ -212,6 +234,10 @@ def additional_player_use(facts, recipe, recommendation):
             missing.append('Ethereal status has not been read.')
         elif facts.ethereal:
             tradeoff += ' An ethereal weapon cannot be repaired if used for melee attacks.'
+    elif (
+        name == 'Treachery' and facts.base_name == 'Mage Plate' and recommendation.get('details', {}).get('recommended')
+    ):
+        role, strengths, missing, tradeoff = player_quality(facts, name, wearer='player')
     elif name == 'Fortitude' and facts.base_name == 'Archon Plate' and context.get('builds_char'):
         role, strengths, missing, tradeoff = player_quality(facts, name, wearer='player')
         tradeoff = 'Player use values survivability and physical damage; compare strength requirements and repair cost.'
@@ -249,6 +275,8 @@ def base_ethereal_preference(role, base_name):
         return {'preference': 'preferred', 'reason': 'Mercenary equipment benefits without durability loss.'}
     if role == 'Nova player caster':
         return {'preference': 'neutral', 'reason': 'Casting Nova does not use weapon damage or weapon durability.'}
+    if preference := caster_ethereal_preference(role, base_name):
+        return preference
     if base_name == 'Phase Blade':
         return {'preference': 'neutral', 'reason': 'This runeword base has no durability and cannot be ethereal.'}
     return {'preference': 'avoid', 'reason': 'Player armor and shields need repairs; this recipe does not repair them.'}

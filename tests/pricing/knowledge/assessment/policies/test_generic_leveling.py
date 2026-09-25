@@ -118,3 +118,26 @@ def test_conflicting_leveling_stat_does_not_erase_independent_valid_utility():
     )
     uses = assess_leveling(item)
     assert [use['source']['locator'] for use in uses] == ['/generic_patterns/2']
+
+
+@pytest.mark.parametrize('ethereal', [True, False, None])
+def test_crushing_blow_mercenary_leveling_keeps_ethereal_and_setup_separate(ethereal):
+    item = replace(
+        facts('Yari', 'unique', 'Hone Sundan'), ethereal=ethereal, stats={'136:0': {'status': 'decoded', 'value': 45}}
+    )
+    uses = [u for u in assess_leveling(item) if u['source']['locator'] == '/generic_patterns/6']
+    assert len(uses) == 1
+    assert uses[0]['side'] == 'mercenary'
+    assert uses[0]['status'] == 'conditional'
+    assert 'Act 2' in uses[0]['conditions'][0]
+    assert uses[0]['required_level'] is None
+    assert not [
+        u for u in assess_leveling(replace(item, identified=False)) if u['source']['locator'] == '/generic_patterns/6'
+    ]
+    assert not [
+        u
+        for u in assess_leveling(replace(item, gaps=['Duplicate native stat 136:0.']))
+        if u['source']['locator'] == '/generic_patterns/6'
+    ]
+    wrong_base = replace(facts('Axe', 'unique', 'Hone Sundan'), stats=item.stats)
+    assert not assess_leveling(wrong_base)

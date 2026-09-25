@@ -70,6 +70,10 @@ def test_publication_validates_pinned_profile_evidence(failure):
         else:
             path = OUTPUT.resolve()
             document['profiles'][0]['source']['locator'] = '/missing-profile-location'
+            # Keep stat binding valid so this test reaches source-locator validation.
+            from tests.pricing.knowledge.assessment.test_repository import renew_stat_reviews
+
+            renew_stat_reviews(document)
             raw = json.dumps(document).encode()
         mapping[path] = Artifact(raw, hashlib.sha256(raw).hexdigest())
         with supplied_artifacts(mapping), pytest.raises(ValueError, match=r'Source changed|source locator'):

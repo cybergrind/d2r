@@ -29,7 +29,10 @@ uv run --offline -m inventory_tracking.items.build_metadata \
 ```
 
 Simple description functions 19/29 are eligible only without parameter encodings
-or level/time suffixes. Scaling uses ValShift; fractional values remain unresolved.
+or level/time suffixes. Description function 12 (Hit Blinds Target, Freezes target)
+carries a level: the label is the market wording `<effect> +{{value}}`, decoded text
+omits the `+1` suffix like the in-game tooltip (Deathspade, 2026-09-25) and shows
+`+N` above level 1; non-positive or parameterized values stay unresolved. Scaling uses ValShift; fractional values remain unresolved.
 Market property labels must match uniquely after punctuation-preserving
 normalization. Identical market properties arising from multiple memory stats
 are withheld from facets rather than overwritten. Total defense/damage and item
@@ -64,6 +67,20 @@ local weapon speed value; D2Game item initialization sets it that way. It is not
 IAS(stat93), nor the character-dependent tooltip category. Class-specific skill
 labels use full class names. Title, level requirement and speed category remain
 explicit review fields.
+
+## Audited decoder gaps (2026-09-25)
+
+Signed defense (including Dimoak's Hew -8) is readable without creating a market
+bonus facet. Stat219's op5 coefficient is rendered as enhanced maximum damage
+percentage at the active viewer's level. Stat358 uses ModStrMagPierce from the
+local English strings, retaining positive native magnitude for negative enemy
+resistance wording and definition ranges.
+
+`items/effects.py` handles Tomb Reaver's verified reanimate target and internal
+quest difficulty, blood/fade visuals and catalog set states. Parameters outside
+the reviewed monster/state mappings stay unresolved. Set effects are decoded only
+when captured, not inferred from owning a set item. These handlers emit no market
+facets. See [the audit](../STAT_DECODER_AUDIT.md) for evidence and replay scope.
 
 ## Named identities and possible rolls (2026-09-23)
 

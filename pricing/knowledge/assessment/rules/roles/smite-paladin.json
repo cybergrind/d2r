@@ -218,7 +218,7 @@
           },
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           }
@@ -234,14 +234,6 @@
           }
         },
         {
-          "label": "3% Life Leech",
-          "when": {
-            "op": "stat_at_least",
-            "key": "60:0",
-            "value": 3
-          }
-        },
-        {
           "label": "10% Open Wounds",
           "when": {
             "op": "stat_at_least",
@@ -253,16 +245,15 @@
           "label": "20 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 20
           }
         }
       ],
       "important_stats": [
         "99:0",
-        "60:0",
         "135:0",
-        "6:0"
+        "7:0"
       ],
       "conditions": [
         "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity.",
@@ -277,7 +268,7 @@
         "quotes": [
           "Blood Crafted Belt (planner: crafted Mesh Belt 'of Stability' \u2014 24 FHR, 3% Life Leech, 10% Open Wounds, +20 Life)"
         ],
-        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+        "review": "2026-09-25: reviewed Starter purpose, Belt slot and variant quotes. Open Wounds, recovery and Life are useful item modifiers; source Life Leech remains part of the observed Blood-belt combination, not a Smite sustain target. Required Life Tap and other Ubers equipment conditions remain unresolved by this belt. Planner values remain preferences, not required minima."
       }
     },
     {
@@ -311,7 +302,7 @@
       },
       "depends_on": [
         {
-          "label": "Life Tap charges are available; recharge when empty.",
+          "label": "Life Tap charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 82,
@@ -321,7 +312,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "The Uber setup also requires Crushing Blow, Open Wounds, Cannot Be Frozen and sufficient resistances."
+        "The Uber setup also requires Crushing Blow, Open Wounds, Cannot Be Frozen and sufficient resistances.",
+        "Available charges do not prove Life Tap is currently applied. Ethereal copies cannot be recharged by repair; their remaining charges are finite."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -363,7 +355,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -382,7 +374,8 @@
         }
       ],
       "conditions": [
-        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",

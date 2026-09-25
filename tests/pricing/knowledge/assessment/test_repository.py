@@ -3,6 +3,21 @@ import json
 from pricing.knowledge.assessment.build_profiles import build
 
 
+def renew_stat_reviews(document):
+    """Simulate a reviewed role edit, including its dependent compiled priorities."""
+    from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
+    from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
+    from pricing.knowledge.assessment.stat_bundle import configuration_row
+
+    profiles = {p['id']: p for p in document['profiles']}
+    bundle = document['stat_evaluation']
+    for review in bundle['reviews']:
+        review['profile_fingerprint'] = fingerprint(profiles[review['role_id']])
+    bundle['configurations'] = [
+        configuration_row(c) for c in compile_stat_configurations(bundle['reviews'], document['profiles'])
+    ]
+
+
 def test_repository_pins_immutable_generation_and_reloads_changed_artifacts(tmp_path):
     from pricing.knowledge.assessment.repository import ProfileRepository
 
@@ -12,6 +27,7 @@ def test_repository_pins_immutable_generation_and_reloads_changed_artifacts(tmp_
     repository = ProfileRepository(path)
     first = repository.load()
     document['profiles'][0]['conditions'].append('New reviewed condition.')
+    renew_stat_reviews(document)
     path.write_text(json.dumps(document))
     second = repository.load()
     assert first.bundle.generation != second.bundle.generation
@@ -77,6 +93,7 @@ def test_profile_snapshot_preserves_generation_and_fallback_issues(tmp_path):
     repository = ProfileRepository(path)
     with repository.snapshot() as original:
         document['profiles'][0]['conditions'].append('New generation.')
+        renew_stat_reviews(document)
         path.write_text(json.dumps(document))
         assert repository.load() is original
         with repository.snapshot() as nested:
@@ -106,7 +123,8 @@ def test_engine_records_the_profile_generation_used_across_publication(tmp_path,
     normalize = engine.normalize
 
     def publish_during_capture(extraction):
-        document['profiles'][0]['conditions'] = ['Updated during appraisal.']
+        document['profiles'][0]['conditions'].append('Updated during appraisal.')
+        renew_stat_reviews(document)
         path.write_text(json.dumps(document))
         assert repository.load().bundle.generation == original
         return normalize(extraction)

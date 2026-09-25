@@ -9,6 +9,7 @@ from pricing.knowledge.assessment.adapters import discovery
 from pricing.knowledge.assessment.adapters.priced import legacy_priced_payload
 from pricing.knowledge.assessment.domain.context import AssessmentContext
 from pricing.knowledge.assessment.engine import assess_result
+from pricing.knowledge.assessment.guide_demand import demand_for_item
 from pricing.knowledge.assessment.inputs import artifact_inputs
 from pricing.knowledge.assessment.market_repository import compare_request_results, market_rows
 from pricing.knowledge.assessment.pricing import finalize_assessment
@@ -82,6 +83,7 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
     watches = evidence.get('identity', {}).get('evidence', {}).get('value_watch', [])
     return {
         'price_estimate': estimate,
+        'guide_demand': demand_for_item(item.get('runeword') or item.get('name'), assessment['roles']),
         'assessment': assessment,
         'value_watch': watches,
         'offline': True,

@@ -173,7 +173,7 @@ def test_colliding_market_properties_suppress_both_facets_but_keep_readable_stat
     assert not unresolved
 
 
-@pytest.mark.parametrize('stat_id', [21, 22, 23, 24, 31])
+@pytest.mark.parametrize('stat_id', [21, 22, 23, 24])
 def test_negative_captured_totals_are_not_reinterpreted_as_market_bonuses(stat_id):
     stat = {'id': stat_id, 'layer': 0, 'raw': -1}
     decoded, affixes, unresolved = decode_stats([stat])

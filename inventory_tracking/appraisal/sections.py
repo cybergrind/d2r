@@ -142,6 +142,12 @@ def current_price_lines(result):
 
 
 def assessment_lines(result):
+    from inventory_tracking.appraisal.build_use_summary import build_use_summary
+
+    return list(build_use_summary(result.get('assessment', {}).get('roles', []), result.get('guide_demand')).lines)
+
+
+def full_assessment_lines(result):
     from inventory_tracking.appraisal.role_groups import display_groups, shared_details
 
     roles = [r for r in result.get('assessment', {}).get('roles', []) if r['status'] in ('matched', 'partial')]

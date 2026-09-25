@@ -2,12 +2,14 @@
 
 from pricing.knowledge.assessment import base_use
 from pricing.knowledge.assessment.adapters import market_projection
+from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.mechanics import base_tiers
 from pricing.knowledge.assessment.policies import generic_leveling, leveling, named_tiers
 
 
 def artifact_inputs():
     return {
+        OUTPUT.resolve(): 'reviewed profiles and guide demand',
         market_projection.CATALOG.resolve(): 'native market projections',
         named_tiers.RULES.resolve(): 'named tier rules',
         (named_tiers.ROOT / 'pricing/data/wp-i-uniques-misc.json').resolve(): 'named tier research',

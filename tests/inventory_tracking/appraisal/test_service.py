@@ -113,3 +113,41 @@ def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, ca
     assert capsys.readouterr().out.count('Waiting for D2R.exe') == 1
     report = json.loads(next((tmp_path / 'runs').glob('*/report.json')).read_text())
     assert report['state'] == 'failed'
+
+
+def test_reconnect_uses_fresh_capture_directory_even_after_partial_failure(tmp_path, monkeypatch):
+    import pytest
+
+    directories = []
+
+    def connect(self, directory):
+        directories.append(directory)
+        with (directory / 'image.bin').open('xb') as stream:
+            stream.write(f'capture-{len(directories)}'.encode())
+        if len(directories) == 2:
+            raise OSError('capture interrupted')
+        return len(directories), {'identity': {'pid': len(directories)}}, {'status': 'captured'}
+
+    def reconnect_sequence(connect, directory, report):
+        assert connect()[0] == 1
+        with pytest.raises(OSError, match='capture interrupted'):
+            connect()
+        assert connect()[0] == 3
+        assert len(set(directories)) == 3
+        assert [(path / 'image.bin').read_bytes() for path in directories] == [b'capture-1', b'capture-2', b'capture-3']
+        raise ValueError('end reconnect exercise')
+
+    monkeypatch.setattr(appraisal_service.LiveReader, 'connect', connect)
+    monkeypatch.setattr(appraisal_service, 'wait_for_game', reconnect_sequence)
+    with pytest.raises(ValueError, match='end reconnect exercise'):
+        appraisal_service.main(
+            [
+                'serve',
+                '--socket',
+                str(tmp_path / 'request.sock'),
+                '--output',
+                str(tmp_path / 'runs'),
+                '--database',
+                str(tmp_path / 'unused.sqlite3'),
+            ]
+        )

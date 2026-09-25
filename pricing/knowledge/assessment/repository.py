@@ -18,6 +18,7 @@ class ProfileBundle:
     profiles: tuple
     scope: str
     candidates: CandidateIndex
+    stat_candidates: CandidateIndex
 
 
 @dataclass(frozen=True)
@@ -55,11 +56,15 @@ class ProfileRepository:
             if document.get('schema_version') != 1 or document.get('rules_version') != 'assessment-1':
                 raise ValueError('incompatible profile schema/rules version')
             validate_profiles(document['profiles'])
+            from pricing.knowledge.assessment.stat_bundle import validate_stat_bundle
+
+            validate_stat_bundle(document)
             bundle = ProfileBundle(
                 generation,
                 freeze(document['profiles']),
                 document['coverage']['scope'],
                 CandidateIndex(document['profiles']),
+                CandidateIndex(document.get('stat_evaluation', {}).get('configurations', [])),
             )
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
             return BundleLoad(self._current, (f'Reviewed profile update unavailable: {error}',))

@@ -29,9 +29,13 @@ def assess(item, key, player='Druid'):
 
 
 @pytest.mark.parametrize('base', ['Antlers', 'Dream Spirit'])
-def test_starter_lore_pelt_requires_documented_fissure_bonus(base):
+def test_starter_lore_pelt_treats_planner_bonus_as_preference(base):
     assert assess(helmet(base=base), 'starter-lore')[0]['status'] == 'matched'
-    assert assess(helmet(base=base, bonus=2), 'starter-lore')[0]['status'] == 'failed'
+    for bonus in (1, 2, 3):
+        result = assess(helmet(base=base, bonus=bonus), 'starter-lore')[0]
+        assert result['status'] == 'matched'
+        assert result['preferences'][0]['status'] == ('true' if bonus == 3 else 'false')
+    assert assess(helmet(base=base, bonus=0), 'starter-lore')[0]['status'] == 'failed'
     assert not assess(helmet(base='Cap'), 'starter-lore')
 
 

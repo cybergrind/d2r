@@ -84,6 +84,12 @@ def validate_runtime_inputs():
     if profiles.bundle is None or profiles.issues:
         raise ValueError(f'Invalid published profiles: {profiles.issues}')
     validate_profile_sources(json.loads(read_artifact(OUTPUT)), named_tiers.ROOT, read_artifact)
+    from pricing.knowledge.assessment.guide_demand import validate_demand
+
+    validate_demand(json.loads(read_artifact(OUTPUT)))
+    from pricing.knowledge.assessment.stat_bundle import validate_stat_bundle
+
+    validate_stat_bundle(json.loads(read_artifact(OUTPUT)))
     # Publication checks must not inherit an earlier generation's validation cache.
     policies = named_tiers._policies.__wrapped__(read_artifact(named_tiers.RULES))
     for identity, policy in policies.items():

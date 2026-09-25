@@ -24,7 +24,7 @@ def test_dagger_role_assessment_is_not_a_runeword_base_or_endgame_claim():
     assert result['facts']['stats']['218:0']['per_level'] == {'numerator': 4, 'denominator': 8}
     assert result['facts']['stats']['218:0']['value_at_reference_level'] == 45
     roles = {r['id']: r for r in result['roles']}
-    assert roles['echoing-starter-dagger']['status'] == 'partial'
+    assert 'echoing-starter-dagger' not in roles  # Guide's dagger advice concerns runeword bases.
     assert roles['abyss-starter-dagger']['status'] == 'failed'
     assert result['contract'] is not None  # Fully projected modifiers permit comparison, not a price claim.
     assert result['price_gaps'] == []

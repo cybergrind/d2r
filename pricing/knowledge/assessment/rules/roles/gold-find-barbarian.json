@@ -285,7 +285,8 @@
         "quotes": [
           "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -377,7 +378,8 @@
         "quotes": [
           "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -469,7 +471,8 @@
         "quotes": [
           "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -561,7 +564,8 @@
         "quotes": [
           "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -604,6 +608,20 @@
                 "value": "7cr"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -627,8 +645,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
-        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -677,6 +694,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -700,7 +731,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {
@@ -750,6 +781,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -773,7 +818,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {
@@ -823,6 +868,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -846,7 +905,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {
@@ -896,6 +955,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -919,7 +992,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {
@@ -969,6 +1042,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -992,7 +1079,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {
@@ -1042,6 +1129,20 @@
                 "value": "crs"
               }
             ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 6
+              }
+            ]
           }
         ]
       },
@@ -1065,7 +1166,7 @@
         "79:0"
       ],
       "conditions": [
-        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Six-socket preparation must be verified for this item level; confirm requirements and the documented hand/swap role.",
         "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
       ],
       "source": {

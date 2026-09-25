@@ -14,8 +14,8 @@ CASES = [
     ('fissure-starter-crafted-belt', {105: 10, 0: 9, 9: 20, 27: 10, 39: 10, 41: 10, 43: 10}),
     ('lightning-starter-crafted-belt', {105: 10, 99: 17, 9: 40, 27: 10, 41: 30}),
     ('nova-starter-crafted-belt', {105: 10, 9: 20, 27: 10, 39: 30, 41: 30, 43: 30}),
-    ('summoner-starter-crafted-belt', {105: 10, 6: 60, 9: 20, 27: 10, 43: 30}),
-    ('smite-starter-crafted-belt', {99: 24, 60: 3, 135: 10, 6: 20}),
+    ('summoner-starter-crafted-belt', {105: 10, 7: 60, 9: 20, 27: 10, 43: 30}),
+    ('smite-starter-crafted-belt', {99: 24, 60: 3, 135: 10, 7: 20}),
 ]
 
 

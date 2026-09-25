@@ -110,23 +110,30 @@ def variant_occurrences(document, source, catalog):
     return rows
 
 
-def main():
-    from pricing.knowledge.assessment.build_profiles import build
+def collect_occurrences(root=ROOT):
+    """Reuse the structured extraction; include separately cached variant slots."""
     from pricing.knowledge.builds import load_catalog
 
-    demand_path = ROOT / 'pricing/data/appraisal-demand.json'
+    root = Path(root)
+    demand_path = root / 'pricing/data/appraisal-demand.json'
     raw = demand_path.read_bytes()
     occurrences = json.loads(raw)['rows']
-    sources = {str(demand_path.relative_to(ROOT)): hashlib.sha256(raw).hexdigest()}
-    catalog = load_catalog(ROOT)
-    for path in sorted((ROOT / 'pricing/data/wp-a-variants').glob('*.json')):
+    sources = {str(demand_path.relative_to(root)): hashlib.sha256(raw).hexdigest()}
+    catalog = load_catalog(root)
+    for path in sorted((root / 'pricing/data/wp-a-variants').glob('*.json')):
         if path.name == 'index.json':
-            continue  # Derived reverse lookup; source occurrences are already enumerated.
+            continue
         raw = path.read_bytes()
-        source = str(path.relative_to(ROOT))
-        document = json.loads(raw)
-        occurrences.extend(variant_occurrences(document, source, catalog))
+        source = str(path.relative_to(root))
+        occurrences.extend(variant_occurrences(json.loads(raw), source, catalog))
         sources[source] = hashlib.sha256(raw).hexdigest()
+    return occurrences, sources, catalog
+
+
+def main():
+    from pricing.knowledge.assessment.build_profiles import build
+
+    occurrences, sources, _ = collect_occurrences()
     result = audit_occurrences(occurrences, build()['profiles'])
     result['input_hashes'] = sources
     print(json.dumps(result, indent=2))

@@ -438,6 +438,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -471,7 +474,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -481,7 +484,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken."
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -523,7 +527,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -535,7 +539,8 @@
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
         "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
-        "Optional manual curse application when you do not want to rely on the mercenary Plague proc."
+        "Optional manual curse application when you do not want to rely on the mercenary Plague proc.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -577,7 +582,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -587,7 +592,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
-        "Choose the travel staff, Lower Resist wand or Harmony according to the farm; they are alternatives for the swap slot."
+        "Choose the travel staff, Lower Resist wand or Harmony according to the farm; they are alternatives for the swap slot.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -715,9 +721,7 @@
         ]
       },
       "preferences": [],
-      "important_stats": [
-        "31:0"
-      ],
+      "important_stats": [],
       "conditions": [
         "Check equipment requirements and the complete loadout before investing in socket contents.",
         "The cited magic-find setup still needs three Perfect Topazes in the sockets."
@@ -729,7 +733,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+      "review_notes": "2026-09-25: reviewed exact Artisan Crown source row. This is a three-empty-socket magic Crown preparation candidate for three Perfect Topazes or Ral/Ort/Thul. The source supplies no defense target; do not present base defense as an important roll. No stat desirability marker is applicable to the empty base itself. Preserve class, non-ethereal state, quality, base and empty socket predicates. Filled payload utility requires separate captured evidence; no MF/resistance or price inferred."
     },
     {
       "id": "lightning-strike-amazon-resist-crown-socket-base",
@@ -775,9 +779,7 @@
         ]
       },
       "preferences": [],
-      "important_stats": [
-        "31:0"
-      ],
+      "important_stats": [],
       "conditions": [
         "Check equipment requirements and the complete loadout before investing in socket contents.",
         "The cited resistance setup still needs Ral, Ort and Thul in the sockets."
@@ -789,7 +791,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+      "review_notes": "2026-09-25: reviewed exact Artisan Crown source row. This is a three-empty-socket magic Crown preparation candidate for three Perfect Topazes or Ral/Ort/Thul. The source supplies no defense target; do not present base defense as an important roll. No stat desirability marker is applicable to the empty base itself. Preserve class, non-ethereal state, quality, base and empty socket predicates. Filled payload utility requires separate captured evidence; no MF/resistance or price inferred."
     },
     {
       "id": "lightning-strike-standard-gaze-merc",
@@ -876,7 +878,8 @@
         "quotes": [
           "Vampire Gaze (ethereal) socketed with Scintillating Jewel of Fervor (15% IAS / 15 All Res)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       }
     },
     {
@@ -952,7 +955,8 @@
         "quotes": [
           "Vampire Gaze (ethereal)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+        "source_date": "May 22, 2026"
       }
     }
   ]

@@ -8,6 +8,7 @@ from pricing.knowledge.assessment.domain.contracts import ComparableContract
 from pricing.knowledge.assessment.domain.facts import ItemFacts, freeze
 from pricing.knowledge.assessment.domain.roles import RoleAssessment
 from pricing.knowledge.assessment.domain.upgrades import UpgradePath
+from pricing.knowledge.assessment.stat_evaluation import StatEvaluation
 
 
 @dataclass(frozen=True)
@@ -36,6 +37,7 @@ class AssessmentResult:
     comparison_requests: tuple[ComparisonRequest, ...]
     generation: AssessmentGeneration = field(default_factory=AssessmentGeneration)
     upgrades: tuple[UpgradePath, ...] = ()
+    stat_evaluation: StatEvaluation | None = None
 
     def __post_init__(self):
         for name in (

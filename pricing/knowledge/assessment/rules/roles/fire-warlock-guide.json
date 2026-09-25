@@ -432,6 +432,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -465,7 +468,7 @@
       },
       "depends_on": [
         {
-          "label": "Lower Resist charges are available; recharge when empty.",
+          "label": "Lower Resist charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 91,
@@ -476,7 +479,8 @@
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Use Lower Resist according to the target and farm; the charge level determines the curse effect.",
-        "Keep in inventory and equip when applying Lower Resist; the guide uses a Teleport staff on weapon swap."
+        "Keep in inventory and equip when applying Lower Resist; the guide uses a Teleport staff on weapon swap.",
+        "Ethereal copies cannot be recharged by repair; remaining charges do not prove the curse is applied or an immunity is broken."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -518,7 +522,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -528,7 +532,8 @@
       ],
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
-        "Choose the mobility swap according to the farm and the rest of the loadout."
+        "Choose the mobility swap according to the farm and the rest of the loadout.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",

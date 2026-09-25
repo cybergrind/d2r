@@ -844,7 +844,7 @@
         "all": [
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           },
@@ -883,7 +883,7 @@
           "label": "20 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 20,
             "absent_is_zero": true
           }
@@ -921,7 +921,7 @@
         }
       ],
       "important_stats": [
-        "6:0",
+        "7:0",
         "39:0",
         "41:0",
         "43:0",
@@ -1250,7 +1250,8 @@
         "quotes": [
           "Stealskull (ethereal, Ist Rune)"
         ],
-        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+        "source_date": "May 22, 2026"
       }
     }
   ]

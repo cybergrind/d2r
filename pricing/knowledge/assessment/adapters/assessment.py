@@ -12,6 +12,16 @@ def legacy_payload(result: AssessmentResult):
         'quality_policy': result.quality_policy,
         'facts': result.facts.to_dict(),
         'roles': legacy_roles(result.roles),
+        **(
+            {
+                'stat_evaluation': {
+                    'configurations': thaw(result.stat_evaluation.configurations),
+                    'annotations': thaw(result.stat_evaluation.annotations),
+                }
+            }
+            if result.stat_evaluation is not None
+            else {}
+        ),
         'base_uses': thaw(result.base_uses),
         'leveling': thaw(result.leveling),
         'trade_tier': thaw(result.trade_tier),

@@ -3,21 +3,28 @@ from pricing.knowledge.assessment.profiles import assess_roles
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
-def test_naj_swap_roles_cover_documented_builds_and_preserve_fal_variant():
+def test_naj_swap_roles_exclude_unendorsed_fal_example():
     profiles = [p for p in build()['profiles'] if p['role'] == 'Teleport-charge weapon swap']
-    assert len(profiles) == 14
+    assert len(profiles) == 13
     assert len({p['build'] for p in profiles}) == 13
     assert all(p['side'] == 'player' and p['slot'] == 'Weapon-Swap' for p in profiles)
     item = facts('Elder Staff', 'set', "Naj's Puzzler")
     results = assess_roles(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
-    assert sum(r['status'] == 'partial' for r in results) == 3
+    assert sum(r['status'] == 'partial' for r in results) == 2
     assert all(
         r['status'] == 'failed'
         for r in results
         if r['build'] not in ('poison-nova-necromancer', 'summoner-necromancer-guide')
     )
-    fal = next(p for p in profiles if p['id'] == 'poison-naj-fal-swap')
-    assert fal['required_rune'] == 'Fal Rune'
+    assert 'poison-naj-fal-swap' not in {p['id'] for p in profiles}
+    import json
+
+    from pricing.knowledge.assessment.build_profiles import ROOT
+
+    archive = json.loads((ROOT / 'pricing/knowledge/assessment/planning/retired_role_reviews.json').read_text())
+    fal = next(r for r in archive['records'] if r['id'] == 'poison-naj-fal-swap')
+    assert fal['previous_profile']['required_rune'] == 'Fal Rune'
+    assert fal['previous_guide_use']['strength'] == 'example'
     assert fal['source']['locator'] == '/poison-nova-necromancer/variants/4/player/Weapon-Swap/0'
     assert all(any('Teleport charge' in d['label'] for d in p['depends_on']) for p in profiles)
     assert not assess_roles(facts('Elder Staff', 'magic'), profiles)

@@ -18,6 +18,10 @@ def prepare_sockets(facts, recipe):
         return result('unverified', ['Resolve conflicting socket count and contents before preparation.'])
     if facts.sockets is None:
         return result('unverified', ['Read the socket count before choosing this recipe.'])
+    if facts.sockets == 0:
+        caps = recipe['details'].get('socket_options', {}).get('maximum_by_ilvl_bracket', ())
+        if len(caps) not in (1, 3) or any(type(cap) is not int or not 1 <= cap <= 6 for cap in caps):
+            return result('unverified', ['Verify base/item-type socket limits before preparing sockets.'])
     if facts.rarity in ('low_quality', 'low quality'):
         from pricing.knowledge.assessment.mechanics.low_quality import prepare_normalized_sockets
 

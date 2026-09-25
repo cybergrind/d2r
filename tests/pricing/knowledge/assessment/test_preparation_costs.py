@@ -53,3 +53,14 @@ def test_removal_cost_is_not_a_runeword_or_item_price():
     assert option['destroys_contents'] is True
     assert 'price' not in option
     assert facts.socket_contents == 'filled'
+
+
+@pytest.mark.parametrize('caps', [[], [0, 4, 6], [None, 4, 6]])
+@pytest.mark.parametrize('quality', ['normal', 'low_quality'])
+def test_missing_socket_mechanics_do_not_create_preparation_requests(caps, quality):
+    facts = normalize(capture('Crystal Sword', sockets=0, quality=quality, ethereal=False))
+    recipe = {'sockets': 4, 'details': {'runeword': 'Spirit', 'socket_options': {'maximum_by_ilvl_bracket': caps}}}
+    result = prepare_sockets(facts, recipe)
+    assert result.status == 'unverified'
+    assert result.options == ()
+    assert any('socket limits' in message for message in result.messages)

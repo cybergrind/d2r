@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from inventory_tracking.appraisal.sections import assessment_lines
+from inventory_tracking.appraisal.sections import full_assessment_lines as assessment_lines
 
 
 def role(variant, **changes):

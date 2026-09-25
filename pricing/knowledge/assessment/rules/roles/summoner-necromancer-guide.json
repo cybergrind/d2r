@@ -24,7 +24,7 @@
           },
           {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 1,
             "absent_is_zero": true
           },
@@ -61,7 +61,7 @@
           "label": "60 Life",
           "when": {
             "op": "stat_at_least",
-            "key": "6:0",
+            "key": "7:0",
             "value": 60
           }
         },
@@ -92,7 +92,7 @@
       ],
       "important_stats": [
         "105:0",
-        "6:0",
+        "7:0",
         "9:0",
         "27:0",
         "43:0"
@@ -107,7 +107,7 @@
         "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
         "source_date": "May 22, 2026",
         "quotes": [
-          "Caster Crafted Belt (prose link; planner: crafted Light Belt \u2014 10 FCR, 60 Life, 20 Mana, 10% Mana regen, 30 CR)"
+          "Caster Crafted Belt (prose link; planner: crafted Light Belt — 10 FCR, 60 Life, 20 Mana, 10% Mana regen, 30 CR)"
         ],
         "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
       },
@@ -213,6 +213,9 @@
       ],
       "important_stats": [
         "204:3467"
+      ],
+      "types": [
+        "staf"
       ]
     },
     {
@@ -246,7 +249,7 @@
       },
       "depends_on": [
         {
-          "label": "Teleport charges are available; recharge when empty.",
+          "label": "Teleport charges are available; non-ethereal copies can be recharged when empty.",
           "when": {
             "op": "charge_skill",
             "skill_id": 54,
@@ -255,7 +258,8 @@
         }
       ],
       "conditions": [
-        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Ethereal copies cannot be recharged by repair; remaining charges provide finite travel utility."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
