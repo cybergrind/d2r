@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>D2R item collection</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f4ee;--fg:#1d1b17;--muted:#6b665c;--line:#d9d4c8;--card:#fffdf8;--accent:#8a5a1b;
+--unique:#a8862f;--set:#1f8a2f;--rare:#a68b00;--magic:#3d4fd6;--crafted:#c66a13;--normal:#4b4842;--low:#8d8a83;--superior:#2f2c27;--tempered:#7a3ca8;--mark:#ffe58a}
+@media (prefers-color-scheme:dark){:root{--bg:#171512;--fg:#ece7da;--muted:#a39d8f;--line:#3a352c;--card:#201d18;--accent:#e0b56b;
+--unique:#d8b95a;--set:#5fd96f;--rare:#f2df6a;--magic:#8b9cff;--crafted:#ffa64d;--normal:#d9d4c8;--low:#8d8a83;--superior:#f4f0e6;--tempered:#c99cf0;--mark:#5a4a12}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:18px 20px 10px;border-bottom:1px solid var(--line)}h1{margin:0 0 4px;font-size:20px}.sub{color:var(--muted);font-size:12px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;padding:10px 20px;border-bottom:1px solid var(--line);align-items:center;position:sticky;top:0;background:var(--bg);z-index:2}
+.bar input[type=search]{flex:2 1 340px;min-width:240px;padding:7px 10px;font-size:15px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+.bar select,.bar button{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg);font-size:13px}
+.bar label{font-size:12px;color:var(--muted);display:flex;gap:4px;align-items:center}
+main{padding:8px 20px 40px}.count{color:var(--muted);font-size:12px;margin:8px 0}
+.group{margin:18px 0 6px;font-size:13px;font-weight:600;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:3px}
+details.item{border:1px solid var(--line);border-radius:6px;background:var(--card);margin:6px 0}
+details.item>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:minmax(240px,2fr) minmax(140px,1.2fr) 130px minmax(170px,1.3fr);gap:10px;padding:7px 10px;align-items:baseline}
+.preview{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+details.item>summary::-webkit-details-marker{display:none}
+.name{font-weight:600}.tag{font-size:11px;color:var(--muted);font-weight:400;margin-left:6px}.base{color:var(--muted)}
+.sock{font-variant-numeric:tabular-nums}.where{font-size:12px;color:var(--muted)}
+.body{padding:2px 10px 10px 10px;border-top:1px dashed var(--line);display:grid;grid-template-columns:1fr 1fr;gap:4px 24px}
+.body ul{margin:6px 0 0;padding-left:18px}.body li{margin:1px 0}.warn{color:var(--crafted)}.meta{font-size:12px;color:var(--muted);grid-column:1/-1}
+.r-unique .name{color:var(--unique)}.r-set .name{color:var(--set)}.r-rare .name{color:var(--rare)}.r-magic .name{color:var(--magic)}
+.r-crafted .name{color:var(--crafted)}.r-normal .name{color:var(--normal)}.r-low .name{color:var(--low)}.r-superior .name{color:var(--superior)}.r-tempered .name{color:var(--tempered)}
+mark{background:var(--mark);color:inherit;padding:0 1px;border-radius:2px}
+table.space{border-collapse:collapse;font-size:12px;margin:4px 0 10px}table.space td,table.space th{padding:3px 10px 3px 0;text-align:left;border-bottom:1px solid var(--line)}
+table.space th{color:var(--muted);font-weight:500}.grid{font:9px/9px ui-monospace,monospace;letter-spacing:1px;color:var(--muted);white-space:pre}.grid b{color:var(--accent);font-weight:400}
+@media (max-width:760px){details.item>summary{grid-template-columns:1fr 1fr}.body{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>D2R item collection</h1><div class="sub">__SUBTITLE__</div></header>
+<div class="bar">
+<input id="q" type="search" placeholder='Search: set or unique name, base, stat text, rune, runeword… ("all skills" for a phrase)' autofocus>
+<label>Owner <select id="owner"><option value="">all</option></select></label>
+<label>Container <select id="container"><option value="">all</option></select></label>
+<label>Rarity <select id="rarity"><option value="">all</option></select></label>
+<label>Sockets <select id="sockets"><option value="">any</option><option value="empty">with empty</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></label>
+<label>Sort <select id="sort"><option value="name">name</option><option value="base">base</option><option value="rarity">rarity</option><option value="where">location</option><option value="seen">last seen</option></select></label>
+<label>Group <select id="group"><option value="">none</option><option value="where">location</option><option value="set">set</option><option value="rarity">rarity</option></select></label>
+<button id="expand">Expand all</button>
+</div>
+<main>
+<details id="space"><summary class="group">Free space <span class="tag" id="spacehint"></span></summary>
+<div class="bar" style="position:static;border:0;padding:6px 0"><label>Room for <select id="fits"><option value="">any</option><option value="1x1">1×1</option><option value="1x2">1×2</option><option value="1x3">1×3</option><option value="1x4">1×4</option><option value="2x2">2×2</option><option value="2x3">2×3</option><option value="2x4">2×4</option></select></label></div>
+<div id="spaces"></div></details>
+<div class="count" id="count"></div><div id="list"></div></main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+const data=JSON.parse(document.getElementById('data').textContent);
+const rows=data.rows;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function fill(sel,values){const seen=[...new Set(values.filter(v=>v!==null&&v!==undefined&&v!==''))].sort();for(const v of seen){const o=document.createElement('option');o.value=v;o.textContent=v;sel.appendChild(o);}}
+fill($('owner'),rows.map(r=>r.owner));
+fill($('container'),rows.map(r=>r.where));
+fill($('rarity'),rows.map(r=>r.rarity));
+const RANK={unique:0,set:1,runeword:2,rare:3,crafted:4,tempered:5,magic:6,superior:7,normal:8,'low quality':9};
+function terms(q){const out=[];const re=/"([^"]*)"|(\S+)/g;let m;while((m=re.exec(q))){const t=(m[1]!==undefined?m[1]:m[2]).toLowerCase().trim();if(t)out.push(t);}return out;}
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+function matches(r,ts){return ts.every(t=>new RegExp('(^|[^a-z0-9])'+escRe(t)).test(r.search));}
+function hl(text,ts){let s=esc(text);if(!ts.length)return s;for(const t of ts){if(!t)continue;const re=new RegExp('(^|[^a-z0-9])('+escRe(t)+')','ig');s=s.replace(re,(m,a,b)=>a+'<mark>'+b+'</mark>');}return s;}
+function sortKey(r,by){switch(by){case 'base':return [r.base,r.name];case 'rarity':return [RANK[r.runeword?'runeword':r.rarity]??9,r.name];case 'where':return [r.owner,r.where,r.y,r.x];case 'seen':return [r.seen_at];default:return [r.name,r.base];}}
+function cmp(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const x=a[i],y=b[i];if(x===y)continue;if(x===undefined)return -1;if(y===undefined)return 1;return x<y?-1:1;}return 0;}
+function groupKey(r,by){if(by==='where')return r.owner+' · '+r.where;if(by==='set')return r.set||(r.runeword?'Runewords':'—');if(by==='rarity')return r.runeword?'runeword':r.rarity;return '';}
+const TOTALS=/^(Defense|Durability|Maximum durability|Minimum damage|Maximum damage|Secondary|Requirements)/;
+function preview(r){const lines=r.stats.filter(s=>!TOTALS.test(s));return (lines.length?lines:r.stats).slice(0,4).map(s=>s.replace(/\s*\[T\d.*?\]/,'').replace(/\s*\([^)]*\)/,'')).join(' · ');}
+function card(r,ts,open){
+ const cls='r-'+r.rarity.replace(' ','-');
+ const tags=[];if(r.set)tags.push('set: '+r.set);if(r.runeword)tags.push('runeword');if(r.size)tags.push(r.size.replace('x','×'));if(r.ethereal)tags.push('ethereal');if(r.identified===false)tags.push('unidentified');if(r.container==='materials'&&(r.quantity===null||r.quantity===undefined))tags.push('count unknown');
+ const sock=r.sockets===null||r.sockets===undefined?'?':(r.sockets===0?'—':r.sockets+(r.socket_items.length?' ('+r.socket_items.map(s=>s.replace(' Rune','')).join(' ')+')':(r.socket_contents==='empty'?' empty':'')));
+ const stats=r.stats.map(s=>'<li>'+hl(s,ts)+'</li>').join('');
+ const unres=r.unresolved.map(s=>'<li class="warn">unresolved: '+esc(s)+'</li>').join('');
+ const issues=r.issues.map(s=>'<li class="warn">'+esc(s)+'</li>').join('');
+ return '<details class="item '+cls+'"'+(open?' open':'')+'><summary>'+
+  '<span><span class="name">'+hl(r.name,ts)+(r.quantity!==null&&r.quantity!==undefined?' ×'+r.quantity:'')+'</span>'+(tags.length?'<span class="tag">'+esc(tags.join(' · '))+'</span>':'')+(r.stats.length?'<span class="preview">'+hl(preview(r),ts)+'</span>':'')+'</span>'+
+  '<span class="base">'+hl(r.base,ts)+' <span class="tag">'+esc(r.rarity)+'</span></span>'+
+  '<span class="sock">'+esc(sock)+'</span>'+
+  '<span class="where">'+esc(r.owner)+' · '+esc(r.where)+' ('+r.x+','+r.y+')</span>'+
+  '</summary><div class="body"><ul>'+(stats||'<li class="tag">no decoded stats</li>')+'</ul><ul>'+unres+issues+
+  (r.socket_items.length?'<li>sockets: '+esc(r.socket_items.join(', '))+'</li>':'')+'</ul>'+
+  '<div class="meta">'+esc(r.code)+' · last seen '+esc(r.seen_at)+'</div></div></details>';
+}
+let expanded=false;
+function renderSpaces(){
+ const want=$('fits').value;const spaces=data.spaces.filter(s=>!want||(s.fits[want]||0)>0);
+ spaces.sort((a,b)=>want?((b.fits[want]||0)-(a.fits[want]||0)):(a.owner+a.where).localeCompare(b.owner+b.where));
+ const sizes=['1x1','1x2','1x3','1x4','2x2','2x3','2x4'];
+ let h='<table class="space"><tr><th>owner</th><th>container</th><th>free</th>'+sizes.map(s=>'<th>'+s.replace('x','×')+'</th>').join('')+'<th>layout</th></tr>';
+ for(const s of spaces){h+='<tr><td>'+esc(s.owner)+'</td><td>'+esc(s.where)+'</td><td>'+s.free+'/'+(s.width*s.height)+'</td>'+sizes.map(z=>'<td'+(want===z?' style="font-weight:600"':'')+'>'+(s.fits[z]||'')+'</td>').join('')+'<td class="grid">'+s.rows.map(r=>r.replace(/\./g,'<b>·</b>').replace(/#/g,'▪')).join('\n')+'</td></tr>';}
+ $('spaces').innerHTML=h+'</table>';
+ $('spacehint').textContent=data.spaces.length?spaces.length+' grids'+(want?' with room for '+want.replace('x','×'):''):'no grids captured yet';
+}
+$('fits').addEventListener('input',renderSpaces);renderSpaces();
+function render(){
+ const ts=terms($('q').value);const owner=$('owner').value,cont=$('container').value,rar=$('rarity').value,sock=$('sockets').value,by=$('sort').value,grp=$('group').value;
+ let out=rows.filter(r=>matches(r,ts)&&(!owner||r.owner===owner)&&(!cont||r.where===cont)&&(!rar||r.rarity===rar)
+  &&(!sock||(sock==='empty'?(r.sockets>0&&(r.socket_contents==='empty'||r.socket_items.length<r.sockets)):r.sockets===Number(sock))));
+ out.sort((a,b)=>cmp(grp?[groupKey(a,grp),...sortKey(a,by)]:sortKey(a,by),grp?[groupKey(b,grp),...sortKey(b,by)]:sortKey(b,by)));
+ $('count').textContent=out.length+' of '+rows.length+' items';
+ const parts=[];let last=null;
+ for(const r of out){const g=groupKey(r,grp);if(grp&&g!==last){parts.push('<div class="group">'+esc(g)+'</div>');last=g;}parts.push(card(r,ts,expanded));}
+ $('list').innerHTML=parts.join('');
+}
+for(const id of ['q','owner','container','rarity','sockets','sort','group'])$(id).addEventListener('input',render);
+$('expand').addEventListener('click',()=>{expanded=!expanded;$('expand').textContent=expanded?'Collapse all':'Expand all';render();});
+render();
+})();
+</script>
+</body>
+</html>

@@ -37,10 +37,23 @@ RING_CLASS = 537  # Local d2data misc.json classid, code rin.
 
 
 def decode_items(
-    snapshot, report, *, inventory_page=0, rings_only=False, inventory_owner_id=None, inventory_owner_type=0
+    snapshot,
+    report,
+    *,
+    inventory_page=0,
+    rings_only=False,
+    inventory_owner_id=None,
+    inventory_owner_type=0,
+    materials=False,
 ):
-    """Return owned inventory item observations; unknown fields stay unknown."""
+    """Return owned inventory item observations; unknown fields stay unknown.
+
+    `materials` selects the RotW materials/currency stash: page 4 stacks with no
+    owner unit (0xFFFFFFFF), one stack per material at cell (0,0).
+    """
     container = container_for_page(inventory_page, owner_type=inventory_owner_type)
+    if materials and (inventory_page != 4 or inventory_owner_id is not None or inventory_owner_type != 0):
+        raise ValueError('Materials stash is page 4 without an owner unit')
     if report.get('game', {}).get('executable_fingerprint', {}).get('sha256') != SUPPORTED_SHA256:
         raise ValueError('Unsupported game build')
     if report.get('state') != 'complete' or snapshot.get('status') != 'research':
@@ -74,7 +87,9 @@ def decode_items(
         owners = [u for u in groups['players']['units'] if u['unit_id'] == owner_id and u.get('identity_stable')]
         if inventory_page != 4 or len(owners) != 1 or owners[0]['type'] != 0:
             raise ValueError('Unsupported inventory owner')
-    if inventory_page == 4:
+    if materials:
+        container['name'] = 'Materials stash'
+    elif inventory_page == 4:
         container['name'] = 'Personal stash' if owner_id == player_id else 'Shared stash'
     viewer = viewer_context(snapshot)
     results: list[dict[str, Any]] = []
@@ -83,7 +98,7 @@ def decode_items(
         if (
             (rings_only and (row['txt_id'] != RING_CLASS or details.get('quality') != 4))
             or row['mode'] != (1 if inventory_page == 255 else 0)
-            or details.get('owner_id') != (0xFFFFFFFF if shop or mercenary else owner_id)
+            or details.get('owner_id') != (0xFFFFFFFF if shop or mercenary or materials else owner_id)
             or details.get('inventory_page') != inventory_page
         ):
             continue

@@ -1,4 +1,8 @@
-"""Host Alt+D worker. Start `serve`, then use the compositor's `request` binding."""
+"""Host Alt+D/Win+S worker. Start `serve`, then use the compositor's `request` bindings.
+
+Datagrams: a bare monotonic timestamp requests an Alt+D appraisal; `collect <timestamp>`
+requests a Win+S inventory collection (`request --collect`).
+"""
 
 import argparse
 import fcntl
@@ -9,15 +13,19 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import nullcontext, suppress
 from pathlib import Path
+from tempfile import mkdtemp
 from typing import Any
 
 from inventory_tracking.appraisal.cache import database_revision
-from inventory_tracking.appraisal.capture import AppraisalCapture
+from inventory_tracking.appraisal.capture import AppraisalCapture, game_focused
 from inventory_tracking.appraisal.overlay import overlay_process, publish_display
 from inventory_tracking.appraisal.presentation import ItemAssessment
 from inventory_tracking.appraisal.published_backend import PublishedAppraisal
 from inventory_tracking.appraisal.text import value_watch_lines
 from inventory_tracking.appraisal.worker import AppraisalWorker
+from inventory_tracking.collection.export import DEFAULT_HTML as COLLECTION_HTML
+from inventory_tracking.collection.service import DEFAULT_OUTPUT as COLLECTION_OUTPUT, REQUEST_PREFIX, Collector
+from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL
 from inventory_tracking.native.session import GameProcessUnavailable
@@ -85,6 +93,17 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
         notify('Appraisal unavailable', detail)
 
 
+def dispatch(data: bytes, now: float, worker, collector) -> bool:
+    """Route one datagram: `collect <t>` to the collector, a bare `<t>` to the Alt+D worker."""
+    try:
+        text = data.decode('ascii').strip()
+        if text.startswith(REQUEST_PREFIX):
+            return collector.request(float(text[len(REQUEST_PREFIX) :]), now)
+        return worker.request(float(text), now)
+    except ValueError, UnicodeError:
+        return False
+
+
 def serve(args):
     directory, report = create_run(args.output)
     publish(directory / 'report.json', report)
@@ -137,9 +156,15 @@ def run_service(args, directory, report):
                 reader = LiveReader(directory, pid=args.pid)
 
                 def connect():
-                    connection = reader.connect(directory)
+                    attachment = Path(mkdtemp(prefix='attachment-', dir=directory))
+                    connection = reader.connect(attachment)
                     report.pop('reason', None)
-                    report.update(state='ready', game_identity=connection[1]['identity'], socket=str(endpoint))
+                    report.update(
+                        state='ready',
+                        game_identity=connection[1]['identity'],
+                        socket=str(endpoint),
+                        attachment_directory=str(attachment),
+                    )
                     publish(directory / 'report.json', report)
                     return connection
 
@@ -158,6 +183,7 @@ def run_service(args, directory, report):
                 with (
                     overlay_process(directory, args.osd) as display_path,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='appraisal-kb') as pool,
+                    ThreadPoolExecutor(max_workers=1, thread_name_prefix='collection') as collection_pool,
                 ):
                     worker = AppraisalWorker(
                         source,
@@ -170,6 +196,17 @@ def run_service(args, directory, report):
                         cache_context=backend.cache_context if backend else lambda: database_revision(args.database),
                         request_scope=backend.request_scope if backend else nullcontext,
                     )
+                    collector = Collector(
+                        source,
+                        args.collection_database,
+                        args.collection_output,
+                        collection_pool,
+                        html=args.collection_html,
+                        capture_lock=worker.capture_lock,
+                        focused=game_focused,
+                        notify=notify,
+                    )
+                    print(f'Ready for Alt+D and Win+S. Collection database: {args.collection_database}', flush=True)
                     try:
                         while True:
                             worker.tick()
@@ -177,11 +214,7 @@ def run_service(args, directory, report):
                                 data = server.recv(256)
                             except TimeoutError:
                                 continue
-                            try:
-                                requested = float(data.decode('ascii'))
-                            except ValueError, UnicodeError:
-                                continue
-                            worker.request(requested, time.monotonic())
+                            dispatch(data, time.monotonic(), worker, collector)
                     finally:
                         with worker.lock:
                             worker.generation += 1
@@ -215,6 +248,10 @@ def main(argv=None):
     parser.add_argument('--osd', action=argparse.BooleanOptionalAction, default=APPRAISAL.osd)
     parser.add_argument('--osd-seconds', type=positive_float, default=APPRAISAL.display_seconds)
     parser.add_argument('--cache-seconds', type=positive_float, default=APPRAISAL.cache_seconds)
+    parser.add_argument('--collect', action='store_true', help='request: send a Win+S collection instead')
+    parser.add_argument('--collection-database', type=Path, default=COLLECTION_DATABASE)
+    parser.add_argument('--collection-output', type=Path, default=COLLECTION_OUTPUT)
+    parser.add_argument('--collection-html', type=Path, default=COLLECTION_HTML, help='page regenerated after Win+S')
     args = parser.parse_args(argv)
     if args.database is None and args.publication_store is None:
         args.publication_store = DEFAULT_STORE
@@ -224,7 +261,8 @@ def main(argv=None):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.settimeout(0.25)
-            client.sendto(str(time.monotonic()).encode('ascii'), str(args.socket))
+            message = f'{REQUEST_PREFIX if args.collect else ""}{time.monotonic()}'
+            client.sendto(message.encode('ascii'), str(args.socket))
     except OSError:
         notify(
             'D2R appraisal worker is not running',

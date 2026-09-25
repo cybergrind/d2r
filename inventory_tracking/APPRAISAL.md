@@ -42,6 +42,20 @@ The production reader includes NPC traversal and rechecks inventory owner/type
 and container before publishing. Live Alt+D with these newly enabled paths
 awaits the user's varied-item review; no further fixed probe sequence is required.
 
+## Win+S inventory collection
+
+The same worker handles **Win+S** (Niri `Mod+S`, installed 2026-09-25): it reads every
+item of the focused character — inventory, cube, equipped, mercenary, personal stash
+and all shared tabs — into the collection database
+(`inventory_tracking/runs/collection/collection.sqlite`, `--collection-database`) and
+notifies "<character>: N items · new · moved · gone". Reports land under
+`inventory_tracking/runs/collection/<run>/` (`capture.json`, `report.json`). Each capture
+also regenerates the searchable page (`--collection-html`, default
+`inventory_tracking/runs/collection/collection.html`; `make open`) and records free
+cells per grid (`… collection space --fits 2x4` lists mules with room). Query with
+`uv run --offline python -m inventory_tracking.collection query <words>`. Plan and
+research notes in `inventory_tracking/collection/`.
+
 ## Run on the host
 
 ```sh
@@ -58,7 +72,10 @@ X11 process ownership before reading a request and before publishing its result.
 
 Reports live under `inventory_tracking/runs/alt-d/<run>/`:
 
-- `report.json`: attachment waiting/readiness or service completion/failure.
+- `report.json`: attachment waiting/readiness or service completion/failure;
+  `attachment_directory` identifies the latest successful attachment.
+- `attachment-*/image.bin` and `capture.json`: per-attempt image evidence. New
+  attachments use fresh directories, including retries after partial failures.
 - `latest.json`: newest request only, including rejection reasons.
 - `request-N/frozen.json`: frozen observed selection, stats and provenance.
   New captures also preserve a double-read 0x60-byte item-data record for further
@@ -122,9 +139,10 @@ retrieval but still captures and rechecks the hovered item, resets the display
 timer and records `cache_hit` in the report. Errors are not cached; restarting the
 worker clears the cache. KB and SQLite WAL changes invalidate matching keys.
 
-An unresolved price remains unresolved. Ctrl+C stops the worker and its overlay. After
-restarting D2R, restart this worker to attach to the new process; it will reject
-requests for a stale process rather than reuse its pointers.
+An unresolved price remains unresolved. Ctrl+C stops the worker and its overlay.
+After D2R restarts, the next Alt+D request reattaches with fresh process pointers
+and a separate capture directory. If attachment takes over one second, press Alt+D
+again to capture the current hover. Restart the worker after Python code changes.
 
 The agent must not launch the live worker: `development.md` reserves live memory
 probes for the user. Agent-side verification uses captures, fakes and local IPC.
@@ -256,3 +274,27 @@ its recorded viewer level. The renderer preserves original rows and the separate
 per-level modifier line. Invalid, unknown or duplicate formula evidence is not
 added. Dread Edge's saved capture now matches its22–91 tooltip instead of22–46.
 This is a display calculation; comparison facts and market coefficients do not change.
+
+### Compact build uses and full saved-record details
+
+Terminal and OSD share the compact Build use summary. Inspect a saved record with:
+
+```sh
+uv run --offline -m inventory_tracking.appraisal.build_use_summary path/to/record.json
+uv run --offline -m inventory_tracking.appraisal.build_use_summary path/to/record.json --full
+```
+
+Accepts a worker record containing `result`, or the result itself. `--full` retains
+all uses, including failed/unknown roles, conditions, alternatives and source
+locators. The full view is available even when the OSD cannot expand details. No matching
+or pricing is recomputed. Restart the worker to load the updated Python formatter.
+
+
+Prepared stat annotations use an independent marker: `● [desirable]` in green or
+`● [supporting]` in blue. The stat text retains its roll-quality color, so a useful
+stat can still have a red low-roll value. Plain text retains the labels. Terminal
+and OSD share the same styled segments; markup is escaped literally. Unknown requirements produce no positive marker, and no default grey/trash marker is
+assigned. Multiple-stat display lines remain unmarked until their attribution is
+reviewed. Reviewed amulet skill/FCR combinations can carry markers while their overall
+build fit remains conditional on the full loadout. Advisory reviews never bypass
+typed socket, skill, equipment or other dependency checks.
