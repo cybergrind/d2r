@@ -1,0 +1,2077 @@
+{
+  "profiles": [
+    {
+      "id": "blizzard-standard-boots",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25 magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Scarabshell Boots 30% FRW / 10% FHR / 40 Cold+Light+Fire Resist / 25% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/1/player/Boots",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "blizzard-starter-amulet",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:10",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:10",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/blizzard-sorceress/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Amulet +1 Cold Skills / 10% FCR"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "blizzard-starter-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10 strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20% cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "1 mana after kill",
+          "when": {
+            "op": "stat_at_least",
+            "key": "138:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Ring +20% Fire Resist",
+          "Rare Ring +10 Str / +20 Life / +20% Cold Resist / +1 Mana after Kill / 10% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "blizzard-mf-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "40 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "41% fire or lightning resistance",
+          "when": {
+            "any": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 41,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 41,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "11% all resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 11,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / +40 Life / 41% Fire Resist / 11 Cold+Light+Poison Resist / 25% MF",
+          "Rare Ring 10% FCR / +40 Life / 41% Lightning Resist / 11 Fire+Cold+Poison Resist / 25% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "blizzard-set-ring",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "40 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "41% fire or lightning resistance",
+          "when": {
+            "any": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 41,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 41,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "11% all resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 11,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 11,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/3/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / +40 Life / 41% Lightning Resist / 11 Fire+Cold+Poison Resist / 25% MF",
+          "Rare Ring 10% FCR / +40 Life / 41% Fire Resist / 11 Cold+Light+Poison Resist / 25% MF"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "blizzard-standard-life-skiller",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:10",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:10",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/1/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "7x Grand Charm +1 Cold Skills / +45 Life"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "blizzard-starter-insight-merc",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Smoke Leather Armor. Cited helmet: Bulwark Diadem."
+      ],
+      "alternatives": [
+        "Insight Scythe"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Scythe"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "blizzard-mf-insight-merc",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Skullder's Ire (ethereal, Ist Rune). Cited helmet: Stealskull (ethereal, Ist Rune)."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "blizzard-starter-belt",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "24% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24
+          }
+        },
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Demonhide Sash 24% FHR / +30% Fire Resist"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "blizzard-standard-sc-life-res",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm life and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 6x Small Charm +20 Life / +5 All Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/1/player/Charms/4",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "6x Small Charm +20 Life / +5 All Resist"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-standard-sc-life-cold",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm life and cold resistance",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "11% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 11,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: Small Charm +20 Life / +11% Cold Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/1/player/Charms/5",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Small Charm +20 Life / +11% Cold Resist"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-mf-sc-mf-res",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 24x Small Charm +5 All Resist / 7% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/2/player/Charms/4",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "24x Small Charm +5 All Resist / 7% MF"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-mf-sc-fhr-res",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm hit recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: Small Charm 5% FHR / +5 All Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/2/player/Charms/5",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Small Charm 5% FHR / +5 All Resist"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-set-sc-mf-res",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 6x Small Charm +5 All Resist / 7% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/3/player/Charms/4",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "6x Small Charm +5 All Resist / 7% MF"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-set-sc-fhr-res",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm hit recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: Small Charm 5% FHR / +5 All Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/3/player/Charms/5",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Small Charm 5% FHR / +5 All Resist"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "blizzard-standard-ias-fire-jewel",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/1/merc/Helmet/0",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "blizzard-set-ias-fire-jewel",
+      "build": "blizzard-sorceress",
+      "variant": "Set Build",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "locator": "/variants/3/merc/Helmet/0",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "blizzard-sorceress-starter-charges-91",
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        },
+        {
+          "label": "The guide recommends this wand when the mercenary does not have Infinity.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "mercenary_items",
+              "value": "Infinity"
+            }
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; the charge level determines the curse effect."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026",
+        "locator": "/blizzard-sorceress/variants/0/player/Weapon-Swap/0",
+        "quotes": [
+          "If you do not have Infinity equipped on your Mercenary, purchase a Lower Resist Charge Wand from Nightmare Drognan."
+        ]
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "blizzard-sorceress-main-shield-jmod-base",
+      "build": "blizzard-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/slots/Off-Hand/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "blizzard-sorceress-main-swap-jmod-base",
+      "build": "blizzard-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/slots/Off-Hand-Swap/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "blizzard-sorceress-standard-swap-jmod-base",
+      "build": "blizzard-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/1/player/Off-Hand Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet cold). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "blizzard-mf-stealskull-merc",
+      "build": "blizzard-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Magic-find, IAS and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Stealskull"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 5,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Ist Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "93:0",
+        "80:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Insight Giant Thresher (ethereal). Cited armor: Skullder's Ire (ethereal, Ist Rune)."
+      ],
+      "setup_label": "Stealskull (ethereal, Ist Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal, Ist Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    }
+  ]
+}

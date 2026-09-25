@@ -1,5 +1,14 @@
 # Item metadata
 
+Player skill names are localized through `skills.skilldesc` → `skilldesc.str name`
+using the checked-out English strings and cached planner translations. Native skill
+IDs remain unchanged; differing internal names are retained as `internal_name`.
+Non-player variants and missing translations retain their internal names. The
+metadata provenance records hashes for all three localization inputs. After changing
+skill names, regenerate `pricing.knowledge.assessment.maintenance.market_projection`
+before rebuilding and publishing the index: market labels use displayed skill names
+(for example, Fissure rather than the internal Eruption).
+
 `item_metadata.json` is an offline snapshot generated on 2026-09-23. Runtime
 appraisal does not download data. It includes 692 bases across weapons/armor/misc,
 367 distinct stat IDs and 428 skill names. Stat ID 213 has conflicting source
@@ -105,3 +114,15 @@ inferior modern-format items. These are roll ranges, not magic/rare affix tiers.
 Ordinary eligible staffmods use existing perfect/low colors; runeword or
 out-of-range totals show contextual bounds without claiming contribution splits.
 Named unique/set skill bonuses do not inherit this generic range.
+
+`fixed_socket_scalars` is compiled from the pinned gems/properties tables and
+recipient base `gemapplytype`. It covers only the reviewed additive intrinsic
+scalar set; explicit zeros mean the audited socket effects do not modify that
+stat. Unknown functions or nonfixed target effects fail compilation. Regenerate
+native market projection after metadata changes, then rebuild and publish as usual.
+
+`comparison_socket_effects` compiles the reviewed fixed filler whitelist from the
+same pinned gems/properties/stat tables: helm31, armor31, shield20, weapon10.
+Only fixed, unparameterized, supported direct effects are accepted; unknown or
+empty property functions fail compilation. Runtime comparisons use this bundle
+and do not fall back to independently maintained numeric constants.

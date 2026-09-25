@@ -9,7 +9,33 @@ import json
 import re
 from pathlib import Path
 
+from pricing.knowledge.assessment.maintenance.comparison_fillers import compile_fillers
+from pricing.knowledge.assessment.maintenance.socket_scalars import compile_scalars
 from pricing.knowledge.definitions import build_definitions
+from pricing.knowledge.localization import merge_game_strings
+from pricing.knowledge.named_upgrades import named_upgrade_variants
+
+
+def build_skills(rows, descriptions, strings):
+    descriptions = {r['skilldesc']: r for r in descriptions.values() if r.get('skilldesc')}
+    skills = {}
+    for row in rows.values():
+        if '*Id' not in row or 'skill' not in row:
+            continue
+        name = row['skill']
+        if row.get('charclass'):
+            key = descriptions.get(row.get('skilldesc'), {}).get('str name')
+            localized = strings.get(key)
+            if isinstance(localized, str) and localized.strip():
+                name = localized
+        skills[str(row['*Id'])] = {
+            'name': name,
+            **({'internal_name': row['skill']} if name != row['skill'] else {}),
+            'class': row.get('charclass'),
+            'required_level': row.get('reqlevel'),
+            'maximum_level': row.get('maxlvl', 20),
+        }
+    return skills
 
 
 def build(stats_path, skills_path, output):
@@ -75,8 +101,10 @@ def build(stats_path, skills_path, output):
         row = item_types.get(code, {})
         return any(is_blunt(row.get(key), seen) for key in ('Equiv1', 'Equiv2'))
 
+    raw_bases = {}
     for category in ('weapons', 'armor', 'misc'):
         for code, r in json.loads((root / f'pricing/raw/d2data/{category}.json').read_text()).items():
+            raw_bases[code] = r
             cid = str(r['classid'])
             assert cid not in bases
             bases[cid] = {'name': r['name'], 'code': code, 'category': category, 'type': r.get('type')}
@@ -85,11 +113,15 @@ def build(stats_path, skills_path, output):
             if category == 'weapons':
                 bases[cid]['speed'] = r.get('speed')
                 bases[cid]['undead_damage_bonus'] = 50 if is_blunt(r.get('type')) else 0
-    skills = {
-        str(r['*Id']): {'name': r['skill'], 'class': r.get('charclass')}
-        for r in json.loads(skills_path.read_text()).values()
-        if '*Id' in r and 'skill' in r
-    }
+    skill_name_paths = [
+        'third-parties/d2data/json/skilldesc.json',
+        'third-parties/d2data/json/allstrings-eng.json',
+        'pricing/raw/mr/planners/game-strings.json',
+    ]
+    skill_sources = [json.loads((root / path).read_text()) for path in skill_name_paths]
+    skills = build_skills(
+        json.loads(skills_path.read_text()), skill_sources[0], merge_game_strings(skill_sources[1], skill_sources[2])
+    )
     definitions = build_definitions(root)
     identities = {kind: {} for kind in ('set', 'unique', 'runeword')}
     affixes = {kind: {} for kind in ('prefix', 'suffix', 'auto')}
@@ -97,14 +129,28 @@ def build(stats_path, skills_path, output):
         if entry.get('affix_table'):
             affixes[entry['affix_table']][str(entry['table_id'])] = entry
         elif entry['table_id'] is not None:
+            if entry['rarity'] in ('unique', 'set'):
+                entry = {**entry, 'upgrade_variants': named_upgrade_variants(entry, raw_bases)}
             identities[entry['rarity']][str(entry['table_id'])] = entry
     data = {
+        'comparison_socket_effects': compile_fillers(
+            json.loads((root / 'third-parties/d2data/json/gems.json').read_text()),
+            json.loads((root / 'third-parties/d2data/json/properties.json').read_text()),
+            rows,
+        ),
+        'fixed_socket_scalars': compile_scalars(
+            json.loads((root / 'third-parties/d2data/json/gems.json').read_text()),
+            json.loads((root / 'third-parties/d2data/json/properties.json').read_text()),
+            rows,
+            raw_bases,
+        ),
         'provenance': {
             'date': '2026-09-23',
             'stats_url': 'https://raw.githubusercontent.com/blizzhackers/d2data/master/json/itemstatcost.json',
             'stats_sha256': hashlib.sha256(stats_path.read_bytes()).hexdigest(),
             'skills_url': 'https://raw.githubusercontent.com/blizzhackers/d2data/master/json/skills.json',
             'skills_sha256': hashlib.sha256(skills_path.read_bytes()).hexdigest(),
+            'skill_names': {path: hashlib.sha256((root / path).read_bytes()).hexdigest() for path in skill_name_paths},
             'identities': definitions['inputs'],
             'bases': 'pricing/raw/d2data/{weapons,armor,misc}.json',
             'item_types': 'pricing/raw/d2data/itemtypes.json',
@@ -117,6 +163,11 @@ def build(stats_path, skills_path, output):
         'affixes': affixes,
         'affix_pools': definitions['affix_pools'],
         'staffmods': definitions['staffmods'],
+        'crafting_bases': definitions['crafting_bases'],
+        'crafting_nonethereal': definitions['crafting_nonethereal'],
+        'crafting_triggers': definitions['crafting_triggers'],
+        'crafting_affix_only_cold': definitions['crafting_affix_only_cold'],
+        'crafting_affix_only_poison': definitions['crafting_affix_only_poison'],
         'rare_names': definitions['rare_names'],
         'bases': bases,
         'stats': rows,

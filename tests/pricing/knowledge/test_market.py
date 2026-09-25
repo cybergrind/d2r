@@ -116,3 +116,12 @@ def test_array_properties_keep_string_values_and_empty_sockets_require_evidence(
     empty = norm(raw)
     assert empty['socket_contents'] == 'empty'
     assert summarize([filled, unknown, empty], {'properties': {'934': ''}})['priced_sellers'] == 1
+
+
+def test_named_unique_catalog_supplies_quality_without_guessing_scope():
+    raw = listing()
+    raw['properties'] = [p for p in raw['properties'] if p['property_id'] not in (797, 800)]
+    row = normalize_listing(raw, name='Harlequin Crest', category='uniques', source='fixture')
+    assert row['rarity'] == 'unique'
+    assert row['rarity_basis'] == 'named_catalog_category'
+    assert row['scope_status'] == 'unknown'

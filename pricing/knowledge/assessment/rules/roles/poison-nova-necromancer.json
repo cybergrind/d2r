@@ -1,0 +1,1285 @@
+{
+  "profiles": [
+    {
+      "id": "poison-nova-standard-circlet",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "+2 class skills / 20 FCR circlet setup candidate",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "83:2",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "2 sockets",
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        },
+        {
+          "label": "60 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 60,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:2",
+        "105:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Compare socket fillers, resistance needs and the complete setup before replacing the cited helmet."
+      ],
+      "alternatives": [
+        "Rare Diadem (+2 Necro Skills, 20 FCR, 60 Life, 25 MF, 2 sockets: 2x Rainbow Facet Jewel)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "locator": "/variants/1/player/Helmet",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "review": "2026-09-24: +2 matching class / 20 FCR defines this cited rare-circlet setup; secondary planner rolls and two sockets are preferences. Other rolls or qualities may have other uses; not a price threshold."
+      }
+    },
+    {
+      "id": "poison-starter-skiller",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Charms",
+      "role": "starter skill-tree charm",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:17",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0/player/Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "2x Fungal Grand Charm (+1 P&B)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "poison-standard-life-skiller",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:17",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1/player/Charms/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "6x Fungal Grand Charm of Vita (+1 P&B / 45 Life)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "poison-starter-insight-merc",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Smoke \u2014 'a cheap Body Armor option for Resistances'. Cited helmet: Bulwark (planner: Bulwark Death Mask) \u2014 'the cheapest Helmet that provides Life Leech and Damage Reduction'."
+      ],
+      "alternatives": [
+        "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "poison-budget-insight-merc",
+      "build": "poison-nova-necromancer",
+      "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Treachery Kraken Shell (ethereal). Cited helmet: Tal Rasha's Horadric Crest (Perfect Amethyst)."
+      ],
+      "alternatives": [
+        "Insight Colossus Voulge (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/4/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Colossus Voulge (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "poison-starter-belt",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "80 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 80
+          }
+        },
+        {
+          "label": "25% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 25
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Garnet Sharkskin Belt of the Squid (magic: 80 Life / 25 FR)"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "poison-standard-sc-mf-res",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 7x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "locator": "/variants/1/player/Charms/5",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "7x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "poison-standard-sc-fhr-res",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm hit recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 2x Shimmering Small Charm of Balance (5@ / 5 FHR)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "locator": "/variants/1/player/Charms/6",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "2x Shimmering Small Charm of Balance (5@ / 5 FHR)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "poison-mf-sc-mf-res",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 16x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "locator": "/variants/2/player/Charms/4",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "16x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-naj-teleport-swap",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/1"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "poison-naj-fal-swap",
+      "build": "poison-nova-necromancer",
+      "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "conditions": [
+        "Requires level 78 and the staff equipment requirements.",
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation.",
+        "This is a cached budget planner alternative, not a current main guide variant."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/4/player/Weapon-Swap/0"
+      },
+      "required_rune": "Fal Rune",
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-teleport-staf",
+      "build": "poison-nova-necromancer",
+      "variant": "Teleport alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Affixed Teleport-charge alternative",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Check equipment requirements before using this Teleport-charge alternative.",
+        "Use before Enigma, or with the documented Bramble damage alternative."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/1/quotes/3"
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-teleport-amul",
+      "build": "poison-nova-necromancer",
+      "variant": "Teleport alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Affixed Teleport-charge alternative",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Check equipment requirements before using this Teleport-charge alternative.",
+        "Use before Enigma, or with the documented Bramble damage alternative."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/1/quotes/3"
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-starter-travel-staff",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "The guide also offers Harmony for faster movement; choose according to travel needs."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "poison-nova-necromancer-starter-venomous",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Venomous Amulet (+3 Poison and Bone Skills)",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:17"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/0/player/Amulet/0"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "poison-nova-necromancer-budget-venomous",
+      "build": "poison-nova-necromancer",
+      "variant": "Budget (planner-only profile bv7710o1#4; referenced by stale text 'Starter or Budget Builds' in Summary)",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Venomous Amulet (+3 P&B)",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:17"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "locator": "/poison-nova-necromancer/variants/4/player/Amulet/0"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "poison-nova-necromancer-main-shield-jmod-base",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/9",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    }
+  ]
+}

@@ -1,0 +1,270 @@
+{
+  "profiles": [
+    {
+      "id": "summoner-starter-crafted-belt",
+      "build": "summoner-necromancer-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "60 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 60
+          }
+        },
+        {
+          "label": "20 Mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 20
+          }
+        },
+        {
+          "label": "10% Mana Regeneration",
+          "when": {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "30% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "6:0",
+        "9:0",
+        "27:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/summoner-necromancer-guide.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "d3214d5f4a2957ac3fe237acb56399d19c1907b8ff96a29d19ab4b8f22bb4285",
+        "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Belt (prose link; planner: crafted Light Belt \u2014 10 FCR, 60 Life, 20 Mana, 10% Mana regen, 30 CR)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 75% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 75
+          }
+        }
+      ]
+    },
+    {
+      "id": "summoner-necromancer-guide-naj-teleport-swap",
+      "build": "summoner-necromancer-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/summoner-necromancer-guide/slots/Weapon-Swap/1"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "summoner-necromancer-guide-starter-travel-staff",
+      "build": "summoner-necromancer-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/summoner-necromancer-guide/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    }
+  ]
+}

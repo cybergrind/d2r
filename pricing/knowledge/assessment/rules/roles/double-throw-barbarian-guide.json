@@ -1,0 +1,2372 @@
+{
+  "profiles": [
+    {
+      "id": "double-throw-standard-gloves",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack speed / Knockback gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "81:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "15 strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "15 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "30 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "81:0",
+        "0:0",
+        "2:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Hit Power Crafted Vambraces 20% IAS / Knockback / +15 Str / +15 Dex / +30% Fire Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/1/player/Gloves",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "double-throw-barbarian-guide-naj-teleport-swap",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/double-throw-barbarian-guide/slots/Weapon-Swap/8"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-berserker-magus",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Berserker's Diadem of the Magus",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:4",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "83:4",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements.",
+        "Socket count and inserted jewels need a separate setup check; this skill/cast-rate combination does not establish a perfect socketed helmet."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/6"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "double-throw-barbarian-guide-speed-diadem-socket-base",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Diadem socket base: Artisan's Diadem of Speed",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "96:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "The cited helmet uses three Ruby Jewels of Fervor; empty sockets do not supply their damage or attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/3",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "double-throw-barbarian-guide-nirvana-diadem-socket-base",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Diadem socket base: Artisan's Diadem of Nirvana",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 21,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Perfect suffix: 30 Dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "2:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "The cited helmet uses three Ruby Jewels of Fervor; empty sockets do not supply their damage or attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/4",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "double-throw-barbarian-guide-luck-diadem-socket-base",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Diadem socket base: Artisan's Diadem of Luck",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 26,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Perfect suffix: 35 magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 35,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "The cited helmet uses three Ruby Jewels of Fervor; empty sockets do not supply their damage or attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/5",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "double-throw-starter-crafted-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Blood crafted throwing axe / starter damage and sustain",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "taxe"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "bal"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:4",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "80% enhanced damage",
+          "when": {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "4% life stolen per hit",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 4,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:4",
+        "93:0",
+        "17:0",
+        "18:0",
+        "60:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Planner starter candidate; compare total throwing damage, attack speed and equipment requirements with current weapons.",
+        "Keep the rest of the equipment and inventory free of cold damage for Find Item; check throwing quantity sustain."
+      ],
+      "alternatives": [
+        "Upgraded The Scalper",
+        "Upgraded Deathbit"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0/player/Weapon",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: exact cached planner source is Blood Crafted Balanced Axe in both hands. Positive named stat combination defines a candidate; planner10IAS/80ED/4LL/20life values are preferences, not universal price cutoffs. Native IDs retain both ED endpoints and max-life bonus7. Cached guide Gear Options/Summary warns cold damage destroys Find Item corpses. No endgame rare-weapon or ethereal sustain inference."
+    },
+    {
+      "id": "double-throw-starter-crafted-offhand",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Blood crafted throwing axe / starter damage and sustain",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "taxe"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "bal"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:4",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "80% enhanced damage",
+          "when": {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "4% life stolen per hit",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 4,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:4",
+        "93:0",
+        "17:0",
+        "18:0",
+        "60:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Planner starter candidate; compare total throwing damage, attack speed and equipment requirements with current weapons.",
+        "Keep the rest of the equipment and inventory free of cold damage for Find Item; check throwing quantity sustain."
+      ],
+      "alternatives": [
+        "Upgraded The Scalper",
+        "Upgraded Deathbit"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0/player/Off-Hand",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: exact cached planner source is Blood Crafted Balanced Axe in both hands. Positive named stat combination defines a candidate; planner10IAS/80ED/4LL/20life values are preferences, not universal price cutoffs. Native IDs retain both ED endpoints and max-life bonus7. Cached guide Gear Options/Summary warns cold damage destroys Find Item corpses. No endgame rare-weapon or ethereal sustain inference."
+    },
+    {
+      "id": "double-throw-starter-cruel-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter alternative",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Cruel elite throwing weapon / starter physical damage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jave",
+        "taxe",
+        "tkni"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7b8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7bk"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7gl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ja"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pi"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ta"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7tk"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ts"
+              }
+            ]
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 201,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "17:0",
+              "value": 301,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 201,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "18:0",
+              "value": 301,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "300% enhanced damage",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "17:0",
+                "value": 300,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "18:0",
+                "value": 300,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "Increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "93:0"
+      ],
+      "conditions": [
+        "Compare actual throwing damage and attack-speed breakpoints with current weapons.",
+        "Keep cold damage off the complete setup for Find Item; check equipment requirements and throwing quantity sustain."
+      ],
+      "alternatives": [
+        "Upgraded The Scalper",
+        "Upgraded Deathbit"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Weapon/22",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: main tables explicitly list Cruel Elite Throwing Weapon in both hands; cached Starter prose recommends shopping Cruel weapons from Malah. Local magicprefix Cruel201..300ED; elite bases enumerated using weapons ultracode identity and jave/tkni/taxe types. Nonethereal shop candidate; no Amazon-restricted javelins or lower base tiers. IAS and upper damage roll are preferences, not price claims. Cold exclusion follows guide Find Item warning."
+    },
+    {
+      "id": "double-throw-starter-cruel-offhand",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter alternative",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Cruel elite throwing weapon / starter physical damage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jave",
+        "taxe",
+        "tkni"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7b8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7bk"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7gl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ja"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pi"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ta"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7tk"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ts"
+              }
+            ]
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 201,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "17:0",
+              "value": 301,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 201,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "18:0",
+              "value": 301,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "300% enhanced damage",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "17:0",
+                "value": 300,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "18:0",
+                "value": 300,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "Increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "93:0"
+      ],
+      "conditions": [
+        "Compare actual throwing damage and attack-speed breakpoints with current weapons.",
+        "Keep cold damage off the complete setup for Find Item; check equipment requirements and throwing quantity sustain."
+      ],
+      "alternatives": [
+        "Upgraded The Scalper",
+        "Upgraded Deathbit"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Off-Hand/21",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: main tables explicitly list Cruel Elite Throwing Weapon in both hands; cached Starter prose recommends shopping Cruel weapons from Malah. Local magicprefix Cruel201..300ED; elite bases enumerated using weapons ultracode identity and jave/tkni/taxe types. Nonethereal shop candidate; no Amazon-restricted javelins or lower base tiers. IAS and upper damage roll are preferences, not price claims. Cold exclusion follows guide Find Item warning."
+    },
+    {
+      "id": "double-throw-rare-planner-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Ethereal rare throwing weapon / premium planner target",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jave",
+        "taxe"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7gl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7b8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ta"
+              }
+            ]
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 450,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 450,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 250,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 40,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "198:4225",
+            "value": 5,
+            "absent_is_zero": true,
+            "unit": "percent_chance"
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "19:0",
+        "93:0",
+        "188:32",
+        "253:0",
+        "198:4225"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches a high-roll planner target; lower rolls need a separate assessment and are not automatically worthless."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "77",
+          "76",
+          "79"
+        ]
+      },
+      "review_notes": "2026-09-24: cached guide links planner db0106mf items77/76/79 for Ghost Glaive/Winged Axe/Flying Axe in both hands. The planner payload is JSON encoded inside /data; item stats were inspected after decoding it. Planner date2023-02-16 is retained separately from guide May22,2026. Native skill tab188:32, Amplify Damage198:4225 (5% level1) and replenish253 rate10 verified. These exact high-roll examples are build targets, not minimum viable rolls or market valuations."
+    },
+    {
+      "id": "double-throw-rare-planner-offhand",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Ethereal rare throwing weapon / premium planner target",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jave",
+        "taxe"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7gl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7b8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7ta"
+              }
+            ]
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 450,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 450,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 250,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 40,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "198:4225",
+            "value": 5,
+            "absent_is_zero": true,
+            "unit": "percent_chance"
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "19:0",
+        "93:0",
+        "188:32",
+        "253:0",
+        "198:4225"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches a high-roll planner target; lower rolls need a separate assessment and are not automatically worthless."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "77",
+          "76",
+          "79"
+        ]
+      },
+      "review_notes": "2026-09-24: cached guide links planner db0106mf items77/76/79 for Ghost Glaive/Winged Axe/Flying Axe in both hands. The planner payload is JSON encoded inside /data; item stats were inspected after decoding it. Planner date2023-02-16 is retained separately from guide May22,2026. Native skill tab188:32, Amplify Damage198:4225 (5% level1) and replenish253 rate10 verified. These exact high-roll examples are build targets, not minimum viable rolls or market valuations."
+    },
+    {
+      "id": "double-throw-imbue-axe-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Ethereal rare throwing axe / guide imbue example",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "taxe"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "7ta"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 150,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 150,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "18:0",
+        "17:0",
+        "253:0",
+        "93:0",
+        "188:32",
+        "39:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches the cited imbue example; it does not guarantee an imbue outcome or establish minimum viable rolls."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "80"
+        ]
+      },
+      "review_notes": "2026-09-24: cached Double Throw main alternatives explicitly link db0106mf item80 as an ethereal rare imbue example. Native stats translated from embedded planner JSON; tab12 becomes188:32, on-hit skill66 level1 chance5 becomes198:4225. Preserve this distinct stat combination and guide hand placement. Source planner2023 date is distinct from guideMay2026. No numeric price inferred."
+    },
+    {
+      "id": "double-throw-imbue-axe-offhand",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Ethereal rare throwing axe / guide imbue example",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "taxe"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "7ta"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 150,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 150,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "18:0",
+        "17:0",
+        "253:0",
+        "93:0",
+        "188:32",
+        "39:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches the cited imbue example; it does not guarantee an imbue outcome or establish minimum viable rolls."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "80"
+        ]
+      },
+      "review_notes": "2026-09-24: cached Double Throw main alternatives explicitly link db0106mf item80 as an ethereal rare imbue example. Native stats translated from embedded planner JSON; tab12 becomes188:32, on-hit skill66 level1 chance5 becomes198:4225. Preserve this distinct stat combination and guide hand placement. Source planner2023 date is distinct from guideMay2026. No numeric price inferred."
+    },
+    {
+      "id": "double-throw-imbue-knife-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Ethereal rare throwing knife / guide imbue example",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "tkni"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "7tk"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 121,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "198:4225",
+            "value": 5,
+            "absent_is_zero": true,
+            "unit": "percent_chance"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "62:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "188:32",
+        "19:0",
+        "18:0",
+        "17:0",
+        "198:4225",
+        "62:0",
+        "253:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches the cited imbue example; it does not guarantee an imbue outcome or establish minimum viable rolls."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "81"
+        ]
+      },
+      "review_notes": "2026-09-24: cached Double Throw main alternatives explicitly link db0106mf item81 as an ethereal rare imbue example. Native stats translated from embedded planner JSON; tab12 becomes188:32, on-hit skill66 level1 chance5 becomes198:4225. Preserve this distinct stat combination and guide hand placement. Source planner2023 date is distinct from guideMay2026. No numeric price inferred."
+    },
+    {
+      "id": "double-throw-imbue-knife-offhand",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Ethereal rare throwing knife / guide imbue example",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "tkni"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "7tk"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 121,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "198:4225",
+            "value": 5,
+            "absent_is_zero": true,
+            "unit": "percent_chance"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "62:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "188:32",
+        "19:0",
+        "18:0",
+        "17:0",
+        "198:4225",
+        "62:0",
+        "253:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches the cited imbue example; it does not guarantee an imbue outcome or establish minimum viable rolls."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "81"
+        ]
+      },
+      "review_notes": "2026-09-24: cached Double Throw main alternatives explicitly link db0106mf item81 as an ethereal rare imbue example. Native stats translated from embedded planner JSON; tab12 becomes188:32, on-hit skill66 level1 chance5 becomes198:4225. Preserve this distinct stat combination and guide hand placement. Source planner2023 date is distinct from guideMay2026. No numeric price inferred."
+    },
+    {
+      "id": "double-throw-imbue-harpoon-weapon",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Ethereal rare throwing harpoon / guide imbue example",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jave"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "7ts"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "253:0",
+            "value": 10,
+            "absent_is_zero": true,
+            "unit": "replenishment_rate"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 9,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "18:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 200,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:32",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "any": [
+                {
+                  "op": "stat_at_least",
+                  "key": "54:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "55:0",
+                  "value": 1,
+                  "absent_is_zero": true
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "253:0",
+        "93:0",
+        "60:0",
+        "18:0",
+        "17:0",
+        "188:32"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Compare actual throwing damage, attack-speed breakpoints and equipment requirements with the complete setup.",
+        "Verify quantity sustain in play; Replenish Quantity does not establish unlimited throwing by itself.",
+        "This matches the cited imbue example; it does not guarantee an imbue outcome or establish minimum viable rolls."
+      ],
+      "source": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "locator": "/data",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "source_date": "2023-02-16 04:30:47",
+        "planner_item_ids": [
+          "143"
+        ]
+      },
+      "review_notes": "2026-09-24: cached Double Throw main alternatives explicitly link db0106mf item143 as an ethereal rare imbue example. Native stats translated from embedded planner JSON; tab12 becomes188:32, on-hit skill66 level1 chance5 becomes198:4225. Preserve this distinct stat combination and guide hand placement. Source planner2023 date is distinct from guideMay2026. No numeric price inferred."
+    },
+    {
+      "id": "double-throw-barbarian-guide-angelic-ring",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "depends_on": [
+        {
+          "label": "Wear Angelic Wings on the player for the paired set setup.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Angelic Wings"
+          }
+        },
+        {
+          "label": "Wear 2 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 2
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "double-throw-barbarian-guide-angelic-amulet",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "depends_on": [
+        {
+          "label": "Wear 2 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 2
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "double-throw-barbarian-guide-starter-set-Sigon's Visor",
+      "slot": "Helmet",
+      "names": [
+        "Sigon's Visor"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        },
+        {
+          "label": "Socket a jewel with at least 15% Increased Attack Speed.",
+          "when": {
+            "op": "socket_jewel_stat_at_least",
+            "key": "93:0",
+            "value": 15
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    },
+    {
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "double-throw-barbarian-guide-starter-set-Sigon's Gage",
+      "slot": "Gloves",
+      "names": [
+        "Sigon's Gage"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Visor on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Visor"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    },
+    {
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "double-throw-barbarian-guide-starter-set-Sigon's Sabot",
+      "slot": "Boots",
+      "names": [
+        "Sigon's Sabot"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Visor on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Visor"
+          }
+        },
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    },
+    {
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "153:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0"
+      ],
+      "id": "double-throw-barbarian-guide-deaths-guard-upgrade",
+      "slot": "Belt",
+      "names": [
+        "Death's Guard"
+      ],
+      "role": "Cannot Be Frozen belt / upgraded potion capacity",
+      "depends_on": [
+        {
+          "label": "Use the cited Demonhide Sash upgrade for more potion slots; a normal Sash still supplies Cannot Be Frozen.",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "zlb"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify upgraded equipment requirements and the remaining starter damage/resistance setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Guard Demonhide Sash (Death's Disguise)"
+        ]
+      }
+    }
+  ]
+}

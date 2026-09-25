@@ -29,6 +29,7 @@ def test_only_unambiguous_scalar_properties_have_numeric_ranges():
 
 def test_runeword_definitions_are_built_and_searchable_in_offline_kb(tmp_path):
     inputs = {
+        'third-parties/d2data/json/allstrings-eng.json': {},
         'third-parties/d2data/json/qualityitems.json': {},
         'third-parties/d2data/json/skills.json': {},
         'third-parties/d2data/json/automagic.json': {},
@@ -43,11 +44,13 @@ def test_runeword_definitions_are_built_and_searchable_in_offline_kb(tmp_path):
             '0': {},
             '2': {'Name': 'of Vita', 'itype1': 'scha', 'mod1code': 'hp', 'mod1min': 16, 'mod1max': 20},
         },
+        'third-parties/d2data/json/gems.json': {},
         'third-parties/d2data/json/properties.json': {
             'cast3': {'func1': 8, 'stat1': 'fcr'},
             'hp': {'func1': 1, 'stat1': 'life'},
         },
         'third-parties/d2data/json/itemstatcost.json': {'fcr': {'*ID': 105}, 'life': {'*ID': 7}},
+        'third-parties/d2data/json/cubemain.json': {},
         'pricing/raw/mr/planners/game-strings.json': [],
         'pricing/raw/d2data/weapons.json': {},
         'pricing/raw/d2data/armor.json': {'test': {'name': 'Shield', 'type': 'shie'}},
@@ -98,6 +101,7 @@ def test_charm_quality_pool_excludes_disabled_tiers_and_other_sizes():
         return {
             'affix_table': 'suffix',
             'spawnable': spawnable,
+            'game_definition': {'frequency': 1},
             'base_codes': [base],
             'roll_ranges': {'7': {'min': low, 'max': high, 'property': 'hp'}},
         }
@@ -133,3 +137,26 @@ def test_skill_ranges_require_known_parameter_and_preserve_layer():
     assert ranges['151:120']['min'] == 12
     assert ranges['151:120']['max'] == 17
     assert not scalar_ranges(record, properties, {'item_aura': 151})
+
+
+def test_class_specific_skill_ranges_preserve_verified_native_parameter():
+    properties = {'skill': {'func1': 22, 'stat1': 'item_singleskill'}}
+    record = {'prop1': 'skill', 'par1': 'Apocalypse', 'min1': 3, 'max1': 5}
+    skills = {'Apocalypse': 401}
+    expected = {'stat_id': 107, 'layer': 401, 'min': 3, 'max': 5, 'property': 'skill', 'better': 'higher'}
+    assert scalar_ranges(record, properties, {'item_singleskill': 107}, skill_ids=skills) == {'107:401': expected}
+    assert scalar_ranges({**record, 'par1': 401}, properties, {'item_singleskill': 107}, skill_ids=skills) == {
+        '107:401': expected
+    }
+    assert (
+        scalar_ranges({**record, 'par1': 'Unverified'}, properties, {'item_singleskill': 107}, skill_ids=skills) == {}
+    )
+
+
+def test_fire_skill_range_uses_property_element_layer():
+    properties = {'fireskill': {'func1': 21, 'stat1': 'item_elemskill', 'val1': 1}}
+    record = {'prop1': 'fireskill', 'min1': 2, 'max1': 2}
+    assert scalar_ranges(record, properties, {'item_elemskill': 126}) == {
+        '126:1': {'stat_id': 126, 'layer': 1, 'min': 2, 'max': 2, 'property': 'fireskill', 'better': 'higher'}
+    }
+    assert not scalar_ranges(record, {'fireskill': {**properties['fireskill'], 'val1': None}}, {'item_elemskill': 126})

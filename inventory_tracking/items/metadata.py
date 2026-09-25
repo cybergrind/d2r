@@ -1,8 +1,11 @@
 """Offline item metadata and stat output assembly; unknowns remain explicit."""
 
+import hashlib
 import json
 from collections import Counter
-from functools import cache
+from contextlib import contextmanager
+from contextvars import ContextVar
+from functools import cache, lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -12,8 +15,41 @@ from inventory_tracking.items.stats import StatContext, decode_stat, derived_bas
 
 
 @cache
+def _default_metadata():
+    raw = (Path(__file__).parent / 'data/item_metadata.json').read_bytes()
+    return json.loads(raw), hashlib.sha256(raw).hexdigest()
+
+
+_PINNED_METADATA = ContextVar('item_metadata_snapshot', default=None)
+
+
 def metadata():
-    return json.loads((Path(__file__).parent / 'data/item_metadata.json').read_text())
+    return (_PINNED_METADATA.get() or _default_metadata())[0]
+
+
+metadata.cache_clear = _default_metadata.cache_clear
+
+
+def metadata_generation():
+    return (_PINNED_METADATA.get() or _default_metadata())[1]
+
+
+@lru_cache(maxsize=2)
+def _published_metadata(raw):
+    value = json.loads(raw)
+    if not all(isinstance(value.get(key), dict) for key in ('bases', 'stats', 'skills')):
+        raise ValueError('Invalid published item metadata')
+    return value, hashlib.sha256(raw).hexdigest()
+
+
+@contextmanager
+def metadata_snapshot(raw):
+    current = _published_metadata(raw)
+    token = _PINNED_METADATA.set(current)
+    try:
+        yield current[0]
+    finally:
+        _PINNED_METADATA.reset(token)
 
 
 def item_base(class_id):
@@ -59,7 +95,7 @@ def decode_stats(
     for stat in stats:
         spec = catalog['stats'].get(str(stat['id']), {})
         row = unresolved_row(stat, spec)
-        if type(stat['raw']) is int and counts[(stat['id'], stat['layer'])] == 1:
+        if type(stat['raw']) is int and counts[stat['id'], stat['layer']] == 1:
             fields = decode_stat(StatContext(stat, spec, catalog['skills'], base, viewer_level))
             if fields is not None:
                 row.update(fields, status='decoded')

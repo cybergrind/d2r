@@ -27,3 +27,13 @@ def test_invalid_skill_tab_layers_are_not_guessed(layer):
     _, facets, unresolved = decode_stats([stat])
     assert unresolved == [stat]
     assert not facets
+
+
+def test_charge_rows_expose_remaining_and_maximum_without_market_scalar_projection():
+    for remaining in (0, 47):
+        decoded, facets, unresolved = decode_stats([{'id': 204, 'layer': 48 * 64 + 7, 'raw': (56 << 8) | remaining}])
+        assert not unresolved
+        assert decoded[0]['value'] == remaining
+        assert decoded[0]['unit'] == 'charges_remaining'
+        assert decoded[0]['charges'] == {'remaining': remaining, 'maximum': 56}
+        assert not facets

@@ -94,10 +94,11 @@ def test_runtime_base_draft_keeps_matching_history_and_readable_price(tmp_path):
     build_index([artifact], db)
     result = retrieve_draft({'item': base()}, db)
     text = format_appraisal({'state': 'complete', 'request_id': 1, 'result': result})
-    assert 'median 0.837 Ist; 4 priced listings' in text
-    assert '2026-09-18' in text
+    assert 'Historical buckets' not in text
+    assert 'median 0.837' not in text
     assert 'median 100' not in text
     assert result['decision']['price_status'] == 'historical_asks_only'
+    assert result['price_estimate']['estimate_ist'] is None
     assert len(result['evidence']['identity']['evidence']['historical_market']) == 1
 
 

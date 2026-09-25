@@ -2,8 +2,9 @@
 
 from typing import Any
 
-from inventory_tracking.items.identity import resolve_identity
+from inventory_tracking.items.identity import SOCKETED_FLAG, resolve_identity
 from inventory_tracking.items.metadata import item_base, metadata
+from inventory_tracking.items.socket_payload import decode_payload
 
 
 def annotate_sockets(item, decoded, arrays, identity):
@@ -31,12 +32,15 @@ def annotate_sockets(item, decoded, arrays, identity):
                     'base_code': base['code'],
                     'unit_id': unit['unit_id'],
                     'position': child['position'],
+                    **decode_payload(child, base),
                 }
             )
     if contents:
         item['socket_items'] = contents
         item['socket_contents'] = 'filled'
-        row['text'] = row.get('text', f'Sockets: {count}') + ' — ' + ', '.join(c['name'] for c in contents)
+        row['text'] = (
+            row.get('text', f'Sockets: {count}') + ' — ' + ', '.join(c['name'].removesuffix(' Rune') for c in contents)
+        )
         if complete:
             item['empty_sockets'] = count - len(contents)
             item['filled_sockets'] = len(contents)
@@ -50,7 +54,12 @@ def annotate_sockets(item, decoded, arrays, identity):
         recipe = [by_code.get(code, code) for code in identity['runes']]
         item['socket_recipe'] = recipe
         item['socket_contents'] = 'filled'
-        row['text'] = row.get('text', f'Sockets: {count}') + ' — ' + ', '.join(recipe) + ' (runeword recipe)'
+        row['text'] = (
+            row.get('text', f'Sockets: {count}')
+            + ' — '
+            + ', '.join(name.removesuffix(' Rune') for name in recipe)
+            + ' (runeword recipe)'
+        )
         row['socket_source'] = 'runeword_definition'
     elif complete and children == []:
         item['socket_contents'] = 'empty'
@@ -61,3 +70,41 @@ def annotate_sockets(item, decoded, arrays, identity):
         row['socket_source'] = 'complete_child_scan'
     elif count:
         row['text'] = f'Sockets: {count} — contents not captured'
+
+
+# Pinned third-parties/d2data/json/itemtypes.json: all three MaxSockets bands
+# are explicitly zero. Never generalize this rule to socketable equipment.
+NONSOCKETABLE_TYPES = frozenset(
+    {
+        'amul',
+        'ring',
+        'scha',
+        'mcha',
+        'lcha',
+        'jewl',
+        'cjwl',
+        'csch',
+        'glov',
+        'boot',
+        'belt',
+        'jave',
+        'ajav',
+        'tkni',
+        'taxe',
+    }
+)
+
+
+def infer_nonsocketable(item, stats, arrays, flags):
+    if (
+        item.get('item_type') not in NONSOCKETABLE_TYPES
+        or flags is None
+        or flags & SOCKETED_FLAG
+        or any(row.get('id') == 194 for row in stats)
+        or arrays.get('socket_items', {}).get('children')
+        or item.get('sockets') not in (None, 0)
+        or item.get('socket_contents') not in (None, 'empty')
+    ):
+        return False
+    item.update(sockets=0, socket_contents='empty', socket_items=[], empty_sockets=0, filled_sockets=0)
+    return True

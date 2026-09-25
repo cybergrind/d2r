@@ -1,0 +1,772 @@
+{
+  "profiles": [
+    {
+      "id": "dragon-talon-budget-gloves",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack speed / Crushing Blow gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:50",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10 crushing blow",
+          "when": {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "3 life steal",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:50",
+        "93:0",
+        "136:0",
+        "60:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Blood Crafted Gloves (+2 Martial Arts / 20 IAS / 3 LL / 10% Crushing Blow / +20 Life / Resistances)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/player/Gloves",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-budget-charges-82",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Life Tap charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Life Tap charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/dragon-talon-assassin/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "dragon-talon-assassin-budget-travel-staff",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Other",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it.",
+        "Keep the travel staff in inventory; the Budget setup uses Life Tap on Weapon-Swap."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/dragon-talon-assassin/variants/0/player/Other/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "dragon-talon-budget-cbf-kira",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Cannot Be Frozen alternative for budget Ubers",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Kira's Guardian"
+      ],
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "153:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Alternative Cannot Be Frozen slot, not an addition to the planner equipment in the same slot; retain sufficient Crushing Blow, Attack Rating and resistances in the complete setup.",
+        "Verify equipment requirements and the guide recommendation of level 90 before attempting Ubers; this component does not establish readiness."
+      ],
+      "alternatives": [
+        "Kira's Guardian",
+        "Duriel's Shell",
+        "Raven Frost"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/quotes/1",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
+        ],
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-cbf-duriel",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Cannot Be Frozen alternative for budget Ubers",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Duriel's Shell"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "153:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "Alternative Cannot Be Frozen slot, not an addition to the planner equipment in the same slot; retain sufficient Crushing Blow, Attack Rating and resistances in the complete setup.",
+        "Verify equipment requirements and the guide recommendation of level 90 before attempting Ubers; this component does not establish readiness."
+      ],
+      "alternatives": [
+        "Kira's Guardian",
+        "Duriel's Shell",
+        "Raven Frost"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/quotes/1",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings."
+        ],
+        "review": "2026-09-24: explicit Budget prose alternatives. Native Cannot Be Frozen and positive elemental resistances define candidate utility; non-ethereal for sustained player wear. Full loadout tradeoffs remain conditional; guide mention does not assign a numeric price."
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-angelic-ring",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Assassin"
+      },
+      "depends_on": [
+        {
+          "label": "Wear Angelic Wings on the player for the paired set setup.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Angelic Wings"
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings [Angelical Raiment set]",
+          "Angelic Halo [Angelical Raiment set]"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-angelic-amulet",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Assassin"
+      },
+      "depends_on": [
+        {
+          "label": "Wear 1 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 1
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings [Angelical Raiment set]",
+          "Angelic Halo [Angelical Raiment set]"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-guillaume",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Crushing Blow helmet / IAS and lightning resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Guillaume's Face"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Assassin"
+      },
+      "depends_on": [
+        {
+          "label": "Socket one jewel with 15% Increased Attack Speed and at least 30% Lightning Resist, as in the cited setup.",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "93:0": 15,
+              "41:0": 30
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "136:0"
+      ],
+      "conditions": [
+        "Verify equipment requirements and full-loadout attack-speed, Attack Rating, Cannot Be Frozen and resistance requirements before attempting Ubers; the guide recommends level 90."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dragon-talon-assassin.json",
+        "locator": "/variants/0/player/Helmet/0",
+        "sha256": "9e14864234694d3652906b07464f1f4de7773409ee455b8279ee736aa7b3073d",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guillaume's Face [Orphan's Call set] (15 IAS / 30 Light Res jewel)"
+        ],
+        "review": "2026-09-24: exact Budget helmet and combined jewel target from the cited setup. Both socket properties must belong to one captured jewel, not parent totals or separate jewels. Full build readiness and numeric trade price are independent."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-goblin-toe",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Crushing Blow kick boots / elite upgrade",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Goblin Toe"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Upgrade to Mirrored Boots for the cited kick-damage base; existing Crushing Blow remains useful before upgrading.",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utb"
+          }
+        }
+      ],
+      "important_stats": [
+        "136:0"
+      ],
+      "conditions": [
+        "Check upgraded strength and level requirements, Attack Rating, Cannot Be Frozen and resistances; the guide recommends level 90 for Ubers."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goblin Toe Mirrored Boots (upgraded)",
+          "The main focus is to get as many Resistances as possible and use Boots upgraded to the highest base. Cannot Be Frozen and Attack Rating are also extremely important.",
+          "Crushing Blow is extremely important to kill Ubers quickly."
+        ],
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-hexfire-merc",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Fire Iron Wolf Enchant support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Hexfire"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 3 Fire",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 3 Fire"
+          }
+        },
+        {
+          "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "329:0": 3,
+              "333:0": 3
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "126:1"
+      ],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
+        "Verify mercenary equip requirements and the complete cited Enchant setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hexfire Shamshir (ethereal; Fire Rainbow Facet)",
+          "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
+        ],
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-ormus-merc",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Fire Iron Wolf Enchant support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Ormus' Robes"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 3 Fire",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 3 Fire"
+          }
+        },
+        {
+          "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "329:0": 3,
+              "333:0": 3
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "329:0"
+      ],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
+        "Verify mercenary equip requirements and the complete cited Enchant setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ormus' Robes Dusk Shroud (ethereal; Fire Rainbow Facet)",
+          "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
+        ],
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-lidless-merc",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Off-Hand",
+      "role": "Fire Iron Wolf Enchant support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Lidless Wall"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 3 Fire",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 3 Fire"
+          }
+        },
+        {
+          "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "329:0": 3,
+              "333:0": 3
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "127:0"
+      ],
+      "preferences": [],
+      "conditions": [
+        "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
+        "Verify mercenary equip requirements and the complete cited Enchant setup.",
+        "Use Lidless Wall until the mercenary has enough Strength for an ethereal Spirit Monarch."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lidless Wall (Grim Shield; Fire Rainbow Facet) until enough Strength for an Ethereal Spirit Monarch",
+          "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
+        ],
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+      }
+    }
+  ]
+}

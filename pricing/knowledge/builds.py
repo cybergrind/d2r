@@ -14,6 +14,8 @@ from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
+from pricing.knowledge.localization import merge_game_strings
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -31,11 +33,10 @@ def decode_planner(document):
 def load_catalog(root=ROOT):
     root = Path(root)
     data = json.loads((root / 'pricing/raw/mr/planners/game-data.json').read_text())
-    strings = {
-        x[0]: x[1]
-        for x in json.loads((root / 'pricing/raw/mr/planners/game-strings.json').read_text())
-        if isinstance(x, list) and len(x) > 1
-    }
+    strings = merge_game_strings(
+        json.loads((root / 'third-parties/d2data/json/allstrings-eng.json').read_text()),
+        json.loads((root / 'pricing/raw/mr/planners/game-strings.json').read_text()),
+    )
     catalog = {}
     for group, category in [
         ('armor', 'armor'),
@@ -81,10 +82,12 @@ def load_catalog(root=ROOT):
             else:
                 key = code
                 name = item.get('name', code)
+            label = name
+            name = strings.get(label, label)
             existing = catalog.get(key)
             if existing and existing['name'] != name:
                 existing.setdefault('aliases', []).append(name)
-            catalog.setdefault(
+            entry = catalog.setdefault(
                 key,
                 {
                     'name': name,
@@ -93,7 +96,35 @@ def load_catalog(root=ROOT):
                     'catalog_id': key,
                 },
             )
+            if label != entry['name'] and label not in entry.get('aliases', []):
+                entry.setdefault('aliases', []).append(label)
     return catalog
+
+
+def resolve_named_label(label, catalog):
+    """Resolve an exact identity or named item followed by explicit setup context.
+
+    Never substring-match generic bases or composite prose. Preserve decorations
+    in original_label; resolving identity does not certify the pictured variant.
+    """
+    names = {name.casefold(): row for row in catalog.values() for name in [row['name'], *row.get('aliases', [])]}
+    text = label.casefold().strip()
+    # Variant qualifier is retained in original_label; it is not part of identity.
+    if text.startswith('ethereal '):
+        text = text[len('ethereal ') :]
+    if text in names:
+        return names[text]
+    bases = {r['name'].casefold() for r in catalog.values() if r.get('category') in ('armor', 'weapon', 'misc')}
+    for name in sorted(names, key=len, reverse=True):
+        row = names[name]
+        if row.get('category') not in ('unique', 'set', 'runeword') or not text.startswith(name + ' '):
+            continue
+        suffix = text[len(name) :].strip()
+        if suffix.startswith(('(', '[')) or any(
+            suffix == base or suffix.startswith((base + ' (', base + ' [')) for base in bases
+        ):
+            return row
+    return None
 
 
 def _record(name, source_id, locator, build, class_name, variant, side, slot, **extra):
@@ -347,10 +378,10 @@ def build_dataset(root=ROOT):
         sources[lsid] = _source(root, ledger_path)
 
         def label_row(label, locator, variant, side, slot, lsid=lsid, slug=slug, class_name=class_name):
-            found = name_catalog.get(label.casefold())
+            found = resolve_named_label(label, catalog)
             rows.append(
                 _record(
-                    label,
+                    found['name'] if found else label,
                     lsid,
                     f'/{slug}/{locator}',
                     slug,
@@ -359,7 +390,9 @@ def build_dataset(root=ROOT):
                     side,
                     slot,
                     category=(found or {}).get('category'),
+                    original_label=label,
                     details={
+                        'original_label': label,
                         'role': 'documented_alternative',
                         'recommended': True,
                         'resolution_status': 'resolved' if found else 'pattern_or_unresolved',
@@ -425,6 +458,7 @@ def build_dataset(root=ROOT):
         *sorted((root / 'pricing/raw/d2data').glob('*.json')),
         root / 'pricing/raw/mr/planners/game-data.json',
         root / 'pricing/raw/mr/planners/game-strings.json',
+        root / 'third-parties/d2data/json/allstrings-eng.json',
     ]:
         sources[str(path.relative_to(root))] = _source(root, path, fetched_at='2026-09-23')
     coverage['occurrences'] = len(rows)

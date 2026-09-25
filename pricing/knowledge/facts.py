@@ -14,6 +14,8 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pricing.knowledge.localization import merge_game_strings
+
 
 _LABELS = {
     'hp': 'Life',
@@ -141,11 +143,10 @@ def build_item_facts(root: Path) -> dict:
             bases[key] = (table, record)
     types = _read(raw / 'itemtypes.json')
     string_path = 'pricing/raw/mr/planners/game-strings.json'
-    strings = {
-        r[0]: r[1]
-        for r in _read(root / string_path, [])
-        if isinstance(r, list) and len(r) == 2 and isinstance(r[1], str)
-    }
+    english_path = 'third-parties/d2data/json/allstrings-eng.json'
+    planner_rows = _read(root / string_path, [])
+    planner_strings = merge_game_strings({}, planner_rows)
+    strings = merge_game_strings(_read(root / english_path, {}), planner_rows)
     rows = []
     for table, quality in (('uniqueitems', 'unique'), ('setitems', 'set')):
         for key, record in _read(raw / f'{table}.json').items():
@@ -178,7 +179,9 @@ def build_item_facts(root: Path) -> dict:
             if base:
                 provenance.append({'path': f'pricing/raw/d2data/{base_table}.json', 'record_key': code})
             if name != internal:
-                provenance.append({'path': string_path, 'record_key': internal})
+                provenance.append(
+                    {'path': string_path if internal in planner_strings else english_path, 'record_key': internal}
+                )
             item_id = f'd2data:{table}:{key}'
             rows.append(
                 {
@@ -236,7 +239,7 @@ def build_item_facts(root: Path) -> dict:
         f'pricing/raw/d2data/{name}.json'
         for name in ('uniqueitems', 'setitems', 'weapons', 'armor', 'misc', 'itemtypes')
     ]
-    input_paths += [string_path, catalog_path]
+    input_paths += [string_path, english_path, catalog_path]
     manifest = [
         {'path': path, 'sha256': hashlib.sha256((root / path).read_bytes()).hexdigest()}
         for path in input_paths
@@ -244,8 +247,8 @@ def build_item_facts(root: Path) -> dict:
     ]
     return {
         'schema_version': 1,
-        'adapter_version': 2,
-        'adapter_updated_at': '2026-09-23',
+        'adapter_version': 3,
+        'adapter_updated_at': '2026-09-24',
         'generated_at': datetime.now(UTC).isoformat(),
         'input_manifest': manifest,
         'rows': rows,

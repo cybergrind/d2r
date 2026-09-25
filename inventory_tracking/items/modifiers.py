@@ -3,7 +3,7 @@
 import struct
 
 
-def owned_modifiers(diagnostics, item, ids):
+def owned_modifiers(diagnostics, item, ids, forbidden=()):
     if not diagnostics.get('stable') or diagnostics.get('root_address') != item['stats_pointer']:
         return []
     try:
@@ -21,7 +21,7 @@ def owned_modifiers(diagnostics, item, ids):
             header = bytes.fromhex(node['header_hex'])
             if struct.unpack_from('<QII', header, 0) != (item['address'], 4, item['unit_id']):
                 return []
-            stats.extend(s for s in node['stats'] if s['id'] in ids)
+            stats.extend(s for s in node['stats'] if s['id'] in (*ids, *forbidden))
             current = struct.unpack_from('<Q', header, 0x48)[0]
         if current or sorted(s['id'] for s in stats) != sorted(ids):
             return []
@@ -39,3 +39,15 @@ def owned_damage_modifiers(diagnostics, item):
 
 def owned_defense_modifiers(diagnostics, item):
     return owned_modifiers(diagnostics, item, (16,))
+
+
+def owned_flat_damage_modifiers(diagnostics, item):
+    """Only an owned +1 maximum with no percent ED proves the fallback."""
+    if 'stats_pointer' not in item:
+        return []
+    rows = []
+    for stat in (22, 24):
+        found = owned_modifiers(diagnostics, item, (stat,), forbidden=(17, 18))
+        if found and type(found[0]['raw']) is int and found[0]['raw'] == 1:
+            rows.extend(found)
+    return rows

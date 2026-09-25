@@ -22,7 +22,15 @@ def test_attach_failure_publishes_completion_and_cleans_socket(tmp_path, monkeyp
 
     with pytest.raises(ValueError, match='unsupported build'):
         appraisal_service.main(
-            ['serve', '--socket', str(tmp_path / 'request.sock'), '--output', str(tmp_path / 'runs')]
+            [
+                'serve',
+                '--socket',
+                str(tmp_path / 'request.sock'),
+                '--output',
+                str(tmp_path / 'runs'),
+                '--database',
+                str(tmp_path / 'unused.sqlite3'),
+            ]
         )
     report = json.loads(next((tmp_path / 'runs').glob('*/report.json')).read_text())
     assert report['state'] == 'failed'
@@ -45,3 +53,63 @@ def test_null_market_charm_publishes_text_and_notification(tmp_path, monkeypatch
     assert text in caplog.text
     assert notifications[0][0] == 'Large Charm — review required'
     assert '+35 to Life; +4 to Mana' in notifications[0][1]
+
+
+def test_worker_defaults_to_publication_but_explicit_database_stays_legacy(tmp_path, monkeypatch):
+    import pytest
+
+    from pricing.knowledge.publication import DEFAULT_STORE
+
+    seen = []
+    monkeypatch.setattr(appraisal_service, 'serve', lambda args: seen.append(args) or 0)
+    assert appraisal_service.main(['serve']) == 0
+    assert seen[-1].publication_store == DEFAULT_STORE
+    assert seen[-1].database is None
+    database = tmp_path / 'legacy.sqlite3'
+    assert appraisal_service.main(['serve', '--database', str(database)]) == 0
+    assert seen[-1].database == database
+    assert seen[-1].publication_store is None
+    custom = tmp_path / 'bundles'
+    assert appraisal_service.main(['serve', '--publication-store', str(custom)]) == 0
+    assert seen[-1].publication_store == custom
+    with pytest.raises(SystemExit):
+        appraisal_service.main(['serve', '--database', str(database), '--publication-store', str(custom)])
+
+
+def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, capsys):
+    import pytest
+
+    from inventory_tracking.native.session import GameProcessUnavailable
+
+    attempts = []
+    states = []
+
+    def connect(*args):
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise GameProcessUnavailable('Expected one D2R.exe process, found []')
+        raise ValueError('unsupported build')
+
+    def sleep(seconds):
+        states.append(json.loads(next((tmp_path / 'runs').glob('*/report.json')).read_text())['state'])
+        assert seconds == appraisal_service.APPRAISAL.reconnect_delay
+
+    monkeypatch.setattr(appraisal_service.LiveReader, 'connect', connect)
+    monkeypatch.setattr(appraisal_service.time, 'sleep', sleep)
+    with pytest.raises(ValueError, match='unsupported build'):
+        appraisal_service.main(
+            [
+                'serve',
+                '--socket',
+                str(tmp_path / 'request.sock'),
+                '--output',
+                str(tmp_path / 'runs'),
+                '--database',
+                str(tmp_path / 'unused.sqlite3'),
+            ]
+        )
+    assert len(attempts) == 3
+    assert states == ['waiting', 'waiting']
+    assert capsys.readouterr().out.count('Waiting for D2R.exe') == 1
+    report = json.loads(next((tmp_path / 'runs').glob('*/report.json')).read_text())
+    assert report['state'] == 'failed'

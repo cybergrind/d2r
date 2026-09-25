@@ -1,0 +1,996 @@
+{
+  "profiles": [
+    {
+      "id": "lightning-fury-ubers-boots",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "9 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 9,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Light Plated Boots 'Viper Greaves' 30% FRW / 10% FHR / 9 Dex / 40 Cold-Light-Fire Res"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/3/player/Boots",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "lightning-fury-standard-gloves",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Javelin skill / attack speed gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:2",
+        "93:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Magic Chain Gloves +3 Javelin and Spear Skills / 20% IAS (table: 'Lancer's Chain Gloves of Alacrity')"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/1/player/Gloves",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "lightning-fury-mf-gloves",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Javelin skill / attack speed gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "15 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "30 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25 magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:2",
+        "93:0",
+        "2:0",
+        "39:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Rare Chain Gloves 'Bone Fist' +2 Javelin and Spear Skills / 20% IAS / 15 Dex / 30 Fire Res / 25% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/2/player/Gloves",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "lightning-fury-ubers-gloves",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Javelin skill / attack speed gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "15 strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "15 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "30 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "30 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:2",
+        "93:0",
+        "0:0",
+        "2:0",
+        "43:0",
+        "41:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Rare Sharkskin Gloves 'Blood Claw' +2 Javelin and Spear Skills / 20% IAS / 15 Str / 15 Dex / 30 Cold Res / 30 Light Res"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/3/player/Gloves",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "fury-standard-life-skiller",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:2",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/variants/1/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Grand Charm +1 Javelin and Spear Skills / 45 Life (x7)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "fury-starter-belt",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "90 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 90
+          }
+        },
+        {
+          "label": "25% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 25
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Sharkskin Belt 90 Life / 25 Fire Res"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "lightning-fury-amazon-guide-naj-teleport-swap",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-fury-amazon-guide/slots/Weapon-Swap/2"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "lightning-fury-amazon-guide-starter-charges-91",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; the charge level determines the curse effect."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-fury-amazon-guide/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-starter-charges-54",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Choose the mobility swap according to the farm and the rest of the loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-fury-amazon-guide/variants/0/player/Weapon-Swap/1"
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-main-shield-jmod-base",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/slots/Off-Hand/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Rainbow Facets (Jeweler's Monarch of Deflecting (4x )). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-ubers-shield-jmod-base",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/variants/3/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Lightning Rainbow Facets; planner: 1x -5/+5 'die' + 3x 'up'). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred.",
+      "alternatives": [
+        "Stormshield (the guide offers this until acquiring the Monarch setup)"
+      ]
+    },
+    {
+      "id": "lightning-fury-starter-lancers-javelin",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Lancer skill / Quickness javelin candidate",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ajav"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "amf"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 4,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "188:2",
+              "value": 7,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 40,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 41,
+              "absent_is_zero": true
+            }
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "+6 Javelin and Spear Skills",
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 6,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:2",
+        "93:0"
+      ],
+      "conditions": [
+        "Check the full setup: the guide targets 52% total IAS for Lightning Fury; this weapon provides 40%.",
+        "Check equipment requirements and replenish throwing quantity as needed."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "locator": "/variants/0/player/Weapon",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: cached Starter weapon names Lancer Matriarchal Javelin of Quickness. Native magicprefix Lancer skilltab2 is +3; weapons auto prefix302 supplies +1..3 skilltab2; Quickness is40 IAS. Require observed4..6/40 on this base, prefer6. A matching total is candidate utility, not proof of the actual prefix roll or a numeric price."
+    },
+    {
+      "id": "lightning-fury-ubers-gaze-merc",
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Life leech and physical damage reduction for Act 5 Frenzy",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "36:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 5 Frenzy",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 5 Frenzy"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Plague Phase Blade (Cham Shael Um) x2 - 'for their Lower Resist proc'. Cited armor: Treachery Mage Plate (ethereal)."
+      ],
+      "setup_label": "Vampire Gaze Grim Helm (Um Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze Grim Helm (Um Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+      },
+      "required_rune": "Um Rune"
+    }
+  ]
+}

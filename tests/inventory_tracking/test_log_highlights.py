@@ -43,3 +43,33 @@ def test_perfect_and_low_roll_colors_do_not_leak_into_plain_logs(terminal):
     assert ('\x1b[92m  perfect roll\x1b[0m' in text) == terminal
     assert ('\x1b[91m  low roll\x1b[0m' in text) == terminal
     assert '\x1b' not in logging.Formatter('%(message)s').format(record)
+
+
+@pytest.mark.parametrize(('terminal', 'no_color'), [(True, False), (False, False), (True, True)])
+def test_shared_assessment_styles_survive_console_without_coloring_saved_logs(terminal, no_color):
+    from inventory_tracking.appraisal.presentation import ItemAssessment
+    from tests.inventory_tracking.appraisal.test_text import saved_result
+
+    assessment = ItemAssessment.from_record(saved_result())
+    message = assessment.to_text()
+    record = logging.LogRecord('inventory_tracking', logging.INFO, '', 0, '%s', (message,), None)
+    styled = assessment.to_rich()
+    record.styled_message = styled
+    output = StringIO()
+    handler = HighlightHandler(
+        console=Console(file=output, force_terminal=terminal, no_color=no_color, width=200),
+        show_time=False,
+        show_level=False,
+        show_path=False,
+    )
+    rendered = handler.render_message(record, message)
+    assert rendered.plain == message
+    assert rendered.spans == styled.spans
+    assert rendered is not styled
+    handler.emit(record)
+    assert 'Magic Ring' in output.getvalue()
+    if not terminal:
+        assert '\x1b' not in output.getvalue()
+    if no_color:
+        assert '\x1b[38;' not in output.getvalue()
+    assert logging.Formatter('%(message)s').format(record) == message

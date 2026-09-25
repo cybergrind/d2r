@@ -75,3 +75,28 @@ def test_unreferenced_definitions_are_retained_as_nonrecommended():
     assert rows[0]['details']['recommended'] is False
     assert coverage['unreferenced_item_ids'] == ['9']
     assert coverage['referenced_item_definitions'] == 0
+
+
+def test_named_setup_labels_resolve_without_substring_guessing():
+    from pricing.knowledge.builds import resolve_named_label
+
+    catalog = {
+        'set1': {'name': "Sazabi's Mental Sheath", 'category': 'set'},
+        'r1': {'name': 'Spirit', 'category': 'runeword'},
+        'base': {'name': 'Monarch', 'category': 'armor'},
+    }
+    assert resolve_named_label("Sazabi's Mental Sheath [set] (Basinet; Cham)", catalog) == catalog['set1']
+    assert resolve_named_label('Spirit Monarch (35 FCR)', catalog) == catalog['r1']
+    assert resolve_named_label('Ethereal Spirit Monarch', catalog) == catalog['r1']
+    assert resolve_named_label('Spirit Keeper', catalog) is None
+    assert resolve_named_label('Rare Monarch with skills', catalog) is None
+
+
+def test_build_catalog_resolves_new_localized_names_and_keeps_internal_aliases():
+    from pricing.knowledge.builds import load_catalog
+
+    catalog = load_catalog()
+    assert catalog['unique408']['name'] == "Ars Al'Diabolos"
+    assert "Ars Al'Diablolos" in catalog['unique408']['aliases']
+    assert catalog['unique419']['name'] == "Hellwarden's Will"
+    assert 'Unique Warlock Helm' in catalog['unique419']['aliases']

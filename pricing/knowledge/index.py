@@ -7,19 +7,15 @@ import os
 import re
 import sqlite3
 import tempfile
-import unicodedata
+from contextlib import nullcontext
 from pathlib import Path
+
+from pricing.knowledge.names import normalize_name
 
 
 SCHEMA_VERSION = 1
 DATABASE_VERSION = 3
 FACETS = ('kind', 'category', 'rarity', 'sockets', 'ethereal', 'side', 'class', 'build', 'variant')
-
-
-def normalize_name(value):
-    """Normalize typography, not item identity or meaningful modifiers."""
-    value = unicodedata.normalize('NFKC', str(value)).casefold().replace('\u2019', "'")
-    return ' '.join(value.split())
 
 
 def _scalar(value):
@@ -81,12 +77,32 @@ def _read_rows(path):
         yield row, f'/rows/{number}'
 
 
+def _source_signature(path):
+    info = path.stat()
+    return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+
+def _verify_sources(sources):
+    for path, (signature, digest) in sources.items():
+        try:
+            stable = (
+                _source_signature(path) == signature
+                and hashlib.sha256(path.read_bytes()).hexdigest() == digest
+                and _source_signature(path) == signature
+            )
+        except OSError:
+            stable = False
+        if not stable:
+            raise ValueError(f'Evidence source changed during index build: {path}')
+
+
 def build_index(paths, database):
     """Validate and atomically replace the database, preserving it on any failure."""
     database = Path(database)
     database.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix='.appraisal-', suffix='.sqlite3', dir=database.parent)
     os.close(fd)
+    source_versions = {}
     report = {'schema_version': SCHEMA_VERSION, 'records': 0, 'sources': [], 'by_kind': {}}
     try:
         with sqlite3.connect(temporary) as connection:
@@ -108,7 +124,9 @@ def build_index(paths, database):
             prepared_coverage = {}
             portable_dependencies = []
             for source_path in sorted(map(Path, paths)):
+                signature = _source_signature(source_path)
                 digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
+                source_versions[source_path] = (signature, digest)
                 source_count = 0
                 prepared_start = len(prepared_rows)
                 for original, locator in _read_rows(source_path):
@@ -157,6 +175,7 @@ def build_index(paths, database):
             connection.execute("INSERT INTO evidence_fts(evidence_fts) VALUES('integrity-check')")
             if connection.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
                 raise ValueError('Database integrity check failed')
+        _verify_sources(source_versions)
         os.replace(temporary, database)
     finally:
         if os.path.exists(temporary):
@@ -165,6 +184,9 @@ def build_index(paths, database):
 
 
 def _connect(database):
+    if isinstance(database, sqlite3.Connection):
+        # Borrow an appraisal snapshot without committing its read transaction.
+        return nullcontext(database)
     database = Path(database)
     if not database.is_file():
         raise FileNotFoundError(f'Offline index missing; run python -m pricing.knowledge rebuild ({database})')

@@ -1,0 +1,586 @@
+{
+  "profiles": [
+    {
+      "id": "lightning-sentry-claw-candidate",
+      "build": "lightning-sentry-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Lightning trap skill combination",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "h2h2"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:271",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "+3 to Traps",
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+3 to Lightning Sentry",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:271",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40% increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:48",
+        "107:271",
+        "93:0"
+      ],
+      "conditions": [
+        "Skill-combination candidate; compare sockets and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Cunning Greater Talons of Quickness (+3 Trap Skills / 40% IAS / +3 Lightning Sentry / +3 Death Sentry / +3 Weapon Block; 2 sockets: 2x Rainbow Facet Lightning -5/+5)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sentry-assassin.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "590d53909aa987e76de71886b9e01594a3f9319e869a35c70518f7b70d234f60",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "review": "2026-09-24: positive matching skill combination is a candidate; planner maxima are preferences, not minimum eligibility or price thresholds."
+      }
+    },
+    {
+      "id": "lightning-sentry-standard-boots",
+      "build": "lightning-sentry-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25 magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Boots 30% FRW / 10% FHR / 40 Cold Res / 40 Lightning Res / 40 Fire Res / 25% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sentry-assassin.json",
+        "locator": "/variants/1/player/Boots",
+        "sha256": "590d53909aa987e76de71886b9e01594a3f9319e869a35c70518f7b70d234f60",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "lightning-sentry-assassin-starter-travel-staff",
+      "build": "lightning-sentry-assassin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sentry-assassin/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "lightning-sentry-assassin-cunning-magus",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Cunning Circlet of the Magus",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:48",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements.",
+        "Socket count and inserted jewels need a separate setup check; this skill/cast-rate combination does not establish a perfect socketed helmet."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sentry-assassin/slots/Helmets/1"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "lightning-sentry-assassin-cunning-whale",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Cunning Amulet of the Whale",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 81,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "100 life (perfect Whale suffix)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 100,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:48",
+        "7:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sentry-assassin/slots/Amulets/1"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "lightning-sentry-assassin-cunning-apprentice",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Cunning Amulet of the Apprentice",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:48",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sentry-assassin/slots/Amulets/2"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "lightning-sentry-assassin-main-shield-jmod-base",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sentry-assassin/slots/Off-Hand/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "lightning-sentry-assassin-main-swap-jmod-base",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sentry-assassin/slots/Off-Hand-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    }
+  ]
+}

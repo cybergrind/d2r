@@ -122,3 +122,33 @@ def test_missing_set_spawnable_is_not_treated_as_disabled(tmp_path):
     assert unique['availability'] == 'disabled'
     assert set_item['availability'] == 'set_definition'
     assert set_item['availability_evidence'] == 'setitems row; no explicit spawnable flag'
+
+
+def test_english_fallback_joins_new_names_and_preserves_translation_provenance(tmp_path):
+    root = write_inputs(
+        tmp_path,
+        {
+            '419': {'index': 'Unique Warlock Helm', 'code': 'cap', 'lvl req': 80},
+            '2': {'index': 'OverrideKey', 'code': 'cap', 'lvl req': 1},
+        },
+    )
+    english = root / 'third-parties/d2data/json/allstrings-eng.json'
+    english.parent.mkdir(parents=True)
+    english.write_text(json.dumps({'Unique Warlock Helm': "Hellwarden's Will", 'OverrideKey': 'English Name'}))
+    planner = root / 'pricing/raw/mr/planners/game-strings.json'
+    planner.parent.mkdir(parents=True)
+    planner.write_text(json.dumps([['OverrideKey', 'Planner Name']]))
+    trade = root / 'pricing/data/appraisal-trade-catalog.json'
+    trade.parent.mkdir(parents=True)
+    trade.write_text(
+        json.dumps({'rows': [{'name': "Hellwarden's Will", 'category': 'uniques', 'catalog_id': 'market-helm'}]})
+    )
+    document = build_item_facts(root)
+    helm, override = document['rows']
+    assert helm['name'] == "Hellwarden's Will"
+    assert 'Unique Warlock Helm' in helm['aliases']
+    assert helm['catalog_ids'] == ['market-helm']
+    assert {'path': str(english.relative_to(root)), 'record_key': 'Unique Warlock Helm'} in helm['provenance']
+    assert override['name'] == 'Planner Name'
+    assert {'path': str(planner.relative_to(root)), 'record_key': 'OverrideKey'} in override['provenance']
+    assert any(s['path'] == str(english.relative_to(root)) and s.get('sha256') for s in document['input_manifest'])

@@ -70,8 +70,13 @@ def resolve_identity(details, arrays, base):
     offset = RUNEWORD_OFFSET if table == 'runeword' else IDENTITY_OFFSET
     table_id = struct.unpack_from('<H' if table == 'runeword' else '<I', raw, offset)[0]
     entry = metadata()['identities'][table].get(str(table_id))
-    if not entry or base['code'] not in entry['base_codes']:
+    if not entry:
         return None
+    if base['code'] not in entry['base_codes']:
+        upgrade = entry.get('upgrade_variants', {}).get(base['code']) if table in ('unique', 'set') else None
+        if upgrade is None:
+            return None
+        entry = {**entry, **upgrade}
     if table == 'runeword':
         sockets = [
             s['raw']
@@ -94,8 +99,24 @@ def identity_review(identity, stats):
     notes = ['Requirements are unverified; socket contents are labeled by evidence source.']
     if identity.get('roll_ranges'):
         notes.append('Ranges describe item definitions; totals can include socket or set contributions.')
-    if identity['enhanced_damage_expected'] and not any(s['id'] in (17, 18) for s in stats):
-        notes.append(
-            'Enhanced Damage is defined for this item, but its percentage was not captured; totals cannot establish it.'
-        )
-    return notes
+    return notes + identity_issues(identity, stats)
+
+
+def identity_issues(identity, stats):
+    if identity and identity['enhanced_damage_expected'] and not any(s['id'] in (17, 18) for s in stats):
+        return ['Enhanced Damage percentage was not captured.']
+    return []
+
+
+def superior_quality_identity(details, arrays, base):
+    """Selected quality row, using the same ItemData file index as named items."""
+    flags = item_flags(details, arrays)
+    if details.get('quality') != 3 or flags is None or not flags & IDENTIFIED_FLAG or flags & RUNEWORD_FLAG:
+        return None
+    raw = bytes.fromhex(arrays['item_data_hex'])
+    index = struct.unpack_from('<I', raw, IDENTITY_OFFSET)[0]
+    category = base.get('category')
+    patterns = metadata().get('superior', {}).get(category, {}).get('patterns', {})
+    if str(index) not in patterns:
+        return None
+    return {'table_id': index, 'offset': IDENTITY_OFFSET, 'category': category}

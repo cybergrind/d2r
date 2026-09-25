@@ -91,7 +91,7 @@ is not persisted across OSD restarts. Exact rules: [widget contracts](design.md)
 | Recipient | Healing below | Rejuvenation below | Healing cooldown | Rejuvenation cooldown |
 | --- | --- | --- | --- | --- |
 | Player | 65% | 40% | 3 seconds | 1 second |
-| Merc | 55% | 20% | 3 seconds | 3 seconds |
+| Merc | 75% | 50% | 3 seconds | 0.5 seconds |
 
 Thresholds are strict. Rejuvenation has emergency priority with healing fallback;
 player is considered first and does not require a merc. Each sample identifies

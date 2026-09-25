@@ -1,0 +1,2481 @@
+{
+  "profiles": [
+    {
+      "id": "fissure-ubers-boots",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "9 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 9,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Wyrmhide Boots 'Glyph Spur' 30% FRW / 10% FHR / 9 Dex / 40 Cold-Light-Fire Res"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fissure-druid.json",
+        "locator": "/variants/3/player/Boots",
+        "sha256": "025612cc9770db93a2b11ad2294e7d43e04629addbe72e3557c77fb2deaed7e0",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "fissure-starter-crafted-belt",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "9 Strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 9
+          }
+        },
+        {
+          "label": "20 Mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 20
+          }
+        },
+        {
+          "label": "10% Mana Regeneration",
+          "when": {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "10% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "10% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "10% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 10
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fissure-druid.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "025612cc9770db93a2b11ad2294e7d43e04629addbe72e3557c77fb2deaed7e0",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Belt 'Cruel Clasp' Sharkskin Belt (10% FCR, 9 Str, 20 Mana, 10% Mana Regen, 10 Cold-Light-Fire Res)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      }
+    },
+    {
+      "id": "fissure-druid-naj-teleport-swap",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "locator": "/fissure-druid/slots/Weapon-Swap/2"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "fissure-druid-starter-charges-91",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Other",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
+        "Keep this wand in inventory or the Cube; the guide uses a Teleport staff on Weapon-Swap."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "locator": "/fissure-druid/variants/0/player/Other/0"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "fissure-druid-ubers-charges-91",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "locator": "/fissure-druid/variants/3/player/Weapon-Swap/1"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "fissure-druid-starter-travel-staff",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "locator": "/fissure-druid/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "fissure-druid-main-shield-jmod-base",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Off-Hand/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Fire Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "fissure-druid-magic-find-shield-jmod-base",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need four Ist runes; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Gemmed Monarch (4x Ist Rune; planner: magic Monarch 30% FBR / 20% block = Jeweler's Monarch of Deflecting base). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "fissure-starter-merc-rockstopper",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Rockstopper"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-starter-merc-undead-crown",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Undead Crown"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-starter-merc-duriel",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Duriel's Shell"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-starter-merc-bulwark",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes.",
+          "Bulwark Crown (ethereal)"
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-starter-merc-smoke",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Smoke"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Smoke"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-starter-merc-treachery",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Early mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Early progression alternative for the Fissure Druid Starter setup; verify the mercenary can equip it and that the complete loadout supplies sufficient survival."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes.",
+          "Treachery Mage Plate (ethereal)"
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred."
+      }
+    },
+    {
+      "id": "fissure-merc-standard-fortitude",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical damage and survival",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 mercenary: Might in prose; Holy Freeze in the planner",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        }
+      ],
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements and the complete survival loadout. Standard/Magic Find prose and planner disagree on the mercenary aura; retain both source alternatives."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability.",
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      }
+    },
+    {
+      "id": "fissure-merc-magic-find-fortitude",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary damage and survival during magic-find farming",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 mercenary: Might in prose; Holy Freeze in the planner",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        }
+      ],
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements and the complete survival loadout. Standard/Magic Find prose and planner disagree on the mercenary aura; retain both source alternatives."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Magic Find Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      }
+    },
+    {
+      "id": "fissure-merc-ubers-chains-of-honor",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary life leech alongside the Resist Fire aura helm",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 Might mercenary",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Flickering Flame equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Flickering Flame"
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        }
+      ],
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements and the complete survival loadout. Ubers setup uses Infinity; Flickering Flame supplies Resist Fire while Chains of Honor supplies life leech."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+          "Chains of Honor Archon Plate (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      }
+    },
+    {
+      "id": "fissure-merc-ubers-flickering-flame",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Resist Fire aura to offset the Flame Rift penalty",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Flickering Flame"
+      ],
+      "types": [
+        "circ",
+        "helm"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Flickering Flame"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 Might mercenary",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Chains of Honor equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Chains of Honor"
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        }
+      ],
+      "important_stats": [],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements and the complete survival loadout. Ubers setup uses Infinity; Flickering Flame supplies Resist Fire while Chains of Honor supplies life leech."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+          "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      }
+    },
+    {
+      "id": "fissure-merc-standard-andariel",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack speed, life leech and socketed damage jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Druid"
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 mercenary: Might in prose; Holy Freeze in the planner",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        },
+        {
+          "label": "Fortitude equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Fortitude"
+          }
+        },
+        {
+          "label": "One socketed jewel with the Standard planner target of 15 IAS and 40 enhanced damage.",
+          "when": {
+            "all": [
+              {
+                "op": "socket_jewel_matches",
+                "stats": {
+                  "93:0": 15,
+                  "17:0": 40,
+                  "18:0": 40
+                }
+              },
+              {
+                "not": {
+                  "any": [
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "17:0",
+                      "value": 41
+                    },
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "18:0",
+                      "value": 41
+                    },
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "93:0",
+                      "value": 16
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "0:0",
+        "16:0"
+      ],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements, attack-speed breakpoint and survival with the full loadout, including the helmet fire-resistance penalty. Prose and planner disagree on Might versus Holy Freeze; both remain explicit alternatives."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage Demonhead (ethereal; planner jewel 15% IAS / 40% ED)",
+          "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability."
+        ],
+        "review": "2026-09-25: variant-specific helmet and jewel setup. Standard preserves the planner 15/40 target; Magic Find prose names Ruby Jewel of Fervor and the planner resolves the ambiguous Ruby prefix to damage. Local d2data magicprefix198 gives dmg%31-40, versus magicprefix376 res-fire16-30; magicsuffix171 gives IAS15. Both damage components and IAS must belong to one captured jewel. Ethereal is a preference; no market price inferred."
+      }
+    },
+    {
+      "id": "fissure-merc-magic-find-andariel",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack speed, life leech and socketed damage jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Druid"
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 mercenary: Might in prose; Holy Freeze in the planner",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Infinity equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        },
+        {
+          "label": "Fortitude equipped on the mercenary",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Fortitude"
+          }
+        },
+        {
+          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31\u201340 enhanced damage, not the fire-resistance Ruby prefix.",
+          "when": {
+            "all": [
+              {
+                "op": "socket_jewel_matches",
+                "stats": {
+                  "93:0": 15,
+                  "17:0": 31,
+                  "18:0": 31
+                }
+              },
+              {
+                "not": {
+                  "any": [
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "17:0",
+                      "value": 41
+                    },
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "18:0",
+                      "value": 41
+                    },
+                    {
+                      "op": "socket_jewel_stat_at_least",
+                      "key": "93:0",
+                      "value": 16
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "0:0",
+        "16:0"
+      ],
+      "preferences": [
+        {
+          "label": "Ethereal mercenary equipment",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "conditions": [
+        "Verify mercenary equipment requirements, attack-speed breakpoint and survival with the full loadout, including the helmet fire-resistance penalty. Prose and planner disagree on Might versus Holy Freeze; both remain explicit alternatives."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage Demonhead (ethereal) socketed with a Ruby Jewel of Fervor (prose; planner jewel 15% IAS / 40% ED)",
+          "The Magic Find Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability."
+        ],
+        "review": "2026-09-25: variant-specific helmet and jewel setup. Standard preserves the planner 15/40 target; Magic Find prose names Ruby Jewel of Fervor and the planner resolves the ambiguous Ruby prefix to damage. Local d2data magicprefix198 gives dmg%31-40, versus magicprefix376 res-fire16-30; magicsuffix171 gives IAS15. Both damage components and IAS must belong to one captured jewel. Ethereal is a preference; no market price inferred."
+      }
+    },
+    {
+      "id": "fissure-standard-pelt",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "+3 Elemental / +3 Fissure magic pelt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:234",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_socket_item": "Defender's Fire",
+      "depends_on": [
+        {
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 2
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "329:0",
+                  "value": 6
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "333:0",
+                  "value": 6
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "188:42",
+        "107:234",
+        "107:250",
+        "107:247"
+      ],
+      "preferences": [
+        {
+          "label": "+3 Hurricane (planner bonus)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:250",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+3 Summon Grizzly (planner bonus)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:247",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "conditions": [
+        "An unsocketed magic pelt needs the two-socket Larzuk outcome for this setup; one socket cannot be increased to two. Check wearer requirements and the full loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Dream Spirit (Gaean-type pelt) +3 Elemental Skills / +3 Fissure / +3 Hurricane / +3 Summon Grizzly, socketed Defender's Fire Colossal Jewel + Fire Rainbow Facet (table: 'Gaean Antlers of the Colossus')"
+        ],
+        "review": "2026-09-25: Shared +3 Elemental/+3 Fissure core across magic pelt bases. Dream Spirit is a planner choice, not a required base. Standard Hurricane/Grizzly bonuses are preferences. Jewel identities and fire modifiers must be captured on socket children; no price inferred from build demand."
+      }
+    },
+    {
+      "id": "fissure-magic-find-pelt",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "+3 Elemental / +3 Fissure magic pelt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:234",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_socket_item": "Defender's Fire",
+      "depends_on": [
+        {
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 2
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "329:0",
+                  "value": 6
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "333:0",
+                  "value": 6
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "188:42",
+        "107:234"
+      ],
+      "preferences": [],
+      "conditions": [
+        "An unsocketed magic pelt needs the two-socket Larzuk outcome for this setup; one socket cannot be increased to two. Check wearer requirements and the full loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Dream Spirit +3 Elemental / +3 Fissure pelt, socketed Defender's Fire Colossal Jewel + Fire Rainbow Facet"
+        ],
+        "review": "2026-09-25: Shared +3 Elemental/+3 Fissure core across magic pelt bases. Dream Spirit is a planner choice, not a required base. Standard Hurricane/Grizzly bonuses are preferences. Jewel identities and fire modifiers must be captured on socket children; no price inferred from build demand."
+      }
+    },
+    {
+      "id": "fissure-player-starter-lore",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Starter +3 Fissure Lore pelt",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Lore"
+      ],
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Lore"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:234",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "107:234"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lore Antlers (+3 Fissure)"
+        ],
+        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price."
+      }
+    },
+    {
+      "id": "fissure-player-standard-flickering-flame",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Fire skills / enemy fire resistance / Resist Fire aura alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Flickering Flame"
+      ],
+      "types": [
+        "circ",
+        "helm",
+        "pelt"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Flickering Flame"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "333:0",
+        "151:100",
+        "9:0",
+        "107:234"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Flickering Flame in an ideal Base (prose: 'also great for this build')"
+        ],
+        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price. Local itemtypes Class excludes Barbarian primal helms from the Druid player role."
+      }
+    },
+    {
+      "id": "fissure-player-standard-ravenlore",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Elemental skills / enemy fire resistance helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Ravenlore"
+      ],
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "333:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "1:0",
+        "16:0"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ravenlore (intro prose: 'takes the spotlight upon acquiring Ravenlore or Flickering Flame, Phoenix, and Infinity')"
+        ],
+        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price."
+      }
+    },
+    {
+      "id": "fissure-player-ubers-ravenlore",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Elemental skills / enemy fire resistance helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Ravenlore"
+      ],
+      "types": [
+        "pelt"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "333:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "1:0",
+        "16:0"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ravenlore Sky Spirit (socketed Fire Rainbow Facet)"
+        ],
+        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price."
+      },
+      "depends_on": [
+        {
+          "label": "Fire Rainbow Facet socketed in Ravenlore",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "329:0",
+                  "value": 6
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "333:0",
+                  "value": 6
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "fissure-player-standard-magefist",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Fire skills / cast rate gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "126:1",
+        "105:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full loadout; upgrades raise requirements without improving the skill, cast-rate or magic-find roll."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1/player/Gloves/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist"
+        ],
+        "review": "2026-09-25: Explicit named player component. Identity-preserving upgrade bases remain candidates; the Ubers Magefist destination is an explicit preparation dependency. Nonethereal for sustained player use. No perfect-roll threshold, price premium or whole-loadout breakpoint inferred."
+      }
+    },
+    {
+      "id": "fissure-player-magic-find-magefist",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Fire skills / cast rate gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "126:1",
+        "105:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full loadout; upgrades raise requirements without improving the skill, cast-rate or magic-find roll."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2/player/Gloves/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist"
+        ],
+        "review": "2026-09-25: Explicit named player component. Identity-preserving upgrade bases remain candidates; the Ubers Magefist destination is an explicit preparation dependency. Nonethereal for sustained player use. No perfect-roll threshold, price premium or whole-loadout breakpoint inferred."
+      }
+    },
+    {
+      "id": "fissure-player-ubers-magefist",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Fire skills / cast rate gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "126:1",
+        "105:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full loadout; upgrades raise requirements without improving the skill, cast-rate or magic-find roll."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3/player/Gloves/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist Crusader Gauntlets (upgraded)"
+        ],
+        "review": "2026-09-25: Explicit named player component. Identity-preserving upgrade bases remain candidates; the Ubers Magefist destination is an explicit preparation dependency. Nonethereal for sustained player use. No perfect-roll threshold, price premium or whole-loadout breakpoint inferred."
+      },
+      "depends_on": [
+        {
+          "label": "The Ubers planner uses upgraded Magefist Crusader Gauntlets; verify raised requirements before upgrading.",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utg"
+          }
+        }
+      ]
+    },
+    {
+      "id": "fissure-player-standard-war-traveler",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Magic find / movement boots",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "War Traveler"
+      ],
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utb"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "96:0",
+        "0:0",
+        "3:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full loadout; upgrades raise requirements without improving the skill, cast-rate or magic-find roll."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1/player/Boots/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "War Traveler"
+        ],
+        "review": "2026-09-25: Explicit named player component. Identity-preserving upgrade bases remain candidates; the Ubers Magefist destination is an explicit preparation dependency. Nonethereal for sustained player use. No perfect-roll threshold, price premium or whole-loadout breakpoint inferred."
+      }
+    },
+    {
+      "id": "fissure-player-magic-find-war-traveler",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Magic find / movement boots",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "War Traveler"
+      ],
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utb"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "96:0",
+        "0:0",
+        "3:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full loadout; upgrades raise requirements without improving the skill, cast-rate or magic-find roll."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2/player/Boots/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "War Traveler"
+        ],
+        "review": "2026-09-25: Explicit named player component. Identity-preserving upgrade bases remain candidates; the Ubers Magefist destination is an explicit preparation dependency. Nonethereal for sustained player use. No perfect-roll threshold, price premium or whole-loadout breakpoint inferred."
+      }
+    }
+  ]
+}

@@ -140,7 +140,7 @@ def test_captured_spirit_identity_and_roll_ranges(spirit):
     assert stats[9]['text'] == '+105 (89-112) to Mana'
     assert stats[147]['text'] == '+5 (3-8) Magic Absorb'
     assert stats[3]['text'] == '+22 to Vitality'
-    assert stats[194]['text'] == 'Sockets: 4 — Tal Rune, Thul Rune, Ort Rune, Amn Rune (runeword recipe)'
+    assert stats[194]['text'] == 'Sockets: 4 — Tal, Thul, Ort, Amn (runeword recipe)'
     assert {a['property_id']: a['value'] for a in result['item']['affixes']}['520'] == 27
 
 

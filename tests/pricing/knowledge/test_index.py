@@ -151,6 +151,7 @@ def test_market_facets_preserve_watch_vs_comparable_distinction(tmp_path):
             {
                 'name': 'Test Item',
                 'kind': 'market',
+                'evidence_kind': 'ask',
                 'rarity': 'rare',
                 'sockets': 2,
                 'scope_status': 'verified',

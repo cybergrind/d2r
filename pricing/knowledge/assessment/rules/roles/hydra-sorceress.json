@@ -1,0 +1,104 @@
+{
+  "profiles": [
+    {
+      "id": "hydra-standard-fire-facet",
+      "build": "hydra-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Socket filler",
+      "role": "Fire Rainbow Facet for Hydra / Fire Ball damage",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "unique"
+      ],
+      "types": [
+        "jewl"
+      ],
+      "names": [
+        "Rainbow Facet"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "329:0",
+              "value": 6,
+              "absent_is_zero": true
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "333:0",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "333:0",
+              "value": 6,
+              "absent_is_zero": true
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "329:0",
+        "333:0"
+      ],
+      "preferences": [
+        {
+          "label": "5% enemy fire resistance reduction",
+          "when": {
+            "op": "stat_at_least",
+            "key": "333:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5% fire skill damage",
+          "when": {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "conditions": [
+        "Choose an eligible socket recipient and retain sufficient survivability."
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-reviewed-guide-excerpts.json",
+        "locator": "/hydra-standard-fire-facet",
+        "sha256": "bf6508d8979c8878be4723a0e7fd49671a785f99367793f510b894286f72c94c",
+        "url": "https://maxroll.gg/d2/guides/hydra-sorceress",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-25: explicit Standard prose supports fire facets down to3/3; no proc-event preference or specific recipient is inferred. Numeric bounds3\u20135 use native facet definitions; maximum rolls are preferences, not minimum usefulness. Demand evidence only, not market pricing."
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 105% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -263,3 +263,56 @@ used, and absent data is never a zero valuation.
 Use [$update-kb](../../.agents/skills/update-kb/SKILL.md) for maintenance, source
 selection, validation and coverage gaps. Offline maintenance does not silently
 start new market research.
+
+### Offline report prices and valuable items (2026-09-24)
+
+Reports now include `price_estimate`, `price_reference` and `value_watch`.
+Numerical estimates draw only from verified **SC / Non-Ladder / PC / RotW** asks,
+with source listing references, dates (or explicit unknown dates), seller count
+and confidence. They are asking-price estimates, not confirmed sale prices.
+Generated rare names resolve by base plus properties, including mapped skill
+bonuses. Missing/unmapped skills or absent comparisons remain visible gaps.
+
+Exact decoded-facet comparisons take priority. Nearby-roll estimates use matching
+base/rarity, fixed key skill/speed values and 20% tolerance on remaining numeric
+rolls. Base ED/AR and socket counts are preserved; known ethereal/filled/premium
+contradictions are excluded. Missing listing flags and extra affixes lower
+confidence. Same-base/rarity reference medians are never substituted for an item
+estimate. Legacy aggregates with unverified scope are excluded from estimates.
+
+`uv run --offline python -m pricing.knowledge.valuable` rebuilds the keep/review
+watchlist from cached Maxroll valuable-item guidance, local WP-I research and
+build demand. Run it before `pricing.knowledge rebuild` after those inputs change.
+See [VALUABLE_ITEMS.md](VALUABLE_ITEMS.md). The cache contains 167 trade-tier guide
+rows; the merged watchlist has 86 valuable candidates and 205 total items including
+build-demand entries. Magenta highlights valuable candidates; cyan highlights
+other build-demand items. Neither color promises a resale value.
+
+The guide is dated 2024-03-06 and explicitly discusses early ladder: its rankings
+are qualitative context only. The source URL was unavailable during this update;
+we used the existing local cache, not a purported fresh guide. Numeric pricing
+never uses its ladder tiers. No live market requests occur during appraisal.
+
+## Demand audit and assessment redesign (2026-09-24)
+
+See [the build-demand audit](DEMAND_AUDIT.md) for current coverage and explicit gaps,
+and [the assessment design](ASSESSMENT_DESIGN.md) for the planned quality/family/build-role
+classifier. Decorated named setup labels now resolve to canonical identities while
+retaining variant/mercenary/slot/context in reports. This fixes Sazabi's Uber mercenary
+setup falling out of the watchlist. It does not certify exact setup compatibility.
+Rebuild builds → valuable → index, then run `python -m pricing.knowledge.demand_audit`.
+
+### Classifier v1 is active
+
+[Implementation status and maintenance](assessment/README.md). Exact variant contracts
+now replace the generic nearby-roll estimator. Five reviewed role profiles retain
+build/variant/mercenary context. Named-item and other unimplemented price policies
+abstain explicitly. The older 20% valuation notes above describe superseded behavior.
+Restore `appraisal-build-profiles.json` with the portable KB snapshot or generate it
+from cached sources via `pricing.knowledge.assessment.build_profiles`.
+
+Completed runeword maintenance: `python -m pricing.knowledge.runewords` publishes
+99 definition/range records with demand and scoped market coverage. Explicitly
+requested collection uses `pricing/tools/collect_runewords.py --collect --pages 2`;
+normalization/rebuild remains offline. See the update-kb skill and
+[runeword comparison requirements](assessment/README.md#completed-runeword-records).

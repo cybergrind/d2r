@@ -140,8 +140,21 @@ class SelectionUnavailable(ValueError):
 
 
 class AppraisalCapture:
-    def __init__(self, pid, images, capture):
+    def __init__(self, pid, images, capture, *, reconnect=None):
         self.pid, self.images, self.capture = pid, images, capture
+        self.reconnect = reconnect
+
+    def ensure_connected(self):
+        if self.reconnect is None:
+            return
+        try:
+            if identity(self.pid) == self.images['identity']:
+                return
+        except OSError, ValueError:
+            pass
+        # Replace every process-bound address together, only after build-gated
+        # attachment succeeds. A failed attach is retried on the next request.
+        self.pid, self.images, self.capture = self.reconnect()
 
     def sample_selection(self, *, all_grids=False):
         return capture_ui_sample(
@@ -168,6 +181,9 @@ class AppraisalCapture:
 
     def freeze(self):
         started = time.monotonic()
+        self.ensure_connected()
+        if time.monotonic() - started > 1:
+            raise ValueError('Game reconnected; press Alt+D again to capture the current item')
         if not game_focused(self.images):
             raise ValueError('D2R is not focused')
         try:
@@ -225,7 +241,13 @@ class AppraisalCapture:
         }
 
     def still_selected(self, frozen):
-        if not game_focused(self.images) or identity(self.pid) != frozen['identity']:
+        # Publication must never reconnect or accept an old process's capture.
+        if self.images['identity'] != frozen['identity']:
+            return False
+        try:
+            if identity(self.pid) != frozen['identity'] or not game_focused(self.images):
+                return False
+        except OSError, ValueError:
             return False
         sample, selection = self.selection()
         original = frozen['selection']['item']

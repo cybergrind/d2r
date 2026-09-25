@@ -1,0 +1,770 @@
+{
+  "profiles": [
+    {
+      "id": "strafe-amazon-naj-teleport-swap",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "locator": "/strafe-amazon/slots/Weapon-Swap/3"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "strafe-amazon-nirvana-diadem-socket-base",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Diadem socket base: Jeweler's Diadem of Nirvana",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 21,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Perfect suffix: 30 Dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "2:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "Choose socket contents and verify attack-speed or other setup targets; this is an empty base, not a completed socketed item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "strafe-amazon-speed-diadem-socket-base",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Diadem socket base: Jeweler's Diadem of Speed",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "96:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "Choose socket contents and verify attack-speed or other setup targets; this is an empty base, not a completed socketed item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "strafe-amazon-stability-shroud-socket-base",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Empty Dusk Shroud socket base: Jeweler's Dusk Shroud of Stability",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uui"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "99:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "Choose socket contents and verify attack-speed or other setup targets; this is an empty base, not a completed socketed item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "strafe-amazon-precision-shroud-socket-base",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Empty Dusk Shroud socket base: Jeweler's Dusk Shroud of Precision",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uui"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Perfect suffix: 15 Dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "2:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "Choose socket contents and verify attack-speed or other setup targets; this is an empty base, not a completed socketed item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "strafe-amazon-angelic-ring",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "depends_on": [
+        {
+          "label": "Wear Angelic Wings on the player for the paired set setup.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Angelic Wings"
+          }
+        },
+        {
+          "label": "Wear 2 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 2
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Angelic Wings (2-Piece Set)",
+          "Angelic Halo (2-Piece Set)",
+          "Angelic Halo (2-Piece Set)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "strafe-amazon-angelic-amulet",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "depends_on": [
+        {
+          "label": "Wear 2 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 2
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Angelic Wings (2-Piece Set)",
+          "Angelic Halo (2-Piece Set)",
+          "Angelic Halo (2-Piece Set)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "important_stats": [],
+      "id": "strafe-amazon-starter-set-Sigon's Visor",
+      "slot": "Helmet",
+      "names": [
+        "Sigon's Visor"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "required_rune": "Ort Rune"
+    },
+    {
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "important_stats": [],
+      "id": "strafe-amazon-starter-set-Sigon's Gage",
+      "slot": "Gloves",
+      "names": [
+        "Sigon's Gage"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Visor on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Visor"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      }
+    },
+    {
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "important_stats": [],
+      "id": "strafe-amazon-starter-set-Sigon's Sabot",
+      "slot": "Boots",
+      "names": [
+        "Sigon's Sabot"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Visor on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Visor"
+          }
+        },
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      }
+    },
+    {
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "153:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0"
+      ],
+      "id": "strafe-amazon-deaths-guard-upgrade",
+      "slot": "Belt",
+      "names": [
+        "Death's Guard"
+      ],
+      "role": "Cannot Be Frozen belt / upgraded potion capacity",
+      "depends_on": [
+        {
+          "label": "Use the cited Demonhide Sash upgrade for more potion slots; a normal Sash still supplies Cannot Be Frozen.",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "zlb"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify upgraded equipment requirements and the remaining starter damage/resistance setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Guard Demonhide Sash \u2014 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-demon-limb-prebuff",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Prebuff",
+      "role": "Demon Limb Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Demon Limb"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Amazon"
+      },
+      "depends_on": [
+        {
+          "label": "Enchant charges are available; recharge when empty if the item can be repaired.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 52,
+            "value": 1
+          }
+        },
+        {
+          "label": "Use this Enchant alternative when not using Lava Gout.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "player_items",
+              "value": "Lava Gout"
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3351"
+      ],
+      "conditions": [
+        "Equip temporarily to cast Enchant; this is not the combat weapon slot. Verify equipment requirements before use.",
+        "Available charges do not prove the buff is currently active. Ethereal copies cannot be recharged by repair."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/1",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube \u2014 cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      }
+    }
+  ]
+}

@@ -1,0 +1,1920 @@
+{
+  "profiles": [
+    {
+      "id": "nova-standard-infinity-player",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Infinity / wearer damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Infinity"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Infinity"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:123",
+            "value": 12
+          }
+        ]
+      },
+      "important_stats": [
+        "334:0"
+      ],
+      "conditions": [
+        "Player-held Infinity: lightning pierce applies to the wearer.",
+        "Equip requirements and the complete Nova cast-rate/resource setup remain unverified; low-requirement Scythe is the cited base."
+      ],
+      "alternatives": [
+        "Infinity Scythe"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Scythe (Ber Mal Ber Ist, ethereal in planner)"
+        ]
+      }
+    },
+    {
+      "id": "nova-hybrid-infinity-merc",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Infinity / Conviction support / physical weapon damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Infinity"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Infinity"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:123",
+            "value": 12
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0"
+      ],
+      "conditions": [
+        "Act 2 mercenary equipment, strength and attack-speed setup remain unverified.",
+        "Conviction supports the player; weapon lightning pierce does not transfer to the player."
+      ],
+      "alternatives": [
+        "Infinity Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/merc/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Giant Thresher (ethereal) \u2014 merc holds Infinity since player uses Eschuta's"
+        ]
+      }
+    },
+    {
+      "id": "nova-starter-boots",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Starter movement / fire resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Heavy Boots (planner: 30 FRW / 40 FR)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/0/player/Boots",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "nova-starter-amulet",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:9",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sparking Amulet of the Apprentice (+1 Lightning Skills / 10 FCR)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "nova-standard-amulet",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:1",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "60 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 60,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "110 mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 110,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10% mana regeneration",
+          "when": {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40% poison resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:1",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/1/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Amulet (planner: +2 Sorceress Skills, 10 FCR, 60 Life, 110 Mana, 10% Mana regen, 40 PR)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "nova-mf-amulet",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:1",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "60 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 60,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "110 mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 110,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:1",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/2/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Amulet (planner: +2 Sorc, 10 FCR, 60 Life, 110 Mana, 25 MF)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "nova-hydra-amulet",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:1",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "60 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 60,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "110 mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 110,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:1",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/3/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Amulet (+2 Sorc, 10 FCR, 60 Life, 110 Mana, 25 MF)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "nova-starter-ring",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "39:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "41:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "43:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "39:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "41:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "45:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "39:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "43:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "45:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "41:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "43:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "45:0",
+                    "value": 1,
+                    "absent_is_zero": true
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate.",
+        "The cached ring summary does not specify the resistance mix; verify the three elements against the character\u2019s actual deficits."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10 FCR + tri-resist (x2)"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "nova-standard-life-skiller",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:9",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Charms/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "6x Sparking Grand Charm of Vita (+1 Lightning Skills / 45 Life)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "nova-starter-insight-merc",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Treachery Light Plate (ethereal in planner). Cited helmet: Bulwark Crown ('a Helmet with x% Life stolen per hit such as Bulwark Crown')."
+      ],
+      "alternatives": [
+        "Insight Partizan in an Exceptional Base (ethereal in planner)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Partizan in an Exceptional Base (ethereal in planner)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "nova-standard-insight-merc",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might or Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Cure Diadem (ethereal) \u2014 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "nova-mf-insight-merc",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might or Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Cure Diadem (ethereal)."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "nova-starter-crafted-belt",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "20 Mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 20
+          }
+        },
+        {
+          "label": "10% Mana Regeneration",
+          "when": {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        },
+        {
+          "label": "30% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 30
+          }
+        },
+        {
+          "label": "30% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Belt (planner: crafted Sharkskin Belt \u2014 10 FCR, 20 Mana, 10% Mana regen, 30 CR/LR/FR)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 105% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        }
+      ]
+    },
+    {
+      "id": "nova-standard-sc-light-mf",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm lightning resistance and Magic Find",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "11% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 11,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "41:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 5x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/1/player/Charms/5",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "5x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-standard-sc-mf-res",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 2x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/1/player/Charms/6",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "2x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-mf-sc-mana-mf",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm mana and Magic Find",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "17 Mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 17,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "9:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 19x Serpent's Small Charm of Good Luck (17 Mana / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/2/player/Charms/4",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "19x Serpent's Small Charm of Good Luck (17 Mana / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-mf-sc-light-mf",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm lightning resistance and Magic Find",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "11% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 11,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "41:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 5x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/2/player/Charms/5",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "5x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-mf-sc-mf-res",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/2/player/Charms/6",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-hydra-sc-mf-res",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 14x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/player/Charms/4",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "14x Shimmering Small Charm of Good Luck (5@ / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-hydra-sc-light-mf",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm lightning resistance and Magic Find",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "11% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 11,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "41:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 7x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/player/Charms/5",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "7x Amber Small Charm of Good Luck (11 LR / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-hydra-sc-fire-mf",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm fire resistance and Magic Find",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "11% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 11,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "39:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 4x Ruby Small Charm of Good Luck (11 FR / 7 MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/player/Charms/6",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "4x Ruby Small Charm of Good Luck (11 FR / 7 MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    }
+  ]
+}

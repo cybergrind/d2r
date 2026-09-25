@@ -71,7 +71,8 @@ def test_selected_nonring_all_qualities_and_empty_stats(fixture, quality, catego
     assert result['appraisal_ready'] is False
 
 
-def test_freeze_reads_selected_item_stats_only(fixture, monkeypatch):
+@pytest.mark.parametrize('restart', [None, 'new_pid', 'reused_pid'])
+def test_freeze_reads_selected_item_stats_only(fixture, monkeypatch, restart):
     snapshot = fixture['snapshot']
     row = copy.deepcopy(snapshot['resources']['items'][0])
     arrays = row.pop('resource_stats')
@@ -79,16 +80,39 @@ def test_freeze_reads_selected_item_stats_only(fixture, monkeypatch):
     # A rare item must reach decoding; no magic-ring filter remains.
     row['details']['quality'] = 6
     snapshot.pop('resources')
-    source = AppraisalCapture(1, {'identity': snapshot['identity']}, {})
+    token = snapshot['identity']
+    images = {'identity': token}
+    capture = {'session': 'new'}
+    connections = []
+
+    def reconnect():
+        connections.append(True)
+        return token['pid'], images, capture
+
+    old_token = dict(token)
+    if restart == 'new_pid':
+        old_token['pid'] += 1
+    elif restart == 'reused_pid':
+        old_token['start_ticks'] = 'old'
+
+    def current_identity(pid):
+        if pid != token['pid']:
+            raise ProcessLookupError('old game exited')
+        return token
+
+    source = AppraisalCapture(old_token['pid'], {'identity': old_token}, {}, reconnect=reconnect)
+    monkeypatch.setattr(appraisal_capture, 'identity', current_identity)
     monkeypatch.setattr(
         source,
         'selection',
         lambda: ({'snapshot': snapshot}, {'item': row, 'container': {'page': 0, 'name': 'Main inventory'}}),
     )
-    monkeypatch.setattr(appraisal_capture, 'game_focused', lambda _: True)
+    monkeypatch.setattr(appraisal_capture, 'game_focused', lambda current: current['identity'] == token)
     reads = []
 
     def verify(pid, images, item, expected=None, **kwargs):
+        assert pid == token['pid']
+        assert images['identity'] == token
         reads.append(item['unit_id'])
         assert expected is None or expected == arrays
         return arrays
@@ -99,6 +123,57 @@ def test_freeze_reads_selected_item_stats_only(fixture, monkeypatch):
     assert frozen['observation']['item']['rarity'] == 'rare'
     assert snapshot['resources']['selected_only']
     assert len(snapshot['resources']['items']) == 1
+    assert connections == ([True] if restart else [])
+    if restart:
+        assert source.images is images
+        assert source.capture is capture
+        assert not source.still_selected({'identity': old_token})
+
+
+def test_failed_reconnect_retries_next_request_without_reading_old_memory(monkeypatch):
+    attempts = []
+
+    def reconnect():
+        attempts.append(True)
+        raise ValueError('game image unavailable')
+
+    source = AppraisalCapture(1, {'identity': {'pid': 1, 'start_ticks': 'old'}}, {}, reconnect=reconnect)
+    monkeypatch.setattr(appraisal_capture, 'identity', lambda _: {'pid': 1, 'start_ticks': 'new'})
+    monkeypatch.setattr(appraisal_capture, 'game_focused', lambda _: pytest.fail('stale focus checked'))
+    for _ in range(2):
+        with pytest.raises(ValueError, match='game image unavailable'):
+            source.freeze()
+    assert len(attempts) == 2
+
+
+def test_slow_reconnect_requires_fresh_hotkey_before_sampling(monkeypatch):
+    now = [0.0]
+    token = {'pid': 2, 'start_ticks': 'new'}
+    connections = []
+
+    def reconnect():
+        connections.append(True)
+        now[0] += 2
+        return 2, {'identity': token}, {}
+
+    source = AppraisalCapture(1, {'identity': {'pid': 1, 'start_ticks': 'old'}}, {}, reconnect=reconnect)
+    monkeypatch.setattr(appraisal_capture.time, 'monotonic', lambda: now[0])
+    monkeypatch.setattr(appraisal_capture, 'identity', lambda _: token)
+    monkeypatch.setattr(appraisal_capture, 'game_focused', lambda _: True)
+    samples = []
+
+    def selection():
+        samples.append(True)
+        raise ValueError('No inventory item under the mouse')
+
+    monkeypatch.setattr(source, 'selection', selection)
+    with pytest.raises(ValueError, match='Game reconnected; press Alt\\+D again'):
+        source.freeze()
+    assert not samples
+    with pytest.raises(ValueError, match='No inventory item'):
+        source.freeze()
+    assert samples == [True]
+    assert connections == [True]
 
 
 def test_metadata_changes_during_selected_read_reject(monkeypatch):

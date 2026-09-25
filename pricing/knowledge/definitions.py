@@ -9,9 +9,18 @@ import argparse
 import hashlib
 import json
 import re
+import tempfile
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+from pricing.knowledge.base_resistances import resistance_options
+from pricing.knowledge.charged_skills import charged_skills
+from pricing.knowledge.localization import merge_game_strings
+from pricing.knowledge.named_effects import fixed_elemental_effects, fixed_poison_effect
+from pricing.knowledge.named_triggers import fixed_triggers
+from pricing.knowledge.per_level_effects import fixed_per_level_effects, variable_per_level_effects
+from pricing.knowledge.rune_effects import socket_compound_effects
 
 
 SOURCE_DATE = '2026-09-23'
@@ -29,6 +38,16 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
         if not code or type(low) is not int or type(high) is not int or low > high:
             continue
         spec = properties.get(code, {})
+        if code == 'fireskill' and spec.get('func1') == 21:
+            if (
+                spec.get('stat1') == 'item_elemskill'
+                and spec.get('val1') == 1
+                and stat_ids.get('item_elemskill') == 126
+            ):
+                ranges.append(
+                    {'stat_id': 126, 'layer': 1, 'min': low, 'max': high, 'property': code, 'better': 'higher'}
+                )
+            continue
         if code == 'howl':
             low, high = low * 100 // 128, high * 100 // 128
         if code == 'skilltab' and spec.get('func1') == 10 and type(param) is int and 0 <= param < 24:
@@ -37,7 +56,7 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
                 {'stat_id': 188, 'layer': layer, 'min': low, 'max': high, 'property': code, 'better': 'higher'}
             )
             continue
-        if code in ('aura', 'oskill') and spec.get('func1') == 22:
+        if code in ('aura', 'oskill', 'skill') and spec.get('func1') == 22:
             layer = (skill_ids or {}).get(param) if isinstance(param, str) else param
             sid = stat_ids.get(spec.get('stat1'))
             if sid is not None and type(layer) is int and layer in (skill_ids or {}).values():
@@ -75,6 +94,30 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
     return {key(row): row for row in ranges if counts[key(row)] == 1}
 
 
+def socket_bonus_ranges(runes, gems, properties, stat_ids):
+    """Compile supported scalar rune effects by destination equipment family."""
+    result = {}
+    for family, prefix in [('weapon', 'weapon'), ('shield', 'shield'), ('armor', 'helm'), ('helm', 'helm')]:
+        totals = {}
+        if any(code not in gems for code in runes):
+            result[family] = totals
+            continue
+        for code in runes:
+            gem = gems[code]
+            record = {}
+            for i in range(1, 4):
+                for target, suffix in [('prop', 'Code'), ('min', 'Min'), ('max', 'Max'), ('par', 'Param')]:
+                    record[f'{target}{i}'] = gem.get(f'{prefix}Mod{i}{suffix}')
+            for key, spec in scalar_ranges(record, properties, stat_ids).items():
+                if key in totals:
+                    totals[key]['min'] += spec['min']
+                    totals[key]['max'] += spec['max']
+                else:
+                    totals[key] = dict(spec)
+        result[family] = totals
+    return result
+
+
 def range_family(definition):
     # Local properties.json: cast1/cast2/cast3 all use func8/item_fastercastrate.
     if definition.get('stat_id') == 105 and definition['property'] in ('cast1', 'cast2', 'cast3'):
@@ -84,12 +127,16 @@ def range_family(definition):
 
 def add_charm_quality_ranges(rows, *, rare=False):
     """Rank against current spawnable tiers, separately from the item's own tier."""
+    from pricing.knowledge.assessment.mechanics.affix_pool import can_generate
+
     pools = {}
     tiers = {}
     for entry in rows:
-        if not entry.get('affix_table') or not entry.get('spawnable') or (rare and not entry.get('rare')):
+        if not entry.get('affix_table'):
             continue
         for base in entry['base_codes']:
+            if not can_generate(entry, base, 'rare' if rare else 'magic'):
+                continue
             for stat, definition in entry['roll_ranges'].items():
                 key = (base, entry['affix_table'], stat, range_family(definition))
                 tiers.setdefault(key, set()).add((definition['min'], definition['max']))
@@ -165,13 +212,17 @@ def build_definitions(root):
         for r in read('third-parties/d2data/json/skills.json').values()
         if 'skill' in r and '*Id' in r
     }
-    strings = {
-        r[0]: r[1] for r in read('pricing/raw/mr/planners/game-strings.json') if isinstance(r, list) and len(r) == 2
-    }
+    # Planner strings omit recent item identities; the pinned English game
+    # table supplies their display names while retaining established translations.
+    strings = merge_game_strings(
+        read('third-parties/d2data/json/allstrings-eng.json'),
+        read('pricing/raw/mr/planners/game-strings.json'),
+    )
     bases = {}
     for category in ('weapons', 'armor', 'misc'):
         bases.update(read(raw + category + '.json'))
     types = read(raw + 'itemtypes.json')
+    automagic = read('third-parties/d2data/json/automagic.json')
 
     def matches(code, allowed, seen=None):
         seen = set() if seen is None else seen
@@ -214,6 +265,11 @@ def build_definitions(root):
                     'base_name': bases.get(code, {}).get('name'),
                     'set_name': strings.get(record.get('set'), record.get('set')),
                     'roll_ranges': scalar_ranges(record, properties, stat_ids, skill_ids=skill_ids),
+                    'fixed_elemental_effects': fixed_elemental_effects(record, properties),
+                    'fixed_poison_effect': fixed_poison_effect(record, properties),
+                    'fixed_triggers': fixed_triggers(record, properties, stat_ids, skill_ids),
+                    'fixed_per_level_effects': fixed_per_level_effects(record, properties, stats),
+                    'variable_per_level_effects': variable_per_level_effects(record, properties, stats),
                     'enhanced_damage_expected': any(record.get(f'prop{i}') == 'dmg%' for i in range(1, 13)),
                     'source': {'path': raw + filename + '.json', 'source_date': SOURCE_DATE},
                 }
@@ -231,6 +287,7 @@ def build_definitions(root):
         if name in ids and ids[name] != table_id:
             raise ValueError(f'Conflicting runeword ID for {name}')
         ids[name] = table_id
+    gems = read('third-parties/d2data/json/gems.json')
     for name, record in read(raw + 'runes.json').items():
         if record.get('complete') != 1:
             continue
@@ -250,6 +307,30 @@ def build_definitions(root):
                 'base_codes': codes,
                 'runes': [record[f'Rune{i}'] for i in range(1, 7) if record.get(f'Rune{i}')],
                 'roll_ranges': scalar_ranges(record, properties, stat_ids, runeword=True, skill_ids=skill_ids),
+                'fixed_triggers': fixed_triggers(record, properties, stat_ids, skill_ids, runeword=True),
+                'charged_skills': charged_skills(record, properties, skill_ids),
+                'fixed_per_level_effects': fixed_per_level_effects(record, properties, stats, runeword=True),
+                'variable_per_level_effects': variable_per_level_effects(record, properties, stats, runeword=True),
+                'fixed_elemental_effects': fixed_elemental_effects(record, properties, runeword=True),
+                'base_resistance_options': {code: resistance_options(bases[code], automagic) for code in codes},
+                'base_stat_ranges': {
+                    code: {
+                        '20': {
+                            'stat_id': 20,
+                            'min': bases[code]['block'],
+                            'max': bases[code]['block'],
+                            'property': 'base_block',
+                        }
+                    }
+                    for code in codes
+                    if matches(bases[code].get('type'), {'shld'}) and type(bases[code].get('block')) is int
+                },
+                'socket_compound_effects': socket_compound_effects(
+                    [record[f'Rune{i}'] for i in range(1, 7) if record.get(f'Rune{i}')], gems, properties
+                ),
+                'socket_bonus_ranges': socket_bonus_ranges(
+                    [record[f'Rune{i}'] for i in range(1, 7) if record.get(f'Rune{i}')], gems, properties, stat_ids
+                ),
                 'enhanced_damage_expected': any(record.get(f'T1Code{i}') == 'dmg%' for i in range(1, 8)),
                 'source': {'path': raw + 'runes.json', 'source_date': SOURCE_DATE},
             }
@@ -260,6 +341,8 @@ def build_definitions(root):
     suffixes = read('third-parties/d2data/json/magicsuffix.json')
     prefixes = read('third-parties/d2data/json/magicprefix.json')
     automagic = read('third-parties/d2data/json/automagic.json')
+    # ItemMode.cpp:6288-6290 supplies the base's auto-prefix group;
+    # ItemsMagic.cpp:327 also requires that group to match the automagic row.
     for table, records, offset in (
         ('suffix', suffixes, 0),
         ('prefix', prefixes, len(suffixes)),
@@ -272,7 +355,16 @@ def build_definitions(root):
             codes = [
                 code
                 for code, b in bases.items()
-                if matches(b.get('type'), allowed) and not matches(b.get('type'), excluded)
+                if matches(b.get('type'), allowed)
+                and not matches(b.get('type'), excluded)
+                and (
+                    table != 'auto'
+                    or (
+                        type(record.get('group')) is int
+                        and record['group'] > 0
+                        and b.get('auto prefix') == record['group']
+                    )
+                )
             ]
             if not codes or not record.get('Name'):
                 continue
@@ -326,9 +418,11 @@ def build_definitions(root):
     quality_records = read(quality_path)
     for category, gate in (('weapons', 'weapon'), ('armor', 'armor')):
         bounds = {}
-        for record in quality_records.values():
+        patterns = {}
+        for index, record in quality_records.items():
             if not record.get(gate):
                 continue
+            patterns[str(index)] = dict(record)
             normalized = {
                 f'{target}{i}': record.get(f'mod{i}{suffix}')
                 for i in (1, 2)
@@ -342,6 +436,7 @@ def build_definitions(root):
             {
                 'kind': 'quality_definition',
                 'name': f'Superior {category}',
+                'patterns': patterns,
                 'rarity': 'superior',
                 'category': category,
                 'table_id': None,
@@ -350,11 +445,23 @@ def build_definitions(root):
             }
         )
     pools = compact_affix_pools(rows)
+    from pricing.knowledge.crafting_bases import crafting_bases, nonethereal_crafting_recipes
+    from pricing.knowledge.crafting_cold import crafting_affix_only_cold
+    from pricing.knowledge.crafting_poison import crafting_affix_only_poison
+    from pricing.knowledge.crafting_triggers import crafting_triggers
+
+    cube_recipes = read('third-parties/d2data/json/cubemain.json')
+    craft_bases = crafting_bases(cube_recipes, bases)
     return {
         'schema_version': 1,
         'source_date': SOURCE_DATE,
         'inputs': inputs,
         'rows': rows,
+        'crafting_bases': craft_bases,
+        'crafting_affix_only_cold': crafting_affix_only_cold(cube_recipes, bases, properties, matches),
+        'crafting_affix_only_poison': crafting_affix_only_poison(cube_recipes, bases, properties, matches),
+        'crafting_nonethereal': nonethereal_crafting_recipes(cube_recipes),
+        'crafting_triggers': crafting_triggers(cube_recipes, bases, properties, stat_ids, skill_ids, matches),
         'staffmods': {
             'classes_by_type': {code: r['StaffMods'] for code, r in types.items() if r.get('StaffMods')},
             'range': {'min': 1, 'max': 3},
@@ -376,7 +483,15 @@ def main():
     parser.add_argument('--output', type=Path, default=Path('pricing/data/appraisal-definitions.json'))
     args = parser.parse_args()
     output = args.output if args.output.is_absolute() else args.root / args.output
-    output.write_text(json.dumps(build_definitions(args.root), indent=2) + '\n')
+    payload = json.dumps(build_definitions(args.root), indent=2) + '\n'
+    with tempfile.NamedTemporaryFile(mode='w', dir=output.parent, prefix=output.name + '.', delete=False) as stream:
+        temporary = Path(stream.name)
+        try:
+            stream.write(payload)
+            stream.flush()
+            temporary.replace(output)
+        finally:
+            temporary.unlink(missing_ok=True)
 
 
 if __name__ == '__main__':

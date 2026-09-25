@@ -1,0 +1,394 @@
+{
+  "profiles": [
+    {
+      "id": "dream-paladin-naj-teleport-swap",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "locator": "/dream-paladin/slots/Weapon-Swap/2"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "dream-paladin-ubers-charges-82",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Life Tap charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Life Tap charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 1
+          }
+        },
+        {
+          "label": "Use the wand when neither Last Wish nor Dracul's Grasp supplies Life Tap.",
+          "when": {
+            "all": [
+              {
+                "not": {
+                  "op": "context_contains",
+                  "field": "player_items",
+                  "value": "Last Wish"
+                }
+              },
+              {
+                "not": {
+                  "op": "context_contains",
+                  "field": "player_items",
+                  "value": "Dracul's Grasp"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "locator": "/dream-paladin/variants/2/player/Other/0"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "dream-paladin-2-demon-limb-prebuff",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Prebuff",
+      "role": "Demon Limb Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Demon Limb"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Paladin"
+      },
+      "depends_on": [
+        {
+          "label": "Enchant charges are available; recharge when empty if the item can be repaired.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 52,
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3351"
+      ],
+      "conditions": [
+        "Equip temporarily to cast Enchant; this is not the combat weapon slot. Verify equipment requirements before use.",
+        "Available charges do not prove the buff is currently active. Ethereal copies cannot be recharged by repair."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/dream-paladin.json",
+        "locator": "/variants/2",
+        "sha256": "7100b77dcb161fb368ebb63768751c3f06f0898a1de8e3df8f3fea4383503e95",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Demon Limb (Enchant)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      }
+    },
+    {
+      "id": "dream-hybrid-gaze-merc",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Life leech and physical damage reduction for Act 1 Cold",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "36:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 1 Cold",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          }
+        },
+        {
+          "label": "One socket jewel with 15% IAS and 15% to each elemental resistance",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "93:0": 15,
+              "39:0": 15,
+              "41:0": 15,
+              "43:0": 15,
+              "45:0": 15
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Faith Matriarchal Bow. Cited armor: Shaftstop (Mesh Armor, ethereal; 15 IAS / 15 All Res jewel)."
+      ],
+      "setup_label": "Vampire Gaze (Grim Helm, ethereal; 15 IAS / 15 All Res jewel)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (Grim Helm, ethereal; 15 IAS / 15 All Res jewel)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+      }
+    },
+    {
+      "id": "dream-ubers-gaze-merc",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Life leech and physical damage reduction for Act 1 Cold",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "36:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 1 Cold",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          }
+        },
+        {
+          "label": "One socket jewel with 15% IAS and 15% to each elemental resistance",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "93:0": 15,
+              "39:0": 15,
+              "41:0": 15,
+              "43:0": 15,
+              "45:0": 15
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Faith Matriarchal Bow. Cited armor: Shaftstop (ethereal; 15 IAS / 15 All Res jewel)."
+      ],
+      "setup_label": "Vampire Gaze (ethereal; 15 IAS / 15 All Res jewel)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze (ethereal; 15 IAS / 15 All Res jewel)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+      }
+    }
+  ]
+}

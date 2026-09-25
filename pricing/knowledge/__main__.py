@@ -91,9 +91,11 @@ def main(argv=None):
                     'appraisal-demand.json',
                     'appraisal-utility.json',
                     'appraisal-legacy.json',
+                    'appraisal-value-watch.json',
                     'appraisal-market.jsonl',
                     'appraisal-item-facts.json',
                     'appraisal-definitions.json',
+                    'appraisal-runewords.json',
                     'appraisal-recommendations.json',
                 )
             ]

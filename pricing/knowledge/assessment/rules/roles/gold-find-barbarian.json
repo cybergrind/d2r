@@ -1,0 +1,1084 @@
+{
+  "profiles": [
+    {
+      "id": "gold-find-budget-boots",
+      "build": "gold-find-barbarian",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Gold-find / fire resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "35 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 35,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "70 extra gold",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 70,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "79:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Heavy Boots 'Beast Slippers' 20% FRW / 10% FHR / 35 Fire Res / 70% Extra Gold"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/gold-find-barbarian.json",
+        "locator": "/variants/0/player/Boots",
+        "sha256": "415b4d5d265fbf6bb7edf50301a2c779a716960858b2679dbb65934d54376a81",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "goldfind-budget-belt",
+      "build": "gold-find-barbarian",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Gold Find, recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "24% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24
+          }
+        },
+        {
+          "label": "25% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 25
+          }
+        },
+        {
+          "label": "25% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 25
+          }
+        },
+        {
+          "label": "80% Extra Gold",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "43:0",
+        "41:0",
+        "79:0"
+      ],
+      "conditions": [
+        "Budget mercenary-kill Gold Find setup: remaining gear and mercenary must supply damage and survival; compare the cited recovery, resistance and gold targets."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/gold-find-barbarian.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "415b4d5d265fbf6bb7edf50301a2c779a716960858b2679dbb65934d54376a81",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Plated Belt 'Ghoul Cord' 24% FHR / 25 Cold Res / 25 Light Res / 80% Extra Gold"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "gold-find-standard-crown-merc",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Gold-find and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Crown of Thieves"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 9,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Lem Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        },
+        {
+          "label": "12% life leech (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Cited upgraded Corona base",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "urn"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "79:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Breath of the Dying War Pike (ethereal). Cited armor: Wealth Sacred Armor (ethereal)."
+      ],
+      "setup_label": "Crown of Thieves Corona (ethereal; socketed Lem Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    },
+    {
+      "id": "gold-find-war-cry-crown-merc",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Gold-find and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Crown of Thieves"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 9,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Lem Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        },
+        {
+          "label": "12% life leech (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Cited upgraded Corona base",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "urn"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "79:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Breath of the Dying War Pike (ethereal). Cited armor: Wealth Sacred Armor (ethereal)."
+      ],
+      "setup_label": "Crown of Thieves Corona (ethereal; socketed Lem Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    },
+    {
+      "id": "gold-find-whirlwind-crown-merc",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Gold-find and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Crown of Thieves"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 9,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Lem Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        },
+        {
+          "label": "12% life leech (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Cited upgraded Corona base",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "urn"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "79:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Breath of the Dying War Pike (ethereal). Cited armor: Wealth Sacred Armor (ethereal)."
+      ],
+      "setup_label": "Crown of Thieves Corona (ethereal; socketed Lem Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    },
+    {
+      "id": "gold-find-leap-only-crown-merc",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Gold-find and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Crown of Thieves"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 9,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Lem Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        },
+        {
+          "label": "12% life leech (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Cited upgraded Corona base",
+          "when": {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "urn"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "79:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Breath of the Dying War Pike (ethereal). Cited armor: Wealth Sacred Armor (ethereal)."
+      ],
+      "setup_label": "Crown of Thieves Corona (ethereal; socketed Lem Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Crown of Thieves Corona (ethereal; socketed Lem Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    },
+    {
+      "id": "gold-find-standard-off-hand-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7cr"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Phase Blade (6x Lem Rune) - table lists 'Gemmed Crystal Sword'"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-war-cry-weapon-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-war-cry-off-hand-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-whirlwind-weapon-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-whirlwind-off-hand-swap-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-leap-only-weapon-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    },
+    {
+      "id": "gold-find-leap-only-off-hand-lem-sword",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Six-Lem gold-find sword",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "crs"
+              }
+            ]
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "79:0"
+      ],
+      "conditions": [
+        "Use for the documented gold-find hand/swap role; verify requirements and the remaining loadout.",
+        "Ethereal swords cannot be repaired; use an ethereal Crystal Sword only when this hand is not making melee attacks."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      }
+    }
+  ]
+}

@@ -1,0 +1,333 @@
+{
+  "profiles": [
+    {
+      "id": "wake-of-fire-claw-candidate",
+      "build": "wake-of-fire-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Fire trap skill combination",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "h2h2"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:262",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "+3 to Traps",
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+3 to Wake of Fire",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:262",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40% increased attack speed",
+          "when": {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:48",
+        "107:262",
+        "93:0"
+      ],
+      "conditions": [
+        "Skill-combination candidate; compare sockets and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Cunning Greater Talons of Quickness (+3 Traps, 40 IAS; staffmods +3 Wake of Fire / +3 Weapon Block / +3 Fire Blast; 2 sockets with jewels) \u2014 'Plague Greater Talons is a great alternative to those expensive +6 Claws'"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/wake-of-fire-assassin.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "16c6b1edaba856554181add1e91696f7be11cb7d6cc0511628280140c0965bef",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "review": "2026-09-24: positive matching skill combination is a candidate; planner maxima are preferences, not minimum eligibility or price thresholds."
+      }
+    },
+    {
+      "id": "wake-starter-belt",
+      "build": "wake-of-fire-assassin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "24% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24
+          }
+        },
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/wake-of-fire-assassin.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "16c6b1edaba856554181add1e91696f7be11cb7d6cc0511628280140c0965bef",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Garnet Demonhide Sash of Stability (magic: 24 FHR / 30 FR)"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "wake-of-fire-assassin-cunning-magus",
+      "build": "wake-of-fire-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Cunning Circlet of the Magus",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:48",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements.",
+        "Socket count and inserted jewels need a separate setup check; this skill/cast-rate combination does not establish a perfect socketed helmet."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/wake-of-fire-assassin/slots/Helmets/0"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "wake-of-fire-assassin-cunning-whale",
+      "build": "wake-of-fire-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Cunning Amulet of the Whale",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 81,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "100 life (perfect Whale suffix)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 100,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:48",
+        "7:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/wake-of-fire-assassin/slots/Amulets/1"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "wake-of-fire-assassin-cunning-apprentice",
+      "build": "wake-of-fire-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Cunning Amulet of the Apprentice",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:48",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "source_date": "May 22, 2026",
+        "locator": "/wake-of-fire-assassin/slots/Amulets/2"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    }
+  ]
+}

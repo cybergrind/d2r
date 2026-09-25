@@ -24,3 +24,9 @@ def test_every_local_unique_and_set_preserves_complete_source_information():
             assert row['base_definition'] or not row['base_codes']
             if rarity == 'set':
                 assert row['set_definition'] == sets[record['set']]
+
+    names = {row['game_definition']['index']: row['name'] for row in document['rows'] if row['rarity'] == 'unique'}
+    assert names['Unique Warlock Helm'] == "Hellwarden's Will"
+    assert names["Ars Al'Diablolos"] == "Ars Al'Diabolos"
+    assert names['PreCrafted Cold Rupture'] == 'Latent Cold Rupture'
+    assert names['Crafted Cold Rupture'] == 'Renewed Cold Rupture'

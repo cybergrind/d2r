@@ -1,0 +1,1257 @@
+{
+  "profiles": [
+    {
+      "id": "hammer-standard-life-skiller",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:24",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:24",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/1/player/Charms/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "5x Grand Charm +1 Paladin Combat Skills / +45 Life"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "hammer-standard-fhr-skiller",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:24",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:24",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/1/player/Charms/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Grand Charm +1 Paladin Combat Skills / 12% FHR"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "hammer-starter-insight-merc",
+      "build": "blessed-hammer-paladin",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Smoke Mage Plate (ethereal). Cited helmet: Bulwark Crown (ethereal)."
+      ],
+      "alternatives": [
+        "Insight Scythe (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Scythe (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "hammer-standard-insight-merc",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Fortitude Sacred Armor (ethereal). Cited helmet: Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/1/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "hammer-mf-insight-merc",
+      "build": "blessed-hammer-paladin",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Stealskull (ethereal, Ist Rune)."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/2/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "hammer-ubers-insight-merc",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        },
+        {
+          "label": "Ethereal mercenary base",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Fortitude Sacred Armor (ethereal). Cited helmet: Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)."
+      ],
+      "alternatives": [
+        "Insight Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "hammer-starter-belt",
+      "build": "blessed-hammer-paladin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "24% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24
+          }
+        },
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Demonhide Sash 24% FHR / +30% Fire Resist"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "hammer-standard-sc-mf-res",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 9x Small Charm +5 All Resist / 7% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/1/player/Charms/6",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "9x Small Charm +5 All Resist / 7% MF"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "hammer-mf-sc-mf-res",
+      "build": "blessed-hammer-paladin",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 27x Small Charm +5 All Resist / 7% MF"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/2/player/Charms/4",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "27x Small Charm +5 All Resist / 7% MF"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "hammer-ubers-sc-life-res",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm life and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 7x Small Charm +20 Life / +5 All Resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/3/player/Charms/4",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "7x Small Charm +20 Life / +5 All Resist"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "hammer-standard-ias-fire-jewel",
+      "build": "blessed-hammer-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/1/merc/Helmet/0",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "hammer-ubers-ias-fire-jewel",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/3/merc/Helmet/0",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal, 15% IAS / 30% Fire Resist Jewel)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "hammer-ubers-ias-lightning-jewel",
+      "build": "blessed-hammer-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Attack speed and lightning resistance jewel for Guillaume's Face",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Guillaume's Face on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Guillaume's Face"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "41:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "locator": "/variants/3/player/Helmet/0",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guillaume's Face (15% IAS / +30% Lightning Resist Jewel)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "hammer-mf-stealskull-merc",
+      "build": "blessed-hammer-paladin",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Magic-find, IAS and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Stealskull"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 5,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Ist Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Holy Freeze"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "93:0",
+        "80:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Insight Giant Thresher (ethereal). Cited armor: Chains of Honor Archon Plate (ethereal)."
+      ],
+      "setup_label": "Stealskull (ethereal, Ist Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal, Ist Rune)"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    }
+  ]
+}

@@ -7,6 +7,7 @@ we never reinterpret a rejected specialized encoding as a generic scalar.
 
 from dataclasses import dataclass
 
+from inventory_tracking.items.poison import FRAMES_PER_SECOND
 from inventory_tracking.items.stat_constants import (
     CHARGE_COUNT_BITS,
     CHARGE_COUNT_MASK,
@@ -18,9 +19,12 @@ from inventory_tracking.items.stat_constants import (
     PROC_DESCRIPTION_FUNCTION,
     PROC_ENCODING,
     REPAIR_RATE_SCALE,
+    SKILL_ELEMENTS,
     SKILL_LEVEL_BITS,
     SKILL_LEVEL_MASK,
     SKILL_TABS,
+    SUNDER_MAGNITUDE,
+    SUNDER_STATS,
     TOTAL_LABELS,
     StatId,
 )
@@ -67,6 +71,15 @@ def decode_repair(ctx):
     return None
 
 
+def decode_replenish_quantity(ctx):
+    # D2MOO ItemMode.cpp sub_6FC4A350 uses this as a regeneration rate.
+    # The tooltip has no magnitude; do not project the coefficient as a
+    # market quantity or claim an exact modern-game replenishment interval.
+    if ctx.layer == 0 and ctx.raw > 0:
+        return {'value': ctx.raw, 'unit': 'replenishment_rate', 'text': 'Replenishes quantity'}
+    return None
+
+
 def decode_base_speed(ctx):
     if ctx.layer == 0 and ctx.base and ctx.base.get('category') == 'weapons' and ctx.base.get('speed') == -ctx.raw:
         return {
@@ -91,12 +104,28 @@ def decode_per_level(ctx):
         or ctx.spec.get('descfunc') != 19
     ):
         return None
-    value = ctx.raw * ctx.viewer_level // (1 << shift)
+    # Per-level coefficients also carry ValShift (8 for Life/Mana).
+    # Keep fractional points until the final tooltip value is truncated.
+    divisor = 1 << (shift + ctx.spec.get('shift', 0))
+    value = ctx.raw * ctx.viewer_level // divisor
     return {
         'value': value,
         'text': (template % value) + ' (Based on Character Level)',
         'viewer_level': ctx.viewer_level,
+        'per_level': {'numerator': ctx.raw, 'denominator': divisor},
         'origin': 'level_formula',
+    }
+
+
+def decode_cold_duration(ctx):
+    if ctx.layer != 0 or ctx.raw < 0:
+        return None
+    seconds = ctx.raw / FRAMES_PER_SECOND
+    return {
+        'value': seconds,
+        'unit': 'seconds',
+        'presentation': 'internal',
+        'text': f'Base cold duration: {seconds:g} seconds (before target/difficulty modifiers)',
     }
 
 
@@ -128,11 +157,23 @@ def decode_scalar(ctx):
     return {'value': value, 'label': label, 'text': label.replace('{{value}}', str(value)).replace('+-', '-')}
 
 
+def decode_sunder(ctx):
+    label = ctx.spec.get('label')
+    if ctx.layer == 0 and ctx.raw == SUNDER_MAGNITUDE and label:
+        return {'value': ctx.raw, 'label': label, 'text': label}
+    return None
+
+
 def decode_charges(ctx):
     skill, level = ctx.packed_skill()
     remaining, maximum = ctx.raw & CHARGE_COUNT_MASK, ctx.raw >> CHARGE_COUNT_BITS
     if ctx.spec and skill and level and 0 <= ctx.raw <= CHARGE_PAYLOAD_MAX and remaining <= maximum:
-        return {'text': f'Level {level} {skill["name"]} ({remaining}/{maximum} Charges)'}
+        return {
+            'text': f'Level {level} {skill["name"]} ({remaining}/{maximum} Charges)',
+            'value': remaining,
+            'unit': 'charges_remaining',
+            'charges': {'remaining': remaining, 'maximum': maximum},
+        }
     return None
 
 
@@ -140,7 +181,7 @@ def decode_proc(ctx):
     skill, level = ctx.packed_skill()
     template = ctx.spec.get('template')
     if skill and level and 0 <= ctx.raw <= PERCENT_MAX and template:
-        return {'text': template % (ctx.raw, level, skill['name'])}
+        return {'text': template % (ctx.raw, level, skill['name']), 'value': ctx.raw, 'unit': 'percent_chance'}
     return None
 
 
@@ -180,6 +221,26 @@ def decode_skill_tab(ctx):
     return {'value': ctx.raw, 'label': label, 'text': label.replace('{{value}}', str(ctx.raw))}
 
 
+def decode_magic_mastery(ctx):
+    # d2data/allstrings-eng.json ModStrMagMastery (missing in the planner strings).
+    if ctx.layer == 0:
+        label = '+{{value}}% to Magic Skill Damage'
+        return {
+            'value': ctx.raw,
+            'range_label': label,
+            'text': label.replace('{{value}}', str(ctx.raw)).replace('+-', '-'),
+        }
+    return None
+
+
+def decode_elemental_skills(ctx):
+    element = SKILL_ELEMENTS.get(ctx.layer)
+    if element and ctx.raw > 0:
+        label = '+{{value}} to ' + element + ' Skills'
+        return {'value': ctx.raw, 'range_label': label, 'text': label.replace('{{value}}', str(ctx.raw))}
+    return None
+
+
 def decode_class_skills(ctx):
     if ctx.spec and 0 <= ctx.layer < len(CLASS_NAMES) and ctx.raw > 0:
         return {'value': ctx.raw, 'text': f'+{ctx.raw} to {CLASS_NAMES[ctx.layer]} Skill Levels'}
@@ -188,10 +249,13 @@ def decode_class_skills(ctx):
 
 # Add native-ID families here; metadata-defined encodings are selected below.
 STAT_DECODERS = {
+    56: decode_cold_duration,
     67: decode_armor_movement,
     159: decode_throw_modifier,
     **dict.fromkeys(TOTAL_LABELS, decode_total),
+    **dict.fromkeys(SUNDER_STATS, decode_sunder),
     StatId.SELF_REPAIR: decode_repair,
+    StatId.REPLENISH_QUANTITY: decode_replenish_quantity,
     StatId.FLEE: decode_flee,
     StatId.BASE_SPEED: decode_base_speed,
     StatId.CHARGES: decode_charges,
@@ -199,12 +263,17 @@ STAT_DECODERS = {
     StatId.CLASS_SINGLE_SKILL: decode_single_skill,
     StatId.AURA: decode_single_skill,
     StatId.CLASS_SKILLS: decode_class_skills,
+    StatId.ELEMENTAL_SKILLS: decode_elemental_skills,
+    StatId.MAGIC_MASTERY: decode_magic_mastery,
     StatId.SKILL_TAB: decode_skill_tab,
 }
 
 
 def decode_stat(ctx):
-    if ctx.spec.get('op') == 2 and ctx.spec.get('op_base') == 'level':
+    # D2MOO D2StatList.cpp op4: same level scaling, evaluated on the wielder.
+    if (ctx.spec.get('op') == 2 or (ctx.stat['id'] in (214, 218) and ctx.spec.get('op') == 4)) and ctx.spec.get(
+        'op_base'
+    ) == 'level':
         return decode_per_level(ctx)
     decoder = STAT_DECODERS.get(ctx.stat['id'])
     if decoder is None:

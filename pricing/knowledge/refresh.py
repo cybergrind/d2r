@@ -8,52 +8,89 @@ import subprocess
 import time
 from datetime import UTC, datetime
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 from pricing.knowledge.market import (
     import_cache,
+    normalize_facets,
     normalize_listing,
     property_values,
     scope_status,
-    socket_contents,
     summarize,
 )
+
+
+def reconcile_listing_properties(row):
+    """Reparse source fields before publishing a cached observation."""
+    row['properties'] = property_values(row.get('raw_properties', []))
+    row['scope_status'] = scope_status(row['properties'])
+    normalize_facets(row)
 
 
 API = 'https://traderie.com/api/diablo2resurrected'
 
 
-class RateLimited(OSError):
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36'
+
+
+class RequestRejected(OSError):
+    """HTTP rejection or challenge: stop rather than retrying a denied request."""
+
+
+class RateLimited(RequestRejected):
     """Server rate limit: stop this maintenance batch."""
+
+
+def _fetch_response(url):
+    with NamedTemporaryFile() as header_file:
+        response = subprocess.run(
+            [
+                'curl',
+                '--write-out',
+                '\n%{http_code}',
+                '--dump-header',
+                header_file.name,
+                '-sSL',
+                '-A',
+                USER_AGENT,
+                '--max-time',
+                '40',
+                url,
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        # curl includes proxy/redirect headers; only the final response applies.
+        headers = {}
+        for line in Path(header_file.name).read_text().splitlines():
+            if line.startswith('HTTP/'):
+                headers = {}
+            elif ':' in line:
+                name, value = line.split(':', 1)
+                headers[name.strip().lower()] = value.strip()
+    body, status = response.stdout.rsplit('\n', 1)
+    return body, status, headers
 
 
 def fetch_json(url):
     for attempt in range(3):
         try:
-            response = subprocess.run(
-                [
-                    'curl',
-                    '--write-out',
-                    '\n%{http_code}',
-                    '-sL',
-                    '-A',
-                    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36',
-                    '--max-time',
-                    '40',
-                    url,
-                ],
-                capture_output=True,
-                text=True,
-                check=True,
-            )
-            body, status = response.stdout.rsplit('\n', 1)
-            if status == '429':
-                raise RateLimited('HTTP 429; Retry-After unavailable; stop batch')
+            body, status, headers = _fetch_response(url)
+            if status == '429' or (status != '200' and 'Error 1015' in body):
+                retry = headers.get('retry-after', 'unavailable')
+                raise RateLimited(f'HTTP {status}; Retry-After: {retry}; stop batch: {url}')
+            if headers.get('cf-mitigated', '').lower() == 'challenge':
+                ray = headers.get('cf-ray', 'unavailable')
+                raise RequestRejected(f'HTTP {status}; Cloudflare challenge; Ray ID: {ray}; stop batch: {url}')
+            if status != '200':
+                raise RequestRejected(f'HTTP {status}; request rejected: {url}')
             return json.loads(body)
-        except RateLimited:
+        except RequestRejected:
             raise
-        except OSError, ValueError, subprocess.CalledProcessError:
+        except (OSError, ValueError, subprocess.CalledProcessError) as error:
             if attempt == 2:
-                raise OSError(f'JSON request failed: {url}') from None
+                raise OSError(f'JSON request failed: {url}: {error}') from error
             time.sleep(2**attempt)
     raise RuntimeError('unreachable')
 
@@ -69,9 +106,12 @@ def refresh_item(item, fetch, currencies, *, page_cap=4, seller_target=10, previ
             response = fetch(page)
             listings = response['listings']
         except (OSError, ValueError, KeyError) as error:
-            job.update(
-                terminal_reason='rate_limited' if isinstance(error, RateLimited) else 'fetch_error', error=str(error)
-            )
+            reason = 'fetch_error'
+            if isinstance(error, RequestRejected):
+                reason = 'request_rejected'
+            if isinstance(error, RateLimited):
+                reason = 'rate_limited'
+            job.update(terminal_reason=reason, error=str(error))
             break
         now = datetime.now(UTC).isoformat()
         job['pages'].append(
@@ -209,7 +249,7 @@ def main():
                 for iid, job in pool.map(run, targets[offset : offset + 3]):
                     jobs[iid] = job
                     atomic_json(jobs_path, jobs)
-                    limited = limited or job['terminal_reason'] == 'rate_limited'
+                    limited = limited or job['terminal_reason'] in ('rate_limited', 'request_rejected')
                     print(f'{job["item"]["name"]}: {job["terminal_reason"]}', flush=True)
                 if limited:
                     break
@@ -219,9 +259,7 @@ def main():
             rows.append(row)
     property_dictionary = {}
     for row in rows:
-        row['properties'] = property_values(row.get('raw_properties', []))
-        row['scope_status'] = scope_status(row['properties'])
-        row['socket_contents'] = socket_contents(row['properties'])
+        reconcile_listing_properties(row)
         for prop in row.get('raw_properties', []):
             key = str(prop['property_id'])
             entry = property_dictionary.setdefault(key, {'id': key, 'labels': set(), 'types': set()})

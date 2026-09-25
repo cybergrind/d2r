@@ -19,12 +19,18 @@ from inventory_tracking.native.process import (
 )
 
 
+class GameProcessUnavailable(RuntimeError):
+    """No D2R.exe is running yet; callers may wait and retry."""
+
+
 def select_game_process(requested_pid):
     if requested_pid is not None:
         if not is_game(requested_pid):
             raise RuntimeError(f'PID {requested_pid} is not identifiable as D2R.exe via argv[0]')
         return requested_pid
     candidates = find_game_processes()
+    if not candidates:
+        raise GameProcessUnavailable('Expected one D2R.exe process, found []; start the game or select --pid')
     if len(candidates) != 1:
         raise RuntimeError(f'Expected one D2R.exe process, found {candidates}; run on host or select --pid')
     return candidates[0]

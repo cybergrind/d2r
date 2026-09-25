@@ -1,0 +1,1965 @@
+{
+  "profiles": [
+    {
+      "id": "lightning-sorceress-ubers-boots",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "9 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 9,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Boots 30% FRW / 10% FHR / 9 Dex / 40 Cold Res / 40 Lightning Res / 40 Fire Res"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/3/player/Boots",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "lightning-starter-amulet",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:9",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-sorceress/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Powered Amulet (+3 Lightning Skills)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "lightning-starter-ring",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "50 mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 50,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "15% fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "15% cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / 50 Mana / 15 Cold Res / 15 Fire Res",
+          "Rare Ring 10% FCR / 50 Mana / 15 Cold Res / 15 Fire Res"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "lightning-ubers-ring",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Rings",
+      "role": "caster resistance and resource support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "41% lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 41,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "90 mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 90,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "0:0",
+        "7:0",
+        "9:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "138:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate.",
+        "Uber setup assumes stacked lightning resistance, Thundergod\u2019s Vigor and Treachery Fade prebuff; this ring alone does not establish survival."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/3/player/Rings",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res",
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res"
+        ],
+        "review": "2026-09-24: reviewed rare-ring candidate combination; positive supporting mods identify a candidate and planner maxima remain preferences. Complete loadout required; no numeric price from demand."
+      }
+    },
+    {
+      "id": "lightning-starter-skiller",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Charms",
+      "role": "starter skill-tree charm",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:9",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0/player/Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "3x Sparking Grand Charm (+1 Lightning Skills)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "lightning-standard-life-skiller",
+      "build": "lightning-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "45 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 45,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:9",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/1/player/Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "5x Sparking Grand Charm of Vita (+1 Lightning Skills / 45 Life)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "lightning-standard-fhr-skiller",
+      "build": "lightning-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "skill-tree charm with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:9",
+        "7:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/1/player/Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sparking Grand Charm of Balance (+1 Lightning Skills / 12% FHR) (older profile: 2x)"
+        ],
+        "review": "2026-09-24: reviewed native class/tree identity and distinct plain/life/FHR demand. Lower life remains a candidate; planner45 is a preference, not a price threshold. Build demand does not create a numeric price."
+      }
+    },
+    {
+      "id": "lightning-starter-insight-merc",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Insight Meditation and mercenary damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Insight"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Insight"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 12
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Level 17 Meditation",
+          "when": {
+            "op": "stat_at_least",
+            "key": "151:120",
+            "value": 17
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "151:120",
+        "17:0",
+        "18:0",
+        "97:9"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
+        "Cited armor: Smoke Wyrmhide. Cited helmet: Bulwark Death Mask."
+      ],
+      "alternatives": [
+        "Insight Partizan"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Insight Partizan"
+        ],
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+      }
+    },
+    {
+      "id": "lightning-mf-tal-armor",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Three-piece Tal Rasha Magic Find setup",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Tal Rasha's Guardianship"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "depends_on": [
+        {
+          "label": "Sorceress wearer",
+          "when": {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Fine-Spun Cloth",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Fine-Spun Cloth"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Adjudication",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Adjudication"
+          }
+        },
+        {
+          "label": "Retain at least 117% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 117
+          }
+        }
+      ],
+      "conditions": [],
+      "important_stats": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tal Rasha's Guardianship (Tal Rasha's Wrappings) socketed with Ist Rune",
+          "It exclusively uses Magic Find Charms in its inventory aside from Annihilus, Hellfire Torch, and Gheed's Fortune. 3-Piece Tal Rasha's Set (Tal Rasha's Adjudication, Tal Rasha's Guardianship, and Tal Rasha's Fine-Spun Cloth) is used for solid Magic Find, Faster Cast Rate, and Resistances."
+        ],
+        "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
+      },
+      "required_rune": "Ist Rune"
+    },
+    {
+      "id": "lightning-mf-tal-belt",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Three-piece Tal Rasha Magic Find setup",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Tal Rasha's Fine-Spun Cloth"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "depends_on": [
+        {
+          "label": "Sorceress wearer",
+          "when": {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Guardianship",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Guardianship"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Adjudication",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Adjudication"
+          }
+        },
+        {
+          "label": "Retain at least 117% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 117
+          }
+        }
+      ],
+      "conditions": [],
+      "important_stats": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tal Rasha's Fine-Spun Cloth (Tal Rasha's Wrappings)",
+          "It exclusively uses Magic Find Charms in its inventory aside from Annihilus, Hellfire Torch, and Gheed's Fortune. 3-Piece Tal Rasha's Set (Tal Rasha's Adjudication, Tal Rasha's Guardianship, and Tal Rasha's Fine-Spun Cloth) is used for solid Magic Find, Faster Cast Rate, and Resistances."
+        ],
+        "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
+      }
+    },
+    {
+      "id": "lightning-mf-tal-amulet",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Three-piece Tal Rasha Magic Find setup",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Tal Rasha's Adjudication"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "depends_on": [
+        {
+          "label": "Sorceress wearer",
+          "when": {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Guardianship",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Guardianship"
+          }
+        },
+        {
+          "label": "Wear Tal Rasha's Fine-Spun Cloth",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Tal Rasha's Fine-Spun Cloth"
+          }
+        },
+        {
+          "label": "Retain at least 117% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 117
+          }
+        }
+      ],
+      "conditions": [],
+      "important_stats": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tal Rasha's Adjudication (Tal Rasha's Wrappings)",
+          "It exclusively uses Magic Find Charms in its inventory aside from Annihilus, Hellfire Torch, and Gheed's Fortune. 3-Piece Tal Rasha's Set (Tal Rasha's Adjudication, Tal Rasha's Guardianship, and Tal Rasha's Fine-Spun Cloth) is used for solid Magic Find, Faster Cast Rate, and Resistances."
+        ],
+        "review": "2026-09-24: reviewed player three-piece Tal Rasha setup; require the other two pieces on the player, retain the cited armor socket and full-loadout FCR condition. No guide-derived price or minimum roll inferred."
+      }
+    },
+    {
+      "id": "lightning-starter-crafted-belt",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "17% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 17
+          }
+        },
+        {
+          "label": "40 Mana",
+          "when": {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 40
+          }
+        },
+        {
+          "label": "10% Mana Regeneration",
+          "when": {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "30% Lightning Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "99:0",
+        "9:0",
+        "27:0",
+        "41:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Belt (Sharkskin: 10% FCR / 17% FHR / 40 Mana / 10% Mana Regen / 30 Lightning Res)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 117% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 117
+          }
+        }
+      ]
+    },
+    {
+      "id": "lightning-standard-sc-mf-res",
+      "build": "lightning-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 7x Shimmering Small Charm of Good Luck (5 All Res / 7% MF)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/1/player/Charms/6",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "7x Shimmering Small Charm of Good Luck (5 All Res / 7% MF)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "lightning-standard-sc-fhr-res",
+      "build": "lightning-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm hit recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 2x Shimmering Small Charm of Balance (5% FHR / 5 All Res)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/1/player/Charms/7",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "2x Shimmering Small Charm of Balance (5% FHR / 5 All Res)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "lightning-mf-sc-mf-res",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm Magic Find and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "7% Magic Find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 26x Shimmering Small Charm of Good Luck (5 All Res / 7% MF) (older profile: 29x)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2/player/Charms/0",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "26x Shimmering Small Charm of Good Luck (5 All Res / 7% MF) (older profile: 29x)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "lightning-mf-sc-fhr-res",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm hit recovery and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: Shimmering Small Charm of Balance (5% FHR / 5 All Res)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2/player/Charms/5",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Shimmering Small Charm of Balance (5% FHR / 5 All Res)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "lightning-ubers-sc-life-res",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Small Charm life and resistances",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "5 All Resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 5,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 5,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Candidate combination: balance inventory space, remaining resistance deficits and recovery needs against the cited roll targets.",
+        "Cited inventory allocation: 6x Shimmering Small Charm of Vita (20 Life / 5 All Res)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/3/player/Charms/4",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "6x Shimmering Small Charm of Vita (20 Life / 5 All Res)"
+        ],
+        "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "lightning-standard-ias-fire-jewel",
+      "build": "lightning-sorceress",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/1/merc/Helmet/0",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "lightning-mf-ias-fire-jewel",
+      "build": "lightning-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Attack speed and fire resistance jewel for Andariel's Visage",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "jewl"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "93:0",
+              "value": 16
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30% Fire Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 30
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Andariel's Visage on the intended wearer",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Andariel's Visage"
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The recipient needs an available socket; verify the complete weapon/gear attack-speed breakpoint and remaining resistance needs before socketing."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "locator": "/variants/2/merc/Helmet/0",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)"
+        ],
+        "review": "2026-09-24: reviewed explicit15IAS/30res jewel in cited helmet. Local ofFervor suffix is magic-only, fixed15IAS. Correct wearer/recipient and socket/breakpoint conditions retained; no generic jewel price or automatic replacement recommendation."
+      }
+    },
+    {
+      "id": "lightning-sorceress-starter-charges-91",
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sorceress/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "lightning-sorceress-ubers-charges-91",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        },
+        {
+          "label": "This curse setup uses an Infinity mercenary.",
+          "when": {
+            "op": "context_contains",
+            "field": "mercenary_items",
+            "value": "Infinity"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; charge presence alone does not establish that an immunity can be broken.",
+        "This utility item is one component of the setup; verify the remaining survival and damage requirements before fighting Ubers.",
+        "The guide uses this Infinity combination against Ubers other than Uber Mephisto; his setup is separate."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "locator": "/lightning-sorceress/variants/3/player/Weapon-Swap/1"
+      },
+      "review_notes": "2026-09-24: source-specific charged-wand utility, independent of trade price. Magic and rare items with the same captured charge skill are utility candidates; native charged suffixes permit rare items. Do not infer a market premium or target immunity break from charge presence."
+    },
+    {
+      "id": "lightning-sorceress-main-shield-jmod-base",
+      "build": "lightning-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Empty Jeweler's Monarch of Deflecting setup base",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "31:0"
+      ],
+      "conditions": [
+        "The sockets still need the four Rainbow Facets specified for this build; verify their properties before investing.",
+        "Check wearer requirements and the complete block/cast-rate setup; this base alone is not the finished build item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/slots/Off-Hand/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Lightning Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "lightning-sorc-mephisto-gaze-merc",
+      "build": "lightning-sorceress",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Life leech and physical damage reduction for Act 5 Frenzy",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 6,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "36:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 5 Frenzy",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 5 Frenzy"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Plague Phase Blade (Cham Shael Um); Plague Phase Blade (Cham Shael Um). Cited armor: Treachery Archon Plate.",
+        "Use this Act 5 setup for Uber Mephisto; the cited guide uses the Standard Act 2 Might Infinity mercenary for the other Ubers."
+      ],
+      "setup_label": "Vampire Gaze socketed with Um Rune",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/3/merc",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Vampire Gaze socketed with Um Rune"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price."
+      },
+      "required_rune": "Um Rune"
+    }
+  ]
+}

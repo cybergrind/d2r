@@ -34,3 +34,28 @@ def test_unverified_modifier_lists_are_not_used(failure):
     else:
         evidence['diagnostics']['chains'][-1]['lists'] = []
     assert owned_damage_modifiers(evidence['diagnostics'], evidence['item']) == []
+
+
+@pytest.mark.parametrize('failure', [None, 'owner', 'percent', 'duplicate', 'amount', 'unstable'])
+def test_owned_flat_damage_proof_requires_unique_local_plus_one_without_ed(failure):
+    from inventory_tracking.items.modifiers import owned_flat_damage_modifiers
+
+    capture = json.loads((ROOT / 'superior_phase_blade.json').read_text())
+    item = capture['snapshot']['resources']['items'][0]
+    diagnostics = item['resource_stats']['stat_diagnostics']
+    chain = next(row for row in diagnostics['chains'] if row['head_offset'] == 0xD0)
+    flat = {'id': 22, 'layer': 0, 'raw': 1}
+    chain['lists'][0]['stats'] = [flat]
+    if failure == 'owner':
+        item['address'] += 16
+    elif failure == 'percent':
+        chain['lists'][0]['stats'].append({'id': 17, 'layer': 0, 'raw': 5})
+    elif failure == 'duplicate':
+        chain['lists'][0]['stats'].append(dict(flat))
+    elif failure == 'amount':
+        flat['raw'] = 2
+    elif failure == 'unstable':
+        diagnostics['stable'] = False
+    assert owned_flat_damage_modifiers(diagnostics, item) == ([] if failure else [flat])
+    decoded = decode_items(capture['snapshot'], capture['report'], inventory_page=item['details']['inventory_page'])[0]
+    assert decoded['source'].get('superior_flat_damage', []) == ([] if failure else [flat])

@@ -1,0 +1,660 @@
+{
+  "profiles": [
+    {
+      "id": "berserk-mobility-circlet",
+      "build": "berserk-barbarian",
+      "variant": "Max Mobility",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "+2 class skills / 20 FCR circlet setup candidate",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "83:4",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "2 sockets",
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        },
+        {
+          "label": "40 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:4",
+        "105:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Compare socket fillers, resistance needs and the complete setup before replacing the cited helmet."
+      ],
+      "alternatives": [
+        "Rare Diadem +2 Barbarian Skills / 20% FCR / +40 Life / +20 All Resist / 25% MF (Cham Rune + 15% IAS / +15 All Resist Jewel)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/5/player/Helmet",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "review": "2026-09-24: +2 matching class / 20 FCR defines this cited rare-circlet setup; secondary planner rolls and two sockets are preferences. Other rolls or qualities may have other uses; not a price threshold."
+      }
+    },
+    {
+      "id": "berserk-barbarian-naj-teleport-swap",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "locator": "/berserk-barbarian/slots/Weapon-Swap/7"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "berserk-barbarian-teleport-staf",
+      "build": "berserk-barbarian",
+      "variant": "Teleport alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Affixed Teleport-charge alternative",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Check equipment requirements before using this Teleport-charge alternative.",
+        "Use until Enigma supplies Teleport."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "locator": "/berserk-barbarian/prose_only_items/8"
+      }
+    },
+    {
+      "id": "berserk-barbarian-teleport-amul",
+      "build": "berserk-barbarian",
+      "variant": "Teleport alternatives",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Affixed Teleport-charge alternative",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Check equipment requirements before using this Teleport-charge alternative.",
+        "Use until Enigma supplies Teleport."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "locator": "/berserk-barbarian/prose_only_items/8"
+      }
+    },
+    {
+      "id": "berserk-barbarian-berserker-magus",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Berserker's Diadem of the Magus",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:4",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "83:4",
+        "105:0"
+      ],
+      "conditions": [
+        "Check the complete loadout for cast-rate breakpoints, resistances and equipment requirements.",
+        "Socket count and inserted jewels need a separate setup check; this skill/cast-rate combination does not establish a perfect socketed helmet."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "locator": "/berserk-barbarian/slots/Helmets/5"
+      },
+      "review_notes": "2026-09-24: named skill/secondary-affix combination verified against native affixes. Cunning and Venomous +3 skill-tab prefixes are magic-only; Berserker class skills and Magus also permit rare candidates. Main-table alternatives do not claim a specific variant uses this item. No numerical trade price inferred."
+    },
+    {
+      "id": "berserk-barbarian-luck-tiara-socket-base",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Empty Tiara socket base: Artisan's Tiara of Luck",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci2"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 26,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "Perfect suffix: 35 magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 35,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "80:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Check equipment requirements and the complete loadout before investing in socket contents.",
+        "Choose socket contents and verify attack-speed or other setup targets; this is an empty base, not a completed socketed item."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/berserk-barbarian/slots/Helmets/3",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026"
+      },
+      "review_notes": "2026-09-24: source-specific empty preparation candidate. Socket capacity and suffix minimum/maximum verified against native data. Diadem/Tiara capacity is three even with Jeweler prefix; torso Stability uses current24FHR, not legacy20. Filled sockets excluded to avoid treating inserted-item stats as native affixes. No numerical price inferred."
+    },
+    {
+      "id": "berserk-barbarian-angelic-ring",
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "depends_on": [
+        {
+          "label": "Wear Angelic Wings on the player for the paired set setup.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Angelic Wings"
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "berserk-barbarian-angelic-amulet",
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "depends_on": [
+        {
+          "label": "Wear 1 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 1
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Angelic Wings (Angelical Raiment)",
+          "Angelic Halo (Angelical Raiment)"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "berserk-barbarian-starter-set-Sigon's Gage",
+      "slot": "Gloves",
+      "names": [
+        "Sigon's Gage"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Wrap on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Wrap"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    },
+    {
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "berserk-barbarian-starter-set-Sigon's Wrap",
+      "slot": "Belt",
+      "names": [
+        "Sigon's Wrap"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        },
+        {
+          "label": "Wear Sigon's Sabot on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Sabot"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    },
+    {
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Barbarian"
+      },
+      "important_stats": [],
+      "id": "berserk-barbarian-starter-set-Sigon's Sabot",
+      "slot": "Boots",
+      "names": [
+        "Sigon's Sabot"
+      ],
+      "role": "Starter set combination",
+      "depends_on": [
+        {
+          "label": "Wear Sigon's Gage on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Gage"
+          }
+        },
+        {
+          "label": "Wear Sigon's Wrap on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sigon's Wrap"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      }
+    }
+  ]
+}

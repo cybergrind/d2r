@@ -1,0 +1,613 @@
+{
+  "profiles": [
+    {
+      "id": "enchant-prebuff-orb-candidate",
+      "build": "enchant-sorceress",
+      "variant": "Max Enchant",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Enchant prebuff skill combination",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "orb"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "188:8",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:52",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:61",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "+3 to Fire Skills",
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:8",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+3 to Enchant",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:52",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+3 to Fire Mastery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:61",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:8",
+        "107:52",
+        "107:61"
+      ],
+      "conditions": [
+        "Skill-combination candidate; compare sockets and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Volcanic Eldritch Orb of the Magus (+3 Fire Skills / 20 FCR; +3 Fire Mastery / +3 Enchant staffmods; 2x Fire Rainbow Facet)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/3/player/Weapon",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "review": "2026-09-24: positive matching skill combination is a candidate; planner maxima are preferences, not minimum eligibility or price thresholds."
+      }
+    },
+    {
+      "id": "enchant-standard-circlet",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Fire skill circlet for Enchant standard setup",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "op": "stat_at_least",
+        "key": "188:8",
+        "value": 3,
+        "absent_is_zero": true
+      },
+      "preferences": [
+        {
+          "label": "2 sockets",
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        },
+        {
+          "label": "30% faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:8",
+        "96:0"
+      ],
+      "conditions": [
+        "Compare the cited Fire jewel/facet socket setup before replacing the helmet."
+      ],
+      "alternatives": [
+        "Volcanic Diadem of Speed (+3 Fire Skills / 30 FRW; Defender's Fire jewel + Fire Rainbow Facet)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/1/player/Helmet",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "review": "2026-09-24: source names Volcanic Diadem; +3 Fire defines this setup candidate. Socket payload and movement roll remain preferences, not numeric pricing."
+      }
+    },
+    {
+      "id": "enchant-prebuff-circlet",
+      "build": "enchant-sorceress",
+      "variant": "Max Enchant",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Fire skill circlet for Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "op": "stat_at_least",
+        "key": "188:8",
+        "value": 3,
+        "absent_is_zero": true
+      },
+      "preferences": [
+        {
+          "label": "2 sockets",
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        }
+      ],
+      "important_stats": [
+        "188:8",
+        "96:0"
+      ],
+      "conditions": [
+        "Compare the cited Fire jewel/facet socket setup before replacing the helmet."
+      ],
+      "alternatives": [
+        "Volcanic Diadem of Speed (+3 Fire Skills; Defender's Fire jewel + Fire Rainbow Facet)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/3/player/Helmet",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "review": "2026-09-24: source names Volcanic Diadem; +3 Fire defines this setup candidate. Socket payload and movement roll remain preferences, not numeric pricing."
+      }
+    },
+    {
+      "id": "enchant-budget-amulet",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:8",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:8",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/0/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Volcanic Amulet of the Apprentice (+3 Fire Skills / 10 FCR)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "enchant-prebuff-amulet",
+      "build": "enchant-sorceress",
+      "variant": "Max Enchant",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:8",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "188:8",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Prebuff setup: cast Enchant, including on the mercenary, then switch back to Standard or Magic Find equipment."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/3/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Volcanic Amulet of the Apprentice (+3 Fire Skills / 10 FCR)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "enchant-standard-amulet",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:1",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20% all resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 20,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        },
+        {
+          "label": "30 strength",
+          "when": {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:1",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/1/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Amulet (+2 Sorceress Skills / 15 FCR / +30 Str / Mana / +20 All Res)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "id": "enchant-mf-amulet",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "caster skill and cast-rate support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "83:1",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "20% all resistances",
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 20,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "83:1",
+        "105:0",
+        "7:0",
+        "9:0",
+        "27:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/2/player/Amulet",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Caster Crafted Amulet (+2 Sorceress Skills / 15 FCR / +20 All Res)"
+        ],
+        "review": "2026-09-24: reviewed per-variant magic/crafted skill and FCR combination. Secondary planner maxima are preferences; role fit never supplies an Ist estimate."
+      }
+    },
+    {
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Sorceress"
+      },
+      "important_stats": [],
+      "id": "enchant-sorceress-starter-set-Death's Hand",
+      "slot": "Gloves",
+      "names": [
+        "Death's Hand"
+      ],
+      "role": "Budget Death's set combination",
+      "depends_on": [
+        {
+          "label": "Wear Death's Guard on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Death's Guard"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/0",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Hand [Death's Disguise set]",
+          "Death's Guard [Death's Disguise set]"
+        ]
+      }
+    },
+    {
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "review_status": "reviewed_candidate_rule",
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Sorceress"
+      },
+      "important_stats": [],
+      "id": "enchant-sorceress-starter-set-Death's Guard",
+      "slot": "Belt",
+      "names": [
+        "Death's Guard"
+      ],
+      "role": "Budget Death's set combination",
+      "depends_on": [
+        {
+          "label": "Wear Death's Hand on the player.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Death's Hand"
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements, attack-speed breakpoints and the remaining damage/resistance setup; the named combination alone does not establish build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+        "locator": "/variants/0",
+        "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Death's Hand [Death's Disguise set]",
+          "Death's Guard [Death's Disguise set]"
+        ]
+      }
+    }
+  ]
+}

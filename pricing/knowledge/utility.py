@@ -33,6 +33,23 @@ def type_closure(item_type, types):
     return found
 
 
+def cube_outcomes(caps):
+    """Six equally likely rolls clamped to the item-level socket cap.
+
+    Source: cached Maxroll items/sockets, Socketing Base Items probability tables.
+    Separate caps remain conditional alternatives, never equally weighted levels.
+    """
+    return [
+        {
+            'maximum': cap,
+            'denominator': 6,
+            'weights': {count: 1 if count < cap else 7 - cap for count in range(1, cap + 1)},
+        }
+        for cap in sorted(set(caps))
+        if type(cap) is int and 1 <= cap <= 6
+    ]
+
+
 def socket_options(base, types, *, method, ilvl=None, quality='normal', current_sockets=0, difficulty=None):
     """Describe possibilities, never infer an unknown item level or reduce sockets."""
     if method not in {'cube', 'larzuk', 'drop'}:
@@ -76,6 +93,7 @@ def socket_options(base, types, *, method, ilvl=None, quality='normal', current_
         'eligible': bool(cap),
         'conditional': ilvl is None,
         'possible_sockets': values if cap else [],
+        **({'cube_outcomes': cube_outcomes(caps)} if method == 'cube' else {}),
         'maximum_by_ilvl_bracket': brackets,
         'reason': 'Maximum depends on item level' if ilvl is None else 'Known item level',
     }

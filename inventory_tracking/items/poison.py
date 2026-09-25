@@ -27,6 +27,12 @@ def combine_poison(decoded) -> list[dict[str, Any]]:
         'status': 'decoded',
         'name': 'poison_damage',
         'memory_stats': stats,
+        'native_values': {
+            '57:0': {'value': values[57] / DAMAGE_SCALE, 'unit': 'damage_per_frame'},
+            '58:0': {'value': values[58] / DAMAGE_SCALE, 'unit': 'damage_per_frame'},
+            '59:0': {'value': values[59] / FRAMES_PER_SECOND, 'unit': 'seconds'},
+            '326:0': {'value': values[326], 'unit': 'count'},
+        },
         'text': f'+{damage} Poison Damage over {values[59] // FRAMES_PER_SECOND} Seconds',
     }
     result = []

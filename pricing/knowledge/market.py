@@ -7,6 +7,11 @@ import statistics
 from collections import Counter
 from pathlib import Path
 
+from pricing.knowledge.assessment.observations import superseded_rows
+from pricing.knowledge.cache_dates import collection_day
+from pricing.knowledge.market_mechanics import apply_mechanics
+from pricing.knowledge.market_named_aliases import canonicalize_named_catalog
+
 
 VERSION = 'reign of the warlock'
 
@@ -76,7 +81,14 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
         'name': name,
         'category': category,
         'catalog_id': str(listing.get('item_id', '')),
-        'evidence_kind': 'ask',
+        'evidence_kind': (
+            'inactive_listing'
+            if listing.get('active') is False or listing.get('completed') is True
+            else 'buy_offer'
+            if listing.get('selling') is False
+            else 'ask'
+        ),
+        'listing_status': {key: listing.get(key) for key in ('active', 'selling', 'completed')},
         'listing_id': listing.get('id'),
         'seller_id': listing.get('seller_id'),
         'source': source,
@@ -93,6 +105,32 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
         'ask_ist': ask,
         'conversion': conversion,
     }
+    normalize_facets(row)
+    return row
+
+
+def normalize_facets(row):
+    """Rebuild variant facts from source properties and verified catalog identity."""
+    catalog_name = row.pop('catalog_name', None)
+    if catalog_name:
+        row['name'] = catalog_name
+    for field in (
+        'rarity',
+        'sockets',
+        'ethereal',
+        'rarity_basis',
+        'base_code',
+        'base_upgrade',
+        'base_rarity',
+        'base_selector_properties',
+        'socket_contents_basis',
+        'facet_basis',
+        'mechanics_conflicts',
+    ):
+        row.pop(field, None)
+    canonicalize_named_catalog(row)
+    properties, category = row['properties'], row['category']
+    row['socket_contents'] = socket_contents(properties)
     for field, key in [('rarity', '797'), ('sockets', '402'), ('ethereal', '738')]:
         value = properties.get(key)
         valid = (
@@ -102,7 +140,15 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
         )
         if valid:
             row[field] = value
-    return row
+    catalog_quality = {'uniques': 'unique', 'unique': 'unique', 'sets': 'set', 'set': 'set'}.get(category)
+    if 'rarity' not in row and catalog_quality:
+        row['rarity'] = catalog_quality
+        row['rarity_basis'] = 'named_catalog_category'
+    apply_mechanics(row)
+    if category == 'runewords':
+        from pricing.knowledge.runeword_market import normalize_runeword
+
+        normalize_runeword(row)
 
 
 def matches(row, predicates):
@@ -119,7 +165,16 @@ def matches(row, predicates):
 
 def summarize(rows, predicates=None):
     """Watch bands without predicates; exact bands only for explicitly requested facets."""
-    selected = [r for r in rows if r.get('scope_status') == 'verified' and matches(r, predicates)]
+    rows = list(rows)
+    superseded = superseded_rows(rows)
+    selected = [
+        r
+        for index, r in enumerate(rows)
+        if index not in superseded
+        and r.get('evidence_kind') == 'ask'
+        and r.get('scope_status') == 'verified'
+        and matches(r, predicates)
+    ]
     votes = {}
     observations = 0
     for row in selected:
@@ -165,7 +220,7 @@ def summarize(rows, predicates=None):
 
 
 def import_cache(root, catalog=None):
-    """Import historical raw cache, with unknown fetch dates and strict scope quarantine."""
+    """Import cached evidence, preserving explicit collection days and strict scope."""
     root = Path(root)
     ladder_path = root / 'pricing/data/wp-f-ladder.json'
     ladder = json.loads(ladder_path.read_text())
@@ -191,17 +246,20 @@ def import_cache(root, catalog=None):
             manifest['files'].append({'path': str(path.relative_to(root)), 'error': str(error)})
             continue
         listings = data if isinstance(data, list) else data.get('listings', [])
+        observed_at, date_error = collection_day(data)
         file_info = {
             'path': str(path.relative_to(root)),
             'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-            'observed_at': None,
+            'observed_at': observed_at,
             'listing_count': len(listings),
         }
+        if date_error:
+            file_info['observation_date_error'] = date_error
         manifest['files'].append(file_info)
         for listing in listings:
             if not isinstance(listing, dict) or 'properties' not in listing:
                 continue
-            identity = (listing.get('id'), listing.get('updated_at'))
+            identity = (listing.get('id'), listing.get('updated_at'), observed_at)
             if identity in seen:
                 continue
             seen.add(identity)
@@ -212,8 +270,17 @@ def import_cache(root, catalog=None):
                 name=item.get('name', f'Unresolved catalog {iid}'),
                 category=item.get('type', 'unknown'),
                 source=file_info['path'],
+                observed_at=observed_at,
                 currencies=currencies,
             )
+            if observed_at:
+                row['observation_date_basis'] = 'cache_pulled'
+                row['observation_date_precision'] = 'day'
+                row['observation_date_source'] = {
+                    'path': file_info['path'],
+                    'sha256': file_info['sha256'],
+                    'field': '/pulled',
+                }
             row['conversion'].update(
                 snapshot_id=manifest['currency_snapshot'], snapshot_date=manifest['currency_snapshot_date']
             )
@@ -234,6 +301,33 @@ def import_cache(root, catalog=None):
                     snapshot_id=manifest['currency_snapshot'], snapshot_date=manifest['currency_snapshot_date']
                 )
                 rows.append(row)
+    for path in sorted((root / 'pricing/raw/traderie/runeword-refresh').glob('*-page*.json')):
+        cached = json.loads(path.read_text())
+        manifest['files'].append(
+            {
+                'path': str(path.relative_to(root)),
+                'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                'observed_at': cached['observed_at'],
+                'listing_count': len(cached['response']['listings']),
+            }
+        )
+        for listing in cached['response']['listings']:
+            row = normalize_listing(
+                listing,
+                name=cached['item']['name'],
+                category='runewords',
+                source=cached['source'],
+                observed_at=cached['observed_at'],
+                currencies=currencies,
+            )
+            if row['evidence_kind'] == 'ask' and (
+                listing.get('active') is not True or listing.get('selling') is not True
+            ):
+                row['evidence_kind'] = 'unverified_listing'
+            row['conversion'].update(
+                snapshot_id=manifest['currency_snapshot'], snapshot_date=manifest['currency_snapshot_date']
+            )
+            rows.append(row)
     manifest['scope_counts'] = dict(Counter(r['scope_status'] for r in rows))
     manifest['observations'] = len(rows)
     return rows, manifest

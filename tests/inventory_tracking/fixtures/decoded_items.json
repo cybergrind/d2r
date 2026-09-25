@@ -180,7 +180,9 @@
           },
           "status": "decoded",
           "name": "item_skillonhit",
-          "text": "10% Chance to cast level 3 Nova on striking"
+          "text": "10% Chance to cast level 3 Nova on striking",
+          "value": 10,
+          "unit": "percent_chance"
         },
         {
           "status": "decoded",
@@ -887,6 +889,17 @@
             "layer": 0,
             "id": 127,
             "raw": 2
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "818",
+          "value": 5,
+          "label": "+{{value}} Magic Absorb",
+          "memory_stat": {
+            "layer": 0,
+            "id": 147,
+            "raw": 5
           },
           "descriptor_offset": 232
         }

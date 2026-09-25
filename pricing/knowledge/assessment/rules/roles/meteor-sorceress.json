@@ -1,0 +1,87 @@
+{
+  "profiles": [
+    {
+      "id": "meteor-mf-stealskull-merc",
+      "build": "meteor-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Magic-find, IAS and life-leech mercenary helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Stealskull"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 5,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Ist Rune",
+      "preferences": [
+        {
+          "label": "Ethereal mercenary helmet",
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        }
+      ],
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "93:0",
+        "80:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, attack-speed breakpoint and survival with the full cited setup.",
+        "Cited weapon: Infinity Giant Thresher (ethereal). Cited armor: Skullder's Ire (ethereal) socketed with Ist Rune.",
+        "This is the dedicated mercenary-MF variant; the guide also permits the Standard mercenary setup."
+      ],
+      "setup_label": "Stealskull (ethereal) socketed with Ist Rune",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/meteor-sorceress/variants/2/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "quotes": [
+          "Stealskull (ethereal) socketed with Ist Rune"
+        ],
+        "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional."
+      }
+    }
+  ]
+}

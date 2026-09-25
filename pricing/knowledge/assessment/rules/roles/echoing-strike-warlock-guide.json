@@ -1,0 +1,763 @@
+{
+  "profiles": [
+    {
+      "id": "echoing-starter-dagger",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "attack / skill support",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "knif"
+      ],
+      "qualities": [
+        "magic",
+        "rare",
+        "crafted"
+      ],
+      "required_any_stats": [
+        "127:0",
+        "83:7",
+        "188:57",
+        "107:388"
+      ],
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "218:0",
+        "19:0",
+        "224:0",
+        "127:0",
+        "83:7",
+        "188:57",
+        "107:388"
+      ],
+      "conditions": [
+        "Guide alternatives include Spirit and two-handed weapons; this dagger is only a candidate."
+      ],
+      "alternatives": [
+        "Spirit Crystal Sword",
+        "Bastard Sword (any 2-Handed Weapon wielded one-handed with a Book equipped, Item Level 26+)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/0",
+        "quotes": [
+          "Remember that you can wield a 2-Handed Weapon in a single hand if you have a Book equipped, so options like Bastard Sword open up at Item Level 26 or higher.",
+          "The biggest priority is to get as much Attack Rating as you can across your gear. Then find as many sources of +xx to All Skills or Warlock Skills to boost your damage even further.",
+          "Also keep an eye out for Daggers that can roll three sockets, with valuable Staffmods on them, for Runeword options later.",
+          "The Act 2 Blessed Aim Mercenary with an [Insight Partizan] helps to buff your damage further while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up. (bracketed items are d2planner tooltips whose text is blank in the HTML; resolved from planner profile ZWcxvtFt)"
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 75% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 75
+          }
+        }
+      ]
+    },
+    {
+      "id": "echoing-ubers-sazabi-sword",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Act 5 Frenzy survival / set component",
+      "review_status": "reviewed_setup",
+      "names": [
+        "Sazabi's Cobalt Redeemer"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "required_rune": "Ber Rune",
+      "companions": [
+        "Sazabi's Ghost Liberator",
+        "Sazabi's Mental Sheath"
+      ],
+      "mercenary_type": "Act 5 Frenzy",
+      "important_stats": [
+        "127:0",
+        "39:0",
+        "41:0",
+        "7:0"
+      ],
+      "conditions": [
+        "The guide also calls for an Open Wounds/Crushing Blow weapon and prebuffs; check the full setup."
+      ],
+      "setup_label": "Sazabi's Cobalt Redeemer [Sazabi's Grand Tribute set] (Cryptic Sword; Ber Rune socketed)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      }
+    },
+    {
+      "id": "echoing-ubers-sazabi-armor",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Act 5 Frenzy survival / set component",
+      "review_status": "reviewed_setup",
+      "names": [
+        "Sazabi's Ghost Liberator"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "required_rune": "Ber Rune",
+      "companions": [
+        "Sazabi's Cobalt Redeemer",
+        "Sazabi's Mental Sheath"
+      ],
+      "mercenary_type": "Act 5 Frenzy",
+      "important_stats": [
+        "127:0",
+        "39:0",
+        "41:0",
+        "7:0"
+      ],
+      "conditions": [
+        "The guide also calls for an Open Wounds/Crushing Blow weapon and prebuffs; check the full setup."
+      ],
+      "setup_label": "Sazabi's Ghost Liberator [Sazabi's Grand Tribute set] (Balrog Skin; Ber Rune socketed)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      }
+    },
+    {
+      "id": "echoing-ubers-sazabi-helm",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Act 5 Frenzy survival / set component",
+      "review_status": "reviewed_setup",
+      "names": [
+        "Sazabi's Mental Sheath"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "required_rune": "Cham Rune",
+      "companions": [
+        "Sazabi's Cobalt Redeemer",
+        "Sazabi's Ghost Liberator"
+      ],
+      "mercenary_type": "Act 5 Frenzy",
+      "important_stats": [
+        "127:0",
+        "39:0",
+        "41:0",
+        "7:0"
+      ],
+      "conditions": [
+        "The guide also calls for an Open Wounds/Crushing Blow weapon and prebuffs; check the full setup."
+      ],
+      "setup_label": "Sazabi's Mental Sheath [Sazabi's Grand Tribute set] (Basinet; Cham Rune socketed)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "quotes": [
+          "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+          "You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one.",
+          "Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability.",
+          "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+          "Changelog August 26, 2026: fixed embed for the uber variant mercenary"
+        ]
+      }
+    },
+    {
+      "id": "echoing-starter-crafted-belt",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "27:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "any": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 5
+          }
+        },
+        {
+          "label": "10% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "99:0",
+        "9:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Caster Crafted Belt (5 FCR / 10 FHR / Mana / Mana Regen / Resistances)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      },
+      "depends_on": [
+        {
+          "label": "Retain at least 75% total Faster Cast Rate in the assessed loadout.",
+          "when": {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 75
+          }
+        }
+      ]
+    },
+    {
+      "id": "echoing-strike-warlock-guide-naj-teleport-swap",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "echoing-strike-warlock-guide-starter-travel-staff",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "locator": "/echoing-strike-warlock-guide/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "echoing-ubers-hellwarden",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Magic-resistance reduction for the Ubers damage setup",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Hellwarden's Will"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "358:0",
+            "value": 5,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "127:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_socket_item": "Guardian's Light",
+      "depends_on": [
+        {
+          "label": "Sling paired with the helmet",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Sling"
+          }
+        },
+        {
+          "label": "Renewed Black Cleft for the documented enemy-magic-resistance setup",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Renewed Black Cleft"
+          }
+        }
+      ],
+      "preferences": [
+        {
+          "label": "8% enemy magic resistance reduction (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "358:0",
+            "value": 8,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "358:0",
+        "105:0",
+        "93:0",
+        "127:0",
+        "16:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the full setup resistances; the guide pairs this damage package with a bound Pit Lord and Enchant/Fade prebuffs."
+      ],
+      "setup_label": "Hellwarden's Will (Death Mask; Guardian's Light jewel socketed)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/echoing-strike-warlock-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "August 26, 2026",
+        "review": "2026-09-24: explicit Ubers helmet, Guardian's Light insert, Sling and enemy-magic-resistance sunder from prose/planner extraction. Minimum native bonuses validate candidate functionality; maximum magic-pierce is a mechanical preference, not a price threshold. No promise of doubled damage without full setup."
+      }
+    },
+    {
+      "id": "echoing-strike-warlock-guide-angelic-ring",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Halo"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Warlock"
+      },
+      "depends_on": [
+        {
+          "label": "Wear Angelic Wings on the player for the paired set setup.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_items",
+            "value": "Angelic Wings"
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/0",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Angelic Wings [Angelical Raiment set]",
+          "Angelic Halo [Angelical Raiment set]"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "echoing-strike-warlock-guide-angelic-amulet",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Amulet",
+      "role": "Angelic attack-rating set combination",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Angelic Wings"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Warlock"
+      },
+      "depends_on": [
+        {
+          "label": "Wear 1 Angelic Halo ring(s) on the player, as in this setup.",
+          "when": {
+            "op": "context_count_at_least",
+            "field": "player_items",
+            "value": "Angelic Halo",
+            "count": 1
+          }
+        }
+      ],
+      "important_stats": [],
+      "conditions": [
+        "Verify equipment requirements and the rest of the cited damage/survival setup; this pair establishes a source of Attack Rating, not full build readiness."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/0",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Angelic Wings [Angelical Raiment set]",
+          "Angelic Halo [Angelical Raiment set]"
+        ],
+        "review": "2026-09-24: reviewed this named Starter/Budget pair and exact ring multiplicity. Player companions are required; mercenary items cannot activate this setup. Do not require an equipped set bonus in the hovered item stat array or infer numeric trade value from guide utility."
+      }
+    },
+    {
+      "id": "echoing-strike-warlock-guide-1-demon-limb-prebuff",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Prebuff",
+      "role": "Demon Limb Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Demon Limb"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Warlock"
+      },
+      "depends_on": [
+        {
+          "label": "Enchant charges are available; recharge when empty if the item can be repaired.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 52,
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3351"
+      ],
+      "conditions": [
+        "Equip temporarily to cast Enchant; this is not the combat weapon slot. Verify equipment requirements before use.",
+        "Available charges do not prove the buff is currently active. Ethereal copies cannot be recharged by repair."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/1",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Demon Limb (in Horadric Cube)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      }
+    },
+    {
+      "id": "echoing-strike-warlock-guide-3-demon-limb-prebuff",
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Prebuff",
+      "role": "Demon Limb Enchant prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Demon Limb"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "op": "context_eq",
+        "field": "player_class",
+        "value": "Warlock"
+      },
+      "depends_on": [
+        {
+          "label": "Enchant charges are available; recharge when empty if the item can be repaired.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 52,
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3351"
+      ],
+      "conditions": [
+        "Equip temporarily to cast Enchant; this is not the combat weapon slot. Verify equipment requirements before use.",
+        "Available charges do not prove the buff is currently active. Ethereal copies cannot be recharged by repair."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "locator": "/variants/3",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "source_date": "August 26, 2026",
+        "quotes": [
+          "Demon Limb (Enchant)"
+        ],
+        "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
+      }
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import time
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import OSD
+from inventory_tracking.osd.monitor import GameOutput, choose_monitor, place_assessment
+from inventory_tracking.presentation import StyledLine, render_markup
 
 
 def load_toolkit():
@@ -23,13 +25,16 @@ def load_toolkit():
     return Gtk, Gdk, Gio, GLib, Gtk4LayerShell, cairo
 
 
-def apply_display(window, label, lines):
+def apply_display(window, label, lines, *, multiline=False):
     """Unmap empty overlays so the compositor cannot retain the last alert."""
-    label.set_text(' · '.join(lines))
+    if any(isinstance(line, StyledLine) for line in lines):
+        label.set_markup(render_markup(line if isinstance(line, StyledLine) else StyledLine(line) for line in lines))
+    else:
+        label.set_text(('\n' if multiline else ' · ').join(lines))
     window.set_visible(bool(lines))
 
 
-def show(render, config=OSD, *, demo=False):
+def show(render, config=OSD, *, demo=False, assessment=False):
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.InventoryOSD', flags=Gio.ApplicationFlags.NON_UNIQUE)
     failure = []
@@ -44,7 +49,7 @@ def show(render, config=OSD, *, demo=False):
         window.set_resizable(False)
         window.set_focusable(False)
         LayerShell.init_for_window(window)
-        LayerShell.set_namespace(window, 'd2r-inventory-osd')
+        LayerShell.set_namespace(window, 'd2r-appraisal-osd' if assessment else 'd2r-inventory-osd')
         LayerShell.set_layer(window, LayerShell.Layer.OVERLAY)
         LayerShell.set_keyboard_mode(window, LayerShell.KeyboardMode.NONE)
         LayerShell.set_exclusive_zone(window, -1)
@@ -58,7 +63,18 @@ def show(render, config=OSD, *, demo=False):
                 application.quit()
                 return
             LayerShell.set_monitor(window, monitors.get_item(config.monitor))
-        label = Gtk.Label(xalign=0.5)
+        label = Gtk.Label(xalign=0 if assessment else 0.5)
+        game_output = GameOutput()
+        assessment_monitor = None
+        if assessment:
+            # Center a half-output-wide card in the right half, vertically centered.
+            LayerShell.set_anchor(window, LayerShell.Edge.RIGHT, True)
+            label.set_wrap(True)
+            LayerShell.set_margin(window, LayerShell.Edge.RIGHT, 10)
+            # Long assessments remain bounded and explicitly ellipsized.
+            from gi.repository import Pango
+
+            label.set_ellipsize(Pango.EllipsizeMode.END)
         # Transparent widget margins shift the label inside the centered window.
         # Twice the requested offset compensates for centering the whole window.
         label.set_margin_start(max(0, 2 * config.x))
@@ -68,9 +84,10 @@ def show(render, config=OSD, *, demo=False):
         label.set_selectable(False)
         window.set_child(label)
         css = Gtk.CssProvider()
+        background = 'rgba(15, 15, 20, 0.88)' if assessment else 'transparent'
         css.load_from_string(f"""
             window {{ background: transparent; }}
-            label {{ color: {config.color}; background: transparent;
+            label {{ color: {config.color}; background: {background};
                      border-radius: 6px; padding: 6px 10px;
                      font-family: {config.font_family}; font-size: {config.font_size}px;
                      font-weight: {config.font_weight}; }}
@@ -80,10 +97,19 @@ def show(render, config=OSD, *, demo=False):
         )
 
         def refresh():
+            nonlocal assessment_monitor
             lines = render(now=time.monotonic())
             if demo:
                 lines.insert(0, 'PREVIEW')
-            apply_display(window, label, lines)
+            if assessment and lines:
+                monitor = choose_monitor(monitors, config.monitor, game_output() if config.monitor is None else None)
+                if monitor is None:
+                    lines = []
+                    assessment_monitor = None
+                elif monitor != assessment_monitor:
+                    place_assessment(window, label, monitor, LayerShell, config.font_size)
+                    assessment_monitor = monitor
+            apply_display(window, label, lines, multiline=assessment)
             surface = window.get_surface()
             if surface is not None:
                 surface.set_input_region(cairo.Region())

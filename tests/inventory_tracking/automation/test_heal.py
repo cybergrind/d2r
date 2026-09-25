@@ -15,10 +15,10 @@ from inventory_tracking.native.mercenary import Mercenary
         (PLAYER_HEALING, 64, [PotionType.HEALING]),
         (PLAYER_HEALING, 40, [PotionType.HEALING]),
         (PLAYER_HEALING, 39, [PotionType.REJUVENATION, PotionType.HEALING]),
-        (MERC_HEALING, 55, []),
-        (MERC_HEALING, 54, [PotionType.HEALING]),
-        (MERC_HEALING, 20, [PotionType.HEALING]),
-        (MERC_HEALING, 19, [PotionType.REJUVENATION, PotionType.HEALING]),
+        (MERC_HEALING, 75, []),
+        (MERC_HEALING, 74, [PotionType.HEALING]),
+        (MERC_HEALING, 50, [PotionType.HEALING]),
+        (MERC_HEALING, 49, [PotionType.REJUVENATION, PotionType.HEALING]),
     ],
 )
 def test_threshold_boundaries_and_priority(config, percent, choices, sample):
@@ -38,7 +38,7 @@ def test_threshold_boundaries_and_priority(config, percent, choices, sample):
         {'merc': None},
         {'merc': Mercenary(99, 0, 1000, 0, False)},
         {'merc': Mercenary(99, 500, 1000, 16384, False)},
-        {'merc': Mercenary(99, 600, 1000, 19661, True)},
+        {'merc': Mercenary(99, 750, 1000, 24576, True)},
         {'session': None},
         {'current_raw': 0},
         {'healing_cells': ()},

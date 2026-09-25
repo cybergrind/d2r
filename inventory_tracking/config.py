@@ -66,8 +66,8 @@ PLAYER_HEALING = HealingConfig(
 MERC_HEALING = HealingConfig(
     actor=Actor.MERC,
     enabled=True,
-    thresholds={PotionType.HEALING: 55, PotionType.REJUVENATION: 20},
-    cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 3.0},
+    thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 50},
+    cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 0.5},
     sample_max_age=1.0,
     consumption_timeout=2.0,
 )
@@ -249,3 +249,14 @@ RESOURCE_READER = ResourceReaderConfig(
     weapon_slots_verified=True,
     location_verified=True,
 )
+
+
+class AppraisalConfig(Config):
+    osd: bool = True
+    display_seconds: Positive = 30
+    cache_seconds: Positive = 300
+    poll_interval: Positive = 0.2
+    reconnect_delay: Positive = 2.0
+
+
+APPRAISAL = AppraisalConfig()

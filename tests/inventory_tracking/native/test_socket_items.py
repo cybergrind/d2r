@@ -36,3 +36,25 @@ def test_parent_link_mutation_rejects_socket_contents(monkeypatch):
 
     with pytest.raises(ValueError, match='linkage changed'):
         socket_items.read_socket_items(read, parent, [child])
+
+
+def test_linked_child_stats_are_captured_and_mutation_rejected(monkeypatch):
+    parent, child, memory = setup_reader(monkeypatch)
+    child['stats_pointer'] = 0x30000
+    for offset in (0x30, 0xA8, 0xE8):
+        memory[0x30000 + offset] = struct.pack('<QQ', 0x40000, 1)
+    memory[0x40000] = struct.pack('<HHi', 0, 93, 15)
+    result = socket_items.read_socket_items(lambda a, n: memory[a], parent, [child])
+    assert result['children'][0]['stat_arrays']['arrays'][-1]['stats'] == [{'id': 93, 'layer': 0, 'raw': 15}]
+    reads = 0
+
+    def changing(address, size):
+        nonlocal reads
+        if address == 0x40000:
+            reads += 1
+            if reads > 6:
+                return struct.pack('<HHi', 0, 93, 10)
+        return memory[address]
+
+    with pytest.raises(ValueError, match='changed'):
+        socket_items.read_socket_items(changing, parent, [child])

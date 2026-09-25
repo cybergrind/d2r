@@ -5,6 +5,8 @@ import json
 import re
 from pathlib import Path
 
+from pricing.knowledge.base_resistances import resistance_options
+
 
 def _source(root, path):
     return {
@@ -17,6 +19,10 @@ def _source(root, path):
 def import_catalog(root):
     root = Path(root)
     result = {'schema_version': 1, 'sources': [], 'rows': []}
+    automagic_path = root / 'third-parties/d2data/json/automagic.json'
+    automagic = json.loads(automagic_path.read_text()) if automagic_path.exists() else {}
+    if automagic_path.exists():
+        result['sources'].append(_source(root, automagic_path))
     for path in sorted((root / 'pricing' / 'raw').glob('d2data-*.json')):
         source = _source(root, path)
         result['sources'].append(source)
@@ -35,6 +41,7 @@ def import_catalog(root):
                     'details': {
                         'item_type': item.get('type'),
                         'max_sockets': item.get('gemsockets'),
+                        'base_resistance_options': resistance_options(item, automagic),
                         'required_level': item.get('levelreq'),
                         'required_strength': item.get('reqstr'),
                         'required_dexterity': item.get('reqdex'),
@@ -47,6 +54,7 @@ def import_catalog(root):
                         'two_hand_damage': [item.get('2handmindam'), item.get('2handmaxdam')],
                         'weapon_speed': item.get('speed'),
                         'durability': item.get('durability'),
+                        'no_durability': item.get('nodurability'),
                     },
                 }
             )

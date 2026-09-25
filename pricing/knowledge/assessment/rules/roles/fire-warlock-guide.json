@@ -1,0 +1,735 @@
+{
+  "profiles": [
+    {
+      "id": "fire-warlock-standard-boots",
+      "build": "fire-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "25 poison length reduction",
+          "when": {
+            "op": "stat_at_least",
+            "key": "110:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "110:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Heavy Boots 'Cruel Greaves' 30% FRW / 10% FHR / 40 Fire-Cold-Light Resist / 25% Poison Length Reduced"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "locator": "/variants/1/player/Boots",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "fire-warlock-mf-boots",
+      "build": "fire-warlock-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Boots",
+      "role": "Movement / fire-cold-lightning resistance boots",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "boot"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "30 faster run/walk",
+          "when": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "10 faster hit recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 fire resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "40 cold resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "96:0",
+        "99:0",
+        "39:0",
+        "41:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate stat combination; compare resistance needs, requirements and breakpoints with the full setup."
+      ],
+      "alternatives": [
+        "Rare Heavy Boots 'Cruel Greaves' 30% FRW / 10% FHR / 40 triple resist"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "locator": "/variants/2/player/Boots",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      }
+    },
+    {
+      "id": "fire-starter-crafted-belt",
+      "build": "fire-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Caster belt cast rate and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "9:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "any": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 1,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "5% Faster Cast Rate",
+          "when": {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 5
+          }
+        },
+        {
+          "label": "10% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 10
+          }
+        }
+      ],
+      "important_stats": [
+        "105:0",
+        "99:0",
+        "9:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity.",
+        "This role follows the crafted belt in the current variant; the older EMBEDS rare belt is a separate alternative."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "quotes": [
+          "Caster Crafted Belt 'Fiend Lock' Sharkskin Belt (5% FCR, 10% FHR, mana, resists; older EMBEDS planner: rare Sharkskin Belt 'Viper Lash' 10 FHR / 40 Life / resists)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      }
+    },
+    {
+      "id": "fire-warlock-guide-naj-teleport-swap",
+      "build": "fire-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "locator": "/fire-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "fire-warlock-guide-starter-charges-91",
+      "build": "fire-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Other",
+      "role": "Lower Resist charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Lower Resist charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 91,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Use Lower Resist according to the target and farm; the charge level determines the curse effect.",
+        "Keep in inventory and equip when applying Lower Resist; the guide uses a Teleport staff on weapon swap."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "locator": "/fire-warlock-guide/variants/0/player/Other/0"
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "fire-warlock-guide-starter-charges-54",
+      "build": "fire-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "Choose the mobility swap according to the farm and the rest of the loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "locator": "/fire-warlock-guide/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "fire-warlock-standard-ars-diabolos",
+      "build": "fire-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Fire damage and Apocalypse off-hand",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Ars Al'Diabolos"
+      ],
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:58",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 25,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:401",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Um Rune",
+      "preferences": [
+        {
+          "label": "25% fire skill damage (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+5 Apocalypse (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:401",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:58",
+        "105:0",
+        "329:0",
+        "107:401",
+        "138:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, cast-rate breakpoint and resistances against the full Standard setup."
+      ],
+      "setup_label": "Ars Al'Diabolos Blasphemous Grimoire (socketed Um Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "locator": "/variants/1/player/Off-Hand",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "review": "2026-09-24: explicit variant off-hand and rune from reviewed guide extraction. Named-definition minimum Chaos/FCR/fire/Apocalypse bonuses establish captured functionality; maximum fire/Apocalypse rolls are mechanical preferences, not guide-mandated thresholds or prices. Hardcore alternatives are not folded into these Softcore profiles."
+      }
+    },
+    {
+      "id": "fire-warlock-mf-ars-diabolos",
+      "build": "fire-warlock-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Fire damage and Apocalypse off-hand",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Ars Al'Diabolos"
+      ],
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:58",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 25,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 15,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:401",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "required_rune": "Ist Rune",
+      "preferences": [
+        {
+          "label": "25% fire skill damage (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "329:0",
+            "value": 25,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "+5 Apocalypse (definition maximum)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "107:401",
+            "value": 5,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "188:58",
+        "105:0",
+        "329:0",
+        "107:401",
+        "138:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, cast-rate breakpoint and resistances against the full Magic Find setup."
+      ],
+      "setup_label": "Ars Al'Diabolos Blasphemous Grimoire (socketed Ist Rune)",
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "locator": "/variants/2/player/Off-Hand",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "review": "2026-09-24: explicit variant off-hand and rune from reviewed guide extraction. Named-definition minimum Chaos/FCR/fire/Apocalypse bonuses establish captured functionality; maximum fire/Apocalypse rolls are mechanical preferences, not guide-mandated thresholds or prices. Hardcore alternatives are not folded into these Softcore profiles."
+      }
+    }
+  ]
+}

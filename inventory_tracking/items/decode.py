@@ -15,14 +15,17 @@ from inventory_tracking.items.identity import (
     IDENTIFIED_FLAG,
     RUNEWORD_FLAG,
     SOCKETED_FLAG,
+    identity_issues,
     identity_review,
     item_flags,
     resolve_identity,
+    superior_quality_identity,
 )
 from inventory_tracking.items.metadata import decode_stats, item_base, metadata
+from inventory_tracking.items.modifiers import owned_flat_damage_modifiers
 from inventory_tracking.items.owners import require_mercenary_owner
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from inventory_tracking.items.sockets import annotate_sockets
+from inventory_tracking.items.sockets import annotate_sockets, infer_nonsocketable
 from inventory_tracking.items.staffmods import annotate_staffmods
 from inventory_tracking.native.layout import SUPPORTED_SHA256
 from inventory_tracking.tracking.state import select_player
@@ -128,6 +131,8 @@ def decode_items(
             raise ValueError('Unknown item quality')
         identity = resolve_identity(details, arrays, base)
         flags = item_flags(details, arrays)
+        superior_quality = superior_quality_identity(details, arrays, base)
+        flat_damage = owned_flat_damage_modifiers(arrays.get('stat_diagnostics', {}), row) if superior_quality else []
         range_context: dict[str, Any] | None = (
             identity if identity and identity['table'] != 'rare' else resolve_affix_ranges(details, arrays, base)
         )
@@ -142,6 +147,8 @@ def decode_items(
                     **({'runeword': identity['name']} if identity and identity['table'] == 'runeword' else {}),
                     'base_name': base['name'],
                     'base_code': base['code'],
+                    'item_type': base['type'],
+                    'identified': bool(flags & IDENTIFIED_FLAG) if flags is not None else None,
                     'category': base['category'],
                     'rarity': rarity,
                     'requirements': {},
@@ -152,6 +159,8 @@ def decode_items(
                 },
                 'source': {
                     'engine': 'memory_snapshot',
+                    **({'superior_quality': superior_quality} if superior_quality is not None else {}),
+                    **({'superior_flat_damage': flat_damage} if flat_damage else {}),
                     **({'viewer_context': viewer} if viewer else {}),
                     **(
                         {'item_identity': {k: identity[k] for k in ('table', 'table_id', 'offset')}} if identity else {}
@@ -166,10 +175,12 @@ def decode_items(
                     'run_id': report.get('run_id'),
                     'captured_at': report.get('finished_at'),
                     'snapshot_only': True,
+                    'stat_capture_complete': arrays.get('complete') is True,
                     'build_sha256': SUPPORTED_SHA256,
                 },
                 'unresolved_stats': unresolved,
                 'decoded_stats': decoded,
+                'issues': [*(range_context or {}).get('review', []), *identity_issues(identity, stats)],
                 'review': [
                     *(range_context or {}).get('review', []),
                     *(
@@ -187,6 +198,8 @@ def decode_items(
             }
         )
         annotate_sockets(results[-1]['item'], decoded, arrays, identity)
+        if infer_nonsocketable(results[-1]['item'], stats, arrays, flags):
+            results[-1]['source']['socket_mechanics'] = 'item_type_cannot_socket'
         children = arrays.get('socket_items', {})
         if (
             flags is not None
@@ -197,6 +210,17 @@ def decode_items(
         ):
             results[-1]['item'].update(sockets=0, empty_sockets=0, filled_sockets=0, socket_contents='empty')
         item = results[-1]['item']
+        issues = results[-1]['issues']
+        if flags is None:
+            issues.append('Identification and ethereal status could not be read.')
+        elif not flags & IDENTIFIED_FLAG:
+            issues.append('Item is unidentified.')
+        if rarity in ('unique', 'set') and identity is None:
+            issues.append('Unique/set identity could not be read.')
+        if item['sockets'] is None:
+            issues.append('Socket count could not be read.')
+        elif item['sockets'] > 0 and item['socket_contents'] is None:
+            issues.append('Socket contents could not be read.')
         if (
             details.get('quality') == 3
             and flags is not None

@@ -32,6 +32,9 @@ class HighlightHandler(RichHandler):
     """Highlight explicitly marked lines on the console without mutating records."""
 
     def render_message(self, record, message):
+        styled = getattr(record, 'styled_message', None)
+        if isinstance(styled, Text) and styled.plain == message:
+            return styled.copy()
         text = Text(message)
         highlights = getattr(record, 'highlight_lines', ())
         styles = getattr(record, 'line_styles', {})

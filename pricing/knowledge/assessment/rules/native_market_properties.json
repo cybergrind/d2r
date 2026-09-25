@@ -1,0 +1,5497 @@
+{
+  "schema_version": 1,
+  "mappings": {
+    "83:0": {
+      "property_id": "453",
+      "label": "+{{value}} to Amazon Skill Levels",
+      "native_label": "+{{value}} to Amazon Skill Levels"
+    },
+    "83:1": {
+      "property_id": "514",
+      "label": "+{{value}} to Sorceress Skill Levels",
+      "native_label": "+{{value}} to Sorceress Skill Levels"
+    },
+    "83:2": {
+      "property_id": "498",
+      "label": "+{{value}} to Necromancer Skill Levels",
+      "native_label": "+{{value}} to Necromancer Skill Levels"
+    },
+    "83:3": {
+      "property_id": "442",
+      "label": "+{{value}} to Paladin Skill Levels",
+      "native_label": "+{{value}} to Paladin Skill Levels"
+    },
+    "83:4": {
+      "property_id": "403",
+      "label": "+{{value}} to Barbarian Skill Levels",
+      "native_label": "+{{value}} to Barbarian Skill Levels"
+    },
+    "83:5": {
+      "property_id": "488",
+      "label": "+{{value}} to Druid Skill Levels",
+      "native_label": "+{{value}} to Druid Skill Levels"
+    },
+    "83:6": {
+      "property_id": "519",
+      "label": "+{{value}} to Assassin Skill Levels",
+      "native_label": "+{{value}} to Assassin Skill Levels"
+    },
+    "83:7": {
+      "property_id": "1862",
+      "label": "+{{value}} to Warlock Skills",
+      "native_label": "+{{value}} to Warlock Skill Levels"
+    },
+    "188:0": {
+      "property_id": "454",
+      "label": "+{{value}} to Bow and Crossbow Skills (Amazon Only)",
+      "native_label": "+{{value}} to Bow and Crossbow Skills (Amazon Only)"
+    },
+    "188:1": {
+      "property_id": "455",
+      "label": "+{{value}} to Passive and Magic Skills (Amazon Only)",
+      "native_label": "+{{value}} to Passive and Magic Skills (Amazon Only)"
+    },
+    "188:2": {
+      "property_id": "456",
+      "label": "+{{value}} to Javelin and Spear Skills (Amazon Only)",
+      "native_label": "+{{value}} to Javelin and Spear Skills (Amazon Only)"
+    },
+    "188:8": {
+      "property_id": "515",
+      "label": "+{{value}} to Fire Skills (Sorceress Only)",
+      "native_label": "+{{value}} to Fire Skills (Sorceress Only)"
+    },
+    "188:9": {
+      "property_id": "516",
+      "label": "+{{value}} to Lightning Skills (Sorceress Only)",
+      "native_label": "+{{value}} to Lightning Skills (Sorceress Only)"
+    },
+    "188:10": {
+      "property_id": "517",
+      "label": "+{{value}} to Cold Skills (Sorceress Only)",
+      "native_label": "+{{value}} to Cold Skills (Sorceress Only)"
+    },
+    "188:16": {
+      "property_id": "499",
+      "label": "+{{value}} to Curses (Necromancer Only)",
+      "native_label": "+{{value}} to Curses (Necromancer Only)"
+    },
+    "188:17": {
+      "property_id": "500",
+      "label": "+{{value}} to Poison and Bone Skills (Necromancer Only)",
+      "native_label": "+{{value}} to Poison and Bone Skills (Necromancer Only)"
+    },
+    "188:18": {
+      "property_id": "501",
+      "label": "+{{value}} to Summoning Skills (Necromancer Only)",
+      "native_label": "+{{value}} to Summoning Skills (Necromancer Only)"
+    },
+    "188:24": {
+      "property_id": "443",
+      "label": "+{{value}} to Combat Skills (Paladin Only)",
+      "native_label": "+{{value}} to Combat Skills (Paladin Only)"
+    },
+    "188:25": {
+      "property_id": "444",
+      "label": "+{{value}} to Offensive Auras (Paladin Only)",
+      "native_label": "+{{value}} to Offensive Auras (Paladin Only)"
+    },
+    "188:26": {
+      "property_id": "445",
+      "label": "+{{value}} to Defensive Auras (Paladin Only)",
+      "native_label": "+{{value}} to Defensive Auras (Paladin Only)"
+    },
+    "188:32": {
+      "property_id": "404",
+      "label": "+{{value}} to Combat Skills (Barbarian Only)",
+      "native_label": "+{{value}} to Combat Skills (Barbarian Only)"
+    },
+    "188:33": {
+      "property_id": "405",
+      "label": "+{{value}} to Masteries (Barbarian Only)",
+      "native_label": "+{{value}} to Masteries (Barbarian Only)"
+    },
+    "188:34": {
+      "property_id": "406",
+      "label": "+{{value}} to Warcries (Barbarian Only)",
+      "native_label": "+{{value}} to Warcries (Barbarian Only)"
+    },
+    "188:40": {
+      "property_id": "485",
+      "label": "+{{value}} to Summoning Skills (Druid Only)",
+      "native_label": "+{{value}} to Summoning Skills (Druid Only)"
+    },
+    "188:41": {
+      "property_id": "486",
+      "label": "+{{value}} to Shape Shifting Skills (Druid Only)",
+      "native_label": "+{{value}} to Shape Shifting Skills (Druid Only)"
+    },
+    "188:42": {
+      "property_id": "487",
+      "label": "+{{value}} to Elemental Skills (Druid Only)",
+      "native_label": "+{{value}} to Elemental Skills (Druid Only)"
+    },
+    "188:48": {
+      "property_id": "408",
+      "label": "+{{value}} to Traps (Assassin Only)",
+      "native_label": "+{{value}} to Traps (Assassin Only)"
+    },
+    "188:49": {
+      "property_id": "409",
+      "label": "+{{value}} to Shadow Disciplines (Assassin Only)",
+      "native_label": "+{{value}} to Shadow Disciplines (Assassin Only)"
+    },
+    "188:50": {
+      "property_id": "410",
+      "label": "+{{value}} to Martial Arts (Assassin Only)",
+      "native_label": "+{{value}} to Martial Arts (Assassin Only)"
+    },
+    "188:56": {
+      "property_id": "1546",
+      "label": "+{{value}} to Demon Skills (Warlock Only)",
+      "native_label": "+{{value}} to Demon Skills (Warlock Only)"
+    },
+    "188:57": {
+      "property_id": "1547",
+      "label": "+{{value}} to Eldritch Skills (Warlock Only)",
+      "native_label": "+{{value}} to Eldritch Skills (Warlock Only)"
+    },
+    "188:58": {
+      "property_id": "1548",
+      "label": "+{{value}} to Chaos Skills (Warlock Only)",
+      "native_label": "+{{value}} to Chaos Skills (Warlock Only)"
+    },
+    "107:9": {
+      "property_id": "858",
+      "label": "+{{value}} to Critical Strike (Amazon Only)",
+      "native_label": "+{{value}} to Critical Strike (Amazon Only)"
+    },
+    "107:29": {
+      "property_id": "1146",
+      "label": "+{{value}} to Evade (Amazon Only)",
+      "native_label": "+{{value}} to Evade (Amazon Only)"
+    },
+    "107:32": {
+      "property_id": "849",
+      "label": "+{{value}} to Valkyrie (Amazon Only)",
+      "native_label": "+{{value}} to Valkyrie (Amazon Only)"
+    },
+    "107:34": {
+      "property_id": "707",
+      "label": "+{{value}} to Lightning Strike (Amazon Only)",
+      "native_label": "+{{value}} to Lightning Strike (Amazon Only)"
+    },
+    "107:35": {
+      "property_id": "708",
+      "label": "+{{value}} to Lightning Fury (Amazon Only)",
+      "native_label": "+{{value}} to Lightning Fury (Amazon Only)"
+    },
+    "107:36": {
+      "property_id": "596",
+      "label": "+{{value}} to Fire Bolt (Sorceress Only)",
+      "native_label": "+{{value}} to Fire Bolt (Sorceress Only)"
+    },
+    "107:37": {
+      "property_id": "597",
+      "label": "+{{value}} to Warmth (Sorceress Only)",
+      "native_label": "+{{value}} to Warmth (Sorceress Only)"
+    },
+    "107:38": {
+      "property_id": "946",
+      "label": "+{{value}} to Charged Bolt (Sorceress Only)",
+      "native_label": "+{{value}} to Charged Bolt (Sorceress Only)"
+    },
+    "107:40": {
+      "property_id": "940",
+      "label": "+{{value}} to Frozen Armor (Sorceress Only)",
+      "native_label": "+{{value}} to Frozen Armor (Sorceress Only)"
+    },
+    "107:41": {
+      "property_id": "759",
+      "label": "+{{value}} to Inferno (Sorceress Only)",
+      "native_label": "+{{value}} to Inferno (Sorceress Only)"
+    },
+    "107:42": {
+      "property_id": "949",
+      "label": "+{{value}} to Static Field (Sorceress Only)",
+      "native_label": "+{{value}} to Static Field (Sorceress Only)"
+    },
+    "107:43": {
+      "property_id": "678",
+      "label": "+{{value}} to Telekinesis (Sorceress Only)",
+      "native_label": "+{{value}} to Telekinesis (Sorceress Only)"
+    },
+    "107:44": {
+      "property_id": "605",
+      "label": "+{{value}} to Frost Nova (Sorceress Only)",
+      "native_label": "+{{value}} to Frost Nova (Sorceress Only)"
+    },
+    "107:45": {
+      "property_id": "941",
+      "label": "+{{value}} to Ice Blast (Sorceress Only)",
+      "native_label": "+{{value}} to Ice Blast (Sorceress Only)"
+    },
+    "107:46": {
+      "property_id": "604",
+      "label": "+{{value}} to Blaze (Sorceress Only)",
+      "native_label": "+{{value}} to Blaze (Sorceress Only)"
+    },
+    "107:47": {
+      "property_id": "602",
+      "label": "+{{value}} to Fire Ball (Sorceress Only)",
+      "native_label": "+{{value}} to Fire Ball (Sorceress Only)"
+    },
+    "107:48": {
+      "property_id": "948",
+      "label": "+{{value}} to Nova (Sorceress Only)",
+      "native_label": "+{{value}} to Nova (Sorceress Only)"
+    },
+    "107:49": {
+      "property_id": "1049",
+      "label": "+{{value}} to Lightning (Sorceress Only)",
+      "native_label": "+{{value}} to Lightning (Sorceress Only)"
+    },
+    "107:50": {
+      "property_id": "942",
+      "label": "+{{value}} to Shiver Armor (Sorceress Only)",
+      "native_label": "+{{value}} to Shiver Armor (Sorceress Only)"
+    },
+    "107:51": {
+      "property_id": "601",
+      "label": "+{{value}} to Fire Wall (Sorceress Only)",
+      "native_label": "+{{value}} to Fire Wall (Sorceress Only)"
+    },
+    "107:52": {
+      "property_id": "944",
+      "label": "+{{value}} to Enchant (Sorceress Only)",
+      "native_label": "+{{value}} to Enchant (Sorceress Only)"
+    },
+    "107:53": {
+      "property_id": "598",
+      "label": "+{{value}} to Chain Lightning (Sorceress Only)",
+      "native_label": "+{{value}} to Chain Lightning (Sorceress Only)"
+    },
+    "107:54": {
+      "property_id": "677",
+      "label": "+{{value}} to Teleport (Sorceress Only)",
+      "native_label": "+{{value}} to Teleport (Sorceress Only)"
+    },
+    "107:55": {
+      "property_id": "704",
+      "label": "+{{value}} to Glacial Spike (Sorceress Only)",
+      "native_label": "+{{value}} to Glacial Spike (Sorceress Only)"
+    },
+    "107:56": {
+      "property_id": "943",
+      "label": "+{{value}} to Meteor (Sorceress Only)",
+      "native_label": "+{{value}} to Meteor (Sorceress Only)"
+    },
+    "107:57": {
+      "property_id": "945",
+      "label": "+{{value}} to Thunder Storm (Sorceress Only)",
+      "native_label": "+{{value}} to Thunder Storm (Sorceress Only)"
+    },
+    "107:58": {
+      "property_id": "679",
+      "label": "+{{value}} to Energy Shield (Sorceress Only)",
+      "native_label": "+{{value}} to Energy Shield (Sorceress Only)"
+    },
+    "107:59": {
+      "property_id": "703",
+      "label": "+{{value}} to Blizzard (Sorceress Only)",
+      "native_label": "+{{value}} to Blizzard (Sorceress Only)"
+    },
+    "107:60": {
+      "property_id": "705",
+      "label": "+{{value}} to Chilling Armor (Sorceress Only)",
+      "native_label": "+{{value}} to Chilling Armor (Sorceress Only)"
+    },
+    "107:61": {
+      "property_id": "1050",
+      "label": "+{{value}} to Fire Mastery (Sorceress Only)",
+      "native_label": "+{{value}} to Fire Mastery (Sorceress Only)"
+    },
+    "107:62": {
+      "property_id": "749",
+      "label": "+{{value}} to Hydra (Sorceress Only)",
+      "native_label": "+{{value}} to Hydra (Sorceress Only)"
+    },
+    "107:63": {
+      "property_id": "1051",
+      "label": "+{{value}} to Lightning Mastery (Sorceress Only)",
+      "native_label": "+{{value}} to Lightning Mastery (Sorceress Only)"
+    },
+    "107:64": {
+      "property_id": "1052",
+      "label": "+{{value}} to Frozen Orb (Sorceress Only)",
+      "native_label": "+{{value}} to Frozen Orb (Sorceress Only)"
+    },
+    "107:65": {
+      "property_id": "1053",
+      "label": "+{{value}} to Cold Mastery (Sorceress Only)",
+      "native_label": "+{{value}} to Cold Mastery (Sorceress Only)"
+    },
+    "107:66": {
+      "property_id": "1002",
+      "label": "+{{value}} to Amplify Damage (Necromancer Only)",
+      "native_label": "+{{value}} to Amplify Damage (Necromancer Only)"
+    },
+    "107:67": {
+      "property_id": "1003",
+      "label": "+{{value}} to Teeth (Necromancer Only)",
+      "native_label": "+{{value}} to Teeth (Necromancer Only)"
+    },
+    "107:68": {
+      "property_id": "755",
+      "label": "+{{value}} to Bone Armor (Necromancer Only)",
+      "native_label": "+{{value}} to Bone Armor (Necromancer Only)"
+    },
+    "107:69": {
+      "property_id": "1004",
+      "label": "+{{value}} to Skeleton Mastery (Necromancer Only)",
+      "native_label": "+{{value}} to Skeleton Mastery (Necromancer Only)"
+    },
+    "107:70": {
+      "property_id": "1005",
+      "label": "+{{value}} to Raise Skeleton (Necromancer Only)",
+      "native_label": "+{{value}} to Raise Skeleton (Necromancer Only)"
+    },
+    "107:74": {
+      "property_id": "1009",
+      "label": "+{{value}} to Corpse Explosion (Necromancer Only)",
+      "native_label": "+{{value}} to Corpse Explosion (Necromancer Only)"
+    },
+    "107:75": {
+      "property_id": "1010",
+      "label": "+{{value}} to Clay Golem (Necromancer Only)",
+      "native_label": "+{{value}} to Clay Golem (Necromancer Only)"
+    },
+    "107:76": {
+      "property_id": "574",
+      "label": "+{{value}} to Iron Maiden (Necromancer Only)",
+      "native_label": "+{{value}} to Iron Maiden (Necromancer Only)"
+    },
+    "107:77": {
+      "property_id": "1011",
+      "label": "+{{value}} to Terror (Necromancer Only)",
+      "native_label": "+{{value}} to Terror (Necromancer Only)"
+    },
+    "107:78": {
+      "property_id": "758",
+      "label": "+{{value}} to Bone Wall (Necromancer Only)",
+      "native_label": "+{{value}} to Bone Wall (Necromancer Only)"
+    },
+    "107:79": {
+      "property_id": "1012",
+      "label": "+{{value}} to Golem Mastery (Necromancer Only)",
+      "native_label": "+{{value}} to Golem Mastery (Necromancer Only)"
+    },
+    "107:80": {
+      "property_id": "1013",
+      "label": "+{{value}} to Raise Skeletal Mage (Necromancer Only)",
+      "native_label": "+{{value}} to Raise Skeletal Mage (Necromancer Only)"
+    },
+    "107:81": {
+      "property_id": "1014",
+      "label": "+{{value}} to Confuse (Necromancer Only)",
+      "native_label": "+{{value}} to Confuse (Necromancer Only)"
+    },
+    "107:82": {
+      "property_id": "1015",
+      "label": "+{{value}} to Life Tap (Necromancer Only)",
+      "native_label": "+{{value}} to Life Tap (Necromancer Only)"
+    },
+    "107:83": {
+      "property_id": "1016",
+      "label": "+{{value}} to Poison Explosion (Necromancer Only)",
+      "native_label": "+{{value}} to Poison Explosion (Necromancer Only)"
+    },
+    "107:84": {
+      "property_id": "756",
+      "label": "+{{value}} to Bone Spear (Necromancer Only)",
+      "native_label": "+{{value}} to Bone Spear (Necromancer Only)"
+    },
+    "107:85": {
+      "property_id": "1017",
+      "label": "+{{value}} to Blood Golem (Necromancer Only)",
+      "native_label": "+{{value}} to Blood Golem (Necromancer Only)"
+    },
+    "107:86": {
+      "property_id": "1018",
+      "label": "+{{value}} to Attract (Necromancer Only)",
+      "native_label": "+{{value}} to Attract (Necromancer Only)"
+    },
+    "107:87": {
+      "property_id": "1019",
+      "label": "+{{value}} to Decrepify (Necromancer Only)",
+      "native_label": "+{{value}} to Decrepify (Necromancer Only)"
+    },
+    "107:88": {
+      "property_id": "1020",
+      "label": "+{{value}} to Bone Prison (Necromancer Only)",
+      "native_label": "+{{value}} to Bone Prison (Necromancer Only)"
+    },
+    "107:89": {
+      "property_id": "1021",
+      "label": "+{{value}} to Summon Resist (Necromancer Only)",
+      "native_label": "+{{value}} to Summon Resist (Necromancer Only)"
+    },
+    "107:90": {
+      "property_id": "1022",
+      "label": "+{{value}} to Iron Golem (Necromancer Only)",
+      "native_label": "+{{value}} to Iron Golem (Necromancer Only)"
+    },
+    "107:91": {
+      "property_id": "1023",
+      "label": "+{{value}} to Lower Resist (Necromancer Only)",
+      "native_label": "+{{value}} to Lower Resist (Necromancer Only)"
+    },
+    "107:92": {
+      "property_id": "1024",
+      "label": "+{{value}} to Poison Nova (Necromancer Only)",
+      "native_label": "+{{value}} to Poison Nova (Necromancer Only)"
+    },
+    "107:93": {
+      "property_id": "757",
+      "label": "+{{value}} to Bone Spirit (Necromancer Only)",
+      "native_label": "+{{value}} to Bone Spirit (Necromancer Only)"
+    },
+    "107:94": {
+      "property_id": "1025",
+      "label": "+{{value}} to Fire Golem (Necromancer Only)",
+      "native_label": "+{{value}} to Fire Golem (Necromancer Only)"
+    },
+    "107:95": {
+      "property_id": "1026",
+      "label": "+{{value}} to Revive (Necromancer Only)",
+      "native_label": "+{{value}} to Revive (Necromancer Only)"
+    },
+    "107:100": {
+      "property_id": "1031",
+      "label": "+{{value}} to Resist Fire (Paladin Only)",
+      "native_label": "+{{value}} to Resist Fire (Paladin Only)"
+    },
+    "107:102": {
+      "property_id": "588",
+      "label": "+{{value}} to Holy Fire (Paladin Only)",
+      "native_label": "+{{value}} to Holy Fire (Paladin Only)"
+    },
+    "107:104": {
+      "property_id": "1033",
+      "label": "+{{value}} to Defiance (Paladin Only)",
+      "native_label": "+{{value}} to Defiance (Paladin Only)"
+    },
+    "107:105": {
+      "property_id": "1034",
+      "label": "+{{value}} to Resist Cold (Paladin Only)",
+      "native_label": "+{{value}} to Resist Cold (Paladin Only)"
+    },
+    "107:106": {
+      "property_id": "875",
+      "label": "+{{value}} to Zeal (Paladin Only)",
+      "native_label": "+{{value}} to Zeal (Paladin Only)"
+    },
+    "107:109": {
+      "property_id": "1037",
+      "label": "+{{value}} to Cleansing (Paladin Only)",
+      "native_label": "+{{value}} to Cleansing (Paladin Only)"
+    },
+    "107:110": {
+      "property_id": "1038",
+      "label": "+{{value}} to Resist Lightning (Paladin Only)",
+      "native_label": "+{{value}} to Resist Lightning (Paladin Only)"
+    },
+    "107:112": {
+      "property_id": "1039",
+      "label": "+{{value}} to Blessed Hammer (Paladin Only)",
+      "native_label": "+{{value}} to Blessed Hammer (Paladin Only)"
+    },
+    "107:113": {
+      "property_id": "1040",
+      "label": "+{{value}} to Concentration (Paladin Only)",
+      "native_label": "+{{value}} to Concentration (Paladin Only)"
+    },
+    "107:114": {
+      "property_id": "639",
+      "label": "+{{value}} to Holy Freeze (Paladin Only)",
+      "native_label": "+{{value}} to Holy Freeze (Paladin Only)"
+    },
+    "107:115": {
+      "property_id": "619",
+      "label": "+{{value}} to Vigor (Paladin Only)",
+      "native_label": "+{{value}} to Vigor (Paladin Only)"
+    },
+    "107:116": {
+      "property_id": "1041",
+      "label": "+{{value}} to Conversion (Paladin Only)",
+      "native_label": "+{{value}} to Conversion (Paladin Only)"
+    },
+    "107:118": {
+      "property_id": "580",
+      "label": "+{{value}} to Holy Shock (Paladin Only)",
+      "native_label": "+{{value}} to Holy Shock (Paladin Only)"
+    },
+    "107:120": {
+      "property_id": "1044",
+      "label": "+{{value}} to Meditation (Paladin Only)",
+      "native_label": "+{{value}} to Meditation (Paladin Only)"
+    },
+    "107:121": {
+      "property_id": "581",
+      "label": "+{{value}} to Fist of the Heavens (Paladin Only)",
+      "native_label": "+{{value}} to Fist of the Heavens (Paladin Only)"
+    },
+    "107:122": {
+      "property_id": "1045",
+      "label": "+{{value}} to Fanaticism (Paladin Only)",
+      "native_label": "+{{value}} to Fanaticism (Paladin Only)"
+    },
+    "107:123": {
+      "property_id": "1046",
+      "label": "+{{value}} to Conviction (Paladin Only)",
+      "native_label": "+{{value}} to Conviction (Paladin Only)"
+    },
+    "107:124": {
+      "property_id": "1047",
+      "label": "+{{value}} to Redemption (Paladin Only)",
+      "native_label": "+{{value}} to Redemption (Paladin Only)"
+    },
+    "107:125": {
+      "property_id": "1048",
+      "label": "+{{value}} to Salvation (Paladin Only)",
+      "native_label": "+{{value}} to Salvation (Paladin Only)"
+    },
+    "107:134": {
+      "property_id": "985",
+      "label": "+{{value}} to Polearm Mastery (Barbarian Only)",
+      "native_label": "+{{value}} to Polearm Mastery (Barbarian Only)"
+    },
+    "107:135": {
+      "property_id": "986",
+      "label": "+{{value}} to Throwing Mastery (Barbarian Only)",
+      "native_label": "+{{value}} to Throwing Mastery (Barbarian Only)"
+    },
+    "107:136": {
+      "property_id": "987",
+      "label": "+{{value}} to Spear Mastery (Barbarian Only)",
+      "native_label": "+{{value}} to Spear Mastery (Barbarian Only)"
+    },
+    "107:137": {
+      "property_id": "988",
+      "label": "+{{value}} to Taunt (Barbarian Only)",
+      "native_label": "+{{value}} to Taunt (Barbarian Only)"
+    },
+    "107:138": {
+      "property_id": "989",
+      "label": "+{{value}} to Shout (Barbarian Only)",
+      "native_label": "+{{value}} to Shout (Barbarian Only)"
+    },
+    "107:141": {
+      "property_id": "992",
+      "label": "+{{value}} to Increased Stamina (Barbarian Only)",
+      "native_label": "+{{value}} to Increased Stamina (Barbarian Only)"
+    },
+    "107:142": {
+      "property_id": "993",
+      "label": "+{{value}} to Find Item (Barbarian Only)",
+      "native_label": "+{{value}} to Find Item (Barbarian Only)"
+    },
+    "107:145": {
+      "property_id": "996",
+      "label": "+{{value}} to Iron Skin (Barbarian Only)",
+      "native_label": "+{{value}} to Iron Skin (Barbarian Only)"
+    },
+    "107:146": {
+      "property_id": "931",
+      "label": "+{{value}} to Battle Cry (Barbarian Only)",
+      "native_label": "+{{value}} to Battle Cry (Barbarian Only)"
+    },
+    "107:147": {
+      "property_id": "845",
+      "label": "+{{value}} to Frenzy (Barbarian Only)",
+      "native_label": "+{{value}} to Frenzy (Barbarian Only)"
+    },
+    "107:148": {
+      "property_id": "997",
+      "label": "+{{value}} to Increased Speed (Barbarian Only)",
+      "native_label": "+{{value}} to Increased Speed (Barbarian Only)"
+    },
+    "107:149": {
+      "property_id": "765",
+      "label": "+{{value}} to Battle Orders (Barbarian Only)",
+      "native_label": "+{{value}} to Battle Orders (Barbarian Only)"
+    },
+    "107:150": {
+      "property_id": "664",
+      "label": "+{{value}} to Grim Ward (Barbarian Only)",
+      "native_label": "+{{value}} to Grim Ward (Barbarian Only)"
+    },
+    "107:151": {
+      "property_id": "650",
+      "label": "+{{value}} to Whirlwind (Barbarian Only)",
+      "native_label": "+{{value}} to Whirlwind (Barbarian Only)"
+    },
+    "107:153": {
+      "property_id": "999",
+      "label": "+{{value}} to Natural Resistance (Barbarian Only)",
+      "native_label": "+{{value}} to Natural Resistance (Barbarian Only)"
+    },
+    "107:154": {
+      "property_id": "1000",
+      "label": "+{{value}} to War Cry (Barbarian Only)",
+      "native_label": "+{{value}} to War Cry (Barbarian Only)"
+    },
+    "107:155": {
+      "property_id": "1001",
+      "label": "+{{value}} to Battle Command (Barbarian Only)",
+      "native_label": "+{{value}} to Battle Command (Barbarian Only)"
+    },
+    "107:221": {
+      "property_id": "950",
+      "label": "+{{value}} to Raven (Druid Only)",
+      "native_label": "+{{value}} to Raven (Druid Only)"
+    },
+    "107:228": {
+      "property_id": "805",
+      "label": "+{{value}} to Werebear (Druid Only)",
+      "native_label": "+{{value}} to Werebear (Druid Only)"
+    },
+    "107:231": {
+      "property_id": "1153",
+      "label": "+{{value}} to Carrion Vine (Druid Only)",
+      "native_label": "+{{value}} to Carrion Vine (Druid Only)"
+    },
+    "107:232": {
+      "property_id": "959",
+      "label": "+{{value}} to Feral Rage (Druid Only)",
+      "native_label": "+{{value}} to Feral Rage (Druid Only)"
+    },
+    "107:233": {
+      "property_id": "960",
+      "label": "+{{value}} to Maul (Druid Only)",
+      "native_label": "+{{value}} to Maul (Druid Only)"
+    },
+    "107:234": {
+      "property_id": "1121",
+      "label": "+{{value}} to Fissure (Druid Only)",
+      "native_label": "+{{value}} to Fissure (Druid Only)"
+    },
+    "107:235": {
+      "property_id": "962",
+      "label": "+{{value}} to Cyclone Armor (Druid Only)",
+      "native_label": "+{{value}} to Cyclone Armor (Druid Only)"
+    },
+    "107:236": {
+      "property_id": "963",
+      "label": "+{{value}} to Heart of Wolverine (Druid Only)",
+      "native_label": "+{{value}} to Heart of Wolverine (Druid Only)"
+    },
+    "107:237": {
+      "property_id": "1157",
+      "label": "+{{value}} to Summon Dire Wolf (Druid Only)",
+      "native_label": "+{{value}} to Summon Dire Wolf (Druid Only)"
+    },
+    "107:238": {
+      "property_id": "965",
+      "label": "+{{value}} to Rabies (Druid Only)",
+      "native_label": "+{{value}} to Rabies (Druid Only)"
+    },
+    "107:239": {
+      "property_id": "966",
+      "label": "+{{value}} to Fire Claws (Druid Only)",
+      "native_label": "+{{value}} to Fire Claws (Druid Only)"
+    },
+    "107:240": {
+      "property_id": "967",
+      "label": "+{{value}} to Twister (Druid Only)",
+      "native_label": "+{{value}} to Twister (Druid Only)"
+    },
+    "107:241": {
+      "property_id": "1155",
+      "label": "+{{value}} to Solar Creeper (Druid Only)",
+      "native_label": "+{{value}} to Solar Creeper (Druid Only)"
+    },
+    "107:242": {
+      "property_id": "969",
+      "label": "+{{value}} to Hunger (Druid Only)",
+      "native_label": "+{{value}} to Hunger (Druid Only)"
+    },
+    "107:243": {
+      "property_id": "970",
+      "label": "+{{value}} to Shock Wave (Druid Only)",
+      "native_label": "+{{value}} to Shock Wave (Druid Only)"
+    },
+    "107:244": {
+      "property_id": "971",
+      "label": "+{{value}} to Volcano (Druid Only)",
+      "native_label": "+{{value}} to Volcano (Druid Only)"
+    },
+    "107:245": {
+      "property_id": "972",
+      "label": "+{{value}} to Tornado (Druid Only)",
+      "native_label": "+{{value}} to Tornado (Druid Only)"
+    },
+    "107:246": {
+      "property_id": "973",
+      "label": "+{{value}} to Spirit of Barbs (Druid Only)",
+      "native_label": "+{{value}} to Spirit of Barbs (Druid Only)"
+    },
+    "107:247": {
+      "property_id": "974",
+      "label": "+{{value}} to Summon Grizzly (Druid Only)",
+      "native_label": "+{{value}} to Summon Grizzly (Druid Only)"
+    },
+    "107:248": {
+      "property_id": "975",
+      "label": "+{{value}} to Fury (Druid Only)",
+      "native_label": "+{{value}} to Fury (Druid Only)"
+    },
+    "107:249": {
+      "property_id": "976",
+      "label": "+{{value}} to Armageddon (Druid Only)",
+      "native_label": "+{{value}} to Armageddon (Druid Only)"
+    },
+    "107:250": {
+      "property_id": "977",
+      "label": "+{{value}} to Hurricane (Druid Only)",
+      "native_label": "+{{value}} to Hurricane (Druid Only)"
+    },
+    "107:251": {
+      "property_id": "1054",
+      "label": "+{{value}} to Fire Blast (Assassin Only)",
+      "native_label": "+{{value}} to Fire Blast (Assassin Only)"
+    },
+    "107:255": {
+      "property_id": "1058",
+      "label": "+{{value}} to Dragon Talon (Assassin Only)",
+      "native_label": "+{{value}} to Dragon Talon (Assassin Only)"
+    },
+    "107:256": {
+      "property_id": "1059",
+      "label": "+{{value}} to Shock Web (Assassin Only)",
+      "native_label": "+{{value}} to Shock Web (Assassin Only)"
+    },
+    "107:257": {
+      "property_id": "1060",
+      "label": "+{{value}} to Blade Sentinel (Assassin Only)",
+      "native_label": "+{{value}} to Blade Sentinel (Assassin Only)"
+    },
+    "107:259": {
+      "property_id": "1062",
+      "label": "+{{value}} to Fists of Fire (Assassin Only)",
+      "native_label": "+{{value}} to Fists of Fire (Assassin Only)"
+    },
+    "107:261": {
+      "property_id": "1064",
+      "label": "+{{value}} to Charged Bolt Sentry (Assassin Only)",
+      "native_label": "+{{value}} to Charged Bolt Sentry (Assassin Only)"
+    },
+    "107:262": {
+      "property_id": "1116",
+      "label": "+{{value}} to Wake of Fire (Assassin Only)",
+      "native_label": "+{{value}} to Wake of Fire (Assassin Only)"
+    },
+    "107:263": {
+      "property_id": "1065",
+      "label": "+{{value}} to Weapon Block (Assassin Only)",
+      "native_label": "+{{value}} to Weapon Block (Assassin Only)"
+    },
+    "107:264": {
+      "property_id": "1066",
+      "label": "+{{value}} to Cloak of Shadows (Assassin Only)",
+      "native_label": "+{{value}} to Cloak of Shadows (Assassin Only)"
+    },
+    "107:265": {
+      "property_id": "1067",
+      "label": "+{{value}} to Cobra Strike (Assassin Only)",
+      "native_label": "+{{value}} to Cobra Strike (Assassin Only)"
+    },
+    "107:266": {
+      "property_id": "1068",
+      "label": "+{{value}} to Blade Fury (Assassin Only)",
+      "native_label": "+{{value}} to Blade Fury (Assassin Only)"
+    },
+    "107:267": {
+      "property_id": "1069",
+      "label": "+{{value}} to Fade (Assassin Only)",
+      "native_label": "+{{value}} to Fade (Assassin Only)"
+    },
+    "107:268": {
+      "property_id": "1070",
+      "label": "+{{value}} to Shadow Warrior (Assassin Only)",
+      "native_label": "+{{value}} to Shadow Warrior (Assassin Only)"
+    },
+    "107:269": {
+      "property_id": "1071",
+      "label": "+{{value}} to Claws of Thunder (Assassin Only)",
+      "native_label": "+{{value}} to Claws of Thunder (Assassin Only)"
+    },
+    "107:270": {
+      "property_id": "1072",
+      "label": "+{{value}} to Dragon Tail (Assassin Only)",
+      "native_label": "+{{value}} to Dragon Tail (Assassin Only)"
+    },
+    "107:271": {
+      "property_id": "1073",
+      "label": "+{{value}} to Lightning Sentry (Assassin Only)",
+      "native_label": "+{{value}} to Lightning Sentry (Assassin Only)"
+    },
+    "107:272": {
+      "property_id": "769",
+      "label": "+{{value}} to Wake of Inferno (Assassin Only)",
+      "native_label": "+{{value}} to Wake of Inferno (Assassin Only)"
+    },
+    "107:273": {
+      "property_id": "1074",
+      "label": "+{{value}} to Mind Blast (Assassin Only)",
+      "native_label": "+{{value}} to Mind Blast (Assassin Only)"
+    },
+    "107:274": {
+      "property_id": "1075",
+      "label": "+{{value}} to Blades of Ice (Assassin Only)",
+      "native_label": "+{{value}} to Blades of Ice (Assassin Only)"
+    },
+    "107:275": {
+      "property_id": "1076",
+      "label": "+{{value}} to Dragon Flight (Assassin Only)",
+      "native_label": "+{{value}} to Dragon Flight (Assassin Only)"
+    },
+    "107:276": {
+      "property_id": "1077",
+      "label": "+{{value}} to Death Sentry (Assassin Only)",
+      "native_label": "+{{value}} to Death Sentry (Assassin Only)"
+    },
+    "107:277": {
+      "property_id": "1078",
+      "label": "+{{value}} to Blade Shield (Assassin Only)",
+      "native_label": "+{{value}} to Blade Shield (Assassin Only)"
+    },
+    "107:278": {
+      "property_id": "1079",
+      "label": "+{{value}} to Venom (Assassin Only)",
+      "native_label": "+{{value}} to Venom (Assassin Only)"
+    },
+    "107:279": {
+      "property_id": "1080",
+      "label": "+{{value}} to Shadow Master (Assassin Only)",
+      "native_label": "+{{value}} to Shadow Master (Assassin Only)"
+    },
+    "107:280": {
+      "property_id": "1122",
+      "label": "+{{value}} to Phoenix Strike (Assassin Only)",
+      "native_label": "+{{value}} to Phoenix Strike (Assassin Only)"
+    },
+    "107:373": {
+      "property_id": "1550",
+      "label": "+{{value}} to Summon Goatman (Warlock Only)",
+      "native_label": "+{{value}} to Summon Goatman (Warlock Only)"
+    },
+    "107:374": {
+      "property_id": "1551",
+      "label": "+{{value}} to Demonic Mastery (Warlock Only)",
+      "native_label": "+{{value}} to Demonic Mastery (Warlock Only)"
+    },
+    "107:375": {
+      "property_id": "1552",
+      "label": "+{{value}} to Death Mark (Warlock Only)",
+      "native_label": "+{{value}} to Death Mark (Warlock Only)"
+    },
+    "107:376": {
+      "property_id": "1553",
+      "label": "+{{value}} to Summon Tainted (Warlock Only)",
+      "native_label": "+{{value}} to Summon Tainted (Warlock Only)"
+    },
+    "107:377": {
+      "property_id": "1554",
+      "label": "+{{value}} to Summon Defiler (Warlock Only)",
+      "native_label": "+{{value}} to Summon Defiler (Warlock Only)"
+    },
+    "107:378": {
+      "property_id": "1555",
+      "label": "+{{value}} to Blood Oath (Warlock Only)",
+      "native_label": "+{{value}} to Blood Oath (Warlock Only)"
+    },
+    "107:379": {
+      "property_id": "1556",
+      "label": "+{{value}} to Engorge (Warlock Only)",
+      "native_label": "+{{value}} to Engorge (Warlock Only)"
+    },
+    "107:380": {
+      "property_id": "1557",
+      "label": "+{{value}} to Blood Boil (Warlock Only)",
+      "native_label": "+{{value}} to Blood Boil (Warlock Only)"
+    },
+    "107:381": {
+      "property_id": "1558",
+      "label": "+{{value}} to Consume (Warlock Only)",
+      "native_label": "+{{value}} to Consume (Warlock Only)"
+    },
+    "107:382": {
+      "property_id": "1559",
+      "label": "+{{value}} to Bind Demon (Warlock Only)",
+      "native_label": "+{{value}} to Bind Demon (Warlock Only)"
+    },
+    "107:383": {
+      "property_id": "1560",
+      "label": "+{{value}} to Levitation Mastery (Warlock Only)",
+      "native_label": "+{{value}} to Levitation Mastery (Warlock Only)"
+    },
+    "107:384": {
+      "property_id": "1561",
+      "label": "+{{value}} to Eldritch Blast (Warlock Only)",
+      "native_label": "+{{value}} to Eldritch Blast (Warlock Only)"
+    },
+    "107:385": {
+      "property_id": "1562",
+      "label": "+{{value}} to Hex: Bane (Warlock Only)",
+      "native_label": "+{{value}} to Hex: Bane (Warlock Only)"
+    },
+    "107:386": {
+      "property_id": "1563",
+      "label": "+{{value}} to Hex: Siphon (Warlock Only)",
+      "native_label": "+{{value}} to Hex: Siphon (Warlock Only)"
+    },
+    "107:387": {
+      "property_id": "1564",
+      "label": "+{{value}} to Psychic Ward (Warlock Only)",
+      "native_label": "+{{value}} to Psychic Ward (Warlock Only)"
+    },
+    "107:388": {
+      "property_id": "1565",
+      "label": "+{{value}} to Echoing Strike (Warlock Only)",
+      "native_label": "+{{value}} to Echoing Strike (Warlock Only)"
+    },
+    "107:389": {
+      "property_id": "1566",
+      "label": "+{{value}} to Hex: Purge (Warlock Only)",
+      "native_label": "+{{value}} to Hex: Purge (Warlock Only)"
+    },
+    "107:390": {
+      "property_id": "1567",
+      "label": "+{{value}} to Blade Warp (Warlock Only)",
+      "native_label": "+{{value}} to Blade Warp (Warlock Only)"
+    },
+    "107:391": {
+      "property_id": "1568",
+      "label": "+{{value}} to Cleave (Warlock Only)",
+      "native_label": "+{{value}} to Cleave (Warlock Only)"
+    },
+    "107:392": {
+      "property_id": "1569",
+      "label": "+{{value}} to Mirrored Blades (Warlock Only)",
+      "native_label": "+{{value}} to Mirrored Blades (Warlock Only)"
+    },
+    "107:393": {
+      "property_id": "1570",
+      "label": "+{{value}} to Sigil: Lethargy (Warlock Only)",
+      "native_label": "+{{value}} to Sigil: Lethargy (Warlock Only)"
+    },
+    "107:394": {
+      "property_id": "1571",
+      "label": "+{{value}} to Ring of Fire (Warlock Only)",
+      "native_label": "+{{value}} to Ring of Fire (Warlock Only)"
+    },
+    "107:395": {
+      "property_id": "1572",
+      "label": "+{{value}} to Miasma Bolt (Warlock Only)",
+      "native_label": "+{{value}} to Miasma Bolt (Warlock Only)"
+    },
+    "107:396": {
+      "property_id": "1573",
+      "label": "+{{value}} to Sigil: Rancor (Warlock Only)",
+      "native_label": "+{{value}} to Sigil: Rancor (Warlock Only)"
+    },
+    "107:397": {
+      "property_id": "1574",
+      "label": "+{{value}} to Enhanced Entropy (Warlock Only)",
+      "native_label": "+{{value}} to Enhanced Entropy (Warlock Only)"
+    },
+    "107:398": {
+      "property_id": "1575",
+      "label": "+{{value}} to Flame Wave (Warlock Only)",
+      "native_label": "+{{value}} to Flame Wave (Warlock Only)"
+    },
+    "107:399": {
+      "property_id": "1576",
+      "label": "+{{value}} to Miasma Chain (Warlock Only)",
+      "native_label": "+{{value}} to Miasma Chain (Warlock Only)"
+    },
+    "107:400": {
+      "property_id": "1577",
+      "label": "+{{value}} to Sigil: Death (Warlock Only)",
+      "native_label": "+{{value}} to Sigil: Death (Warlock Only)"
+    },
+    "107:401": {
+      "property_id": "1578",
+      "label": "+{{value}} to Apocalypse (Warlock Only)",
+      "native_label": "+{{value}} to Apocalypse (Warlock Only)"
+    },
+    "107:402": {
+      "property_id": "1579",
+      "label": "+{{value}} to Abyss (Warlock Only)",
+      "native_label": "+{{value}} to Abyss (Warlock Only)"
+    },
+    "151:98": {
+      "property_id": "864",
+      "label": "Level {{value}} Might Aura When Equipped",
+      "native_label": "Level {{value}} Might Aura When Equipped"
+    },
+    "151:100": {
+      "property_id": "1906",
+      "label": "Level {{value}} Resist Fire Aura When Equipped",
+      "native_label": "Level {{value}} Resist Fire Aura When Equipped"
+    },
+    "151:102": {
+      "property_id": "831",
+      "label": "Level {{value}} Holy Fire Aura When Equipped",
+      "native_label": "Level {{value}} Holy Fire Aura When Equipped"
+    },
+    "151:103": {
+      "property_id": "810",
+      "label": "Level {{value}} Thorns Aura When Equipped",
+      "native_label": "Level {{value}} Thorns Aura When Equipped"
+    },
+    "151:104": {
+      "property_id": "839",
+      "label": "Level {{value}} Defiance Aura When Equipped",
+      "native_label": "Level {{value}} Defiance Aura When Equipped"
+    },
+    "151:109": {
+      "property_id": "1260",
+      "label": "Level {{value}} Cleansing Aura When Equipped",
+      "native_label": "Level {{value}} Cleansing Aura When Equipped"
+    },
+    "151:113": {
+      "property_id": "881",
+      "label": "Level {{value}} Concentration Aura When Equipped",
+      "native_label": "Level {{value}} Concentration Aura When Equipped"
+    },
+    "151:114": {
+      "property_id": "827",
+      "label": "Level {{value}} Holy Freeze Aura When Equipped",
+      "native_label": "Level {{value}} Holy Freeze Aura When Equipped"
+    },
+    "151:115": {
+      "property_id": "848",
+      "label": "Level {{value}} Vigor Aura When Equipped",
+      "native_label": "Level {{value}} Vigor Aura When Equipped"
+    },
+    "151:118": {
+      "property_id": "834",
+      "label": "Level {{value}} Holy Shock Aura When Equipped",
+      "native_label": "Level {{value}} Holy Shock Aura When Equipped"
+    },
+    "151:119": {
+      "property_id": "726",
+      "label": "Level {{value}} Sanctuary Aura When Equipped",
+      "native_label": "Level {{value}} Sanctuary Aura When Equipped"
+    },
+    "151:120": {
+      "property_id": "859",
+      "label": "Level {{value}} Meditation Aura When Equipped",
+      "native_label": "Level {{value}} Meditation Aura When Equipped"
+    },
+    "151:122": {
+      "property_id": "803",
+      "label": "Level {{value}} Fanaticism Aura When Equipped",
+      "native_label": "Level {{value}} Fanaticism Aura When Equipped"
+    },
+    "151:123": {
+      "property_id": "854",
+      "label": "Level {{value}} Conviction Aura When Equipped",
+      "native_label": "Level {{value}} Conviction Aura When Equipped"
+    },
+    "151:124": {
+      "property_id": "880",
+      "label": "Level {{value}} Redemption Aura When Equipped",
+      "native_label": "Level {{value}} Redemption Aura When Equipped"
+    }
+  },
+  "unmapped": {
+    "97:0": {
+      "label": "+{{value}} to Attack",
+      "reason": "no exact market label"
+    },
+    "97:1": {
+      "label": "+{{value}} to Kick",
+      "reason": "no exact market label"
+    },
+    "97:2": {
+      "label": "+{{value}} to Throw",
+      "reason": "no exact market label"
+    },
+    "97:3": {
+      "label": "+{{value}} to Unsummon",
+      "reason": "no exact market label"
+    },
+    "97:4": {
+      "label": "+{{value}} to Left Hand Throw",
+      "reason": "no exact market label"
+    },
+    "97:5": {
+      "label": "+{{value}} to Left Hand Swing",
+      "reason": "no exact market label"
+    },
+    "97:6": {
+      "label": "+{{value}} to Magic Arrow",
+      "reason": "no exact market label"
+    },
+    "97:7": {
+      "label": "+{{value}} to Fire Arrow",
+      "reason": "no exact market label"
+    },
+    "97:8": {
+      "label": "+{{value}} to Inner Sight",
+      "reason": "no exact market label"
+    },
+    "97:9": {
+      "label": "+{{value}} to Critical Strike",
+      "reason": "no exact market label"
+    },
+    "97:10": {
+      "label": "+{{value}} to Jab",
+      "reason": "no exact market label"
+    },
+    "97:11": {
+      "label": "+{{value}} to Cold Arrow",
+      "reason": "no exact market label"
+    },
+    "97:12": {
+      "label": "+{{value}} to Multiple Shot",
+      "reason": "no exact market label"
+    },
+    "97:13": {
+      "label": "+{{value}} to Dodge",
+      "reason": "no exact market label"
+    },
+    "97:14": {
+      "label": "+{{value}} to Power Strike",
+      "reason": "no exact market label"
+    },
+    "97:15": {
+      "label": "+{{value}} to Poison Javelin",
+      "reason": "no exact market label"
+    },
+    "97:16": {
+      "label": "+{{value}} to Exploding Arrow",
+      "reason": "no exact market label"
+    },
+    "97:17": {
+      "label": "+{{value}} to Slow Missiles",
+      "reason": "no exact market label"
+    },
+    "97:18": {
+      "label": "+{{value}} to Avoid",
+      "reason": "no exact market label"
+    },
+    "97:19": {
+      "label": "+{{value}} to Impale",
+      "reason": "no exact market label"
+    },
+    "97:20": {
+      "label": "+{{value}} to Lightning Bolt",
+      "reason": "no exact market label"
+    },
+    "97:21": {
+      "label": "+{{value}} to Ice Arrow",
+      "reason": "no exact market label"
+    },
+    "97:22": {
+      "label": "+{{value}} to Guided Arrow",
+      "reason": "no exact market label"
+    },
+    "97:23": {
+      "label": "+{{value}} to Penetrate",
+      "reason": "no exact market label"
+    },
+    "97:24": {
+      "label": "+{{value}} to Charged Strike",
+      "reason": "no exact market label"
+    },
+    "97:25": {
+      "label": "+{{value}} to Plague Javelin",
+      "reason": "no exact market label"
+    },
+    "97:26": {
+      "label": "+{{value}} to Strafe",
+      "reason": "no exact market label"
+    },
+    "97:27": {
+      "label": "+{{value}} to Immolation Arrow",
+      "reason": "no exact market label"
+    },
+    "97:28": {
+      "label": "+{{value}} to Decoy",
+      "reason": "no exact market label"
+    },
+    "97:29": {
+      "label": "+{{value}} to Evade",
+      "reason": "no exact market label"
+    },
+    "97:30": {
+      "label": "+{{value}} to Fend",
+      "reason": "no exact market label"
+    },
+    "97:31": {
+      "label": "+{{value}} to Freezing Arrow",
+      "reason": "no exact market label"
+    },
+    "97:32": {
+      "label": "+{{value}} to Valkyrie",
+      "reason": "no exact market label"
+    },
+    "97:33": {
+      "label": "+{{value}} to Pierce",
+      "reason": "no exact market label"
+    },
+    "97:34": {
+      "label": "+{{value}} to Lightning Strike",
+      "reason": "no exact market label"
+    },
+    "97:35": {
+      "label": "+{{value}} to Lightning Fury",
+      "reason": "no exact market label"
+    },
+    "97:36": {
+      "label": "+{{value}} to Fire Bolt",
+      "reason": "no exact market label"
+    },
+    "97:37": {
+      "label": "+{{value}} to Warmth",
+      "reason": "no exact market label"
+    },
+    "97:38": {
+      "label": "+{{value}} to Charged Bolt",
+      "reason": "no exact market label"
+    },
+    "97:39": {
+      "label": "+{{value}} to Ice Bolt",
+      "reason": "no exact market label"
+    },
+    "97:40": {
+      "label": "+{{value}} to Frozen Armor",
+      "reason": "no exact market label"
+    },
+    "97:41": {
+      "label": "+{{value}} to Inferno",
+      "reason": "no exact market label"
+    },
+    "97:42": {
+      "label": "+{{value}} to Static Field",
+      "reason": "no exact market label"
+    },
+    "97:43": {
+      "label": "+{{value}} to Telekinesis",
+      "reason": "no exact market label"
+    },
+    "97:44": {
+      "label": "+{{value}} to Frost Nova",
+      "reason": "no exact market label"
+    },
+    "97:45": {
+      "label": "+{{value}} to Ice Blast",
+      "reason": "no exact market label"
+    },
+    "97:46": {
+      "label": "+{{value}} to Blaze",
+      "reason": "no exact market label"
+    },
+    "97:47": {
+      "label": "+{{value}} to Fire Ball",
+      "reason": "no exact market label"
+    },
+    "97:48": {
+      "label": "+{{value}} to Nova",
+      "reason": "no exact market label"
+    },
+    "97:49": {
+      "label": "+{{value}} to Lightning",
+      "reason": "no exact market label"
+    },
+    "97:50": {
+      "label": "+{{value}} to Shiver Armor",
+      "reason": "no exact market label"
+    },
+    "97:51": {
+      "label": "+{{value}} to Fire Wall",
+      "reason": "no exact market label"
+    },
+    "97:52": {
+      "label": "+{{value}} to Enchant",
+      "reason": "no exact market label"
+    },
+    "97:53": {
+      "label": "+{{value}} to Chain Lightning",
+      "reason": "no exact market label"
+    },
+    "97:54": {
+      "label": "+{{value}} to Teleport",
+      "reason": "no exact market label"
+    },
+    "97:55": {
+      "label": "+{{value}} to Glacial Spike",
+      "reason": "no exact market label"
+    },
+    "97:56": {
+      "label": "+{{value}} to Meteor",
+      "reason": "no exact market label"
+    },
+    "97:57": {
+      "label": "+{{value}} to Thunder Storm",
+      "reason": "no exact market label"
+    },
+    "97:58": {
+      "label": "+{{value}} to Energy Shield",
+      "reason": "no exact market label"
+    },
+    "97:59": {
+      "label": "+{{value}} to Blizzard",
+      "reason": "no exact market label"
+    },
+    "97:60": {
+      "label": "+{{value}} to Chilling Armor",
+      "reason": "no exact market label"
+    },
+    "97:61": {
+      "label": "+{{value}} to Fire Mastery",
+      "reason": "no exact market label"
+    },
+    "97:62": {
+      "label": "+{{value}} to Hydra",
+      "reason": "no exact market label"
+    },
+    "97:63": {
+      "label": "+{{value}} to Lightning Mastery",
+      "reason": "no exact market label"
+    },
+    "97:64": {
+      "label": "+{{value}} to Frozen Orb",
+      "reason": "no exact market label"
+    },
+    "97:65": {
+      "label": "+{{value}} to Cold Mastery",
+      "reason": "no exact market label"
+    },
+    "97:66": {
+      "label": "+{{value}} to Amplify Damage",
+      "reason": "no exact market label"
+    },
+    "97:67": {
+      "label": "+{{value}} to Teeth",
+      "reason": "no exact market label"
+    },
+    "97:68": {
+      "label": "+{{value}} to Bone Armor",
+      "reason": "no exact market label"
+    },
+    "97:69": {
+      "label": "+{{value}} to Skeleton Mastery",
+      "reason": "no exact market label"
+    },
+    "97:70": {
+      "label": "+{{value}} to Raise Skeleton",
+      "reason": "no exact market label"
+    },
+    "97:71": {
+      "label": "+{{value}} to Dim Vision",
+      "reason": "no exact market label"
+    },
+    "97:72": {
+      "label": "+{{value}} to Weaken",
+      "reason": "no exact market label"
+    },
+    "97:73": {
+      "label": "+{{value}} to Poison Dagger",
+      "reason": "no exact market label"
+    },
+    "97:74": {
+      "label": "+{{value}} to Corpse Explosion",
+      "reason": "no exact market label"
+    },
+    "97:75": {
+      "label": "+{{value}} to Clay Golem",
+      "reason": "no exact market label"
+    },
+    "97:76": {
+      "label": "+{{value}} to Iron Maiden",
+      "reason": "no exact market label"
+    },
+    "97:77": {
+      "label": "+{{value}} to Terror",
+      "reason": "no exact market label"
+    },
+    "97:78": {
+      "label": "+{{value}} to Bone Wall",
+      "reason": "no exact market label"
+    },
+    "97:79": {
+      "label": "+{{value}} to Golem Mastery",
+      "reason": "no exact market label"
+    },
+    "97:80": {
+      "label": "+{{value}} to Raise Skeletal Mage",
+      "reason": "no exact market label"
+    },
+    "97:81": {
+      "label": "+{{value}} to Confuse",
+      "reason": "no exact market label"
+    },
+    "97:82": {
+      "label": "+{{value}} to Life Tap",
+      "reason": "no exact market label"
+    },
+    "97:83": {
+      "label": "+{{value}} to Poison Explosion",
+      "reason": "no exact market label"
+    },
+    "97:84": {
+      "label": "+{{value}} to Bone Spear",
+      "reason": "no exact market label"
+    },
+    "97:85": {
+      "label": "+{{value}} to Blood Golem",
+      "reason": "no exact market label"
+    },
+    "97:86": {
+      "label": "+{{value}} to Attract",
+      "reason": "no exact market label"
+    },
+    "97:87": {
+      "label": "+{{value}} to Decrepify",
+      "reason": "no exact market label"
+    },
+    "97:88": {
+      "label": "+{{value}} to Bone Prison",
+      "reason": "no exact market label"
+    },
+    "97:89": {
+      "label": "+{{value}} to Summon Resist",
+      "reason": "no exact market label"
+    },
+    "97:90": {
+      "label": "+{{value}} to Iron Golem",
+      "reason": "no exact market label"
+    },
+    "97:91": {
+      "label": "+{{value}} to Lower Resist",
+      "reason": "no exact market label"
+    },
+    "97:92": {
+      "label": "+{{value}} to Poison Nova",
+      "reason": "no exact market label"
+    },
+    "97:93": {
+      "label": "+{{value}} to Bone Spirit",
+      "reason": "no exact market label"
+    },
+    "97:94": {
+      "label": "+{{value}} to Fire Golem",
+      "reason": "no exact market label"
+    },
+    "97:95": {
+      "label": "+{{value}} to Revive",
+      "reason": "no exact market label"
+    },
+    "97:96": {
+      "label": "+{{value}} to Sacrifice",
+      "reason": "no exact market label"
+    },
+    "97:97": {
+      "label": "+{{value}} to Smite",
+      "reason": "no exact market label"
+    },
+    "97:98": {
+      "label": "+{{value}} to Might",
+      "reason": "no exact market label"
+    },
+    "97:99": {
+      "label": "+{{value}} to Prayer",
+      "reason": "no exact market label"
+    },
+    "97:100": {
+      "label": "+{{value}} to Resist Fire",
+      "reason": "no exact market label"
+    },
+    "97:101": {
+      "label": "+{{value}} to Holy Bolt",
+      "reason": "no exact market label"
+    },
+    "97:102": {
+      "label": "+{{value}} to Holy Fire",
+      "reason": "no exact market label"
+    },
+    "97:103": {
+      "label": "+{{value}} to Thorns",
+      "reason": "no exact market label"
+    },
+    "97:104": {
+      "label": "+{{value}} to Defiance",
+      "reason": "no exact market label"
+    },
+    "97:105": {
+      "label": "+{{value}} to Resist Cold",
+      "reason": "no exact market label"
+    },
+    "97:106": {
+      "label": "+{{value}} to Zeal",
+      "reason": "no exact market label"
+    },
+    "97:107": {
+      "label": "+{{value}} to Charge",
+      "reason": "no exact market label"
+    },
+    "97:108": {
+      "label": "+{{value}} to Blessed Aim",
+      "reason": "no exact market label"
+    },
+    "97:109": {
+      "label": "+{{value}} to Cleansing",
+      "reason": "no exact market label"
+    },
+    "97:110": {
+      "label": "+{{value}} to Resist Lightning",
+      "reason": "no exact market label"
+    },
+    "97:111": {
+      "label": "+{{value}} to Vengeance",
+      "reason": "no exact market label"
+    },
+    "97:112": {
+      "label": "+{{value}} to Blessed Hammer",
+      "reason": "no exact market label"
+    },
+    "97:113": {
+      "label": "+{{value}} to Concentration",
+      "reason": "no exact market label"
+    },
+    "97:114": {
+      "label": "+{{value}} to Holy Freeze",
+      "reason": "no exact market label"
+    },
+    "97:115": {
+      "label": "+{{value}} to Vigor",
+      "reason": "no exact market label"
+    },
+    "97:116": {
+      "label": "+{{value}} to Conversion",
+      "reason": "no exact market label"
+    },
+    "97:117": {
+      "label": "+{{value}} to Holy Shield",
+      "reason": "no exact market label"
+    },
+    "97:118": {
+      "label": "+{{value}} to Holy Shock",
+      "reason": "no exact market label"
+    },
+    "97:119": {
+      "label": "+{{value}} to Sanctuary",
+      "reason": "no exact market label"
+    },
+    "97:120": {
+      "label": "+{{value}} to Meditation",
+      "reason": "no exact market label"
+    },
+    "97:121": {
+      "label": "+{{value}} to Fist of the Heavens",
+      "reason": "no exact market label"
+    },
+    "97:122": {
+      "label": "+{{value}} to Fanaticism",
+      "reason": "no exact market label"
+    },
+    "97:123": {
+      "label": "+{{value}} to Conviction",
+      "reason": "no exact market label"
+    },
+    "97:124": {
+      "label": "+{{value}} to Redemption",
+      "reason": "no exact market label"
+    },
+    "97:125": {
+      "label": "+{{value}} to Salvation",
+      "reason": "no exact market label"
+    },
+    "97:126": {
+      "label": "+{{value}} to Bash",
+      "reason": "no exact market label"
+    },
+    "97:127": {
+      "label": "+{{value}} to Blade Mastery",
+      "reason": "no exact market label"
+    },
+    "97:128": {
+      "label": "+{{value}} to Axe Mastery",
+      "reason": "no exact market label"
+    },
+    "97:129": {
+      "label": "+{{value}} to Mace Mastery",
+      "reason": "no exact market label"
+    },
+    "97:130": {
+      "label": "+{{value}} to Howl",
+      "reason": "no exact market label"
+    },
+    "97:131": {
+      "label": "+{{value}} to Find Potion",
+      "reason": "no exact market label"
+    },
+    "97:132": {
+      "label": "+{{value}} to Leap",
+      "reason": "no exact market label"
+    },
+    "97:133": {
+      "label": "+{{value}} to Double Swing",
+      "reason": "no exact market label"
+    },
+    "97:134": {
+      "label": "+{{value}} to Polearm Mastery",
+      "reason": "no exact market label"
+    },
+    "97:135": {
+      "label": "+{{value}} to Throwing Mastery",
+      "reason": "no exact market label"
+    },
+    "97:136": {
+      "label": "+{{value}} to Spear Mastery",
+      "reason": "no exact market label"
+    },
+    "97:137": {
+      "label": "+{{value}} to Taunt",
+      "reason": "no exact market label"
+    },
+    "97:138": {
+      "label": "+{{value}} to Shout",
+      "reason": "no exact market label"
+    },
+    "97:139": {
+      "label": "+{{value}} to Stun",
+      "reason": "no exact market label"
+    },
+    "97:140": {
+      "label": "+{{value}} to Double Throw",
+      "reason": "no exact market label"
+    },
+    "97:141": {
+      "label": "+{{value}} to Increased Stamina",
+      "reason": "no exact market label"
+    },
+    "97:142": {
+      "label": "+{{value}} to Find Item",
+      "reason": "no exact market label"
+    },
+    "97:143": {
+      "label": "+{{value}} to Leap Attack",
+      "reason": "no exact market label"
+    },
+    "97:144": {
+      "label": "+{{value}} to Concentrate",
+      "reason": "no exact market label"
+    },
+    "97:145": {
+      "label": "+{{value}} to Iron Skin",
+      "reason": "no exact market label"
+    },
+    "97:146": {
+      "label": "+{{value}} to Battle Cry",
+      "reason": "no exact market label"
+    },
+    "97:147": {
+      "label": "+{{value}} to Frenzy",
+      "reason": "no exact market label"
+    },
+    "97:148": {
+      "label": "+{{value}} to Increased Speed",
+      "reason": "no exact market label"
+    },
+    "97:149": {
+      "label": "+{{value}} to Battle Orders",
+      "reason": "no exact market label"
+    },
+    "97:150": {
+      "label": "+{{value}} to Grim Ward",
+      "reason": "no exact market label"
+    },
+    "97:151": {
+      "label": "+{{value}} to Whirlwind",
+      "reason": "no exact market label"
+    },
+    "97:152": {
+      "label": "+{{value}} to Berserk",
+      "reason": "no exact market label"
+    },
+    "97:153": {
+      "label": "+{{value}} to Natural Resistance",
+      "reason": "no exact market label"
+    },
+    "97:154": {
+      "label": "+{{value}} to War Cry",
+      "reason": "no exact market label"
+    },
+    "97:155": {
+      "label": "+{{value}} to Battle Command",
+      "reason": "no exact market label"
+    },
+    "97:156": {
+      "label": "+{{value}} to Fire Hit",
+      "reason": "no exact market label"
+    },
+    "97:157": {
+      "label": "+{{value}} to UnHolyBolt",
+      "reason": "no exact market label"
+    },
+    "97:158": {
+      "label": "+{{value}} to SkeletonRaise",
+      "reason": "no exact market label"
+    },
+    "97:159": {
+      "label": "+{{value}} to MaggotEgg",
+      "reason": "no exact market label"
+    },
+    "97:160": {
+      "label": "+{{value}} to ShamanFire",
+      "reason": "no exact market label"
+    },
+    "97:161": {
+      "label": "+{{value}} to MagottUp",
+      "reason": "no exact market label"
+    },
+    "97:162": {
+      "label": "+{{value}} to MagottDown",
+      "reason": "no exact market label"
+    },
+    "97:163": {
+      "label": "+{{value}} to MagottLay",
+      "reason": "no exact market label"
+    },
+    "97:164": {
+      "label": "+{{value}} to AndrialSpray",
+      "reason": "no exact market label"
+    },
+    "97:165": {
+      "label": "+{{value}} to Jump",
+      "reason": "no exact market label"
+    },
+    "97:166": {
+      "label": "+{{value}} to Swarm Move",
+      "reason": "no exact market label"
+    },
+    "97:167": {
+      "label": "+{{value}} to Nest",
+      "reason": "no exact market label"
+    },
+    "97:168": {
+      "label": "+{{value}} to Quick Strike",
+      "reason": "no exact market label"
+    },
+    "97:169": {
+      "label": "+{{value}} to VampireFireball",
+      "reason": "no exact market label"
+    },
+    "97:170": {
+      "label": "+{{value}} to VampireFirewall",
+      "reason": "no exact market label"
+    },
+    "97:171": {
+      "label": "+{{value}} to VampireMeteor",
+      "reason": "no exact market label"
+    },
+    "97:172": {
+      "label": "+{{value}} to GargoyleTrap",
+      "reason": "no exact market label"
+    },
+    "97:173": {
+      "label": "+{{value}} to SpiderLay",
+      "reason": "no exact market label"
+    },
+    "97:174": {
+      "label": "+{{value}} to VampireHeal",
+      "reason": "no exact market label"
+    },
+    "97:175": {
+      "label": "+{{value}} to VampireRaise",
+      "reason": "no exact market label"
+    },
+    "97:176": {
+      "label": "+{{value}} to Submerge",
+      "reason": "no exact market label"
+    },
+    "97:177": {
+      "label": "+{{value}} to FetishAura",
+      "reason": "no exact market label"
+    },
+    "97:178": {
+      "label": "+{{value}} to FetishInferno",
+      "reason": "no exact market label"
+    },
+    "97:179": {
+      "label": "+{{value}} to ZakarumHeal",
+      "reason": "no exact market label"
+    },
+    "97:180": {
+      "label": "+{{value}} to Emerge",
+      "reason": "no exact market label"
+    },
+    "97:181": {
+      "label": "+{{value}} to Resurrect",
+      "reason": "no exact market label"
+    },
+    "97:182": {
+      "label": "+{{value}} to Bestow",
+      "reason": "no exact market label"
+    },
+    "97:183": {
+      "label": "+{{value}} to MissileSkill1",
+      "reason": "no exact market label"
+    },
+    "97:184": {
+      "label": "+{{value}} to MonTeleport",
+      "reason": "no exact market label"
+    },
+    "97:185": {
+      "label": "+{{value}} to PrimeLightning",
+      "reason": "no exact market label"
+    },
+    "97:186": {
+      "label": "+{{value}} to PrimeBolt",
+      "reason": "no exact market label"
+    },
+    "97:187": {
+      "label": "+{{value}} to PrimeBlaze",
+      "reason": "no exact market label"
+    },
+    "97:188": {
+      "label": "+{{value}} to PrimeFirewall",
+      "reason": "no exact market label"
+    },
+    "97:189": {
+      "label": "+{{value}} to PrimeSpike",
+      "reason": "no exact market label"
+    },
+    "97:190": {
+      "label": "+{{value}} to PrimeIceNova",
+      "reason": "no exact market label"
+    },
+    "97:191": {
+      "label": "+{{value}} to PrimePoisonball",
+      "reason": "no exact market label"
+    },
+    "97:192": {
+      "label": "+{{value}} to PrimePoisonNova",
+      "reason": "no exact market label"
+    },
+    "97:193": {
+      "label": "+{{value}} to DiabLight",
+      "reason": "no exact market label"
+    },
+    "97:194": {
+      "label": "+{{value}} to DiabCold",
+      "reason": "no exact market label"
+    },
+    "97:195": {
+      "label": "+{{value}} to DiabFire",
+      "reason": "no exact market label"
+    },
+    "97:196": {
+      "label": "+{{value}} to FingerMageSpider",
+      "reason": "no exact market label"
+    },
+    "97:197": {
+      "label": "+{{value}} to DiabWall",
+      "reason": "no exact market label"
+    },
+    "97:198": {
+      "label": "+{{value}} to DiabRun",
+      "reason": "no exact market label"
+    },
+    "97:199": {
+      "label": "+{{value}} to DiabPrison",
+      "reason": "no exact market label"
+    },
+    "97:200": {
+      "label": "+{{value}} to PoisonBallTrap",
+      "reason": "no exact market label"
+    },
+    "97:201": {
+      "label": "+{{value}} to AndyPoisonBolt",
+      "reason": "no exact market label"
+    },
+    "97:202": {
+      "label": "+{{value}} to HireableMissile",
+      "reason": "no exact market label"
+    },
+    "97:203": {
+      "label": "+{{value}} to DesertTurret",
+      "reason": "no exact market label"
+    },
+    "97:204": {
+      "label": "+{{value}} to ArcaneTower",
+      "reason": "no exact market label"
+    },
+    "97:205": {
+      "label": "+{{value}} to MonBlizzard",
+      "reason": "no exact market label"
+    },
+    "97:206": {
+      "label": "+{{value}} to Mosquito",
+      "reason": "no exact market label"
+    },
+    "97:207": {
+      "label": "+{{value}} to CursedBallTrapRight",
+      "reason": "no exact market label"
+    },
+    "97:208": {
+      "label": "+{{value}} to CursedBallTrapLeft",
+      "reason": "no exact market label"
+    },
+    "97:209": {
+      "label": "+{{value}} to MonFrozenArmor",
+      "reason": "no exact market label"
+    },
+    "97:210": {
+      "label": "+{{value}} to MonBoneArmor",
+      "reason": "no exact market label"
+    },
+    "97:211": {
+      "label": "+{{value}} to MonBoneSpirit",
+      "reason": "no exact market label"
+    },
+    "97:212": {
+      "label": "+{{value}} to MonCurseCast",
+      "reason": "no exact market label"
+    },
+    "97:213": {
+      "label": "+{{value}} to HellMeteor",
+      "reason": "no exact market label"
+    },
+    "97:214": {
+      "label": "+{{value}} to RegurgitatorEat",
+      "reason": "no exact market label"
+    },
+    "97:215": {
+      "label": "+{{value}} to MonFrenzy",
+      "reason": "no exact market label"
+    },
+    "97:216": {
+      "label": "+{{value}} to QueenDeath",
+      "reason": "no exact market label"
+    },
+    "97:217": {
+      "label": "+{{value}} to Scroll of Identify",
+      "reason": "no exact market label"
+    },
+    "97:218": {
+      "label": "+{{value}} to Book of Identify",
+      "reason": "no exact market label"
+    },
+    "97:219": {
+      "label": "+{{value}} to Scroll of Townportal",
+      "reason": "no exact market label"
+    },
+    "97:220": {
+      "label": "+{{value}} to Book of Townportal",
+      "reason": "no exact market label"
+    },
+    "97:221": {
+      "label": "+{{value}} to Raven",
+      "reason": "no exact market label"
+    },
+    "97:222": {
+      "label": "+{{value}} to Poison Creeper",
+      "reason": "no exact market label"
+    },
+    "97:223": {
+      "label": "+{{value}} to Werewolf",
+      "reason": "no exact market label"
+    },
+    "97:224": {
+      "label": "+{{value}} to Lycanthropy",
+      "reason": "no exact market label"
+    },
+    "97:225": {
+      "label": "+{{value}} to Firestorm",
+      "reason": "no exact market label"
+    },
+    "97:226": {
+      "label": "+{{value}} to Oak Sage",
+      "reason": "no exact market label"
+    },
+    "97:227": {
+      "label": "+{{value}} to Summon Spirit Wolf",
+      "reason": "no exact market label"
+    },
+    "97:228": {
+      "label": "+{{value}} to Werebear",
+      "reason": "no exact market label"
+    },
+    "97:229": {
+      "label": "+{{value}} to Molten Boulder",
+      "reason": "no exact market label"
+    },
+    "97:230": {
+      "label": "+{{value}} to Arctic Blast",
+      "reason": "no exact market label"
+    },
+    "97:231": {
+      "label": "+{{value}} to Carrion Vine",
+      "reason": "no exact market label"
+    },
+    "97:232": {
+      "label": "+{{value}} to Feral Rage",
+      "reason": "no exact market label"
+    },
+    "97:233": {
+      "label": "+{{value}} to Maul",
+      "reason": "no exact market label"
+    },
+    "97:234": {
+      "label": "+{{value}} to Fissure",
+      "reason": "no exact market label"
+    },
+    "97:235": {
+      "label": "+{{value}} to Cyclone Armor",
+      "reason": "no exact market label"
+    },
+    "97:236": {
+      "label": "+{{value}} to Heart of Wolverine",
+      "reason": "no exact market label"
+    },
+    "97:237": {
+      "label": "+{{value}} to Summon Dire Wolf",
+      "reason": "no exact market label"
+    },
+    "97:238": {
+      "label": "+{{value}} to Rabies",
+      "reason": "no exact market label"
+    },
+    "97:239": {
+      "label": "+{{value}} to Fire Claws",
+      "reason": "no exact market label"
+    },
+    "97:240": {
+      "label": "+{{value}} to Twister",
+      "reason": "no exact market label"
+    },
+    "97:241": {
+      "label": "+{{value}} to Solar Creeper",
+      "reason": "no exact market label"
+    },
+    "97:242": {
+      "label": "+{{value}} to Hunger",
+      "reason": "no exact market label"
+    },
+    "97:243": {
+      "label": "+{{value}} to Shock Wave",
+      "reason": "no exact market label"
+    },
+    "97:244": {
+      "label": "+{{value}} to Volcano",
+      "reason": "no exact market label"
+    },
+    "97:245": {
+      "label": "+{{value}} to Tornado",
+      "reason": "no exact market label"
+    },
+    "97:246": {
+      "label": "+{{value}} to Spirit of Barbs",
+      "reason": "no exact market label"
+    },
+    "97:247": {
+      "label": "+{{value}} to Summon Grizzly",
+      "reason": "no exact market label"
+    },
+    "97:248": {
+      "label": "+{{value}} to Fury",
+      "reason": "no exact market label"
+    },
+    "97:249": {
+      "label": "+{{value}} to Armageddon",
+      "reason": "no exact market label"
+    },
+    "97:250": {
+      "label": "+{{value}} to Hurricane",
+      "reason": "no exact market label"
+    },
+    "97:251": {
+      "label": "+{{value}} to Fire Blast",
+      "reason": "no exact market label"
+    },
+    "97:252": {
+      "label": "+{{value}} to Claw Mastery",
+      "reason": "no exact market label"
+    },
+    "97:253": {
+      "label": "+{{value}} to Psychic Hammer",
+      "reason": "no exact market label"
+    },
+    "97:254": {
+      "label": "+{{value}} to Tiger Strike",
+      "reason": "no exact market label"
+    },
+    "97:255": {
+      "label": "+{{value}} to Dragon Talon",
+      "reason": "no exact market label"
+    },
+    "97:256": {
+      "label": "+{{value}} to Shock Web",
+      "reason": "no exact market label"
+    },
+    "97:257": {
+      "label": "+{{value}} to Blade Sentinel",
+      "reason": "no exact market label"
+    },
+    "97:258": {
+      "label": "+{{value}} to Burst of Speed",
+      "reason": "no exact market label"
+    },
+    "97:259": {
+      "label": "+{{value}} to Fists of Fire",
+      "reason": "no exact market label"
+    },
+    "97:260": {
+      "label": "+{{value}} to Dragon Claw",
+      "reason": "no exact market label"
+    },
+    "97:261": {
+      "label": "+{{value}} to Charged Bolt Sentry",
+      "reason": "no exact market label"
+    },
+    "97:262": {
+      "label": "+{{value}} to Wake of Fire",
+      "reason": "no exact market label"
+    },
+    "97:263": {
+      "label": "+{{value}} to Weapon Block",
+      "reason": "no exact market label"
+    },
+    "97:264": {
+      "label": "+{{value}} to Cloak of Shadows",
+      "reason": "no exact market label"
+    },
+    "97:265": {
+      "label": "+{{value}} to Cobra Strike",
+      "reason": "no exact market label"
+    },
+    "97:266": {
+      "label": "+{{value}} to Blade Fury",
+      "reason": "no exact market label"
+    },
+    "97:267": {
+      "label": "+{{value}} to Fade",
+      "reason": "no exact market label"
+    },
+    "97:268": {
+      "label": "+{{value}} to Shadow Warrior",
+      "reason": "no exact market label"
+    },
+    "97:269": {
+      "label": "+{{value}} to Claws of Thunder",
+      "reason": "no exact market label"
+    },
+    "97:270": {
+      "label": "+{{value}} to Dragon Tail",
+      "reason": "no exact market label"
+    },
+    "97:271": {
+      "label": "+{{value}} to Lightning Sentry",
+      "reason": "no exact market label"
+    },
+    "97:272": {
+      "label": "+{{value}} to Wake of Inferno",
+      "reason": "no exact market label"
+    },
+    "97:273": {
+      "label": "+{{value}} to Mind Blast",
+      "reason": "no exact market label"
+    },
+    "97:274": {
+      "label": "+{{value}} to Blades of Ice",
+      "reason": "no exact market label"
+    },
+    "97:275": {
+      "label": "+{{value}} to Dragon Flight",
+      "reason": "no exact market label"
+    },
+    "97:276": {
+      "label": "+{{value}} to Death Sentry",
+      "reason": "no exact market label"
+    },
+    "97:277": {
+      "label": "+{{value}} to Blade Shield",
+      "reason": "no exact market label"
+    },
+    "97:278": {
+      "label": "+{{value}} to Venom",
+      "reason": "no exact market label"
+    },
+    "97:279": {
+      "label": "+{{value}} to Shadow Master",
+      "reason": "no exact market label"
+    },
+    "97:280": {
+      "label": "+{{value}} to Phoenix Strike",
+      "reason": "no exact market label"
+    },
+    "97:281": {
+      "label": "+{{value}} to Wake Of Destruction Sentry",
+      "reason": "no exact market label"
+    },
+    "97:282": {
+      "label": "+{{value}} to Imp Inferno",
+      "reason": "no exact market label"
+    },
+    "97:283": {
+      "label": "+{{value}} to Imp Fireball",
+      "reason": "no exact market label"
+    },
+    "97:284": {
+      "label": "+{{value}} to Baal Taunt",
+      "reason": "no exact market label"
+    },
+    "97:285": {
+      "label": "+{{value}} to Baal Corpse Explode",
+      "reason": "no exact market label"
+    },
+    "97:286": {
+      "label": "+{{value}} to Baal Monster Spawn",
+      "reason": "no exact market label"
+    },
+    "97:287": {
+      "label": "+{{value}} to Catapult Charged Ball",
+      "reason": "no exact market label"
+    },
+    "97:288": {
+      "label": "+{{value}} to Catapult Spike Ball",
+      "reason": "no exact market label"
+    },
+    "97:289": {
+      "label": "+{{value}} to Suck Blood",
+      "reason": "no exact market label"
+    },
+    "97:290": {
+      "label": "+{{value}} to Cry Help",
+      "reason": "no exact market label"
+    },
+    "97:291": {
+      "label": "+{{value}} to Healing Vortex",
+      "reason": "no exact market label"
+    },
+    "97:292": {
+      "label": "+{{value}} to Teleport 2",
+      "reason": "no exact market label"
+    },
+    "97:293": {
+      "label": "+{{value}} to Self-resurrect",
+      "reason": "no exact market label"
+    },
+    "97:294": {
+      "label": "+{{value}} to Vine Attack",
+      "reason": "no exact market label"
+    },
+    "97:295": {
+      "label": "+{{value}} to Overseer Whip",
+      "reason": "no exact market label"
+    },
+    "97:296": {
+      "label": "+{{value}} to Barbs Aura",
+      "reason": "no exact market label"
+    },
+    "97:297": {
+      "label": "+{{value}} to Wolverine Aura",
+      "reason": "no exact market label"
+    },
+    "97:298": {
+      "label": "+{{value}} to Oak Sage Aura",
+      "reason": "no exact market label"
+    },
+    "97:299": {
+      "label": "+{{value}} to Imp Fire Missile",
+      "reason": "no exact market label"
+    },
+    "97:300": {
+      "label": "+{{value}} to Impregnate",
+      "reason": "no exact market label"
+    },
+    "97:301": {
+      "label": "+{{value}} to Siege Beast Stomp",
+      "reason": "no exact market label"
+    },
+    "97:302": {
+      "label": "+{{value}} to MinionSpawner",
+      "reason": "no exact market label"
+    },
+    "97:303": {
+      "label": "+{{value}} to CatapultBlizzard",
+      "reason": "no exact market label"
+    },
+    "97:304": {
+      "label": "+{{value}} to CatapultPlague",
+      "reason": "no exact market label"
+    },
+    "97:305": {
+      "label": "+{{value}} to CatapultMeteor",
+      "reason": "no exact market label"
+    },
+    "97:306": {
+      "label": "+{{value}} to BoltSentry",
+      "reason": "no exact market label"
+    },
+    "97:307": {
+      "label": "+{{value}} to CorpseCycler",
+      "reason": "no exact market label"
+    },
+    "97:308": {
+      "label": "+{{value}} to DeathMaul",
+      "reason": "no exact market label"
+    },
+    "97:309": {
+      "label": "+{{value}} to Defense Curse",
+      "reason": "no exact market label"
+    },
+    "97:310": {
+      "label": "+{{value}} to Blood Mana",
+      "reason": "no exact market label"
+    },
+    "97:311": {
+      "label": "+{{value}} to mon inferno sentry",
+      "reason": "no exact market label"
+    },
+    "97:312": {
+      "label": "+{{value}} to mon death sentry",
+      "reason": "no exact market label"
+    },
+    "97:313": {
+      "label": "+{{value}} to sentry lightning",
+      "reason": "no exact market label"
+    },
+    "97:314": {
+      "label": "+{{value}} to fenris rage",
+      "reason": "no exact market label"
+    },
+    "97:315": {
+      "label": "+{{value}} to Baal Tentacle",
+      "reason": "no exact market label"
+    },
+    "97:316": {
+      "label": "+{{value}} to Baal Nova",
+      "reason": "no exact market label"
+    },
+    "97:317": {
+      "label": "+{{value}} to Baal Inferno",
+      "reason": "no exact market label"
+    },
+    "97:318": {
+      "label": "+{{value}} to Baal Cold Missiles",
+      "reason": "no exact market label"
+    },
+    "97:319": {
+      "label": "+{{value}} to MegademonInferno",
+      "reason": "no exact market label"
+    },
+    "97:320": {
+      "label": "+{{value}} to EvilHutSpawner",
+      "reason": "no exact market label"
+    },
+    "97:321": {
+      "label": "+{{value}} to CountessFirewall",
+      "reason": "no exact market label"
+    },
+    "97:322": {
+      "label": "+{{value}} to ImpBolt",
+      "reason": "no exact market label"
+    },
+    "97:323": {
+      "label": "+{{value}} to Horror Arctic Blast",
+      "reason": "no exact market label"
+    },
+    "97:324": {
+      "label": "+{{value}} to death sentry ltng",
+      "reason": "no exact market label"
+    },
+    "97:325": {
+      "label": "+{{value}} to VineCycler",
+      "reason": "no exact market label"
+    },
+    "97:326": {
+      "label": "+{{value}} to BearSmite",
+      "reason": "no exact market label"
+    },
+    "97:327": {
+      "label": "+{{value}} to Resurrect2",
+      "reason": "no exact market label"
+    },
+    "97:328": {
+      "label": "+{{value}} to BloodLordFrenzy",
+      "reason": "no exact market label"
+    },
+    "97:329": {
+      "label": "+{{value}} to Baal Teleport",
+      "reason": "no exact market label"
+    },
+    "97:330": {
+      "label": "+{{value}} to Imp Teleport",
+      "reason": "no exact market label"
+    },
+    "97:331": {
+      "label": "+{{value}} to Baal Clone Teleport",
+      "reason": "no exact market label"
+    },
+    "97:332": {
+      "label": "+{{value}} to ZakarumLightning",
+      "reason": "no exact market label"
+    },
+    "97:333": {
+      "label": "+{{value}} to VampireMissile",
+      "reason": "no exact market label"
+    },
+    "97:334": {
+      "label": "+{{value}} to MephistoMissile",
+      "reason": "no exact market label"
+    },
+    "97:335": {
+      "label": "+{{value}} to DoomKnightMissile",
+      "reason": "no exact market label"
+    },
+    "97:336": {
+      "label": "+{{value}} to RogueMissile",
+      "reason": "no exact market label"
+    },
+    "97:337": {
+      "label": "+{{value}} to HydraMissile",
+      "reason": "no exact market label"
+    },
+    "97:338": {
+      "label": "+{{value}} to NecromageMissile",
+      "reason": "no exact market label"
+    },
+    "97:339": {
+      "label": "+{{value}} to MonBow",
+      "reason": "no exact market label"
+    },
+    "97:340": {
+      "label": "+{{value}} to MonFireArrow",
+      "reason": "no exact market label"
+    },
+    "97:341": {
+      "label": "+{{value}} to MonColdArrow",
+      "reason": "no exact market label"
+    },
+    "97:342": {
+      "label": "+{{value}} to MonExplodingArrow",
+      "reason": "no exact market label"
+    },
+    "97:343": {
+      "label": "+{{value}} to MonFreezingArrow",
+      "reason": "no exact market label"
+    },
+    "97:344": {
+      "label": "+{{value}} to MonPowerStrike",
+      "reason": "no exact market label"
+    },
+    "97:345": {
+      "label": "+{{value}} to SuccubusBolt",
+      "reason": "no exact market label"
+    },
+    "97:346": {
+      "label": "+{{value}} to MephFrostNova",
+      "reason": "no exact market label"
+    },
+    "97:347": {
+      "label": "+{{value}} to MonIceSpear",
+      "reason": "no exact market label"
+    },
+    "97:348": {
+      "label": "+{{value}} to ShamanIce",
+      "reason": "no exact market label"
+    },
+    "97:349": {
+      "label": "+{{value}} to Diablogeddon",
+      "reason": "no exact market label"
+    },
+    "97:350": {
+      "label": "+{{value}} to Delerium Change",
+      "reason": "no exact market label"
+    },
+    "97:351": {
+      "label": "+{{value}} to NihlathakCorpseExplosion",
+      "reason": "no exact market label"
+    },
+    "97:352": {
+      "label": "+{{value}} to SerpentCharge",
+      "reason": "no exact market label"
+    },
+    "97:353": {
+      "label": "+{{value}} to Trap Nova",
+      "reason": "no exact market label"
+    },
+    "97:354": {
+      "label": "+{{value}} to UnHolyBoltEx",
+      "reason": "no exact market label"
+    },
+    "97:355": {
+      "label": "+{{value}} to ShamanFireEx",
+      "reason": "no exact market label"
+    },
+    "97:356": {
+      "label": "+{{value}} to Imp Fire Missile Ex",
+      "reason": "no exact market label"
+    },
+    "97:357": {
+      "label": "+{{value}} to Interact",
+      "reason": "no exact market label"
+    },
+    "97:358": {
+      "label": "+{{value}} to Loot",
+      "reason": "no exact market label"
+    },
+    "97:359": {
+      "label": "+{{value}} to TownPortal",
+      "reason": "no exact market label"
+    },
+    "97:360": {
+      "label": "+{{value}} to EmoteWheel",
+      "reason": "no exact market label"
+    },
+    "97:361": {
+      "label": "+{{value}} to SwapWeapons",
+      "reason": "no exact market label"
+    },
+    "97:363": {
+      "label": "+{{value}} to ShowItems",
+      "reason": "no exact market label"
+    },
+    "97:364": {
+      "label": "+{{value}} to RunToggle",
+      "reason": "no exact market label"
+    },
+    "97:365": {
+      "label": "+{{value}} to MonHolyFreeze",
+      "reason": "no exact market label"
+    },
+    "97:366": {
+      "label": "+{{value}} to MonLeap",
+      "reason": "no exact market label"
+    },
+    "97:367": {
+      "label": "+{{value}} to MonLeapAttack",
+      "reason": "no exact market label"
+    },
+    "97:368": {
+      "label": "+{{value}} to MonHolyFire",
+      "reason": "no exact market label"
+    },
+    "97:369": {
+      "label": "+{{value}} to MonHolyShock",
+      "reason": "no exact market label"
+    },
+    "97:370": {
+      "label": "+{{value}} to CubeLoot",
+      "reason": "no exact market label"
+    },
+    "97:371": {
+      "label": "+{{value}} to Mark of the Bear",
+      "reason": "no exact market label"
+    },
+    "97:372": {
+      "label": "+{{value}} to Mark of the Wolf",
+      "reason": "no exact market label"
+    },
+    "97:373": {
+      "label": "+{{value}} to Summon Goatman",
+      "reason": "no exact market label"
+    },
+    "97:374": {
+      "label": "+{{value}} to Demonic Mastery",
+      "reason": "no exact market label"
+    },
+    "97:375": {
+      "label": "+{{value}} to Death Mark",
+      "reason": "no exact market label"
+    },
+    "97:376": {
+      "label": "+{{value}} to Summon Tainted",
+      "reason": "no exact market label"
+    },
+    "97:377": {
+      "label": "+{{value}} to Summon Defiler",
+      "reason": "no exact market label"
+    },
+    "97:378": {
+      "label": "+{{value}} to Blood Oath",
+      "reason": "no exact market label"
+    },
+    "97:379": {
+      "label": "+{{value}} to Engorge",
+      "reason": "no exact market label"
+    },
+    "97:380": {
+      "label": "+{{value}} to Blood Boil",
+      "reason": "no exact market label"
+    },
+    "97:381": {
+      "label": "+{{value}} to Consume",
+      "reason": "no exact market label"
+    },
+    "97:382": {
+      "label": "+{{value}} to Bind Demon",
+      "reason": "no exact market label"
+    },
+    "97:383": {
+      "label": "+{{value}} to Levitation Mastery",
+      "reason": "no exact market label"
+    },
+    "97:384": {
+      "label": "+{{value}} to Eldritch Blast",
+      "reason": "no exact market label"
+    },
+    "97:385": {
+      "label": "+{{value}} to Hex: Bane",
+      "reason": "no exact market label"
+    },
+    "97:386": {
+      "label": "+{{value}} to Hex: Siphon",
+      "reason": "no exact market label"
+    },
+    "97:387": {
+      "label": "+{{value}} to Psychic Ward",
+      "reason": "no exact market label"
+    },
+    "97:388": {
+      "label": "+{{value}} to Echoing Strike",
+      "reason": "no exact market label"
+    },
+    "97:389": {
+      "label": "+{{value}} to Hex: Purge",
+      "reason": "no exact market label"
+    },
+    "97:390": {
+      "label": "+{{value}} to Blade Warp",
+      "reason": "no exact market label"
+    },
+    "97:391": {
+      "label": "+{{value}} to Cleave",
+      "reason": "no exact market label"
+    },
+    "97:392": {
+      "label": "+{{value}} to Mirrored Blades",
+      "reason": "no exact market label"
+    },
+    "97:393": {
+      "label": "+{{value}} to Sigil: Lethargy",
+      "reason": "no exact market label"
+    },
+    "97:394": {
+      "label": "+{{value}} to Ring of Fire",
+      "reason": "no exact market label"
+    },
+    "97:395": {
+      "label": "+{{value}} to Miasma Bolt",
+      "reason": "no exact market label"
+    },
+    "97:396": {
+      "label": "+{{value}} to Sigil: Rancor",
+      "reason": "no exact market label"
+    },
+    "97:397": {
+      "label": "+{{value}} to Enhanced Entropy",
+      "reason": "no exact market label"
+    },
+    "97:398": {
+      "label": "+{{value}} to Flame Wave",
+      "reason": "no exact market label"
+    },
+    "97:399": {
+      "label": "+{{value}} to Miasma Chain",
+      "reason": "no exact market label"
+    },
+    "97:400": {
+      "label": "+{{value}} to Sigil: Death",
+      "reason": "no exact market label"
+    },
+    "97:401": {
+      "label": "+{{value}} to Apocalypse",
+      "reason": "no exact market label"
+    },
+    "97:402": {
+      "label": "+{{value}} to Abyss",
+      "reason": "no exact market label"
+    },
+    "97:403": {
+      "label": "+{{value}} to Sigil Death Explosion",
+      "reason": "no exact market label"
+    },
+    "97:404": {
+      "label": "+{{value}} to Hex Purge Explosion",
+      "reason": "no exact market label"
+    },
+    "97:405": {
+      "label": "+{{value}} to Health Link",
+      "reason": "no exact market label"
+    },
+    "97:406": {
+      "label": "+{{value}} to Cold Fissure",
+      "reason": "no exact market label"
+    },
+    "97:407": {
+      "label": "+{{value}} to Korlic's Leap Attack",
+      "reason": "no exact market label"
+    },
+    "97:408": {
+      "label": "+{{value}} to Cold Enchant",
+      "reason": "no exact market label"
+    },
+    "97:409": {
+      "label": "+{{value}} to Lightning Enchant",
+      "reason": "no exact market label"
+    },
+    "97:410": {
+      "label": "+{{value}} to Talic's Whirlwind",
+      "reason": "no exact market label"
+    },
+    "97:411": {
+      "label": "+{{value}} to Townportal O Skill",
+      "reason": "no exact market label"
+    },
+    "97:412": {
+      "label": "+{{value}} to Fire Twisters",
+      "reason": "no exact market label"
+    },
+    "97:413": {
+      "label": "+{{value}} to Colossal Volcano",
+      "reason": "no exact market label"
+    },
+    "97:414": {
+      "label": "+{{value}} to Colossal Thunder Storm",
+      "reason": "no exact market label"
+    },
+    "97:415": {
+      "label": "+{{value}} to UberAncientsHeal",
+      "reason": "no exact market label"
+    },
+    "97:416": {
+      "label": "+{{value}} to Goatman Stun",
+      "reason": "no exact market label"
+    },
+    "97:417": {
+      "label": "+{{value}} to Goatman Frenzy",
+      "reason": "no exact market label"
+    },
+    "97:418": {
+      "label": "+{{value}} to Goatman Berserk",
+      "reason": "no exact market label"
+    },
+    "97:419": {
+      "label": "+{{value}} to Goatman Cleave",
+      "reason": "no exact market label"
+    },
+    "97:420": {
+      "label": "+{{value}} to Tainted Resist Fire",
+      "reason": "no exact market label"
+    },
+    "97:421": {
+      "label": "+{{value}} to Tainted Fire Bolt",
+      "reason": "no exact market label"
+    },
+    "97:422": {
+      "label": "+{{value}} to Tainted Fire Ball",
+      "reason": "no exact market label"
+    },
+    "97:423": {
+      "label": "+{{value}} to Talic's Fire Pierce",
+      "reason": "no exact market label"
+    },
+    "97:424": {
+      "label": "+{{value}} to Madawc's Lightning Pierce",
+      "reason": "no exact market label"
+    },
+    "97:425": {
+      "label": "+{{value}} to Korlic's Cold Pierce",
+      "reason": "no exact market label"
+    },
+    "97:426": {
+      "label": "+{{value}} to Charged Bolt Disk",
+      "reason": "no exact market label"
+    },
+    "97:427": {
+      "label": "+{{value}} to Korlic's Bash",
+      "reason": "no exact market label"
+    },
+    "97:428": {
+      "label": "+{{value}} to HeraldThorns",
+      "reason": "no exact market label"
+    },
+    "107:0": {
+      "label": "+{{value}} to Attack (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:1": {
+      "label": "+{{value}} to Kick (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:2": {
+      "label": "+{{value}} to Throw (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:3": {
+      "label": "+{{value}} to Unsummon (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:4": {
+      "label": "+{{value}} to Left Hand Throw (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:5": {
+      "label": "+{{value}} to Left Hand Swing (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:6": {
+      "label": "+{{value}} to Magic Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:7": {
+      "label": "+{{value}} to Fire Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:8": {
+      "label": "+{{value}} to Inner Sight (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:10": {
+      "label": "+{{value}} to Jab (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:11": {
+      "label": "+{{value}} to Cold Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:12": {
+      "label": "+{{value}} to Multiple Shot (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:13": {
+      "label": "+{{value}} to Dodge (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:14": {
+      "label": "+{{value}} to Power Strike (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:15": {
+      "label": "+{{value}} to Poison Javelin (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:16": {
+      "label": "+{{value}} to Exploding Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:17": {
+      "label": "+{{value}} to Slow Missiles (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:18": {
+      "label": "+{{value}} to Avoid (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:19": {
+      "label": "+{{value}} to Impale (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:20": {
+      "label": "+{{value}} to Lightning Bolt (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:21": {
+      "label": "+{{value}} to Ice Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:22": {
+      "label": "+{{value}} to Guided Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:23": {
+      "label": "+{{value}} to Penetrate (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:24": {
+      "label": "+{{value}} to Charged Strike (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:25": {
+      "label": "+{{value}} to Plague Javelin (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:26": {
+      "label": "+{{value}} to Strafe (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:27": {
+      "label": "+{{value}} to Immolation Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:28": {
+      "label": "+{{value}} to Decoy (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:30": {
+      "label": "+{{value}} to Fend (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:31": {
+      "label": "+{{value}} to Freezing Arrow (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:33": {
+      "label": "+{{value}} to Pierce (Amazon Only)",
+      "reason": "no exact market label"
+    },
+    "107:39": {
+      "label": "+{{value}} to Ice Bolt (Sorceress Only)",
+      "reason": "no exact market label"
+    },
+    "107:71": {
+      "label": "+{{value}} to Dim Vision (Necromancer Only)",
+      "reason": "no exact market label"
+    },
+    "107:72": {
+      "label": "+{{value}} to Weaken (Necromancer Only)",
+      "reason": "no exact market label"
+    },
+    "107:73": {
+      "label": "+{{value}} to Poison Dagger (Necromancer Only)",
+      "reason": "no exact market label"
+    },
+    "107:96": {
+      "label": "+{{value}} to Sacrifice (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:97": {
+      "label": "+{{value}} to Smite (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:98": {
+      "label": "+{{value}} to Might (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:99": {
+      "label": "+{{value}} to Prayer (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:101": {
+      "label": "+{{value}} to Holy Bolt (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:103": {
+      "label": "+{{value}} to Thorns (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:107": {
+      "label": "+{{value}} to Charge (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:108": {
+      "label": "+{{value}} to Blessed Aim (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:111": {
+      "label": "+{{value}} to Vengeance (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:117": {
+      "label": "+{{value}} to Holy Shield (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:119": {
+      "label": "+{{value}} to Sanctuary (Paladin Only)",
+      "reason": "no exact market label"
+    },
+    "107:126": {
+      "label": "+{{value}} to Bash (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:127": {
+      "label": "+{{value}} to Blade Mastery (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:128": {
+      "label": "+{{value}} to Axe Mastery (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:129": {
+      "label": "+{{value}} to Mace Mastery (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:130": {
+      "label": "+{{value}} to Howl (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:131": {
+      "label": "+{{value}} to Find Potion (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:132": {
+      "label": "+{{value}} to Leap (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:133": {
+      "label": "+{{value}} to Double Swing (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:139": {
+      "label": "+{{value}} to Stun (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:140": {
+      "label": "+{{value}} to Double Throw (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:143": {
+      "label": "+{{value}} to Leap Attack (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:144": {
+      "label": "+{{value}} to Concentrate (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:152": {
+      "label": "+{{value}} to Berserk (Barbarian Only)",
+      "reason": "no exact market label"
+    },
+    "107:156": {
+      "label": "+{{value}} to Fire Hit (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:157": {
+      "label": "+{{value}} to UnHolyBolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:158": {
+      "label": "+{{value}} to SkeletonRaise (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:159": {
+      "label": "+{{value}} to MaggotEgg (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:160": {
+      "label": "+{{value}} to ShamanFire (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:161": {
+      "label": "+{{value}} to MagottUp (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:162": {
+      "label": "+{{value}} to MagottDown (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:163": {
+      "label": "+{{value}} to MagottLay (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:164": {
+      "label": "+{{value}} to AndrialSpray (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:165": {
+      "label": "+{{value}} to Jump (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:166": {
+      "label": "+{{value}} to Swarm Move (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:167": {
+      "label": "+{{value}} to Nest (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:168": {
+      "label": "+{{value}} to Quick Strike (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:169": {
+      "label": "+{{value}} to VampireFireball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:170": {
+      "label": "+{{value}} to VampireFirewall (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:171": {
+      "label": "+{{value}} to VampireMeteor (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:172": {
+      "label": "+{{value}} to GargoyleTrap (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:173": {
+      "label": "+{{value}} to SpiderLay (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:174": {
+      "label": "+{{value}} to VampireHeal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:175": {
+      "label": "+{{value}} to VampireRaise (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:176": {
+      "label": "+{{value}} to Submerge (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:177": {
+      "label": "+{{value}} to FetishAura (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:178": {
+      "label": "+{{value}} to FetishInferno (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:179": {
+      "label": "+{{value}} to ZakarumHeal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:180": {
+      "label": "+{{value}} to Emerge (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:181": {
+      "label": "+{{value}} to Resurrect (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:182": {
+      "label": "+{{value}} to Bestow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:183": {
+      "label": "+{{value}} to MissileSkill1 (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:184": {
+      "label": "+{{value}} to MonTeleport (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:185": {
+      "label": "+{{value}} to PrimeLightning (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:186": {
+      "label": "+{{value}} to PrimeBolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:187": {
+      "label": "+{{value}} to PrimeBlaze (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:188": {
+      "label": "+{{value}} to PrimeFirewall (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:189": {
+      "label": "+{{value}} to PrimeSpike (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:190": {
+      "label": "+{{value}} to PrimeIceNova (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:191": {
+      "label": "+{{value}} to PrimePoisonball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:192": {
+      "label": "+{{value}} to PrimePoisonNova (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:193": {
+      "label": "+{{value}} to DiabLight (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:194": {
+      "label": "+{{value}} to DiabCold (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:195": {
+      "label": "+{{value}} to DiabFire (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:196": {
+      "label": "+{{value}} to FingerMageSpider (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:197": {
+      "label": "+{{value}} to DiabWall (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:198": {
+      "label": "+{{value}} to DiabRun (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:199": {
+      "label": "+{{value}} to DiabPrison (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:200": {
+      "label": "+{{value}} to PoisonBallTrap (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:201": {
+      "label": "+{{value}} to AndyPoisonBolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:202": {
+      "label": "+{{value}} to HireableMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:203": {
+      "label": "+{{value}} to DesertTurret (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:204": {
+      "label": "+{{value}} to ArcaneTower (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:205": {
+      "label": "+{{value}} to MonBlizzard (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:206": {
+      "label": "+{{value}} to Mosquito (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:207": {
+      "label": "+{{value}} to CursedBallTrapRight (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:208": {
+      "label": "+{{value}} to CursedBallTrapLeft (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:209": {
+      "label": "+{{value}} to MonFrozenArmor (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:210": {
+      "label": "+{{value}} to MonBoneArmor (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:211": {
+      "label": "+{{value}} to MonBoneSpirit (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:212": {
+      "label": "+{{value}} to MonCurseCast (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:213": {
+      "label": "+{{value}} to HellMeteor (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:214": {
+      "label": "+{{value}} to RegurgitatorEat (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:215": {
+      "label": "+{{value}} to MonFrenzy (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:216": {
+      "label": "+{{value}} to QueenDeath (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:217": {
+      "label": "+{{value}} to Scroll of Identify (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:218": {
+      "label": "+{{value}} to Book of Identify (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:219": {
+      "label": "+{{value}} to Scroll of Townportal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:220": {
+      "label": "+{{value}} to Book of Townportal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:222": {
+      "label": "+{{value}} to Poison Creeper (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:223": {
+      "label": "+{{value}} to Werewolf (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:224": {
+      "label": "+{{value}} to Lycanthropy (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:225": {
+      "label": "+{{value}} to Firestorm (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:226": {
+      "label": "+{{value}} to Oak Sage (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:227": {
+      "label": "+{{value}} to Summon Spirit Wolf (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:229": {
+      "label": "+{{value}} to Molten Boulder (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:230": {
+      "label": "+{{value}} to Arctic Blast (Druid Only)",
+      "reason": "no exact market label"
+    },
+    "107:252": {
+      "label": "+{{value}} to Claw Mastery (Assassin Only)",
+      "reason": "no exact market label"
+    },
+    "107:253": {
+      "label": "+{{value}} to Psychic Hammer (Assassin Only)",
+      "reason": "no exact market label"
+    },
+    "107:254": {
+      "label": "+{{value}} to Tiger Strike (Assassin Only)",
+      "reason": "no exact market label"
+    },
+    "107:258": {
+      "label": "+{{value}} to Burst of Speed (Assassin Only)",
+      "reason": "no exact market label"
+    },
+    "107:260": {
+      "label": "+{{value}} to Dragon Claw (Assassin Only)",
+      "reason": "no exact market label"
+    },
+    "107:281": {
+      "label": "+{{value}} to Wake Of Destruction Sentry (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:282": {
+      "label": "+{{value}} to Imp Inferno (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:283": {
+      "label": "+{{value}} to Imp Fireball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:284": {
+      "label": "+{{value}} to Baal Taunt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:285": {
+      "label": "+{{value}} to Baal Corpse Explode (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:286": {
+      "label": "+{{value}} to Baal Monster Spawn (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:287": {
+      "label": "+{{value}} to Catapult Charged Ball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:288": {
+      "label": "+{{value}} to Catapult Spike Ball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:289": {
+      "label": "+{{value}} to Suck Blood (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:290": {
+      "label": "+{{value}} to Cry Help (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:291": {
+      "label": "+{{value}} to Healing Vortex (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:292": {
+      "label": "+{{value}} to Teleport 2 (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:293": {
+      "label": "+{{value}} to Self-resurrect (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:294": {
+      "label": "+{{value}} to Vine Attack (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:295": {
+      "label": "+{{value}} to Overseer Whip (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:296": {
+      "label": "+{{value}} to Barbs Aura (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:297": {
+      "label": "+{{value}} to Wolverine Aura (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:298": {
+      "label": "+{{value}} to Oak Sage Aura (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:299": {
+      "label": "+{{value}} to Imp Fire Missile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:300": {
+      "label": "+{{value}} to Impregnate (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:301": {
+      "label": "+{{value}} to Siege Beast Stomp (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:302": {
+      "label": "+{{value}} to MinionSpawner (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:303": {
+      "label": "+{{value}} to CatapultBlizzard (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:304": {
+      "label": "+{{value}} to CatapultPlague (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:305": {
+      "label": "+{{value}} to CatapultMeteor (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:306": {
+      "label": "+{{value}} to BoltSentry (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:307": {
+      "label": "+{{value}} to CorpseCycler (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:308": {
+      "label": "+{{value}} to DeathMaul (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:309": {
+      "label": "+{{value}} to Defense Curse (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:310": {
+      "label": "+{{value}} to Blood Mana (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:311": {
+      "label": "+{{value}} to mon inferno sentry (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:312": {
+      "label": "+{{value}} to mon death sentry (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:313": {
+      "label": "+{{value}} to sentry lightning (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:314": {
+      "label": "+{{value}} to fenris rage (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:315": {
+      "label": "+{{value}} to Baal Tentacle (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:316": {
+      "label": "+{{value}} to Baal Nova (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:317": {
+      "label": "+{{value}} to Baal Inferno (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:318": {
+      "label": "+{{value}} to Baal Cold Missiles (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:319": {
+      "label": "+{{value}} to MegademonInferno (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:320": {
+      "label": "+{{value}} to EvilHutSpawner (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:321": {
+      "label": "+{{value}} to CountessFirewall (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:322": {
+      "label": "+{{value}} to ImpBolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:323": {
+      "label": "+{{value}} to Horror Arctic Blast (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:324": {
+      "label": "+{{value}} to death sentry ltng (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:325": {
+      "label": "+{{value}} to VineCycler (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:326": {
+      "label": "+{{value}} to BearSmite (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:327": {
+      "label": "+{{value}} to Resurrect2 (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:328": {
+      "label": "+{{value}} to BloodLordFrenzy (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:329": {
+      "label": "+{{value}} to Baal Teleport (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:330": {
+      "label": "+{{value}} to Imp Teleport (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:331": {
+      "label": "+{{value}} to Baal Clone Teleport (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:332": {
+      "label": "+{{value}} to ZakarumLightning (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:333": {
+      "label": "+{{value}} to VampireMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:334": {
+      "label": "+{{value}} to MephistoMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:335": {
+      "label": "+{{value}} to DoomKnightMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:336": {
+      "label": "+{{value}} to RogueMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:337": {
+      "label": "+{{value}} to HydraMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:338": {
+      "label": "+{{value}} to NecromageMissile (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:339": {
+      "label": "+{{value}} to MonBow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:340": {
+      "label": "+{{value}} to MonFireArrow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:341": {
+      "label": "+{{value}} to MonColdArrow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:342": {
+      "label": "+{{value}} to MonExplodingArrow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:343": {
+      "label": "+{{value}} to MonFreezingArrow (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:344": {
+      "label": "+{{value}} to MonPowerStrike (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:345": {
+      "label": "+{{value}} to SuccubusBolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:346": {
+      "label": "+{{value}} to MephFrostNova (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:347": {
+      "label": "+{{value}} to MonIceSpear (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:348": {
+      "label": "+{{value}} to ShamanIce (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:349": {
+      "label": "+{{value}} to Diablogeddon (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:350": {
+      "label": "+{{value}} to Delerium Change (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:351": {
+      "label": "+{{value}} to NihlathakCorpseExplosion (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:352": {
+      "label": "+{{value}} to SerpentCharge (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:353": {
+      "label": "+{{value}} to Trap Nova (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:354": {
+      "label": "+{{value}} to UnHolyBoltEx (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:355": {
+      "label": "+{{value}} to ShamanFireEx (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:356": {
+      "label": "+{{value}} to Imp Fire Missile Ex (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:357": {
+      "label": "+{{value}} to Interact (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:358": {
+      "label": "+{{value}} to Loot (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:359": {
+      "label": "+{{value}} to TownPortal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:360": {
+      "label": "+{{value}} to EmoteWheel (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:361": {
+      "label": "+{{value}} to SwapWeapons (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:363": {
+      "label": "+{{value}} to ShowItems (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:364": {
+      "label": "+{{value}} to RunToggle (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:365": {
+      "label": "+{{value}} to MonHolyFreeze (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:366": {
+      "label": "+{{value}} to MonLeap (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:367": {
+      "label": "+{{value}} to MonLeapAttack (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:368": {
+      "label": "+{{value}} to MonHolyFire (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:369": {
+      "label": "+{{value}} to MonHolyShock (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:370": {
+      "label": "+{{value}} to CubeLoot (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:371": {
+      "label": "+{{value}} to Mark of the Bear (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:372": {
+      "label": "+{{value}} to Mark of the Wolf (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:403": {
+      "label": "+{{value}} to Sigil Death Explosion (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:404": {
+      "label": "+{{value}} to Hex Purge Explosion (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:405": {
+      "label": "+{{value}} to Health Link (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:406": {
+      "label": "+{{value}} to Cold Fissure (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:407": {
+      "label": "+{{value}} to Korlic's Leap Attack (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:408": {
+      "label": "+{{value}} to Cold Enchant (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:409": {
+      "label": "+{{value}} to Lightning Enchant (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:410": {
+      "label": "+{{value}} to Talic's Whirlwind (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:411": {
+      "label": "+{{value}} to Townportal O Skill (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:412": {
+      "label": "+{{value}} to Fire Twisters (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:413": {
+      "label": "+{{value}} to Colossal Volcano (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:414": {
+      "label": "+{{value}} to Colossal Thunder Storm (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:415": {
+      "label": "+{{value}} to UberAncientsHeal (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:416": {
+      "label": "+{{value}} to Goatman Stun (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:417": {
+      "label": "+{{value}} to Goatman Frenzy (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:418": {
+      "label": "+{{value}} to Goatman Berserk (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:419": {
+      "label": "+{{value}} to Goatman Cleave (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:420": {
+      "label": "+{{value}} to Tainted Resist Fire (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:421": {
+      "label": "+{{value}} to Tainted Fire Bolt (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:422": {
+      "label": "+{{value}} to Tainted Fire Ball (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:423": {
+      "label": "+{{value}} to Talic's Fire Pierce (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:424": {
+      "label": "+{{value}} to Madawc's Lightning Pierce (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:425": {
+      "label": "+{{value}} to Korlic's Cold Pierce (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:426": {
+      "label": "+{{value}} to Charged Bolt Disk (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:427": {
+      "label": "+{{value}} to Korlic's Bash (None Only)",
+      "reason": "no exact market label"
+    },
+    "107:428": {
+      "label": "+{{value}} to HeraldThorns (None Only)",
+      "reason": "no exact market label"
+    },
+    "151:0": {
+      "label": "Level {{value}} Attack Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:1": {
+      "label": "Level {{value}} Kick Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:2": {
+      "label": "Level {{value}} Throw Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:3": {
+      "label": "Level {{value}} Unsummon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:4": {
+      "label": "Level {{value}} Left Hand Throw Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:5": {
+      "label": "Level {{value}} Left Hand Swing Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:6": {
+      "label": "Level {{value}} Magic Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:7": {
+      "label": "Level {{value}} Fire Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:8": {
+      "label": "Level {{value}} Inner Sight Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:9": {
+      "label": "Level {{value}} Critical Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:10": {
+      "label": "Level {{value}} Jab Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:11": {
+      "label": "Level {{value}} Cold Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:12": {
+      "label": "Level {{value}} Multiple Shot Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:13": {
+      "label": "Level {{value}} Dodge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:14": {
+      "label": "Level {{value}} Power Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:15": {
+      "label": "Level {{value}} Poison Javelin Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:16": {
+      "label": "Level {{value}} Exploding Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:17": {
+      "label": "Level {{value}} Slow Missiles Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:18": {
+      "label": "Level {{value}} Avoid Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:19": {
+      "label": "Level {{value}} Impale Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:20": {
+      "label": "Level {{value}} Lightning Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:21": {
+      "label": "Level {{value}} Ice Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:22": {
+      "label": "Level {{value}} Guided Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:23": {
+      "label": "Level {{value}} Penetrate Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:24": {
+      "label": "Level {{value}} Charged Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:25": {
+      "label": "Level {{value}} Plague Javelin Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:26": {
+      "label": "Level {{value}} Strafe Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:27": {
+      "label": "Level {{value}} Immolation Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:28": {
+      "label": "Level {{value}} Decoy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:29": {
+      "label": "Level {{value}} Evade Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:30": {
+      "label": "Level {{value}} Fend Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:31": {
+      "label": "Level {{value}} Freezing Arrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:32": {
+      "label": "Level {{value}} Valkyrie Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:33": {
+      "label": "Level {{value}} Pierce Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:34": {
+      "label": "Level {{value}} Lightning Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:35": {
+      "label": "Level {{value}} Lightning Fury Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:36": {
+      "label": "Level {{value}} Fire Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:37": {
+      "label": "Level {{value}} Warmth Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:38": {
+      "label": "Level {{value}} Charged Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:39": {
+      "label": "Level {{value}} Ice Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:40": {
+      "label": "Level {{value}} Frozen Armor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:41": {
+      "label": "Level {{value}} Inferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:42": {
+      "label": "Level {{value}} Static Field Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:43": {
+      "label": "Level {{value}} Telekinesis Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:44": {
+      "label": "Level {{value}} Frost Nova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:45": {
+      "label": "Level {{value}} Ice Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:46": {
+      "label": "Level {{value}} Blaze Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:47": {
+      "label": "Level {{value}} Fire Ball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:48": {
+      "label": "Level {{value}} Nova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:49": {
+      "label": "Level {{value}} Lightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:50": {
+      "label": "Level {{value}} Shiver Armor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:51": {
+      "label": "Level {{value}} Fire Wall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:52": {
+      "label": "Level {{value}} Enchant Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:53": {
+      "label": "Level {{value}} Chain Lightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:54": {
+      "label": "Level {{value}} Teleport Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:55": {
+      "label": "Level {{value}} Glacial Spike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:56": {
+      "label": "Level {{value}} Meteor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:57": {
+      "label": "Level {{value}} Thunder Storm Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:58": {
+      "label": "Level {{value}} Energy Shield Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:59": {
+      "label": "Level {{value}} Blizzard Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:60": {
+      "label": "Level {{value}} Chilling Armor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:61": {
+      "label": "Level {{value}} Fire Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:62": {
+      "label": "Level {{value}} Hydra Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:63": {
+      "label": "Level {{value}} Lightning Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:64": {
+      "label": "Level {{value}} Frozen Orb Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:65": {
+      "label": "Level {{value}} Cold Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:66": {
+      "label": "Level {{value}} Amplify Damage Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:67": {
+      "label": "Level {{value}} Teeth Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:68": {
+      "label": "Level {{value}} Bone Armor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:69": {
+      "label": "Level {{value}} Skeleton Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:70": {
+      "label": "Level {{value}} Raise Skeleton Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:71": {
+      "label": "Level {{value}} Dim Vision Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:72": {
+      "label": "Level {{value}} Weaken Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:73": {
+      "label": "Level {{value}} Poison Dagger Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:74": {
+      "label": "Level {{value}} Corpse Explosion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:75": {
+      "label": "Level {{value}} Clay Golem Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:76": {
+      "label": "Level {{value}} Iron Maiden Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:77": {
+      "label": "Level {{value}} Terror Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:78": {
+      "label": "Level {{value}} Bone Wall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:79": {
+      "label": "Level {{value}} Golem Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:80": {
+      "label": "Level {{value}} Raise Skeletal Mage Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:81": {
+      "label": "Level {{value}} Confuse Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:82": {
+      "label": "Level {{value}} Life Tap Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:83": {
+      "label": "Level {{value}} Poison Explosion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:84": {
+      "label": "Level {{value}} Bone Spear Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:85": {
+      "label": "Level {{value}} Blood Golem Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:86": {
+      "label": "Level {{value}} Attract Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:87": {
+      "label": "Level {{value}} Decrepify Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:88": {
+      "label": "Level {{value}} Bone Prison Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:89": {
+      "label": "Level {{value}} Summon Resist Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:90": {
+      "label": "Level {{value}} Iron Golem Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:91": {
+      "label": "Level {{value}} Lower Resist Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:92": {
+      "label": "Level {{value}} Poison Nova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:93": {
+      "label": "Level {{value}} Bone Spirit Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:94": {
+      "label": "Level {{value}} Fire Golem Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:95": {
+      "label": "Level {{value}} Revive Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:96": {
+      "label": "Level {{value}} Sacrifice Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:97": {
+      "label": "Level {{value}} Smite Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:99": {
+      "label": "Level {{value}} Prayer Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:101": {
+      "label": "Level {{value}} Holy Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:105": {
+      "label": "Level {{value}} Resist Cold Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:106": {
+      "label": "Level {{value}} Zeal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:107": {
+      "label": "Level {{value}} Charge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:108": {
+      "label": "Level {{value}} Blessed Aim Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:110": {
+      "label": "Level {{value}} Resist Lightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:111": {
+      "label": "Level {{value}} Vengeance Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:112": {
+      "label": "Level {{value}} Blessed Hammer Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:116": {
+      "label": "Level {{value}} Conversion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:117": {
+      "label": "Level {{value}} Holy Shield Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:121": {
+      "label": "Level {{value}} Fist of the Heavens Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:125": {
+      "label": "Level {{value}} Salvation Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:126": {
+      "label": "Level {{value}} Bash Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:127": {
+      "label": "Level {{value}} Blade Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:128": {
+      "label": "Level {{value}} Axe Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:129": {
+      "label": "Level {{value}} Mace Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:130": {
+      "label": "Level {{value}} Howl Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:131": {
+      "label": "Level {{value}} Find Potion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:132": {
+      "label": "Level {{value}} Leap Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:133": {
+      "label": "Level {{value}} Double Swing Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:134": {
+      "label": "Level {{value}} Polearm Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:135": {
+      "label": "Level {{value}} Throwing Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:136": {
+      "label": "Level {{value}} Spear Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:137": {
+      "label": "Level {{value}} Taunt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:138": {
+      "label": "Level {{value}} Shout Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:139": {
+      "label": "Level {{value}} Stun Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:140": {
+      "label": "Level {{value}} Double Throw Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:141": {
+      "label": "Level {{value}} Increased Stamina Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:142": {
+      "label": "Level {{value}} Find Item Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:143": {
+      "label": "Level {{value}} Leap Attack Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:144": {
+      "label": "Level {{value}} Concentrate Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:145": {
+      "label": "Level {{value}} Iron Skin Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:146": {
+      "label": "Level {{value}} Battle Cry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:147": {
+      "label": "Level {{value}} Frenzy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:148": {
+      "label": "Level {{value}} Increased Speed Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:149": {
+      "label": "Level {{value}} Battle Orders Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:150": {
+      "label": "Level {{value}} Grim Ward Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:151": {
+      "label": "Level {{value}} Whirlwind Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:152": {
+      "label": "Level {{value}} Berserk Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:153": {
+      "label": "Level {{value}} Natural Resistance Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:154": {
+      "label": "Level {{value}} War Cry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:155": {
+      "label": "Level {{value}} Battle Command Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:156": {
+      "label": "Level {{value}} Fire Hit Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:157": {
+      "label": "Level {{value}} UnHolyBolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:158": {
+      "label": "Level {{value}} SkeletonRaise Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:159": {
+      "label": "Level {{value}} MaggotEgg Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:160": {
+      "label": "Level {{value}} ShamanFire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:161": {
+      "label": "Level {{value}} MagottUp Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:162": {
+      "label": "Level {{value}} MagottDown Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:163": {
+      "label": "Level {{value}} MagottLay Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:164": {
+      "label": "Level {{value}} AndrialSpray Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:165": {
+      "label": "Level {{value}} Jump Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:166": {
+      "label": "Level {{value}} Swarm Move Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:167": {
+      "label": "Level {{value}} Nest Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:168": {
+      "label": "Level {{value}} Quick Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:169": {
+      "label": "Level {{value}} VampireFireball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:170": {
+      "label": "Level {{value}} VampireFirewall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:171": {
+      "label": "Level {{value}} VampireMeteor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:172": {
+      "label": "Level {{value}} GargoyleTrap Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:173": {
+      "label": "Level {{value}} SpiderLay Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:174": {
+      "label": "Level {{value}} VampireHeal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:175": {
+      "label": "Level {{value}} VampireRaise Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:176": {
+      "label": "Level {{value}} Submerge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:177": {
+      "label": "Level {{value}} FetishAura Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:178": {
+      "label": "Level {{value}} FetishInferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:179": {
+      "label": "Level {{value}} ZakarumHeal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:180": {
+      "label": "Level {{value}} Emerge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:181": {
+      "label": "Level {{value}} Resurrect Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:182": {
+      "label": "Level {{value}} Bestow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:183": {
+      "label": "Level {{value}} MissileSkill1 Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:184": {
+      "label": "Level {{value}} MonTeleport Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:185": {
+      "label": "Level {{value}} PrimeLightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:186": {
+      "label": "Level {{value}} PrimeBolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:187": {
+      "label": "Level {{value}} PrimeBlaze Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:188": {
+      "label": "Level {{value}} PrimeFirewall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:189": {
+      "label": "Level {{value}} PrimeSpike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:190": {
+      "label": "Level {{value}} PrimeIceNova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:191": {
+      "label": "Level {{value}} PrimePoisonball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:192": {
+      "label": "Level {{value}} PrimePoisonNova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:193": {
+      "label": "Level {{value}} DiabLight Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:194": {
+      "label": "Level {{value}} DiabCold Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:195": {
+      "label": "Level {{value}} DiabFire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:196": {
+      "label": "Level {{value}} FingerMageSpider Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:197": {
+      "label": "Level {{value}} DiabWall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:198": {
+      "label": "Level {{value}} DiabRun Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:199": {
+      "label": "Level {{value}} DiabPrison Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:200": {
+      "label": "Level {{value}} PoisonBallTrap Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:201": {
+      "label": "Level {{value}} AndyPoisonBolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:202": {
+      "label": "Level {{value}} HireableMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:203": {
+      "label": "Level {{value}} DesertTurret Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:204": {
+      "label": "Level {{value}} ArcaneTower Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:205": {
+      "label": "Level {{value}} MonBlizzard Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:206": {
+      "label": "Level {{value}} Mosquito Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:207": {
+      "label": "Level {{value}} CursedBallTrapRight Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:208": {
+      "label": "Level {{value}} CursedBallTrapLeft Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:209": {
+      "label": "Level {{value}} MonFrozenArmor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:210": {
+      "label": "Level {{value}} MonBoneArmor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:211": {
+      "label": "Level {{value}} MonBoneSpirit Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:212": {
+      "label": "Level {{value}} MonCurseCast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:213": {
+      "label": "Level {{value}} HellMeteor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:214": {
+      "label": "Level {{value}} RegurgitatorEat Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:215": {
+      "label": "Level {{value}} MonFrenzy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:216": {
+      "label": "Level {{value}} QueenDeath Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:217": {
+      "label": "Level {{value}} Scroll of Identify Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:218": {
+      "label": "Level {{value}} Book of Identify Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:219": {
+      "label": "Level {{value}} Scroll of Townportal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:220": {
+      "label": "Level {{value}} Book of Townportal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:221": {
+      "label": "Level {{value}} Raven Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:222": {
+      "label": "Level {{value}} Poison Creeper Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:223": {
+      "label": "Level {{value}} Werewolf Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:224": {
+      "label": "Level {{value}} Lycanthropy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:225": {
+      "label": "Level {{value}} Firestorm Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:226": {
+      "label": "Level {{value}} Oak Sage Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:227": {
+      "label": "Level {{value}} Summon Spirit Wolf Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:228": {
+      "label": "Level {{value}} Werebear Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:229": {
+      "label": "Level {{value}} Molten Boulder Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:230": {
+      "label": "Level {{value}} Arctic Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:231": {
+      "label": "Level {{value}} Carrion Vine Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:232": {
+      "label": "Level {{value}} Feral Rage Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:233": {
+      "label": "Level {{value}} Maul Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:234": {
+      "label": "Level {{value}} Fissure Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:235": {
+      "label": "Level {{value}} Cyclone Armor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:236": {
+      "label": "Level {{value}} Heart of Wolverine Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:237": {
+      "label": "Level {{value}} Summon Dire Wolf Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:238": {
+      "label": "Level {{value}} Rabies Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:239": {
+      "label": "Level {{value}} Fire Claws Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:240": {
+      "label": "Level {{value}} Twister Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:241": {
+      "label": "Level {{value}} Solar Creeper Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:242": {
+      "label": "Level {{value}} Hunger Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:243": {
+      "label": "Level {{value}} Shock Wave Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:244": {
+      "label": "Level {{value}} Volcano Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:245": {
+      "label": "Level {{value}} Tornado Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:246": {
+      "label": "Level {{value}} Spirit of Barbs Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:247": {
+      "label": "Level {{value}} Summon Grizzly Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:248": {
+      "label": "Level {{value}} Fury Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:249": {
+      "label": "Level {{value}} Armageddon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:250": {
+      "label": "Level {{value}} Hurricane Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:251": {
+      "label": "Level {{value}} Fire Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:252": {
+      "label": "Level {{value}} Claw Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:253": {
+      "label": "Level {{value}} Psychic Hammer Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:254": {
+      "label": "Level {{value}} Tiger Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:255": {
+      "label": "Level {{value}} Dragon Talon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:256": {
+      "label": "Level {{value}} Shock Web Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:257": {
+      "label": "Level {{value}} Blade Sentinel Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:258": {
+      "label": "Level {{value}} Burst of Speed Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:259": {
+      "label": "Level {{value}} Fists of Fire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:260": {
+      "label": "Level {{value}} Dragon Claw Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:261": {
+      "label": "Level {{value}} Charged Bolt Sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:262": {
+      "label": "Level {{value}} Wake of Fire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:263": {
+      "label": "Level {{value}} Weapon Block Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:264": {
+      "label": "Level {{value}} Cloak of Shadows Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:265": {
+      "label": "Level {{value}} Cobra Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:266": {
+      "label": "Level {{value}} Blade Fury Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:267": {
+      "label": "Level {{value}} Fade Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:268": {
+      "label": "Level {{value}} Shadow Warrior Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:269": {
+      "label": "Level {{value}} Claws of Thunder Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:270": {
+      "label": "Level {{value}} Dragon Tail Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:271": {
+      "label": "Level {{value}} Lightning Sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:272": {
+      "label": "Level {{value}} Wake of Inferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:273": {
+      "label": "Level {{value}} Mind Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:274": {
+      "label": "Level {{value}} Blades of Ice Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:275": {
+      "label": "Level {{value}} Dragon Flight Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:276": {
+      "label": "Level {{value}} Death Sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:277": {
+      "label": "Level {{value}} Blade Shield Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:278": {
+      "label": "Level {{value}} Venom Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:279": {
+      "label": "Level {{value}} Shadow Master Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:280": {
+      "label": "Level {{value}} Phoenix Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:281": {
+      "label": "Level {{value}} Wake Of Destruction Sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:282": {
+      "label": "Level {{value}} Imp Inferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:283": {
+      "label": "Level {{value}} Imp Fireball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:284": {
+      "label": "Level {{value}} Baal Taunt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:285": {
+      "label": "Level {{value}} Baal Corpse Explode Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:286": {
+      "label": "Level {{value}} Baal Monster Spawn Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:287": {
+      "label": "Level {{value}} Catapult Charged Ball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:288": {
+      "label": "Level {{value}} Catapult Spike Ball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:289": {
+      "label": "Level {{value}} Suck Blood Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:290": {
+      "label": "Level {{value}} Cry Help Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:291": {
+      "label": "Level {{value}} Healing Vortex Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:292": {
+      "label": "Level {{value}} Teleport 2 Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:293": {
+      "label": "Level {{value}} Self-resurrect Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:294": {
+      "label": "Level {{value}} Vine Attack Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:295": {
+      "label": "Level {{value}} Overseer Whip Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:296": {
+      "label": "Level {{value}} Barbs Aura Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:297": {
+      "label": "Level {{value}} Wolverine Aura Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:298": {
+      "label": "Level {{value}} Oak Sage Aura Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:299": {
+      "label": "Level {{value}} Imp Fire Missile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:300": {
+      "label": "Level {{value}} Impregnate Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:301": {
+      "label": "Level {{value}} Siege Beast Stomp Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:302": {
+      "label": "Level {{value}} MinionSpawner Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:303": {
+      "label": "Level {{value}} CatapultBlizzard Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:304": {
+      "label": "Level {{value}} CatapultPlague Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:305": {
+      "label": "Level {{value}} CatapultMeteor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:306": {
+      "label": "Level {{value}} BoltSentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:307": {
+      "label": "Level {{value}} CorpseCycler Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:308": {
+      "label": "Level {{value}} DeathMaul Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:309": {
+      "label": "Level {{value}} Defense Curse Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:310": {
+      "label": "Level {{value}} Blood Mana Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:311": {
+      "label": "Level {{value}} mon inferno sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:312": {
+      "label": "Level {{value}} mon death sentry Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:313": {
+      "label": "Level {{value}} sentry lightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:314": {
+      "label": "Level {{value}} fenris rage Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:315": {
+      "label": "Level {{value}} Baal Tentacle Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:316": {
+      "label": "Level {{value}} Baal Nova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:317": {
+      "label": "Level {{value}} Baal Inferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:318": {
+      "label": "Level {{value}} Baal Cold Missiles Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:319": {
+      "label": "Level {{value}} MegademonInferno Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:320": {
+      "label": "Level {{value}} EvilHutSpawner Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:321": {
+      "label": "Level {{value}} CountessFirewall Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:322": {
+      "label": "Level {{value}} ImpBolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:323": {
+      "label": "Level {{value}} Horror Arctic Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:324": {
+      "label": "Level {{value}} death sentry ltng Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:325": {
+      "label": "Level {{value}} VineCycler Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:326": {
+      "label": "Level {{value}} BearSmite Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:327": {
+      "label": "Level {{value}} Resurrect2 Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:328": {
+      "label": "Level {{value}} BloodLordFrenzy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:329": {
+      "label": "Level {{value}} Baal Teleport Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:330": {
+      "label": "Level {{value}} Imp Teleport Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:331": {
+      "label": "Level {{value}} Baal Clone Teleport Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:332": {
+      "label": "Level {{value}} ZakarumLightning Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:333": {
+      "label": "Level {{value}} VampireMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:334": {
+      "label": "Level {{value}} MephistoMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:335": {
+      "label": "Level {{value}} DoomKnightMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:336": {
+      "label": "Level {{value}} RogueMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:337": {
+      "label": "Level {{value}} HydraMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:338": {
+      "label": "Level {{value}} NecromageMissile Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:339": {
+      "label": "Level {{value}} MonBow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:340": {
+      "label": "Level {{value}} MonFireArrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:341": {
+      "label": "Level {{value}} MonColdArrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:342": {
+      "label": "Level {{value}} MonExplodingArrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:343": {
+      "label": "Level {{value}} MonFreezingArrow Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:344": {
+      "label": "Level {{value}} MonPowerStrike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:345": {
+      "label": "Level {{value}} SuccubusBolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:346": {
+      "label": "Level {{value}} MephFrostNova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:347": {
+      "label": "Level {{value}} MonIceSpear Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:348": {
+      "label": "Level {{value}} ShamanIce Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:349": {
+      "label": "Level {{value}} Diablogeddon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:350": {
+      "label": "Level {{value}} Delerium Change Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:351": {
+      "label": "Level {{value}} NihlathakCorpseExplosion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:352": {
+      "label": "Level {{value}} SerpentCharge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:353": {
+      "label": "Level {{value}} Trap Nova Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:354": {
+      "label": "Level {{value}} UnHolyBoltEx Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:355": {
+      "label": "Level {{value}} ShamanFireEx Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:356": {
+      "label": "Level {{value}} Imp Fire Missile Ex Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:357": {
+      "label": "Level {{value}} Interact Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:358": {
+      "label": "Level {{value}} Loot Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:359": {
+      "label": "Level {{value}} TownPortal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:360": {
+      "label": "Level {{value}} EmoteWheel Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:361": {
+      "label": "Level {{value}} SwapWeapons Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:363": {
+      "label": "Level {{value}} ShowItems Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:364": {
+      "label": "Level {{value}} RunToggle Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:365": {
+      "label": "Level {{value}} MonHolyFreeze Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:366": {
+      "label": "Level {{value}} MonLeap Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:367": {
+      "label": "Level {{value}} MonLeapAttack Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:368": {
+      "label": "Level {{value}} MonHolyFire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:369": {
+      "label": "Level {{value}} MonHolyShock Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:370": {
+      "label": "Level {{value}} CubeLoot Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:371": {
+      "label": "Level {{value}} Mark of the Bear Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:372": {
+      "label": "Level {{value}} Mark of the Wolf Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:373": {
+      "label": "Level {{value}} Summon Goatman Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:374": {
+      "label": "Level {{value}} Demonic Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:375": {
+      "label": "Level {{value}} Death Mark Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:376": {
+      "label": "Level {{value}} Summon Tainted Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:377": {
+      "label": "Level {{value}} Summon Defiler Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:378": {
+      "label": "Level {{value}} Blood Oath Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:379": {
+      "label": "Level {{value}} Engorge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:380": {
+      "label": "Level {{value}} Blood Boil Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:381": {
+      "label": "Level {{value}} Consume Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:382": {
+      "label": "Level {{value}} Bind Demon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:383": {
+      "label": "Level {{value}} Levitation Mastery Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:384": {
+      "label": "Level {{value}} Eldritch Blast Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:385": {
+      "label": "Level {{value}} Hex: Bane Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:386": {
+      "label": "Level {{value}} Hex: Siphon Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:387": {
+      "label": "Level {{value}} Psychic Ward Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:388": {
+      "label": "Level {{value}} Echoing Strike Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:389": {
+      "label": "Level {{value}} Hex: Purge Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:390": {
+      "label": "Level {{value}} Blade Warp Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:391": {
+      "label": "Level {{value}} Cleave Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:392": {
+      "label": "Level {{value}} Mirrored Blades Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:393": {
+      "label": "Level {{value}} Sigil: Lethargy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:394": {
+      "label": "Level {{value}} Ring of Fire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:395": {
+      "label": "Level {{value}} Miasma Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:396": {
+      "label": "Level {{value}} Sigil: Rancor Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:397": {
+      "label": "Level {{value}} Enhanced Entropy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:398": {
+      "label": "Level {{value}} Flame Wave Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:399": {
+      "label": "Level {{value}} Miasma Chain Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:400": {
+      "label": "Level {{value}} Sigil: Death Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:401": {
+      "label": "Level {{value}} Apocalypse Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:402": {
+      "label": "Level {{value}} Abyss Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:403": {
+      "label": "Level {{value}} Sigil Death Explosion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:404": {
+      "label": "Level {{value}} Hex Purge Explosion Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:405": {
+      "label": "Level {{value}} Health Link Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:406": {
+      "label": "Level {{value}} Cold Fissure Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:407": {
+      "label": "Level {{value}} Korlic's Leap Attack Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:408": {
+      "label": "Level {{value}} Cold Enchant Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:409": {
+      "label": "Level {{value}} Lightning Enchant Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:410": {
+      "label": "Level {{value}} Talic's Whirlwind Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:411": {
+      "label": "Level {{value}} Townportal O Skill Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:412": {
+      "label": "Level {{value}} Fire Twisters Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:413": {
+      "label": "Level {{value}} Colossal Volcano Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:414": {
+      "label": "Level {{value}} Colossal Thunder Storm Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:415": {
+      "label": "Level {{value}} UberAncientsHeal Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:416": {
+      "label": "Level {{value}} Goatman Stun Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:417": {
+      "label": "Level {{value}} Goatman Frenzy Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:418": {
+      "label": "Level {{value}} Goatman Berserk Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:419": {
+      "label": "Level {{value}} Goatman Cleave Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:420": {
+      "label": "Level {{value}} Tainted Resist Fire Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:421": {
+      "label": "Level {{value}} Tainted Fire Bolt Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:422": {
+      "label": "Level {{value}} Tainted Fire Ball Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:423": {
+      "label": "Level {{value}} Talic's Fire Pierce Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:424": {
+      "label": "Level {{value}} Madawc's Lightning Pierce Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:425": {
+      "label": "Level {{value}} Korlic's Cold Pierce Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:426": {
+      "label": "Level {{value}} Charged Bolt Disk Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:427": {
+      "label": "Level {{value}} Korlic's Bash Aura When Equipped",
+      "reason": "no exact market label"
+    },
+    "151:428": {
+      "label": "Level {{value}} HeraldThorns Aura When Equipped",
+      "reason": "no exact market label"
+    }
+  },
+  "inputs": {
+    "inventory_tracking/items/data/item_metadata.json": "a6c6274ff03390ad8f4eb358842b71aa8ad89c8041fab0e59b49629d4b0997ab",
+    "pricing/data/appraisal-properties.json": "a045eb3cbe641497511cc4443f9bcb56f72619782ce382ae458dc6d8edcf596a"
+  },
+  "review": "2026-09-24: Scalar skill families; exact labels plus reviewed Warlock class wording alias."
+}

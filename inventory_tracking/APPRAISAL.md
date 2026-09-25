@@ -48,14 +48,17 @@ awaits the user's varied-item review; no further fixed probe sequence is require
 uv run --offline -m inventory_tracking.appraisal serve
 ```
 
-Wait for **Ready for Alt+D**, focus D2R, hover an item, press **Alt+D**
-and hold the hover until the notification. The installed Niri binding disables key
+The worker may start before the game: while no `D2R.exe` is running it prints
+**Waiting for D2R.exe**, publishes `report.json` with state `waiting` and retries every
+`reconnect_delay` seconds (default 2). Other attach failures (unsupported build, memory
+access) still abort. Wait for **Ready for Alt+D**, focus D2R, hover an item, press **Alt+D**
+and hold the hover until the assessment appears in the right-side OSD. The installed Niri binding disables key
 repeat. It is a global binding; the worker requires D2R compositor focus and exact
 X11 process ownership before reading a request and before publishing its result.
 
 Reports live under `inventory_tracking/runs/alt-d/<run>/`:
 
-- `report.json`: attachment readiness or service completion/failure.
+- `report.json`: attachment waiting/readiness or service completion/failure.
 - `latest.json`: newest request only, including rejection reasons.
 - `request-N/frozen.json`: frozen observed selection, stats and provenance.
   New captures also preserve a double-read 0x60-byte item-data record for further
@@ -70,13 +73,56 @@ an approved item price. Undated asks are omitted from the text. Only requests
 that pass the worker's current-request checks publish text; older results are
 suppressed along with their JSON output.
 
-Rich renders unresolved stat lines and undecoded-property review notes in bright
-yellow in an interactive terminal. `NO_COLOR` or redirected output disables color.
-Saved `probe.log` and `appraisal.txt` stay plain text; terminal rendering does not
-alter their contents. Restart an existing worker after installing this update.
+`ItemAssessment` in `inventory_tracking/appraisal/presentation.py` builds one
+immutable document of semantic `StyledLine` entries. Its `to_text()`, `to_rich()`
+and `to_osd()` methods feed saved reports, terminal logs and the OSD respectively.
+The compatibility functions in `appraisal/text.py` delegate to this model; shared
+section wording lives in `appraisal/sections.py`. Pricing/demand calculations
+remain in the KB assessment engine.
 
-The desktop notification summarizes supported stats and identifies the report
-folder. An unresolved price remains unresolved. Ctrl+C stops the worker. After
+The shared palette in `inventory_tracking/presentation.py` controls both terminal
+and OSD colors: magic blue, rare yellow, unique/runeword gold, set green, crafted
+orange, normal white and socketed/ethereal normal bases gray. Perfect rolls are
+green, low rolls red, unreadable stats yellow, valuable candidates magenta and
+build demand cyan. Color describes the stated fact; item rarity alone does not
+imply value. Styles attach to individual lines, so identical stat text can carry
+different roll grades.
+
+OSD IPC carries text plus semantic tones; GTK renders escaped Pango markup.
+Terminal logs use Rich spans from the same model. `NO_COLOR` disables terminal
+colors; redirected output, `probe.log` and `appraisal.txt` stay plain text.
+Restart the worker to load presentation or palette changes.
+
+The click-through assessment card is centered vertically in the right half of the
+output containing the focused D2R workspace. Niri output names are matched to
+GDK monitor connectors, so monitor enumeration order does not affect placement.
+Moving D2R between outputs updates placement and card dimensions. `OSD.monitor`
+can explicitly override this with a monitor index; the default `None` follows D2R. It appears only after Alt+D and hides
+when the item, stats, viewer context or game focus changes, or after 30 seconds
+from completion. Hover checks run every 0.2 seconds; a stalled worker's display
+lease expires after 1.5 seconds. Returning to the item does not reopen the card:
+press Alt+D again. Long output is ellipsized to fit the output; the complete text
+remains in `appraisal.txt`. `osd.log` records GTK startup/display errors.
+
+Override the display duration and cache expiry when starting the worker:
+
+```sh
+uv run --offline -m inventory_tracking.appraisal serve --osd-seconds 30 --cache-seconds 300
+```
+
+Defaults live in `APPRAISAL` in `inventory_tracking/config.py`. `--no-osd` retains
+the desktop notifications. With the OSD enabled, reports and rejections remain
+in the terminal/files without a second desktop notification.
+
+The in-memory cache holds up to 128 results for five minutes (not extended on
+hits), using SHA-256 of the decoded observation, game identity and KB file
+revision. Capture timestamps are excluded; item identity, raw unresolved stats,
+viewer context and all other facts remain part of the key. A cache hit skips KB
+retrieval but still captures and rechecks the hovered item, resets the display
+timer and records `cache_hit` in the report. Errors are not cached; restarting the
+worker clears the cache. KB and SQLite WAL changes invalidate matching keys.
+
+An unresolved price remains unresolved. Ctrl+C stops the worker and its overlay. After
 restarting D2R, restart this worker to attach to the new process; it will reject
 requests for a stale process rather than reuse its pointers.
 
@@ -182,3 +228,31 @@ Discovery failures preserve the original evidence and record the secondary error
 These samples are research evidence, not an appraisal: a later hover cannot
 replace the requested item. Use ordinary Alt+D on mercenary/unknown panels and
 inspect the resulting diagnostics; a separate timed hover probe is optional.
+
+### Published offline KB (default)
+
+Build and validate the offline artifacts/index first, then package them:
+
+```sh
+uv run --offline python -m pricing.knowledge.publication
+uv run --offline -m inventory_tracking.appraisal.service serve
+```
+
+The worker warms the publication before reporting ready. Each hotkey pins a runtime
+and UTC appraisal date through capture/decoding, asynchronous retrieval, cache hits
+and hover rechecks. Cache keys include generation, date and update diagnostics.
+A malformed update can retain the previous valid runtime; no valid initial bundle
+or a changed retained index rejects appraisal. Publication details remain in JSON.
+Use --publication-store to select a different store. Explicit --database selects the
+legacy/test-index workflow; it is mutually exclusive with --publication-store.
+Publishing updates a running published worker at the next request boundary. Restart
+for Python changes or to migrate an existing legacy worker. A missing initial bundle
+requires the publication command above; there is no silent working-tree fallback.
+
+### Per-level weapon damage display
+
+The physical damage pair includes a verified native218 maximum-damage bonus at
+its recorded viewer level. The renderer preserves original rows and the separate
+per-level modifier line. Invalid, unknown or duplicate formula evidence is not
+added. Dread Edge's saved capture now matches its22–91 tooltip instead of22–46.
+This is a display calculation; comparison facts and market coefficients do not change.

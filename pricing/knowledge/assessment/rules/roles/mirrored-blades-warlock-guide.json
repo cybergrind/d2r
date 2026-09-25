@@ -1,0 +1,316 @@
+{
+  "profiles": [
+    {
+      "id": "mirrored-blades-warlock-guide-naj-teleport-swap",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport-charge weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Naj's Puzzler"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6cs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon-Swap/3"
+      },
+      "equipment": {
+        "requirements": {
+          "level": 78,
+          "strength": 44,
+          "dexterity": 37
+        },
+        "applies_if": {
+          "all": [
+            {
+              "op": "fact_eq",
+              "field": "sockets",
+              "value": 0
+            },
+            {
+              "op": "fact_eq",
+              "field": "ethereal",
+              "value": false
+            },
+            {
+              "op": "fact_eq",
+              "field": "socket_contents",
+              "value": "empty"
+            },
+            {
+              "op": "fact_eq",
+              "field": "base_code",
+              "value": "6cs"
+            }
+          ]
+        }
+      },
+      "depends_on": [
+        {
+          "label": "At least one level 11 Teleport charge is available; recharge when empty.",
+          "when": {
+            "op": "stat_at_least",
+            "key": "204:3467",
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "204:3467"
+      ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-starter-travel-staff",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "locator": "/mirrored-blades-warlock-guide/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "mirrored-starter-rhyme-grimoire-base",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Two-socket Rhyme Grimoire preparation",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "wa5"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:392",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:389",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:377",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "107:392",
+        "107:389",
+        "107:377"
+      ],
+      "conditions": [
+        "Insert Shael then Eth to make Rhyme; this empty base is not yet the completed offhand."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/mirrored-blades-warlock-guide.json",
+        "locator": "/variants/0/player/Off-Hand",
+        "sha256": "45fbf99861e59e0a5657821f9da816f52003e2a81322f614ec3bea9df534157b",
+        "source_date": "June 6, 2026"
+      },
+      "review_notes": "2026-09-24: source explicitly names Rhyme Grimoire with +1 Mirrored Blades, +1 Hex Purge, +1 Summon Defiler. Native skill IDs verified against local metadata; Hex Purge389 is distinct from explosion404. Empty preparation and completed two-socket recipe are separate roles. No price inferred."
+    },
+    {
+      "id": "mirrored-starter-rhyme-grimoire",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Rhyme Grimoire / starter skills",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "grim"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "wa5"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:392",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:389",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:377",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Rhyme"
+          }
+        ]
+      },
+      "preferences": [],
+      "important_stats": [
+        "107:392",
+        "107:389",
+        "107:377"
+      ],
+      "conditions": [
+        "Check equipment requirements and the rest of the Mirrored Blades starter setup."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/mirrored-blades-warlock-guide.json",
+        "locator": "/variants/0/player/Off-Hand",
+        "sha256": "45fbf99861e59e0a5657821f9da816f52003e2a81322f614ec3bea9df534157b",
+        "source_date": "June 6, 2026"
+      },
+      "review_notes": "2026-09-24: source explicitly names Rhyme Grimoire with +1 Mirrored Blades, +1 Hex Purge, +1 Summon Defiler. Native skill IDs verified against local metadata; Hex Purge389 is distinct from explosion404. Empty preparation and completed two-socket recipe are separate roles. No price inferred.",
+      "names": [
+        "Rhyme"
+      ]
+    }
+  ]
+}

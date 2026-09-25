@@ -7,6 +7,7 @@ must point to the selected parent unit exactly and survive a second read.
 import struct
 from typing import Any
 
+from inventory_tracking.native.resource_probe import read_item_arrays
 from inventory_tracking.native.units import describe_item, unit_matches
 
 
@@ -44,7 +45,14 @@ def read_socket_items(read, parent, candidates):
         position = unit['details'].get('x')
         if type(position) is not int or not 0 <= position < 6:
             raise ValueError('Socket position outside bound')
-        children.append({'unit': unit, 'position': position, 'item_data_hex': field(unit['data_pointer'], 0x60).hex()})
+        child: dict[str, Any] = {
+            'unit': unit,
+            'position': position,
+            'item_data_hex': field(unit['data_pointer'], 0x60).hex(),
+        }
+        if unit.get('stats_pointer'):
+            child['stat_arrays'] = read_item_arrays(field, unit['stats_pointer'])
+        children.append(child)
     positions = [c['position'] for c in children]
     if len(positions) != len(set(positions)):
         raise ValueError('Duplicate socket position')

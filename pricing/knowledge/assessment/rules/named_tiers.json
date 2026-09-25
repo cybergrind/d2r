@@ -1,0 +1,5150 @@
+{
+  "schema_version": 1,
+  "policies": [
+    {
+      "name": "War Traveler",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 30
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "80:0",
+                  "value": 51
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 50
+          },
+          "tier": "high",
+          "reason": "Perfect magic-find roll"
+        },
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 45
+          },
+          "tier": "med",
+          "reason": "45\u201349 magic find"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-war-traveler",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative ask-segment interpretation of cached roll notes; not a sale-price estimate."
+    },
+    {
+      "name": "Titan's Revenge",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "17:0",
+            "value": 150
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "17:0",
+              "value": 201
+            }
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "17:0",
+                "value": 190
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Ethereal and at least 190% enhanced damage: premium asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-titan-s-revenge",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative ask-segment interpretation of cached roll notes; not a sale-price estimate."
+    },
+    {
+      "name": "Raven Frost",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 15
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "2:0",
+                  "value": 21
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "19:0",
+                "value": 150
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "19:0",
+                  "value": 251
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 20
+              },
+              {
+                "op": "stat_at_least",
+                "key": "19:0",
+                "value": 250
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect dexterity and attack rating"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-raven-frost",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative ask-segment interpretation of cached roll notes; not a sale-price estimate."
+    },
+    {
+      "name": "Sandstorm Trek",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "0:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "3:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "3:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 15
+              },
+              {
+                "op": "stat_at_least",
+                "key": "3:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect strength and vitality: premium asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-sandstorm-trek",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative ask-segment interpretation of cached roll notes; not a sale-price estimate."
+    },
+    {
+      "name": "Skin of the Vipermagi",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 36
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "41:0",
+                  "value": 36
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "43:0",
+                  "value": 36
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "45:0",
+                  "value": 36
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 35
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 35
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 35
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 35
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect resistance roll"
+        },
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 30
+              }
+            ]
+          },
+          "tier": "med",
+          "reason": "At least 30 all resistances"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-skin-of-the-vipermagi",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative ask-segment interpretation of cached roll notes; not a sale-price estimate."
+    },
+    {
+      "name": "Arachnid Mesh",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 90
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 121
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 110
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "At least 110% enhanced defense"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-arachnid-mesh",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "120 ED (perfect) \u2192 Lo\u2013Ber asks (min 5.9, med 9.3 Ist, 19 sellers); 110\u2013119 ED \u2192 Vex\u2013Ohm; <110 ED \u2192 Ist\u2013Vex. d2io fills: Ohm, 4\u00d7 Vex, 2 Ist, Ist (mixed L/NL) \u2014 expect ~Vex unless perfect."
+    },
+    {
+      "name": "Bul-Kathos' Wedding Band",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 3
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "60:0",
+                  "value": 6
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 5
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "5% life stolen per hit"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-bul-kathos-wedding-band",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "5% LL \u2192 2 Ist\u2013Ohm (30 sellers, med 4); 3\u20134% LL \u2192 Mal\u2013Ist. d2io fills: Ist \u00d74, Gul \u00d72, Vex, SoJ, Um."
+    },
+    {
+      "name": "Chance Guards",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 25
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "80:0",
+                  "value": 41
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 40
+              }
+            ]
+          },
+          "tier": "med",
+          "reason": "Perfect magic find"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-chance-guards",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "40 MF \u2192 Ist\u20132 Ist; 35\u201339 \u2192 Um; <35 \u2192 Lem/pgems. d2io fills: Pul, Lo (perf), 15 pruby, 20 pgems."
+    },
+    {
+      "name": "Death's Fathom",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "331:0",
+                "value": 15
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "331:0",
+                  "value": 31
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "331:0",
+                "value": 25
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "At least 25% cold skill damage"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-death-s-fathom",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim. 2026-09-25: Complete linked jewel payloads may recover intrinsic scalar rolls before tier evaluation. Every tier-dependent roll is adjusted, including Nightwing dexterity. Tier excludes jewel value; numerical comparisons retain the socketed item.",
+      "segment_notes": "30 cold \u2192 Sur\u20133 Jah (21 sellers); 25\u201329 \u2192 Ohm\u2013Lo; <25 \u2192 Um\u2013Ist. d2io asks '22 % BIN 3 Ist or Ohm'; fills 2 Ist, Um, Vex \u00d72, Mal, Lo, Gul.",
+      "intrinsic_socket_stats": [
+        "331:0"
+      ]
+    },
+    {
+      "name": "Dracul's Grasp",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 7
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "60:0",
+                  "value": 11
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "0:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 10
+              },
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect life steal and strength"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-dracul-s-grasp",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "10 LL & 15 str \u2192 Sur\u2013Jah (9 sellers); other \u2192 Ist\u2013Ohm."
+    },
+    {
+      "name": "Gore Rider",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 160
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 201
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 200
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect enhanced defense"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-gore-rider",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "200 ED \u2192 Ohm\u2013Lo (19 sellers); <200 \u2192 Um\u2013Ist."
+    },
+    {
+      "name": "Herald of Zakarum",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 150
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 201
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 170
+              }
+            ]
+          },
+          "tier": "med",
+          "reason": "At least 170% enhanced defense"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-herald-of-zakarum",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "ED \u2265190 \u2192 2 Ist\u2013Vex realistic (22 sellers; walls above); 170\u2013189 \u2192 Ist; <170 \u2192 Pul\u2013Mal. d2io asks '186 Ist / 195 Vex or 3 Ist / 154 10 pgems'; fills Ist \u00d72, 5 pgems, 4\u20138 pamy, Um, Lem."
+    },
+    {
+      "name": "Nightwing's Veil",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "331:0",
+                "value": 8
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "331:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "2:0",
+                  "value": 21
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "331:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect cold skill damage; 20 dexterity adds a further premium"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-nightwing-s-veil",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim. 2026-09-25: Complete linked jewel payloads may recover intrinsic scalar rolls before tier evaluation. Every tier-dependent roll is adjusted, including Nightwing dexterity. Tier excludes jewel value; numerical comparisons retain the socketed item.",
+      "segment_notes": "15 cold & 20 dex \u2192 2 HR (10 sellers); 15 cold, dex<20 \u2192 Sur\u2013Cham; <15 cold \u2192 Lem\u2013Ist.",
+      "intrinsic_socket_stats": [
+        "331:0",
+        "2:0"
+      ]
+    },
+    {
+      "name": "Shadow Dancer",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 15
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "2:0",
+                  "value": 26
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 25
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect dexterity; compare Shadow skill roll separately"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-shadow-dancer",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "25 dex \u2192 Ohm\u2013Lo (11 sellers); <25 \u2192 Mal."
+    },
+    {
+      "name": "Verdungo's Hearty Cord",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "3:0",
+                "value": 30
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "3:0",
+                  "value": 41
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "36:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "36:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "3:0",
+                "value": 38
+              },
+              {
+                "op": "stat_at_least",
+                "key": "36:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "At least 38 vitality with 15% damage reduction"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-verdungo-s-hearty-cord",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "Vit \u226538 & PDR 15 \u2192 Lo\u2013Ber (9 sellers); vit 35\u201337 \u2192 Lem\u2013Ist; vit <35 \u2192 pgems\u2013Um."
+    },
+    {
+      "name": "Waterwalk",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "7:0",
+                "value": 45
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "7:0",
+                  "value": 66
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "7:0",
+                "value": 65
+              }
+            ]
+          },
+          "tier": "med",
+          "reason": "Perfect life roll"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-waterwalk",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "65 life \u2192 Mal\u2013Ist; <65 \u2192 pgems\u2013Um (30 sellers)."
+    },
+    {
+      "name": "Windforce",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "62:0",
+                "value": 6
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "62:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "62:0",
+                "value": 8
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect mana steal"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-windforce",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "8 ML \u2192 Lo\u2013Ber (5 sellers); <8 \u2192 Um\u2013Ist."
+    },
+    {
+      "name": "Wisp Projector",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "80:0",
+                  "value": 21
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "144:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "144:0",
+                  "value": 21
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 20
+              },
+              {
+                "op": "stat_at_least",
+                "key": "144:0",
+                "value": 20
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect magic find and lightning absorb"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-wisp-projector",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "20 MF & 20 absorb \u2192 Jah+ (14 sellers); other \u2192 Mal\u2013Ist."
+    },
+    {
+      "name": "Guillaume's Face",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-guillaume-s-face",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "Ral\u2013Ist (28 sellers, med 1)."
+    },
+    {
+      "name": "Tal Rasha's Adjudication",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-tal-rasha-s-adjudication",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "Lem+Ko\u2013Mal (35 sellers, med 0.8)."
+    },
+    {
+      "name": "Highlord's Wrath",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-highlord-s-wrath",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "Ist (27 sellers, med 1). d2io fills: Gul, Ist, 2 Um, Pul, 2 Ist \u00d72."
+    },
+    {
+      "name": "The Stone of Jordan",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-the-stone-of-jordan",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, non-ethereal original base; high includes source High/HR, med maps Mid, low maps Low. No numeric price or sale claim.",
+      "segment_notes": "Fixed stats: 2 Ist\u2013Vex (28 sellers, med Vex). d2io asks: 'SoJ for 2 Ist / Vex, 2 SoJ = Ohm, 5 SoJ = Ber'."
+    },
+    {
+      "name": "Aldur's Advance",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-aldur-s-advance",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "Ko\u2013Mal (8 sellers)."
+    },
+    {
+      "name": "Bane's Authority",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-bane-s-authority",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Lem (8 sellers)."
+    },
+    {
+      "name": "Bane's Oathmaker",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-bane-s-oathmaker",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pamy\u2013Hel (7 sellers)."
+    },
+    {
+      "name": "Bane's Wraithskin",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-bane-s-wraithskin",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "gems\u2013Ist (3 sellers)."
+    },
+    {
+      "name": "Horazon's Countenance",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-horazon-s-countenance",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Lem (6 sellers)."
+    },
+    {
+      "name": "Horazon's Dominion",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-horazon-s-dominion",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Um (6 sellers)."
+    },
+    {
+      "name": "Horazon's Hold",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-horazon-s-hold",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Pul (5 sellers)."
+    },
+    {
+      "name": "Horazon's Legacy",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-horazon-s-legacy",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Ist (10 sellers)."
+    },
+    {
+      "name": "Horazon's Secrets",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-horazon-s-secrets",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "Lem\u2013Pul (12 sellers)."
+    },
+    {
+      "name": "Immortal King's Detail",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-detail",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "1 pamy (9 sellers)."
+    },
+    {
+      "name": "Immortal King's Forge",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-forge",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "1 pamy (11 sellers)."
+    },
+    {
+      "name": "Immortal King's Pillar",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-pillar",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "1 pamy\u2013Um (16 sellers)."
+    },
+    {
+      "name": "Immortal King's Soul Cage",
+      "quality": "set",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-soul-cage",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "2 pamy\u2013Pul (20 sellers). d2io fills: 5 Hel, 3 Sol, 10 pgems, Um, 10 Ral."
+    },
+    {
+      "name": "Immortal King's Will",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-will",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pamy\u2013Ist (5 sellers)."
+    },
+    {
+      "name": "Tal Rasha's Fine-Spun Cloth",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-tal-rasha-s-fine-spun-cloth",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pamy\u2013Um (20 sellers)."
+    },
+    {
+      "name": "Tal Rasha's Horadric Crest",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-tal-rasha-s-horadric-crest",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pamy\u2013Ist (9 sellers)."
+    },
+    {
+      "name": "Tal Rasha's Lidless Eye",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-tal-rasha-s-lidless-eye",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pamy\u2013Mal (23 sellers)."
+    },
+    {
+      "name": "Trang-Oul's Claws",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-trang-oul-s-claws",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: baseline original-base empty-socket trade segment. Cached Floor maps to trash trade tier (not vendor advice); Floor\u2013Low and Low map to low. Set completion and leveling assessed independently. No priced roll-specific premium in this source.",
+      "segment_notes": "pgem\u2013Pul (25 sellers, med 0.8). d2io fills: 3 Ral, Ko \u00d72, Pul, Fal, 3 pamy."
+    },
+    {
+      "name": "Andariel's Visage",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 25
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "0:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 8
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "60:0",
+                  "value": 11
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "60:0",
+                "value": 10
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Ethereal, 30 strength and 10% life steal: top asking segment"
+        },
+        {
+          "when": {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          "tier": "high",
+          "reason": "Ethereal mercenary asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-andariel-s-visage",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, High/HR\u2192high and Mid\u2192med. Original base, empty sockets; ethereal only where explicitly covered. Not a numeric price or sale estimate.",
+      "segment_notes": "Eth 30 str & 10 LL \u2192 2\u20133 Jah (6 sellers); eth other \u2192 Jah/Ber; non-eth \u2192 Um\u2013Ist (Mal typical). d2io fills: Mal \u00d73, 20 pgems, 15 pgems, Ist, Um, Jah (perf eth)."
+    },
+    {
+      "name": "Griffon's Eye",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "334:0",
+                "value": 15
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "334:0",
+                  "value": 21
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "330:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "330:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "334:0",
+                "value": 20
+              },
+              {
+                "op": "stat_at_least",
+                "key": "330:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect lightning pierce and skill damage: top asking segment"
+        },
+        {
+          "when": {
+            "any": [
+              {
+                "op": "stat_at_least",
+                "key": "334:0",
+                "value": 20
+              },
+              {
+                "op": "stat_at_least",
+                "key": "330:0",
+                "value": 15
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "One perfect lightning roll: premium asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-griffon-s-eye",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, High/HR\u2192high and Mid\u2192med. Original base, empty sockets; ethereal only where explicitly covered. Not a numeric price or sale estimate. 2026-09-25: Complete linked jewel payloads may recover intrinsic scalar rolls before tier evaluation. Every tier-dependent roll is adjusted, including Nightwing dexterity. Tier excludes jewel value; numerical comparisons retain the socketed item.",
+      "segment_notes": "-20 & +15 (perfect) \u2192 Jah+Lo \u2026 (min 17, 6 sellers behind 48 listings); one stat perfect \u2192 Lo\u2013Ber; both below max \u2192 Vex. d2io asks '-18/+14 LF Vex or 2 Ist', '+15/-19 LF HR', '13/17 BIN Sur'; fills 3 Ist, Ist, Jah, 2 Mal, Cham, Ber, 4 Ist, 2 Ist.",
+      "intrinsic_socket_stats": [
+        "330:0",
+        "334:0"
+      ]
+    },
+    {
+      "name": "Mara's Kaleidoscope",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "41:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "43:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "45:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 30
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect all resistances"
+        },
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 27
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 27
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 27
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 27
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "27\u201329 all resistances; cached asks dominated by one seller"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-mara-s-kaleidoscope",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, High/HR\u2192high and Mid\u2192med. Original base, empty sockets; ethereal only where explicitly covered. Not a numeric price or sale estimate.",
+      "segment_notes": "30 res \u2192 Lo\u2013Ber (min 5.9, med 9.3, 7 sellers); 27\u201329 \u2192 Vex\u2013Ohm (one seller's wall of 46 listings); <27 \u2192 2 Ist. d2io fills: Sur \u00d72 (perf), Ohm, Vex, Ist, Gul, Pul."
+    },
+    {
+      "name": "Death's Web",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "336:0",
+                "value": 40
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "336:0",
+                  "value": 51
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "188:17",
+                "value": 1
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "188:17",
+                  "value": 3
+                }
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "336:0",
+                "value": 50
+              },
+              {
+                "op": "stat_at_least",
+                "key": "188:17",
+                "value": 2
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Perfect poison pierce and +2 Poison and Bone Skills"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-death-s-web",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, High/HR\u2192high and Mid\u2192med. Original base, empty sockets; ethereal only where explicitly covered. Not a numeric price or sale estimate.",
+      "segment_notes": "-50 & +2 P&B \u2192 Jah\u20133 Jah (17 sellers); other \u2192 Ist\u2013Ohm."
+    },
+    {
+      "name": "Crown of Ages",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "41:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "43:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "45:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "36:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "36:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 2
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 2
+              },
+              {
+                "op": "stat_at_least",
+                "key": "36:0",
+                "value": 15
+              },
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 30
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 30
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "2 sockets, 30 all resistances and 15% damage reduction: top asking segment"
+        },
+        {
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          "tier": "high",
+          "reason": "2 sockets: higher asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-crown-of-ages",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached ask segments, High/HR\u2192high and Mid\u2192med. Original base, empty sockets; ethereal only where explicitly covered. Not a numeric price or sale estimate.",
+      "segment_notes": "2 sockets & 30 res (& 15 PDR) \u2192 3\u20138 Jah asks (14 sellers); 2os with <30 res \u2192 Vex\u2013Ohm; 1 socket \u2192 Ist\u2013Ohm. d2io fills: Pul, Vex, Gul, 3 Ist, Um, 2 Ist, 3 Jah (mixed)."
+    },
+    {
+      "name": "Ars Dul'Mephistos",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ars-dul-mephistos",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Ber\u2013Jah+Ber (7 sellers)."
+    },
+    {
+      "name": "Ars Tor'Baalos",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ars-tor-baalos",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Mal\u2013Lo, med Ber (15 sellers)."
+    },
+    {
+      "name": "Blade of Ali Baba",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-blade-of-ali-baba",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Hel\u2013Ist (15 sellers)."
+    },
+    {
+      "name": "Defender's Fire",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-defender-s-fire",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Ist+Mal\u2013Ohm at the bottom, med ~69 (9 sellers, 10 of 26 'offer')."
+    },
+    {
+      "name": "Dreadfang",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-dreadfang",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Pul\u2013Um (7 sellers)."
+    },
+    {
+      "name": "Dwarf Star",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-dwarf-star",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "pgems\u2013Mal (13 sellers)."
+    },
+    {
+      "name": "Entropy Locket",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-entropy-locket",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Ist\u2013Ohm, med Lo (11 sellers)."
+    },
+    {
+      "name": "Gheed's Wager",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-gheed-s-wager",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Ohm\u2013Lo, med ~22 (8 sellers)."
+    },
+    {
+      "name": "Goldwrap",
+      "quality": "unique",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-goldwrap",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "pamy\u2013Pul (9 sellers)."
+    },
+    {
+      "name": "Guardian's Thunder",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-guardian-s-thunder",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Vex\u2013Ohm at the bottom, med ~10 (8 sellers, 13 offer). Nova Sorc (S) lists 'Griffon's Eye (Guardian's Thunder)'."
+    },
+    {
+      "name": "Lidless Wall",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-lidless-wall",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "2 pamy\u2013Vex (14 sellers, med 2.6 skewed)."
+    },
+    {
+      "name": "Magefist",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-magefist",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Lem\u2013Mal (11 sellers)."
+    },
+    {
+      "name": "Nagelring",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-nagelring",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "pamy\u2013Mal (15 sellers); 30 MF is max."
+    },
+    {
+      "name": "Peasant Crown",
+      "quality": "unique",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-peasant-crown",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "2 pamy\u2013Um (10 sellers)."
+    },
+    {
+      "name": "Protector's Stone",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-protector-s-stone",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Vex\u2013Ohm (7 sellers, 10 offer)."
+    },
+    {
+      "name": "Silkweave",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-silkweave",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Lem\u2013Ist (12 sellers; a few HR asks are outliers)."
+    },
+    {
+      "name": "Suicide Branch",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-suicide-branch",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Lem\u2013Pul (8 sellers)."
+    },
+    {
+      "name": "Tarnhelm",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-tarnhelm",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "Lem\u2013Vex (11 sellers)."
+    },
+    {
+      "name": "The Oculus",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-the-oculus",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "pamy\u2013Um (21 sellers)."
+    },
+    {
+      "name": "Wizardspike",
+      "quality": "unique",
+      "default_tier": "trash",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-wizardspike",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed baseline cached ask tier. High/HR\u2192high, Low/Floor\u2013Low\u2192low, Floor\u2192trash trade tier (not vendor advice). Original non-ethereal base, empty sockets. No roll-specific premium or numeric price inferred; leveling/use remains independent.",
+      "segment_notes": "pgem\u2013Lem (18 sellers, med 0.2 Ist)."
+    },
+    {
+      "name": "Harlequin Crest",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "31:0",
+                "value": 98
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "31:0",
+                  "value": 142
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "31:0",
+            "value": 130
+          },
+          "tier": "med",
+          "reason": "130\u2013141 defense: upper asking segment within the med tier"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-harlequin-crest",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: scoped cached asking segments; original non-ethereal empty-socket base. Defense segment does not invent a higher broad tier or numeric price.",
+      "segment_notes": "Any roll \u2265 Um; def 130\u2013141 \u2192 Ist\u2013Vex asks; <130 \u2192 Um\u2013Ist. d2io asks 'def 98 Pul / 115 Um / 125 Mal / 139 Ist'; fills: Ist \u00d74, Mal, Pul \u00d72, 12 pamy, 20 pgems."
+    },
+    {
+      "name": "Gheed's Fortune",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "80:0",
+                  "value": 41
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 38
+          },
+          "tier": "high",
+          "reason": "At least 38% magic find: higher cached asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-gheed-s-fortune",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: scoped cached asking segments; original non-ethereal empty-socket base. Magic-find segment only; gold/find-vendor discount collector combinations unpriced.",
+      "segment_notes": "MF \u226538 \u2192 Vex\u2013Ber asks (min 2.6, 10 sellers, skewed); MF 30\u201337 \u2192 Mal\u2013Vex; MF <30 \u2192 Mal. d2io fills: 20 pgems, Ist, Mal, 10 pgems \u2192 ~Mal\u2013Ist for a normal roll."
+    },
+    {
+      "name": "Ravenlore",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "333:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "333:0",
+                  "value": 21
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "333:0",
+            "value": 20
+          },
+          "tier": "high",
+          "reason": "20% native fire pierce: premium asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ravenlore",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: scoped cached asking segments; original non-ethereal empty-socket base. Native definition maximum20; cached values21\u201325 are not accepted as intrinsic rolls. 2026-09-25: Complete linked jewel captures may recover intrinsic native333 by subtracting their additive fire pierce. This tier describes the named item roll, excluding jewel value; it does not price the socketed combination.",
+      "segment_notes": "-20\u2026-24 \u2192 Jah\u20132 Jah (7 sellers); -25 \u2192 7 Jah (1 seller); < -20 \u2192 Lem\u2013Mal.",
+      "intrinsic_socket_stats": [
+        "333:0"
+      ]
+    },
+    {
+      "name": "Eschuta's Temper",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "83:1",
+                "value": 3
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "83:1",
+                  "value": 4
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "330:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "330:0",
+                  "value": 21
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-eschuta-s-temper",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: scoped cached asking segments; original non-ethereal empty-socket base. Only reviewed +3 Sorceress skills /20% lightning damage premium. Other skills/element variants remain pending, not automatically low.",
+      "segment_notes": "+3 skills & \u226520 light dmg \u2192 Lo\u2013Ber (14 sellers); +3 with <20 \u2192 Pul\u2013Mal."
+    },
+    {
+      "name": "Sling",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "358:0",
+                "value": 3
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "358:0",
+                  "value": 6
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "358:0",
+            "value": 5
+          },
+          "tier": "high",
+          "reason": "5% native magic pierce: premium cached asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-sling",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached asking tier for original non-ethereal empty-socket base; native roll bounds checked. Qualitative trade tier, not an exact price; build usefulness is assessed separately.",
+      "segment_notes": "-5 magic res \u2192 3\u20134 Jah (4 sellers); -4 \u2192 Ber; -3 \u2192 Lo (47 listings from 6 sellers)."
+    },
+    {
+      "name": "Opalvein",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 6
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 6
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "41:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 6
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "43:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 6
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "45:0",
+                  "value": 9
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-opalvein",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached asking tier for original non-ethereal empty-socket base; native roll bounds checked. Qualitative trade tier, not an exact price; build usefulness is assessed separately. Research mentions enhanced damage without a corresponding compiled native property; no damage premium is inferred.",
+      "segment_notes": "Jah\u20132 Jah (12 sellers; 8 res slightly higher)."
+    },
+    {
+      "name": "Measured Wrath",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 130
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 181
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-measured-wrath",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached asking tier for original non-ethereal empty-socket base; native roll bounds checked. Qualitative trade tier, not an exact price; build usefulness is assessed separately.",
+      "segment_notes": "Ist\u2013Gul (9 sellers)."
+    },
+    {
+      "name": "Trang-Oul's Girth",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "9:0",
+                "value": 25
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "9:0",
+                  "value": 51
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-trang-oul-s-girth",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached asking tier for original non-ethereal empty-socket base; native roll bounds checked. Qualitative trade tier, not an exact price; build usefulness is assessed separately.",
+      "segment_notes": "pamy\u2013Mal (24 sellers)."
+    },
+    {
+      "name": "Thundergod's Vigor",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 160
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 201
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-thundergod-s-vigor",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed cached asking tier for original non-ethereal empty-socket base; native roll bounds checked. Qualitative trade tier, not an exact price; build usefulness is assessed separately.",
+      "segment_notes": "Hel\u2013Ist (29 sellers, med 0.8)."
+    },
+    {
+      "name": "Wraithstep",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "188:56",
+                    "value": 1
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:56",
+                      "value": 2
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:57",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:58",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "188:57",
+                    "value": 1
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:57",
+                      "value": 2
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:56",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:58",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "188:58",
+                    "value": 1
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:58",
+                      "value": 2
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:56",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "188:57",
+                      "value": 1,
+                      "absent_is_zero": true
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:56",
+            "value": 1
+          },
+          "tier": "high",
+          "reason": "+1 Demon Skills: reviewed Demon asking segment"
+        },
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:57",
+            "value": 1
+          },
+          "tier": "high",
+          "reason": "+1 Eldritch Skills: reviewed Eldritch asking segment"
+        },
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "188:58",
+            "value": 1
+          },
+          "tier": "high",
+          "reason": "+1 Chaos Skills: reviewed Chaos asking segment"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-wraithstep",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: all three cached Warlock tree segments support high tier. Original nonethereal base only. Native skilltab-war selects one +1 tree; require a complete inventory to exclude multiple-tree or incomplete captures. Tree-specific asking segments remain distinct without treating a minimum ask as a numeric estimate.",
+      "segment_notes": "+1 Chaos \u2192 Ohm\u2013Lo (8 sellers); +1 Eldritch \u2192 Ohm\u2013Jah (4); +1 Demon \u2192 Vex\u2013Ohm (7)."
+    },
+    {
+      "name": "Stormshield",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-stormshield",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: cached scoped asking evidence supports low broad trade tier; build utility remains independent. Original nonethereal base and empty contents only. Character-level defense is not a reviewed premium segment; no numeric defense price multiplier.",
+      "segment_notes": "pgems\u2013Ist (38 sellers, med 1). d2io fills: 12 pgems, 10 pgems, 3 pamy, 5 pgems, 10 pamy, 2 Ist (perf)."
+    },
+    {
+      "name": "Immortal King's Stone Crusher",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 35
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "136:0",
+              "value": 41
+            }
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 40
+          },
+          "tier": "low",
+          "reason": "40% Crushing Blow: desired perfect roll; cached asking evidence still supports low broad tier"
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-immortal-king-s-stone-crusher",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: cached scoped asking evidence supports low broad trade tier; build utility remains independent. Original nonethereal base and empty contents only. The older guide favors40CB, but scoped asks include37/38 as well; do not invent a higher price tier or treat those rolls as worthless.",
+      "segment_notes": "pamy\u2013Um (11 sellers)."
+    },
+    {
+      "name": "Tal Rasha's Guardianship",
+      "quality": "set",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 88
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "80:0",
+              "value": 89
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-tal-rasha-s-guardianship",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: conservative med baseline for cached low-to-mid asking cohort; qualitative category, not a numeric price. Original nonethereal base and empty contents only. No supported roll-specific price multiplier; native bonus bounds guard against augmented or unresolved captures. Leveling/build usefulness is separate.",
+      "segment_notes": "Um\u2013Ist (15 sellers; pamy asks at the bottom). d2io fills: 10 pgems, Lem, Gul, Token, Key, Pul, Um, Lo, Mal."
+    },
+    {
+      "name": "Bloodpact Shard",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 20
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "80:0",
+              "value": 36
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-bloodpact-shard",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: conservative med baseline for cached low-to-mid asking cohort; qualitative category, not a numeric price. Original nonethereal base and empty contents only. No supported roll-specific price multiplier; native bonus bounds guard against augmented or unresolved captures. Leveling/build usefulness is separate.",
+      "segment_notes": "pamy\u2013Ist, med Ist (19 sellers)."
+    },
+    {
+      "name": "Ondal's Wisdom",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "127:0",
+            "value": 2
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "127:0",
+              "value": 5
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ondal-s-wisdom",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: conservative med baseline for cached low-to-mid asking cohort; qualitative category, not a numeric price. Original nonethereal base and empty contents only. No supported roll-specific price multiplier; native bonus bounds guard against augmented or unresolved captures. Leveling/build usefulness is separate.",
+      "segment_notes": "Pul\u2013Vex (14 sellers)."
+    },
+    {
+      "name": "Skullder's Ire",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "16:0",
+            "value": 160
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "16:0",
+              "value": 201
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-skullder-s-ire",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: conservative med baseline for cached low-to-mid asking cohort; qualitative category, not a numeric price. Original nonethereal base and empty contents only. No supported roll-specific price multiplier; native bonus bounds guard against augmented or unresolved captures. Leveling/build usefulness is separate.",
+      "segment_notes": "Pul\u2013Ist regardless of ED (15 sellers, med 1 Ist); eth pieces for mercs not separately priced."
+    },
+    {
+      "name": "Metalgrid",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "31:0",
+            "value": 300
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "31:0",
+              "value": 351
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 400
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "19:0",
+              "value": 451
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 25
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "39:0",
+              "value": 36
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 25
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "41:0",
+              "value": 36
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 25
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "43:0",
+              "value": 36
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 25
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "45:0",
+              "value": 36
+            }
+          },
+          {
+            "not": {
+              "all": [
+                {
+                  "op": "stat_at_least",
+                  "key": "19:0",
+                  "value": 450
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 35
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "41:0",
+                  "value": 35
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "43:0",
+                  "value": 35
+                },
+                {
+                  "op": "stat_at_least",
+                  "key": "45:0",
+                  "value": 35
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-metalgrid",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed conservative medium baseline from scoped Mid\u2013High asking cohort (8 priced sellers). Native roll bounds verified against local definitions; no exact price inferred. Only the other cohort is supported: the joint450AR/35allres bucket has no priced sellers and remains pending.",
+      "segment_notes": "Ist\u2013Lo (8 priced of 19, 6 'offer')."
+    },
+    {
+      "name": "Guardian's Light",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "357:0",
+            "value": 5
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "357:0",
+              "value": 11
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "358:0",
+            "value": 5
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "358:0",
+              "value": 11
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "85:0",
+            "value": 3
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "85:0",
+              "value": 6
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 15
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "80:0",
+              "value": 36
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 25
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "79:0",
+              "value": 51
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-guardian-s-light",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed conservative medium baseline from scoped Mid\u2013High asking cohort (8 priced sellers). Native roll bounds verified against local definitions; no exact price inferred. Unsegmented cohort; no supported perfect-roll premium. All five variable roll ranges are required.",
+      "segment_notes": "Mal\u2013Ohm (8 sellers, 17 offer)."
+    },
+    {
+      "name": "Naj's Puzzler",
+      "quality": "set",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/ST-naj-s-puzzler",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: low qualitative trade tier from cached low-tier review and two low asks; documented teleport-charge swap demand across 13 builds remains useful. Two sellers are insufficient for a numeric price; no inference of low demand from listing scarcity."
+    },
+    {
+      "name": "Ormus' Robes",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "329:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "329:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "330:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "330:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "331:0",
+                "value": 10
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "331:0",
+                  "value": 16
+                }
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "107:48",
+                    "value": 3
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "107:48",
+                      "value": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "107:49",
+                    "value": 3
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "107:49",
+                      "value": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "107:52",
+                    "value": 3
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "107:52",
+                      "value": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "107:56",
+                    "value": 3
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "107:56",
+                      "value": 4
+                    }
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "107:59",
+                    "value": 3
+                  },
+                  {
+                    "not": {
+                      "op": "stat_at_least",
+                      "key": "107:59",
+                      "value": 4
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ormus-robes",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: medium qualitative tier for +3 Nova, Lightning, Enchant, Meteor or Blizzard, supported by the cached medium skill-dependent review and corresponding build demand. Requires one captured native skill and elemental rolls 10-15 per local definition. Research prose says 10-20; incompatible captures remain pending rather than extending native ranges. Other skills and perfect-roll premiums are unreviewed; this is not a numeric price."
+    },
+    {
+      "name": "Annihilus",
+      "quality": "unique",
+      "default_tier": "low",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "0:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "1:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "1:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "2:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "3:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "3:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "39:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "41:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "43:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "45:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "85:0",
+            "value": 5
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "85:0",
+              "value": 11
+            }
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "0:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "1:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "2:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "3:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 19
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 19
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "19\u201320 attributes and resistances; perfect experience adds a further premium within this tier."
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "locator": "/CH-anni-19plus",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: reviewed WP-H September18 Annihilus roll buckets. High requires both attribute and resistance groups at19+; remaining valid rolls low trade tier, still useful +1 all skills. Perfect20/20/10 has a further premium but stays high. Historical bucket asks/fills are context only, not exact scoped numeric estimates. Require nonethereal, no sockets and captured roll ranges."
+    },
+    {
+      "name": "Hellfire Torch",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "0:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "0:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "1:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "1:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "2:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "3:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "3:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "39:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "39:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "41:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "43:0",
+              "value": 21
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "45:0",
+            "value": 10
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "45:0",
+              "value": 21
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "op": "stat_at_least",
+                    "key": "0:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "1:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "2:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "3:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "39:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "41:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "43:0",
+                    "value": 20
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "45:0",
+                    "value": 20
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "any": [
+                      {
+                        "op": "stat_at_least",
+                        "key": "83:0",
+                        "value": 3
+                      },
+                      {
+                        "op": "stat_at_least",
+                        "key": "83:1",
+                        "value": 3
+                      },
+                      {
+                        "op": "stat_at_least",
+                        "key": "83:5",
+                        "value": 3
+                      },
+                      {
+                        "op": "stat_at_least",
+                        "key": "83:6",
+                        "value": 3
+                      },
+                      {
+                        "op": "stat_at_least",
+                        "key": "83:7",
+                        "value": 3
+                      }
+                    ]
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "0:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "1:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "2:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "3:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "39:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "41:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "43:0",
+                    "value": 18
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "45:0",
+                    "value": 18
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "locator": "/CH-torch-sorceress-18plus",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: WP-H class-specific research supports premium20/20 Torches for seven classes and18+/18+ Warlock/Sorceress/Amazon/Druid/Assassin. Warlock20/20 high is a qualitative inference from its premium18+ cohort and strictly improved rolls, not an observed perfect price. Other class/roll combinations remain pending due thin/conflicting evidence. Random class must be exactly one valid+3 bonus. No historical ask bucket is emitted as numeric estimate."
+    },
+    {
+      "name": "Guardian Angel",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xlt"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "16:0",
+            "value": 200
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "16:0",
+              "value": 201
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/appraisal-named-tier-research.json",
+        "locator": "/guardian-angel-ethereal-perfect",
+        "sha256": "7cc5e0df02b0245668b00bd6b1a3ffe42683c86dbc86df135a72973394d2854b",
+        "date": "2026-09-20"
+      },
+      "review": "2026-09-24: explicit SC/NL/PC/RotW original-base ethereal200ED listings from two independent sellers support qualitative premium. Listing-update date is not fetch date. Unknown socket state prevents numeric matching; no exact quote or sold-price claim. Other variants remain pending."
+    },
+    {
+      "name": "Shaftstop",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uhn"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "16:0",
+            "value": 220
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "16:0",
+              "value": 221
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/appraisal-named-tier-research.json",
+        "locator": "/shaftstop-ethereal-upgraded-perfect",
+        "sha256": "7cc5e0df02b0245668b00bd6b1a3ffe42683c86dbc86df135a72973394d2854b",
+        "date": "2026-09-24"
+      },
+      "review": "2026-09-24: three independently priced explicit ethereal Elite220ED scoped listings. Qualitative high tier only; defense and sockets separate exact price cohorts. Verified captured unique table identity plus ascending native base chain required for upgraded base. Other variants remain unreviewed."
+    },
+    {
+      "name": "Crown of Thieves",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 100
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "79:0",
+              "value": 101
+            }
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 12
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "60:0",
+              "value": 13
+            }
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "16:0",
+              "value": 201
+            }
+          },
+          {
+            "any": [
+              {
+                "all": [
+                  {
+                    "op": "fact_eq",
+                    "field": "base_code",
+                    "value": "xrn"
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "16:0",
+                    "value": 198
+                  }
+                ]
+              },
+              {
+                "all": [
+                  {
+                    "op": "fact_eq",
+                    "field": "base_code",
+                    "value": "urn"
+                  },
+                  {
+                    "op": "stat_at_least",
+                    "key": "16:0",
+                    "value": 200
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/appraisal-named-tier-research.json",
+        "locator": "/crown-thieves-ethereal-gold-leech",
+        "sha256": "7cc5e0df02b0245668b00bd6b1a3ffe42683c86dbc86df135a72973394d2854b",
+        "date": "2026-09-24"
+      },
+      "review": "2026-09-24: two independent explicit SC/NL/PC/RotW ethereal100gold/12lifeleech asks, Grand Crown198ED and Corona200ED. Original198\u2013200ED qualitative band includes stronger-roll inference; upgraded branch requires200ED and verified unique table ID. Unknown sockets and distinct bases prohibit an exact numeric quote from these observations. Lower rolls and nonethereal remain pending."
+    },
+    {
+      "name": "Hellwarden's Will",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xsk"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "333:0",
+                "value": 5
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "333:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "358:0",
+                "value": 5
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "358:0",
+                  "value": 9
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 150
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 216
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [
+        {
+          "when": {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "333:0",
+                "value": 8
+              },
+              {
+                "op": "stat_at_least",
+                "key": "358:0",
+                "value": 8
+              }
+            ]
+          },
+          "tier": "high",
+          "reason": "Both enemy fire and magic resistance reductions rolled 8%."
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-hellwarden-s-will",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: qualitative high/med segmentation from cached WP-I resistance-roll buckets; historical asks are not exact current prices. Restrict to original nonethereal unfilled Death Mask; ethereal/upgraded/socket contributions require separate review."
+    },
+    {
+      "name": "Ars Al'Diabolos",
+      "quality": "unique",
+      "default_tier": "high",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "waf"
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "16:0",
+                "value": 170
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "16:0",
+                  "value": 201
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "329:0",
+                "value": 15
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "329:0",
+                  "value": 26
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "138:0",
+                "value": 5
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "138:0",
+                  "value": 11
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 20
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "39:0",
+                  "value": 31
+                }
+              }
+            ]
+          },
+          {
+            "all": [
+              {
+                "op": "stat_at_least",
+                "key": "107:401",
+                "value": 3
+              },
+              {
+                "not": {
+                  "op": "stat_at_least",
+                  "key": "107:401",
+                  "value": 6
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/wp-i-uniques-misc.json",
+        "locator": "/UQ-ars-al-diabolos",
+        "sha256": "dab2e6421b83a2a9823472d1882f13cedd964b73dadfb11feadb50b111cac1bb",
+        "date": "2026-09-18"
+      },
+      "review": "2026-09-24: high qualitative keep/trade priority from WP-I HR research with 18 independent priced sellers and nonethereal examples at varied rolls. No per-roll premium or current numeric quote inferred from the historical mixed-roll bucket. Restrict to valid nonethereal empty-socket original base."
+    },
+    {
+      "name": "Duriel's Shell",
+      "quality": "unique",
+      "default_tier": "med",
+      "valid_if": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xrs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "16:0",
+            "value": 183
+          },
+          {
+            "not": {
+              "op": "stat_at_least",
+              "key": "16:0",
+              "value": 198
+            }
+          }
+        ]
+      },
+      "overrides": [],
+      "source": {
+        "path": "pricing/data/appraisal-named-tier-research.json",
+        "locator": "/duriel-ethereal-original-nonperfect",
+        "sha256": "7cc5e0df02b0245668b00bd6b1a3ffe42683c86dbc86df135a72973394d2854b",
+        "date": "2026-09-24"
+      },
+      "review": "2026-09-25: four independent explicit SC/NL/PC/RotW asks for original ethereal183\u2013197ED Cuirass. Medium qualitative central asking segment, including a lower190ED ask; not a price guarantee or roll multiplier. Unknown listing sockets block exact numerical comparison. Limit assessment to observed roll span and empty contents; other variants pending."
+    }
+  ]
+}

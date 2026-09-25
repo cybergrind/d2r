@@ -14,7 +14,7 @@ def test_captured_rare_ring_uses_rare_eligible_tiers():
     annotate_roll_ranges(decoded, context)
     texts = [r['text'] for r in decoded]
     assert '+5 (1-90) to Mana [T6; T1: 61-90]' in texts
-    assert 'Fire Resist +28% (5-50%) [T2; T1: 31-50%]' in texts
+    assert 'Fire Resist +28% (5-30%) [T1; T1: 21-30%]' in texts
     assert not any('/' in s.split('[T')[-1] for s in texts if '[T' in s)
 
 

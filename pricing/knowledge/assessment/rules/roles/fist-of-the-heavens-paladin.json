@@ -1,0 +1,309 @@
+{
+  "profiles": [
+    {
+      "id": "foh-tribrid-circlet",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Tri-Brid",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "+2 class skills / 20 FCR circlet setup candidate",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "83:3",
+            "value": 2,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "105:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "2 sockets",
+          "when": {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        },
+        {
+          "label": "20 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "83:3",
+        "105:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Compare socket fillers, resistance needs and the complete setup before replacing the cited helmet."
+      ],
+      "alternatives": [
+        "Rare Diadem 'Hailstone Brow' +2 Paladin Skills / 20% FCR / 20 Dex / 20 All Res / 25% MF, socketed Cham Rune + Guardian's Light Colossal Jewel"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json",
+        "locator": "/variants/3/player/Helmet",
+        "sha256": "80d6121308a4ecde3afbb673c146b659cbafe829169ceec26336b83384f421ca",
+        "review": "2026-09-24: +2 matching class / 20 FCR defines this cited rare-circlet setup; secondary planner rolls and two sockets are preferences. Other rolls or qualities may have other uses; not a price threshold."
+      }
+    },
+    {
+      "id": "foh-starter-belt",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "FoH Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "100 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 100
+          }
+        },
+        {
+          "label": "30% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "80d6121308a4ecde3afbb673c146b659cbafe829169ceec26336b83384f421ca",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Belt 100 Life / 30 Cold Res"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "holybolt-starter-belt",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Holy Bolt Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Starter survival belt",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "100 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 100
+          }
+        },
+        {
+          "label": "30% Cold Resist",
+          "when": {
+            "op": "stat_at_least",
+            "key": "43:0",
+            "value": 30
+          }
+        }
+      ],
+      "important_stats": [
+        "6:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Candidate stat combination only: compare the cited roll targets with remaining resistance and recovery needs; verify equip requirements and belt potion capacity."
+      ],
+      "alternatives": [],
+      "source": {
+        "path": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json",
+        "locator": "/variants/1/player/Belt/0",
+        "sha256": "80d6121308a4ecde3afbb673c146b659cbafe829169ceec26336b83384f421ca",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Belt 100 Life / 30 Cold Res"
+        ],
+        "review": "2026-09-24: reviewed cited magic/rare belt combination; all named stat categories required, listed values are planner targets rather than invented universal minimums. Candidate use remains conditional and does not set trade price."
+      }
+    },
+    {
+      "id": "fist-of-the-heavens-paladin-foh-starter-travel-staff",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "FoH Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "locator": "/fist-of-the-heavens-paladin/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "fist-of-the-heavens-paladin-holy-bolt-starter-travel-staff",
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "Holy Bolt Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "locator": "/fist-of-the-heavens-paladin/variants/1/player/Weapon-Swap/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    }
+  ]
+}

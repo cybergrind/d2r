@@ -14,6 +14,8 @@ class StatId(IntEnum):
     DURABILITY = 72
     MAX_DURABILITY = 73
     CLASS_SKILLS = 83
+    ELEMENTAL_SKILLS = 126
+    MAGIC_MASTERY = 357
     SINGLE_SKILL = 97
     CLASS_SINGLE_SKILL = 107
     FLEE = 112
@@ -22,6 +24,7 @@ class StatId(IntEnum):
     SOCKETS = 194
     CHARGES = 204
     SELF_REPAIR = 252
+    REPLENISH_QUANTITY = 253
 
 
 TOTAL_LABELS = {
@@ -57,6 +60,16 @@ SKILL_TABS = (
     ('Combat Skills', 'Masteries', 'Warcries'),
     ('Summoning Skills', 'Shape Shifting Skills', 'Elemental Skills'),
     ('Traps', 'Shadow Disciplines', 'Martial Arts'),
+    # RotW skilldesc SkillPage 1/2/3; layer57 observed on Dread Edge.
+    ('Demon Skills', 'Eldritch Skills', 'Chaos Skills'),
 )
 
 FLEE_SCALE = 128  # properties.json howl: percentage divided by 128.
+
+# d2data itemstatcost/properties/uniqueitems: sunder properties use func1=1,
+# a native magnitude of 300, and a text-only tooltip (not a boolean flag).
+SUNDER_STATS = frozenset({187, 189, 190, 191, 192, 193})
+SUNDER_MAGNITUDE = 300
+
+# D2MOO D2Combat.h D2C_ElementTypes; D2Skills.cpp indexes elemskill by nEType.
+SKILL_ELEMENTS = {1: 'Fire', 2: 'Lightning', 3: 'Magic', 4: 'Cold', 5: 'Poison'}

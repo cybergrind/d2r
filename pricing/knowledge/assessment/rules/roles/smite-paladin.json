@@ -1,0 +1,397 @@
+{
+  "profiles": [
+    {
+      "id": "smite-shared-treachery",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "shared mercenary armor and player Fade prebuff",
+      "review_status": "reviewed_setup",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Act 2 Might mercenary",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        }
+      ],
+      "ethereal_preference": {
+        "preference": "avoid",
+        "reason": "Shared with the player to proc Fade; the cited Smite setup explicitly requires non-ethereal Treachery."
+      },
+      "conditions": [
+        "Confirm the player can equip this armor to proc Fade."
+      ],
+      "alternatives": [
+        "Treachery Mage Plate (Shael Thul Lem) \u2014 'Be sure to make the Mercenary's Treachery in a non Ethereal base'"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/smite-paladin.json",
+        "locator": "/variants/1/merc/Body Armor",
+        "sha256": "895f7a32ea3177c2a4689abeee00cb4480c86e9fbf4ca186f119906f2a7c5c6a",
+        "review": "2026-09-24: non-ethereal requirement applies to shared Fade-prebuff armor in this setup; not every mercenary Treachery."
+      }
+    },
+    {
+      "id": "smite-high-investment-gloves",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack speed / Crushing Blow gloves",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "93:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "10 crushing blow",
+          "when": {
+            "op": "stat_at_least",
+            "key": "136:0",
+            "value": 10,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "3 life steal",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "3 mana steal",
+          "when": {
+            "op": "stat_at_least",
+            "key": "62:0",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "15 dexterity",
+          "when": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 15,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "20 life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 20,
+            "absent_is_zero": true
+          }
+        },
+        {
+          "label": "30 lightning resistance",
+          "when": {
+            "op": "stat_at_least",
+            "key": "41:0",
+            "value": 30,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "93:0",
+        "136:0",
+        "60:0",
+        "62:0",
+        "2:0",
+        "7:0",
+        "41:0"
+      ],
+      "conditions": [
+        "Compare attack-speed breakpoints, resistance needs and remaining equipment with the cited setup."
+      ],
+      "alternatives": [
+        "Blood Crafted Gloves (planner: crafted Vampirebone Gloves \u2014 20 IAS, 3% ML, 3% LL, 10% CB, 15 Dex, 20 Life, 30 LR)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/smite-paladin.json",
+        "locator": "/variants/2/player/Gloves",
+        "sha256": "895f7a32ea3177c2a4689abeee00cb4480c86e9fbf4ca186f119906f2a7c5c6a",
+        "review": "2026-09-24: source-specific magic/rare/crafted stat combination; secondary roll maxima are preferences. Crafted mechanism inferred from captured stats, not an asserted crafting recipe identity; no numeric pricing from guide mention."
+      }
+    },
+    {
+      "id": "smite-starter-crafted-belt",
+      "build": "smite-paladin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Blood belt Open Wounds and survival",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "crafted"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "135:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "preferences": [
+        {
+          "label": "24% Faster Hit Recovery",
+          "when": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 24
+          }
+        },
+        {
+          "label": "3% Life Leech",
+          "when": {
+            "op": "stat_at_least",
+            "key": "60:0",
+            "value": 3
+          }
+        },
+        {
+          "label": "10% Open Wounds",
+          "when": {
+            "op": "stat_at_least",
+            "key": "135:0",
+            "value": 10
+          }
+        },
+        {
+          "label": "20 Life",
+          "when": {
+            "op": "stat_at_least",
+            "key": "6:0",
+            "value": 20
+          }
+        }
+      ],
+      "important_stats": [
+        "99:0",
+        "60:0",
+        "135:0",
+        "6:0"
+      ],
+      "conditions": [
+        "Candidate combination: compare the cited roll targets with remaining defenses, equip requirements and potion capacity.",
+        "The cited Ubers setup requires Life Tap for sustain, Cannot Be Frozen, Crushing Blow and enough resistance for Uber Mephisto; belt Life Leech does not establish Life Tap sustain."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/smite-paladin.json",
+        "locator": "/variants/0/player/Belt/0",
+        "sha256": "895f7a32ea3177c2a4689abeee00cb4480c86e9fbf4ca186f119906f2a7c5c6a",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Blood Crafted Belt (planner: crafted Mesh Belt 'of Stability' \u2014 24 FHR, 3% Life Leech, 10% Open Wounds, +20 Life)"
+        ],
+        "review": "2026-09-24: reviewed crafted belt role; cited stat categories required, planner values retained as targets. Unspecified resistance mix requires at least one resistance and remains conditional on loadout. No market-price inference or recipe/base equivalence claim."
+      }
+    },
+    {
+      "id": "smite-paladin-starter-charges-82",
+      "build": "smite-paladin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Life Tap charged-skill utility",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Life Tap charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 82,
+            "value": 1
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping this charged-skill utility item.",
+        "The Uber setup also requires Crushing Blow, Open Wounds, Cannot Be Frozen and sufficient resistances."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "locator": "/smite-paladin/variants/0/player/Weapon-Swap/0"
+      },
+      "review_notes": "The guide specifies a magic item; a rare item with the same captured charge skill is an equivalent utility candidate. The local charged suffix permits rare items."
+    },
+    {
+      "id": "smite-paladin-standard-travel-staff",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Other",
+      "role": "Teleport travel staff",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "staf"
+      ],
+      "qualities": [
+        "magic",
+        "rare"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Teleport charges are available; recharge when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        },
+        {
+          "label": "The staff is an alternative when Enigma is not equipped.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "player_items",
+              "value": "Enigma"
+            }
+          }
+        }
+      ],
+      "conditions": [
+        "Verify equipment requirements before equipping the staff; available charges do not establish that the wearer can equip it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "locator": "/smite-paladin/variants/1/player/Other/0"
+      },
+      "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    }
+  ]
+}
