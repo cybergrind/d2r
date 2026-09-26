@@ -1,0 +1,940 @@
+{
+  "sources": [
+    "third-parties/repos.json: d2data fc469993502d skills.json and skilldesc.json",
+    "pricing/data/wp-a-blues.json",
+    "pricing/data/wp-c-anya.json",
+    "guides/warlock.html"
+  ],
+  "skills": [
+    {
+      "id": 12,
+      "name": "Multiple Shot",
+      "class_id": 0,
+      "tab_layer": 0
+    },
+    {
+      "id": 14,
+      "name": "Power Strike",
+      "class_id": 0,
+      "tab_layer": 2
+    },
+    {
+      "id": 16,
+      "name": "Exploding Arrow",
+      "class_id": 0,
+      "tab_layer": 0
+    },
+    {
+      "id": 24,
+      "name": "Charged Strike",
+      "class_id": 0,
+      "tab_layer": 2
+    },
+    {
+      "id": 25,
+      "name": "Plague Javelin",
+      "class_id": 0,
+      "tab_layer": 2
+    },
+    {
+      "id": 26,
+      "name": "Strafe",
+      "class_id": 0,
+      "tab_layer": 0
+    },
+    {
+      "id": 27,
+      "name": "Immolation Arrow",
+      "class_id": 0,
+      "tab_layer": 0
+    },
+    {
+      "id": 31,
+      "name": "Freezing Arrow",
+      "class_id": 0,
+      "tab_layer": 0
+    },
+    {
+      "id": 32,
+      "name": "Valkyrie",
+      "class_id": 0,
+      "tab_layer": 1
+    },
+    {
+      "id": 34,
+      "name": "Lightning Strike",
+      "class_id": 0,
+      "tab_layer": 2
+    },
+    {
+      "id": 35,
+      "name": "Lightning Fury",
+      "class_id": 0,
+      "tab_layer": 2
+    },
+    {
+      "id": 37,
+      "name": "Warmth",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 40,
+      "name": "Frozen Armor",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 42,
+      "name": "Static Field",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 43,
+      "name": "Telekinesis",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 45,
+      "name": "Ice Blast",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 47,
+      "name": "Fire Ball",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 48,
+      "name": "Nova",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 49,
+      "name": "Lightning",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 50,
+      "name": "Shiver Armor",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 51,
+      "name": "Fire Wall",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 52,
+      "name": "Enchant",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 53,
+      "name": "Chain Lightning",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 54,
+      "name": "Teleport",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 55,
+      "name": "Glacial Spike",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 56,
+      "name": "Meteor",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 57,
+      "name": "Thunder Storm",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 58,
+      "name": "Energy Shield",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 59,
+      "name": "Blizzard",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 60,
+      "name": "Chilling Armor",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 61,
+      "name": "Fire Mastery",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 62,
+      "name": "Hydra",
+      "class_id": 1,
+      "tab_layer": 8
+    },
+    {
+      "id": 63,
+      "name": "Lightning Mastery",
+      "class_id": 1,
+      "tab_layer": 9
+    },
+    {
+      "id": 64,
+      "name": "Frozen Orb",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 65,
+      "name": "Cold Mastery",
+      "class_id": 1,
+      "tab_layer": 10
+    },
+    {
+      "id": 69,
+      "name": "Skeleton Mastery",
+      "class_id": 2,
+      "tab_layer": 18
+    },
+    {
+      "id": 70,
+      "name": "Raise Skeleton",
+      "class_id": 2,
+      "tab_layer": 18
+    },
+    {
+      "id": 74,
+      "name": "Corpse Explosion",
+      "class_id": 2,
+      "tab_layer": 17
+    },
+    {
+      "id": 79,
+      "name": "Golem Mastery",
+      "class_id": 2,
+      "tab_layer": 18
+    },
+    {
+      "id": 80,
+      "name": "Raise Skeletal Mage",
+      "class_id": 2,
+      "tab_layer": 18
+    },
+    {
+      "id": 82,
+      "name": "Life Tap",
+      "class_id": 2,
+      "tab_layer": 16
+    },
+    {
+      "id": 83,
+      "name": "Poison Explosion",
+      "class_id": 2,
+      "tab_layer": 17
+    },
+    {
+      "id": 84,
+      "name": "Bone Spear",
+      "class_id": 2,
+      "tab_layer": 17
+    },
+    {
+      "id": 87,
+      "name": "Decrepify",
+      "class_id": 2,
+      "tab_layer": 16
+    },
+    {
+      "id": 91,
+      "name": "Lower Resist",
+      "class_id": 2,
+      "tab_layer": 16
+    },
+    {
+      "id": 92,
+      "name": "Poison Nova",
+      "class_id": 2,
+      "tab_layer": 17
+    },
+    {
+      "id": 93,
+      "name": "Bone Spirit",
+      "class_id": 2,
+      "tab_layer": 17
+    },
+    {
+      "id": 95,
+      "name": "Revive",
+      "class_id": 2,
+      "tab_layer": 18
+    },
+    {
+      "id": 97,
+      "name": "Smite",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 101,
+      "name": "Holy Bolt",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 102,
+      "name": "Holy Fire",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 106,
+      "name": "Zeal",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 108,
+      "name": "Blessed Aim",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 112,
+      "name": "Blessed Hammer",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 113,
+      "name": "Concentration",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 117,
+      "name": "Holy Shield",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 118,
+      "name": "Holy Shock",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 121,
+      "name": "Fist of the Heavens",
+      "class_id": 3,
+      "tab_layer": 24
+    },
+    {
+      "id": 122,
+      "name": "Fanaticism",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 123,
+      "name": "Conviction",
+      "class_id": 3,
+      "tab_layer": 25
+    },
+    {
+      "id": 124,
+      "name": "Redemption",
+      "class_id": 3,
+      "tab_layer": 26
+    },
+    {
+      "id": 127,
+      "name": "Blade Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 128,
+      "name": "Axe Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 129,
+      "name": "Mace Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 130,
+      "name": "Howl",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 131,
+      "name": "Find Potion",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 133,
+      "name": "Double Swing",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 134,
+      "name": "Polearm Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 135,
+      "name": "Throwing Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 136,
+      "name": "Spear Mastery",
+      "class_id": 4,
+      "tab_layer": 33
+    },
+    {
+      "id": 138,
+      "name": "Shout",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 140,
+      "name": "Double Throw",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 142,
+      "name": "Find Item",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 143,
+      "name": "Leap Attack",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 144,
+      "name": "Concentrate",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 146,
+      "name": "Battle Cry",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 147,
+      "name": "Frenzy",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 149,
+      "name": "Battle Orders",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 151,
+      "name": "Whirlwind",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 152,
+      "name": "Berserk",
+      "class_id": 4,
+      "tab_layer": 32
+    },
+    {
+      "id": 154,
+      "name": "War Cry",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 155,
+      "name": "Battle Command",
+      "class_id": 4,
+      "tab_layer": 34
+    },
+    {
+      "id": 221,
+      "name": "Raven",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 222,
+      "name": "Poison Creeper",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 223,
+      "name": "Werewolf",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 224,
+      "name": "Lycanthropy",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 226,
+      "name": "Oak Sage",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 227,
+      "name": "Summon Spirit Wolf",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 228,
+      "name": "Werebear",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 233,
+      "name": "Maul",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 234,
+      "name": "Fissure",
+      "class_id": 5,
+      "tab_layer": 42
+    },
+    {
+      "id": 236,
+      "name": "Heart of Wolverine",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 237,
+      "name": "Summon Dire Wolf",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 238,
+      "name": "Rabies",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 239,
+      "name": "Fire Claws",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 244,
+      "name": "Volcano",
+      "class_id": 5,
+      "tab_layer": 42
+    },
+    {
+      "id": 245,
+      "name": "Tornado",
+      "class_id": 5,
+      "tab_layer": 42
+    },
+    {
+      "id": 247,
+      "name": "Summon Grizzly",
+      "class_id": 5,
+      "tab_layer": 40
+    },
+    {
+      "id": 248,
+      "name": "Fury",
+      "class_id": 5,
+      "tab_layer": 41
+    },
+    {
+      "id": 249,
+      "name": "Armageddon",
+      "class_id": 5,
+      "tab_layer": 42
+    },
+    {
+      "id": 250,
+      "name": "Hurricane",
+      "class_id": 5,
+      "tab_layer": 42
+    },
+    {
+      "id": 251,
+      "name": "Fire Blast",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 252,
+      "name": "Claw Mastery",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 254,
+      "name": "Tiger Strike",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 255,
+      "name": "Dragon Talon",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 258,
+      "name": "Burst of Speed",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 259,
+      "name": "Fists of Fire",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 262,
+      "name": "Wake of Fire",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 263,
+      "name": "Weapon Block",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 264,
+      "name": "Cloak of Shadows",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 265,
+      "name": "Cobra Strike",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 266,
+      "name": "Blade Fury",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 267,
+      "name": "Fade",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 269,
+      "name": "Claws of Thunder",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 270,
+      "name": "Dragon Tail",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 271,
+      "name": "Lightning Sentry",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 272,
+      "name": "Wake of Inferno",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 273,
+      "name": "Mind Blast",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 274,
+      "name": "Blades of Ice",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 275,
+      "name": "Dragon Flight",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 276,
+      "name": "Death Sentry",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 277,
+      "name": "Blade Shield",
+      "class_id": 6,
+      "tab_layer": 48
+    },
+    {
+      "id": 278,
+      "name": "Venom",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 279,
+      "name": "Shadow Master",
+      "class_id": 6,
+      "tab_layer": 49
+    },
+    {
+      "id": 280,
+      "name": "Phoenix Strike",
+      "class_id": 6,
+      "tab_layer": 50
+    },
+    {
+      "id": 373,
+      "name": "Summon Goatman",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 374,
+      "name": "Demonic Mastery",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 375,
+      "name": "Death Mark",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 376,
+      "name": "Summon Tainted",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 377,
+      "name": "Summon Defiler",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 378,
+      "name": "Blood Oath",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 379,
+      "name": "Engorge",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 380,
+      "name": "Blood Boil",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 381,
+      "name": "Consume",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 382,
+      "name": "Bind Demon",
+      "class_id": 7,
+      "tab_layer": 56
+    },
+    {
+      "id": 383,
+      "name": "Levitation Mastery",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 384,
+      "name": "Eldritch Blast",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 385,
+      "name": "Hex: Bane",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 386,
+      "name": "Hex: Siphon",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 387,
+      "name": "Psychic Ward",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 388,
+      "name": "Echoing Strike",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 389,
+      "name": "Hex: Purge",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 390,
+      "name": "Blade Warp",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 391,
+      "name": "Cleave",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 392,
+      "name": "Mirrored Blades",
+      "class_id": 7,
+      "tab_layer": 57
+    },
+    {
+      "id": 393,
+      "name": "Sigil: Lethargy",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 394,
+      "name": "Ring of Fire",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 395,
+      "name": "Miasma Bolt",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 396,
+      "name": "Sigil: Rancor",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 397,
+      "name": "Enhanced Entropy",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 398,
+      "name": "Flame Wave",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 399,
+      "name": "Miasma Chain",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 400,
+      "name": "Sigil: Death",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 401,
+      "name": "Apocalypse",
+      "class_id": 7,
+      "tab_layer": 58
+    },
+    {
+      "id": 402,
+      "name": "Abyss",
+      "class_id": 7,
+      "tab_layer": 58
+    }
+  ]
+}

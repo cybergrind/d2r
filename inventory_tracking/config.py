@@ -275,6 +275,8 @@ class AppraisalConfig(Config):
     cache_seconds: Positive = 300
     poll_interval: Positive = 0.2
     reconnect_delay: Positive = 2.0
+    shop_auto: bool = True  # watch loaded vendor stock and scan when its first gear item changes
+    shop_poll_interval: Positive = 1.0  # seconds between stock probes in town; 5x outside town
 
 
 APPRAISAL = AppraisalConfig()

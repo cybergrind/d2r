@@ -39,6 +39,11 @@ class AppraisalWorker:
         self.expires = 0.0
         self.capture_lock = threading.Lock()
 
+    def pending(self):
+        """An Alt+D request is still being retrieved or completed."""
+        future = self.future
+        return future is not None and not future.done()
+
     def request(self, requested_at, now):
         if not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1 or now - self.last_request < 0.35:
             return False

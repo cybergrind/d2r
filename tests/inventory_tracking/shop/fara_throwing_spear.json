@@ -1,0 +1,698 @@
+{
+  "owner_id": 3578465915,
+  "vendor": "Fara",
+  "row": {
+    "unit_id": 3896187527,
+    "txt_id": 51,
+    "mode": 0,
+    "details": {
+      "quality": 4,
+      "owner_id": 4294967295,
+      "inventory_page": 3,
+      "body_location": 0,
+      "x": 1,
+      "y": 3
+    },
+    "resource_stats": {
+      "complete": true,
+      "arrays": [
+        {
+          "header_offset": 48,
+          "stats": [
+            {
+              "layer": 0,
+              "id": 21,
+              "raw": 5
+            },
+            {
+              "layer": 0,
+              "id": 22,
+              "raw": 15
+            },
+            {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            {
+              "layer": 0,
+              "id": 70,
+              "raw": 143
+            },
+            {
+              "layer": 0,
+              "id": 72,
+              "raw": 6
+            },
+            {
+              "layer": 0,
+              "id": 73,
+              "raw": 6
+            },
+            {
+              "layer": 0,
+              "id": 159,
+              "raw": 12
+            },
+            {
+              "layer": 0,
+              "id": 160,
+              "raw": 30
+            }
+          ]
+        },
+        {
+          "header_offset": 168,
+          "stats": []
+        },
+        {
+          "header_offset": 232,
+          "stats": [
+            {
+              "layer": 0,
+              "id": 21,
+              "raw": 5
+            },
+            {
+              "layer": 0,
+              "id": 22,
+              "raw": 15
+            },
+            {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            {
+              "layer": 0,
+              "id": 70,
+              "raw": 143
+            },
+            {
+              "layer": 0,
+              "id": 72,
+              "raw": 6
+            },
+            {
+              "layer": 0,
+              "id": 73,
+              "raw": 6
+            },
+            {
+              "layer": 0,
+              "id": 159,
+              "raw": 12
+            },
+            {
+              "layer": 0,
+              "id": 160,
+              "raw": 30
+            },
+            {
+              "layer": 0,
+              "id": 254,
+              "raw": 23
+            }
+          ]
+        }
+      ],
+      "item_data_hex": "04000000010000009a020000ffffffff0000000000000000102080000000000000000000000000000000000000000000000000000000000001000000000000006500000000000000610500000000000000000000000300000000000000000000",
+      "stat_diagnostics": {
+        "validated": false,
+        "root_address": 1637758224,
+        "chains": [
+          {
+            "head_offset": 104,
+            "complete": true,
+            "lists": []
+          },
+          {
+            "head_offset": 144,
+            "complete": true,
+            "lists": []
+          },
+          {
+            "head_offset": 208,
+            "complete": true,
+            "lists": [
+              {
+                "address": 2785803648,
+                "header_hex": "a06ac0600000000004000000871a3be8ffffffffffffffffffffffff4000000000000000000000000000000000000000406c17f40000000001000000000000000100000000000000000000000000000000000000000000000000000000000000",
+                "stats": [
+                  {
+                    "layer": 0,
+                    "id": 254,
+                    "raw": 23
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "head_offset": 280,
+            "complete": true,
+            "lists": [
+              {
+                "address": 1637758528,
+                "header_hex": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "stats": []
+              }
+            ]
+          }
+        ],
+        "header_hex": "000000000000000004000000871a3be80000000000000000000000000000008000000000000000000000000000000000f0d5129b00000000080000000000000009000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000080fd0ba6000000000000000000000000a06ac0600000000060d6129b000000000900000000000000090000000000000000000000000000000000000000000000000000000000000040369e61000000000000000000000000100000000000008000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "stable": true
+      },
+      "socket_items": {
+        "complete": true,
+        "children": [],
+        "candidate_units": [
+          {
+            "address": 1623078688,
+            "type": 4,
+            "txt_id": 632,
+            "unit_id": 1271437824,
+            "mode": 6,
+            "data_pointer": 1436603632,
+            "path_pointer": 1436603856,
+            "stats_pointer": 751474512,
+            "inventory_pointer": 0,
+            "next_pointer": 1623078240,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623078240,
+            "type": 4,
+            "txt_id": 627,
+            "unit_id": 635710720,
+            "mode": 6,
+            "data_pointer": 1436603904,
+            "path_pointer": 1436604128,
+            "stats_pointer": 751471504,
+            "inventory_pointer": 0,
+            "next_pointer": 1623077792,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623077792,
+            "type": 4,
+            "txt_id": 631,
+            "unit_id": 317855360,
+            "mode": 6,
+            "data_pointer": 1436604176,
+            "path_pointer": 1436604400,
+            "stats_pointer": 751468496,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623169632,
+            "type": 4,
+            "txt_id": 631,
+            "unit_id": 1492036737,
+            "mode": 6,
+            "data_pointer": 1436864528,
+            "path_pointer": 1436864752,
+            "stats_pointer": 752085136,
+            "inventory_pointer": 0,
+            "next_pointer": 1623200096,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623170080,
+            "type": 4,
+            "txt_id": 627,
+            "unit_id": 2984089858,
+            "mode": 6,
+            "data_pointer": 1436864256,
+            "path_pointer": 1436864480,
+            "stats_pointer": 752088144,
+            "inventory_pointer": 0,
+            "next_pointer": 1623200544,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623200992,
+            "type": 4,
+            "txt_id": 632,
+            "unit_id": 2870612996,
+            "mode": 6,
+            "data_pointer": 1436612384,
+            "path_pointer": 1436612608,
+            "stats_pointer": 752295696,
+            "inventory_pointer": 0,
+            "next_pointer": 1623120352,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623170528,
+            "type": 4,
+            "txt_id": 632,
+            "unit_id": 1136341509,
+            "mode": 6,
+            "data_pointer": 1436863984,
+            "path_pointer": 1436864208,
+            "stats_pointer": 752094160,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623201888,
+            "type": 4,
+            "txt_id": 637,
+            "unit_id": 1983129609,
+            "mode": 6,
+            "data_pointer": 1436612112,
+            "path_pointer": 1436612336,
+            "stats_pointer": 752298704,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623202336,
+            "type": 4,
+            "txt_id": 639,
+            "unit_id": 3966275602,
+            "mode": 6,
+            "data_pointer": 1436611840,
+            "path_pointer": 1436612064,
+            "stats_pointer": 752301712,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623178144,
+            "type": 4,
+            "txt_id": 633,
+            "unit_id": 3603434133,
+            "mode": 6,
+            "data_pointer": 1436627808,
+            "path_pointer": 1443245312,
+            "stats_pointer": 1637370192,
+            "inventory_pointer": 0,
+            "next_pointer": 1623190240,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623171424,
+            "type": 4,
+            "txt_id": 652,
+            "unit_id": 787318805,
+            "mode": 6,
+            "data_pointer": 1436863264,
+            "path_pointer": 1436863488,
+            "stats_pointer": 752100176,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 3,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623196064,
+            "type": 4,
+            "txt_id": 634,
+            "unit_id": 2424648098,
+            "mode": 6,
+            "data_pointer": 1436616080,
+            "path_pointer": 1436616304,
+            "stats_pointer": 752262608,
+            "inventory_pointer": 0,
+            "next_pointer": 1623093920,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623172768,
+            "type": 4,
+            "txt_id": 625,
+            "unit_id": 1466728617,
+            "mode": 6,
+            "data_pointer": 1436862448,
+            "path_pointer": 1436862672,
+            "stats_pointer": 752106192,
+            "inventory_pointer": 0,
+            "next_pointer": 1623111840,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623171872,
+            "type": 4,
+            "txt_id": 638,
+            "unit_id": 1574637610,
+            "mode": 6,
+            "data_pointer": 1436862992,
+            "path_pointer": 1436863216,
+            "stats_pointer": 752103184,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623175904,
+            "type": 4,
+            "txt_id": 634,
+            "unit_id": 2375030059,
+            "mode": 6,
+            "data_pointer": 1436738160,
+            "path_pointer": 1444429440,
+            "stats_pointer": 1637382224,
+            "inventory_pointer": 0,
+            "next_pointer": 1623190688,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623169184,
+            "type": 4,
+            "txt_id": 636,
+            "unit_id": 3161929280,
+            "mode": 6,
+            "data_pointer": 1436864800,
+            "path_pointer": 1436865024,
+            "stats_pointer": 752082128,
+            "inventory_pointer": 0,
+            "next_pointer": 1623199200,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 3,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623077344,
+            "type": 4,
+            "txt_id": 636,
+            "unit_id": 158927680,
+            "mode": 6,
+            "data_pointer": 1436604448,
+            "path_pointer": 1436604672,
+            "stats_pointer": 751465488,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 3,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623196512,
+            "type": 4,
+            "txt_id": 631,
+            "unit_id": 17474373,
+            "mode": 6,
+            "data_pointer": 1436615808,
+            "path_pointer": 1436616032,
+            "stats_pointer": 752265616,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623177696,
+            "type": 4,
+            "txt_id": 635,
+            "unit_id": 4217636170,
+            "mode": 6,
+            "data_pointer": 1442601712,
+            "path_pointer": 1443245360,
+            "stats_pointer": 1637394256,
+            "inventory_pointer": 0,
+            "next_pointer": 1623147232,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 3,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623195616,
+            "type": 4,
+            "txt_id": 633,
+            "unit_id": 1212324049,
+            "mode": 6,
+            "data_pointer": 1436616352,
+            "path_pointer": 1436616576,
+            "stats_pointer": 752259600,
+            "inventory_pointer": 0,
+            "next_pointer": 0,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 2,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623172320,
+            "type": 4,
+            "txt_id": 636,
+            "unit_id": 3149275220,
+            "mode": 6,
+            "data_pointer": 1436862720,
+            "path_pointer": 1436862944,
+            "stats_pointer": 752091152,
+            "inventory_pointer": 0,
+            "next_pointer": 1623111392,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 1,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623176352,
+            "type": 4,
+            "txt_id": 631,
+            "unit_id": 991963735,
+            "mode": 6,
+            "data_pointer": 1446421760,
+            "path_pointer": 1444429392,
+            "stats_pointer": 1637466448,
+            "inventory_pointer": 0,
+            "next_pointer": 1623252960,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623192032,
+            "type": 4,
+            "txt_id": 646,
+            "unit_id": 3412599128,
+            "mode": 6,
+            "data_pointer": 1436619408,
+            "path_pointer": 1436619632,
+            "stats_pointer": 752232528,
+            "inventory_pointer": 0,
+            "next_pointer": 1623149472,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1623195168,
+            "type": 4,
+            "txt_id": 635,
+            "unit_id": 3022072936,
+            "mode": 6,
+            "data_pointer": 1436616624,
+            "path_pointer": 1436616848,
+            "stats_pointer": 752256592,
+            "inventory_pointer": 0,
+            "next_pointer": 1623185312,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 255,
+              "body_location": 0,
+              "x": 3,
+              "y": 0
+            },
+            "identity_stable": true
+          }
+        ],
+        "source": {
+          "item_extra_offset": 160,
+          "parent_unit_offset": 8
+        }
+      }
+    }
+  },
+  "owner_unit": {
+    "address": 1623300896,
+    "type": 1,
+    "txt_id": 178,
+    "unit_id": 3578465915,
+    "mode": 1,
+    "data_pointer": 1548449984,
+    "path_pointer": 2843293488,
+    "stats_pointer": 1637493520,
+    "inventory_pointer": 1436822416,
+    "next_pointer": 0,
+    "details": {
+      "not_mercenary": true
+    },
+    "identity_stable": true
+  }
+}
