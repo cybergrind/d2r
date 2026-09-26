@@ -44,7 +44,7 @@ class LiveReader:
             return self.state
 
     def set_state(self, state):
-        state = replace(state, events=self.automation.events)
+        state = replace(state, events=self.automation.events, outcomes=self.automation.outcomes)
         with self.lock:
             self.state = state
         if self.observer is not None:

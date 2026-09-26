@@ -43,7 +43,13 @@ class PendingReservation(Record):
 class ActorRecord(Record):
     session: SessionIdentity
     pending: PendingReservation | None = None
+    # Permanent for this session: an input error left key state unknown.
     suspended: bool = False
+    # Unconsumed potions in a row; each one defers the next attempt to retry_at, enough of them pause until
+    # suspended_until. Both clear on their own.
+    misses: Annotated[int, Field(ge=0)] = 0
+    retry_at: Timestamp | None = None
+    suspended_until: Timestamp | None = None
 
 
 class LastDelivery(Record):

@@ -34,6 +34,12 @@ class HealingConfig(Config):
     cooldowns: Mapping[PotionType, Positive]
     sample_max_age: Positive
     consumption_timeout: Positive
+    # An unconsumed potion is retried after retry_backoff, doubling per consecutive miss up to retry_backoff_max;
+    # max_consecutive_misses in a row pause the actor for suspend_seconds, after which it resumes on its own.
+    retry_backoff: Positive
+    retry_backoff_max: Positive
+    max_consecutive_misses: Annotated[int, Field(gt=0)]
+    suspend_seconds: Positive
 
     @field_validator('thresholds', 'cooldowns', mode='after')
     @classmethod
@@ -52,6 +58,8 @@ class HealingConfig(Config):
     def _rejuvenation_below_healing(self) -> Self:
         if self.thresholds[PotionType.REJUVENATION] > self.thresholds[PotionType.HEALING]:
             raise ValueError('Rejuvenation threshold must not exceed healing threshold')
+        if self.retry_backoff > self.retry_backoff_max:
+            raise ValueError('retry_backoff must not exceed retry_backoff_max')
         return self
 
 
@@ -62,14 +70,24 @@ PLAYER_HEALING = HealingConfig(
     cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 1.0},
     sample_max_age=1.0,
     consumption_timeout=2.0,
+    retry_backoff=2.0,
+    retry_backoff_max=30.0,
+    max_consecutive_misses=8,
+    suspend_seconds=120.0,
 )
+# Healing potions restore this merc slowly (about +13% over 8 s measured 2026-09-26); rejuvenations are instant,
+# so they take over well before the merc is in danger.
 MERC_HEALING = HealingConfig(
     actor=Actor.MERC,
     enabled=True,
-    thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 50},
+    thresholds={PotionType.HEALING: 75, PotionType.REJUVENATION: 65},
     cooldowns={PotionType.HEALING: 3.0, PotionType.REJUVENATION: 0.5},
     sample_max_age=1.0,
     consumption_timeout=2.0,
+    retry_backoff=2.0,
+    retry_backoff_max=30.0,
+    max_consecutive_misses=8,
+    suspend_seconds=120.0,
 )
 
 

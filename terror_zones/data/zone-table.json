@@ -1,0 +1,609 @@
+{
+  "model": "unvalidated article approximation; fresh fully populated group, zero base chance",
+  "source": "article-zones.json",
+  "tier5_chance_meaning": "at least one Tier 5 Herald in a full clear when Tier 5 is already the next tier",
+  "acts": {
+    "1": [
+      {
+        "group": "Cow Level",
+        "monsters": 501,
+        "tier1_chance": 0.9950360381151876,
+        "tier1_expected_kills": 350.7119939216894,
+        "tier5_chance": 0.9986844111452563,
+        "tier5_expected_kills": 209.21513656942082
+      },
+      {
+        "group": "Inner Cloister, Cathedral and Catacombs",
+        "monsters": 374,
+        "tier1_chance": 0.9808519855426507,
+        "tier1_expected_kills": 272.51807890865945,
+        "tier5_chance": 0.992908964333645,
+        "tier5_expected_kills": 173.27447090699854
+      },
+      {
+        "group": "Tamoe Highland and Outer Cloister",
+        "monsters": 278,
+        "tier1_chance": 0.9468741449957638,
+        "tier1_expected_kills": 211.53773421994276,
+        "tier5_chance": 0.9746648760714481,
+        "tier5_expected_kills": 143.4771718661539
+      },
+      {
+        "group": "Tower Cellar levels",
+        "monsters": 260,
+        "tier1_chance": 0.9356704020042266,
+        "tier1_expected_kills": 199.82015055451959,
+        "tier5_chance": 0.9678328381556578,
+        "tier5_expected_kills": 137.5021768517977
+      },
+      {
+        "group": "Underground Passage levels",
+        "monsters": 255,
+        "tier1_chance": 0.9321601238756116,
+        "tier1_expected_kills": 196.54298059323392,
+        "tier5_chance": 0.9656272329659324,
+        "tier5_expected_kills": 135.8137652376357
+      },
+      {
+        "group": "Jail levels",
+        "monsters": 252,
+        "tier1_chance": 0.9299587699481222,
+        "tier1_expected_kills": 194.57557422309105,
+        "tier5_chance": 0.9642318738101192,
+        "tier5_expected_kills": 134.79454711948512
+      },
+      {
+        "group": "Dark Wood",
+        "monsters": 233,
+        "tier1_chance": 0.9142846631447498,
+        "tier1_expected_kills": 182.01049852934136,
+        "tier5_chance": 0.9539799843196209,
+        "tier5_expected_kills": 128.22019970095548
+      },
+      {
+        "group": "Stony Field and Tristram",
+        "monsters": 229,
+        "tier1_chance": 0.9105602575705025,
+        "tier1_expected_kills": 179.34608748610606,
+        "tier5_chance": 0.9514722388700226,
+        "tier5_expected_kills": 126.80820599377206
+      },
+      {
+        "group": "Pit levels",
+        "monsters": 223,
+        "tier1_chance": 0.9046699520517345,
+        "tier1_expected_kills": 175.3340670410931,
+        "tier5_chance": 0.9474524594307142,
+        "tier5_expected_kills": 124.66938572358322
+      },
+      {
+        "group": "Cold Plains",
+        "monsters": 209,
+        "tier1_chance": 0.8893774030263651,
+        "tier1_expected_kills": 165.8998409666688,
+        "tier5_chance": 0.9367294797771983,
+        "tier5_expected_kills": 119.57937045357009
+      },
+      {
+        "group": "Burial Grounds, Crypt and Mausoleum",
+        "monsters": 203,
+        "tier1_chance": 0.8820929129701331,
+        "tier1_expected_kills": 161.82480309877215,
+        "tier5_chance": 0.931488606508192,
+        "tier5_expected_kills": 117.3507096876114
+      },
+      {
+        "group": "Black Marsh",
+        "monsters": 199,
+        "tier1_chance": 0.8769715456454711,
+        "tier1_expected_kills": 159.09680662762125,
+        "tier5_chance": 0.9277554542207006,
+        "tier5_expected_kills": 115.84852194731192
+      },
+      {
+        "group": "Cave levels",
+        "monsters": 181,
+        "tier1_chance": 0.8510228955370578,
+        "tier1_expected_kills": 146.69989401689844,
+        "tier5_chance": 0.9082734791823894,
+        "tier5_expected_kills": 108.90708858065265
+      },
+      {
+        "group": "Hole levels",
+        "monsters": 178,
+        "tier1_chance": 0.8462021238930513,
+        "tier1_expected_kills": 144.61019248578566,
+        "tier5_chance": 0.9045496402154029,
+        "tier5_expected_kills": 107.71906959263852
+      },
+      {
+        "group": "Blood Moor",
+        "monsters": 113,
+        "tier1_chance": 0.6930810014726073,
+        "tier1_expected_kills": 97.48580277746133,
+        "tier5_chance": 0.7739465775596092,
+        "tier5_expected_kills": 78.97831282342653
+      },
+      {
+        "group": "Barracks",
+        "monsters": 102,
+        "tier1_chance": 0.6549862207437951,
+        "tier1_expected_kills": 89.06124248566746,
+        "tier5_chance": 0.7384353282962789,
+        "tier5_expected_kills": 73.36042681588602
+      },
+      {
+        "group": "Den of Evil",
+        "monsters": 67,
+        "tier1_chance": 0.49952175352526273,
+        "tier1_expected_kills": 61.037667524347945,
+        "tier5_chance": 0.5838995303116321,
+        "tier5_expected_kills": 53.29933710805236
+      }
+    ],
+    "2": [
+      {
+        "group": "Arcane Sanctuary",
+        "monsters": 469,
+        "tier1_chance": 0.9930247179316662,
+        "tier1_expected_kills": 331.19723001360325,
+        "tier5_chance": 0.9979887872889502,
+        "tier5_expected_kills": 200.43726262665425
+      },
+      {
+        "group": "Real Tal Rasha's Tomb",
+        "monsters": 390,
+        "tier1_chance": 0.9838466109135634,
+        "tier1_expected_kills": 282.4937736492152,
+        "tier5_chance": 0.9942648986399623,
+        "tier5_expected_kills": 177.98207012946222
+      },
+      {
+        "group": "Halls of the Dead levels",
+        "monsters": 352,
+        "tier1_chance": 0.975806367618706,
+        "tier1_expected_kills": 258.73006394920657,
+        "tier5_chance": 0.9905061464313262,
+        "tier5_expected_kills": 166.69765252523536
+      },
+      {
+        "group": "Lut Gholein Sewer levels",
+        "monsters": 315,
+        "tier1_chance": 0.9641489927748077,
+        "tier1_expected_kills": 235.30818403957622,
+        "tier5_chance": 0.9844910142250263,
+        "tier5_expected_kills": 155.32499389231407
+      },
+      {
+        "group": "Big false Tal Rasha's Tomb",
+        "monsters": 270,
+        "tier1_chance": 0.9421586014751874,
+        "tier1_expected_kills": 206.34344015937376,
+        "tier5_chance": 0.9718287353712464,
+        "tier5_expected_kills": 140.8403436269388
+      },
+      {
+        "group": "Palace Cellar levels",
+        "monsters": 247,
+        "tier1_chance": 0.9261387298504715,
+        "tier1_expected_kills": 191.28120173248087,
+        "tier5_chance": 0.9617791667078542,
+        "tier5_expected_kills": 133.08519109638777
+      },
+      {
+        "group": "Claw Viper Temple levels",
+        "monsters": 221,
+        "tier1_chance": 0.9026222819303725,
+        "tier1_expected_kills": 173.99237907632707,
+        "tier5_chance": 0.9460398575161705,
+        "tier5_expected_kills": 123.95091054550014
+      },
+      {
+        "group": "Far Oasis",
+        "monsters": 200,
+        "tier1_chance": 0.8782653674794869,
+        "tier1_expected_kills": 159.7828423923212,
+        "tier5_chance": 0.9287074097990741,
+        "tier5_expected_kills": 116.2253356089257
+      },
+      {
+        "group": "Canyon of the Magi",
+        "monsters": 182,
+        "tier1_chance": 0.8526037894203728,
+        "tier1_expected_kills": 147.39232573638986,
+        "tier5_chance": 0.9094821562024088,
+        "tier5_expected_kills": 109.301027338527
+      },
+      {
+        "group": "Lost City",
+        "monsters": 168,
+        "tier1_chance": 0.8289523583915224,
+        "tier1_expected_kills": 137.60496639608343,
+        "tier5_chance": 0.8910112305883634,
+        "tier5_expected_kills": 103.68629563680176
+      },
+      {
+        "group": "Rocky Waste",
+        "monsters": 152,
+        "tier1_chance": 0.79722810660965,
+        "tier1_expected_kills": 126.23501830136344,
+        "tier5_chance": 0.8652431928701755,
+        "tier5_expected_kills": 96.98071909766347
+      },
+      {
+        "group": "Dry Hills",
+        "monsters": 147,
+        "tier1_chance": 0.786174975973492,
+        "tier1_expected_kills": 122.6324193771074,
+        "tier5_chance": 0.8560031204850709,
+        "tier5_expected_kills": 94.81384006985571
+      },
+      {
+        "group": "Maggot Lair Level 1",
+        "monsters": 129,
+        "tier1_chance": 0.741069839679315,
+        "tier1_expected_kills": 109.4779876518717,
+        "tier5_chance": 0.8171719455414286,
+        "tier5_expected_kills": 86.69007357685622
+      },
+      {
+        "group": "Small false Tal Rasha's Tomb 1",
+        "monsters": 124,
+        "tier1_chance": 0.726955669280114,
+        "tier1_expected_kills": 105.75995475323971,
+        "tier5_chance": 0.8046343410046782,
+        "tier5_expected_kills": 84.33451843564795
+      },
+      {
+        "group": "Small false Tal Rasha's Tomb 2",
+        "monsters": 124,
+        "tier1_chance": 0.726955669280114,
+        "tier1_expected_kills": 105.75995475323971,
+        "tier5_chance": 0.8046343410046782,
+        "tier5_expected_kills": 84.33451843564795
+      },
+      {
+        "group": "Small false Tal Rasha's Tomb 3",
+        "monsters": 124,
+        "tier1_chance": 0.726955669280114,
+        "tier1_expected_kills": 105.75995475323971,
+        "tier5_chance": 0.8046343410046782,
+        "tier5_expected_kills": 84.33451843564795
+      },
+      {
+        "group": "Small false Tal Rasha's Tomb 4",
+        "monsters": 124,
+        "tier1_chance": 0.726955669280114,
+        "tier1_expected_kills": 105.75995475323971,
+        "tier5_chance": 0.8046343410046782,
+        "tier5_expected_kills": 84.33451843564795
+      },
+      {
+        "group": "Small false Tal Rasha's Tomb 5",
+        "monsters": 124,
+        "tier1_chance": 0.726955669280114,
+        "tier1_expected_kills": 105.75995475323971,
+        "tier5_chance": 0.8046343410046782,
+        "tier5_expected_kills": 84.33451843564795
+      },
+      {
+        "group": "Stony Tomb levels",
+        "monsters": 115,
+        "tier1_chance": 0.6995341380184109,
+        "tier1_expected_kills": 99.00160183440113,
+        "tier5_chance": 0.7798644998964419,
+        "tier5_expected_kills": 79.97065661759001
+      },
+      {
+        "group": "Ancient Tunnels",
+        "monsters": 106,
+        "tier1_chance": 0.6693594865499681,
+        "tier1_expected_kills": 92.14309743262697,
+        "tier5_chance": 0.751950273897268,
+        "tier5_expected_kills": 75.4361953437356
+      },
+      {
+        "group": "Maggot Lair Level 2",
+        "monsters": 98,
+        "tier1_chance": 0.6400025119930504,
+        "tier1_expected_kills": 85.95574621597774,
+        "tier5_chance": 0.7241841934930178,
+        "tier5_expected_kills": 71.2453236338286
+      },
+      {
+        "group": "Harem Level 2",
+        "monsters": 84,
+        "tier1_chance": 0.582278123499766,
+        "tier1_expected_kills": 74.89719516072826,
+        "tier5_chance": 0.6679003096344024,
+        "tier5_expected_kills": 63.50654288209708
+      },
+      {
+        "group": "Maggot Lair Level 3",
+        "monsters": 83,
+        "tier1_chance": 0.577791644596489,
+        "tier1_expected_kills": 74.09735929057122,
+        "tier5_chance": 0.6634665653772989,
+        "tier5_expected_kills": 62.932042500832004
+      }
+    ],
+    "3": [
+      {
+        "group": "Flayer Jungle",
+        "monsters": 475,
+        "tier1_chance": 0.993455642121587,
+        "tier1_expected_kills": 334.86547323045335,
+        "tier5_chance": 0.9981426447613394,
+        "tier5_expected_kills": 202.0958742250246
+      },
+      {
+        "group": "Durance of Hate levels",
+        "monsters": 409,
+        "tier1_chance": 0.9868008050213942,
+        "tier1_expected_kills": 294.28500886666046,
+        "tier5_chance": 0.9955425083439332,
+        "tier5_expected_kills": 183.49649475293316
+      },
+      {
+        "group": "Spider Forest",
+        "monsters": 341,
+        "tier1_chance": 0.9728061642506738,
+        "tier1_expected_kills": 251.7970034806193,
+        "tier5_chance": 0.9890148097851688,
+        "tier5_expected_kills": 163.35955051815682
+      },
+      {
+        "group": "Great Marsh",
+        "monsters": 326,
+        "tier1_chance": 0.968105561169657,
+        "tier1_expected_kills": 242.3028803963006,
+        "tier5_chance": 0.986596572879023,
+        "tier5_expected_kills": 158.7502671193033
+      },
+      {
+        "group": "Flayer Dungeon levels",
+        "monsters": 212,
+        "tier1_chance": 0.8928481424548524,
+        "tier1_expected_kills": 167.93038178771073,
+        "tier5_chance": 0.9391977883576244,
+        "tier5_expected_kills": 120.68253121628685
+      },
+      {
+        "group": "Kurast Sewer levels",
+        "monsters": 188,
+        "tier1_chance": 0.861709338128667,
+        "tier1_expected_kills": 151.5453161774338,
+        "tier5_chance": 0.9164066992942344,
+        "tier5_expected_kills": 111.64366438043488
+      },
+      {
+        "group": "Swampy Pit levels",
+        "monsters": 187,
+        "tier1_chance": 0.8602308825516944,
+        "tier1_expected_kills": 150.85517249390466,
+        "tier5_chance": 0.9152905728542908,
+        "tier5_expected_kills": 111.2556747280055
+      },
+      {
+        "group": "All Kurast temple levels",
+        "monsters": 170,
+        "tier1_chance": 0.8325508606413001,
+        "tier1_expected_kills": 139.01190976619284,
+        "tier5_chance": 0.8938643927073335,
+        "tier5_expected_kills": 104.50204671298017
+      },
+      {
+        "group": "Kurast Bazaar",
+        "monsters": 148,
+        "tier1_chance": 0.7884219624101195,
+        "tier1_expected_kills": 123.35706564925484,
+        "tier5_chance": 0.8579005422702566,
+        "tier5_expected_kills": 95.25009124276066
+      },
+      {
+        "group": "Upper Kurast and Kurast Causeway",
+        "monsters": 135,
+        "tier1_chance": 0.7570766610183505,
+        "tier1_expected_kills": 113.89884072527862,
+        "tier5_chance": 0.8311581646545825,
+        "tier5_expected_kills": 89.45783382640157
+      },
+      {
+        "group": "Lower Kurast",
+        "monsters": 115,
+        "tier1_chance": 0.6995341380184109,
+        "tier1_expected_kills": 99.00160183440113,
+        "tier5_chance": 0.7798644998964419,
+        "tier5_expected_kills": 79.97065661759001
+      },
+      {
+        "group": "Travincal",
+        "monsters": 110,
+        "tier1_chance": 0.6831313842419096,
+        "tier1_expected_kills": 95.20376677655021,
+        "tier5_chance": 0.7647695504227525,
+        "tier5_expected_kills": 77.47363885392708
+      },
+      {
+        "group": "Arachnid Lair",
+        "monsters": 63,
+        "tier1_chance": 0.47780344107532025,
+        "tier1_expected_kills": 57.697887365469064,
+        "tier5_chance": 0.5612298628135519,
+        "tier5_expected_kills": 50.749308710354086
+      },
+      {
+        "group": "Spider Cavern",
+        "monsters": 61,
+        "tier1_chance": 0.4665923538959198,
+        "tier1_expected_kills": 56.01619860062366,
+        "tier5_chance": 0.5494347687886517,
+        "tier5_expected_kills": 49.45130164909358
+      }
+    ],
+    "4": [
+      {
+        "group": "River of Flame",
+        "monsters": 231,
+        "tier1_chance": 0.912442296120696,
+        "tier1_expected_kills": 180.67919824566104,
+        "tier5_chance": 0.9527427570130392,
+        "tier5_expected_kills": 127.51547420276434
+      },
+      {
+        "group": "City of the Damned",
+        "monsters": 211,
+        "tier1_chance": 0.8917039940281216,
+        "tier1_expected_kills": 167.25381017419275,
+        "tier5_chance": 0.9383858564206867,
+        "tier5_expected_kills": 120.31568452597881
+      },
+      {
+        "group": "Plains of Despair",
+        "monsters": 193,
+        "tier1_chance": 0.8688686044873019,
+        "tier1_expected_kills": 154.9870975223069,
+        "tier5_chance": 0.9217704826900612,
+        "tier5_expected_kills": 113.56932317074305
+      },
+      {
+        "group": "Chaos Sanctuary",
+        "monsters": 189,
+        "tier1_chance": 0.8631716860167188,
+        "tier1_expected_kills": 152.2350181266207,
+        "tier5_chance": 0.9175081063672176,
+        "tier5_expected_kills": 112.03069668223966
+      },
+      {
+        "group": "Outer Steppes",
+        "monsters": 187,
+        "tier1_chance": 0.8602308825516944,
+        "tier1_expected_kills": 150.85517249390466,
+        "tier5_chance": 0.9152905728542908,
+        "tier5_expected_kills": 111.2556747280055
+      }
+    ],
+    "5": [
+      {
+        "group": "Worldstone Keep and Throne",
+        "monsters": 580,
+        "tier1_chance": 0.9978564942141861,
+        "tier1_expected_kills": 398.4894737795748,
+        "tier5_chance": 0.9995386426684822,
+        "tier5_expected_kills": 230.2416260786262
+      },
+      {
+        "group": "Bloody Foothills",
+        "monsters": 488,
+        "tier1_chance": 0.9943003912095508,
+        "tier1_expected_kills": 342.79681271476943,
+        "tier5_chance": 0.9984368241249106,
+        "tier5_expected_kills": 205.66903680899637
+      },
+      {
+        "group": "Nihlathak's Temple and Halls of Anguish",
+        "monsters": 414,
+        "tier1_chance": 0.9874839508844716,
+        "tier1_expected_kills": 297.37952900851,
+        "tier5_chance": 0.9958285426210558,
+        "tier5_expected_kills": 184.93480289756423
+      },
+      {
+        "group": "Halls of Pain",
+        "monsters": 405,
+        "tier1_chance": 0.986227507577699,
+        "tier1_expected_kills": 291.8069474031766,
+        "tier5_chance": 0.9952996159561674,
+        "tier5_expected_kills": 182.342294982422
+      },
+      {
+        "group": "Frozen Tundra",
+        "monsters": 374,
+        "tier1_chance": 0.9808519855426507,
+        "tier1_expected_kills": 272.51807890865945,
+        "tier5_chance": 0.992908964333645,
+        "tier5_expected_kills": 173.27447090699854
+      },
+      {
+        "group": "Frigid Highlands",
+        "monsters": 339,
+        "tier1_chance": 0.9722217668716671,
+        "tier1_expected_kills": 250.53427591138737,
+        "tier5_chance": 0.9887194885536791,
+        "tier5_expected_kills": 162.7489634542651
+      },
+      {
+        "group": "Ancients' Way and Icy Cellar",
+        "monsters": 281,
+        "tier1_chance": 0.9485400978573103,
+        "tier1_expected_kills": 213.48211001259307,
+        "tier5_chance": 0.9756532018322964,
+        "tier5_expected_kills": 144.45857175273716
+      },
+      {
+        "group": "Arreat Plateau",
+        "monsters": 277,
+        "tier1_chance": 0.9463041742392795,
+        "tier1_expected_kills": 210.89234512355694,
+        "tier5_chance": 0.9743266066586233,
+        "tier5_expected_kills": 143.14911000895742
+      },
+      {
+        "group": "Glacial Trail and Drifter Cavern",
+        "monsters": 233,
+        "tier1_chance": 0.9142846631447498,
+        "tier1_expected_kills": 182.01049852934136,
+        "tier5_chance": 0.9539799843196209,
+        "tier5_expected_kills": 128.22019970095548
+      },
+      {
+        "group": "Frozen River",
+        "monsters": 203,
+        "tier1_chance": 0.8820929129701331,
+        "tier1_expected_kills": 161.82480309877215,
+        "tier5_chance": 0.931488606508192,
+        "tier5_expected_kills": 117.3507096876114
+      },
+      {
+        "group": "Halls of Vaught",
+        "monsters": 178,
+        "tier1_chance": 0.8462021238930513,
+        "tier1_expected_kills": 144.61019248578566,
+        "tier5_chance": 0.9045496402154029,
+        "tier5_expected_kills": 107.71906959263852
+      },
+      {
+        "group": "Crystalline Passage",
+        "monsters": 146,
+        "tier1_chance": 0.7838781642307805,
+        "tier1_expected_kills": 121.91225706959833,
+        "tier5_chance": 0.8540803300531705,
+        "tier5_expected_kills": 94.37612003137653
+      },
+      {
+        "group": "Abaddon",
+        "monsters": 117,
+        "tier1_chance": 0.7058512998929412,
+        "tier1_expected_kills": 100.51251567806514,
+        "tier5_chance": 0.7856272622125668,
+        "tier5_expected_kills": 80.95460789692123
+      },
+      {
+        "group": "Infernal Pit",
+        "monsters": 115,
+        "tier1_chance": 0.6995341380184109,
+        "tier1_expected_kills": 99.00160183440113,
+        "tier5_chance": 0.7798644998964419,
+        "tier5_expected_kills": 79.97065661759001
+      },
+      {
+        "group": "Pit of Acheron",
+        "monsters": 87,
+        "tier1_chance": 0.5953782572339172,
+        "tier1_expected_kills": 77.29266877729688,
+        "tier5_chance": 0.6808535226932051,
+        "tier5_expected_kills": 65.21213983355753
+      }
+    ]
+  }
+}

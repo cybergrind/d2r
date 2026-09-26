@@ -107,13 +107,28 @@ def test_idle_steps_do_not_rewrite_ledger_but_mutations_do(tmp_path, healing_set
         assert publish.call_count == writes + 1
 
 
-def test_ack_timeout_suspension_is_persisted_without_delivery(tmp_path, healing_setup, sample, clock):
+def test_ack_timeout_miss_and_retry_time_are_persisted_without_delivery(tmp_path, healing_setup, sample, clock):
     make, _ = healing_setup
     controller = make(PLAYER_HEALING)
     assert controller.step(sample()).outcome == Outcome.SENT
     clock.now = 103
-    assert controller.step(sample(103)).outcome == Outcome.SUSPENDED
-    assert json.loads((tmp_path / 'potions.json').read_text())['actors']['player']['suspended'] is True
+    assert controller.step(sample(103)).outcome == Outcome.BACKOFF
+    record = json.loads((tmp_path / 'potions.json').read_text())['actors']['player']
+    assert (record['pending'], record['suspended'], record['misses'], record['retry_at']) == (None, False, 1, 105.0)
+
+
+def test_pause_after_repeated_misses_is_persisted_and_expires(tmp_path, healing_setup, sample, clock):
+    from inventory_tracking.config import with_overrides
+
+    make, _ = healing_setup
+    config = with_overrides(PLAYER_HEALING, max_consecutive_misses=1, suspend_seconds=5)
+    assert make(config).step(sample()).outcome == Outcome.SENT
+    clock.now = 103
+    assert make(config).step(sample(103)).outcome == Outcome.SUSPENDED
+    record = json.loads((tmp_path / 'potions.json').read_text())['actors']['player']
+    assert (record['suspended'], record['misses'], record['suspended_until']) == (False, 0, 108.0)
+    clock.now = 108
+    assert make(config).step(sample(108)).outcome == Outcome.SENT
 
 
 def test_raising_transaction_body_never_publishes(tmp_path):
@@ -138,11 +153,37 @@ def valid_document():
         'boot': 'test',
         'cooldowns': {'player:healing': 100.0},
         'actors': {
-            'player': {'session': [1, '2', 7, None], 'pending': {'item_id': 101, 'sent_at': 100.0}, 'suspended': False},
-            'merc': {'session': [1, '2', 7, 99], 'pending': None, 'suspended': True},
+            'player': {
+                'session': [1, '2', 7, None],
+                'pending': {'item_id': 101, 'sent_at': 100.0},
+                'suspended': False,
+                'misses': 1,
+                'retry_at': 105.0,
+                'suspended_until': None,
+            },
+            'merc': {
+                'session': [1, '2', 7, 99],
+                'pending': None,
+                'suspended': True,
+                'misses': 0,
+                'retry_at': None,
+                'suspended_until': 200.0,
+            },
         },
         'last_delivery': {'session': [1, '2', 7], 'at': 100.0},
     }
+
+
+def test_version_two_ledger_without_miss_fields_still_loads(tmp_path):
+    from inventory_tracking.automation.ledger import LedgerData
+
+    document = valid_document()
+    for record in document['actors'].values():
+        for key in ('misses', 'retry_at', 'suspended_until'):
+            record.pop(key)
+    model = LedgerData.model_validate_json(json.dumps(document))
+    player = model.actors[Actor.PLAYER]
+    assert (player.misses, player.retry_at, player.suspended_until) == (0, None, None)
 
 
 def test_ledger_document_round_trips_byte_for_byte(tmp_path):
@@ -169,6 +210,9 @@ def test_ledger_document_round_trips_byte_for_byte(tmp_path):
         lambda d: d['actors']['player'].__setitem__('session', [1, '2']),
         lambda d: d['actors']['player'].__setitem__('session', ['1', '2', 7, None]),
         lambda d: d['actors']['player'].__setitem__('suspended', 1),
+        lambda d: d['actors']['player'].__setitem__('misses', -1),
+        lambda d: d['actors']['player'].__setitem__('retry_at', 'soon'),
+        lambda d: d['actors']['merc'].__setitem__('suspended_until', -1.0),
         lambda d: d['actors']['player'].__setitem__('pending', 'broken'),
         lambda d: d['actors']['player']['pending'].__setitem__('item_id', 1.5),
         lambda d: d['actors']['player'].__setitem__('extra', 1),

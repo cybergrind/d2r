@@ -79,10 +79,19 @@ class PotionsController:
         record = self._update_actor(data, state, session, now)
         if record.suspended:
             return PotionResult(Outcome.SUSPENDED)
+        if record.suspended_until is not None:
+            if now < record.suspended_until:
+                return PotionResult(Outcome.SUSPENDED)
+            record.suspended_until = None
+            LOG.info('%s healing resumed after pause', actor)
         if record.pending:
             return PotionResult(Outcome.PENDING)
         if not choices:
             return PotionResult(Outcome.IDLE)
+        if record.retry_at is not None:
+            if now < record.retry_at:
+                return PotionResult(Outcome.BACKOFF)
+            record.retry_at = None
         player = state.health_for(Actor.PLAYER)
         if player is None or player[0] <= 0:
             return PotionResult(Outcome.UNAVAILABLE)
@@ -113,10 +122,39 @@ class PotionsController:
             if state.belt is None or pending.item_id not in state.belt.item_ids:
                 LOG.info('%s potion consumption acknowledged: item %s', actor, pending.item_id)
                 record.pending = None
+                record.misses = 0
+                record.retry_at = None
             elif now - pending.sent_at >= self.config.consumption_timeout:
-                record.suspended = True
-                LOG.warning('%s healing suspended: consumption not acknowledged', actor)
+                self._miss(record, pending, now)
         return record
+
+    def _miss(self, record: ActorRecord, pending: PendingReservation, now: float) -> None:
+        """A lost keypress is ordinary: retry with growing backoff, and only pause after a run of them."""
+        actor = self.config.actor
+        record.pending = None
+        record.misses += 1
+        if record.misses >= self.config.max_consecutive_misses:
+            record.misses = 0
+            record.retry_at = None
+            record.suspended_until = now + self.config.suspend_seconds
+            LOG.warning(
+                '%s healing paused for %.0f s: %d potions in a row were not consumed (last item %s)',
+                actor,
+                self.config.suspend_seconds,
+                self.config.max_consecutive_misses,
+                pending.item_id,
+            )
+            return
+        delay = min(self.config.retry_backoff * 2 ** (record.misses - 1), self.config.retry_backoff_max)
+        record.retry_at = now + delay
+        LOG.warning(
+            '%s potion not consumed: item %s; retry in %.1f s (miss %d of %d)',
+            actor,
+            pending.item_id,
+            delay,
+            record.misses,
+            self.config.max_consecutive_misses,
+        )
 
     @staticmethod
     def _choose_item(

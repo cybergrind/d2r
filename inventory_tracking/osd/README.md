@@ -91,7 +91,7 @@ is not persisted across OSD restarts. Exact rules: [widget contracts](design.md)
 | Recipient | Healing below | Rejuvenation below | Healing cooldown | Rejuvenation cooldown |
 | --- | --- | --- | --- | --- |
 | Player | 65% | 40% | 3 seconds | 1 second |
-| Merc | 75% | 50% | 3 seconds | 0.5 seconds |
+| Merc | 75% | 65% | 3 seconds | 0.5 seconds |
 
 Thresholds are strict. Rejuvenation has emergency priority with healing fallback;
 player is considered first and does not require a merc. Each sample identifies
@@ -99,10 +99,20 @@ potion types in all four bottom slots and drains the fullest column of the chose
 type first (ties go to the lowest column). Player uses plain column keys, merc uses
 Shift+column. Potions above empty bottom slots are unusable.
 
+The merc rejuvenation threshold is high on purpose: healing potions restore this merc
+slowly (about +13% over 8 s, measured 2026-09-26) while rejuvenations are instant.
+
 Cooldowns are independent per actor/type, shared across columns and instances.
-An actor waits for the selected item's disappearance from the belt; after two
-seconds without acknowledgement it suspends until a verified new session or boot.
-Pending/suspended state survives an OSD restart. Shared reservations prevent double
+An actor waits for the selected item's disappearance from the belt. After two
+seconds without acknowledgement the potion counts as a miss (a lost keypress is
+ordinary, e.g. a physical key overlapping the synthetic one): the reservation is
+dropped and the next attempt waits 2 s, doubling per consecutive miss up to 30 s.
+Eight misses in a row pause the actor for 120 s, after which it resumes by itself;
+an acknowledged consumption resets the miss count. Only an input error (key state
+unknown) suspends the actor until a verified new session or boot. The health
+widgets show `heal: rejected (reason)`, `heal: backoff`, `heal: suspended` or
+`heal: no_stock` while an actor is not healing, and `osd.log` records each change
+of that status. Pending/backoff/paused/suspended state survives an OSD restart. Shared reservations prevent double
 selection, key sequences are serialized, and the next sample must start after the
 preceding delivery finishes. Corrupt persisted state refuses input.
 

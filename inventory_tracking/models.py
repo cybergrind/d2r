@@ -1,6 +1,7 @@
 """Domain identifiers shared by healing, belt tracking and presentation."""
 
 import math
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import NamedTuple
@@ -137,6 +138,8 @@ class State:
     merc: Mercenary | None = None
     belt: BeltSnapshot | None = None
     events: tuple[PotionSent, ...] = ()
+    # Latest healing outcome per actor, attached by the reader for display.
+    outcomes: Mapping[Actor, PotionResult] = field(default_factory=dict)
     teleport: Observation[TeleportCharges] = field(default_factory=Observation.unavailable)
     portal_tome: Observation[PortalTome] = field(default_factory=Observation.unavailable)
     identify_tome: Observation[Tome] = field(default_factory=Observation.unavailable)
@@ -181,6 +184,7 @@ class Outcome(StrEnum):
     STALE_BELT = 'stale_belt'
     BUSY = 'busy'
     REJECTED = 'rejected'
+    BACKOFF = 'backoff'
     SENT = 'sent'
 
 

@@ -17,8 +17,8 @@ from inventory_tracking.native.mercenary import Mercenary
         (PLAYER_HEALING, 39, [PotionType.REJUVENATION, PotionType.HEALING]),
         (MERC_HEALING, 75, []),
         (MERC_HEALING, 74, [PotionType.HEALING]),
-        (MERC_HEALING, 50, [PotionType.HEALING]),
-        (MERC_HEALING, 49, [PotionType.REJUVENATION, PotionType.HEALING]),
+        (MERC_HEALING, 65, [PotionType.HEALING]),
+        (MERC_HEALING, 64, [PotionType.REJUVENATION, PotionType.HEALING]),
     ],
 )
 def test_threshold_boundaries_and_priority(config, percent, choices, sample):
@@ -70,13 +70,15 @@ def test_disabled_actor_never_sends(sample, healing_setup):
     sent.assert_not_called()
 
 
-def test_invalid_sample_does_not_reset_suspension(sample, healing_setup, clock):
+def test_invalid_sample_does_not_reset_backoff(sample, healing_setup, clock):
     make, sent = healing_setup
     controller = make(MERC_HEALING)
     controller.step(sample())
     clock.now = 103
-    assert controller.step(sample(103)).outcome == Outcome.SUSPENDED
+    assert controller.step(sample(103)).outcome == Outcome.BACKOFF  # retry at 105
     assert controller.step(State(sampled_at=103, reason='incomplete read')).outcome == Outcome.UNAVAILABLE
-    clock.now = 106
-    assert controller.step(sample(106)).outcome == Outcome.SUSPENDED
-    assert sent.call_count == 1
+    clock.now = 104
+    assert controller.step(sample(104)).outcome == Outcome.BACKOFF
+    clock.now = 105
+    assert controller.step(sample(105)).outcome == Outcome.SENT
+    assert sent.call_count == 2

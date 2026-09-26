@@ -54,16 +54,59 @@ def test_two_instances_cannot_consume_same_item_or_bypass_actor_pending(healing_
     assert [c.args[0].item.item_id for c in sent.call_args_list] == [101, 102]
 
 
-def test_missing_merc_does_not_skip_ack_timeout_and_restart_preserves_suspension(healing_setup, sample, clock):
+def test_unconsumed_potion_is_retried_after_backoff_even_when_merc_is_missing(healing_setup, sample, clock):
     make, sent = healing_setup
     merc = make(MERC_HEALING)
     assert merc.step(sample()).outcome == Outcome.SENT
     clock.now = 102
-    assert merc.step(sample(clock.now, merc=None)).outcome == Outcome.SUSPENDED
-    clock.now = 110
-    assert make(MERC_HEALING).step(sample(clock.now)).outcome == Outcome.SUSPENDED
-    assert make(MERC_HEALING).step(sample(clock.now, session=PLAYER_8)).outcome == Outcome.SENT
+    # The timeout is processed without a merc; nothing is needed, so the actor is idle, not suspended.
+    assert merc.step(sample(clock.now, merc=None)).outcome == Outcome.IDLE
+    clock.now = 103
+    assert make(MERC_HEALING).step(sample(clock.now)).outcome == Outcome.BACKOFF
+    clock.now = 104
+    assert make(MERC_HEALING).step(sample(clock.now)).outcome == Outcome.SENT
     assert sent.call_count == 2
+
+
+def test_backoff_doubles_per_miss_and_resets_after_acknowledged_consumption(healing_setup, sample, clock):
+    make, sent = healing_setup
+    player = make(PLAYER_HEALING)
+    assert player.step(sample()).outcome == Outcome.SENT
+    clock.now = 102.5
+    assert player.step(sample(clock.now)).outcome == Outcome.BACKOFF  # miss 1: retry at 104.5
+    clock.now = 104.5
+    assert player.step(sample(clock.now)).outcome == Outcome.SENT
+    clock.now = 106.5
+    assert player.step(sample(clock.now)).outcome == Outcome.BACKOFF  # miss 2: retry at 110.5
+    clock.now = 109
+    assert player.step(sample(clock.now)).outcome == Outcome.BACKOFF
+    clock.now = 110.5
+    assert player.step(sample(clock.now)).outcome == Outcome.SENT
+    clock.now = 110.6
+    consumed = sample(clock.now, healing_cells=(BeltCell(4, 102),), belt_ids=(102, 103))
+    assert player.step(consumed).outcome == Outcome.COOLDOWN
+    with player.potions.ledger.transaction() as tx:
+        record = tx.data.actors[Actor.PLAYER]
+        assert (record.misses, record.retry_at, record.pending) == (0, None, None)
+    assert sent.call_count == 3
+
+
+def test_repeated_misses_pause_the_actor_temporarily_across_instances(healing_setup, sample, clock):
+    make, sent = healing_setup
+    config = with_overrides(PLAYER_HEALING, max_consecutive_misses=2, suspend_seconds=10)
+    player = make(config)
+    assert player.step(sample()).outcome == Outcome.SENT
+    clock.now = 102
+    assert player.step(sample(clock.now)).outcome == Outcome.BACKOFF
+    clock.now = 104
+    assert player.step(sample(clock.now)).outcome == Outcome.SENT
+    clock.now = 106
+    assert player.step(sample(clock.now)).outcome == Outcome.SUSPENDED
+    clock.now = 115.9
+    assert make(config).step(sample(clock.now)).outcome == Outcome.SUSPENDED
+    clock.now = 116
+    assert make(config).step(sample(clock.now)).outcome == Outcome.SENT
+    assert sent.call_count == 3
 
 
 def test_session_change_resets_pending_but_preserves_type_cooldown(healing_setup, sample, clock):

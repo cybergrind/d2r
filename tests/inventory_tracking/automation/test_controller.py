@@ -5,7 +5,7 @@ import pytest
 
 from inventory_tracking.automation.controller import Automation
 from inventory_tracking.config import MERC_HEALING, PLAYER_HEALING
-from inventory_tracking.models import Actor, Outcome, Refusal
+from inventory_tracking.models import Actor, Outcome, Refusal, State
 from inventory_tracking.tracking.state import from_research
 from tests.inventory_tracking.conftest import belt_of
 from tests.inventory_tracking.input.fakes import FakeDelivery
@@ -19,6 +19,27 @@ def test_player_first_and_uniform_statuses(healing_setup, sample, clock):
     assert result[Actor.MERC].outcome == Outcome.STALE_BELT
     assert automation.events[0].request.actor == Actor.PLAYER
     assert sent.call_count == 1
+
+
+def test_latest_outcomes_are_exposed_and_notable_transitions_are_logged(healing_setup, sample, clock, caplog):
+    import logging
+
+    make, _ = healing_setup
+    controller = make(PLAYER_HEALING)
+    controller.potions.delivery = FakeDelivery(refusal=Refusal.UNFOCUSED)
+    automation = Automation([controller])
+    with caplog.at_level(logging.INFO, logger='inventory_tracking'):
+        automation.step(sample())
+        assert automation.outcomes[Actor.PLAYER].outcome == Outcome.REJECTED
+        clock.now = 100.1
+        automation.step(State(sampled_at=100.1, reason='incomplete read'))  # quiet: keeps the status
+        clock.now = 103.1
+        automation.step(sample(103.1))  # rejected again for the same reason: no repeat line
+        clock.now = 103.2
+        automation.step(sample(103.2, current_raw=1000))
+    messages = [record.getMessage() for record in caplog.records if 'healing' in record.getMessage()]
+    assert messages == ['player healing: rejected (unfocused)', 'player healing: idle']
+    assert automation.outcomes[Actor.PLAYER].outcome == Outcome.IDLE
 
 
 def test_rejected_input_does_not_create_notification(healing_setup, sample):
@@ -44,7 +65,7 @@ def test_merc_healing_uses_valid_samples_without_menu_detection(snapshot, healin
                 'details': {
                     'monster_data_u32': [0] * 21 + [7],
                     'full_stats': [
-                        {'layer': 0, 'id': 6, 'raw': 16384},
+                        {'layer': 0, 'id': 6, 'raw': 22938},
                         {'layer': 0, 'id': 7, 'raw': 2090 * 256},
                     ],
                 },
