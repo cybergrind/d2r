@@ -102,6 +102,21 @@ class Location:
 
 
 @dataclass(frozen=True)
+class ShopPanel:
+    """The NPC Trade panel: open flag plus the one vendor whose stock is loaded while it is open."""
+
+    open: bool
+    vendor: str | None = None
+    smith: bool = False
+
+    def __post_init__(self):
+        if not self.open and (self.vendor is not None or self.smith):
+            raise ValueError('A closed shop panel has no vendor')
+        if self.smith and self.vendor is None:
+            raise ValueError('A smith panel names its vendor')
+
+
+@dataclass(frozen=True)
 class PlayerHealth:
     current_raw: int
     maximum_raw: int
@@ -147,6 +162,7 @@ class State:
     show_items: Observation[bool] = field(default_factory=Observation.unavailable)
     consume: Observation[ConsumeBuff] = field(default_factory=Observation.unavailable)
     keys: Observation[int] = field(default_factory=Observation.unavailable)
+    shop: Observation[ShopPanel] = field(default_factory=Observation.unavailable)
     # Only set by a reader that can positively establish the game boundary.
     session_ended: bool = False
 

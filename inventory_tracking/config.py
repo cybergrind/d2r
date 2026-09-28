@@ -143,7 +143,8 @@ class IdentifyWidgetConfig(Config):
 
 class PortalWidgetConfig(Config):
     enabled: bool = True
-    trigger_remaining: Annotated[int, Field(ge=0)] = 2
+    # Shown in town at or below this many scrolls left in the tome.
+    trigger_remaining: Annotated[int, Field(ge=0)] = 3
     capacity: Annotated[int, Field(gt=0)] = 20
 
     @model_validator(mode='after')
@@ -151,6 +152,20 @@ class PortalWidgetConfig(Config):
         if self.trigger_remaining >= self.capacity:
             raise ValueError('Portal trigger must be an integer in 0..capacity-1')
         return self
+
+
+class RepairMarkWidgetConfig(Config):
+    """Highlight around a smith's Repair All button while equipped Teleport charges are missing."""
+
+    enabled: bool = True
+    # Button centre and highlight size as fractions of the game window height; x from the
+    # window's left edge, y from its bottom edge. Measured 2026-09-28 on a 2560x1418 window
+    # (Charsi): centre 768 px from the left, 426 px above the bottom, button about 96 px.
+    center_x: Positive = 0.542
+    center_y: Positive = 0.300
+    size: Positive = 0.085
+    color: str = '#ff3b3b'
+    pulse_seconds: Positive = 1.2
 
 
 class ConsumeWidgetConfig(Config):
@@ -172,6 +187,7 @@ class OSDConfig(Config):
     loot: LootWidgetConfig = LootWidgetConfig()
     key_stock: KeysWidgetConfig = KeysWidgetConfig()
     consume: ConsumeWidgetConfig = ConsumeWidgetConfig()
+    repair_mark: RepairMarkWidgetConfig = RepairMarkWidgetConfig()
     # Seconds before any reading displays as stale; handed to every widget by the factory.
     max_age: Positive = 2.0
     font_size: Positive = 16
@@ -271,12 +287,20 @@ RESOURCE_READER = ResourceReaderConfig(
 
 class AppraisalConfig(Config):
     osd: bool = True
+    # Assessment card: margin from the output's left edge and offset from its vertical
+    # center (negative = up), both in logical pixels.
+    osd_x: Annotated[int, Field(ge=0)] = 520
+    osd_y: int = -150
     display_seconds: Positive = 30
     cache_seconds: Positive = 300
     poll_interval: Positive = 0.2
     reconnect_delay: Positive = 2.0
     shop_auto: bool = True  # watch loaded vendor stock and scan when its first gear item changes
     shop_poll_interval: Positive = 1.0  # seconds between stock probes in town; 5x outside town
+    stash_auto: bool = True  # collect (as Win+S) every time the stash panel is closed
+    stash_poll_interval: Positive = 0.5  # seconds between open-panel flag reads
+    identify_auto: bool = True  # assess inventory/cube items the moment they become identified (Cain, scrolls)
+    identify_poll_interval: Positive = 1.0  # seconds between identified-flag reads in town; 5x outside town
 
 
 APPRAISAL = AppraisalConfig()

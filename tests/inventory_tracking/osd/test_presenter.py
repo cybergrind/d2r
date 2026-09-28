@@ -10,18 +10,30 @@ from inventory_tracking.config import (
     PlayerHealthWidgetConfig,
     with_overrides,
 )
-from inventory_tracking.models import BeltSnapshot, Observation, PlayerHealth, PortalTome, SessionIdentity, State
+from inventory_tracking.models import (
+    BeltSnapshot,
+    Location,
+    Observation,
+    PlayerHealth,
+    PortalTome,
+    SessionIdentity,
+    State,
+)
 from inventory_tracking.osd.presenter import Presenter
 from inventory_tracking.tracking.reader import LiveReader
 from inventory_tracking.tracking.state import from_research
 from tests.inventory_tracking.conftest import SESSION
 
 
+TOWN = Observation(100, Location(40, True))
+
+
 def test_reader_delivers_every_sample_before_render(tmp_path):
     presenter = Presenter()
     reader = LiveReader(tmp_path, observer=presenter.update)
     for count in (2, 1):
-        reader.set_state(State(session=SESSION, sampled_at=100, portal_tome=Observation(100, PortalTome(1, count, 20))))
+        tome = Observation(100, PortalTome(1, count, 20))
+        reader.set_state(State(session=SESSION, sampled_at=100, portal_tome=tome, location=TOWN))
     assert presenter.render(now=100) == ['tp: 19']
 
 
@@ -42,12 +54,19 @@ def test_widget_failure_is_isolated_and_recovers(caplog):
 
 def test_stale_observation_and_out_of_order_snapshot_cannot_replace_current_stock():
     presenter = Presenter()
-    state = State(session=SESSION, sampled_at=100, portal_tome=Observation(100, PortalTome(1, 2, 20)))
+    state = State(session=SESSION, sampled_at=100, portal_tome=Observation(100, PortalTome(1, 2, 20)), location=TOWN)
     presenter.update(state)
     presenter.update(State(session=SESSION, sampled_at=99, portal_tome=Observation(99, PortalTome(1, 20, 20))))
     presenter.update(State(session=SESSION, sampled_at=103, portal_tome=Observation(100, PortalTome(1, 20, 20))))
     assert presenter.render(now=103) == []
-    presenter.update(State(session=SESSION, sampled_at=104, portal_tome=Observation(104, PortalTome(1, 1, 20))))
+    presenter.update(
+        State(
+            session=SESSION,
+            sampled_at=104,
+            portal_tome=Observation(104, PortalTome(1, 1, 20)),
+            location=Observation(104, Location(40, True)),
+        )
+    )
     assert presenter.render(now=104) == ['tp: 19']
     presenter.update(replace(state, sampled_at=105, session_ended=True))
     assert presenter.render(now=105) == []
@@ -209,6 +228,7 @@ def test_factory_order_and_max_age_reach_every_widget():
         'LootWidget',
         'KeysWidget',
         'ConsumeWidget',
+        'RepairMarkWidget',
     ]
     assert {widget.max_age for widget in widgets} == {4}
     presenter = Presenter(with_overrides(OSD, max_age=4), widgets=widgets)

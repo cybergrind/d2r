@@ -13,10 +13,11 @@ from inventory_tracking.models import State
 from inventory_tracking.native.capture_probe import capture_image
 from inventory_tracking.native.image_probe import inspect_images
 from inventory_tracking.native.layout import SUPPORTED_SHA256
-from inventory_tracking.native.session import inspect_game, select_game_process
+from inventory_tracking.native.session import GameNotReady, inspect_game, select_game_process
 from inventory_tracking.native.unit_probe import sample_units
 from inventory_tracking.reports import publish
 from inventory_tracking.tracking.consume import observe_consume
+from inventory_tracking.tracking.shop_panel import observe_shop_panel
 from inventory_tracking.tracking.show_items import observe_show_items
 from inventory_tracking.tracking.state import from_research
 
@@ -75,7 +76,8 @@ class LiveReader:
             raise ValueError('game image unavailable')
         capture = capture_image(pid, images, directory)
         if capture['status'] != 'captured' or len({x['table_address'] for x in capture['unit_table_candidates']}) != 1:
-            raise ValueError('unit table unavailable')
+            # In the menus the unit table does not exist yet; it appears once a character is in a game.
+            raise GameNotReady('unit table unavailable; enter a game with a character')
         LOG.info('OSD attached to process %s', game['identity'])
         return pid, images, capture
 
@@ -103,6 +105,7 @@ class LiveReader:
                                 state,
                                 show_items=observe_show_items(pid, images),
                                 consume=observe_consume(pid, images, snapshot, state.session.player_id),
+                                shop=observe_shop_panel(pid, images, snapshot),
                             )
                         results = self.automation.step(state)
                         for actor, result in results.items():

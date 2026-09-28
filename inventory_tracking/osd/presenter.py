@@ -16,6 +16,7 @@ from inventory_tracking.osd.widgets.keys import KeysWidget
 from inventory_tracking.osd.widgets.loot import LootWidget
 from inventory_tracking.osd.widgets.notifications import NotificationsWidget
 from inventory_tracking.osd.widgets.portal import PortalWidget
+from inventory_tracking.osd.widgets.repair_mark import Mark, RepairMarkWidget
 from inventory_tracking.osd.widgets.teleport import TeleportWidget
 
 
@@ -33,6 +34,7 @@ def default_widgets(config: OSDConfig) -> list[SampleWidget[Any]]:
         LootWidget(config.loot, max_age=age),
         KeysWidget(config.key_stock, max_age=age),
         ConsumeWidget(config.consume, max_age=age),
+        RepairMarkWidget(config.repair_mark, max_age=age),
     ]
 
 
@@ -85,3 +87,19 @@ class Presenter:
                 except Exception as exc:
                     self._failed(index, exc)
             return lines
+
+    def marks(self, *, now: float) -> list[Mark]:
+        """Screen highlights from widgets that draw instead of writing; same isolation as `render`."""
+        with self.lock:
+            marks = []
+            for index, widget in enumerate(self.widgets):
+                mark = getattr(widget, 'mark', None)
+                if index in self.failed or mark is None:
+                    continue
+                try:
+                    if (current := mark(now=now)) is not None:
+                        marks.append(current)
+                    self.errors.pop(index, None)
+                except Exception as exc:
+                    self._failed(index, exc)
+            return marks

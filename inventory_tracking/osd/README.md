@@ -21,7 +21,7 @@ send keys. Once exits 0 for a health sample, 2 for unavailable state.
 Edit [config.py](../config.py): `PLAYER_HEALING`/`MERC_HEALING` hold thresholds,
 cooldowns, input freshness and acknowledgement timeout; `OSD` holds window settings
 plus one nested config per widget (`notifications`, `player_health`, `merc_health`,
-`belt`, `teleport`, `portal`, `identify`, `loot`, `key_stock`, `consume`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
+`belt`, `teleport`, `portal`, `identify`, `loot`, `key_stock`, `consume`, `repair_mark`); `READER` polling/reconnect; `INPUT` focus/key timing, actor modifier `bindings` and `column_keys`.
 `RESOURCE_READER` contains supported-build resource settings, requiring revalidation
 after updates. Configs are frozen, strictly typed pydantic models: derive variants
 with `with_overrides(model, **changes)`, which re-validates; invalid values raise
@@ -52,12 +52,22 @@ Only belt stock counts; an empty four-row belt shows `juv 16`.
 | Potion sent, recipient/key | One second after successful key delivery; acknowledgement is separate |
 | `tele N/M repair` | Equipped Teleport staff missing charges in town |
 | `tele N/M` | Below 20% charges outside town or with unknown location |
-| `tp: N` | Missing portals only when the tome has fewer than 3 scrolls; hides again at 3 or more |
+| `tp: N` | Missing portals, in town only, when the tome has 3 or fewer scrolls; hides at 4 or more or outside town |
 | `id: N` | Identify scrolls remaining in the inventory tome; shown only in town with fewer than 5 |
 | `keys: N` | Fewer than 5 ordinary keys in character inventory; 5 or more stays hidden |
 | `consume: ~15s left` | Estimated expiry approaching, using observed activation and the applied skill level |
 | `consume: no longer active` | Observed removal after being active; shown for 30 seconds by default |
 | `loot is not enabled` | Show Items is confirmed OFF in a fresh in-game sample |
+| Pulsing red square around Repair All | A smith's Trade panel (Charsi, Fara, Hratli, Halbu, Larzuk) is open while the equipped Teleport staff is missing charges |
+
+The repair mark is drawn by the same OSD process as a second click-through
+overlay, not as text. `OSD.repair_mark` holds the button position as fractions
+of the game window height (`center_x` from the left edge, `center_y` from the
+bottom edge, `size`), measured 2026-09-28 on a 2560x1418 window. It assumes
+the game window sits at the bottom-left of its output (a tiled window under a
+top bar). `uv run -m inventory_tracking.osd --demo-repair` previews the mark;
+open Charsi's Trade panel while it runs to check the alignment and adjust the
+fractions in `config.py` if the square drifts. Exact rules: [widget contracts](design.md#repair-mark-widget).
 
 Key counts sum all owned inventory stacks, excluding stash, cube, ground and
 vendor items. A confirmed empty inventory shows `keys: 0`; unavailable readings

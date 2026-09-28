@@ -53,9 +53,11 @@ def test_restart_clears_old_values_before_rediscovery(tmp_path, snapshot):
             'inventory_tracking.tracking.reader.observe_show_items', return_value=Observation(100, False)
         ) as show_items,
         patch('inventory_tracking.tracking.reader.observe_consume', return_value=Observation.unavailable()) as consume,
+        patch('inventory_tracking.tracking.reader.observe_shop_panel', return_value=Observation.unavailable()) as shop,
     ):
         reader.run()
     assert [state.session.player_id if state.session else None for state in observed] == [7, None, 17]
+    assert shop.call_count == consume.call_count
     assert observed[1].health is None
     assert observed[0].show_items.value is False
     assert observed[1].show_items.value is None

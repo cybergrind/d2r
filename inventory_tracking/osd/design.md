@@ -6,7 +6,7 @@ Implemented and live-accepted 2026-09-21. Operational defaults are in the
 ## Composition
 
 `Presenter` owns ordered widgets: notifications, player HP, merc HP, belt shortages,
-Teleport charges, portal tome, Show Items warning, key stock, Consume. `default_widgets(config)` builds that list explicitly;
+Teleport charges, portal tome, Show Items warning, key stock, Consume, repair mark. `default_widgets(config)` builds that list explicitly;
 each widget receives only its own nested config (`config.belt`, `config.portal`, …)
 plus the window's `max_age` as an explicit argument, so `--max-age` reaches every
 widget without being copied into nine configs. Widgets subclass
@@ -24,6 +24,11 @@ The reader calls `presenter.update` for every published sample, after automation
 events are attached and outside its state lock. A presenter lock serializes updates
 and rendering. GUI/text/demo share a persistent presenter and display the latest
 accepted resource sample. The UI timer still expires notifications if reading stops.
+
+A widget may also implement `mark(now=...)` returning a `Mark` (or None): a square
+highlight in game-window units that `Presenter.marks` collects with the same
+isolation as `render`. The window draws marks on a separate click-through surface;
+text mode prints `<kind> mark`.
 
 Widget exceptions are logged without repeated identical messages and suppress only
 the affected widget until successful update. They do not stop healing. The window joins segments with ` · ` and clears/unmaps when empty.
@@ -70,21 +75,24 @@ does not. Repair/replacement applies on the next valid observation; no latch.
 
 ## Portal widget
 
-As of 2026-09-22, the reminder appears only when the town portal tome has
-fewer than 3 scrolls. Defaults: capacity 20, inclusive trigger 2; configuration
-requires `0 <= trigger < capacity` and matching reader capacity.
+As of 2026-09-27, the reminder appears only in town, when the town portal tome
+has 3 or fewer scrolls. Defaults: capacity 20, inclusive trigger 3; configuration
+requires `0 <= trigger < capacity` and matching reader capacity. Town evidence
+follows the Teleport repair rule: a fresh location observation with `in_town`.
 
-| Observation | Output |
+| Fresh facts | Output |
 | --- | --- |
-| 0–2 remaining | `tp: 20 - quantity` (missing scroll count) |
-| 3 or more remaining, including partial refill | Hidden |
+| In town, 0–3 remaining | `tp: 20 - quantity` (missing scroll count) |
+| 4 or more remaining, including partial refill | Hidden |
+| Outside town, or location unavailable/stale | Hidden |
 | Unavailable, stale, or absent tome | Hidden |
 | New tome/session | Evaluate its current quantity |
 
-`20 → 3 → 2 → 1 → 0 → 3` displays
-`hidden → hidden → tp: 18 → tp: 19 → tp: 20 → hidden`.
-There is no refill latch. This threshold uses the book quantity; the swap-weapon
-Teleport charge widget has its own independent rules.
+In town, `20 → 4 → 3 → 2 → 0 → 4` displays
+`hidden → hidden → tp: 17 → tp: 18 → tp: 20 → hidden`; the same quantities
+outside town display nothing. There is no refill latch. This threshold uses the
+book quantity; the swap-weapon Teleport charge widget has its own independent rules.
+Before 2026-09-27 the trigger was 2 and the reminder showed anywhere.
 
 ## Show Items widget
 
@@ -110,3 +118,31 @@ keys cannot be mistaken for zero stock. Quantity stat 70 is read from the separa
 verified key-stat descriptor. Each stack must have exactly one plausible quantity;
 duplicate item IDs or unreadable stacks make the total unavailable. Stash, cube,
 ground, equipped and other-owner items do not contribute.
+
+## Repair mark widget
+
+`State.shop` is an `Observation[ShopPanel]` read by `tracking/shop_panel.py` after
+the build gate: the NPC shop panel flag (`tracking/panels.py`) plus, only while it
+is set, the vendor units in the sampled monster group whose shop grids hold items
+(`collection/capture.read_owner_grids`). Trade generates a vendor's stock and closing
+Trade releases it (shop/README.md), so exactly one loaded vendor identifies the open
+panel. `ShopPanel(open, vendor, smith)`; `smith` is true for Charsi, Fara, Hratli,
+Halbu and Larzuk (monstats ids in `SMITHS`). No loaded vendor, several loaded
+vendors, unreadable flags/grids or a panel that closes during the read are
+unavailable, never a guess.
+
+| Fresh facts | Mark |
+| --- | --- |
+| Smith panel open, equipped Teleport staff below maximum charges | `repair` square from `OSD.repair_mark` |
+| Full charges, absent/unavailable staff | None |
+| Non-smith vendor, closed panel, unavailable/stale shop observation | None |
+
+Geometry: `center_x`/`center_y`/`size` are fractions of the game window height,
+x from the window's left edge and y from its bottom edge, because the game scales
+its UI with the window height and anchors the vendor panel to the left. The window
+anchors the mark surface to the output's bottom-left corner with margins derived from
+`niri msg focused-window`'s `layout.window_size`, so a game window tiled under a top
+bar is covered exactly; other placements shift the mark by the window's offset.
+When the game is not focused the mark is hidden (no geometry); `--demo-repair`
+falls back to the first output's full geometry so the preview can be seen without
+a game. The mark is redrawn every refresh with a sine pulse of `pulse_seconds`.

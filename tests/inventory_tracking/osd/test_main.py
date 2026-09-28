@@ -61,3 +61,13 @@ def test_invalid_cli_combination_reaches_parser_error(tmp_path, capsys):
         main()
     assert exit_info.value.code == 2
     assert 'belt slots' in capsys.readouterr().err
+
+
+def test_repair_preview_prints_the_mark_in_text_mode(tmp_path, capsys):
+    with (
+        patch('sys.argv', ['osd', '--demo-repair', '--once', '--output', str(tmp_path)]),
+        patch('inventory_tracking.osd.__main__.LiveReader') as constructor,
+    ):
+        assert main() == 0
+    constructor.assert_not_called()
+    assert capsys.readouterr().out.strip() == 'PREVIEW · tele 10/20 repair · repair mark'

@@ -15,7 +15,7 @@ from inventory_tracking.common import LOG, configure_logging, log_to_file
 from inventory_tracking.config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
 from inventory_tracking.input import PotionInput
 from inventory_tracking.models import BeltSnapshot, PlayerHealth, State
-from inventory_tracking.osd.demo import DEMO_SESSION, resource_frame
+from inventory_tracking.osd.demo import DEMO_SESSION, repair_frame, resource_frame
 from inventory_tracking.osd.presenter import Presenter
 from inventory_tracking.reports import create_run
 from inventory_tracking.tracking.reader import LiveReader
@@ -34,6 +34,11 @@ def main():
         '--demo', action='store_true', help='Preview 1526/1545 HP, 3 missing rejuvenations, 1 missing HP potion'
     )
     parser.add_argument('--demo-resources', action='store_true', help='Cycle staff repair and portal refill previews')
+    parser.add_argument(
+        '--demo-repair',
+        action='store_true',
+        help='Preview the smith repair-button mark; open a smith Trade panel to check its placement',
+    )
     parser.add_argument('--text', action='store_true', help='Print state changes instead of opening a window')
     parser.add_argument('--once', action='store_true', help='Print one sample and exit (implies --text)')
     parser.add_argument(
@@ -83,7 +88,7 @@ def main():
     )
     parser.add_argument('--output', type=Path, default=Path(__file__).resolve().parents[1] / 'runs' / 'osd')
     args = parser.parse_args()
-    args.demo = args.demo or args.demo_resources
+    args.demo = args.demo or args.demo_resources or args.demo_repair
     try:
         osd_config = with_overrides(
             OSD,
@@ -109,6 +114,8 @@ def main():
                 now = time.monotonic() if now is None else now
                 if args.demo_resources:
                     return resource_frame(now=now, elapsed=now - started)
+                if args.demo_repair:
+                    return repair_frame(now=now)
                 return State(
                     sampled_at=now,
                     session=DEMO_SESSION,
@@ -145,7 +152,8 @@ def main():
                     state = latest()
                     if args.demo:
                         presenter.update(state)
-                    lines = presenter.render(now=time.monotonic())
+                    now = time.monotonic()
+                    lines = presenter.render(now=now) + [f'{mark.kind} mark' for mark in presenter.marks(now=now)]
                     if lines != previous:
                         print(('PREVIEW · ' if args.demo else '') + ' · '.join(lines), flush=True)
                         previous = lines
@@ -159,7 +167,10 @@ def main():
                     presenter.update(latest(now))
                 return presenter.render(now=now)
 
-            return show(render, osd_config, demo=args.demo)
+            def marks(*, now):
+                return presenter.marks(now=now)
+
+            return show(render, osd_config, demo=args.demo, marks=marks)
         except KeyboardInterrupt:
             return 0
         except (ImportError, OSError, RuntimeError, ValueError) as exc:
