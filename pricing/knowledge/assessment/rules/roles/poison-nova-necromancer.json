@@ -2696,8 +2696,7 @@
       ],
       "qualities": [
         "normal",
-        "superior",
-        "low_quality"
+        "superior"
       ],
       "must": {
         "all": [
@@ -2773,12 +2772,17 @@
           "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
           "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
         ],
-        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/runes.json",
             "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
             "locator": "/Rhyme"
+          },
+          {
+            "path": "pricing/data/appraisal-definitions.json",
+            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "locator": "/staffmods/inferior_range"
           }
         ]
       }
@@ -3436,8 +3440,7 @@
       ],
       "qualities": [
         "normal",
-        "superior",
-        "low_quality"
+        "superior"
       ],
       "must": {
         "all": [
@@ -3540,7 +3543,7 @@
         "quotes": [
           "A White Base with +2-3 to Poison Nova is suitable for this build."
         ],
-        "review": "2026-09-26: Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred.",
+        "review": "2026-09-26: Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
         "corroborating": [
           {
             "path": "pricing/data/wp-a-builds.json",
@@ -3556,6 +3559,11 @@
             "path": "third-parties/d2data/json/skills.json",
             "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
             "locator": "/92"
+          },
+          {
+            "path": "pricing/data/appraisal-definitions.json",
+            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "locator": "/staffmods/inferior_range"
           }
         ]
       }

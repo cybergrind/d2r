@@ -33,6 +33,8 @@ def test_spirit_shield_rune_bonuses_are_intrinsic_without_ignoring_added_base_re
         **item.stats,
         '45:0': {'id': 45, 'status': 'decoded', 'value': 35, 'market_property': '401'},
         '31:0': {'id': 31, 'status': 'decoded', 'value': 140},
+        # Native armor table: Monarch block22; a weapon fixture has no shield total.
+        '20:0': {'id': 20, 'status': 'decoded', 'value': 22, 'market_property': '446'},
     }
     item = replace(
         item,
@@ -40,19 +42,26 @@ def test_spirit_shield_rune_bonuses_are_intrinsic_without_ignoring_added_base_re
         base_name=base.base_name,
         item_type=base.item_type,
         stats=stats,
-        properties={**item.properties, '401': 35},
+        properties={**item.properties, '401': 35, '446': 22},
     )
     assert definitions()['Spirit']['socket_bonus_ranges']['shield']['45']['min'] == 35
     contract, gaps = RunewordHandler().contract(item, 'shield')
     assert not gaps
     assert contract.intrinsic_properties['401'] == 35
+    missing_block = replace(item, stats={key: row for key, row in stats.items() if key != '20:0'})
+    assert RunewordHandler().contract(missing_block, 'shield')[0] is None
     augmented = replace(
         item, stats={**stats, '45:0': {**stats['45:0'], 'value': 80}}, properties={**item.properties, '401': 80}
     )
     assert RunewordHandler().contract(augmented, 'shield')[0] is None  # Monarch has no automod resistance.
     paladin_base = facts('Sacred Targe')
     augmented = replace(
-        augmented, base_code=paladin_base.base_code, base_name=paladin_base.base_name, item_type=paladin_base.item_type
+        augmented,
+        base_code=paladin_base.base_code,
+        base_name=paladin_base.base_name,
+        item_type=paladin_base.item_type,
+        stats={**augmented.stats, '20:0': {**stats['20:0'], 'value': 30}},
+        properties={**augmented.properties, '446': 30},
     )
     assert '401' not in RunewordHandler().contract(augmented, 'shield')[0].intrinsic_properties
 
@@ -75,7 +84,9 @@ def test_saved_spirit_compares_only_variable_rolls_after_proven_base_and_recipe_
         inventory_owner_id=row['details']['owner_id'],
     )[0]
     contract = assess(extraction, profiles=[])['contract']
-    assert contract['intrinsic_properties']['446'] == 22
+    # Native Monarch blocking is not a rolled Increased Chance of Blocking bonus.
+    assert '446' not in contract['intrinsic_properties']
+    assert '446' not in contract['properties']
     rows = [
         {
             **{

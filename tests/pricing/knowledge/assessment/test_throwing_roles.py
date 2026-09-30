@@ -24,8 +24,9 @@ def test_rare_throwing_planner_target_requires_sustain_and_correct_proc(hand):
         assert assess_roles(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
     for key in stats:
         changed = replace(item, stats={k: v for k, v in stats.items() if k != key})
-        expected = 'partial' if key in ('253:0', '198:4225') else 'failed'
-        assert assess_roles(changed, [profile], context)[0]['status'] == expected
+        assert assess_roles(changed, [profile], context)[0]['status'] == 'failed'
+        incomplete = replace(changed, capture_complete=False)
+        assert assess_roles(incomplete, [profile], context)[0]['rule_trace']['truth'] == 'unknown'
     for key, value in [('17:0', 449), ('93:0', 39), ('253:0', 0), ('198:4225', 4)]:
         changed = replace(item, stats={**stats, key: {**stats[key], 'value': value}})
         assert assess_roles(changed, [profile], context)[0]['status'] == 'failed'

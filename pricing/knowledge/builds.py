@@ -153,12 +153,16 @@ def resolve_named_label(label, catalog):
         if row.get('category') not in ('unique', 'set', 'runeword') or not text.startswith(name + ' '):
             continue
         suffix = text[len(name) :].strip()
-        if socket_context(row, suffix, catalog) or suffix.startswith(('(', '[')) or any(
-            (suffix == base or suffix.startswith((base + ' (', base + ' [')))
-            for base, category in bases.items()
-            # Charms/jewels can have affixes named like recipes (e.g. Steel).
-            # Runewords can only decorate weapons or armor, never misc bases.
-            if row['category'] != 'runeword' or category != 'misc'
+        if (
+            socket_context(row, suffix, catalog)
+            or suffix.startswith(('(', '['))
+            or any(
+                (suffix == base or suffix.startswith((base + ' (', base + ' [')))
+                for base, category in bases.items()
+                # Charms/jewels can have affixes named like recipes (e.g. Steel).
+                # Runewords can only decorate weapons or armor, never misc bases.
+                if row['category'] != 'runeword' or category != 'misc'
+            )
         ):
             return row
     return None

@@ -102,8 +102,32 @@ def test_real_armor_collection_closes_only_discovery(label, count):
     )
     row = next(r for r in result['rows'] if r.get('name') == label)
     assert row['dimensions']['discovery']['state'] == 'reviewed'
+    assert row['dimensions']['named_tiers']['state'] == 'excluded'
     assert row['category'] == 'unresolved'  # Collection label remains distinct from the base.
     assert len(row['occurrence_ids']) == count
     for key in ('market', 'report', 'leveling', 'socket_mechanics', 'recipe_eligibility', 'stat_annotations'):
         assert row['dimensions'][key]['state'] == 'pending'
     assert not result['complete']
+
+
+@pytest.mark.parametrize(
+    ('qualities', 'expected'),
+    [
+        ((['magic'], ['normal', 'superior']), ['magic', 'normal', 'superior']),
+        ((['magic'], ['set']), ['magic', 'set']),
+        ((['unique'], ['normal']), ['normal', 'unique']),
+        ((['magic'], []), []),
+        ((['magic'], None), []),
+    ],
+)
+def test_collection_retains_quality_union_or_unknown(qualities, expected):
+    from pricing.knowledge.assessment.maintenance.pattern_collections import validate_collection
+
+    review, identity, occurrences, profiles, links = inputs()
+    for profile, quality in zip(profiles, qualities, strict=True):
+        if quality is not None:
+            profile['qualities'] = quality
+    for member, profile in zip(review['members'], profiles, strict=True):
+        member['profile_fingerprint'] = fingerprint(profile)
+    result = validate_collection(review, identity, occurrences, profiles, links)
+    assert result['qualities'] == expected

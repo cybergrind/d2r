@@ -484,6 +484,26 @@
           "profile_fingerprint": "4448de1e0151c2245d627545e2b21883497c84ee774d66d390b464200967cac2"
         }
       ]
+    },
+    {
+      "identity_id": "006a84a8bcf651c831928511d113ad6b6e9043629d5ec3c35f4df8518bda0800",
+      "identity_fingerprint": "add2a18e4d5a4b28a42ed5148ca0d2c1064dd84156d17491ac31de5230816ff2",
+      "review_date": "2026-10-01",
+      "reason": "The structured Double Throw charm table and exact raw-guide entry200 both bind to the reviewed Sharp/Dexterity physical charm configuration. Native affix witnesses and planner item140 preserve modifier and roll distinctions; identity discovery does not close market, socket, stat, report or other remaining dimensions.",
+      "members": [
+        {
+          "occurrence_id": "83e40df646dc65e7b0406bfe",
+          "occurrence_fingerprint": "db24f272516338eab2cd3cbade1d929c6c854c8e0c484f9ad28ebe1139ad0a8b",
+          "profile_id": "double-throw-sharp-dexterity-grand-charm",
+          "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f"
+        },
+        {
+          "occurrence_id": "d99bc86f1d55e1c817a988e8",
+          "occurrence_fingerprint": "4259ae3d4714bf3d4a89210ffd179af3fe6f1d8155bdd9c95af79c724f9fabdb",
+          "profile_id": "double-throw-sharp-dexterity-grand-charm",
+          "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f"
+        }
+      ]
     }
   ]
 }

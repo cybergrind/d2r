@@ -34,6 +34,8 @@ def test_white_poison_nova_uses_guide_threshold_not_perfect_planner_roll():
     assert assess(replace(white(), socket_contents='empty'))['status'] == 'failed'
     assert assess(white(sockets=1))['status'] == 'failed'
     assert not assess_roles(replace(white(), rarity='magic'), [role], {'player_class': 'Necromancer'})
+    # RotW inferior staffmods cap at +1; White adds no Poison Nova.
+    assert not assess_roles(replace(white(nova=2), rarity='low_quality'), [role], {'player_class': 'Necromancer'})
     assert set(role['important_stats']) == {'107:92', '188:17', '105:0', '9:0', '35:0', '107:68'}
 
 

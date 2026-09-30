@@ -43,15 +43,27 @@ def cases():
                 ('unidentified', replace(item, identified=False), context, 'false'),
             ]
             if slug == 'bulwark':
-                rows.append(('maximum-leech-reduction', replace(item, raw_stats=tuple(
-                    (stat, layer, {60: 6, 36: 15}.get(stat, value)) for stat, layer, value in item.raw_stats
-                )), context, 'true'))
+                rows.append(
+                    (
+                        'maximum-leech-reduction',
+                        replace(
+                            item,
+                            raw_stats=tuple(
+                                (stat, layer, {60: 6, 36: 15}.get(stat, value)) for stat, layer, value in item.raw_stats
+                            ),
+                        ),
+                        context,
+                        'true',
+                    )
+                )
             for label, candidate, loadout, truth in rows:
                 expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
                 if truth == 'true':
-                    expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                        key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys
-                    }))
+                    expected['stat_evaluation'] = IsPartialDict(
+                        annotations=IsPartialDict(
+                            {key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys}
+                        )
+                    )
                 yield Case(
                     id=f'berserk/native-merc/{slug}/{quality}/{label}',
                     item=candidate,

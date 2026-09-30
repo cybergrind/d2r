@@ -9,6 +9,10 @@ from pricing.knowledge.definition_store import catalog
 
 
 def display_inherent_skills(extraction, rows):
+    if not extraction.get('item') or not any(
+        row.get('memory_stat', {}).get('id') == 188 and 'roll_range' not in row for row in rows
+    ):
+        return rows
     facts = normalize(extraction)
     if facts.identified is not True or facts.rarity not in ('normal', 'superior', 'low_quality'):
         return rows

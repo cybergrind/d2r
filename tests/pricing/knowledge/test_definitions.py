@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import Any
 
 from pricing.knowledge.definitions import build_definitions, scalar_ranges
@@ -37,6 +38,9 @@ def test_runeword_definitions_are_built_and_searchable_in_offline_kb(tmp_path):
         'third-parties/d2data/json/rareprefix.json': {},
         'third-parties/d2data/json/raresuffix.json': {},
         'third-parties/d2data/json/sets.json': {},
+        'third-parties/d2data/json/base/sets.json': {},
+        'third-parties/d2data/json/base/setitems.json': {},
+        'third-parties/d2data/json/base/uniqueitems.json': {},
         'third-parties/d2data/json/magicprefix.json': {
             '0': {},
             '2': {'Name': 'Stout', 'itype1': 'scha', 'mod1code': 'hp', 'mod1min': 1, 'mod1max': 2},
@@ -77,6 +81,11 @@ def test_runeword_definitions_are_built_and_searchable_in_offline_kb(tmp_path):
     mapping = tmp_path / 'third-parties/d2go/pkg/data/item/runeword.go'
     mapping.parent.mkdir(parents=True)
     mapping.write_text('RunewordSpirit RunewordName = "Spirit"\n20635: RunewordSpirit,\n')
+    # Named-definition mode validation retains the pinned primary scope evidence.
+    patch = 'pricing/raw/mr/leveling/blizzard-season15.html'
+    evidence = tmp_path / patch
+    evidence.parent.mkdir(parents=True, exist_ok=True)
+    evidence.write_bytes((Path(__file__).resolve().parents[3] / patch).read_bytes())
     definitions = build_definitions(tmp_path)
     assert definitions['rows'][0]['table_id'] == 20635
     assert definitions['rows'][0]['base_codes'] == ['test']

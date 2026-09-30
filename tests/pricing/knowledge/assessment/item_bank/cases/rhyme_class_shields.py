@@ -44,6 +44,9 @@ NATIVE = (
 
 def cases():
     for (role, build, klass, base, skills), quality in product(SPECS, ('normal', 'superior', 'low_quality')):
+        if role == 'poison-nova-necromancer-0-rhyme' and quality == 'low_quality':
+            # Rhyme adds no Poison Nova; inferior staffmods cannot supply +2.
+            continue
         item = Item(
             base,
             quality,
@@ -80,7 +83,8 @@ def cases():
             ),
         ]
         for skill, minimum in skills:
-            for label, value, truth in (('below', minimum - 1, 'false'), ('maximum', 3, 'true')):
+            maximum = 1 if quality == 'low_quality' else 3
+            for label, value, truth in (('below', minimum - 1, 'false'), ('maximum', maximum, 'true')):
                 stats = tuple(
                     (sid, layer, value if sid == 107 and layer == skill else n)
                     for sid, layer, n in item.raw_stats

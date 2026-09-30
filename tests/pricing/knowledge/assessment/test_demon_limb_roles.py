@@ -7,9 +7,16 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 def test_demon_limb_prebuff_roles_require_available_enchant_and_correct_player():
     profiles = [p for p in build()['profiles'] if p['role'] == 'Demon Limb Enchant prebuff']
-    assert len(profiles) == 4
+    expected_classes = {
+        'echoing-strike-warlock-guide-1-demon-limb-prebuff': 'Warlock',
+        'echoing-strike-warlock-guide-3-demon-limb-prebuff': 'Warlock',
+        'strafe-amazon-1-demon-limb-prebuff': 'Amazon',
+        'dream-paladin-2-demon-limb-prebuff': 'Paladin',
+        'demon-limb-zeal-footnote-swap': 'Paladin',
+    }
+    assert {p['id'] for p in profiles} == set(expected_classes)
     for profile in profiles:
-        player_class = profile['must']['value']
+        player_class = expected_classes[profile['id']]
         item = facts('Tyrant Club', 'unique', 'Demon Limb')
         context = {'player_class': player_class, 'player_items': []}
         for remaining, status in [(0, 'false'), (1, 'true')]:

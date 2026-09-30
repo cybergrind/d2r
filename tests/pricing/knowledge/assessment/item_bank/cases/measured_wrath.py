@@ -41,7 +41,7 @@ def cases():
             (
                 'perfect-rolls',
                 replace(
-                    original, raw_stats=tuple((s, p, BOUNDS[(s, p)][1] if (s, p) in BOUNDS else v) for s, p, v in RAW)
+                    original, raw_stats=tuple((s, p, BOUNDS[s, p][1] if (s, p) in BOUNDS else v) for s, p, v in RAW)
                 ),
                 ctx,
                 'true',
@@ -70,7 +70,7 @@ def cases():
                     f'perfect-only-{group[0]}',
                     replace(
                         original,
-                        raw_stats=tuple((s, p, BOUNDS[(s, p)][1] if (s, p) in group else v) for s, p, v in RAW),
+                        raw_stats=tuple((s, p, BOUNDS[s, p][1] if (s, p) in group else v) for s, p, v in RAW),
                     ),
                     ctx,
                     'true',
@@ -112,7 +112,7 @@ def cases():
                         *(
                             IsPartialDict(
                                 memory_stat={'id': s, 'layer': p, 'raw': v},
-                                roll_quality='perfect' if v == BOUNDS[(s, p)][1] else 'low',
+                                roll_quality='perfect' if v == BOUNDS[s, p][1] else 'low',
                             )
                             for s, p, v in item.raw_stats
                             if (s, p) in BOUNDS

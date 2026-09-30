@@ -130,7 +130,7 @@ def audit():
     named_evidence = Counter()
     for row in guides['occurrences']:
         if row.get('category') in ('unique', 'set'):
-            named_evidence[(row['category'], row['name'])] += 1
+            named_evidence[row['category'], row['name']] += 1
     for row in census:
         row['gathered_occurrences'] = named_evidence[row['quality'], row['name']]
     gates = {

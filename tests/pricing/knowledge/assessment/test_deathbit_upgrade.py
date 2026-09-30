@@ -10,7 +10,11 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 def test_deathbit_guide_upgrade_and_replenishment_are_required_for_both_hands():
     bundle = build()
     roles = [r for r in bundle['profiles'] if r.get('names') == ['Deathbit']]
-    assert len(roles) == 2
+    assert {role['id'] for role in roles} == {
+        f'double-throw-barbarian-guide-deathbit-{hand}-{variant}-throwing-alternative'
+        for hand in ('weapon', 'off-hand')
+        for variant in ('named', 'ethereal')
+    }
     values = {'17:0': 180, '18:0': 180, '19:0': 450, '141:0': 40, '60:0': 9, '62:0': 6, '253:0': 25}
     item = replace(
         facts('Flying Knife', 'unique', 'Deathbit'),
@@ -32,6 +36,11 @@ def test_deathbit_guide_upgrade_and_replenishment_are_required_for_both_hands():
             )
 
         assert set(evaluate(item).annotations) == set(values)
+        if '-ethereal-' in role['id']:
+            assert not evaluate(replace(item, ethereal=False)).annotations
+            assert not evaluate(replace(item, ethereal=None)).annotations
+        else:
+            assert set(evaluate(replace(item, ethereal=False)).annotations) == set(values)
         assert not evaluate(replace(item, base_code=facts('Battle Dart').base_code)).annotations
         assert not evaluate(
             replace(item, stats={**item.stats, '253:0': {'status': 'decoded', 'value': 25, 'unit': 'seconds'}})

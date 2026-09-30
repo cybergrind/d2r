@@ -7614,6 +7614,110 @@
         ]
       },
       "ethereal_only": true
+    },
+    {
+      "id": "double-throw-sharp-dexterity-grand-charm",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/13",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Dexterity"
+        ],
+        "review": "2026-09-30: Reviewed exact Main alternatives Charm13 and cached planner db0106mf item140: Sharp Grand Charm of Dexterity, 10 maximum damage/76 attack rating/6 dexterity. Native Sharp253 rolls7-10damage/49-76AR; both Dexterity suffix255(3-4) and258(5-6) retain the documented physical-attack utility. Planner maxima are preferences, not minimum requirements. No numerical price or guaranteed hit chance inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/255",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/258",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Double Throw physical damage, hit chance and Dexterity charm",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 3,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Keep in the active inventory for bonuses; compare damage, hit chance and Dexterity benefit per inventory cell. Both native Dexterity tiers qualify; the perfect planner roll is not required.",
+        "Attack rating supports hit chance, not guaranteed hits. Dexterity can support weapon requirements and physical damage; it does not guarantee a complete build or a trade premium."
+      ]
     }
   ]
 }

@@ -45,9 +45,11 @@ def cases():
         for label, candidate, loadout, truth in rows:
             expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
             if truth == 'true':
-                expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                    key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys
-                }))
+                expected['stat_evaluation'] = IsPartialDict(
+                    annotations=IsPartialDict(
+                        {key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys}
+                    )
+                )
             yield Case(
                 id='berserk/mf-equipment/' + slug + '/' + label,
                 item=candidate,

@@ -24,8 +24,14 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 )
 def test_remaining_guide_charms_work_at_minimum_rolls_without_wrong_class_torch(slug, klass):
     bundle = build()
-    roles = [r for r in bundle['profiles'] if r['build'] == slug and r['id'].endswith('-gear-inventory-charm')]
+    names = {'Annihilus', 'Hellfire Torch', "Gheed's Fortune"}
+    roles = [
+        r
+        for r in bundle['profiles']
+        if r['build'] == slug and r['id'].endswith('-gear-inventory-charm') and set(r.get('names', [])) <= names
+    ]
     assert len(roles) == 3
+    assert {r['names'][0] for r in roles} == names
     class_id = CLASS_NAMES.index(klass)
     for role in roles:
         name = role['names'][0]

@@ -6,6 +6,10 @@ from datetime import date
 from pathlib import Path
 
 from inventory_tracking.items.stat_constants import CLASS_NAMES
+from pricing.knowledge.assessment.maintenance.charm_table_pattern import (
+    KIND as CHARM_KIND,
+    validate_pattern as validate_charm_pattern,
+)
 from pricing.knowledge.assessment.maintenance.guide_demand import compile_demand
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.guide_sections import section_inventory
@@ -66,7 +70,7 @@ def compile_table_equivalence(document, occurrences, profiles, uses, root):
 
     for review in document['rows']:
         oid = review['occurrence_id']
-        pattern = review.get('pattern_kind') in KINDS
+        pattern = review.get('pattern_kind') in KINDS or review.get('pattern_kind') == CHARM_KIND
         if oid in seen:
             raise ValueError('Duplicate table equivalence review')
         seen.add(oid)
@@ -201,7 +205,8 @@ def compile_table_equivalence(document, occurrences, profiles, uses, root):
             raise ValueError('Table equivalence span is missing')
         require_player_table(parser, sections, index)
         if pattern:
-            validate_pattern(review, role, occurrence, parser, index, read_json)
+            validator = validate_charm_pattern if review.get('pattern_kind') == CHARM_KIND else validate_pattern
+            validator(review, role, occurrence, parser, index, read_json)
         if qualified is not None and not pattern and parser.entry_labels[index] != qualified:
             raise ValueError('Table qualification differs from the complete HTML entry')
         span = parser.mentions[index]

@@ -14,14 +14,14 @@ import gi
 
 gi.require_version('Pango', '1.0')
 gi.require_version('PangoCairo', '1.0')
-from gi.repository import Pango, PangoCairo  # noqa: E402
+from gi.repository import Pango, PangoCairo  # ruff: ignore[module-import-not-at-top-of-file]
 
-from inventory_tracking.common import LOG  # noqa: E402
-from inventory_tracking.config import OSD  # noqa: E402
-from inventory_tracking.hud.payloads import card_lines  # noqa: E402
-from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # noqa: E402
-from inventory_tracking.osd.level_map import MapCard, draw_map  # noqa: E402
-from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # noqa: E402
+from inventory_tracking.common import LOG  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.config import OSD  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.osd.level_map import MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
 
 
 CARD_BACKGROUND = (0.06, 0.06, 0.08, 0.92)

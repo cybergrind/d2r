@@ -42,8 +42,10 @@ def test_imbue_examples_keep_distinct_stat_combinations_and_slot_placement(suffi
     assert assess_roles(item, [profile], context)[0]['rule_trace']['truth'] == 'true'
     for key in stats:
         changed = replace(item, stats={k: v for k, v in stats.items() if k != key})
-        expected = 'partial' if key in ('253:0', '198:4225') else 'failed'
-        assert assess_roles(changed, [profile], context)[0]['status'] == expected
+        assert assess_roles(changed, [profile], context)[0]['status'] == 'failed'
+        # Absence is zero only for a complete capture; unread values stay unknown.
+        incomplete = replace(changed, capture_complete=False)
+        assert assess_roles(incomplete, [profile], context)[0]['rule_trace']['truth'] == 'unknown'
     for changed in (
         replace(item, ethereal=False),
         replace(item, stats={**stats, '54:0': {'status': 'decoded', 'value': 1}}),

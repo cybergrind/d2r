@@ -520,3 +520,83 @@ def test_standard_farming_review_does_not_exclude_valuable_gear():
             assert key not in excluded
     assert all(key.endswith('/leveling') for key in dimensions)
     assert review['migration_status'] == 'partial'
+
+
+def test_advanced_socket_bases_keep_assessment_without_leveling_walkthroughs():
+    import json
+    from pathlib import Path
+
+    from pricing.knowledge.assessment.maintenance.value_scope import dimension_exclusions
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    ids = {
+        'double-throw-barbarian-guide-speed-diadem-socket-base',
+        'double-throw-barbarian-guide-nirvana-diadem-socket-base',
+        'double-throw-barbarian-guide-luck-diadem-socket-base',
+        'strafe-amazon-nirvana-diadem-socket-base',
+        'strafe-amazon-speed-diadem-socket-base',
+        'strafe-amazon-stability-shroud-socket-base',
+        'strafe-amazon-precision-shroud-socket-base',
+    }
+    dimensions = dimension_exclusions(profiles, review, root)
+    expected = {f'use:{ident}:magic/leveling' for ident in ids}
+    assert expected <= dimensions.keys()
+    excluded = use_exclusions(profiles, review, root)
+    assert not {key.removesuffix('/leveling') for key in expected} & excluded.keys()
+    assert all(key.endswith('/leveling') for key in dimensions)
+
+
+def test_harmony_movement_swaps_keep_value_assessment_without_leveling_walkthroughs():
+    import json
+    from pathlib import Path
+
+    from pricing.knowledge.assessment.maintenance.value_scope import dimension_exclusions
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    builds = (
+        'double-throw-barbarian-guide',
+        'fissure-druid',
+        'lightning-fury-amazon-guide',
+        'lightning-sorceress',
+        'lightning-strike-amazon',
+        'poison-nova-necromancer',
+    )
+    expected = {
+        f'use:{build}-player-harmony-weapon-swap-main-alternatives-word-utility-alternative:{quality}'
+        for build in builds
+        for quality in ('normal', 'superior', 'low_quality')
+    }
+    dimensions = dimension_exclusions(profiles, review, root)
+    assert {key + '/leveling' for key in expected} <= dimensions.keys()
+    assert not expected & use_exclusions(profiles, review, root).keys()
+
+
+def test_ordinary_starter_fillers_do_not_exclude_premium_candidates():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    excluded = use_exclusions(profiles, review, root)
+    for role in ('summoner-necromancer-guide-starter-rare-amulet', 'fire-blast-starter-rare-resistance-ring'):
+        assert excluded[f'use:{role}:rare']['state'] == 'excluded'
+    # These remain review leads: do not infer low demand from a Starter label.
+    retained = {
+        'nova-starter-ring',
+        'lightning-starter-ring',
+        'poison-nova-necromancer-0-rhyme',
+        'fire-blast-starter-rare-amulet',
+        'poison-nova-white-alternative',
+    }
+    selected = [profile for profile in profiles if profile['id'] in retained]
+    assert {profile['id'] for profile in selected} == retained
+    for profile in selected:
+        for quality in profile['qualities']:
+            assert f'use:{profile["id"]}:{quality}' not in excluded
+    assert all(key.startswith('use:') for key in excluded)
+    assert review['migration_status'] == 'partial'

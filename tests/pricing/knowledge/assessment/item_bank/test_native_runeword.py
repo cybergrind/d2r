@@ -41,5 +41,5 @@ def test_native_memory_preserves_staffmod_bounds_without_ranking_total(quality, 
     assert row['value'] == 3 + high
     assert row['staffmod_range']['min'] == 1
     assert row['staffmod_range']['max'] == high
-    assert 'staffmod range:' in row['text']
+    assert row['text'].count('staffmod range:') == 1
     assert 'roll_quality' not in row

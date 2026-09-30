@@ -60,7 +60,7 @@ def captured_baseline(row, identities, baselines):
         identity
         for identity in identities.values()
         if (identity.get('category'), identity.get('name')) == (quality, facts.get('name'))
-        and identity.get('catalog_ids') == [f'{quality}{native["table_id"]}']
+        and identity.get('catalog_ids') in ([f'{quality}{native["table_id"]}'], [f'{quality}{native["table_id"]:03d}'])
     ]
     baseline = baselines.get((quality, facts.get('name')))
     if len(matches) != 1 or baseline is None:

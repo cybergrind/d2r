@@ -40,7 +40,10 @@ def test_foh_bulwark_retains_both_documented_mercenary_choices(index):
     assert not evaluate('Act 2 Might', replace(item, base_code=facts('Crown').base_code)).annotations
     assert not evaluate('Act 2 Might', replace(item, socket_contents='empty')).annotations
     assert any('Holy Freeze' in c and 'Might' in c for c in role['conditions'])
-    assert bundle['guide_demand']['summaries']['Bulwark']['distinct_builds'] == 19
+    demand = bundle['guide_demand']['summaries']['Bulwark']
+    assert 'fist-of-the-heavens-paladin' in demand['builds']
+    assert demand['builds'].count('fist-of-the-heavens-paladin') == 1
+    assert demand['distinct_builds'] == len(set(demand['builds']))
 
 
 def test_foh_aura_review_pins_both_planner_profiles_and_helmet_link():

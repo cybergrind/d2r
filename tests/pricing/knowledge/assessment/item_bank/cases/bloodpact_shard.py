@@ -25,9 +25,7 @@ RAW = ((127, 0, 1), (105, 0, 30), (150, 0, 25), *((s, p, lo) for (s, p), (lo, hi
 def cases():
     ctx = {'player_class': 'Warlock'}
     original = Item('Mithral Point', 'unique', 'Bloodpact Shard', RAW, named_table_id=414)
-    perfect = replace(
-        original, raw_stats=tuple((s, p, BOUNDS[(s, p)][1] if (s, p) in BOUNDS else v) for s, p, v in RAW)
-    )
+    perfect = replace(original, raw_stats=tuple((s, p, BOUNDS[s, p][1] if (s, p) in BOUNDS else v) for s, p, v in RAW))
     rows = [
         ('minimum-rolls', original, ctx, 'true'),
         ('perfect-rolls', perfect, ctx, 'true'),
@@ -58,7 +56,7 @@ def cases():
                 f'perfect-only-{stat}:{layer}',
                 replace(
                     original,
-                    raw_stats=tuple((s, p, BOUNDS[(s, p)][1] if (s, p) == (stat, layer) else v) for s, p, v in RAW),
+                    raw_stats=tuple((s, p, BOUNDS[s, p][1] if (s, p) == (stat, layer) else v) for s, p, v in RAW),
                 ),
                 ctx,
                 'true',
@@ -89,7 +87,7 @@ def cases():
                     *(
                         IsPartialDict(
                             memory_stat={'id': s, 'layer': p, 'raw': v},
-                            roll_quality='perfect' if v == BOUNDS[(s, p)][1] else 'low',
+                            roll_quality='perfect' if v == BOUNDS[s, p][1] else 'low',
                         )
                         for s, p, v in item.raw_stats
                         if (s, p) in BOUNDS

@@ -137,3 +137,30 @@ def test_observed_capture_gaps_enter_dimension_queues_without_valuation():
     assert row['facts']['rarity'] not in ('unique', 'set')
     assert row['dimensions']['named_tiers']['state'] == 'excluded'
     assert not any(q['row_id'] == 'identity:u' for q in result['review_queues']['named_tiers'])
+
+
+@pytest.mark.parametrize(
+    ('qualities', 'state'),
+    [
+        (['normal', 'superior', 'magic', 'rare', 'crafted', 'low_quality'], 'excluded'),
+        (['magic', 'unique'], 'pending'),
+        (['normal', 'set'], 'pending'),
+        (['magic', 'unknown'], 'pending'),
+        ([], 'pending'),
+    ],
+)
+def test_validated_collection_named_tier_applicability(monkeypatch, qualities, state):
+    from pricing.knowledge.assessment.maintenance import pattern_collections
+
+    # Source validation is exercised by the real collection tests. Here isolate
+    # the matrix boundary: mixed or unknown qualities cannot lose named review.
+    monkeypatch.setattr(
+        pattern_collections,
+        'compile_collections',
+        lambda *args: {'x': {'qualities': qualities, 'reason': 'Reviewed members', 'review_index': 0}},
+    )
+    result = build_matrix(*inputs(), pattern_reviews={}, uses={'uses': []}, table_reviews={})
+    row = next(row for row in result['rows'] if row['id'] == 'identity:x')
+    assert row['dimensions']['named_tiers']['state'] == state
+    for key in ('market', 'report', 'leveling', 'socket_mechanics', 'stat_annotations'):
+        assert row['dimensions'][key]['state'] == 'pending'

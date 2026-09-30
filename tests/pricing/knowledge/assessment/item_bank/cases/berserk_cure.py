@@ -17,9 +17,14 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
         item = replace(original, rarity=quality)
         rows = [
             ('minimum-no-insight', item, context, 'true'),
-            ('maximum-poison-defense', replace(item, raw_stats=tuple(
-                (s, layer, {45: 60, 16: 100}.get(s, v)) for s, layer, v in item.raw_stats
-            )), context, 'true'),
+            (
+                'maximum-poison-defense',
+                replace(
+                    item, raw_stats=tuple((s, layer, {45: 60, 16: 100}.get(s, v)) for s, layer, v in item.raw_stats)
+                ),
+                context,
+                'true',
+            ),
             ('unknown-companions', item, {'player_class': player_class}, 'true'),
             ('prayer', item, {**context, 'mercenary_type': 'Act 2 Prayer'}, 'true'),
             ('ethereal', replace(item, ethereal=True), context, 'true'),
@@ -38,10 +43,14 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
         for label, candidate, loadout, truth in rows:
             expected = {'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))}
             if truth == 'true':
-                expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                    key: IsPartialDict(configuration_ids=Contains(role + '-stats'))
-                    for key in ('151:109', '45:0', '110:0', '76:0', '99:0')
-                }))
+                expected['stat_evaluation'] = IsPartialDict(
+                    annotations=IsPartialDict(
+                        {
+                            key: IsPartialDict(configuration_ids=Contains(role + '-stats'))
+                            for key in ('151:109', '45:0', '110:0', '76:0', '99:0')
+                        }
+                    )
+                )
             yield Case(
                 id=f'{prefix}/cure/{quality}/{label}',
                 item=candidate,
@@ -52,8 +61,10 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
                 absent_configurations=() if truth == 'true' else (role + '-stats',),
                 absent_stat_configurations={'3:0': (role + '-stats',)},
                 report_contains=('Cure',),
-                evidence=(f'pricing/data/wp-a-builds.json:/{build}/merc/Helmet/early/{source_index}',
-                          'third-parties/d2data/json/runes.json:/Cure'),
+                evidence=(
+                    f'pricing/data/wp-a-builds.json:/{build}/merc/Helmet/early/{source_index}',
+                    'third-parties/d2data/json/runes.json:/Cure',
+                ),
             )
 
 

@@ -9,14 +9,24 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
 def test_boot_markers_keep_three_resistance_gold_find_and_starter_combinations_separate():
+    # These rare-boot patterns have different requirements from caster-crafted boots.
+    roles = {
+        'blizzard-standard-boots',
+        'fire-warlock-mf-boots',
+        'fire-warlock-standard-boots',
+        'fissure-ubers-boots',
+        'gold-find-budget-boots',
+        'lightning-fury-ubers-boots',
+        'lightning-sentry-standard-boots',
+        'lightning-sorceress-ubers-boots',
+        'lightning-strike-ubers-boots',
+        'nova-starter-boots',
+    }
     profiles = build()['profiles']
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
-    configs = [
-        c
-        for c in compile_stat_configurations(reviews, profiles, root=ROOT)
-        if 'boot' in c.types and set(c.qualities) & {'magic', 'rare', 'crafted'}
-    ]
-    assert len(configs) == 10
+    configs = [c for c in compile_stat_configurations(reviews, profiles, root=ROOT) if c.role_id in roles]
+    assert {c.role_id for c in configs} == roles
+    assert all('boot' in c.types and set(c.qualities) == {'rare'} for c in configs)
     values = {'96:0': 10, '39:0': 5, '41:0': 5, '43:0': 5, '99:0': 5, '79:0': 5, '80:0': 5, '110:0': 5, '2:0': 5}
     for config in configs:
         required = {'96:0', '39:0'}

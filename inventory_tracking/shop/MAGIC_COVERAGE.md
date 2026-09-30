@@ -2,7 +2,7 @@
 
 Generated offline with `uv run --offline python -m inventory_tracking.shop.build_catalog`.
 
-26 builds; 5126 equipment-list entries; 200 named/generic magic labels; 502 compiled rules.
+26 builds; 5126 equipment-list entries; 200 named/generic magic labels; 503 compiled rules.
 
 The JSON catalog preserves every source locator, source hash, item predicate, build association, and equipment-list entry. Names describe cited examples; equivalent compatible bases of the same item type also qualify. Monarch and elite throwing-base restrictions remain explicit.
 
@@ -20,7 +20,7 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | berserk-barbarian | 268 | 64 |
 | blessed-hammer-paladin | 197 | 32 |
 | blizzard-sorceress | 222 | 44 |
-| double-throw-barbarian-guide | 268 | 60 |
+| double-throw-barbarian-guide | 268 | 61 |
 | dragon-talon-assassin | 111 | 14 |
 | dream-paladin | 173 | 34 |
 | echoing-strike-warlock-guide | 189 | 29 |
@@ -124,7 +124,7 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Garnet Sharkskin Belt of the Squid | compiled_affixes | 1 |
 | Garnet Sharkskin Gloves of Alacrity | compiled_affixes | 1 |
 | Glacial Diadem of the Magus | compiled_affixes | 1 |
-| Grand Charm | reviewed_generic_combinations | 27 |
+| Grand Charm | reviewed_generic_combinations | 28 |
 | Graverobber's Grand Charm of Balance | compiled_affixes | 1 |
 | Graverobber's Grand Charm of Vita | compiled_affixes | 3 |
 | Harpoonist's Grand Charm | compiled_affixes | 1 |
@@ -166,7 +166,7 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Powered Amulet of the Whale | compiled_affixes | 1 |
 | Powered Eldritch Orb of the Magus | compiled_affixes | 1 |
 | Prismatic Amulet | compiled_affixes | 1 |
-| Resistance Grand Charm | reviewed_generic_combinations | 27 |
+| Resistance Grand Charm | reviewed_generic_combinations | 28 |
 | Resistance Small Charm | reviewed_generic_combinations | 43 |
 | Rose Branded War Scepter of the Apprentice | compiled_affixes | 1 |
 | Ruby Boots of Acceleration | compiled_affixes | 1 |

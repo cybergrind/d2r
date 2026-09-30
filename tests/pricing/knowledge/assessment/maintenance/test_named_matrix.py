@@ -211,7 +211,7 @@ def test_captured_named_baseline_requires_matching_native_identity():
         'kind': 'identity',
         'name': "Tancred's Crowbill",
         'category': 'set',
-        'catalog_ids': ['set30'],
+        'catalog_ids': ['set030'],
         'dimensions': {'named_tiers': {'state': 'pending'}},
     }
     capture = {

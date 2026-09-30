@@ -8,18 +8,48 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 
 
 SPECS = (
-    ('merc-mid-hustle-weapon-alternative', 'Act 2 Might',
-     Item('Thresher', 'normal', 'Hustle (weapon)',
-          ((17, 0, 180), (18, 0, 180), (93, 0, 30), (151, 122, 1), (198, 16513, 5)),
-          sockets=3, socket_contents='filled', runeword='Hustle (weapon)'),
-     ('17:0', '93:0', '151:122', '198:16513'), {17: 200, 18: 200}),
-    ('lawbringer-chaos-prep-act-5-bash-merc-sword-tail', 'Act 5 Bash',
-     Item('Legend Sword', 'normal', 'Lawbringer',
-          ((151, 119, 16), (198, 5583, 20), (60, 0, 7), (32, 0, 200), (2, 0, 10),
-           (116, 0, 50), (48, 0, 150), (49, 0, 210), (54, 0, 130), (55, 0, 180)),
-          ethereal=True, sockets=3, socket_contents='filled', runeword='Lawbringer'),
-     ('151:119', '198:5583', '60:0', '32:0', '2:0', '116:0', '48:0', '49:0', '54:0', '55:0'),
-     {151: 18, 32: 250}),
+    (
+        'merc-mid-hustle-weapon-alternative',
+        'Act 2 Might',
+        Item(
+            'Thresher',
+            'normal',
+            'Hustle (weapon)',
+            ((17, 0, 180), (18, 0, 180), (93, 0, 30), (151, 122, 1), (198, 16513, 5)),
+            sockets=3,
+            socket_contents='filled',
+            runeword='Hustle (weapon)',
+        ),
+        ('17:0', '93:0', '151:122', '198:16513'),
+        {17: 200, 18: 200},
+    ),
+    (
+        'lawbringer-chaos-prep-act-5-bash-merc-sword-tail',
+        'Act 5 Bash',
+        Item(
+            'Legend Sword',
+            'normal',
+            'Lawbringer',
+            (
+                (151, 119, 16),
+                (198, 5583, 20),
+                (60, 0, 7),
+                (32, 0, 200),
+                (2, 0, 10),
+                (116, 0, 50),
+                (48, 0, 150),
+                (49, 0, 210),
+                (54, 0, 130),
+                (55, 0, 180),
+            ),
+            ethereal=True,
+            sockets=3,
+            socket_contents='filled',
+            runeword='Lawbringer',
+        ),
+        ('151:119', '198:5583', '60:0', '32:0', '2:0', '116:0', '48:0', '49:0', '54:0', '55:0'),
+        {151: 18, 32: 250},
+    ),
 )
 
 
@@ -31,9 +61,12 @@ def cases():
             item = replace(original, rarity=quality)
             for label, candidate, loadout, truth in (
                 ('minimum', item, context, 'true'),
-                ('maximum', replace(item, raw_stats=tuple(
-                    (s, layer, maxima.get(s, v)) for s, layer, v in item.raw_stats
-                )), context, 'true'),
+                (
+                    'maximum',
+                    replace(item, raw_stats=tuple((s, layer, maxima.get(s, v)) for s, layer, v in item.raw_stats)),
+                    context,
+                    'true',
+                ),
                 ('ethereal', replace(item, ethereal=True), context, 'true'),
                 ('nonethereal', replace(item, ethereal=False), context, 'true'),
                 ('unknown-ethereal', replace(item, ethereal=None), context, 'true'),
@@ -51,18 +84,24 @@ def cases():
                     'roles': Contains(IsPartialDict(id=role, side='merc', rule_trace=IsPartialDict(truth=truth)))
                 }
                 if truth == 'true':
-                    expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                        key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys
-                    }))
+                    expected['stat_evaluation'] = IsPartialDict(
+                        annotations=IsPartialDict(
+                            {key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys}
+                        )
+                    )
                 yield Case(
                     id=f'berserk/merc-weapon-tail/{slug}/{quality}/{label}',
-                    item=candidate, context=loadout, expected={'assessment': IsPartialDict(**expected)},
+                    item=candidate,
+                    context=loadout,
+                    expected={'assessment': IsPartialDict(**expected)},
                     covers=(role,),
                     scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                     absent_configurations=() if truth == 'true' else (role + '-stats',),
                     report_contains=(item.name,),
-                    evidence=('pricing/data/wp-a-builds.json:/berserk-barbarian',
-                              'third-parties/d2data/json/runes.json'),
+                    evidence=(
+                        'pricing/data/wp-a-builds.json:/berserk-barbarian',
+                        'third-parties/d2data/json/runes.json',
+                    ),
                 )
 
 

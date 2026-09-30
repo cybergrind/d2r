@@ -96,7 +96,7 @@ def compile_utility_source_reviews(document, occurrences, root):
             or not explicit_mercenary_instruction(occurrence['original_label'], quote)
         ):
             raise ValueError('Unproven utility recipient correction')
-        guide = cached[(source['path'], source['sha256'])]['sources'][occurrence['source_id']]
+        guide = cached[source['path'], source['sha256']]['sources'][occurrence['source_id']]
         require_same_section(root, occurrence, guide, evidence, positions)
         policy = row['policy']
         code = policy.get('id', '').removeprefix('consumable:')

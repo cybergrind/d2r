@@ -26,6 +26,8 @@ def policy_fingerprint():
         'completion.py',
         'completion_evidence.py',
         'occurrence_scope.py',
+        'starter_scope.py',
+        'planner_definition_scope.py',
         'non_item_scope.py',
         'carried_cube_reviews.py',
         'cube_narrative_reviews.py',
@@ -278,7 +280,7 @@ def compile_completion(
         eligible = set(_review_leads(list(occurrences.values()))['occurrence_ids'])
         exact_sources = defaultdict(list)
         for row in occurrences.values():
-            exact_sources[(row.get('source_id'), row.get('source_locator'))].append(row)
+            exact_sources[row.get('source_id'), row.get('source_locator')].append(row)
         for use in uses:
             if 'item' not in use or use.get('pattern_component'):
                 continue
@@ -460,6 +462,18 @@ def compile_completion(
         if oid in context_ids or oid in reviewed_occurrences or oid in excluded_occurrences:
             raise ValueError('Conflicting named planner occurrence disposition')
         reviewed_occurrences.add(oid)
+    from pricing.knowledge.assessment.maintenance.starter_scope import starter_exclusions
+
+    # Reviewed ordinary starter variants close only mentions no review above has claimed.
+    claimed = context_ids | reviewed_occurrences | excluded_occurrences.keys()
+    excluded_occurrences.update(
+        starter_exclusions(value_scope, list(occurrences.values()), source_root, claimed, profiles or [], excluded_uses)
+    )
+    from pricing.knowledge.assessment.maintenance.planner_definition_scope import definition_exclusions
+
+    # User-approved dormant planner definitions (2026-09-30), likewise only unclaimed mentions.
+    claimed = context_ids | reviewed_occurrences | excluded_occurrences.keys()
+    excluded_occurrences.update(definition_exclusions(value_scope, planner_audit, inventory, claimed))
     reviewed_occurrences.difference_update(excluded_occurrences)
     queue = []
 

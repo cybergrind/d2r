@@ -32,7 +32,7 @@ def enhancement_row(original, native, facts, definition, family, spec, bonus, ve
     if not label or '{{value}}' not in label or type(value) not in (int, float):
         return row
     row['text'] = label.replace('{{value}}', f'{value:g}')
-    supported = (stat in (17, 18) and family == 'weapon') or (stat == 16 and family in ('armor', 'helm'))
+    supported = (stat in (17, 18) and family == 'weapon') or (stat == 16 and family in ('armor', 'helm', 'shield'))
     if not verified or not supported or native.get('layer') != 0:
         return row
     # A recipe may have no enhancement of its own (Enigma, Flickering Flame).

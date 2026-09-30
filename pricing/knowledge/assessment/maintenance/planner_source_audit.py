@@ -56,9 +56,11 @@ def audit_sources(inventory, root, *, catalog_ids):
         except (ValueError, AttributeError, TypeError) as exc:
             unsupported.append({'source': name, 'error': str(exc)})
     missing = sorted(set(refs) - {Path(path).stem for path in reports})
-    if source_issues or guide_issues or unsupported or missing:
+    if source_issues or guide_issues:
         for report in reports.values():
-            # Incomplete global references cannot prove local absence.
+            # An unread or unparsed guide could reference any planner: no local absence is proven.
+            # A missing or unsupported planner stays its own gap; references are keyed by planner id,
+            # so it cannot root another planner's definitions (user approval, 2026-09-30).
             report['unreachable_candidates'] = []
     return {
         'schema_version': 1,

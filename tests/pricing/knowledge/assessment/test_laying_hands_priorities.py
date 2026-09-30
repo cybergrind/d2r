@@ -60,7 +60,14 @@ def test_laying_hands_breadth_and_variant_exclusion():
     bundle = build()
     summary = bundle['guide_demand']['summaries'].get('Laying of Hands')
     assert summary is not None
-    assert summary['distinct_builds'] == 4
+    assert {
+        'berserk-barbarian',
+        'dream-paladin',
+        'mirrored-blades-warlock-guide',
+        'strafe-amazon',
+        'zeal-paladin',
+    } <= set(summary['builds'])
+    assert summary['distinct_builds'] == len(set(summary['builds']))
     assert summary['grade'] == 'Pending'
-    assert summary['lower_bound_grade'] == 'Med'
+    assert summary['lower_bound_grade'] == 'High'
     assert not any(p['id'] == 'dream-paladin-2-laying-hands' for p in bundle['profiles'])

@@ -35,6 +35,20 @@ def test_reviewed_inputs_are_pinned_and_still_match_local_evidence():
         assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest, path
 
 
+@pytest.mark.parametrize('name', ['Manald Heal', 'Gravenspine', 'Bane Ash'])
+def test_ordinary_unique_tier_reason_does_not_claim_ladder_cast_speed(name):
+    review = json.loads((RULES.parent / 'named_tier_reviews.json').read_text())['rows']['unique:' + name]
+    policy = _policies(RULES.read_bytes())['unique', name]
+    baseline = next(
+        row
+        for row in json.loads((RULES.parent / 'named_baselines.json').read_text())['rows']
+        if row['quality'] == 'unique' and row['name'] == name
+    )
+    for text in (review['basis'], policy['review'], baseline['basis']):
+        assert 'Faster cast rate' not in text
+        assert 'casting speed make' not in text
+
+
 @pytest.mark.parametrize('change', ['duplicate', 'foreign', 'missing'])
 def test_variant_tier_rules_cannot_omit_or_borrow_another_identity(change):
     document = json.loads(RULES.read_bytes())

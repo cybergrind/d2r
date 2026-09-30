@@ -318,6 +318,10 @@ Status 2026-09-30 (user checked in game; fixtures from evidence/dumps):
 | Stony Field | unconfirmed (d2data/D2MOO, 2026-09-30): Tristram = 'Cairn Stones', Underground Passage = cave entrance, Cold Plains = the one border gap | — |
 | Dark Wood | unconfirmed (2026-09-30): Underground Passage = cave entrance (evidence 20260930T120851: cliff cave), Black Marsh = the one border gap | — |
 | Cave 1 | confirmed (user walked the whole level, 2026-09-30): Cave Down, Coldcrow, Cave Prev; all 54 rooms' walls learned; Cave 2 is one fixed preset (no handler) | cave_1 |
+| Crystalline Passage, Glacial Trail (113, 115) | unconfirmed (d2data levels/lvlprest, 2026-10-01; no evidence yet): level ahead = 'Ice Next' (Glacial Trail / Frozen Tundra), side cave = 'Ice Down' (Frozen River, Anya / Drifter Cavern), 'Ice waypoint', way back = 'Ice Prev'; `handlers/ice_caves.py` | — |
+| Outer Steppes (104) | unconfirmed (D2MOO DrlgOutdoors/DrlgOutPlace + d2data, 2026-10-01; no evidence yet): Plains of Despair = the open 'Mesa Border 1-4' gap (file 3; named by elimination), way back = 'Act 4 - Fortress Transition'; no waypoint; `handlers/outer_steppes.py` | — |
+| Plains of Despair (105) | unconfirmed (D2MOO + d2data, 2026-10-01; no evidence yet): Izual = 'Act 4 - Mesa 2 Izual'; City of the Damned / Outer Steppes = open 'Mesa Border 1-4' gaps (`ACT4_GAP`); `handlers/plains_of_despair.py` | — |
+| River of Flame (107) | unconfirmed (D2MOO DRLGMAZE_PlaceAct4Lava, 2026-10-01; no evidence yet): Hephasto = 'Act 4 - Lava Forge [WE]', Chaos Sanctum = 'Bridge 1', way back = 'Lava Warp N'; waypoint not marked (no named preset); `handlers/river_of_flame.py` | — |
 | Tal Rasha's Tombs (66-72) | confirmed (dump 20260930T154636Z-55eebd5c, true tomb 70): Orifice = 'Tomb Talrasha [NSEW]' (optional, true tomb only), way back = 'Tomb Prev' | tal_rasha_true_tomb |
 
 **Walkability (2026-09-30):** Room2 carries no walls; loaded Room1s hold a collision grid. Found with

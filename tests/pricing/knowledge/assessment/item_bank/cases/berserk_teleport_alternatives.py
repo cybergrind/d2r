@@ -18,14 +18,23 @@ def cases():
             item = Item(base, quality, raw_stats=((204, layer, (maximum << 8) | 1),))
             rows = [
                 ('one-charge', item, context, 'true', 'positive'),
-                ('full', replace(item, raw_stats=((204, layer, (maximum << 8) | maximum),)),
-                 context, 'true', 'positive'),
-                ('depleted', replace(item, raw_stats=((204, layer, maximum << 8),)),
-                 context, 'true', 'negative'),
+                (
+                    'full',
+                    replace(item, raw_stats=((204, layer, (maximum << 8) | maximum),)),
+                    context,
+                    'true',
+                    'positive',
+                ),
+                ('depleted', replace(item, raw_stats=((204, layer, maximum << 8),)), context, 'true', 'negative'),
                 ('unread', replace(item, raw_stats=()), context, 'unknown', 'unknown'),
                 ('absent', replace(item, raw_stats=(), complete=True), context, 'false', 'negative'),
-                ('triggered-not-charged', replace(item, raw_stats=((201, 54 * 64 + 3, 10),), complete=True),
-                 context, 'false', 'negative'),
+                (
+                    'triggered-not-charged',
+                    replace(item, raw_stats=((201, 54 * 64 + 3, 10),), complete=True),
+                    context,
+                    'false',
+                    'negative',
+                ),
                 ('unidentified', replace(item, identified=False), context, 'false', 'negative'),
                 ('wrong-class', item, {'player_class': 'Sorceress'}, 'false', 'negative'),
                 ('unknown-class', item, {}, 'unknown', 'unknown'),
@@ -33,8 +42,13 @@ def cases():
             if base == 'Long Staff':
                 rows += [
                     ('ethereal-one', replace(item, ethereal=True), context, 'true', 'positive'),
-                    ('ethereal-empty', replace(item, ethereal=True, raw_stats=((204, layer, maximum << 8),)),
-                     context, 'true', 'negative'),
+                    (
+                        'ethereal-empty',
+                        replace(item, ethereal=True, raw_stats=((204, layer, maximum << 8),)),
+                        context,
+                        'true',
+                        'negative',
+                    ),
                     ('socketed', replace(item, sockets=2), context, 'true', 'positive'),
                 ]
             else:

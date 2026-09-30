@@ -1,3 +1,37 @@
+## 2026-09-30 — user-approved dormant planner definitions excluded
+
+User approved cutting planner item definitions placed in no profile and linked by no
+guide. `planner_source_audit.py` now blanks candidates only for guide/source issues, not
+for the one unsupported planner (1r010653, "Profile not found"): 3,820 candidates. New
+`maintenance/planner_definition_scope.py` (policy fingerprint) plus `planner_definitions`
+approval in `rules/value_scope_reviews.json`; red/green audit tests updated (+2) and 9 new.
+Rebuilt audit, bank coverage, jewelry reviews (rows identical), coverage matrix, manifest.
+Completion: 7,426 occurrences excluded; source_review 55,149 → 47,723; remaining
+110,240 → 102,814; manifest verified; complete=false. 2,481 "Unreferenced definitions"
+stay pending (reachable roots or planners with issues). 595 scope/planner tests passed.
+
+## 2026-09-30 — reviewed ordinary starter variants excluded from source review
+
+New `maintenance/starter_scope.py` (in the completion-policy fingerprint) and a `variants`
+section in `rules/value_scope_reviews.json`: 21 guide Starter variants reviewed from their
+exact `purpose` quotes (wp-a-variants + wp-a-builds mirror), guide HTML and 39 guide-linked
+planner profiles with the same name and a title for that build. Retained: Smite Starter
+(Uber minimum), Holy Bolt Starter (merc Fanaticism setup), all Budget variants, planners
+titled for other builds (Fury Druid, Frost Nova, Freezing Arrow, Blade Assassin) and the
+1,008 shared-planner Starter mentions. Only unclaimed occurrences without a retained source
+rule are excluded; identities, uses, configurations, tiers, pricing and bank obligations stay.
+
+Red/green `tests/.../maintenance/test_starter_scope.py` (17). Rehashed dependents: item-bank
+coverage, fixed/variable jewelry market reviews (`--as-of 2026-09-30`, rows identical),
+coverage matrix, scope manifest. Completion: 2,579 occurrences excluded, source_review
+57,728 → 55,149, remaining 112,821 → 110,240, manifest verified, complete=false,
+migration_status still partial. Scope/completion suites 549 passed; Ruff clean.
+One-shot `scratchpad add_starter_reviews.py` refuses to append twice.
+
+Open migration decision: 8,008 candidate-only "Unreferenced definitions" planner rows
+(reachability audit 2026-09-27, exclusions_approved=false) need user approval before any
+source-only exclusion. A concurrent agent was adding item-bank cases during this run.
+
 ## 2026-09-28 — seven Abyss named mercenary socket configurations published
 
 Added exact Abyss Act2Might rules and source links:

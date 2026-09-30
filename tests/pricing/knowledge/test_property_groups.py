@@ -42,6 +42,11 @@ def test_opalvein_preserves_all_six_alternatives_with_native_bounds(compiled):
 def test_random_parameter_and_pickmode_two_are_not_misrepresented_as_scalar_choices(compiled):
     for table_id in (62, 413):
         item = next(r for r in compiled['rows'] if r['rarity'] == 'unique' and r['table_id'] == table_id)
+        if table_id == 62:
+            # Random arrow skills belong to the Ladder Rogue's Bow, not Non-Ladder.
+            assert item['property_groups'] == []
+            assert item['mode_review']['scope'] == 'softcore_non_ladder'
+            item = item['ladder_definition']
         assert item['property_groups']
         assert all(g['selection'] == 'unresolved' for g in item['property_groups'])
 

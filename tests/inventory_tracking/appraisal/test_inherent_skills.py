@@ -13,6 +13,17 @@ def skill_row(result):
     return next(r for r in display_stats(result) if r.get('memory_stat', {}).get('id') == 188)
 
 
+@pytest.mark.parametrize('include_stat', [False, True])
+def test_missing_item_context_preserves_rows_without_inventing_inherent_ranges(include_stat):
+    rows = (
+        [{'memory_stat': {'id': 188, 'layer': 0, 'raw': 3}, 'value': 3, 'text': '+3 to skills'}] if include_stat else []
+    )
+    result = {'extraction': {'decoded_stats': rows}}
+    original = deepcopy(result)
+    assert display_stats(result) == rows
+    assert result == original
+
+
 @pytest.mark.parametrize(('value', 'rank'), [(1, 'low'), (2, 'normal'), (3, 'perfect')])
 def test_mist_inherent_bow_skills_do_not_include_all_skills(value, rank):
     item = CASES[0].item

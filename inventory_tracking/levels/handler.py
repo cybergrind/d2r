@@ -86,7 +86,7 @@ def instances(rooms: Iterable[Room]) -> list[tuple[Room, int]]:
     found: dict[tuple, list] = {}
     for room in rooms:
         if room.block is None:
-            found[(room.preset, room.x, room.y)] = [room, 1]
+            found[room.preset, room.x, room.y] = [room, 1]
         else:
             key = (room.preset, room.block)
             if key in found:
@@ -161,6 +161,8 @@ def waypoint(family: str) -> PoiSpec:
 # walkable gaps between levels (D2MOO DrlgOutPlace: level links pick file 3, or 4 in the Burial
 # Grounds; Black Marsh and Cold Plains evidence: one variant-3 border room per exit).
 ACT1_GAP = r'Act 1 - Wild Border [1-4]'
+# Act 4 Mesa borders have one open DS1 file (Border*o.ds1 = 3) and no 'oe' file (d2data lvlprest).
+ACT4_GAP = r'Act 4 - Mesa Border [1-4]'
 
 
 @dataclass(frozen=True)

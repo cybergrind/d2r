@@ -50766,10 +50766,10 @@
       "id": "poison-nova-necromancer-0-rhyme-stats",
       "version": 1,
       "role_id": "poison-nova-necromancer-0-rhyme",
-      "profile_fingerprint": "4d6d3ba893395141efcddf0d29d6a64e049dadb75b51e91d2f2cd2002971a23d",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "8b1806556e746b98eb554c3a156a8651fa90a7a6c20a9bd71762b033f9e60827",
+      "review_date": "2026-10-01",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+      "rationale": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
       "advisory_conditions": [
         "Rhyme supplies Cannot Be Frozen, resistance and farming utility; block chance still depends on class, Dexterity and level, not the shield alone.",
         "The exact listed base and equipment requirements matter; this completed Shael/Eth shield is separate from an empty two-socket preparation base.",
@@ -83860,10 +83860,10 @@
       "id": "poison-nova-white-alternative-stats",
       "version": 1,
       "role_id": "poison-nova-white-alternative",
-      "profile_fingerprint": "e06fe3557a14cc2a02730ef00efa74c67b0f64e562166fc26f66e20261688a0c",
-      "review_date": "2026-09-26",
+      "profile_fingerprint": "ca395e5ea2ad77a2942a6728518a79119c5c8b4481e134689e82e533ab0d402b",
+      "review_date": "2026-10-01",
       "review_state": "reviewed",
-      "rationale": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred.",
+      "rationale": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
       "advisory_conditions": [],
       "priorities": [
         {
@@ -195875,6 +195875,54 @@
             "unit": "replenishment_rate"
           },
           "explanation": "Supports Double Throw physical attacks; mana after kill and replenishment retain their separate activation conditions."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-sharp-dexterity-grand-charm-stats",
+      "version": 1,
+      "role_id": "double-throw-sharp-dexterity-grand-charm",
+      "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f",
+      "review_date": "2026-09-30",
+      "review_state": "reviewed",
+      "rationale": "2026-09-30: Reviewed exact Main alternatives Charm13 and cached planner db0106mf item140: Sharp Grand Charm of Dexterity, 10 maximum damage/76 attack rating/6 dexterity. Native Sharp253 rolls7-10damage/49-76AR; both Dexterity suffix255(3-4) and258(5-6) retain the documented physical-attack utility. Planner maxima are preferences, not minimum requirements. No numerical price or guaranteed hit chance inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory for bonuses; compare damage, hit chance and Dexterity benefit per inventory cell. Both native Dexterity tiers qualify; the perfect planner roll is not required.",
+        "Attack rating supports hit chance, not guaranteed hits. Dexterity can support weapon requirements and physical damage; it does not guarantee a complete build or a trade premium."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Captured modifier contributes to this reviewed physical Double Throw inventory combination; evaluate the complete weapon and hit-chance setup."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Captured modifier contributes to this reviewed physical Double Throw inventory combination; evaluate the complete weapon and hit-chance setup."
+        },
+        {
+          "key": "2:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "2:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Captured modifier contributes to this reviewed physical Double Throw inventory combination; evaluate the complete weapon and hit-chance setup."
         }
       ]
     }

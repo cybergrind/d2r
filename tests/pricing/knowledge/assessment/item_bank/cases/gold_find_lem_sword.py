@@ -1,6 +1,7 @@
 """Six linked Lems establish a gold-find payload; an observed total alone cannot."""
 
 from dataclasses import replace
+from itertools import product
 
 from dirty_equals import Contains, IsPartialDict
 
@@ -8,12 +9,22 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, Sock
 
 
 ROLE = 'gold-find-standard-off-hand-lem-sword'
-CONFIG = ROLE + '-stats'
+USES = (
+    ('war-cry', 2, 'weapon-swap', 'Weapon-Swap'),
+    ('war-cry', 2, 'off-hand-swap', 'Off-Hand-Swap'),
+    ('whirlwind', 3, 'weapon-swap', 'Weapon-Swap'),
+    ('whirlwind', 3, 'off-hand-swap', 'Off-Hand-Swap'),
+    ('leap-only', 4, 'weapon', 'Weapon'),
+    ('leap-only', 4, 'off-hand', 'Off-Hand'),
+)
+SPECIALIST_ROLES = tuple(f'gold-find-{variant}-{slot}-lem-sword' for variant, _, slot, _ in USES)
 LEMS = tuple(SocketItem('Lem Rune') for _ in range(6))
 
 
 def cases():
-    for quality in ('normal', 'superior'):
+    for group, quality in product(('standard', 'specialist'), ('normal', 'superior')):
+        roles = (ROLE,) if group == 'standard' else SPECIALIST_ROLES
+        configs = tuple(role + '-stats' for role in roles)
         original = Item(
             'Crystal Sword',
             quality,
@@ -25,7 +36,14 @@ def cases():
         context = {'player_class': 'Barbarian'}
         examples = (
             ('crystal', original, context, 'true', 'true', True),
-            ('phase', replace(original, base='Phase Blade'), context, 'true', 'true', True),
+            (
+                'phase',
+                replace(original, base='Phase Blade'),
+                context,
+                'true' if group == 'standard' else 'false',
+                'true',
+                group == 'standard',
+            ),
             ('ethereal-crystal', replace(original, ethereal=True), context, 'true', 'true', True),
             ('unknown-ethereal', replace(original, ethereal=None), context, 'true', 'true', True),
             ('wrong-class', original, {'player_class': 'Amazon'}, 'false', 'true', False),
@@ -86,10 +104,13 @@ def cases():
         for label, item, loadout, truth, linked, active in examples:
             expected = {
                 'roles': Contains(
-                    IsPartialDict(
-                        id=ROLE,
-                        rule_trace=IsPartialDict(truth=truth),
-                        dependencies=Contains(IsPartialDict(status=linked)),
+                    *(
+                        IsPartialDict(
+                            id=role,
+                            rule_trace=IsPartialDict(truth=truth),
+                            dependencies=Contains(IsPartialDict(status=linked)),
+                        )
+                        for role in roles
                     )
                 )
             }
@@ -99,10 +120,13 @@ def cases():
                         {
                             '79:0': IsPartialDict(
                                 contributions=Contains(
-                                    IsPartialDict(
-                                        configuration_id=CONFIG,
-                                        role_id=ROLE,
-                                        desirability='desirable',
+                                    *(
+                                        IsPartialDict(
+                                            configuration_id=role + '-stats',
+                                            role_id=role,
+                                            desirability='desirable',
+                                        )
+                                        for role in roles
                                     )
                                 )
                             )
@@ -110,20 +134,28 @@ def cases():
                     )
                 )
             yield Case(
-                id=f'gold-find-lem-sword/{quality}/{label}',
+                id=f'gold-find-lem-sword/{group}/{quality}/{label}',
                 item=item,
                 context=loadout,
                 expected={'assessment': IsPartialDict(**expected), 'price_estimate': IsPartialDict(estimate_ist=None)},
-                covers=(ROLE,),
+                covers=roles,
                 scenario='positive'
                 if active
                 else 'unknown'
                 if 'unknown' in (truth, linked) or label == 'uncaptured-gold'
                 else 'negative',
-                absent_configurations=() if active else (CONFIG,),
+                absent_configurations=() if active else configs,
                 report_contains=('Sockets: 6', 'Lem', '450% Extra Gold') if active else (),
                 report_absent=('Lem Rune',),
-                evidence=('pricing/data/wp-a-builds.json:/gold-find-barbarian/variants/1/player/Off-Hand/0',),
+                detail_contains=('Ethereal swords cannot be repaired;',)
+                if group == 'specialist' and label == 'ethereal-crystal'
+                else (),
+                evidence=('pricing/data/wp-a-builds.json:/gold-find-barbarian/variants/1/player/Off-Hand/0',)
+                if group == 'standard'
+                else tuple(
+                    f'pricing/data/wp-a-builds.json:/gold-find-barbarian/variants/{index}/player/{slot}/0'
+                    for _, index, _, slot in USES
+                ),
             )
 
 

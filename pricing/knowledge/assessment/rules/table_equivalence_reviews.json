@@ -28352,11 +28352,11 @@
       "occurrence_id": "438af5e9eafdac4b2c89697c",
       "occurrence_fingerprint": "6f0f21ae94fe62ac2e2d388e220ddbc721a402863c368f707ffd63108f29cc1e",
       "profile_id": "poison-nova-necromancer-0-rhyme",
-      "profile_fingerprint": "4d6d3ba893395141efcddf0d29d6a64e049dadb75b51e91d2f2cd2002971a23d",
-      "use_fingerprint": "ca3efc8d459db682734566d0b81b561cb65d7ffef6204eb35d6434ca87918892",
+      "profile_fingerprint": "8b1806556e746b98eb554c3a156a8651fa90a7a6c20a9bd71762b033f9e60827",
+      "use_fingerprint": "2621292031eed9f2f7e8d991eaacc1cc34b8c64626875e41326d4bc454ee5896",
       "canonical_name": "Rhyme",
-      "review_date": "2026-09-29",
-      "reason": "Reviewed completed Shael/Eth class shield: retain exact base, nonethereal state and all cited staffmods together. Recipe resistance is separate from inherent Paladin resistance; swap utility requires that set active. Planner alternatives are not simultaneous equipment. Usefulness is not an exact price or a full-build resistance/block guarantee.",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed completed Shael/Eth class shield: retain exact base, nonethereal state and all cited staffmods together. Recipe resistance is separate from inherent Paladin resistance; swap utility requires that set active. Planner alternatives are not simultaneous equipment. Usefulness is not an exact price or a full-build resistance/block guarantee. Reviewed inferior-quality exclusion: the exact +2 Poison Nova staffmod cannot occur on inferior heads; normal/superior source configuration, predicates and conditions are unchanged.",
       "required_predicates": [
         {
           "op": "context_eq",
@@ -32817,6 +32817,37 @@
       "variant_alias": "MF",
       "review_date": "2026-09-30",
       "reason": "MF prose replaces the armor facet with Ist; exact Vipermagi recipient and setup stay required."
+    },
+    {
+      "occurrence_id": "d99bc86f1d55e1c817a988e8",
+      "occurrence_fingerprint": "4259ae3d4714bf3d4a89210ffd179af3fe6f1d8155bdd9c95af79c724f9fabdb",
+      "profile_id": "double-throw-sharp-dexterity-grand-charm",
+      "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f",
+      "use_fingerprint": "92e71f2d57f33191449725ae6d7bd0a1971668eb661f6bfba3c60808924fb78c",
+      "review_date": "2026-10-01",
+      "reason": "Guide entry200 and planner item140 corroborate the Sharp/Dexterity charm combination.",
+      "pattern_kind": "double_throw_sharp_dexterity_charm",
+      "pattern_label": "Sharp Grand Charm of Dexterity",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      }
     }
   ]
 }

@@ -47,10 +47,20 @@ def test_fire_iron_wolf_candidates_require_matching_socket_payload_and_context(s
         item,
         sockets=1,
         socket_contents='filled',
-        socket_items=[{'name': 'Rainbow Facet', 'item_type': 'jewl', 'stats_complete': True, 'stats': fire}],
+        socket_items=[
+            {
+                'name': 'Rainbow Facet',
+                'item_type': 'jewl',
+                'unit_id': 1000,
+                'position': 0,
+                'stats_complete': True,
+                'stats': fire,
+            }
+        ],
     )
-    context = {'mercenary_type': 'Act 3 Fire'}
+    context = {'mercenary_type': 'Act 3 Fire', 'player_class': 'Assassin'}
     role = assess_roles(socketed, [rule], context)[0]
+    assert role['rule_trace']['truth'] == 'true'
     assert all(d['status'] == 'true' for d in role['dependencies'])
     assert any('will not survive' in m for m in role['missing'])
     wrong_element = replace(
@@ -59,12 +69,21 @@ def test_fire_iron_wolf_candidates_require_matching_socket_payload_and_context(s
             {
                 'name': 'Rainbow Facet',
                 'item_type': 'jewl',
+                'unit_id': 1000,
+                'position': 0,
                 'stats_complete': True,
                 'stats': {'330:0': {'status': 'decoded', 'value': 5}},
             }
         ],
     )
-    assert any(d['status'] != 'true' for d in assess_roles(wrong_element, [rule], context)[0]['dependencies'])
+    assert any(d['status'] == 'false' for d in assess_roles(wrong_element, [rule], context)[0]['dependencies'])
+    unlinked = replace(
+        socketed,
+        socket_items=[
+            {k: v for k, v in child.items() if k not in ('unit_id', 'position')} for child in socketed.socket_items
+        ],
+    )
+    assert any(d['status'] == 'unknown' for d in assess_roles(unlinked, [rule], context)[0]['dependencies'])
     totals_only = replace(socketed, socket_items=[], stats=fire)
     assert any(d['status'] != 'true' for d in assess_roles(totals_only, [rule], context)[0]['dependencies'])
     if suffix == 'lidless-merc':

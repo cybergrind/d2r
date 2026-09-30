@@ -8,9 +8,8 @@ BONE_UBERS = "Along with Bone Break, Decrepify also allows you destroy Uber Baal
 
 
 def cta_instruction(quote):
-    return (
-        all(token in quote for token in ('Call to Arms', 'Battle Command', 'Battle Orders'))
-        and any(token in quote.lower() for token in ('buffing yourself', 'casting battle command'))
+    return all(token in quote for token in ('Call to Arms', 'Battle Command', 'Battle Orders')) and any(
+        token in quote.lower() for token in ('buffing yourself', 'casting battle command')
     )
 
 

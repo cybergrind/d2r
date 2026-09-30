@@ -118,3 +118,19 @@ def test_invalid_context_level_is_unknown_not_confirmed_mismatch(observed):
 
     rule = {'op': 'context_eq', 'field': 'player_level', 'value': 75}
     assert evaluate(rule, facts('Amulet'), {'player_level': observed}).truth == 'unknown'
+
+
+@pytest.mark.parametrize(('key', 'unit'), [('253:0', 'replenishment_rate'), ('198:4225', 'percent_chance')])
+def test_unit_qualified_stat_can_be_confirmed_absent_without_inventing_a_unit(key, unit):
+    from pricing.knowledge.assessment.roles.predicates import evaluate
+
+    rule = {'op': 'stat_at_least', 'key': key, 'value': 1, 'unit': unit, 'absent_is_zero': True}
+    item = replace(facts('Ghost Glaive', 'rare'), stats={}, capture_complete=True, gaps=())
+    assert evaluate(rule, item).truth == 'false'
+    assert evaluate(rule, replace(item, capture_complete=False)).truth == 'unknown'
+    assert evaluate(rule, replace(item, gaps=('Unresolved stat capture',))).truth == 'unknown'
+    assert evaluate({**rule, 'absent_is_zero': False}, item).truth == 'unknown'
+    wrong_unit = replace(item, stats={key: {'status': 'decoded', 'value': 10, 'unit': 'seconds'}})
+    assert evaluate(rule, wrong_unit).truth == 'unknown'
+    present = replace(item, stats={key: {'status': 'decoded', 'value': 10, 'unit': unit}})
+    assert evaluate(rule, present).truth == 'true'

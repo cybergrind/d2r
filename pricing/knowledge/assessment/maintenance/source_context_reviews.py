@@ -366,7 +366,7 @@ def compile_source_context_reviews(document, occurrences, profiles, uses, root):
             'mercenary_table_correction',
             'mercenary_table_pattern_correction',
         ):
-            guide = cache[(source['path'], source['sha256'])]['sources'][occurrence['source_id']]
+            guide = cache[source['path'], source['sha256']]['sources'][occurrence['source_id']]
             require_same_section(root, occurrence, guide, evidence, positions, label='source-context')
         if kind in ('mercenary_table_correction', 'mercenary_table_pattern_correction'):
             from pricing.knowledge.assessment.maintenance.mercenary_table_context import validate_table_context

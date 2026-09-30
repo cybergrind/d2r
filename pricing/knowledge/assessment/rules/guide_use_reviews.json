@@ -18200,21 +18200,26 @@
           "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
           "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
         ],
-        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/runes.json",
             "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
             "locator": "/Rhyme"
+          },
+          {
+            "path": "pricing/data/appraisal-definitions.json",
+            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "locator": "/staffmods/inferior_range"
           }
         ]
       },
       "strength": "preferred",
       "review_state": "reviewed",
       "scope": "softcore",
-      "review_date": "2026-09-28",
-      "review_reason": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
-      "profile_fingerprint": "4d6d3ba893395141efcddf0d29d6a64e049dadb75b51e91d2f2cd2002971a23d",
+      "review_date": "2026-10-01",
+      "review_reason": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
+      "profile_fingerprint": "8b1806556e746b98eb554c3a156a8651fa90a7a6c20a9bd71762b033f9e60827",
       "presentation": {
         "progression": "Starter"
       }
@@ -32984,7 +32989,7 @@
         "quotes": [
           "A White Base with +2-3 to Poison Nova is suitable for this build."
         ],
-        "review": "2026-09-26: Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred.",
+        "review": "2026-09-26: Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
         "corroborating": [
           {
             "path": "pricing/data/wp-a-builds.json",
@@ -33000,15 +33005,20 @@
             "path": "third-parties/d2data/json/skills.json",
             "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
             "locator": "/92"
+          },
+          {
+            "path": "pricing/data/appraisal-definitions.json",
+            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "locator": "/staffmods/inferior_range"
           }
         ]
       },
       "strength": "alternative",
       "review_state": "reviewed",
       "scope": "softcore",
-      "review_date": "2026-09-26",
-      "review_reason": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred.",
-      "profile_fingerprint": "e06fe3557a14cc2a02730ef00efa74c67b0f64e562166fc26f66e20261688a0c"
+      "review_date": "2026-10-01",
+      "review_reason": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
+      "profile_fingerprint": "ca395e5ea2ad77a2942a6728518a79119c5c8b4481e134689e82e533ab0d402b"
     },
     {
       "profile_id": "berserk-barbarian-wisp-projector-find-absorb-alternative",
@@ -93045,6 +93055,54 @@
       "review_date": "2026-09-30",
       "review_reason": "Exact primary variant Off-Hand cell and guide-selected planner establish this named grimoire with its specified rune. Native minimum Chaos/FCR/fire/Apocalypse guards and nonethereal player scope remain in the role. Perfect rolls and market value are not inferred.",
       "profile_fingerprint": "80f2bfb3a4c4754e0624c2c69a30473a8ac49d6288d4693a9eeecfb09ac8bb4c"
+    },
+    {
+      "profile_id": "double-throw-sharp-dexterity-grand-charm",
+      "pattern": "double-throw-sharp-dexterity-grand-charm",
+      "pattern_label": "Sharp Grand Charm of Dexterity",
+      "pattern_source_slot": "Charms",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/13",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Dexterity"
+        ],
+        "review": "2026-09-30: Reviewed exact Main alternatives Charm13 and cached planner db0106mf item140: Sharp Grand Charm of Dexterity, 10 maximum damage/76 attack rating/6 dexterity. Native Sharp253 rolls7-10damage/49-76AR; both Dexterity suffix255(3-4) and258(5-6) retain the documented physical-attack utility. Planner maxima are preferences, not minimum requirements. No numerical price or guaranteed hit chance inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/255",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/258",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "strength": "alternative",
+      "review_state": "reviewed",
+      "scope": "softcore",
+      "review_date": "2026-09-30",
+      "review_reason": "2026-09-30: Reviewed exact Main alternatives Charm13 and cached planner db0106mf item140: Sharp Grand Charm of Dexterity, 10 maximum damage/76 attack rating/6 dexterity. Native Sharp253 rolls7-10damage/49-76AR; both Dexterity suffix255(3-4) and258(5-6) retain the documented physical-attack utility. Planner maxima are preferences, not minimum requirements. No numerical price or guaranteed hit chance inferred.",
+      "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f"
     }
   ]
 }

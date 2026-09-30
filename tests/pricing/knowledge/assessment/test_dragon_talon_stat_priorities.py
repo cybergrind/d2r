@@ -52,9 +52,10 @@ def test_dragon_talon_player_and_enchant_support_have_distinct_priorities(suffix
             'stats': {'93:0': {'status': 'decoded', 'value': 15}, '41:0': {'status': 'decoded', 'value': 30}},
         }
     )
+    jewel = {**jewel, 'unit_id': 1000, 'position': 0}
     if suffix != 'goblin-toe':
         item = replace(item, sockets=1, socket_contents='filled', socket_items=[jewel])
-    ctx = {'mercenary_type': 'Act 3 Fire'} if merc else {'player_class': 'Assassin'}
+    ctx = {'player_class': 'Assassin', **({'mercenary_type': 'Act 3 Fire'} if merc else {})}
 
     def evaluate(candidate=item, context=ctx):
         return StatsEvaluator().evaluate(
@@ -72,10 +73,14 @@ def test_dragon_talon_player_and_enchant_support_have_distinct_priorities(suffix
         assert not evaluate(replace(item, **change)).annotations
     assert not evaluate(context={}).annotations
     if merc:
-        assert not evaluate(context={'mercenary_type': 'Act 3 Cold'}).annotations
+        assert not evaluate(context={'mercenary_type': 'Act 3 Fire'}).annotations
+        assert not evaluate(context={**ctx, 'player_class': 'Sorceress'}).annotations
+        assert not evaluate(context={**ctx, 'mercenary_type': 'Act 3 Cold'}).annotations
         for eth in (False, True, None):
             assert set(evaluate(replace(item, ethereal=eth)).annotations) == wanted
-        assert not evaluate(replace(item, socket_items=[facet(element='cold')])).annotations
+        assert not evaluate(
+            replace(item, socket_items=[{**facet(element='cold'), 'unit_id': 1000, 'position': 0}])
+        ).annotations
     if suffix != 'goblin-toe':
         for change in ({'socket_items': []}, {'socket_contents': 'empty'}):
             assert not evaluate(replace(item, **change)).annotations

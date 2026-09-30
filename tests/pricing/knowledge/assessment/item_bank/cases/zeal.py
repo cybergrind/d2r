@@ -43,6 +43,18 @@ ITEMS = (
         '204:3457',
     ),
     (
+        'life-tap-wand-rare',
+        Item('Bone Wand', 'rare', raw_stats=((204, 5249, 1 | (60 << 8)),)),
+        'zeal-paladin-life-tap-wand-footnote',
+        '204:5249',
+    ),
+    (
+        'teleport-staff-rare',
+        Item('Gnarled Staff', 'rare', raw_stats=((204, 3457, 1 | (30 << 8)),)),
+        'zeal-paladin-teleport-staff-footnote',
+        '204:3457',
+    ),
+    (
         'teleport-amulet-magic',
         Item('Amulet', 'magic', raw_stats=((204, 3457, 1 | (20 << 8)),)),
         'zeal-paladin-teleport-amulet-footnote',
@@ -86,6 +98,32 @@ def cases():
                 evidence=EVIDENCE,
             )
         )
+        if label.startswith('life-tap-wand'):
+            for alternative in ("Dracul's Grasp", 'Exile', 'Last Wish'):
+                result.append(
+                    Case(
+                        id=f'zeal/{label}/alternative-{alternative}',
+                        item=item,
+                        context={**CONTEXT, 'player_items': [alternative]},
+                        expected={'assessment': role_expectation(role, status='partial')},
+                        covers=(role,),
+                        scenario='negative',
+                        absent_configurations=(role + '-stats',),
+                        evidence=EVIDENCE,
+                    )
+                )
+            result.append(
+                Case(
+                    id=f'zeal/{label}/unknown-alternatives',
+                    item=item,
+                    context={key: value for key, value in CONTEXT.items() if key != 'player_items'},
+                    expected={'assessment': role_expectation(role, status='partial')},
+                    covers=(role,),
+                    scenario='unknown',
+                    absent_configurations=(role + '-stats',),
+                    evidence=EVIDENCE,
+                )
+            )
         stat, layer, raw = item.raw_stats[0]
         result.append(
             Case(

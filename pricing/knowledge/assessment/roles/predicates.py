@@ -279,13 +279,14 @@ def _evaluate(rule, facts, context):
             Truth(truth), f'Charged skill {rule["skill_id"]}: at least {expected} remaining', observed, expected
         )
     if op == 'stat_at_least':
-        if 'unit' in rule and facts.stats.get(rule['key'], {}).get('unit') != rule['unit']:
+        fact = facts.stat(StatKey(*map(int, rule['key'].split(':'))))
+        if rule.get('absent_is_zero') and rule['key'] not in facts.stats and facts.capture_complete and not facts.gaps:
+            # A complete inventory proves absence; no captured unit is needed for zero.
+            fact = Fact(0, FactStatus.KNOWN, 'complete_stat_inventory')
+        elif 'unit' in rule and facts.stats.get(rule['key'], {}).get('unit') != rule['unit']:
             return PredicateResult(
                 Truth.UNKNOWN, f'Native stat {rule["key"]} requires unit {rule["unit"]}', expected=expected
             )
-        fact = facts.stat(StatKey(*map(int, rule['key'].split(':'))))
-        if rule.get('absent_is_zero') and rule['key'] not in facts.stats and facts.capture_complete and not facts.gaps:
-            fact = Fact(0, FactStatus.KNOWN, 'complete_stat_inventory')
         label = f'Native stat {rule["key"]} >= {expected}'
         if fact.status != FactStatus.KNOWN or type(fact.value) not in (int, float) or not math.isfinite(fact.value):
             return PredicateResult(Truth.UNKNOWN, label, expected=expected)

@@ -6,9 +6,9 @@
   "inputs": {
     "pricing/raw/mr/items__valuable-unique-set-items.html": "7688baee058b583e951fa3863c99cd713695900d24c4662e960e79446abd8ffb",
     "pricing/raw/mr/items__sets.html": "b50260514c9606fbbbe6b766dbca66451ca3b91d23cb77a4c3dbc6fdb7c0c7d6",
-    "pricing/data/appraisal-item-facts.json": "78c756a365305a79297042b13fa4637ebcda1b851e6a725a235dad7e7e9147e5",
+    "pricing/data/appraisal-item-facts.json": "9033a8b40839a9012a5177e302a4899e060617cf703b9774cd4f4beee323b66d",
     "pricing/data/appraisal-demand.json": "003e0fe86b74604534a9a79e1b2027bb5d84b81e1a2de473ecb0f4ff824db0d4",
-    "pricing/data/appraisal-recommendations.json": "89509900ffcdd0f61b3285585d7a17d3be6d59f32e21576ab4a5f08358af536c",
+    "pricing/data/appraisal-recommendations.json": "5aa59eeee4b0a391347d1dc828ee71e08bd7ed31837f605acad4cc1f6a8325a3",
     "third-parties/d2data/json/sets.json": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058"
   },
   "rows": {
@@ -2516,7 +2516,7 @@
       "type": "unique",
       "name": "Bane Ash",
       "tier": "low",
-      "basis": "Native low-level fire skill bonuses, mana and casting speed make this a leveling caster tool; historical trash label is not retained.",
+      "basis": "Ordinary Non-Ladder fire skill bonuses, mana and fire resistance retain the low qualitative tier. Its attack-speed bonus applies to attacks; it does not accelerate spell casting. This is not a numerical price or an exceptional-leveling endorsement.",
       "evidence_kind": "qualitative_review",
       "guide_row": 313,
       "historical_grade": "TRASH",
@@ -2797,7 +2797,7 @@
       "type": "unique",
       "name": "Blinkbat's Form",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Leather Armor modifiers (ac-miss, Faster run/walk (%), Defense, fire-min, fire-max, Faster hit recovery (%), Mana after each kill) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Leather Armor modifiers (ac-miss, Faster run/walk (%), Defense, fire-min, fire-max, Faster hit recovery (%)) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 325,
       "historical_grade": "TRASH",
@@ -2881,7 +2881,7 @@
       "type": "unique",
       "name": "Bloodletter",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Gladius modifiers (dmg-norm, att, lifesteal, stamdrain, swing2, dmg%, skill, dur, Faster run/walk (%)) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Gladius modifiers (dmg-norm, att, lifesteal, stamdrain, swing2, dmg%, skill, dur) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 185,
       "historical_grade": "None",
@@ -4532,7 +4532,7 @@
       "type": "unique",
       "name": "Gravenspine",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Bone Wand modifiers (Strength, Dexterity, cold-min, cold-max, cold-len, manasteal, nec, Mana, Faster cast rate (%)) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Bone Wand modifiers (Strength, Dexterity, cold-min, cold-max, cold-len, manasteal, nec, Mana) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 377,
       "historical_grade": "TRASH",
@@ -5750,7 +5750,7 @@
       "type": "unique",
       "name": "Manald Heal",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Ring modifiers (manasteal, regen, Life, Regenerate mana (%), Faster cast rate (%)) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Ring modifiers (manasteal, regen, Life, Regenerate mana (%)) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 237,
       "historical_grade": "None",
@@ -6084,7 +6084,7 @@
       "type": "unique",
       "name": "Pluckeye",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Short Bow modifiers (att, dmg%, Life, light, manasteal, Mana after each kill, swing2) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Short Bow modifiers (att, dmg%, Life, light, manasteal, Mana after each kill) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 427,
       "historical_grade": "TRASH",
@@ -6628,7 +6628,7 @@
       "type": "unique",
       "name": "Rogue's Bow",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Composite Bow modifiers (All resistances, deadly, att, dmg-undead, dmg%, swing2, roguesbow-affix1) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Composite Bow modifiers (All resistances, deadly, att, dmg-undead, dmg%, swing2) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 436,
       "historical_grade": "TRASH",
@@ -7797,7 +7797,7 @@
       "type": "unique",
       "name": "The Battlebranch",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Poleaxe modifiers (swing3, Dexterity, dmg%, att, lifesteal) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Poleaxe modifiers (swing3, Dexterity, dmg%, att, lifesteal) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 277,
       "historical_grade": "None",
@@ -8479,7 +8479,7 @@
       "type": "unique",
       "name": "The Ward",
       "tier": "low",
-      "basis": "Budget/specialist keep priority after reviewing the native Gothic Shield modifiers (Defense, red-mag, Strength, block, Enhanced defense (%), All resistances, sock) and cached guide context. Leveling and collector use remain separate from numeric pricing.",
+      "basis": "Ordinary Non-Ladder Gothic Shield modifiers (Defense, red-mag, Strength, block, Enhanced defense (%), All resistances) retain the low qualitative tier after review of the cached guide context. Leveling and collector use remain separate from numeric pricing.",
       "evidence_kind": "qualitative_review",
       "guide_row": 287,
       "historical_grade": "None",
@@ -10398,6 +10398,30 @@
         "pricing/data/wp-a-builds.json:/poison-nova-necromancer/prose_only_items/7",
         "pricing/data/wp-a-builds.json:/poison-nova-necromancer/prose_only_items/11",
         "pricing/data/wp-a-builds.json:/poison-nova-necromancer/prose_only_items/13"
+      ]
+    },
+    {
+      "date": "2026-09-30",
+      "path": "pricing/data/appraisal-item-facts.json",
+      "previous_sha256": "78c756a365305a79297042b13fa4637ebcda1b851e6a725a235dad7e7e9147e5",
+      "sha256": "9033a8b40839a9012a5177e302a4899e060617cf703b9774cd4f4beee323b66d",
+      "review": "Reviewed ordinary Non-Ladder definitions for nine seasonal unique IDs and four Angelic pieces. The 573 fact identities are unchanged; only these 13 facts differ. Tier explanations now describe ordinary modifiers, without seasonal FCR, FRW, IAS, socket or affix additions. Existing low qualitative tiers remain; no numerical values or exceptional-leveling demand inferred. Recommendation rows and all non-input recommendation fields are identical.",
+      "evidence": [
+        "third-parties/d2data/json/base/uniqueitems.json",
+        "third-parties/d2data/json/base/setitems.json",
+        "pricing/knowledge/non_ladder_named.py"
+      ]
+    },
+    {
+      "date": "2026-09-30",
+      "path": "pricing/data/appraisal-recommendations.json",
+      "previous_sha256": "89509900ffcdd0f61b3285585d7a17d3be6d59f32e21576ab4a5f08358af536c",
+      "sha256": "5aa59eeee4b0a391347d1dc828ee71e08bd7ed31837f605acad4cc1f6a8325a3",
+      "review": "Reviewed ordinary Non-Ladder definitions for nine seasonal unique IDs and four Angelic pieces. The 573 fact identities are unchanged; only these 13 facts differ. Tier explanations now describe ordinary modifiers, without seasonal FCR, FRW, IAS, socket or affix additions. Existing low qualitative tiers remain; no numerical values or exceptional-leveling demand inferred. Recommendation rows and all non-input recommendation fields are identical.",
+      "evidence": [
+        "third-parties/d2data/json/base/uniqueitems.json",
+        "third-parties/d2data/json/base/setitems.json",
+        "pricing/knowledge/non_ladder_named.py"
       ]
     }
   ]

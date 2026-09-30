@@ -15,7 +15,6 @@ from inventory_tracking.items.identity import (
 )
 from inventory_tracking.items.metadata import metadata
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from inventory_tracking.items.staffmods import annotate_staffmods
 from inventory_tracking.items.stat_constants import TOTAL_STATS_DESCRIPTOR_OFFSET
 from tests.pricing.knowledge.assessment.item_bank.models import Item
 
@@ -59,5 +58,4 @@ class NativeRunewordItem(Item):
                 key: identity[key] for key in ('table', 'table_id', 'offset', 'method', 'observed_table_id')
             }
             annotate_roll_ranges(result['decoded_stats'], identity)
-        annotate_staffmods(result['decoded_stats'], {'quality': quality}, arrays, base)
         return result

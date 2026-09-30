@@ -37,6 +37,27 @@ def test_crown_ages_keeps_two_socket_setup_and_native_minimum_rolls(slug, index,
             ]
         },
     )
+    if slug == 'smite-paladin':
+        # This source setup is Ber + Protector's Stone, not the Meteor jewels.
+        item = replace(
+            item,
+            socket_items=[
+                {'name': 'Ber Rune', 'item_type': 'rune', 'unit_id': 100, 'position': 0},
+                {
+                    'name': "Protector's Stone",
+                    'item_type': 'cjwl',
+                    'unit_id': 101,
+                    'position': 1,
+                    'stats_complete': True,
+                    'stats': {'201:17103': {'status': 'decoded', 'value': 1}},
+                },
+            ],
+            stats={
+                **item.stats,
+                '36:0': {'status': 'decoded', 'value': 18},
+                '201:17103': {'status': 'decoded', 'value': 1},
+            },
+        )
     context = {'player_class': cls}
 
     def evaluate(candidate=item):
@@ -44,7 +65,7 @@ def test_crown_ages_keeps_two_socket_setup_and_native_minimum_rolls(slug, index,
             candidate, configs, context, role_outcomes=assess_role_results(candidate, [role], context)
         )
 
-    assert len(evaluate().annotations) == 7
+    assert len(evaluate().annotations) == (7 if slug == 'meteor-sorceress' else 8)
     assert evaluate().annotations['36:0']['desirability'] == 'desirable'
     for changes in (
         {'sockets': 1},
@@ -61,6 +82,8 @@ def test_crown_ages_keeps_two_socket_setup_and_native_minimum_rolls(slug, index,
         assert result.status == 'partial'
         assert not evaluate(incomplete).annotations
     else:
+        assert not evaluate(replace(item, socket_items=[jewel(100, 0), jewel(101, 1)])).annotations
+        assert not evaluate(replace(item, socket_items=item.socket_items[:1])).annotations
         assert any('Ber' in c and "Protector's Stone" in c for c in role['conditions'])
     assert bundle['guide_demand']['summaries']['Crown of Ages']['distinct_builds'] >= 2
     assert bundle['guide_demand']['summaries']['Crown of Ages']['distinct_builds'] == len(

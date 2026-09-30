@@ -12,19 +12,41 @@ ROLE = 'berserk-barbarian-breath-of-the-dying-end-merc-weapon-alternative'
 
 def cases():
     original = Item(
-        'War Pike', 'normal', 'Breath of the Dying',
-        ((17, 0, 350), (18, 0, 350), (93, 0, 60), (60, 0, 12), (62, 0, 7),
-         (0, 0, 30), (1, 0, 30), (2, 0, 30), (3, 0, 30), (117, 0, 1), (122, 0, 200)),
-        ethereal=True, sockets=6, socket_contents='filled', runeword='Breath of the Dying',
+        'War Pike',
+        'normal',
+        'Breath of the Dying',
+        (
+            (17, 0, 350),
+            (18, 0, 350),
+            (93, 0, 60),
+            (60, 0, 12),
+            (62, 0, 7),
+            (0, 0, 30),
+            (1, 0, 30),
+            (2, 0, 30),
+            (3, 0, 30),
+            (117, 0, 1),
+            (122, 0, 200),
+        ),
+        ethereal=True,
+        sockets=6,
+        socket_contents='filled',
+        runeword='Breath of the Dying',
     )
     context = {'player_class': 'Barbarian', 'mercenary_type': 'Act 2 Might'}
     for quality in ('normal', 'superior', 'low_quality'):
         item = replace(original, rarity=quality)
         rows = [
             ('minimum', item, context, 'true'),
-            ('maximum', replace(item, raw_stats=tuple(
-                (s, layer, {17: 400, 18: 400, 60: 15}.get(s, v)) for s, layer, v in item.raw_stats
-            )), context, 'true'),
+            (
+                'maximum',
+                replace(
+                    item,
+                    raw_stats=tuple((s, layer, {17: 400, 18: 400, 60: 15}.get(s, v)) for s, layer, v in item.raw_stats),
+                ),
+                context,
+                'true',
+            ),
             ('nonethereal', replace(item, ethereal=False), context, 'true'),
             ('unknown-ethereal', replace(item, ethereal=None), context, 'true'),
             ('uncited-polearm', replace(item, base='Giant Thresher'), context, 'absent'),
@@ -45,10 +67,14 @@ def cases():
             if truth == 'absent':
                 expected = {'roles': FunctionCheck(lambda rows: all(row['id'] != ROLE for row in rows))}
             if truth == 'true':
-                expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                    key: IsPartialDict(configuration_ids=Contains(ROLE + '-stats'))
-                    for key in ('17:0', '93:0', '60:0', '0:0', '2:0', '122:0')
-                }))
+                expected['stat_evaluation'] = IsPartialDict(
+                    annotations=IsPartialDict(
+                        {
+                            key: IsPartialDict(configuration_ids=Contains(ROLE + '-stats'))
+                            for key in ('17:0', '93:0', '60:0', '0:0', '2:0', '122:0')
+                        }
+                    )
+                )
             yield Case(
                 id=f'berserk/botd-merc/{quality}/{label}',
                 item=candidate,
@@ -59,9 +85,11 @@ def cases():
                 absent_configurations=() if truth == 'true' else (ROLE + '-stats',),
                 absent_stat_configurations=dict.fromkeys(('1:0', '3:0', '62:0', '117:0'), (ROLE + '-stats',)),
                 report_contains=('Breath of the Dying',),
-                evidence=('pricing/data/wp-a-builds.json:/berserk-barbarian/merc/Weapon/end/1',
-                          'pricing/data/wp-a-variants/berserk-barbarian.json:/variants/1/merc/type',
-                          'third-parties/d2data/json/runes.json:/Breath of the Dying'),
+                evidence=(
+                    'pricing/data/wp-a-builds.json:/berserk-barbarian/merc/Weapon/end/1',
+                    'pricing/data/wp-a-variants/berserk-barbarian.json:/variants/1/merc/type',
+                    'third-parties/d2data/json/runes.json:/Breath of the Dying',
+                ),
             )
 
 

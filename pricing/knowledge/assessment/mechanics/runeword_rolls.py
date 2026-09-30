@@ -13,6 +13,7 @@ BOUNDED_STATS = frozenset(
         36,
         60,
         62,
+        80,
         93,
         97,
         99,
@@ -43,7 +44,9 @@ def variable_roll_gaps(facts, definition, family):
     contributions = definition.get('socket_bonus_ranges', {}).get(family, {})
     for key, spec in definition.get('roll_ranges', {}).items():
         native_key = f'{spec["stat_id"]}:{spec.get("layer", 0)}'
-        enhancement = spec['stat_id'] in (16, 17, 18) and family in ('weapon', 'armor', 'helm')
+        enhancement = (spec['stat_id'] in (16, 17, 18) and family in ('weapon', 'armor', 'helm')) or (
+            spec['stat_id'] == 16 and family == 'shield'
+        )
         if spec['min'] == spec['max'] and not (enhancement and native_key in facts.stats):
             continue
         row = facts.stats.get(native_key, {})
@@ -95,7 +98,7 @@ def resistance_gaps(facts, definition, family):
 def enhancement_gaps(facts, spec, rune, value, family):
     """Recipe totals include optional superior quality and fixed rune bonuses.
 
-    Shield automods require a separate contribution model; callers exclude them.
+    Shield damage automods require a separate model; shield defense is supported.
     This verifies possible totals, without assigning an ambiguous recipe roll.
     """
     offsets = {0}

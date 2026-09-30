@@ -2,6 +2,8 @@
 
 Discovery proves that every occurrence has an exact semantic binding. It does
 not close variant, stat, leveling, report or market dimensions for the collection.
+The validated quality union can prove unique/set tiering inapplicable; a missing
+quality list remains unknown.
 """
 
 from datetime import date
@@ -37,7 +39,14 @@ def validate_collection(review, identity, occurrences, profiles, validated_links
             or member.get('profile_fingerprint') != fingerprint(roles[pid])
         ):
             raise ValueError('Collection member lacks an unchanged validated source configuration')
+    member_roles = [roles[pid] for pid in {m['profile_id'] for m in members}]
+    qualities = (
+        sorted({quality for role in member_roles for quality in role['qualities']})
+        if all(role.get('qualities') for role in member_roles)
+        else []
+    )
     return {
+        'qualities': qualities,
         'identity_id': identity['id'],
         'occurrence_ids': sorted(ids),
         'profile_ids': sorted({m['profile_id'] for m in members}),

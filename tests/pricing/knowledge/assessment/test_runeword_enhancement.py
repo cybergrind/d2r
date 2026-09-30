@@ -64,3 +64,20 @@ def test_fixed_fortitude_defense_accepts_only_possible_quality_contributions(qua
     gaps = variable_roll_gaps(item, definitions()['Fortitude'], 'armor')
     enhancement = [gap for gap in gaps if '16' in gap]
     assert bool(enhancement) is not valid
+
+
+@pytest.mark.parametrize(
+    ('quality', 'total', 'valid'),
+    [
+        ('normal', 220, True),
+        ('normal', 260, True),
+        ('normal', 261, False),
+        ('superior', 275, True),
+        ('superior', 276, False),
+        ('superior', 219, False),
+    ],
+)
+def test_exile_shield_defense_includes_only_recipe_and_superior_defense(quality, total, valid):
+    item = replace(facts('Vortex Shield', quality), stats={'16:0': {'status': 'decoded', 'value': total}})
+    gaps = variable_roll_gaps(item, definitions()['Exile'], 'shield')
+    assert bool([gap for gap in gaps if '16:0' in gap]) is not valid

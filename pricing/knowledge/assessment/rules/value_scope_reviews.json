@@ -4425,6 +4425,60 @@
         ]
       },
       "quote": "Harlequin Crest (Protector's Stone Colossal Jewel)"
+    },
+    {
+      "profile_id": "summoner-necromancer-guide-starter-rare-amulet",
+      "profile_sha256": "08068f87c2204594d68f1f35c8a6372515d68b93be5500db179928ff939aa6da",
+      "classification": "generic_leveling",
+      "reason": "Ordinary +1 Summoning / 10 FCR minimum-entry starter amulet, comparable to the already excluded Nova and Blizzard +1-tree/10FCR examples. Exclude only this starter walkthrough under the user value-focused scope. Do not exclude rare amulets, higher skill/cast-rate and other valuable combinations, trade/roll review, exceptional leveling or independently supported build uses.",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/summoner-necromancer-guide/variants/0",
+        "url": "https://maxroll.gg/d2/guides/summoner-necromancer-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rare Amulet (+1 Necro Summoning, 10 FCR, 10 Life, 10 Mana, 10@)",
+          "This set of gear represents the minimum you need to effectively play the Summoner build: +4 to all Skills in total and the 75% FCR breakpoint, overcapped Resistances thanks to Ancient's Pledge, and a Teleport Staff on swap to begin 'Tele-stomping'.",
+          "You are also overcapped on Resistances at this point thanks to Ancient's Pledge, as well as the Charms which are representative of a larger collection of weaker Charms that you would have accrued throughout the 1-75 Leveling process. You also have a Teleport Staff on swap, so you can begin practicing your \"Tele-stomping\". The Belt on this setup is a Caster Crafted Belt.",
+          "At this point your Mercenary is a tank and Meditation source. The Tal Rasha's Horadric Crest and Treachery provides great survivability and a decent increase to Mercenary DPS."
+        ],
+        "review": "2026-09-25: Reviewed rare starter amulet core: positive exact skill-tree bonus and10FCR on one identified nonethereal amulet. Illustrated life/mana/resistance rolls are optional supporting properties, not minimums. Separate teleport utility and whole-loadout skill/resistance requirements remain qualifications; Summoner75totalFCR is explicit. No magic/crafted inheritance, affix weights, price or full-loadout claim."
+      },
+      "quote": "Rare Amulet (+1 Necro Summoning, 10 FCR, 10 Life, 10 Mana, 10@)"
+    },
+    {
+      "profile_id": "fire-blast-starter-rare-resistance-ring",
+      "profile_sha256": "5f0fa1e0610f8c4293cdfed6105349045589871f203044980368c5b684ba2357",
+      "classification": "generic_leveling",
+      "reason": "Reconciled rare starter ring requires only positive cold resistance and mana after kill; the illustrated 30 resistance and MF are not required by this rule. This is ordinary resistance/resource filler, not a premium rare-ring or exceptional leveling requirement. Exclude only this use. Preserve magic/rare ring identities, pricing, rolls, MF and valuable FCR/resistance/resource combinations and unknown demand. The separate FCR rings remain retained.",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fire-blast-assassin/variants/0",
+        "url": "https://maxroll.gg/d2/guides/fire-blast-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cobalt Ring (+30 Cold Res)",
+          "Magic Ring (+30 Cold Res / MF / +1 Mana after kill)",
+          "This setup consists of easily farmable or shoppable items. Prioritizing +x to Skills is important to increase your damage output as much as possible.",
+          "Lore and Spirit Crystal Sword do the trick early on. You can also shop for some +x to Traps Claws at Anya in Act 5 Nightmare or Hell.",
+          "Shop for +20% Increased Attack Speed Gloves to reach a decent Trap laying speed in combination with Burst of Speed.",
+          "Rhyme provides some quality of life with the Cannot Be Frozen stat. Fill up your remaining gear with Resistances. A Belt and Boots can be shopped in Nightmare and Smoke is easy to farm from the Countess.",
+          "The Mercenary deals with enemies Immune to your damage sources. Equip him with Resistances, Life, and an Insight Partizan to make him fairly durable and increase your Mana Regeneration. Bulwark is a great option for Damage Reduction and Life stolen per hit!"
+        ],
+        "review": "2026-09-26: Reviewed Starter ring component from reconciled planner: left43 is magic Cobalt; right44 Stone Finger is rare. General cold-resistance utility follows the guide instruction to fill remaining gear with resistances; illustrated30cold resistance is not a minimum. The rare combination requires positive cold resistance and mana after kill on the same item, with optional MF; illustrated15MF is not mandatory. No cross-ring pooling, magic/rare inheritance or numerical price claim.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "locator": "/data"
+          }
+        ]
+      },
+      "quote": "Magic Ring (+30 Cold Res / MF / +1 Mana after kill)"
     }
   ],
   "dimensions": [
@@ -29630,6 +29684,345 @@
       },
       "quote": "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
       "reason": "Reviewed exact Standard variant purpose: The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff. The Demon Limb Enchant prebuff is part of this optimized combat setup. Exclude only a separate generic leveling walkthrough for this use. Retain identity-level trade and exceptional leveling review, prebuff charge availability, ethereal status, class/context, pricing, reporting and item-bank obligations."
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-speed-diadem-socket-base",
+      "profile_sha256": "578fbe197339b9d704e63dee1f4ea609b7d76bb5476b36b089aea2ff7b3cf2d2",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for double-throw-barbarian-guide: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/3",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "quote": "Artisan's Diadem of Speed (3x Ruby Jewels of Fervor )",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/3"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-nirvana-diadem-socket-base",
+      "profile_sha256": "5928ee9072a480135585923075cf0b6671852295b4cc5a2d42e56e968d6e6547",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for double-throw-barbarian-guide: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/4",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "quote": "Artisan's Diadem of Nirvana (3x Ruby Jewels of Fervor )",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/4"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-luck-diadem-socket-base",
+      "profile_sha256": "cf503be48175b8e655342d79cea2526689689033c07e46b50651005f385c4595",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for double-throw-barbarian-guide: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/5",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026"
+      },
+      "quote": "Artisan's Diadem of Luck (3x Ruby Jewels of Fervor )",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Helmets/5"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-nirvana-diadem-socket-base",
+      "profile_sha256": "e62e39c17acce3bd1922f93e7c74bf924f8d98bff13548b639e3d3a28eb58f92",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for strafe-amazon: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "quote": "Jeweler's Diadem of Nirvana",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/1"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-speed-diadem-socket-base",
+      "profile_sha256": "5484e0723e1cc14273d92b34eb4804a88ae63b3d1894f65a2c4a3aa7e6ccd942",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for strafe-amazon: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "quote": "Jeweler's Diadem of Speed",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Helmets/2"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-stability-shroud-socket-base",
+      "profile_sha256": "89d13f4b80866beb4ce22fb387c8dca9de94871f55761a5d66122592fe66bab9",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for strafe-amazon: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "quote": "Jeweler's Dusk Shroud of Stability",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/1"
+      }
+    },
+    {
+      "profile_id": "strafe-amazon-precision-shroud-socket-base",
+      "profile_sha256": "ebf82320e4a79b840018ad217f3e5b33e6021417ad0fdf9fcb7d9d549d9c3ba1",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact main-gear magic socket-base alternative for strafe-amazon: three-socket Diadem or four-socket Dusk Shroud with a specified suffix, prepared for a completed attack setup. This occurrence does not specify leveling progression. Exclude only an additional use-level leveling walkthrough; retain valuable affix/base demand, exact empty/filled socket assessment, pricing, reports, item-bank requirements and separately supported exceptional-leveling uses. User value-focused scope clarification 2026-09-29.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026"
+      },
+      "quote": "Jeweler's Dusk Shroud of Precision",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/2"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "f7090d5b91148f029fd2767cdde94c44702fb7c4923ace6215c6fdc33e84da11",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Weapon-Swap/7",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Weapon-Swap/7"
+      }
+    },
+    {
+      "profile_id": "fissure-druid-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "b4a1f9a7765be745e1b284718bd69dea18b3bb016e0b8a894797df9c252707ec",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Weapon-Swap/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fissure-druid/slots/Weapon-Swap/4"
+      }
+    },
+    {
+      "profile_id": "lightning-fury-amazon-guide-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "b48d893e9e08aff6ce7b3a1feaee018bc3feb0d961e70ff7deb989919193ddea",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/slots/Weapon-Swap/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-fury-amazon-guide/slots/Weapon-Swap/4"
+      }
+    },
+    {
+      "profile_id": "lightning-sorceress-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "9be6ce4fd39b518c2207bb7c82aecaa18d5a60da37c6fd49a2b8efc048586cb9",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/slots/Weapon-Swap/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-sorceress/slots/Weapon-Swap/5"
+      }
+    },
+    {
+      "profile_id": "lightning-strike-amazon-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "e4b07f2054677d5e5458fa31ded2a303d88be5730e10bb28966d31080d4fe1a3",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-strike-amazon/slots/Weapon-Swap/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-strike-amazon/slots/Weapon-Swap/4"
+      }
+    },
+    {
+      "profile_id": "poison-nova-necromancer-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "profile_sha256": "1d2432147c3e1d4c8be38091d97e3d6c946c2a4a2c40c7293e458a98a0a6903f",
+      "dimension": "leveling",
+      "classification": "non_leveling_use",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed main-alternative weapon swap for Vigor movement, active only while the weapon set is equipped. This exact guide occurrence is a farming movement utility, not a leveling walkthrough. Exclude only the extra use-level leveling obligation; preserve runeword identity, valuable or exceptional-leveling reviews, all trade, source, stats, recipe, sockets, pricing, report and item-bank obligations.",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      },
+      "quote": "Harmony",
+      "quote_source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/3"
+      }
     }
   ],
   "evidence": [
@@ -29685,5 +30078,790 @@
       },
       "reason": "Shopped life/resistance/recovery belt is explicitly a fallback with no valuable combination or exceptional roll requirement. Exclude this exact generic recommendation only, per the user scope clarification. Keep all item identities, valuable bases/affixes, other source occurrences, build configurations, socket mechanics and exceptional-leveling reviews."
     }
-  ]
+  ],
+  "variants": [
+    {
+      "build": "abyss-warlock-build-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (skill ranks, 75% FCR and resistances from easily found gear): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/abyss-warlock-build-guide.json",
+        "sha256": "788a5d500e91995ac96503de7e8e5cfdb525ee09d716544cdeaed7adc5fe5175",
+        "locator": "/variants/0"
+      },
+      "quote": "The Abyss Warlock Starter setup looks to maintain the 75% FCR Breakpoint while stacking as many bonus Skill ranks to scale your damage; it also prioritizes capping your resistances with easily found gear.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/abyss-warlock-build-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a",
+          "title": "Abyss Warlock Endgame Guide",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "berserk-barbarian",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter-tagged areas): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; solo-farmable (/Players1) in Nightmare and Hell.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/berserk-barbarian/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__berserk-barbarian.html",
+        "sha256": "365309b50167b15e5c4e4b1c2a35fb6fafd729403db28ebc1cb23e4be5ca9ecb"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/kg8xm0lc.json",
+          "sha256": "e8759eb748d89adc5fc8c44c1ba0ce821b0e94daf03bdfcefe851ab6e3ef4990",
+          "title": "Berserk Barbarian",
+          "profile": "/profiles/5"
+        },
+        {
+          "path": "pricing/raw/mr/planners/rb1d60lu.json",
+          "sha256": "ed95475cc9485abdd29322d602760646384c84ca29180d0e1a3e1e6151eef5e5",
+          "title": "Berserk Barbarian1",
+          "profile": "/profiles/5"
+        }
+      ]
+    },
+    {
+      "build": "blessed-hammer-paladin",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (easily obtainable skills/FCR runewords (Lore, Stealth, Spirit)): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/blessed-hammer-paladin.json",
+        "sha256": "c373373c2aa92fc6050e288e3e7818417fe357b73ba92615f45f19068ca94e24",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter Variant relies heavily on Skills and Faster Cast Rate to deal damage; Lore, Stealth, Spirit Crystal Sword, and Spirit Targe are easily obtainable sources of these stats.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blessed-hammer-paladin/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "sha256": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/dk01069j.json",
+          "sha256": "496069b9cd2d98bbe44fd4f0951ac19cd1e078164d9ae16d3014183016a5d06e",
+          "title": "2.4 Blessed Hammer Paladin Guide",
+          "profile": "/profiles/5"
+        },
+        {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+          "title": "Blessed Hammer Endgame Guide",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "blizzard-sorceress",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (core of easy runewords (Spirit, Stealth, Lore, Ancients' Pledge)): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
+        "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee",
+        "locator": "/variants/0"
+      },
+      "quote": "The Blizzard Sorceress is strong enough to rely on a few key Runewords: Spirit, Stealth, Lore, and Ancients' Pledge make up the core of this build.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blizzard-sorceress/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__blizzard-sorceress.html",
+        "sha256": "915ca8d599404dbf38d0087b07a9cf3f01af2f2f3ad1cb8137a3de975640c221"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/28a5d0op.json",
+          "sha256": "07f94c03109290a8c1fd1fe770716d1108fb800b24fdf6ec18bb461db38e0cd1",
+          "title": "Blizzard Sorceress",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/du0206ky.json",
+          "sha256": "81c5e75cbf1e1f707d3e725b8e99bfad5b7535ff26eb28ee5a1679e73cf85b27",
+          "title": "Blizzard Sorceress",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/tq77b0oa.json",
+          "sha256": "1a5a46a1d738243cf518399f91e3c823d64a5f9bfc8b22fbf1b8d9614e1904bd",
+          "title": "Blizzard Sorceress1",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/xu0106b4.json",
+          "sha256": "94df450685613516527e39d741a80c9e2282fddee23f275976d906217ade9334",
+          "title": "2.5 Blizzard Sorceress",
+          "profile": "/profiles/5"
+        }
+      ]
+    },
+    {
+      "build": "double-throw-barbarian-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter-tagged areas): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; solo-farmable (/Players1) in Nightmare and Hell; a slightly modified version using Dwarf Star can farm Travincal.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/double-throw-barbarian-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/db0106mf.json",
+          "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+          "title": "Double Throw Barbarian",
+          "profile": "/profiles/1"
+        },
+        {
+          "path": "pricing/raw/mr/planners/hf91a0li.json",
+          "sha256": "1cdb61c752239024f05e73efea50fb328ab788a768b596b2093f0ec54265267a",
+          "title": "Double Throw Barbarian",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "echoing-strike-warlock-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (very few things to get off the ground; 75% FCR via Spirit): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/echoing-strike-warlock-guide.json",
+        "sha256": "915885bbae73baf8ff1af1960e81490ba69a56860f4d63ed42ab1ffa8d3191c6",
+        "locator": "/variants/0"
+      },
+      "quote": "The Echoing Strike Warlock requires very few things to get off the ground. Prioritize reaching the 75% FCR Breakpoint, which is easily done with Spirit as your weapon.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/echoing-strike-warlock-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c"
+      },
+      "planners": []
+    },
+    {
+      "build": "fire-blast-assassin",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (easily farmable or shoppable items): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-blast-assassin.json",
+        "sha256": "8c5ca982a94837ae2df782a096f68ca64cd3dfa8efa371b27d0f4038d315f201",
+        "locator": "/variants/0"
+      },
+      "quote": "This setup consists of easily farmable or shoppable items. Prioritizing +x to Skills is important to increase your damage output as much as possible.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fire-blast-assassin/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__fire-blast-assassin.html",
+        "sha256": "946965ab964b641609e2b5389ea1af13a9fa78592a0a448c8059af756837f9a9"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/690106c5.json",
+          "sha256": "9c6f639e05e469e6ac68b1ccc0b49bc797f324850b8272b2480f551630a48a84",
+          "title": "Fire Blast Assassin",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/ac0206u2.json",
+          "sha256": "38a4a5c280f0dd7d8a70be2e235e1431d0873ba00676ab5fb926b89242c08925",
+          "title": "Fire Blast Assassin 2.5",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/e113x0l4.json",
+          "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+          "title": "Fire Blast Assassin1",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/yl0106jp.json",
+          "sha256": "b36b867fd343a609f0bec4ac5919f2d9c14ef72b2ebf4b42a87414c5dd74a853",
+          "title": "Fire Blast Assassin",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/zl84q0le.json",
+          "sha256": "d890bf0a3a2f6b990bea52c75ebb90d565d7e6f76cab35af783dad1811e1ae39",
+          "title": "Fire Blast Assassin",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "fire-warlock-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter areas, mostly acquired by early Nightmare): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+        "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+        "locator": "/variants/0"
+      },
+      "quote": "The Fire Warlock Starter variant meets the minimum gear requirements for farming the Starter tagged areas in the Farming Spots section; most of this gear can be acquired by early Nightmare.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fire-warlock-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "sha256": "bace8df5bb9632d39b2d77ee4d1507d686b4b42c1f9576f4259eab9a418511a4"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539",
+          "title": "Fire Warlock Endgame Guide",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter areas, mostly acquired by early Nightmare): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/fissure-druid.json",
+        "sha256": "025612cc9770db93a2b11ad2294e7d43e04629addbe72e3557c77fb2deaed7e0",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter variant meets the minimum gear requirements for farming the Starter tagged areas; most of this gear can be acquired by early Nightmare with a standard progression.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fissure-druid/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__fissure-druid.html",
+        "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+          "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+          "title": "Fissure Druid Endgame Guide",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/vf0106vk.json",
+          "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7",
+          "title": "Fissure Druid",
+          "profile": "/profiles/4"
+        }
+      ]
+    },
+    {
+      "build": "fist-of-the-heavens-paladin",
+      "variant": "FoH Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact FoH Starter variant purpose (easily obtainable skills/FCR runewords (Lore, Stealth, Spirit)): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json",
+        "sha256": "80d6121308a4ecde3afbb673c146b659cbafe829169ceec26336b83384f421ca",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter Variant of the FoHdin relies heavily on Skills and Faster Cast Rate to deal damage; Lore, Stealth, Spirit Crystal Sword, and Spirit Targe are easily obtainable sources of these stats.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fist-of-the-heavens-paladin/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__fist-of-the-heavens-paladin.html",
+        "sha256": "3c86ad1cb7065c7eb2f3ab35f3c08d5d8b33a48d051687a0c555632c491a5fd8"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/0v01067i.json",
+          "sha256": "893aeb893321734da401064b5b82cf25022688e0e139b0703956bde34e2a8676",
+          "title": "Fist of Heavens / Holy Bolt Paladin",
+          "profile": "/profiles/2"
+        },
+        {
+          "path": "pricing/raw/mr/planners/s10106pr.json",
+          "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+          "title": "2.4 Fist of Heavens / Holy Bolt Paladin",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "lightning-fury-amazon-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (what the Amazon Leveling Guide ends with; minimum Starter gear): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
+        "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
+        "locator": "/variants/0"
+      },
+      "quote": "In almost every regard, the Starter variant is what you end up with by following the Amazon Leveling Guide; it meets the minimum gear requirements for the Starter tagged areas and can even farm The Secret Cow Level at /Players3.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/lightning-fury-amazon-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "sha256": "3de47d7ab2d67ebd4b8c1e346c6c3c3ea835fcee67bf3c6d78e76304a11ad533"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f",
+          "title": "Lightning Fury Amazon",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "lightning-sentry-assassin",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (not much needed to start: skills, IAS, life and resistances): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sentry-assassin.json",
+        "sha256": "590d53909aa987e76de71886b9e01594a3f9319e869a35c70518f7b70d234f60",
+        "locator": "/variants/0"
+      },
+      "quote": "Not much is needed to start off the Lightning Sentry Assassin; a Bone Wand of Lower Resistance to break Lightning Immunes plus items giving Skill Points, Increased Attack Speed, Life and Resistances.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/lightning-sentry-assassin/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sentry-assassin.html",
+        "sha256": "26fd7c09a1c842a832b5989f4197c03c8e13e61393160dccbec7edefda7c2733"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/h90106ou.json",
+          "sha256": "05ad84906f06446a4bfd8a2bbb9e78e0ac86cf19e23a6e5e2dfd3da052fe747f",
+          "title": "Lightning Sentry",
+          "profile": "/profiles/4"
+        },
+        {
+          "path": "pricing/raw/mr/planners/ii0106dl.json",
+          "sha256": "28a6bb217a200ab0da23865319c5f4dc01fbfae693a271aa30a8fb88d90a1b10",
+          "title": "Lightning Sentry Assassin",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/wp6vh0on.json",
+          "sha256": "47da37e3e1b3e51af248b9a408efc96af762cea18d20e756dfa2d934605954c3",
+          "title": "Lightning Sentry Assassin1",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/y88j80o6.json",
+          "sha256": "5c8330fd7061f0b97e2d8b075f16302f90899bbcdd19f0a787ed384f18910a21",
+          "title": "Lightning Sentry Assassin",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "lightning-sorceress",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter areas in Nightmare and Hell): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-sorceress.json",
+        "sha256": "7d5f835efe5810fb24eafe33c9248ebc8defa70ee223e7f70fd7b03826ff8997",
+        "locator": "/variants/0"
+      },
+      "quote": "Meets the minimum gear requirements for farming the Starter-tagged areas solo in Nightmare and Hell, prioritising + to Skills, FCR, Resistances, Life and Mana, and hits the 117% FCR breakpoint.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/lightning-sorceress/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sorceress.html",
+        "sha256": "88c557d20618da36c00a121058b3784ba3aa408fab0094b09ef5ca6c5c5ea1dc"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/5g1et0ld.json",
+          "sha256": "4ec8aec86a63d838772d292c354e7ae81aac3efed83db2ff7b377ae0350834ba",
+          "title": "Lightning Sorceress1",
+          "profile": "/profiles/6"
+        }
+      ]
+    },
+    {
+      "build": "lightning-strike-amazon",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter areas in Nightmare and Hell): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-strike-amazon.json",
+        "sha256": "4f21f9eaf3102c170241dfe07f730660e524ebdd943ab8e7f027b42029668c39",
+        "locator": "/variants/0"
+      },
+      "quote": "Meets the minimum gear requirements for farming the Starter-tagged areas solo in Nightmare and Hell; Titan's Revenge and Thunderstroke are great starter weapons, aiming for 95% IAS (50% minimum).",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/lightning-strike-amazon/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+        "sha256": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/k4x70lwx.json",
+          "sha256": "3e2a108d7e40351fd9a29b31b6da5b420e9e8889fa3edc70617eff25b8a2ac6f",
+          "title": "Lightning Strike Amazon1",
+          "profile": "/profiles/4"
+        }
+      ]
+    },
+    {
+      "build": "meteor-sorceress",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (core of easy runewords for the Starter farming spots): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/meteor-sorceress.json",
+        "sha256": "c56c73b8a48369c9205b1f447c73dd309f98018d5e73f8e3962c42d0020c6326",
+        "locator": "/variants/0"
+      },
+      "quote": "The Meteor Sorceress is strong enough to rely on a few key Runewords: Spirit, Stealth, Lore and Ancients' Pledge make up the core, giving Resistances, FCR, FHR and + Skills for the Starter farming spots.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/meteor-sorceress/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__meteor-sorceress.html",
+        "sha256": "226323e689c70454720dd5debaf7f7cac5d895e12bb09757e6915d1c6ece0475"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/gca1a0l6.json",
+          "sha256": "d6256571aa1420eb441f42d0234d8d63d71694505021b578cf13adc770ca64de",
+          "title": "Fire Ball Meteor Sorceress",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/ia1eo0lh.json",
+          "sha256": "37d4b226ca71138db61cbfdad5bee6ef296815bf77ff46a6ae3534ef20d91560",
+          "title": "Fire Ball Meteor Sorceress1",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (a few things to get off the ground): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/mirrored-blades-warlock-guide.json",
+        "sha256": "45fbf99861e59e0a5657821f9da816f52003e2a81322f614ec3bea9df534157b",
+        "locator": "/variants/0"
+      },
+      "quote": "The Mirrored Blades Warlock requires a few things to get off the ground: as much Enhanced Damage and Increased Attack Speed on the weapon and from other sources, a source of Cannot Be Frozen, and capped Resistances.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/mirrored-blades-warlock-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "sha256": "43284655035f7931d06f1023db7c56dae2210b6925927b22784cdd276660ea08"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+          "title": "Mirror Blades Endgame",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (first Hell setup for the easier farm areas after leveling): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "locator": "/variants/0"
+      },
+      "quote": "While the Nova Sorceress excels at the early stages of Leveling, it struggles to come online in Hell; with decent +x to Skills, at least 105% FCR and decent Mana you can start using it in the easier farm areas.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/nova-sorceress-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__nova-sorceress-guide.html",
+        "sha256": "79f362f67c1edfde15c5601cb2d7c17c321940fa078f07fbbad653b0a92ea7bb"
+      },
+      "planners": []
+    },
+    {
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter-tagged areas): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/poison-nova-necromancer.json",
+        "sha256": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; prioritize + to Skills, +x% Poison Skill Damage, FCR, Resistances, Cannot Be Frozen and Life/Attributes; achieves the 75% FCR breakpoint.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/poison-nova-necromancer/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+        "sha256": "d21a71304eea3a6be5152f97f3cee40e1c008315b20ec2b6e5d51a7cb086c0c8"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/7i9290oy.json",
+          "sha256": "0f748201fd966263e92685dba7b1b73b477d9883059cf398ad37cf92cdba7736",
+          "title": "Poison Nova Necromancer",
+          "profile": "/profiles/5"
+        },
+        {
+          "path": "pricing/raw/mr/planners/bv7710o1.json",
+          "sha256": "2ba60b0427a33c03072593f4cff1ce1b3e285676f606b367b719993e4dc25acb",
+          "title": "Poison Nova Necromancer1",
+          "profile": "/profiles/5"
+        }
+      ]
+    },
+    {
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (minimum gear for the Starter-tagged areas before the endgame transition): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "locator": "/variants/0"
+      },
+      "quote": "Meets the minimum gear requirements for the Starter-tagged farming areas and looks for specific stats to transition into the endgame: 100% Pierce Chance, >80% IAS, >80% Chance to Hit Act 5 Hell Super Uniques, Cannot be Frozen, Movement Speed.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/strafe-amazon/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__strafe-amazon.html",
+        "sha256": "3e8461fe84f625a90a075b6e5fe46120fa0f1bb4d913ff3b15e0843b1f34f00a"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/0w0106ph.json",
+          "sha256": "091e335f86fdfff9498bc28cc74cd704122a96fcfca59b31c992c018a0c802a6",
+          "title": "Strafe Amazon",
+          "profile": "/profiles/2"
+        },
+        {
+          "path": "pricing/raw/mr/planners/zx87z0ly.json",
+          "sha256": "2a56bd88f3cbab5550963d8a287621f71ca7aa35650a9bdfa360b63cf680e720",
+          "title": "Strafe Amazon Build Guide",
+          "profile": "/profiles/0"
+        }
+      ]
+    },
+    {
+      "build": "summoner-necromancer-guide",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (the minimum gear to play the build): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/summoner-necromancer-guide.json",
+        "sha256": "d3214d5f4a2957ac3fe237acb56399d19c1907b8ff96a29d19ab4b8f22bb4285",
+        "locator": "/variants/0"
+      },
+      "quote": "This set of gear represents the minimum you need to effectively play the Summoner build: +4 to all Skills in total and the 75% FCR breakpoint, overcapped Resistances thanks to Ancient's Pledge, and a Teleport Staff on swap to begin 'Tele-stomping'.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/summoner-necromancer-guide/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__summoner-necromancer-guide.html",
+        "sha256": "a628d9818af0504f1996726ca69c9abdf713c505e5560a9412ade40bbdb34aac"
+      },
+      "planners": []
+    },
+    {
+      "build": "wake-of-fire-assassin",
+      "variant": "Starter",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-09-30",
+      "reason": "Reviewed exact Starter variant purpose (Anya-shop claws and easily obtainable runewords): ordinary starter progression, out of the value-focused scope (user clarification 2026-09-29). Excludes only these unreviewed source mentions; item identities, trade tiers, uses, configurations, exceptional-leveling reviews, pricing, reports and item-bank obligations stay in scope through every other mention.",
+      "source": {
+        "path": "pricing/data/wp-a-variants/wake-of-fire-assassin.json",
+        "sha256": "16c6b1edaba856554181add1e91696f7be11cb7d6cc0511628280140c0965bef",
+        "locator": "/variants/0"
+      },
+      "quote": "The Starter Variant relies heavily on +x to Skills to deal damage: shop Anya in Act 5 for Cunning Greater Talons; Lore, Stealth, Spirit Crystal Sword and Ancients' Pledge are easily obtainable sources of Life, Resistances and FHR; a Rhyme provides Cannot Be Frozen.",
+      "mirrors": [
+        {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/wake-of-fire-assassin/variants/0"
+        }
+      ],
+      "guide": {
+        "path": "pricing/raw/mr/guides__wake-of-fire-assassin.html",
+        "sha256": "214cd019a863c49b7d0d9b84cafd0193e0eaa380b0616509cb4b31059d8dd132"
+      },
+      "planners": [
+        {
+          "path": "pricing/raw/mr/planners/070106ih.json",
+          "sha256": "87f1faa74f3863ce095aff42e98b3bf7401e0ec336ccd23530cfc0a3830151ae",
+          "title": "Wake of Fire Assassin",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/7413z0l7.json",
+          "sha256": "4f91144231d250e20c0b78230fa6a25564ea1aca6922091f4c60022daa628d4c",
+          "title": "Wake of Fire Assassin1",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/t10106fd.json",
+          "sha256": "df3512a510357751c18083736e906e814c2f633004ca5ce6d13468baa61bbffd",
+          "title": "Wake of Fire Assassin Guide",
+          "profile": "/profiles/0"
+        },
+        {
+          "path": "pricing/raw/mr/planners/u190i0oy.json",
+          "sha256": "5d072343de738cc38443f5f8a708fe9c353de119aa0e5aa6774b94b674f73578",
+          "title": "Wake of Fire Assassin",
+          "profile": "/profiles/0"
+        }
+      ]
+    }
+  ],
+  "planner_definitions": {
+    "classification": "unreachable_planner_definition",
+    "approved_by": "user",
+    "approved_at": "2026-09-30",
+    "reason": "Maxroll planner item definition placed in no planner profile and linked by no guide (planner reachability audit); it recommends nothing. User approved excluding these source mentions on 2026-09-30. Item identities, uses, trade tiers, pricing, reports and item-bank obligations stay in scope through every other mention."
+  }
 }

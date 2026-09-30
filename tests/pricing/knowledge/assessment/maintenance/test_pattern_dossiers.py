@@ -82,7 +82,6 @@ def test_named_review_cannot_claim_a_pattern_label():
 @pytest.mark.parametrize(
     'changes',
     [
-        {'scope': 'hardcore'},
         {'review_state': 'discovery_only'},
         {'historical': True},
         {'strength': 'mention'},
@@ -92,5 +91,23 @@ def test_unreviewed_or_out_of_scope_use_cannot_bind_pattern_occurrences(changes)
     role, use, row = pattern_fixture()
     inventory = compile_inventory([row], [role], {})
     (entry,) = compile_dossiers(inventory, [role], [{**use, **changes}])['identities']
+    assert entry['reviewed_pattern_occurrence_ids'] == []
+    assert entry['demand']['distinct_builds'] == 0
+
+
+@pytest.mark.parametrize(('field', 'value'), [('scope', 'hardcore'), ('season', 'ladder')])
+def test_out_of_scope_pattern_review_must_agree_with_its_profile(field, value):
+    from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
+
+    role, use, row = pattern_fixture()
+    inventory = compile_inventory([row], [role], {})
+    with pytest.raises(ValueError, match='disagrees with reviewed profile'):
+        compile_dossiers(inventory, [role], [{**use, field: value}])
+
+    # A coherent archived review remains readable but contributes no SC/NL demand.
+    role[field] = value
+    use.update({field: value, 'profile_fingerprint': fingerprint(role)})
+    inventory = compile_inventory([row], [role], {})
+    (entry,) = compile_dossiers(inventory, [role], [use])['identities']
     assert entry['reviewed_pattern_occurrence_ids'] == []
     assert entry['demand']['distinct_builds'] == 0

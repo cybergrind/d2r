@@ -107,7 +107,7 @@ class LevelGuide:
         try:
             grids = list(self.observe_walls(self.source.pid, self.source.images, self.source.capture))
             for grid in grids:
-                self.walls[(grid.x, grid.y)] = grid
+                self.walls[grid.x, grid.y] = grid
             if self.library is not None:
                 self.library.learn(self.rooms, grids)
         except Exception as exc:

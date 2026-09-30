@@ -85,7 +85,7 @@ def compile_reward_mentions(document, occurrences, root):
         if row['kind'] == 'farming_target':
             if passage.count(occurrence['original_label']) != 1:
                 raise ValueError('Ambiguous reward target: repeated name in section needs a narrower review')
-            guide = cache[(source['path'], source['sha256'])]['sources'][occurrence['source_id']]
+            guide = cache[source['path'], source['sha256']]['sources'][occurrence['source_id']]
             require_same_section(root, occurrence, guide, evidence, positions, label='reward')
         result.append(
             {

@@ -120,6 +120,16 @@ def build_matrix(
                         'research_locator': policy.get('research_locator'),
                     },
                 )
+        elif (
+            collection
+            and collection['qualities']
+            and set(collection['qualities']) <= {'low_quality', 'normal', 'superior', 'magic', 'rare', 'crafted'}
+        ):
+            dims['named_tiers'] = dimension(
+                'excluded',
+                'Every validated collection member is explicitly non-unique/non-set.',
+                {'artifact': 'pattern_reviews', 'locator': f'/rows/{collection["review_index"]}'},
+            )
         elif identity['category'] != 'unresolved':
             dims['named_tiers'] = dimension('excluded', 'Not a unique/set identity.', source)
         rows.append(

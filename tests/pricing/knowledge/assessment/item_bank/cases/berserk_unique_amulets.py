@@ -10,13 +10,27 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 GOLEM = 90 * 64 + 22
 MAIDEN = 76 * 64 + 12
 SPECS = (
-    ('highlord-s-wrath', Item('Amulet', 'unique', "Highlord's Wrath",
-                            ((127, 0, 1), (93, 0, 20), (41, 0, 35), (250, 0, 3))),
-     ('127:0', '93:0', '41:0', '250:0')),
-    ('metalgrid', Item('Amulet', 'unique', 'Metalgrid',
-                      ((31, 0, 300), (19, 0, 400), *((s, 0, 25) for s in (39, 41, 43, 45)),
-                       (204, GOLEM, (11 << 8) | 11), (204, MAIDEN, (20 << 8) | 20))),
-     ('31:0', '19:0', '39:0', '41:0', '43:0', '45:0')),
+    (
+        'highlord-s-wrath',
+        Item('Amulet', 'unique', "Highlord's Wrath", ((127, 0, 1), (93, 0, 20), (41, 0, 35), (250, 0, 3))),
+        ('127:0', '93:0', '41:0', '250:0'),
+    ),
+    (
+        'metalgrid',
+        Item(
+            'Amulet',
+            'unique',
+            'Metalgrid',
+            (
+                (31, 0, 300),
+                (19, 0, 400),
+                *((s, 0, 25) for s in (39, 41, 43, 45)),
+                (204, GOLEM, (11 << 8) | 11),
+                (204, MAIDEN, (20 << 8) | 20),
+            ),
+        ),
+        ('31:0', '19:0', '39:0', '41:0', '43:0', '45:0'),
+    ),
 )
 
 
@@ -36,15 +50,33 @@ def cases():
         ]
         if slug == 'metalgrid':
             rows += [
-                ('maximum', replace(item, raw_stats=tuple(
-                    (s, layer, {31: 350, 19: 450, 39: 35, 41: 35, 43: 35, 45: 35}.get(s, v))
-                    for s, layer, v in item.raw_stats
-                )), context, 'true'),
-                ('depleted', replace(item, raw_stats=tuple(
-                    (s, layer, (v >> 8) << 8 if s == 204 else v) for s, layer, v in item.raw_stats
-                )), context, 'true'),
-                ('unread-charges', replace(item, raw_stats=tuple(r for r in item.raw_stats if r[0] != 204)),
-                 context, 'true'),
+                (
+                    'maximum',
+                    replace(
+                        item,
+                        raw_stats=tuple(
+                            (s, layer, {31: 350, 19: 450, 39: 35, 41: 35, 43: 35, 45: 35}.get(s, v))
+                            for s, layer, v in item.raw_stats
+                        ),
+                    ),
+                    context,
+                    'true',
+                ),
+                (
+                    'depleted',
+                    replace(
+                        item,
+                        raw_stats=tuple((s, layer, (v >> 8) << 8 if s == 204 else v) for s, layer, v in item.raw_stats),
+                    ),
+                    context,
+                    'true',
+                ),
+                (
+                    'unread-charges',
+                    replace(item, raw_stats=tuple(r for r in item.raw_stats if r[0] != 204)),
+                    context,
+                    'true',
+                ),
             ]
         else:
             rows += [
@@ -54,9 +86,11 @@ def cases():
         for label, candidate, loadout, truth in rows:
             expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
             if truth == 'true':
-                expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-                    key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys
-                }))
+                expected['stat_evaluation'] = IsPartialDict(
+                    annotations=IsPartialDict(
+                        {key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys}
+                    )
+                )
             yield Case(
                 id=f'berserk/unique-amulets/{slug}/{label}',
                 item=candidate,
@@ -67,8 +101,10 @@ def cases():
                 absent_configurations=() if truth == 'true' else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys((f'204:{GOLEM}', f'204:{MAIDEN}'), (role + '-stats',)),
                 report_contains=('Trade tier:',) if candidate.identified else (),
-                evidence=('pricing/data/wp-a-builds.json:/berserk-barbarian/slots/Amulets',
-                          'third-parties/d2data/json/uniqueitems.json'),
+                evidence=(
+                    'pricing/data/wp-a-builds.json:/berserk-barbarian/slots/Amulets',
+                    'third-parties/d2data/json/uniqueitems.json',
+                ),
             )
 
 

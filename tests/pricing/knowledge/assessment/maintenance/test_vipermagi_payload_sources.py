@@ -19,7 +19,8 @@ def test_socketed_vipermagi_sources_pin_actual_payload_and_fcr_scope():
         for r in read('pricing/knowledge/assessment/rules/table_equivalence_reviews.json')['rows']
         if r['profile_id'] in IDS
     ]
-    assert len(rows) == 2
+    equipment_rows = [r for r in rows if r['pattern_kind'] == 'structured_named_variant']
+    assert {r['profile_id'] for r in equipment_rows} == IDS
     result = compile_table_equivalence(
         {'schema_version': 1, 'rows': rows},
         read('pricing/data/appraisal-guide-inventory.json')['occurrences'],
@@ -27,8 +28,9 @@ def test_socketed_vipermagi_sources_pin_actual_payload_and_fcr_scope():
         read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses'],
         ROOT,
     )
+    assert len(result) == len(rows)
     assert all(r['state'] == 'reviewed' for r in result)
-    for r in rows:
+    for r in equipment_rows:
         predicates = r['required_predicates']
         assert {'op': 'fact_eq', 'field': 'sockets', 'value': 1} in predicates
         assert {'op': 'fact_eq', 'field': 'socket_contents', 'value': 'filled'} in predicates

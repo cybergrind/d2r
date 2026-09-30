@@ -10,16 +10,22 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
 def emit(role, label, item, context, truth, keys):
     expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
     if truth == 'true':
-        expected['stat_evaluation'] = IsPartialDict(annotations=IsPartialDict({
-            key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys
-        }))
+        expected['stat_evaluation'] = IsPartialDict(
+            annotations=IsPartialDict({key: IsPartialDict(configuration_ids=Contains(role + '-stats')) for key in keys})
+        )
     return Case(
-        id=f'berserk/circlet-tail/{role}/{label}', item=item, context=context,
-        expected={'assessment': IsPartialDict(**expected)}, covers=(role,),
+        id=f'berserk/circlet-tail/{role}/{label}',
+        item=item,
+        context=context,
+        expected={'assessment': IsPartialDict(**expected)},
+        covers=(role,),
         scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
         absent_configurations=() if truth == 'true' else (role + '-stats',),
-        evidence=('pricing/data/wp-a-builds.json', 'pricing/data/wp-a-variants/berserk-barbarian.json',
-                  'third-parties/d2data/json/magicsuffix.json'),
+        evidence=(
+            'pricing/data/wp-a-builds.json',
+            'pricing/data/wp-a-variants/berserk-barbarian.json',
+            'third-parties/d2data/json/magicsuffix.json',
+        ),
     )
 
 
@@ -43,8 +49,12 @@ def cases():
     item = Item('Diadem', 'rare', raw_stats=((83, 4, 2), (105, 0, 20)))
     for label, candidate, truth, keys in (
         ('core-only', item, 'true', ('83:4', '105:0')),
-        ('life-sockets', replace(item, raw_stats=(*item.raw_stats, (7, 0, 40 * 256)), sockets=2),
-         'true', ('83:4', '105:0', '7:0')),
+        (
+            'life-sockets',
+            replace(item, raw_stats=(*item.raw_stats, (7, 0, 40 * 256)), sockets=2),
+            'true',
+            ('83:4', '105:0', '7:0'),
+        ),
         ('unknown-sockets', replace(item, sockets=None), 'true', ('83:4', '105:0')),
         ('one-skill', replace(item, raw_stats=((83, 4, 1), (105, 0, 20))), 'false', ()),
         ('ten-fcr', replace(item, raw_stats=((83, 4, 2), (105, 0, 10))), 'false', ()),

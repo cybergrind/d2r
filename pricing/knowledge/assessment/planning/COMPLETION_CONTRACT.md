@@ -276,3 +276,32 @@ row; the manifest retains it with its exclusion disposition. No item identity,
 source occurrence, profile, configuration, socket mechanic or separately valuable
 or exceptional-leveling recommendation inherits that exclusion. Stale inputs,
 changed targets and unreviewed sibling recommendations remain rejected or pending.
+
+### Reviewed ordinary starter variants (2026-09-30)
+
+`value_scope_reviews.json` may contain `variants` reviews of one guide variant each
+(`maintenance/starter_scope.py`). A row quotes the variant's exact `purpose` from
+`wp-a-variants/<build>.json`, pins the same variant in `wp-a-builds.json`, pins the
+build's guide HTML and lists planner profiles for that variant. Each planner must be
+linked from that guide, carry the reviewed title and hold a profile with the variant's
+exact name; a planner titled for another build is not listed. Hashes, locators and
+dates are verified; a label alone excludes nothing.
+
+It excludes only source occurrences under those anchors that no other review has
+claimed and that carry no retained source rule. Item identities, uses, configurations,
+trade tiers, exceptional-leveling reviews, pricing, reports and item-bank obligations
+are untouched. The first pass (21 variants, 39 planner profiles) retained Smite
+Starter (minimum Uber gear), Holy Bolt Starter (specialised mercenary aura setup),
+every Budget variant and shared planners without a guide variant.
+
+### User-approved dormant planner definitions (2026-09-30)
+
+The user approved excluding maxroll planner item definitions that no planner profile
+places and no guide links (`planner_definitions` in `value_scope_reviews.json`,
+`maintenance/planner_definition_scope.py`). Only an unclaimed "Unreferenced
+definitions" occurrence whose root `/items/<id>` is an `unreachable_candidates` entry
+of a planner report without issues qualifies, from an audit pinned to the current
+inventory with no guide or source issues. The audit no longer blanks every planner
+because one planner is missing or unsupported: guide references are keyed by planner
+id, so that gap stays its own. Reachable definitions, planners with issues and every
+item identity and downstream obligation stay in scope.
