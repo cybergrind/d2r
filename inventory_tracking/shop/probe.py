@@ -6,11 +6,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-from inventory_tracking.appraisal.overlay import overlay_process
 from inventory_tracking.appraisal.service import notify
 from inventory_tracking.collection.capture import read_item_record, read_owner_grids
 from inventory_tracking.common import configure_logging, log_to_file, timestamp
 from inventory_tracking.hover.sampling import observe_ui
+from inventory_tracking.hud.process import card_widgets, hud_process
+from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.unit_probe import ResearchReader, sample_units
 from inventory_tracking.reports import create_run, publish
@@ -83,11 +84,12 @@ def main():
                 report['finished_at'] = timestamp()
                 publish(directory / 'report.json', report)
                 publish(OUTPUT / 'latest.json', report | {'directory': str(directory)})
-        with overlay_process(directory, True) as display:
+        with hud_process(DEFAULT_SCENE, True, directory / 'hud.log'):
             deadline = time.monotonic() + 5
             while time.monotonic() < deadline:
-                publish(display, {'checked_at': time.monotonic(), 'lines': [title, body]})
+                publish_layer(DEFAULT_SCENE, 'shop-probe', card_widgets([title, body]))
                 time.sleep(0.2)
+            publish_layer(DEFAULT_SCENE, 'shop-probe', [])
         return 0 if report['state'] == 'complete' else 1
 
 

@@ -1,0 +1,719 @@
+{
+  "status": "9_original_links_5_unresolved_forms",
+  "rows": [
+    {
+      "occurrence_id": "1bd918cd043b6e635ee1a5df",
+      "profile_id": "dream-paladin-flame-rift-original-sunder-alternative",
+      "name": "Flame Rift",
+      "build": "dream-paladin",
+      "span": {
+        "item_id": "91",
+        "profile_id": "c40106po",
+        "label": "Flame Rift",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/c40106po.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique402",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_fire_immunity": 300,
+          "fireresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 fr",
+        "iconIndex": 1
+      },
+      "definition": {
+        "index": "Flame Rift",
+        "code": "cm3",
+        "invtransform": "lred",
+        "prop1": "pierce-immunity-fire",
+        "prop2": "res-fire",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "1363635173"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/c40106po.json",
+          "sha256": "2d7fe62a46f3db956b91dd7c37a1d5779722af630b8e05c91db961c6b31a9967"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "296b5b05ce1581616c5f0d4e",
+      "profile_id": "blizzard-sorceress-cold-rupture-original-sunder-alternative",
+      "name": "Cold Rupture",
+      "build": "blizzard-sorceress",
+      "span": {
+        "item_id": "",
+        "profile_id": null,
+        "label": "Cold Rupture",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": null,
+      "item": null,
+      "definition": null,
+      "status": "pending_no_native_reference",
+      "gap": "Raw span has no planner/item ID or embedded item reference; label alone does not settle original versus crafted form."
+    },
+    {
+      "occurrence_id": "352f9413b48f1eb18de0a18f",
+      "profile_id": "lightning-sorceress-crack-of-the-heavens-original-sunder-alternative",
+      "name": "Crack of the Heavens",
+      "build": "lightning-sorceress",
+      "span": {
+        "item_id": "128",
+        "profile_id": "uf0106rb",
+        "label": "Crack of the Heavens",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/uf0106rb.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique403",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_light_immunity": 300,
+          "lightresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 lr"
+      },
+      "definition": {
+        "index": "Crack of the Heavens",
+        "code": "cm3",
+        "invtransform": "lyel",
+        "prop1": "pierce-immunity-light",
+        "prop2": "res-ltng",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "849307965"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/uf0106rb.json",
+          "sha256": "9572285749aa27744624aa3d722dd8e56869273b03d71efb543dd9e9d4456dad"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "3f5ddaba25a01abc0cfcf046",
+      "profile_id": "strafe-amazon-bone-break-original-sunder-alternative",
+      "name": "Bone Break",
+      "build": "strafe-amazon",
+      "span": {
+        "item_id": "",
+        "profile_id": null,
+        "label": "Bone Break",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": null,
+      "item": null,
+      "definition": null,
+      "status": "pending_no_native_reference",
+      "gap": "Raw span has no planner/item ID or embedded item reference; label alone does not settle original versus crafted form."
+    },
+    {
+      "occurrence_id": "427b4f8b0c3c20f03353cb4c",
+      "profile_id": "dream-paladin-bone-break-original-sunder-alternative",
+      "name": "Bone Break",
+      "build": "dream-paladin",
+      "span": {
+        "item_id": "94",
+        "profile_id": "zb01066h",
+        "label": "Bone Break",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/zb01066h.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique405",
+        "uniqueValues": [
+          300,
+          -10
+        ],
+        "stats": {
+          "item_pierce_damage_immunity": 300,
+          "damageresist": -10
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-10% dr"
+      },
+      "definition": {
+        "index": "Bone Break",
+        "code": "cm3",
+        "invtransform": "whit",
+        "prop1": "pierce-immunity-damage",
+        "prop2": "red-dmg%",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -20,
+        "max1": 300,
+        "max2": -10,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "374110750"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/zb01066h.json",
+          "sha256": "449e7612d71c08ca65f4f4ef5eb285a5b95d97c827646f329c47a7c589de5018"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "55041c3cd83a0e7288eb0cd4",
+      "profile_id": "dream-paladin-crack-of-the-heavens-original-sunder-alternative",
+      "name": "Crack of the Heavens",
+      "build": "dream-paladin",
+      "span": {
+        "item_id": "95",
+        "profile_id": "zb01066h",
+        "label": "Crack of the Heavens",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/zb01066h.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique403",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_light_immunity": 300,
+          "lightresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 lr"
+      },
+      "definition": {
+        "index": "Crack of the Heavens",
+        "code": "cm3",
+        "invtransform": "lyel",
+        "prop1": "pierce-immunity-light",
+        "prop2": "res-ltng",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "849307965"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/zb01066h.json",
+          "sha256": "449e7612d71c08ca65f4f4ef5eb285a5b95d97c827646f329c47a7c589de5018"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "572ff83b6fc3a0f7c78a41d6",
+      "profile_id": "poison-nova-necromancer-bone-break-original-sunder-alternative",
+      "name": "Bone Break",
+      "build": "poison-nova-necromancer",
+      "span": {
+        "item_id": "140",
+        "profile_id": "fw0106lo",
+        "label": "Bone Break",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/fw0106lo.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique405",
+        "uniqueValues": [
+          300,
+          -10
+        ],
+        "stats": {
+          "item_pierce_damage_immunity": 300,
+          "damageresist": -10
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-10% dr"
+      },
+      "definition": {
+        "index": "Bone Break",
+        "code": "cm3",
+        "invtransform": "whit",
+        "prop1": "pierce-immunity-damage",
+        "prop2": "red-dmg%",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -20,
+        "max1": 300,
+        "max2": -10,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "374110750"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/fw0106lo.json",
+          "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "5ffea64ca1abec7a71838b66",
+      "profile_id": "lightning-sentry-assassin-crack-of-the-heavens-original-sunder-alternative",
+      "name": "Crack of the Heavens",
+      "build": "lightning-sentry-assassin",
+      "span": {
+        "item_id": "",
+        "profile_id": null,
+        "label": "Crack of the Heavens",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": null,
+      "item": null,
+      "definition": null,
+      "status": "pending_no_native_reference",
+      "gap": "Raw span has no planner/item ID or embedded item reference; label alone does not settle original versus crafted form."
+    },
+    {
+      "occurrence_id": "73d4fc3f737c0be104aa821d",
+      "profile_id": "meteor-sorceress-flame-rift-original-sunder-alternative",
+      "name": "Flame Rift",
+      "build": "meteor-sorceress",
+      "span": {
+        "item_id": "",
+        "profile_id": null,
+        "label": "Flame Rift",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": null,
+      "item": null,
+      "definition": null,
+      "status": "pending_no_native_reference",
+      "gap": "Raw span has no planner/item ID or embedded item reference; label alone does not settle original versus crafted form."
+    },
+    {
+      "occurrence_id": "7d78b908952a0a32473be845",
+      "profile_id": "poison-nova-necromancer-flame-rift-original-sunder-alternative",
+      "name": "Flame Rift",
+      "build": "poison-nova-necromancer",
+      "span": {
+        "item_id": "139",
+        "profile_id": "fw0106lo",
+        "label": "Flame Rift",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/fw0106lo.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique402",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_fire_immunity": 300,
+          "fireresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 fr"
+      },
+      "definition": {
+        "index": "Flame Rift",
+        "code": "cm3",
+        "invtransform": "lred",
+        "prop1": "pierce-immunity-fire",
+        "prop2": "res-fire",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "1363635173"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/fw0106lo.json",
+          "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "9299d0192427e89481a88b37",
+      "profile_id": "double-throw-barbarian-guide-bone-break-original-sunder-alternative",
+      "name": "Bone Break",
+      "build": "double-throw-barbarian-guide",
+      "span": {
+        "item_id": "149",
+        "profile_id": "db0106mf",
+        "label": "Bone Break",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/db0106mf.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique405",
+        "uniqueValues": [
+          300,
+          -10
+        ],
+        "stats": {
+          "item_pierce_damage_immunity": 300,
+          "damageresist": -10
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-10% dr"
+      },
+      "definition": {
+        "index": "Bone Break",
+        "code": "cm3",
+        "invtransform": "whit",
+        "prop1": "pierce-immunity-damage",
+        "prop2": "red-dmg%",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -20,
+        "max1": 300,
+        "max2": -10,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "374110750"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/db0106mf.json",
+          "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "a578d46313f172a5a14a4045",
+      "profile_id": "lightning-strike-amazon-crack-of-the-heavens-original-sunder-alternative",
+      "name": "Crack of the Heavens",
+      "build": "lightning-strike-amazon",
+      "span": {
+        "item_id": "123",
+        "profile_id": "vc0106wm",
+        "label": "Crack of the Heavens",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/vc0106wm.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique403",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_light_immunity": 300,
+          "lightresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 lr"
+      },
+      "definition": {
+        "index": "Crack of the Heavens",
+        "code": "cm3",
+        "invtransform": "lyel",
+        "prop1": "pierce-immunity-light",
+        "prop2": "res-ltng",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "849307965"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/vc0106wm.json",
+          "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "bc22164286a708f4e643c557",
+      "profile_id": "poison-nova-necromancer-rotting-fissure-original-sunder-alternative",
+      "name": "Rotting Fissure",
+      "build": "poison-nova-necromancer",
+      "span": {
+        "item_id": "138",
+        "profile_id": "fw0106lo",
+        "label": "Rotting Fissure",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": "pricing/raw/mr/planners/fw0106lo.json",
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "unique": "unique404",
+        "uniqueValues": [
+          300,
+          -70
+        ],
+        "stats": {
+          "item_pierce_poison_immunity": 300,
+          "poisonresist": -70
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "description": "-70 pr"
+      },
+      "definition": {
+        "index": "Rotting Fissure",
+        "code": "cm3",
+        "invtransform": "lgrn",
+        "prop1": "pierce-immunity-poison",
+        "prop2": "res-pois",
+        "version": 100,
+        "lvl": 69,
+        "lvlreq": 75,
+        "costmult": 3,
+        "costadd": 5000,
+        "min1": 300,
+        "min2": -90,
+        "max1": 300,
+        "max2": -70,
+        "rarity": 1,
+        "enabled": 1,
+        "hd": [
+          "charm/charm_large",
+          "charm/charm_large",
+          "charm/charm_large"
+        ],
+        "traderie": "1283013862"
+      },
+      "status": "original_identity_verified_and_linked",
+      "pins": [
+        {
+          "path": "pricing/raw/mr/planners/fw0106lo.json",
+          "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+        },
+        {
+          "path": "pricing/raw/mr/planners/game-data.json",
+          "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+        }
+      ]
+    },
+    {
+      "occurrence_id": "f51d445977bc08a064122bb4",
+      "profile_id": "wake-of-fire-assassin-flame-rift-original-sunder-alternative",
+      "name": "Flame Rift",
+      "build": "wake-of-fire-assassin",
+      "span": {
+        "item_id": "",
+        "profile_id": null,
+        "label": "Flame Rift",
+        "slot": "Unique Charms",
+        "side": "player"
+      },
+      "planner": null,
+      "item": null,
+      "definition": null,
+      "status": "pending_no_native_reference",
+      "gap": "Raw span has no planner/item ID or embedded item reference; label alone does not settle original versus crafted form."
+    }
+  ],
+  "linked_occurrence_ids": [
+    "1bd918cd043b6e635ee1a5df",
+    "352f9413b48f1eb18de0a18f",
+    "427b4f8b0c3c20f03353cb4c",
+    "55041c3cd83a0e7288eb0cd4",
+    "572ff83b6fc3a0f7c78a41d6",
+    "7d78b908952a0a32473be845",
+    "9299d0192427e89481a88b37",
+    "a578d46313f172a5a14a4045",
+    "bc22164286a708f4e643c557"
+  ],
+  "validation": {
+    "native_bank": "54 staged and selected cases pass",
+    "source_and_completion": "60 tests pass",
+    "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+    "completion_counts": {
+      "identities": 2570,
+      "occurrences": 62891,
+      "reviewed_occurrences": 2286,
+      "excluded_occurrences": 4822,
+      "coverage_rows": 8624,
+      "remaining_tasks": 114805
+    },
+    "bank": {
+      "cases": 4600,
+      "required_targets": 4325,
+      "targets_missing_cases": 3553
+    }
+  }
+}

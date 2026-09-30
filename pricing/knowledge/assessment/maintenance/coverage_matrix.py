@@ -11,6 +11,10 @@ from collections import Counter
 from pricing.knowledge.assessment.maintenance.coverage_evidence import evidence_records
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.inventory import ROOT
+from pricing.knowledge.assessment.maintenance.material_market_review import apply_material_market_reviews
+from pricing.knowledge.assessment.maintenance.potion_market_review import apply_potion_market_reviews
+from pricing.knowledge.assessment.maintenance.recipe_applicability import apply_recipe_applicability
+from pricing.knowledge.assessment.maintenance.scroll_market_review import apply_scroll_market_reviews
 from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
 from pricing.knowledge.assessment.stat_bundle import validate_stat_bundle
 
@@ -51,6 +55,16 @@ def build_matrix(
     leveling_links=None,
     stat_dispositions=(),
     source_root=ROOT,
+    named_gate=None,
+    recipe_applicability=None,
+    pattern_reviews=None,
+    uses=None,
+    table_reviews=None,
+    material_market_reviews=None,
+    potion_market_reviews=None,
+    scroll_market_reviews=None,
+    fixed_jewelry_market_reviews=None,
+    variable_jewelry_market_reviews=None,
 ):
     validate_stat_bundle(profiles)
     exclusions = validate_stat_dispositions(stat_dispositions, profiles, root=source_root)
@@ -65,6 +79,13 @@ def build_matrix(
         if key in policies:
             raise ValueError('Duplicate named tier identity')
         policies[key] = (index, policy)
+    collections = {}
+    if pattern_reviews is not None:
+        from pricing.knowledge.assessment.maintenance.pattern_collections import compile_collections
+
+        collections = compile_collections(
+            pattern_reviews, inventory, profiles['profiles'], uses['uses'], table_reviews, source_root
+        )
     rows = []
     for index, identity in enumerate(identities.values()):
         source = {'artifact': 'inventory', 'locator': f'/identities/{index}'}
@@ -75,6 +96,12 @@ def build_matrix(
             'Catalog identity retained.' if resolved else 'Identity/pattern resolution remains open.',
             source,
         )
+        if collection := collections.get(identity['id']):
+            dims['discovery'] = dimension(
+                'reviewed',
+                collection['reason'],
+                {'artifact': 'pattern_reviews', 'locator': f'/rows/{collection["review_index"]}'},
+            )
         if identity['category'] in ('unique', 'set'):
             entry = policies.get((identity['category'], identity['name']))
             if entry:
@@ -230,6 +257,19 @@ def build_matrix(
                 'dimensions': dims,
             }
         )
+    from pricing.knowledge.assessment.maintenance.named_matrix import apply_named_dimensions
+
+    apply_named_dimensions(rows, named_gate)
+    apply_recipe_applicability(rows, recipe_applicability, source_root)
+    apply_material_market_reviews(rows, material_market_reviews, source_root)
+    apply_potion_market_reviews(rows, potion_market_reviews, source_root)
+    apply_scroll_market_reviews(rows, scroll_market_reviews, source_root)
+    from pricing.knowledge.assessment.maintenance.fixed_jewelry_market_review import apply_reviews
+
+    apply_reviews(rows, fixed_jewelry_market_reviews, source_root)
+    from pricing.knowledge.assessment.maintenance.variable_jewelry_market_review import apply_reviews as apply_variable
+
+    apply_variable(rows, variable_jewelry_market_reviews, source_root)
     rows.sort(key=lambda r: r['id'])
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate coverage row')
@@ -307,11 +347,21 @@ def main():
         'inventory': ROOT / 'pricing/data/appraisal-guide-inventory.json',
         'bases': ROOT / 'pricing/data/appraisal-base-matrix.json',
         'tiers': ROOT / 'pricing/data/appraisal-tier-coverage.json',
+        'named_gate': ROOT / 'pricing/data/appraisal-named-gate.json',
         'profiles': ROOT / 'pricing/data/appraisal-build-profiles.json',
         'recommendations': ROOT / 'pricing/data/appraisal-recommendations.json',
         'valuable': ROOT / 'pricing/data/appraisal-value-watch.json',
         'observed': ROOT / 'pricing/data/appraisal-observed-review.json',
+        'material_market_reviews': ROOT / 'pricing/data/appraisal-material-market-review.json',
+        'potion_market_reviews': ROOT / 'pricing/data/appraisal-potion-market-review.json',
+        'scroll_market_reviews': ROOT / 'pricing/data/appraisal-scroll-market-review.json',
+        'fixed_jewelry_market_reviews': ROOT / 'pricing/data/appraisal-fixed-jewelry-market-review.json',
+        'variable_jewelry_market_reviews': ROOT / 'pricing/data/appraisal-variable-jewelry-market-review.json',
         'stat_dispositions': ROOT / 'pricing/knowledge/assessment/rules/stat_dispositions.json',
+        'recipe_applicability': ROOT / 'pricing/knowledge/assessment/rules/recipe_applicability.json',
+        'pattern_reviews': ROOT / 'pricing/knowledge/assessment/rules/pattern_collection_reviews.json',
+        'uses': ROOT / 'pricing/knowledge/assessment/rules/guide_use_reviews.json',
+        'table_reviews': ROOT / 'pricing/knowledge/assessment/rules/table_equivalence_reviews.json',
     }
     raw = {key: path.read_bytes() for key, path in paths.items()}
     docs = {key: json.loads(value) for key, value in raw.items()}

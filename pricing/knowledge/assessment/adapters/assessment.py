@@ -22,6 +22,7 @@ def legacy_payload(result: AssessmentResult):
             if result.stat_evaluation is not None
             else {}
         ),
+        **({'utility': thaw(result.utility)} if result.utility else {}),
         'base_uses': thaw(result.base_uses),
         'leveling': thaw(result.leveling),
         'trade_tier': thaw(result.trade_tier),

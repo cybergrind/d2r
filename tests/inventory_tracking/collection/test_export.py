@@ -3,7 +3,14 @@ import re
 from html.parser import HTMLParser
 
 from inventory_tracking.collection.export import export_html, export_payload, render_html, unresolved_text
-from inventory_tracking.collection.models import CaptureRun, Character, ItemRecord, Location, Sighting
+from inventory_tracking.collection.models import (
+    CaptureRun,
+    Character,
+    CharacterStats,
+    ItemRecord,
+    Location,
+    Sighting,
+)
 from inventory_tracking.collection.store import CollectionStore
 
 
@@ -99,3 +106,23 @@ def test_unresolved_text_prefers_text_then_names_the_stat():
         == 'skilltab stat 188 layer 3 = 1'
     )
     assert unresolved_text({'layer': 0, 'id': 7, 'raw': 5}) == 'stat 7 = 5'
+
+
+def test_export_carries_the_latest_character_sheet(tmp_path, insight):
+    with CollectionStore(tmp_path / 'c.sqlite') as store:
+        run = CaptureRun(
+            id='c1',
+            character=Character(name='MuleOne', class_name='Warlock', level=9),
+            containers=[('MuleOne', 'stash', None)],
+            started_at='2026-09-25T10:00:00+00:00',
+        )
+        sheet = CharacterStats(level=9, strength=30, life_max=210, lines=['Level: 9', '+30 to Strength'])
+        store.record_capture(run, [sighting(insight)], stats=sheet)
+        payload = export_html(store, tmp_path / 'c.html')
+    [character] = payload['characters']
+    assert character['stats']['level'] == 9
+    assert character['stats']['seen_at'] == '2026-09-25T10:00:00+00:00'
+    assert character['stats']['lines'] == ['Level: 9', '+30 to Strength']
+    data = embedded((tmp_path / 'c.html').read_text())
+    assert data['characters'][0]['stats']['strength'] == 30
+    assert 'renderSheets' in (tmp_path / 'c.html').read_text()

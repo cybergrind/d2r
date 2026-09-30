@@ -35,12 +35,13 @@ def test_infinity_priorities_belong_to_the_specific_beneficiary(role_id, base, p
     item = replace(item, stats={**item.stats, '18:0': {'status': 'decoded', 'value': 300}})
 
     def evaluate(candidate, context=None):
-        context = {'mercenary_type': 'Act 2 Might'} if context is None else context
+        cls = 'Amazon' if role_id == 'lightning-strike-infinity-player' else 'Sorceress'
+        context = {'player_class': cls, **({'mercenary_type': 'Act 2 Might'} if context is None else context)}
         return StatsEvaluator().evaluate(
             candidate, configs, context, role_outcomes=assess_role_results(candidate, profiles, context)
         )
 
-    for quality in ('normal', 'superior'):
+    for quality in ('normal', 'superior', 'low_quality'):
         result = evaluate(replace(item, rarity=quality))
         assert {k: v['desirability'] for k, v in result.annotations.items()} == priorities
         assert all(v['roll_quality'] == 'unassessed' for v in result.annotations.values())
@@ -72,3 +73,6 @@ def test_infinity_priorities_belong_to_the_specific_beneficiary(role_id, base, p
     if '334:0' in priorities:
         unknown = replace(item, stats={**item.stats, '334:0': {'status': 'unresolved', 'value': 55}})
         assert '334:0' not in evaluate(unknown).annotations
+
+    for cls in ('Paladin', None):
+        assert not evaluate(item, {'player_class': cls, 'mercenary_type': 'Act 2 Might'}).annotations

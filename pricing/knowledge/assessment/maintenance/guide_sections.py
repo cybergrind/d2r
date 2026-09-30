@@ -7,7 +7,7 @@ from html.parser import HTMLParser
 from pricing.knowledge.builds import guide_mentions
 
 
-VERSION = 'guide-sections-3'
+VERSION = 'guide-sections-4'
 
 
 class SectionParser(HTMLParser):
@@ -15,6 +15,7 @@ class SectionParser(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.sections = []
         self.embedded_item_refs = []
+        self.legacy_item_refs = []
         self.heading_parts = None
         self.hidden = None
         self.new_section('Introduction', None, (1, 0))
@@ -46,6 +47,21 @@ class SectionParser(HTMLParser):
                     'item_id': attributes['data-d2-item-id'],
                     'position': list(self.getpos()),
                     'section_locator': self.sections[-1]['locator'],
+                }
+            )
+        elif (
+            'd2planner-item' in attributes.get('class', '').split()
+            and attributes.get('data-d2planner-profile')
+            and attributes.get('data-d2planner-id')
+        ):
+            self.legacy_item_refs.append(
+                {
+                    'profile_id': attributes['data-d2planner-profile'],
+                    'set_id': None,
+                    'item_id': attributes['data-d2planner-id'],
+                    'position': list(self.getpos()),
+                    'section_locator': self.sections[-1]['locator'],
+                    'format': 'legacy_item',
                 }
             )
         if tag in {'h1', 'h2', 'h3', 'h4', 'h5', 'h6'}:
@@ -89,3 +105,11 @@ def section_inventory(html, previous=None):
         'complete': False,
         'scope': 'All HTML text sections except script/style; semantic relevance requires review.',
     }
+
+
+def legacy_item_references(html):
+    """Discover old item links separately from the pinned section-evidence format."""
+    parser = SectionParser()
+    parser.feed(html)
+    parser.close()
+    return parser.legacy_item_refs

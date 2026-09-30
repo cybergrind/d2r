@@ -5,12 +5,12 @@ import math
 from pricing.knowledge.assessment.mechanics.named_charms import is_standalone_charm, shared_roll_gaps
 
 
-# Integer bonuses with no inherent base contribution on unique/set equipment.
+# Integer bonuses after NamedHandler removes native shield base blocking.
 # Empty sockets are required independently by NamedHandler. Set contributions
 # outside these standalone bounds need separate evidence before comparison.
 # Do not bound total defense (31), weapon damage (21-24), durability, resistances
 # or staffmods against a definition's added bonus.
-BOUNDED_STATS = frozenset({16, 17, 18, 35, 36, 60, 62, 79, 80, 93, 99, 105, 127, 136, 142, 143, 144, 147, 148})
+BOUNDED_STATS = frozenset({16, 17, 18, 20, 35, 36, 60, 62, 79, 80, 93, 99, 105, 127, 136, 142, 143, 144, 147, 148})
 
 
 def roll_gaps(facts, definition):

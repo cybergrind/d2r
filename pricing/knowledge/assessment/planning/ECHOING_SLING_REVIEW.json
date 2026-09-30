@@ -1,0 +1,151 @@
+{
+  "review_date": "2026-09-28",
+  "status": "runtime_configuration_and_exact_source_links_reviewed",
+  "guide": {
+    "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+    "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
+    "reference": {
+      "profile_id": "ucgz20le",
+      "set_id": "Khw26jKQ",
+      "item_id": "280",
+      "position": [
+        92,
+        249
+      ],
+      "section_locator": "/sections/24"
+    },
+    "context": {
+      "span_index": 10,
+      "label": "Sling",
+      "side": "player",
+      "slot": "unspecified",
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "Khw26jKQ",
+        "item_id": "280",
+        "position": [
+          92,
+          249
+        ],
+        "section_locator": "/sections/24"
+      }
+    },
+    "section": {
+      "locator": "/sections/24",
+      "heading": "Setup",
+      "anchor": "setup-header",
+      "position": [
+        91,
+        223
+      ],
+      "review_state": "pending",
+      "text": "The Uber variant for the Echoing Strike Warlock alters its Skill Tree to be able to Bind a Demon to serve as a tank. The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients. You also need to stack as much -xx% Enemy Resistance as possible without tanking the build's Resistances. Hellwarden's Will + Sling and a Sunder Charm with -xx% Enemy Magic Resistance more than doubles your damage output. Make sure to replace a Gheed's Fortune with more damage or survivability, if you're using one. Prebuffing with Demon Limb and Treachery Breast Plate gives better Attack Rating and Survivability."
+    }
+  },
+  "planner": {
+    "path": "pricing/raw/mr/planners/ucgz20le.json",
+    "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91",
+    "item": {
+      "base": "rin",
+      "quality": 6,
+      "ilvl": 99,
+      "uniqueValues": [
+        1,
+        10,
+        5,
+        15,
+        15,
+        20
+      ],
+      "unique": "unique415",
+      "sockets": 0,
+      "stats": {
+        "item_nonclassskill#411": 1,
+        "item_fastercastrate": 10,
+        "passive_mag_pierce": 5,
+        "energy": 15,
+        "item_slow": 15,
+        "item_magicbonus": 20
+      },
+      "ethereal": false,
+      "description": "15 ene 20 mf"
+    }
+  },
+  "native": {
+    "path": "third-parties/d2data/json/uniqueitems.json",
+    "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+    "locator": "/415",
+    "definition": {
+      "index": "Sling",
+      "*ID": 415,
+      "version": 100,
+      "spawnable": 1,
+      "rarity": 1,
+      "lvl": 58,
+      "lvl req": 50,
+      "code": "rin",
+      "*ItemName": "Ring",
+      "cost mult": 3,
+      "cost add": 5000,
+      "flippyfile": "flprin",
+      "prop1": "oskill",
+      "par1": "Townportal O Skill",
+      "min1": 1,
+      "max1": 1,
+      "prop2": "cast1",
+      "min2": 10,
+      "max2": 10,
+      "prop3": "pierce-mag",
+      "min3": 3,
+      "max3": 5,
+      "prop4": "enr",
+      "min4": 10,
+      "max4": 15,
+      "prop5": "slow",
+      "min5": 15,
+      "max5": 15,
+      "prop6": "mag%",
+      "min6": 10,
+      "max6": 20,
+      "expansion": 1,
+      "lineNumber": 416
+    }
+  },
+  "existing_roles": [
+    "blessed-hammer-paladin-sling-caster-utility-alternative",
+    "abyss-warlock-table-ring-sling"
+  ],
+  "gap": "No Echoing Ubers Sling role exists; Hellwarden role references Sling as a companion. Review the reciprocal pairing and magic-pierce/FCR contributions, rather than treating a generic Sling role for another build as coverage.",
+  "constraints": [
+    "Native magic pierce varies3-5; guide wants magic resistance reduction, not proof that only perfect5is usable.",
+    "Player Warlock Ubers pairing with Hellwarden and magic sunder must retain actual companion requirements.",
+    "Energy/MF are variable secondary properties; Town Portal and slow are utility, not direct proof of Echoing damage.",
+    "No numerical price follows from a guide recommendation."
+  ],
+  "runtime_role": "echoing-ubers-sling-magic-pierce",
+  "published_generation": "daba38e154608719afd41b4b71cf009d688b3526edf3b68883163303e3260afa",
+  "next_pricing_gap": {
+    "native_stat": "358:0",
+    "candidate_market_property": "1877",
+    "evidence": "pricing/data/appraisal-properties.json:/properties/1877 and inventory_tracking/items/data/item_metadata.json:/stats/358",
+    "deficiency": "Assessment adapter projection omits native magic pierce; current report correctly reports unimplemented mapping, not absent comparables. Verify mapping and regression before claiming price coverage.",
+    "status": "resolved_in_generation_90c90ab2726de046051852457713d55942fee6d78d32d9f0979ca1fb82163f46",
+    "followup": "SLING_PRICING_REVIEW.json records real minimum/maximum roll comparisons: thin/no matches; no mapping gaps. Exact semantic source links remain pending."
+  },
+  "source_review": {
+    "kind": "echoing_pairing",
+    "review_date": "2026-09-28",
+    "tooltip": {
+      "profile_id": "ucgz20le",
+      "set_id": "Khw26jKQ",
+      "item_id": "280",
+      "position": [
+        92,
+        249
+      ],
+      "section_locator": "/sections/24"
+    },
+    "occurrence_id": "ec21276807cb931a93c3feb2",
+    "scope": "Only this exact Ubers reference and label; other Sling uses and pricing cohorts retain independent obligations."
+  }
+}

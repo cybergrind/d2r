@@ -39,6 +39,18 @@ def coverage():
         },
         'profile_gaps': gaps,
         'price_policies': {
+            'socket_material': {
+                'coverage': 'partial',
+                'implemented': 'Exact single loose native rune/gem comparisons; bulk valuation remains open.',
+            },
+            'consumable': {
+                'coverage': 'partial',
+                'implemented': 'Exact individual ordinary potions; excludes quest and throwing potions.',
+            },
+            'supply': {
+                'coverage': 'partial',
+                'implemented': 'Exact individual scrolls; native stack listing-quantity mapping remains open.',
+            },
             'base': {
                 'coverage': 'partial',
                 'implemented': 'Exact empty base variants, armor defense and socket/ethereal facets.',
@@ -57,6 +69,8 @@ def coverage():
             },
         },
         'price_policy_gaps': [
+            'Native stack contents versus offered stack quantities for tomes, ordinary keys and ammunition',
+            'Bulk rune/gem and potion valuation',
             'Remaining unsupported upgrade and named/affixed socket-contribution variants',
             'Remaining native property and character-level formula market projections',
             'Reviewed role-specific secondary-roll bands and cross-base substitutes',
@@ -68,7 +82,19 @@ def coverage():
 
 
 def main():
+    from pricing.knowledge.assessment.maintenance.named_gate import audit
+
     result = coverage()
+    gate = audit()
+    result['named_tiers'].update(
+        eligible=gate['counts']['eligible_named'],
+        excluded=gate['counts']['excluded'],
+        complete_sets=gate['counts']['complete_sets'],
+        pending=gate['gates']['uniques_missing_baseline'] + gate['gates']['set_pieces_missing_baseline'],
+        complete=gate['complete'],
+        gates=gate['gates'],
+    )
+    result['price_policy_gaps'][-1] = 'Remaining detailed unique/set build-variant and market coverage'
     path = Path(__file__).resolve().parents[2] / 'data/appraisal-assessment-coverage.json'
     path.write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps({k: v for k, v in result.items() if k not in ('families', 'reviewed_profiles')}))

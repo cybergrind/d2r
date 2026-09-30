@@ -7,6 +7,7 @@ from collections.abc import Mapping
 from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
+from functools import cached_property
 from pathlib import Path
 from threading import RLock
 
@@ -23,6 +24,32 @@ class DefinitionCatalog:
     named: Mapping
     runewords: Mapping
     named_variants: Mapping
+
+    @cached_property
+    def shield_base_blocks(self):
+        """Reuse pinned native base fields already compiled into word definitions.
+
+        These are armor-table base values, independent of the word or its runes.
+        Every occurrence must agree; missing/conflicting metadata stays unknown.
+        """
+        candidates = {}
+        for definition in self.runewords.values():
+            for code, stats in definition.get('base_stat_ranges', {}).items():
+                row = stats.get('20', {})
+                value = row.get('min')
+                valid = (
+                    code in definition.get('base_codes', ())
+                    and row.get('property') == 'base_block'
+                    and row.get('stat_id') == 20
+                    and type(value) is int
+                    and 0 <= value <= 100
+                    and type(row.get('max')) is int
+                    and row.get('max') == value
+                )
+                candidates.setdefault(code, set()).add(value if valid else None)
+        return freeze(
+            {code: next(iter(values)) for code, values in candidates.items() if len(values) == 1 and None not in values}
+        )
 
 
 class DefinitionStore:
@@ -55,6 +82,10 @@ class DefinitionStore:
                 if quality == 'runeword' and key in target and target[key] != row:
                     raise ValueError(f'Conflicting runeword definition: {key}')
                 if quality != 'runeword':
+                    if ordinary := row.get('ordinary_definition'):
+                        if any(ordinary.get(k) != row.get(k) for k in ('name', 'rarity', 'table_id', 'base_code')):
+                            raise ValueError(f'Conflicting ordinary definition: {key}')
+                        variants.setdefault(key, []).append(ordinary)
                     variants.setdefault(key, []).append(row)
                 # Preserve existing last-record named lookup semantics (legacy
                 # identities such as Azurewrath have multiple table versions).

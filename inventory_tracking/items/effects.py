@@ -56,3 +56,16 @@ def decode_magic_pierce(ctx):
             'text': f'{-ctx.raw:+d}% to Enemy Magic Resistance',
         }
     return None
+
+
+def decode_numeric_text_effect(ctx):
+    """Text-only tooltip effects whose native payload is a magnitude, not a flag.
+
+    D2MOO Items.cpp adds stat254 to max stack; D2Skills.cpp returns stat157/158
+    as the level of Magic Arrow/Exploding Arrow. Never coerce the value to one.
+    """
+    if ctx.layer != 0 or ctx.raw <= 0 or not ctx.spec.get('label'):
+        return None
+    label = ctx.spec['label']
+    suffix = f'(+{ctx.raw})' if ctx.stat['id'] == 254 else f'(Level {ctx.raw})'
+    return {'value': ctx.raw, 'label': label, 'text': f'{label} {suffix}'}

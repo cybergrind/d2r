@@ -3,13 +3,14 @@
 import struct
 from collections import Counter
 
+from inventory_tracking.items.combined_affix_ranges import combined_scalar_ranges, uncontaminated_by_sockets
+from inventory_tracking.items.combined_charm_damage import CHARM_TYPES, combined_damage_ranges
 from inventory_tracking.items.identity import FLAGS_OFFSET, IDENTIFIED_FLAG, ITEM_DATA_SIZE, QUALITY_OFFSET
 from inventory_tracking.items.metadata import metadata
 
 
 PREFIX_OFFSET = 0x48
 SUFFIX_OFFSET = 0x4E
-CHARM_TYPES = frozenset(('scha', 'mcha', 'lcha'))
 
 
 def resolve_affix_ranges(details, arrays, base):
@@ -68,16 +69,25 @@ def resolve_affix_ranges(details, arrays, base):
         }
         for entry in entries
         for stat, definition in entry['roll_ranges'].items()
-        if counts[stat] == 1 and not (base.get('type') not in CHARM_TYPES and stat in ('21', '22', '23', '24', '31'))
+        if counts[stat] == 1
+        and not (base.get('type') not in CHARM_TYPES and stat in ('21', '22', '23', '24', '31', '159', '160'))
     }
+    combined = combined_damage_ranges(entries, base, quality, pool)
+    if uncontaminated_by_sockets(raw, arrays):
+        combined.update(combined_scalar_ranges(entries, pool))
+    ranges.update(combined)
     return {
         'roll_ranges': ranges,
+        'native_affixes': {
+            table: [entry['table_id'] for entry in entries if entry['affix_table'] == table]
+            for table in ('prefix', 'suffix', 'auto')
+        },
         'source': [entry['source'] for entry in entries],
         'scope': 'captured affix tier',
         'review': [
             f'Range unavailable: multiple captured affixes contribute to stat {stat}.'
             for stat, count in counts.items()
-            if count > 1
+            if count > 1 and stat not in combined
         ],
         'quality_scope': (
             'all spawnable tiers for this charm size'

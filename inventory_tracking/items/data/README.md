@@ -14,6 +14,16 @@ appraisal does not download data. It includes 692 bases across weapons/armor/mis
 367 distinct stat IDs and 428 skill names. Stat ID 213 has conflicting source
 names; both are retained and its interpretation remains unresolved.
 
+Runeword definitions without a verified prefix ID are retained in
+`unmapped_runewords`. Recognition requires the identified/runeword flags, a legal
+base and socket count, and a complete ordered capture of distinct, stable rune
+units. Native socket capacity is checked. Recipe ambiguity or contradictory
+complete children leave the identity unresolved; a known prefix is never replaced
+by a different recipe. Captured-recipe identities preserve the observed prefix ID
+separately and do not invent an ID mapping. An unresolved flagged runeword creates
+both a report issue and an appraisal gap. This covers Hustle's separate armor and
+weapon definitions without combining their effects.
+
 Sources and SHA-256 hashes for downloaded static tables are in `provenance`:
 - [d2data ItemStatCost](https://raw.githubusercontent.com/blizzhackers/d2data/master/json/itemstatcost.json)
 - [d2data skills](https://raw.githubusercontent.com/blizzhackers/d2data/master/json/skills.json)

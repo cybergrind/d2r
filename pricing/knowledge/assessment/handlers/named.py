@@ -4,13 +4,16 @@ from pricing.knowledge.assessment.domain.contracts import ComparableContract
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
 from pricing.knowledge.assessment.handlers.exact import comparison_properties, require_empty_contents
 from pricing.knowledge.assessment.handlers.facet import (
+    CATALOG_VARIANTS,
     facet_fixed_damage,
     facet_fixed_duration,
     facet_fixed_poison,
     facet_trigger,
 )
 from pricing.knowledge.assessment.handlers.intrinsic import fixed_properties
+from pricing.knowledge.assessment.handlers.property_groups import comparison_gaps as property_group_gaps
 from pricing.knowledge.assessment.handlers.random_skills import comparison_gaps
+from pricing.knowledge.assessment.handlers.seasonal import comparison_discriminators, shared_scalar_ranges
 from pricing.knowledge.assessment.handlers.socket_fillers import compare_named_sockets
 from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 from pricing.knowledge.assessment.mechanics.elemental import ENDPOINTS, fixed_elemental_properties
@@ -19,6 +22,7 @@ from pricing.knowledge.assessment.mechanics.named_requirements import required_l
 from pricing.knowledge.assessment.mechanics.named_rolls import roll_gaps, variable_projection_gaps
 from pricing.knowledge.assessment.mechanics.per_level import fixed_per_level_keys, variable_per_level_gaps
 from pricing.knowledge.assessment.mechanics.poison import POISON_KEYS, fixed_poison_range
+from pricing.knowledge.assessment.mechanics.shield_blocking import modifier_facts
 from pricing.knowledge.assessment.mechanics.triggers import named_trigger_properties
 
 
@@ -28,6 +32,10 @@ class NamedHandler:
         definition, identity_gaps = resolve_named_definition(facts)
         if definition is None:
             return None, [*gaps, *identity_gaps]
+        if family == 'shield':
+            facts, block_gaps = modifier_facts(facts)
+            if block_gaps:
+                return None, [*gaps, *block_gaps]
         trigger_properties, consumed, trigger_gaps = facet_trigger(facts, definition)
         named_procs, proc_keys, proc_gaps = named_trigger_properties(facts, definition)
         charged_properties, charge_keys, charge_gaps = fixed_charge_properties(facts, definition)
@@ -88,10 +96,12 @@ class NamedHandler:
             else:
                 properties[key] = value
         gaps.extend(variable_projection_gaps(facts, definition, properties))
+        gaps.extend(property_group_gaps(facts, definition, properties))
         fixed_damage, damage_gaps = facet_fixed_damage(facts, definition)
         gaps.extend(damage_gaps)
         if gaps:
             return None, list(dict.fromkeys(gaps))
+        properties.update(comparison_discriminators(definition, facts))
         return ComparableContract(
             1,
             'named',
@@ -106,8 +116,9 @@ class NamedHandler:
             base_code=facts.base_code,
             base_tier=base_tier(facts.base_code),
             required_level=required_level(facts, definition),
+            catalog_id=(CATALOG_VARIANTS.get(definition.get('table_id')) if facts.name == 'Rainbow Facet' else None),
             intrinsic_properties={
-                **fixed_properties(facts, definition.get('roll_ranges', {})),
+                **fixed_properties(facts, shared_scalar_ranges(definition, facts)),
                 **fixed_damage,
                 **elemental,
                 **poison_properties,

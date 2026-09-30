@@ -39,7 +39,7 @@ ground/vendor items, multiplayer characters, the belt (potions only).
 | Decode base, rarity, identity (unique/set/rare/runeword), flags, affixes, roll ranges, sockets | `items/decode.decode_items` and `items/*` | production; ilvl unknown ([research](../item_level_research.md)) |
 | Container naming, owner validation | `items/containers.container_for_page`, `hover/selection._resolve` (page 4: personal if owner == player else "Shared stash") | production, but every shared tab collapses to one label |
 | Local player identity and name | `tracking/state.select_player` (unique plausible-life unit), `native/units.describe_player` (name) | production |
-| Hotkey → worker: Unix datagram socket, focus guards, run directories, OSD, notifications, result cache | `appraisal/service.py`, `appraisal/worker.py`, `appraisal/cache.item_key`, `appraisal/overlay.py` | production; datagram body is a bare monotonic float |
+| Hotkey → worker: Unix datagram socket, focus guards, run directories, OSD, notifications, result cache | `appraisal/service.py`, `appraisal/worker.py`, `appraisal/cache.item_key`, `hud/` (canvas; replaced `appraisal/overlay.py` 2026-09-30) | production; datagram body is a bare monotonic float |
 | Niri binding pattern | `~/.config/niri/config.kdl:378` (`Alt+D repeat=false { spawn … appraisal_service request }`) | `Mod+S` and `Mod+Shift+S` are unbound (checked 2026-09-25) |
 
 The gap is therefore not decoding. It is: **(a)** reading *all* owned items in one
@@ -257,6 +257,29 @@ unresolved fields.
   bitmap and greedy fit counts per item size — into the `spaces` table (schema 3),
   and each item's size from the cells holding its pointer. `collection space
   [--fits 2x4]` and the page's "Free space" panel answer which mule has room.
+
+- 2026-09-27 — Character sheet + equipped-only pass. Every capture now records the
+  player's sheet: `character_stats_from` decodes the full stat list (+0xE8) through
+  the item stat catalog (`decode_stats`), keeps the base list (+0x30) and the raw
+  triples, and `record_capture(..., stats=)` appends one `character_stats` row per
+  capture (schema 4). Report `character_stats`, notification last line, page
+  "Characters" panel, `collection stats [name] [--history]`, `status` shows the
+  latest summary. `collect_inventory(scope='equipment')` / `collect --equipped` /
+  `request --equipped` (`equipped <t>` datagram, unbound) read only worn items and
+  are authoritative for `equipped` (+ `mercenary` when found) only. Win+S keeps the
+  full pass; Win+D stays the shop scan. Host gate pending: Win+S in game must notify
+  the sheet line matching the character screen (level, str/dex/vit/ene, life, mana,
+  defense) and `collection stats` must list FCR/FHR/FRW/MF as the Advanced Stats
+  panel shows them; resistances are raw (before the Hell −100 and the 75 cap).
+
+- 2026-09-27 — Stash watcher: `native/layout.py` `UI_PANELS_RVA`/`PANEL_FLAGS` (open-panel
+  byte array at `0x1ebd158`, anchored by 129 captured images, layout_notes.md),
+  `tracking/panels.py` `observe_panels`, `collection/watch.py` `StashWatcher` (one
+  collection per stash open → closed edge, polled from the service loop),
+  `Collector.request(trigger=)` with quiet failures for watcher runs,
+  `--stash-auto/--stash-poll-seconds`, `APPRAISAL.stash_auto`. Host gate pending: with
+  `make serve` running, open and close the stash once; expect "Stash closed; collecting"
+  in probe.log and one collection notification.
 
 ## Steps and gates
 

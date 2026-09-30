@@ -1,0 +1,854 @@
+{
+  "review_date": "2026-09-28",
+  "native_source": {
+    "path": "third-parties/d2data/json/runes.json",
+    "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "words": [
+      "Duress",
+      "Ground",
+      "Hustle (armor)",
+      "Lionheart",
+      "Smoke",
+      "Temper",
+      "Wealth"
+    ]
+  },
+  "basis": "Completed recipe native effects retain support across nonmagical normal/superior/low_quality. No creation legality, socket preparation, new build endorsement or price inferred.",
+  "changed_profiles": [
+    "abyss-warlock-build-guide-duress-mid-merc-resistance-alternative",
+    "abyss-warlock-build-guide-early-merc-lionheart",
+    "abyss-warlock-build-guide-early-merc-temper",
+    "abyss-warlock-build-guide-smoke-early-merc-resistance-alternative",
+    "berserk-barbarian-duress-mid-merc-resistance-alternative",
+    "berserk-barbarian-early-merc-lionheart",
+    "berserk-barbarian-early-merc-temper",
+    "berserk-barbarian-ground-merc-early",
+    "berserk-barbarian-merc-early-hustle-armor-alternative",
+    "berserk-barbarian-smoke-early-merc-resistance-alternative",
+    "blessed-hammer-paladin-duress-end-merc-resistance-alternative",
+    "blessed-hammer-paladin-duress-mid-merc-resistance-alternative",
+    "blessed-hammer-paladin-early-merc-lionheart",
+    "blessed-hammer-paladin-early-merc-temper",
+    "blessed-hammer-paladin-ground-merc-early",
+    "blessed-hammer-paladin-smoke-early-merc-resistance-alternative",
+    "blizzard-sorceress-duress-mid-merc-resistance-alternative",
+    "blizzard-sorceress-early-merc-lionheart",
+    "blizzard-sorceress-early-merc-temper",
+    "blizzard-sorceress-ground-merc-early",
+    "blizzard-sorceress-smoke-early-merc-resistance-alternative",
+    "blood-boil-warlock-guide-duress-merc-survival-gear",
+    "blood-boil-warlock-guide-ground-merc-survival-gear",
+    "blood-boil-warlock-guide-lionheart-merc-survival-gear",
+    "blood-boil-warlock-guide-smoke-merc-survival-gear",
+    "blood-boil-warlock-guide-temper-merc-survival-gear",
+    "blood-boil-warlock-guide-wealth-merc-survival-gear",
+    "double-throw-barbarian-guide-duress-mid-merc-resistance-alternative",
+    "double-throw-barbarian-guide-early-merc-lionheart",
+    "double-throw-barbarian-guide-early-merc-temper",
+    "double-throw-barbarian-guide-merc-early-hustle-armor-alternative",
+    "double-throw-barbarian-guide-smoke-early-merc-resistance-alternative",
+    "dragon-talon-budget-duress",
+    "dream-paladin-duress-end-merc-resistance-alternative",
+    "dream-paladin-duress-mid-merc-resistance-alternative",
+    "dream-paladin-early-merc-lionheart",
+    "dream-paladin-early-merc-temper",
+    "dream-paladin-ground-merc-early",
+    "dream-paladin-merc-early-hustle-armor-alternative",
+    "dream-paladin-smoke-early-merc-resistance-alternative",
+    "echoing-strike-warlock-guide-duress-mid-merc-resistance-alternative",
+    "echoing-strike-warlock-guide-early-merc-lionheart",
+    "echoing-strike-warlock-guide-early-merc-temper",
+    "echoing-strike-warlock-guide-smoke-early-merc-resistance-alternative",
+    "enchant-sorceress-duress-mid-merc-resistance-alternative",
+    "enchant-sorceress-early-merc-lionheart",
+    "enchant-sorceress-early-merc-temper",
+    "enchant-sorceress-ground-merc-early",
+    "enchant-sorceress-smoke-early-merc-resistance-alternative",
+    "fire-blast-assassin-duress-mid-merc-resistance-alternative",
+    "fire-blast-assassin-early-merc-lionheart",
+    "fire-blast-assassin-early-merc-temper",
+    "fire-blast-assassin-ground-merc-early",
+    "fire-blast-assassin-smoke-early-merc-resistance-alternative",
+    "fire-wall-sorceress-guide-duress-merc-survival-gear",
+    "fire-wall-sorceress-guide-ground-merc-survival-gear",
+    "fire-wall-sorceress-guide-smoke-merc-survival-gear",
+    "fire-wall-sorceress-guide-temper-merc-survival-gear",
+    "fire-warlock-guide-duress-mid-merc-resistance-alternative",
+    "fire-warlock-guide-early-merc-lionheart",
+    "fire-warlock-guide-early-merc-temper",
+    "fire-warlock-guide-smoke-early-merc-resistance-alternative",
+    "fissure-druid-duress-end-merc-resistance-alternative",
+    "fissure-druid-duress-mid-merc-resistance-alternative",
+    "fissure-druid-early-merc-lionheart",
+    "fissure-druid-early-merc-temper",
+    "fissure-druid-ground-merc-early",
+    "fissure-druid-merc-early-hustle-armor-alternative",
+    "fissure-druid-smoke-early-merc-resistance-alternative",
+    "fissure-starter-merc-smoke",
+    "fist-of-the-heavens-paladin-duress-mid-merc-resistance-alternative",
+    "fist-of-the-heavens-paladin-early-merc-lionheart",
+    "fist-of-the-heavens-paladin-early-merc-temper",
+    "fist-of-the-heavens-paladin-ground-merc-early",
+    "fist-of-the-heavens-paladin-merc-wealth-body-armor-mid-word-utility-alternative",
+    "fist-of-the-heavens-paladin-smoke-early-merc-resistance-alternative",
+    "frozen-orb-meteor-sorceress-duress-merc-survival-gear",
+    "frozen-orb-meteor-sorceress-ground-merc-survival-gear",
+    "frozen-orb-meteor-sorceress-smoke-merc-survival-gear",
+    "frozen-orb-meteor-sorceress-temper-merc-survival-gear",
+    "frozen-orb-sorceress-duress-merc-survival-gear",
+    "frozen-orb-sorceress-ground-merc-survival-gear",
+    "frozen-orb-sorceress-smoke-merc-survival-gear",
+    "frozen-orb-sorceress-temper-merc-survival-gear",
+    "gold-find-barbarian-duress-mid-merc-resistance-alternative",
+    "gold-find-barbarian-early-merc-lionheart",
+    "gold-find-barbarian-early-merc-temper",
+    "gold-find-barbarian-merc-wealth-body-armor-end-word-utility-alternative",
+    "gold-find-barbarian-smoke-early-merc-resistance-alternative",
+    "hydra-sorceress-duress-merc-survival-gear",
+    "hydra-sorceress-ground-merc-survival-gear",
+    "hydra-sorceress-smoke-merc-survival-gear",
+    "hydra-sorceress-temper-merc-survival-gear",
+    "lightning-fury-amazon-guide-duress-mid-merc-resistance-alternative",
+    "lightning-fury-amazon-guide-early-merc-lionheart",
+    "lightning-fury-amazon-guide-early-merc-temper",
+    "lightning-fury-amazon-guide-ground-merc-early",
+    "lightning-fury-amazon-guide-merc-early-hustle-armor-alternative",
+    "lightning-fury-amazon-guide-merc-wealth-body-armor-mid-word-utility-alternative",
+    "lightning-fury-amazon-guide-smoke-early-merc-resistance-alternative",
+    "lightning-sentry-assassin-duress-mid-merc-resistance-alternative",
+    "lightning-sentry-assassin-early-merc-lionheart",
+    "lightning-sentry-assassin-early-merc-temper",
+    "lightning-sentry-assassin-ground-merc-early",
+    "lightning-sentry-assassin-smoke-early-merc-resistance-alternative",
+    "lightning-sorceress-duress-end-merc-resistance-alternative",
+    "lightning-sorceress-duress-mid-merc-resistance-alternative",
+    "lightning-sorceress-early-merc-lionheart",
+    "lightning-sorceress-early-merc-temper",
+    "lightning-sorceress-ground-merc-early",
+    "lightning-sorceress-merc-early-hustle-armor-alternative",
+    "lightning-sorceress-smoke-early-merc-resistance-alternative",
+    "lightning-strike-amazon-duress-end-merc-resistance-alternative",
+    "lightning-strike-amazon-duress-mid-merc-resistance-alternative",
+    "lightning-strike-amazon-early-merc-lionheart",
+    "lightning-strike-amazon-early-merc-temper",
+    "lightning-strike-amazon-ground-merc-early",
+    "lightning-strike-amazon-merc-early-hustle-armor-alternative",
+    "lightning-strike-amazon-smoke-early-merc-resistance-alternative",
+    "meteor-sorceress-duress-mid-merc-resistance-alternative",
+    "meteor-sorceress-early-merc-lionheart",
+    "meteor-sorceress-early-merc-temper",
+    "meteor-sorceress-ground-merc-early",
+    "meteor-sorceress-smoke-early-merc-resistance-alternative",
+    "mirrored-blades-warlock-guide-duress-mid-merc-resistance-alternative",
+    "mirrored-blades-warlock-guide-early-merc-lionheart",
+    "mirrored-blades-warlock-guide-early-merc-temper",
+    "mirrored-blades-warlock-guide-smoke-early-merc-resistance-alternative",
+    "nova-sorceress-guide-duress-mid-merc-resistance-alternative",
+    "nova-sorceress-guide-early-merc-lionheart",
+    "nova-sorceress-guide-early-merc-temper",
+    "nova-sorceress-guide-ground-merc-early",
+    "nova-sorceress-guide-smoke-early-merc-resistance-alternative",
+    "poison-nova-necromancer-duress-end-merc-resistance-alternative",
+    "poison-nova-necromancer-duress-mid-merc-resistance-alternative",
+    "poison-nova-necromancer-early-merc-lionheart",
+    "poison-nova-necromancer-early-merc-temper",
+    "poison-nova-necromancer-merc-early-hustle-armor-alternative",
+    "poison-nova-necromancer-smoke-early-merc-resistance-alternative",
+    "strafe-amazon-0-player-lionheart",
+    "strafe-amazon-duress-mid-merc-resistance-alternative",
+    "strafe-amazon-early-merc-lionheart",
+    "strafe-amazon-early-merc-temper",
+    "strafe-amazon-smoke-early-merc-resistance-alternative",
+    "summoner-necromancer-guide-duress-mid-merc-resistance-alternative",
+    "summoner-necromancer-guide-early-merc-lionheart",
+    "summoner-necromancer-guide-early-merc-temper",
+    "summoner-necromancer-guide-ground-merc-early",
+    "summoner-necromancer-guide-merc-wealth-body-armor-mid-word-utility-alternative",
+    "summoner-necromancer-guide-smoke-early-merc-resistance-alternative",
+    "summoner-warlock-guide-duress-merc-survival-gear",
+    "summoner-warlock-guide-ground-merc-survival-gear",
+    "summoner-warlock-guide-lionheart-merc-survival-gear",
+    "summoner-warlock-guide-smoke-merc-survival-gear",
+    "summoner-warlock-guide-temper-merc-survival-gear",
+    "summoner-warlock-guide-wealth-merc-survival-gear",
+    "zeal-paladin-duress-merc-survival-gear",
+    "zeal-paladin-lionheart-merc-survival-gear",
+    "zeal-paladin-merc-word-duress-end",
+    "zeal-paladin-merc-word-duress-mid",
+    "zeal-paladin-smoke-merc-survival-gear",
+    "zeal-paladin-temper-merc-survival-gear"
+  ],
+  "source_context_pins": [
+    "zeal-starter-smoke",
+    "zeal-early-merc-equipment-span-212",
+    "zeal-early-merc-equipment-span-233",
+    "zeal-early-merc-equipment-span-211"
+  ],
+  "unchanged_behavior_audit": "All compiled fields except qualities identical as JSON values; all other profiles unchanged.",
+  "fingerprints": {
+    "abyss-warlock-build-guide-duress-mid-merc-resistance-alternative": {
+      "before": "8f7437b5c5c0587b8b1e601d22a88b3fc762fbd7e99ddb3009810a7bc347d95c",
+      "after": "098c7768d74d887bbdafa3f73edd8eebc72a697e9bf424a4958bfbb3b2af219a"
+    },
+    "abyss-warlock-build-guide-early-merc-lionheart": {
+      "before": "e03cd17364ca4959c17ef802f96c9d0a51ac909bd74ba7ca4cfad3240ac2481d",
+      "after": "e65a7d9a989b3e9d4a3e76b2a0ce7236ad5e9b8fa76d5131dea113eb9c93f984"
+    },
+    "abyss-warlock-build-guide-early-merc-temper": {
+      "before": "ea115234a7315ceee9ce8d10f33d23978fee2d815578c8239bbcbc23e8fa3143",
+      "after": "7b87ec51c5589ed1d12c5976409e6d6b8025f6ae8e79899815b0b9a81a3685dc"
+    },
+    "abyss-warlock-build-guide-smoke-early-merc-resistance-alternative": {
+      "before": "ff6e2e0691fdb3192578b0c1efee981ba4520af59c54f92c1dc0d73337eb152d",
+      "after": "4bc57878a8e4aa7cd4e6f7c3049a6022a4aa9e87ffbfa2d40e6f981e01784ff7"
+    },
+    "berserk-barbarian-duress-mid-merc-resistance-alternative": {
+      "before": "50522076a4a20ccf6b42f30a2186d60c171a3fa03724d6ef0a4dc07b29799774",
+      "after": "caf8e1d5690a018f0a700dfb643c91d28bb322f1d6d68c3fb6d780abbe4e6f95"
+    },
+    "berserk-barbarian-early-merc-lionheart": {
+      "before": "d949ee9bc980b7a3e5b4ad762ba786f6737a0b93c599cbcab0dc3d2473e052c8",
+      "after": "e31a7eff1a6c639dbb81661ab84e18319035b673bda15b53f06122aaf7c9cc39"
+    },
+    "berserk-barbarian-early-merc-temper": {
+      "before": "d04950474f7cbba4621fe32b09dc8a4ccc80292ac2f6aa3847d65b39783b6687",
+      "after": "ed8ba75be2ec3a97cd469b60022bd789f1a1a91b1c3b4be55d9a9a9109095a81"
+    },
+    "berserk-barbarian-ground-merc-early": {
+      "before": "f4dcf03f02a75d3467b7cfd204dcc71df5dd2c552dd81a3d42f78b876ef7724a",
+      "after": "9a6bf9ced5719e7095686597945d7b0223b54c14f1cf903b3ed36d5eb0aa5fd9"
+    },
+    "berserk-barbarian-merc-early-hustle-armor-alternative": {
+      "before": "e14828159f931d8c9953fbf575c51a28153d741cf92d7b5b44539cec8adf9041",
+      "after": "96c745704ddcae5e4f7eee9cb12d5a25d5d28ca05ca66e8ef4f02045e5fc3367"
+    },
+    "berserk-barbarian-smoke-early-merc-resistance-alternative": {
+      "before": "76b6f95443f69520ecf69b85042c47c21d338e1405ceaa96d3b426bbecd3ac36",
+      "after": "08e351b96ae03d930375cc1ed477f9c18b4a4766420091f7bf1408461978c7a2"
+    },
+    "blessed-hammer-paladin-duress-end-merc-resistance-alternative": {
+      "before": "5ed02e153127b8deda06685b957dd49241dbea3f40a61e40ec4202097df17a4f",
+      "after": "c8a9413e6def8735aac8a104cda6e787be265f47ea2fe43195ad84fd90db1526"
+    },
+    "blessed-hammer-paladin-duress-mid-merc-resistance-alternative": {
+      "before": "6d0e94c2e0816ead8e11b0b9839e29c59f8e671b74819c6efbaf826be8231549",
+      "after": "e0baf83ccdc6ca9d8643032148c8c8c9541ef433915c258cb8f09abbc940e56e"
+    },
+    "blessed-hammer-paladin-early-merc-lionheart": {
+      "before": "75eacb5e96de618f1cfbbf5aca0f84528a5150f0e80d26784a03af458735c976",
+      "after": "93e5b465c782982060f590bf66a50a75259a4a88c1d7c1035a23d6d3623859c1"
+    },
+    "blessed-hammer-paladin-early-merc-temper": {
+      "before": "a1a39cf80952433caefdf1076e18e09cb3b09a6af269436164160ac4863732c5",
+      "after": "f1d82e7fa21ef632bfd0cb3cdb1d9805a50197d154cb2d70490c10dc8c9136aa"
+    },
+    "blessed-hammer-paladin-ground-merc-early": {
+      "before": "ae858be53fc8951d0d5a7357f1e1eddf8cdc9f9fb9cea33e012859cacd530203",
+      "after": "7c40fc8440204c5703d2cd5a5da1fe609462b936db1c26780ff51172c85099d9"
+    },
+    "blessed-hammer-paladin-smoke-early-merc-resistance-alternative": {
+      "before": "3dc05bc67c187436af5b4838289a71ff35a10e156bf2935dd6e85a793f07e6ce",
+      "after": "cb5aa0b621cd02cdd43dc91a60b35dac9ebe82f19582531e9e8a7ecb9ed67172"
+    },
+    "blizzard-sorceress-duress-mid-merc-resistance-alternative": {
+      "before": "b1a870124f248f5251dcb4c74cad1f71e5809c1daa436eec2ba88ef52fca0f3c",
+      "after": "4568fd7494f15949b877421cbaa5569506f46a96b9e0d882342ab16d83210d14"
+    },
+    "blizzard-sorceress-early-merc-lionheart": {
+      "before": "8e4b9b4f6e627e6a928d22f60151f15060244906a18915c68934f4119f04c6b0",
+      "after": "4d8ac7915332d0d33a62184e22bdc411d8b4c1d821568919ef4bcffdd5a75114"
+    },
+    "blizzard-sorceress-early-merc-temper": {
+      "before": "a427b7767f3ef52e4f4c2d07fbef06681c45a63e321e76e165cc9d78bf39d6b8",
+      "after": "71cda0a9c9d1190de9754590b23b0168b5c1a4cc2958999c4097515ea1aaae9f"
+    },
+    "blizzard-sorceress-ground-merc-early": {
+      "before": "aed2fdfb18cceeab3232d7888010f410730bb8bc84cae9decccb307a55d3fdfb",
+      "after": "86d0d3473e4ba309eff96bdba36c42498a8ca5502c9b8be54d8d28ada0acb7af"
+    },
+    "blizzard-sorceress-smoke-early-merc-resistance-alternative": {
+      "before": "b8708f08740146e6da45c65394e9bb5a5f17fc474f7b4c70d47386594c3c0add",
+      "after": "74aec767f71f9669442cdc3f015cdc310f90efaa77318d138a537adbf5136be1"
+    },
+    "blood-boil-warlock-guide-duress-merc-survival-gear": {
+      "before": "71a1c9462acc231a825b2874fa7616f5fccce45ea745435bcb406d4dfc9501a2",
+      "after": "2b6b5e769f85b0b438045634d85f0b87216482883bf5869c7b0aa8a1ebafc860"
+    },
+    "blood-boil-warlock-guide-ground-merc-survival-gear": {
+      "before": "513db541083049c07dcf38333af08bfd59e930b0bb07f240414db1984295a89e",
+      "after": "a75acc104505fa408c81f8f520bc1befae01cc8a2f6518491d69b00e925e4cd6"
+    },
+    "blood-boil-warlock-guide-lionheart-merc-survival-gear": {
+      "before": "8482624feb575811d4ce736b9253e2e40338c15e04e590e29560ee7c633f3edb",
+      "after": "99ba42b10e76aefd6fdcd485bb6458d958465411dc403d6546ef4d7c13c08466"
+    },
+    "blood-boil-warlock-guide-smoke-merc-survival-gear": {
+      "before": "3db83a0a595dea24de0f44121485101e8d9b2393b7f65342e9d78e0d72564410",
+      "after": "e6e20e06e1fc828f7080147eb39dbd152ed360c9dde0f74f73131bb65df297b2"
+    },
+    "blood-boil-warlock-guide-temper-merc-survival-gear": {
+      "before": "d5a54d21dd86060a5cd71aad92c19f5d5ecd6378f2dcf246806a52ba922cfe9d",
+      "after": "e7beeea7a37b857ee412511ef5101c11acdf2883d18b02f8a25792dc6cdddc4a"
+    },
+    "blood-boil-warlock-guide-wealth-merc-survival-gear": {
+      "before": "2e759b374734aded9d136b2841bec58fb55d536d6117a18c24f641f788c8c5fd",
+      "after": "99cdd4f9b797ac102875e652af897667155b84a7f8c01d4e432aa148e3545bd2"
+    },
+    "double-throw-barbarian-guide-duress-mid-merc-resistance-alternative": {
+      "before": "9fe2a1ea053d1ac423ee1121fa2ef32f70df3699c706ed5729f1d1e4d9161f25",
+      "after": "d8c4b6e614f97a5058a45e7fdf37577196dc19ba14366525de87bc51964bc2c5"
+    },
+    "double-throw-barbarian-guide-early-merc-lionheart": {
+      "before": "e95918130852c79741510e3decb3c72cacaa0fd7e956728678085ccceb5f65d0",
+      "after": "b590e29e65be9ea4e527047cd1bdf94bb5da0e1d11d414438a0946b7aba19501"
+    },
+    "double-throw-barbarian-guide-early-merc-temper": {
+      "before": "51fc312d5ad594cdb6e918a6a2233555311515d3cdeaf5ab61478e3a367fc46a",
+      "after": "1b46d752c5e38b97b413fb09fc191d02d2babddae36a4f1a1219d1bedb734b6e"
+    },
+    "double-throw-barbarian-guide-merc-early-hustle-armor-alternative": {
+      "before": "ac0e961c4f71312fb9f3653f48b1c81c85644f696a936b1f69095c6f7abaddeb",
+      "after": "7bab24a18c7998299821941d2991cc8437001420061fb44de8e9ed9e96893b3d"
+    },
+    "double-throw-barbarian-guide-smoke-early-merc-resistance-alternative": {
+      "before": "bafb56b2014d6af38f3bca85ee17d0ce0d5c3e3b1d807f22a9302d906f2d7a38",
+      "after": "9c5015fc6d693b8b5c4281975109328c4e95eefd947be07c8ec7680991d1a35f"
+    },
+    "dragon-talon-budget-duress": {
+      "before": "954284988997ffec08dc790c6bc15d60d84178d932d0bd771b6217fea79b7515",
+      "after": "749d745e78adc2d632187ce5a445b60b0a6897576d0cbad98e933e1fe4042c49"
+    },
+    "dream-paladin-duress-end-merc-resistance-alternative": {
+      "before": "06f0ba52a43e2525ae8b9e7f856356933abb2ba45f9e48f5603229e01fa3fd08",
+      "after": "39eb51cc448f5720b06c4bc6bfb28bc591bb6b1f962c5b2dd5812f620a113dc6"
+    },
+    "dream-paladin-duress-mid-merc-resistance-alternative": {
+      "before": "e10affa719de26f95d88baf7f985939c2bd3e36e81f99d8fb4647cbbb4e856b8",
+      "after": "43ffdea8621f2f403998f0099e593d87f6d6a6be429109c059316172126e7512"
+    },
+    "dream-paladin-early-merc-lionheart": {
+      "before": "62ee673d3d0269fdcce968df109ffa54096842260234626657ec8fa92cbe1df2",
+      "after": "535d7dc2bb15c0c15fd1cb217261400ae6563015978c461617f857044560b53c"
+    },
+    "dream-paladin-early-merc-temper": {
+      "before": "8070d74ecbc7d11b52850d6a0d34df3af7bf2c4af31c3cc2d7be83e72e5d304c",
+      "after": "f2118e455488f256f55023b08f16e5a8378e063d4cffd529b6b4f5bfefd6ad77"
+    },
+    "dream-paladin-ground-merc-early": {
+      "before": "11d68b083617d6c179bdc5b4b2d64244596b13b4a7b331eeed0df574e1fddf82",
+      "after": "3a5c6eaa1588bcaadaa6ddd6b260a57df03dc05d0da17b2140393efa69f88438"
+    },
+    "dream-paladin-merc-early-hustle-armor-alternative": {
+      "before": "8239578b1548ad13ef88677647d1ae1ea074d80fa1476fdd3f24648f00e96359",
+      "after": "8426dc1126b6fed639fbf354582089f210e87e878d60f64bce5bb0aded65dd81"
+    },
+    "dream-paladin-smoke-early-merc-resistance-alternative": {
+      "before": "5dd41abf8ce9c59238a88ecb45d3244f07055a3e265bceda814a69b90688e606",
+      "after": "ea7485504eb6003bcd9f305b6b543883fb8a0f9e071708b53fcf816db87c4d23"
+    },
+    "echoing-strike-warlock-guide-duress-mid-merc-resistance-alternative": {
+      "before": "b7e2cf6345bc400cb93aee91d9cd37baadd89f47cb94fb4695e8d82803baf5af",
+      "after": "d0a9d01ae67efc58d639b81c4d83c9d8f30bb6d83ffb699aa9134459b5452d0f"
+    },
+    "echoing-strike-warlock-guide-early-merc-lionheart": {
+      "before": "4e03acfe1f51bc12844a39b41457aa2a5dd17d144744ea06e9771a7dc3fb091b",
+      "after": "e32e30ef9b5b9d71cce5b05524cae8340ba85f66533e12349f23eb583aa5944b"
+    },
+    "echoing-strike-warlock-guide-early-merc-temper": {
+      "before": "eb8f7d94d3a70f717a9656b3178d60dd02e91740719ff3e75c423af37c96792b",
+      "after": "e07a27bb6b7a0fbd3cbea22244ef0666e21ccafa4ca96416434beef1eeeb628f"
+    },
+    "echoing-strike-warlock-guide-smoke-early-merc-resistance-alternative": {
+      "before": "2a4ae7dbf08f52a335c8b5019c34feaf5654577e7aec079941e560ab0018b5c1",
+      "after": "b3839783b3c54f0cc277f6431ddb0ce4cc445dc168b750f7f9c7317d78d10605"
+    },
+    "enchant-sorceress-duress-mid-merc-resistance-alternative": {
+      "before": "58c0edc9940e7de18f1b510491b483265d5d1a8bc70827e2d64dbc85bf738fef",
+      "after": "cce6bc1da7b59699c82e31d9d98e6132a07fb0cfd241a25eade60bcc75c79b78"
+    },
+    "enchant-sorceress-early-merc-lionheart": {
+      "before": "44c1d24886868d0a48c2f463a565eda769d7cac3ce795a0e3da19ee43ad8cabe",
+      "after": "114b9c45bb411f9b0eea2c0e1270d4fa6408974f5d8a71b8c2cca6bb08a972ed"
+    },
+    "enchant-sorceress-early-merc-temper": {
+      "before": "86b5bf442566f09ef8ec7d3e17d0d85c5ea4863408bddaebbe53386dd55e816b",
+      "after": "f2bb1e0d2df6e65ed0a4fbd37f2ee66faacc57e525c42c63f1245507331daa22"
+    },
+    "enchant-sorceress-ground-merc-early": {
+      "before": "c3c679ae25581d3d639447eec829a4f672d3abffe36b22848edd878a3c38408a",
+      "after": "4e643f4d1b6a016288d47f26e54e86404a20a846effd1008de4eec1469e6e90c"
+    },
+    "enchant-sorceress-smoke-early-merc-resistance-alternative": {
+      "before": "cac03c5067fb8dbaad6f773593896214d59082a2714aa1d8af669727a4db4264",
+      "after": "7f6e94a44dce442c619f0c4ac392e5584d0029658a89bb082181ed12c9759d20"
+    },
+    "fire-blast-assassin-duress-mid-merc-resistance-alternative": {
+      "before": "269010a605a197e813a2d3a16bd1dbf1c37dee4cf826da2d3cbe1b5026efc474",
+      "after": "70b750ebfaf8beb17dba09a4aaea91513395a719fabd072f2721e4ca600d99c5"
+    },
+    "fire-blast-assassin-early-merc-lionheart": {
+      "before": "d0c02d7676e67eecad6139f974914b9803020c852ec59318572222ff1bf4fbb5",
+      "after": "dbc8c9477aa2264c09efcf22ab1b39a1855effdfbf62e0b54d20e3307fbf17ed"
+    },
+    "fire-blast-assassin-early-merc-temper": {
+      "before": "ac18cc429ec3d9a29e71533245ce99b326525298ed6e9228803db1ff3525f76c",
+      "after": "4cbc48a1675c5b9453e7ce5eb7604b12904da924ec1dbaf7266ad00b88d98cc8"
+    },
+    "fire-blast-assassin-ground-merc-early": {
+      "before": "93b8509744db40a999f1cb1ec6946b57c19ebd4dbbd5cb85613f789da26cf439",
+      "after": "7bba6700c36593f012d36deaade3bdf2f58b8a6b37a85669829c92ebc7d523fa"
+    },
+    "fire-blast-assassin-smoke-early-merc-resistance-alternative": {
+      "before": "0e2147ba4b851419ce51d5867519d41eb3a8ce245c02b3d7d442e9c482acdc3d",
+      "after": "3ae1df593c5e9a50475adbe0a228f02d00f7f564e35300650afc61dbaf92d08a"
+    },
+    "fire-wall-sorceress-guide-duress-merc-survival-gear": {
+      "before": "1754cb0a0c93e1cc5f8525a31c6fdf4f2e64fdd6021e23aff5c48297f16d9499",
+      "after": "a220da2ad5aa225f64bc8438cd23ef30f43dba3517633195a533ed4fd57b2fbb"
+    },
+    "fire-wall-sorceress-guide-ground-merc-survival-gear": {
+      "before": "c15cea3cd6d19a77be89c56ed55c987b4acedff7127ba947bef1b92e98d4103e",
+      "after": "af549b9f55b18622b7fe9f8e6d4b79e97151f7bf7c25d0582c4fe5b37175132b"
+    },
+    "fire-wall-sorceress-guide-smoke-merc-survival-gear": {
+      "before": "ec75b4c7df44b082980ee4fa92ce848ca6310569ba149035a959284cf008d0a3",
+      "after": "5777b3ea73b69a902f8ec68850b6751ed2547fd4c0784a78e451baf6fa1ba3e7"
+    },
+    "fire-wall-sorceress-guide-temper-merc-survival-gear": {
+      "before": "326040e4b73f900d92412da95ef8c7db123b85ce553db18cbcb441ad119fb645",
+      "after": "da7f08e1cbe6af6cf1a986e1e9908f8f81a772edb89fdf97d2c82e5542c0f2c0"
+    },
+    "fire-warlock-guide-duress-mid-merc-resistance-alternative": {
+      "before": "371fb230629db2df1fdbfc0365da5ff7b44b986e5d8eeef4e902fb733b0a6299",
+      "after": "0eb8dcd969bbc0cfd895f5b972fe0ba09ce2e262cdb7c499a8da5731599504ab"
+    },
+    "fire-warlock-guide-early-merc-lionheart": {
+      "before": "ecb79cc9c4a6c72361bf4304e76fdba549655cef1761dabc93140e46b6ea463c",
+      "after": "0db5a5d32d9ed28c3aa91c77d033d4ac900b85ecfa8b90760124e7a55f7a8e56"
+    },
+    "fire-warlock-guide-early-merc-temper": {
+      "before": "96da41cce500012d6a4466b6f73ce49db2325905225a196a467a7af42ead7c54",
+      "after": "beb6324de230a8a6a10a986c597ff68e18fcce6a8e0bf9d7e9842a696617cfd7"
+    },
+    "fire-warlock-guide-smoke-early-merc-resistance-alternative": {
+      "before": "84a463952e3939e1a7c8289b31b3bcf270f5cdbb9dff3b4da7078324b45643b7",
+      "after": "fd3be249937dcceedeaf4f36931b4547df556bfdb9e63040608f5c6b10cc1337"
+    },
+    "fissure-druid-duress-end-merc-resistance-alternative": {
+      "before": "a6f55c70a083ca8e228788f1afb10e28d9a2913dac9a01c2551cf506b2517eaf",
+      "after": "07e1d3987a9b88074eb3f017032494ab9243c1a6e059c982b23ff08652276b9a"
+    },
+    "fissure-druid-duress-mid-merc-resistance-alternative": {
+      "before": "04b4e320ab3eb174338d5fdec2ac632fbf11d149cecd20720f3f0eeb28abc3be",
+      "after": "22118db674c980727f6ed1acb91c0d1fa10f00086331bf3e0ee9b56b8768b934"
+    },
+    "fissure-druid-early-merc-lionheart": {
+      "before": "451d0f5dbb3b553e44dde37e76daeb2e412b2fef83bbcb205e05eaa5607f6702",
+      "after": "5d6f0f1c1a86a79b91ee9f81f350554fb4c6a5b37b60285cb56cef26c2067e66"
+    },
+    "fissure-druid-early-merc-temper": {
+      "before": "46e408faef178e454008e7353128b418dc419665d5ffa8ff3be7a5ce3eae4028",
+      "after": "ad3a0df7384b200f5dc220702cffe0a27e6d6e4187a4f2aa547c94e52ce36a27"
+    },
+    "fissure-druid-ground-merc-early": {
+      "before": "c799624305aa0053ea6b29400799e4c9fedb98c4507c79aa87d3539876a51042",
+      "after": "cf949a3369277e9ca745f273e9a1f32b4a36ff1892458f67175b1b275363732a"
+    },
+    "fissure-druid-merc-early-hustle-armor-alternative": {
+      "before": "4ed59f4d76196757780454810a5ececdfb9c524759b946a8fc3edf3f785e53f3",
+      "after": "cd32e63f2d4ebe6d9b8a55a21a941eb3f3ffddfb49139b70014735012e45b2db"
+    },
+    "fissure-druid-smoke-early-merc-resistance-alternative": {
+      "before": "20a564f2fb17ad75d05d1bf8a0a0775555698f7e64400fc27088e48c1a813e92",
+      "after": "3ebea3bfa8a56aa4080d11dcaa9ff8877216b2ef6e981b7dd1ef581f442512f3"
+    },
+    "fissure-starter-merc-smoke": {
+      "before": "2874c8b659848f563df1dac52e3e4fe999333a88e973e812b20ddddf55203b50",
+      "after": "adaee17a6b82803c4b7fdfe1273cd51d8498c96a8f637e492ba903761849e354"
+    },
+    "fist-of-the-heavens-paladin-duress-mid-merc-resistance-alternative": {
+      "before": "f41c3fcd78653d723d587f842342cdadc7caa3961054bc0d6bd05b2a3015c235",
+      "after": "6b9f829957916c98afa7f5dcf76e5fe80ca65e2e2b9738aecabda16dd72d56b7"
+    },
+    "fist-of-the-heavens-paladin-early-merc-lionheart": {
+      "before": "e6b677f506b8e04151f62d5fc027b06547f67b382d8a34badec03782ff32e6fa",
+      "after": "9dd34d14566f353203dcbc98752e46437c6b63a045e05b07ab4c97a70b63bc6b"
+    },
+    "fist-of-the-heavens-paladin-early-merc-temper": {
+      "before": "71f222ea520ac98c3978458b6b289eb8d945d0fdb196acd7d98c4f5456c4e6e9",
+      "after": "5b913878df3bd073f1f68342439960e6f8c0631c5252f9bf72efe1f54f169e08"
+    },
+    "fist-of-the-heavens-paladin-ground-merc-early": {
+      "before": "6e711482842a2acb744a1c2945cab8424491d8bfbc5f3e904dd689c0685299d0",
+      "after": "0f5acbd13434fbf05ded42e94b70bd9c482e291c6fbb06c3ca7cb22f5ee9b970"
+    },
+    "fist-of-the-heavens-paladin-merc-wealth-body-armor-mid-word-utility-alternative": {
+      "before": "cea26bb162c0142f1e91fe0ebb7d25e78de8762d6876ce78c14a63ed84e9a049",
+      "after": "ab7ddb89451823b5f5ec2d81aa6c331755bd3a6efa4127fcb9fb2da0b594c81a"
+    },
+    "fist-of-the-heavens-paladin-smoke-early-merc-resistance-alternative": {
+      "before": "0540a3d428b1a297b42f6b80692fcc6f5006e00c75300eb6bba5cf29179c8c1c",
+      "after": "ba118f8bb0ae0babb416a3c55d467dca6a933c12d8499af29443b90630a4cb46"
+    },
+    "frozen-orb-meteor-sorceress-duress-merc-survival-gear": {
+      "before": "fa43ccb34d13a2737988c93fc445876d6ca52526d3a43e4625a34384b71ec325",
+      "after": "b6c97f3fb108dcad66074a8ac824159c797d53800b0ab77a86756ba9f268f929"
+    },
+    "frozen-orb-meteor-sorceress-ground-merc-survival-gear": {
+      "before": "99490e6b2ad5c27e27435158f9e81bce277dc9d3ad24f686aba4642ee00918dc",
+      "after": "952870304c395e481c8f5263bf41e52d091f166eb1ed40b9dc83148ebe63d0b6"
+    },
+    "frozen-orb-meteor-sorceress-smoke-merc-survival-gear": {
+      "before": "c7bf285e68e5f1bbd43e273be4483042cfa097a25eb2a852082754c72880a624",
+      "after": "fb1b7d3dea26cd2362e58dca9dbeb71b5b6e0654357fa019cae801573c9dcc80"
+    },
+    "frozen-orb-meteor-sorceress-temper-merc-survival-gear": {
+      "before": "4cf7f4d61d197cf78e542ca835dab061080f2996c6fd26a3911a89c192235155",
+      "after": "20058c5bfa83cd42cb4e9ccc8a745d52d3cd1ef5dd61bb9876c28d57f016a2cc"
+    },
+    "frozen-orb-sorceress-duress-merc-survival-gear": {
+      "before": "172f8eb6db150f7ab27cd939765db54707023a90618b052e350b55f1d459186c",
+      "after": "b1d352b95f95164ffff37e1782873755fa16698632dbf9b3f69b143b6620b2b0"
+    },
+    "frozen-orb-sorceress-ground-merc-survival-gear": {
+      "before": "f695b8afa76b1c2795cb367170f7cc37af0859d05a3ca2336d846485047a2133",
+      "after": "e7bbd1c201412c95c28a4daf8d45a2ed8332af12e10648a5cdd0f059e67b03e8"
+    },
+    "frozen-orb-sorceress-smoke-merc-survival-gear": {
+      "before": "9bca402c3753013412813180512e9a05cc4c49bb3288502447d01ca6fb89c072",
+      "after": "091f51f99a3ba535ac0eda421ce56960bb7bf385ae33f0ac339ea1b580ec067f"
+    },
+    "frozen-orb-sorceress-temper-merc-survival-gear": {
+      "before": "6c3b6791bfccaacac651b6cde15aaeb2e8e74045148e4c81fcb276fe50d597a0",
+      "after": "28f7a73905c0326055ccb74fee108a6fa0583065baa2eec010821f1e0c7e2fec"
+    },
+    "gold-find-barbarian-duress-mid-merc-resistance-alternative": {
+      "before": "805e8d8aa199c093caa24ca90c34578c4700767c09d4671b3767dcd35f49de43",
+      "after": "509f21bc911cf0caa96e281a7e6c30bc446dcbe3cfa73c1b0d6e8657a831cbbf"
+    },
+    "gold-find-barbarian-early-merc-lionheart": {
+      "before": "3ed4ff174cabe17409c18679dc2543b472cf2b53e42ff1d73a45fd585a7251bc",
+      "after": "48803a2340092b4c8f8fb6b82a7da25b28d696b50544dd64e0df4b69240a8be1"
+    },
+    "gold-find-barbarian-early-merc-temper": {
+      "before": "fd57d566dbaa079075c9dc29a8fef0f8d3be7e8e030bcacbc689fc92a24abaa4",
+      "after": "23e328e01985b8fcb101ab4eb323e7133f4337b5830d6ab27917bb4722203b60"
+    },
+    "gold-find-barbarian-merc-wealth-body-armor-end-word-utility-alternative": {
+      "before": "9ea60e5cf71e6d839622ca97a0714c8bd77641fda0eee53ab5ac9329bf53998c",
+      "after": "30ddef8fb6e15601d71cc09bae276008a3ee1f8ab03b2f0f87fec5a91a2ed800"
+    },
+    "gold-find-barbarian-smoke-early-merc-resistance-alternative": {
+      "before": "d2ece5dc3d548e2d6f873b01d85dd589d9ce23d1cd916716b00aedf8b5e8ac77",
+      "after": "9102491b0503c07cc29150a78723f662d8a5f3eb9618ba0065f3b955436e411b"
+    },
+    "hydra-sorceress-duress-merc-survival-gear": {
+      "before": "0463cb403a709b7632f52ef813cc232b9c6a6010bd3cdf936d3e9aba0a947458",
+      "after": "c4e1184b1c9cecb9737785660b75587deb75401d27de4eb897b09ba3c01d0d1e"
+    },
+    "hydra-sorceress-ground-merc-survival-gear": {
+      "before": "5c780e60eba8163225cfcad74957f51f7d70b176bafb2b5831dd8798c66c8ec6",
+      "after": "3ff0bb2da6f71bab23d893c6b0db717dc1a56ac8b285eadd2131cb170178ca40"
+    },
+    "hydra-sorceress-smoke-merc-survival-gear": {
+      "before": "9d169c871134075ba8a83956173c05981ddc5bc0d6946d1140d136636001c0b3",
+      "after": "454042f67015f7e0c54cee1587d60cfb09b3dca38624e840080aac2596061c6f"
+    },
+    "hydra-sorceress-temper-merc-survival-gear": {
+      "before": "8d958b127f3827a78c5ea4d39df6d928fc99c22edb55a49e2d88606a3429157c",
+      "after": "58b87109ed273b53bf35774d943e7f0da36292f97b6e6df3d1b0a9520683bcc1"
+    },
+    "lightning-fury-amazon-guide-duress-mid-merc-resistance-alternative": {
+      "before": "475efa1fd7cec49e6084bec71439e6caaf07320c9234c7dc8be4293d98d82ead",
+      "after": "8dc308eb4d61dfebad2b857e016db440ea2aa6bdad77b8039ac3a03bdb94ad04"
+    },
+    "lightning-fury-amazon-guide-early-merc-lionheart": {
+      "before": "134195fab956bb76aa0602e21439aab6d99f32d59abce0df72b986dd19bdb92d",
+      "after": "513c5eab75d3298944cddbc3497af0e4844d343a7fea46a559ccb773c018c766"
+    },
+    "lightning-fury-amazon-guide-early-merc-temper": {
+      "before": "89e1c8fb54d24416c4c7c1abfa6af8ec3f8d9c622ae14ce32dc9bdaf504ec5a2",
+      "after": "fce36595a65067f560d86b4df168608d5469285e8846b833539d74e54ce7811c"
+    },
+    "lightning-fury-amazon-guide-ground-merc-early": {
+      "before": "142777bd9fdfbefb91d427a1a8d4b98b84128315d8f0de7860847d992ae86057",
+      "after": "5ca5c8e9d76b2bf106e0e88d6134dc93ae79a68ec5c138ea2da7a83b9f5a8680"
+    },
+    "lightning-fury-amazon-guide-merc-early-hustle-armor-alternative": {
+      "before": "4933e75c2f461c54a76ed57e9432670eab65b4c273ddd61e410f890e56c7983b",
+      "after": "b2d6746b47fc9ead9a92984b91e29c4c1f5f6ad87d62dd734a18d6c6f1a3b9ec"
+    },
+    "lightning-fury-amazon-guide-merc-wealth-body-armor-mid-word-utility-alternative": {
+      "before": "d1db9b599393c2259fe226617f41a455f83a65159d46f769f263a5c686d0471c",
+      "after": "4839220c00c27a50dd6a4f04c247b96b5fba2ddb7f8f9eba1ed7cdd1e8e16618"
+    },
+    "lightning-fury-amazon-guide-smoke-early-merc-resistance-alternative": {
+      "before": "74e367bdb22c36db1ea4102c13d205220b9705e65ff9d51d84a9bf23bd7c62e2",
+      "after": "02881a40233c4f4ec35310ee164016e8e2a10a599e1937f1deecda22c79e23b1"
+    },
+    "lightning-sentry-assassin-duress-mid-merc-resistance-alternative": {
+      "before": "4d1525319a85842e79b39f0fd3caa43ceb0bd0dcf36165cdebfe9ae79c6ff250",
+      "after": "6d04bf8028262380f434e7086126d0a9aa0a8e24e1c253a27665e2cbb56b0490"
+    },
+    "lightning-sentry-assassin-early-merc-lionheart": {
+      "before": "25a3ee522b28da32dd17d91921e18a72f5be60cd7ad61feab80ff55f516b8752",
+      "after": "e073f74e226b18ca8e98e022783905dc0588c153a38d1d42ed122f01ec555320"
+    },
+    "lightning-sentry-assassin-early-merc-temper": {
+      "before": "904dbad11e1e7adf2dffecf1014addd966ba2bab425b64c1ee07a6d56200abfd",
+      "after": "f14fae398c4255b9c4c77d963e4e07853b921ba3f2aba4b4c0e43cd5d2695bea"
+    },
+    "lightning-sentry-assassin-ground-merc-early": {
+      "before": "08b186d23f0eba6fc1a1acff17066b32af4dc1512061bfd7fba916fd0adfd412",
+      "after": "ff2af09f5ff9d54ea436ad84c28145dea3bb763de3f212bfaf5fa85d81734e6a"
+    },
+    "lightning-sentry-assassin-smoke-early-merc-resistance-alternative": {
+      "before": "1d4e1b90a92b096436f1b81bc7f4b16d36d3786ad35f427203cb5037104f6d42",
+      "after": "214bbfefdc15e94e2b46fc5dbd27d6a3c140d0ef3a658db6b34cbc238741c6f7"
+    },
+    "lightning-sorceress-duress-end-merc-resistance-alternative": {
+      "before": "ec48a9e77b77bb51f67fab2fb53545a8f675492e16e226d1da9e2acf3989bdbc",
+      "after": "c7b93ac289811b5b07c2ebfc1702732f3dd690571535fb3f91a10ef78bb4d9f4"
+    },
+    "lightning-sorceress-duress-mid-merc-resistance-alternative": {
+      "before": "bf50a8d078324d4af8bd51ca507561e59cd3450eff5849314d83d1b0e6beab33",
+      "after": "0aa4f3d5580255920756fa20a777d31aeddde3e4144b920929a8a1454610c2a0"
+    },
+    "lightning-sorceress-early-merc-lionheart": {
+      "before": "035945b8d61625be685c24920b5aeeea1e9a822d674744c6ec576a903b62610e",
+      "after": "14d4762b3cf5a900538317dc0aed58b7129c71f042fc5495b5e84c00448e484b"
+    },
+    "lightning-sorceress-early-merc-temper": {
+      "before": "a018b418c6b932a0a56c5079d919558890699fad2f8aaeb038c3fdb0a86b9463",
+      "after": "fb405c2dabbc40ff2d8274a54b13b0c23fbf0c3b22e5dfa7fee738a391ebed8d"
+    },
+    "lightning-sorceress-ground-merc-early": {
+      "before": "5fbcc8f06b18691c62ea67cbd323e21d0ec87cb0b5847748207c66616695b6f1",
+      "after": "726cb56d14e0e8759176f5be12155da94ce0ab4e815491ecbe5525a3bdf15e17"
+    },
+    "lightning-sorceress-merc-early-hustle-armor-alternative": {
+      "before": "8f59009599f3a018612d99218f3229d0d0e2e957de3647ab1f7a8ef505750ecc",
+      "after": "e75935e5b77babe93d8f8b87abace5c040883472718686ef71ad92d98a058bb4"
+    },
+    "lightning-sorceress-smoke-early-merc-resistance-alternative": {
+      "before": "063c4c1f6e69e1bdb9cb3b99abdaa942095fabd4237bb194374b6fdde347964f",
+      "after": "eb61ad4b39bbc8c326b4cfba54f683b930137a1fcaeefbc496ef45a961b37120"
+    },
+    "lightning-strike-amazon-duress-end-merc-resistance-alternative": {
+      "before": "2a2fb2b538d815c245e4279b928b6f3950b05f30423d9d1d9c447119054d956d",
+      "after": "c38dd3ddd0897b4d59eebf21ad2c483ce68b6338e1c3a012e1daa4ce8cecdb6d"
+    },
+    "lightning-strike-amazon-duress-mid-merc-resistance-alternative": {
+      "before": "ca5def13bd442ebd2a81632d7622f24a27708cddd7e770ff841de9a99ff75dd2",
+      "after": "12cb2323a98193c56cbc1319bc5f64c0b8cad827c6194ab7f688e174fdf3f817"
+    },
+    "lightning-strike-amazon-early-merc-lionheart": {
+      "before": "0ecc2c2c4c3965ec872dfa68a42a2231ac61c29f94da2bd8d7d7a4ac4e16d093",
+      "after": "5fcf9a3414974d52d4db0060403c9a56258c44221cbc55df6969062689b1c541"
+    },
+    "lightning-strike-amazon-early-merc-temper": {
+      "before": "12c33616080d96743992e7cfeb95070f9ba95b8f0494ffa25ed1a8a8dd9842bc",
+      "after": "494661ec0114e1159d5ed912c274e751f22a99e1bd946ff78ac069ea3761c28b"
+    },
+    "lightning-strike-amazon-ground-merc-early": {
+      "before": "65411826e3d69a67a5acaf6576c898529c4c31ae27d34d3f0e5063bc685ce234",
+      "after": "758da4f9d95f3de236e0edaeafcd95ee85ed1354f775d79f02ad72fbd5bd99a3"
+    },
+    "lightning-strike-amazon-merc-early-hustle-armor-alternative": {
+      "before": "65f7f395c21782d22764a32a5c32100ad2f02564fc26ebbe9a379a81260b9146",
+      "after": "ff84fc5381cde77cc23e35994c0c23906debe38fcbef8e30b9ddfe6f9c6a2f22"
+    },
+    "lightning-strike-amazon-smoke-early-merc-resistance-alternative": {
+      "before": "791ad00b0267e73c8b2786730d154f68e5e51e84798b2c3b5245975ce617e76f",
+      "after": "d59fc51fd213cd941ff686227aee11f3237dcc093b17341130f65a93444d98e3"
+    },
+    "meteor-sorceress-duress-mid-merc-resistance-alternative": {
+      "before": "f2a58235c474ddbb18309a853b75da8eb93a5f1e66c48240f277558c4f2c7595",
+      "after": "54d1691d639ad32ea9f842b11071f4973b40d70406282fbd0e8564cc74df3090"
+    },
+    "meteor-sorceress-early-merc-lionheart": {
+      "before": "a8ba455260eb5c3d2824a9398d6191f9080eb28df41ffba4722741804fa1fd29",
+      "after": "7bc12ae810eafabf6276a3d3431b4542a058b5d6f5b13bd506d30e8578a7fd2d"
+    },
+    "meteor-sorceress-early-merc-temper": {
+      "before": "f1d76aa1ddf69ae74c4931fc14fd824d603345f032b8b1bd83abc942a9dc3653",
+      "after": "ef51cdd116ceb6cf5c46f93994445f071f099abbfb9c3e8405583cbe0888edbe"
+    },
+    "meteor-sorceress-ground-merc-early": {
+      "before": "c4d3a2315b9546f9b38e2ef1edbbf85d54ed31a0a653478408c2e93380ade357",
+      "after": "ad5d55ccacd84c15fcbb96ffad1c71378d99430fa837374a7506e8e9766e494b"
+    },
+    "meteor-sorceress-smoke-early-merc-resistance-alternative": {
+      "before": "76c9176718f728ee08707d6caa64df22fe094b80d732fb55ceb8b0f67bf5f31d",
+      "after": "f2d9c64e69c0795e080f47194ba50d67e16089523d7b503cec4382a4e0b79329"
+    },
+    "mirrored-blades-warlock-guide-duress-mid-merc-resistance-alternative": {
+      "before": "e0222efde665e1cd70e410aaa6e1d4f91d980b6181ae2aab8b9be3951e67a492",
+      "after": "7e460a4b856bbdcdaf770cb648785b167d1db8a1b0182eb529b15487f1661539"
+    },
+    "mirrored-blades-warlock-guide-early-merc-lionheart": {
+      "before": "df819926b67e2962f79d4c311c1a81c764e615dfcf32eee1c65ae125eea7130b",
+      "after": "08fd8b0ce264a828ebbda9a87f58a931de55124043254fb38e25aaab449b8f76"
+    },
+    "mirrored-blades-warlock-guide-early-merc-temper": {
+      "before": "d4ab8d5f48344d374c16790744673907caf56d321cc5f0a081365ceb4e544d60",
+      "after": "fafe6ae0a85bdbdd3cc4f671b5084e7025c7a5f1deeaa4744f179aaf859eb3a9"
+    },
+    "mirrored-blades-warlock-guide-smoke-early-merc-resistance-alternative": {
+      "before": "7d7e141ea6c7dae52cd8ef3299a1fea00a214a496b6ce0e1a59e05e6b78b6386",
+      "after": "51a6b1c4b88fe5ce00f230135ba68bd01dfd1ea19a5fffab3462efb343b8873f"
+    },
+    "nova-sorceress-guide-duress-mid-merc-resistance-alternative": {
+      "before": "b34881df0624e281c2b5ad3f687f62bb20c121db78455f511c3afe298f180ed7",
+      "after": "9a3e9b29f4dcab3a5bfb6a102557510fb3d904888f59c8cf1723ad904f2ae55f"
+    },
+    "nova-sorceress-guide-early-merc-lionheart": {
+      "before": "a6c2f8827653ea8adacc7d6e6a2d96acd956311a3ea804672110906ce4427475",
+      "after": "b5050896b68849e0aa662a5fe6a4c2dcac83cae7a01c07898157406611040875"
+    },
+    "nova-sorceress-guide-early-merc-temper": {
+      "before": "1d7e54479662d57cb2792f405a8150fa7983899ddedf1fb61b52dcf6f0d7659a",
+      "after": "ff6dd261a7aa267e7c8c568b7dfd3c5e08b3f25c20cd02729db7f2648ef9da71"
+    },
+    "nova-sorceress-guide-ground-merc-early": {
+      "before": "6f7ff0fdb7fbc853b1e7c3ab56dcee3dd517a924f46610b3e2bd15ba38702f7a",
+      "after": "dac7ab20911705a995242072e7b20d34a0b231b1d4c4974c78ec18d395d38e57"
+    },
+    "nova-sorceress-guide-smoke-early-merc-resistance-alternative": {
+      "before": "17bd497bb0cb2de5d7cf0b316111e0143a035913efd679e187b501454eeb5849",
+      "after": "fbb233afbbc58fbabb3405190392fbda32bde539c45a4d1ba926774399310bd7"
+    },
+    "poison-nova-necromancer-duress-end-merc-resistance-alternative": {
+      "before": "235c52d7d6987f75957f3187ca0e8598362897bad9f31d3d95dcfb6e42a56aa4",
+      "after": "61d40497ff19ba485a65db0cb2d8e48cea116efc40494422b8f5228853524334"
+    },
+    "poison-nova-necromancer-duress-mid-merc-resistance-alternative": {
+      "before": "8aad3ca27e34df5cd75b8b62e4f92f554bdf4f2ce74b8f90b4314b7018dab439",
+      "after": "04f95b7c2a913f7ecf400edb8fa6ed0fa548fb83c596fc9ab79b8f7a62931593"
+    },
+    "poison-nova-necromancer-early-merc-lionheart": {
+      "before": "762f8f6e94140891ba8a2d5dae4349139616f9468d384d7c3fc4bedb8d1f6422",
+      "after": "dcd319407edd252175b342adf50091db3b8745302c5c6c31020cea312a3617ff"
+    },
+    "poison-nova-necromancer-early-merc-temper": {
+      "before": "21f03329073dc1e6c6d8d3570eacb9b1b7bddbe1eb5aaa1f7affe59e4893b586",
+      "after": "608e02566c2cf34a395feac0c721fabad852f7fffd799234587981aeebb9f0e9"
+    },
+    "poison-nova-necromancer-merc-early-hustle-armor-alternative": {
+      "before": "78ccafe248ad69eabba3708bbde0b8588763fd6c8198cb86c53c832588654392",
+      "after": "dbaa70e83cc01f110420a2cc25007847348e623fc586f9fc1592029bfa42a67e"
+    },
+    "poison-nova-necromancer-smoke-early-merc-resistance-alternative": {
+      "before": "011b29f6f9bcd8138799e8b0ae0b20da20992749610178d8b5227b60060bbc3d",
+      "after": "c3bc453706c4f9103350b50754f4f3daf5cb37ef84dcb00ccd5521eb7cd4eb5f"
+    },
+    "strafe-amazon-0-player-lionheart": {
+      "before": "d9c83423e49f6810dfdf730f0c3c698b815a0393ab369b5cc17d744ea45f93b2",
+      "after": "21a9c221bb76c73ff961bc1d3955595a405a9cdbeac13f98c7a8f38d35a955d0"
+    },
+    "strafe-amazon-duress-mid-merc-resistance-alternative": {
+      "before": "bf65a1a3ff2e06bd7df87ce37fd8905b463dc3107e7fda838c9be51ce40e9d98",
+      "after": "4e3566904e87f03eb80e6b4fb54ebd8c8e9350d1b2634c9a35b00f2cb7af095b"
+    },
+    "strafe-amazon-early-merc-lionheart": {
+      "before": "502c2c040acdb0d3094df76ba156d69fb9ecf6563d5efa733dc15dc0acffd507",
+      "after": "4348a7b012eaea68b5da625b38877d03ec78b2f5274b4bd892f9358e77eb9c20"
+    },
+    "strafe-amazon-early-merc-temper": {
+      "before": "08491f30cdab4a66a6f4285adeeba8a0b0f3310037889bcb2239ba277af5e148",
+      "after": "8efbb98e16e91ae68a319fe7ed52ff146bc6deab5c1713dac4fb5dfe7d6f5f11"
+    },
+    "strafe-amazon-smoke-early-merc-resistance-alternative": {
+      "before": "bee9dedb9ec78119499382401d703e8dbef08a36f119b2162e4d34e120672206",
+      "after": "4701ab50fbb4292bd22315552728a383e0bc6d90392b5080b0518194336e0530"
+    },
+    "summoner-necromancer-guide-duress-mid-merc-resistance-alternative": {
+      "before": "6f5a25d9f4176b75b10b1e794c8d2633d2118903be4fd9c1b11be5079e9b5aa0",
+      "after": "0c6b6f876d8203c8d352193e07eeaed7ae0ce2d5f179a1d6a851c98434954620"
+    },
+    "summoner-necromancer-guide-early-merc-lionheart": {
+      "before": "162875f7b03cbda8e220d057d3eceaec3b933dc422714fddafe54ff92a887c97",
+      "after": "6cf93eeeb699bc4ce62a248c441f8861908332f35d223f71286795c5957305bb"
+    },
+    "summoner-necromancer-guide-early-merc-temper": {
+      "before": "633be5a7cfbede0f4cce8a2b2ade22898faaa7d83c4ec58a6877e3e25eaeaa3d",
+      "after": "15536ae991d29913c585dde4ea381e5943b207b308d26436263370f8f85284b9"
+    },
+    "summoner-necromancer-guide-ground-merc-early": {
+      "before": "8b4e54adbdce22281a460234d3227faf79e665e9a77d61b8cd1c067c3e5c388d",
+      "after": "74c26c197f750bf0de826714272d33aa739de5f23d8b077d3f025b79211204f6"
+    },
+    "summoner-necromancer-guide-merc-wealth-body-armor-mid-word-utility-alternative": {
+      "before": "5e32bbb77fb2cebe5b37ffb454e3ade981b050f4e336ce50feb1c95bca1bfe44",
+      "after": "c2f5092a4be595590b6284a170fde0847be8cae517c0954100606ba81204860c"
+    },
+    "summoner-necromancer-guide-smoke-early-merc-resistance-alternative": {
+      "before": "3ffb48c61933b26e64b9d905585607582371606dcc0edb94c95be7e7854a241f",
+      "after": "4e1b5ae2f879303985d7c764e0a7e1e91ce6584fdeb7182e2ece2b1d06d8e79f"
+    },
+    "summoner-warlock-guide-duress-merc-survival-gear": {
+      "before": "04ea1c211dd466d480fa521cc1e7e738558601fa19296d1e5d5ed7903acadcdc",
+      "after": "6c304c9f97e21e7adb2b5a2e9edbe774e580c174f0e439cd760a974aab63d8b9"
+    },
+    "summoner-warlock-guide-ground-merc-survival-gear": {
+      "before": "12c44523cc2d74b6febe2e47851465ec83701c3a52a9f82cb3980ec3625da6d7",
+      "after": "f1af5d942d24f1dbbd1714c840e46a046f552fc421d77fa497618cc64c701521"
+    },
+    "summoner-warlock-guide-lionheart-merc-survival-gear": {
+      "before": "b85c67e15ef78e44226af17e120d522455099f004892e2ad346026a83eb45cfd",
+      "after": "ed0402ac269950cfd27e8f1febdbeaee572c52712c3258fbe7f24900c8631376"
+    },
+    "summoner-warlock-guide-smoke-merc-survival-gear": {
+      "before": "e1f8cb07a76429dadb1164fd49e25bb22235322bf538b8392bcd4a5536c19877",
+      "after": "675a57f4485fab264da693edc7d7bae571927418709584496afc404f9f6a4ed5"
+    },
+    "summoner-warlock-guide-temper-merc-survival-gear": {
+      "before": "1d9f897c56710cc3ce319e8cb571bdbfb5014cd7f8b40cebeb16db0de951bbc0",
+      "after": "56d0520bbcc74ab249dc7a37ea549c814ff615e408a860f0db9163bbd98427b4"
+    },
+    "summoner-warlock-guide-wealth-merc-survival-gear": {
+      "before": "ae015026f3ae13951eb01439cff73f4bb4314f37a4cec807e61dce4b0037e431",
+      "after": "79ad35efd713803794ffc9baa1559834f40a489a038c6658f0f4108bd8fca367"
+    },
+    "zeal-paladin-duress-merc-survival-gear": {
+      "before": "ba6db3385366f2e8ecee5b436411d325be8f6bae8a1083900a6bf7b566a816e8",
+      "after": "53221f23005e5e6cb2bf3b551627a77329dea305e2d39e18c5226107c97d5dee"
+    },
+    "zeal-paladin-lionheart-merc-survival-gear": {
+      "before": "0b4232c0fca26b2602265fc1b832d52b12af6c9c5b8bc21c0cf8eea7e05be7d8",
+      "after": "de3bd996491b4b050b02cc8be52bdfbb28f55130d2fd1328c962857e13f3f6cd"
+    },
+    "zeal-paladin-merc-word-duress-end": {
+      "before": "c385d40a1997b70c164c5db4f69eff1c0adc04a8b973d22e7893d3f8376747d5",
+      "after": "fabd20af24ce855b76553f82db940022bb9d182fc1f6eab4033b20c8cf64cd42"
+    },
+    "zeal-paladin-merc-word-duress-mid": {
+      "before": "6c8888be7c63b9b9718c34fc5c8eeb520eb9173e4270e6f03128dc263ad4ee5d",
+      "after": "e59c0ff463732a3c323d407a4a369f27088afd7e4861e318a158b37130e9ee67"
+    },
+    "zeal-paladin-smoke-merc-survival-gear": {
+      "before": "5ec4089a409c5238dd7500902d3c2cdf6e284e0acc399beeb6604de60edc0333",
+      "after": "95768300d55d92d5b29e9102b59b899a84a032fb26f966cfaa475e789b3bfc2a"
+    },
+    "zeal-paladin-temper-merc-survival-gear": {
+      "before": "9f8a3f975acb49eb24e4cc1c869c6e3c1966d07fbffe709d10986d610afb0e92",
+      "after": "466493ec6d33084203e2165ba9a81562662182d37bb0b12f9f0ed0721e5b5c83"
+    }
+  },
+  "verification": {
+    "generation": "910c5eb35a4c60feb3544a228dfd26a447b619dd3e0c2758d35b62c6738ed504",
+    "family_source_tests": "55 passed; tmp/merc-word-quality-green.log",
+    "ground_test": "1 passed; tmp/merc-word-quality-ground-green.log",
+    "native_bank": "105 staged and105selected pass; seven independently authored recipe/build examples, not all162 build roles",
+    "saved_report_parity": "20 texts/price_estimate/extractions match staged",
+    "completion": {
+      "identities": 2570,
+      "occurrences": 62891,
+      "reviewed_occurrences": 1689,
+      "excluded_occurrences": 4822,
+      "coverage_rows": 8460,
+      "remaining_tasks": 114418
+    },
+    "all_item_complete": false
+  }
+}

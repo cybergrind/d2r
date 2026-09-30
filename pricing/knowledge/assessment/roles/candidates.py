@@ -3,12 +3,15 @@
 from pricing.knowledge.assessment.domain.facts import freeze, thaw
 
 
+SELECTORS = (('qualities', 'rarity'), ('types', 'item_type'), ('names', 'name'), ('base_codes', 'base_code'))
+
+
 class CandidateIndex:
     def __init__(self, profiles):
         self._profiles = freeze(profiles)
         self._all = frozenset(range(len(profiles)))
         postings = {}
-        for field in ('qualities', 'types', 'names'):
+        for field, _ in SELECTORS:
             entries = {}
             for position, profile in enumerate(profiles):
                 for value in profile.get(field) or (None,):
@@ -18,7 +21,8 @@ class CandidateIndex:
 
     def select(self, facts):
         candidates = self._all
-        for field, value in [('qualities', facts.rarity), ('types', facts.item_type), ('names', facts.name)]:
+        for field, attribute in SELECTORS:
+            value = getattr(facts, attribute)
             if value is None:
                 continue
             entries = self._postings[field]

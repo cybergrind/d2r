@@ -17,6 +17,7 @@ from inventory_tracking.collection.models import (
     CaptureRun,
     CaptureSummary,
     Character,
+    CharacterStats,
     ContainerSpace,
     ItemRecord,
     Location,
@@ -25,7 +26,7 @@ from inventory_tracking.collection.models import (
 )
 
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 DEFAULT_DATABASE = Path('inventory_tracking/runs/collection/collection.sqlite')
 
 SCHEMA = """
@@ -87,6 +88,17 @@ CREATE TABLE IF NOT EXISTS spaces (
     seen_at TEXT NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS spaces_key ON spaces(owner, container, IFNULL(tab, -1));
+CREATE TABLE IF NOT EXISTS character_stats (
+    id INTEGER PRIMARY KEY,
+    character TEXT NOT NULL REFERENCES characters(name),
+    capture_id TEXT NOT NULL,
+    seen_at TEXT NOT NULL,
+    sheet TEXT NOT NULL,
+    lines TEXT NOT NULL,
+    stats TEXT NOT NULL,
+    base_stats TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS character_stats_latest ON character_stats(character, seen_at);
 CREATE TABLE IF NOT EXISTS captures (
     id TEXT PRIMARY KEY,
     character TEXT NOT NULL,
@@ -151,12 +163,13 @@ class CollectionStore:
         connection.row_factory = sqlite3.Row
         connection.execute('PRAGMA foreign_keys = ON')
         version = connection.execute('PRAGMA user_version').fetchone()[0]
-        if version not in (0, 1, 2, SCHEMA_VERSION):
+        if version not in (0, 1, 2, 3, SCHEMA_VERSION):
             connection.close()
             raise ValueError(f'Unsupported collection schema version {version}')
         connection.executescript(SCHEMA)
         # Columns added after version 1 (quantity, 2026-09-25) and 2 (width/height, 2026-09-25);
-        # the spaces table comes from the script above. Idempotent by column presence.
+        # the spaces (3) and character_stats (4, 2026-09-27) tables come from the script
+        # above. Idempotent by column presence.
         present = {row['name'] for row in connection.execute('PRAGMA table_info(items)')}
         for column in ('quantity', 'width', 'height'):
             if column not in present:
@@ -196,9 +209,17 @@ class CollectionStore:
     # --- writes -------------------------------------------------------------------
 
     def record_capture(
-        self, capture: CaptureRun, sightings: list[Sighting], spaces: list[ContainerSpace] | None = None
+        self,
+        capture: CaptureRun,
+        sightings: list[Sighting],
+        spaces: list[ContainerSpace] | None = None,
+        stats: CharacterStats | None = None,
     ) -> CaptureSummary:
-        """Apply one full capture atomically; see the module docstring for the closure rule."""
+        """Apply one full capture atomically; see the module docstring for the closure rule.
+
+        `stats` appends one character-sheet row; every capture keeps its own row so the
+        sheet has a history.
+        """
         authoritative = set(capture.containers)
         for space in spaces or []:
             if space.key not in authoritative:
@@ -209,6 +230,20 @@ class CollectionStore:
         seen_at = capture.started_at
         with self.transaction() as db:
             self._upsert_character(db, capture.character, seen_at)
+            if stats is not None:
+                db.execute(
+                    'INSERT INTO character_stats (character, capture_id, seen_at, sheet, lines, stats, base_stats) '
+                    'VALUES (?, ?, ?, ?, ?, ?, ?)',
+                    (
+                        capture.character.name,
+                        capture.id,
+                        seen_at,
+                        json.dumps(stats.sheet()),
+                        json.dumps(stats.lines),
+                        json.dumps(stats.stats),
+                        json.dumps(stats.base_stats),
+                    ),
+                )
             for sighting in sightings:
                 self._upsert_item(db, sighting.item, seen_at)
             existing: dict[PlacementKey, int] = {}
@@ -341,6 +376,25 @@ class CollectionStore:
         return [
             Character(name=r['name'], class_id=r['class_id'], class_name=r['class_name'], level=r['level'])
             for r in self.db.execute('SELECT * FROM characters ORDER BY name')
+        ]
+
+    def character_stats(self, name: str, *, history: bool = False) -> list[tuple[str, CharacterStats]]:
+        """(seen_at, sheet) rows of one character, newest first; only the latest unless `history`."""
+        limit = '' if history else ' LIMIT 1'
+        rows = self.db.execute(
+            f'SELECT * FROM character_stats WHERE character = ? ORDER BY seen_at DESC, id DESC{limit}', (name,)
+        )
+        return [
+            (
+                row['seen_at'],
+                CharacterStats(
+                    **json.loads(row['sheet']),
+                    lines=json.loads(row['lines']),
+                    stats=json.loads(row['stats']),
+                    base_stats=json.loads(row['base_stats']),
+                ),
+            )
+            for row in rows
         ]
 
     def item(self, fingerprint: str) -> ItemRecord | None:

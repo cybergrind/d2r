@@ -34,7 +34,7 @@ def test_sazabi_piece_priorities_require_mercenary_set_and_socket(suffix, name, 
         socket_items=[{'name': rune, 'item_type': 'rune'}],
     )
     companions = [row[1] for row in CASES if row[1] != name]
-    context = {'mercenary_type': 'Act 5 Frenzy', 'mercenary_items': companions}
+    context = {'player_class': 'Warlock', 'mercenary_type': 'Act 5 Frenzy', 'mercenary_items': companions}
 
     def evaluate(candidate=item, ctx=context):
         return StatsEvaluator().evaluate(

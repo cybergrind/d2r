@@ -30,11 +30,24 @@ def child_stat(child, key):
     return None
 
 
-def jewel_matches(facts, thresholds, *, name=None):
+def jewel_matches(facts, thresholds, *, name=None, count=None):
     """Existential across children, conjunctive within one actual jewel."""
     state = facts.socket_state
     if state.total.status == FactStatus.CONFLICTING:
         return 'unknown', None
+    if count is not None:
+        ids = [child.get('unit_id') for child in facts.socket_items]
+        positions = [child.get('position') for child in facts.socket_items]
+        if (
+            facts.socket_contents != 'filled'
+            or state.total.status != FactStatus.KNOWN
+            or any(type(unit) is not int for unit in ids)
+            or len(set(ids)) != len(ids)
+            or any(type(pos) is not int or not 0 <= pos < state.total.value for pos in positions)
+            or len(set(positions)) != len(positions)
+        ):
+            return 'unknown', None
+    matches = []
     unknown = not state.identities_complete
     observations = []
     for child in facts.socket_items:
@@ -42,7 +55,7 @@ def jewel_matches(facts, thresholds, *, name=None):
         if kind is None:
             unknown = True
             continue
-        if kind != 'jewl':
+        if kind not in ('jewl', 'cjwl'):
             continue
         if name is not None and child.get('name') != name:
             if child.get('name') is None:
@@ -55,7 +68,11 @@ def jewel_matches(facts, thresholds, *, name=None):
         if any(value is None for value in values.values()):
             unknown = True
         else:
-            return 'true', values
+            if count is None:
+                return 'true', values
+            matches.append(values)
+            if len(matches) >= count:
+                return 'true', matches
     return ('unknown' if unknown else 'false'), observations
 
 
@@ -68,8 +85,8 @@ def jewel_stat(facts, key, threshold):
     return truth, observed
 
 
-def runes_equal(facts, names):
-    """Compare complete linked rune multisets; a matching subset proves nothing."""
+def fillers_equal(facts, names):
+    """Compare complete linked filler multisets; a matching subset proves nothing."""
     state = facts.socket_state
     if (
         state.total.status != FactStatus.KNOWN

@@ -7,6 +7,8 @@ modifier is guessed from matching tooltip stats or the base type alone.
 import struct
 
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.items.runeword_identity import resolve_runeword
+from inventory_tracking.items.seasonal_identity import resolve_seasonal_identity
 
 
 ITEM_DATA_SIZE = 0x60
@@ -64,29 +66,23 @@ def resolve_identity(details, arrays, base):
             'roll_ranges': {},
             'enhanced_damage_expected': False,
         }
-    table = 'runeword' if flags & RUNEWORD_FLAG and quality in (2, 3) else IDENTITY_TABLES.get(quality)
+    table = 'runeword' if flags & RUNEWORD_FLAG and quality in (1, 2, 3) else IDENTITY_TABLES.get(quality)
     if table is None:
         return None
     offset = RUNEWORD_OFFSET if table == 'runeword' else IDENTITY_OFFSET
     table_id = struct.unpack_from('<H' if table == 'runeword' else '<I', raw, offset)[0]
+    if table == 'runeword':
+        entry = resolve_runeword(table_id, arrays, base, metadata())
+        return {**entry, 'table': table, 'offset': offset} if entry else None
     entry = metadata()['identities'][table].get(str(table_id))
     if not entry:
         return None
+    entry = resolve_seasonal_identity(entry, arrays, socketed=bool(flags & SOCKETED_FLAG))
     if base['code'] not in entry['base_codes']:
         upgrade = entry.get('upgrade_variants', {}).get(base['code']) if table in ('unique', 'set') else None
         if upgrade is None:
             return None
         entry = {**entry, **upgrade}
-    if table == 'runeword':
-        sockets = [
-            s['raw']
-            for a in arrays['arrays']
-            if a.get('header_offset') == 0xE8
-            for s in a.get('stats', [])
-            if s['id'] == 194 and s['layer'] == 0
-        ]
-        if sockets != [len(entry['runes'])]:
-            return None
     return {**entry, 'table': table, 'table_id': table_id, 'offset': offset}
 
 
@@ -103,6 +99,8 @@ def identity_review(identity, stats):
 
 
 def identity_issues(identity, stats):
+    if identity and identity.get('definition_variant') == 'unresolved':
+        return ['Ordinary versus seasonal item version is unresolved; only shared ranges are shown.']
     if identity and identity['enhanced_damage_expected'] and not any(s['id'] in (17, 18) for s in stats):
         return ['Enhanced Damage percentage was not captured.']
     return []

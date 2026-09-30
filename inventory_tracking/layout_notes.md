@@ -112,6 +112,29 @@ The external [d2go key-binding reader](https://github.com/relentlessricktrinidad
 only exposes the binding. Its panel-tree reader was a research lead, but was not
 needed for this implementation.
 
+## Open-panel flags (2026-09-27)
+
+A byte array of 0/1 panel flags starts at image RVA `0x1ebd158`; the Show Items byte
+above is its `+0x0c`. The layout is d2go's `OpenMenus` (inventory `+0x01`, character
+`+0x02`, NPC interact `+0x08`, quit menu `+0x09`, NPC shop `+0x0b`, waypoint `+0x13`,
+stash `+0x18`, cube `+0x19`, mercenary `+0x1e`), anchored here not by d2go's code
+pattern (its `40 84 ed 0f 94 05` sites on this build target `0x1ebd16d` and
+`0x1ebd176`, the discarded lead above) but by the 129 `image.bin` captures of the
+supported build under `runs/`:
+
+| Byte | Set in | Not set in |
+| --- | --- | --- |
+| `+0x01` inventory (`0x1ebd159`) | 81 captures, every hover/Alt+D attachment | Show Items, consume runs |
+| `+0x08`/`+0x0b` NPC interact/shop | exactly the 31 vendor captures (`hover-ui/…173451Z`, `…173519Z`, shop Alt+D) | everything else |
+| `+0x18` stash (`0x1ebd170`) | the 23 attachments of the 2026-09-23 18:17–22:30 and 2026-09-25 stash sessions, always with `+0x01` | Show Items, consume, vendor runs |
+| `+0x19` cube (`0x1ebd171`) | 13 cube-session captures | — |
+| `+0x1e` mercenary (`0x1ebd176`) | the one mercenary-panel Alt+D (`alt-d/20260923T203033Z`) | — |
+
+`tracking/panels.py` reads the 32-byte array twice with identity/mapping checks and
+accepts only 0/1 bytes. `collection/watch.py` uses the stash flag's open → closed edge
+to run a Win+S collection (`--stash-auto`). Host confirmation pending: open and close
+the stash with the worker running and check the log line "Stash closed; collecting".
+
 ## Optional resources
 
 - Tome class 533, owned inventory mode 0/page 0: layer-zero stat 70 (quantity),
@@ -182,3 +205,86 @@ mode 0, inventory page 0, matching the selected player's owner ID. Unknown or
 incomplete records never imply zero; an explicitly complete key scan with no
 matching stacks does. The alert is `keys: N` strictly below 5, with no latch.
 The live baseline verifies 12; threshold/refill/zero behavior is covered by tests.
+
+## Level rooms (2026-09-30)
+
+Two Win+C dumps (`runs/level/`, Git-ignored) in Arcane Sanctuary (area 74) on the
+supported build. The first was taken at the entrance (`20260930T062028Z-4913ad64`), the second
+standing on the Summoner (`20260930T062220Z-d76e6f5b`).
+
+| Field | Offset |
+| --- | --- |
+| Path → Room1 | +0x20 (dynamic x/y at +0x02/+0x06) |
+| Room1 → Room2 | +0x18 |
+| Room2 → level | +0x90 |
+| Level area ID | +0x1f8 (u32) |
+| Level → first Room2 | +0x10 |
+| Room2 → next Room2 | +0x48 |
+| Room2 → preset record | +0x40; first u32 = LvlPrest `Def` (d2data lvlprest.json) |
+| Room2 bounds | +0x60 x, +0x64 y, +0x68 width, +0x6c height (u32 tiles; ×5 = world) |
+| Room2 seed | +0x08 (low dword repeated at +0x30) |
+
+The Room2 list held all 61 rooms of the level while only 17 had loaded Room1s. The
+preset IDs matched the arm geometry: centre 524 NSEW, corridors 512 EW / 521 NS, dead ends
+510/511/517. Exactly one room was 527 "Arcane Summoner S", and it was unloaded at the
+entrance. In the second dump the player stood in that room; monster 250 (Summoner) at world (25440, 5020) and
+object 357 (Horazon's Journal) at (25431, 5011) were inside it. So the client knows the
+Summoner's arm from the moment the level loads; monsters and objects are only streamed near
+the player (6 → 50 monsters between the dumps). The user reported the arm as map north.
+
+Not confirmed: MapAssist's ActMisc offsets (+0x830 difficulty, +0x870 first level) gave
+garbage on this build. No monster/object preset list was found within three pointer hops of
+Room2, and the 250/357 matches in the second dump were shared addresses, not placements.
+`levels/guide.py` uses the confirmed chain only.
+
+A third dump (`20260930T063353Z-deb2239b`, another game) held the Summoner room as
+preset 525 "Arcane Summoner W" at the east tip. The four Summoner presets (525–528) are one per
+doorway orientation, so targets are matched by LvlPrest name (`levels/handlers/`, bundled
+table `levels/data/level_presets.json`), never by one Def.
+
+## Preset objects and large presets (2026-09-30)
+
+Room2 +0x40 → preset record {u32 Def, pad, +0x08 object}. The object repeats the Def at
++0x00, holds the DS1 file index at +0x04 and the whole preset's bounds (x, y, w, h tiles) at
++0x18. Checked across 10 Win+C dumps: the Def always matched, and the index was always below
+lvlprest `Files` when Files > 0 (Temple NE 1 of 2, NW Down 0 of 1, Crypt Theme 0 of 1, Vaught
+3 of 4). Large presets are split into 8x8 Room2 chunks sharing one object:
+
+- Halls of Anguish/Pain: four 40x40 quadrants (NE, SE up, NW/SW Down, Waypoint), 25 chunks each.
+- Halls of Vaught: one 84x84 'Temple Final Room' (NihlE/N/S/W); the player enters at its centre.
+  Dump 20260930T082410Z-54658110 had variant 3 (NihlW). The letter is Nihlathak's side: the user saw
+  him west and north in two games (2026-09-30); "opens toward" would have put NihlW east.
+- Tower Cellar 5: all 16 chunks are 'Crypt Countess X' (2 variants), i.e. the whole level.
+
+`levels/handler.py` collapses chunks into one POI per preset instance, places variant presets
+by `sides`, and refuses targets that are the whole area around the player.
+
+## Object data: shrines (2026-09-30)
+
+Object units keep their data block at unit +0x10. In it, +0x08 is the shrine type byte (d2data
+shrines.json code: 14 Stamina, 18 Gem) and +0x10 a shrine table pointer that is set only for
+shrines. Evidence: Win+C dump `20260930T121835Z-713d7e8a` (Black Marsh). Object class 83 was at
+(14662, 5182), next to the player at (14665, 5183); the user identified it as a Stamina Shrine;
+bytes `48e30465 00000000 | 0e 000000 00000000 | 78909e2c 00000000`. MapAssist's packed struct puts
+the pointer at +0x0C, which is wrong on this build. The same dump confirms the objects' static-path
+position (+0x10/+0x14).
+
+## Room2 neighbours (2026-09-30)
+
+Win+C dump 20260930T124726Z-e166c530 (Lower Kurast): Room2 +0x10 is a pointer to an array of Room2
+pointers and +0x18 its count (5-9, the room itself included; +0x20 is a second small count, not
+used). For all 80 rooms every entry was a Room2 of the same level, except at the level edge, where
+the extra entries are Room2s of the adjacent level. The levels code reads their level (+0x90) and
+area (+0x1F8) to name outdoor exits (`levels/memory.neighbour_areas`, `Room.leads_to`); that those
+foreign rooms carry a readable level is still to be confirmed live (Cold Plains).
+
+## Room1 collision grid (2026-09-30)
+
+Win+C dump 20260930T135418Z-6b2890e1 (Cave 2): Room1 +0x38 points at the collision grid; grid +0x00
+is x, y, width, height in sub-tiles (the Room2 bounds x5, the unit of player positions) and +0x20
+points at a width x height u16 mask. Bit 0x1 blocks walking: the set cells drew the cave's walls,
+the clear ones its corridors. Other values seen: 0x4, 0x20, 0x11, and 0x8000/0x200/0x400/0x1100
+where units stood. 8 of 9 loaded rooms matched; the ninth (the player's) only failed the research
+filter (more than 16 distinct values because of units). Room1 +0x00/+0x40 is the loaded-room
+neighbour array and count. Also: the glowing (super) chest is object class 397 'sparklychest'
+(mode 0 closed).

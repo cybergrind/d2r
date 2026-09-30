@@ -1,0 +1,3396 @@
+{
+  "review_date": "2026-09-28",
+  "status": "30_general_table_links_validated_other_source_contexts_pending",
+  "candidate_count": 55,
+  "warning": "Identity matches are candidates only. Old shared planner profiles differ from current variant equipment. Review exact guide section, wearer, variant, native child and recipe before linking; preserve Hardcore and source conflicts. No endorsement or exclusion is granted by this inventory.",
+  "occurrences": [
+    {
+      "id": "1291e4be9d213b9a58c8bff1",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame Bone Visage (ethereal)",
+      "build": "fissure-druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "Helmet",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/4/merc/Helmet/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "167bc5dcb67c0e9607790b5c",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/slots/Body Armor/5",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Chains of Honor",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-player-rain-body-armor-main-alternatives-support-word-alternative",
+        "fissure-druid-player-wealth-body-armor-main-alternatives-word-utility-alternative",
+        "fissure-druid-skullder-body-armor-utility-alternative"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "172cbfe41bc62a1e1d1627aa",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/1/mercItems/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Damage",
+      "side": "merc",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "uh9",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uh9",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 158,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_armor_percent": 15
+        },
+        "description": "8 aura 15% fire pierce 15% def 75 mana eth",
+        "container": "mercItems",
+        "item_ref": "161",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Bone Visage",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "1c3f80a65741d815282ed5e5",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/3/merc/Helmet/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "category": "runeword",
+      "details": {
+        "original_label": "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-merc-ubers-flickering-flame"
+      ],
+      "source_rule_ids": [
+        "fissure-merc-ubers-flickering-flame"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "25c43cd8ae0eaebd97be3c3a",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/3/merc/Helmet/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-merc-ubers-flickering-flame"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "2b7f1be6b4fdd29c7abdc4ca",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate (ethereal)",
+      "build": "fissure-druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/4/merc/Body Armor/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "2bf423eccfc30e87a827854b",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/9/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Sunder Charm",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "uar",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uar",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword067",
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "superior": [],
+        "defense": 600,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 200,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "2700 def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "8",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Sacred Armor",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "2ca6b1589fc045ac1c4ffa16",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/1/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Damage",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "utp",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "utp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword067",
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 525,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 215,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "15% def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "162",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Archon Plate",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "2f0637a0fa6c35fae7b151e1",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/merc/Helmet/end/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Helmet",
+      "category": "runeword",
+      "details": {
+        "original_label": "Flickering Flame",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "31f4af24e217868ef28b63b1",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/1",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "player",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "129",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "31f5b7488ab302e0c39d6296",
+      "name": "Lore",
+      "original_label": "Lore",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/4/items/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "dr8",
+      "aliases": [],
+      "sockets": 2,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 2,
+        "quality": 7
+      },
+      "details": {
+        "base": "dr8",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword101",
+        "uniqueValues": [
+          10,
+          1,
+          2,
+          2
+        ],
+        "superior": [],
+        "defense": 81,
+        "sockets": 2,
+        "socketedItems": [
+          "r09",
+          "r12"
+        ],
+        "staff": {
+          "staff234": [
+            3
+          ]
+        },
+        "stats": {
+          "energy": 10,
+          "item_allskills": 1,
+          "item_lightradius": 2,
+          "item_manaafterkill": 2,
+          "item_singleskill#234": 3
+        },
+        "description": "81 def 3 fissure",
+        "container": "items",
+        "item_ref": "164",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "items",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Hunter's Guise",
+        "canonical_id": "runeword101",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "320016de064c605c9232ae1a",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/195",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "162",
+        "original_label": "Fortitude",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "3710c5fffc272c9d385c9c4c",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/3/player/Body Armor/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-3-player-chains-honor"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "3739214c50c6c49ffaf1bb28",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/2/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "utp",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "utp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword040",
+        "uniqueValues": [
+          50,
+          70,
+          200,
+          100,
+          8,
+          2,
+          20
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 525,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r14",
+          "r22",
+          "r30",
+          "r24"
+        ],
+        "stats": {
+          "fireresist": 50,
+          "lightresist": 50,
+          "coldresist": 50,
+          "poisonresist": 50,
+          "item_armor_percent": 85,
+          "item_demondamage_percent": 200,
+          "item_undeaddamage_percent": 100,
+          "lifedrainmindam": 8,
+          "item_allskills": 2,
+          "strength": 20
+        },
+        "description": "15% def eth",
+        "container": "mercItems",
+        "item_ref": "163",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Archon Plate",
+        "canonical_id": "runeword040",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "44b10c491e3ef82769eacdf4",
+      "name": "Fortitude",
+      "original_label": "Fortitude Sacred Armor (ethereal)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/1/merc/Body Armor/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Fortitude Sacred Armor (ethereal)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-1-merc-fortitude",
+        "fissure-merc-standard-fortitude"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-1-merc-fortitude",
+        "fissure-merc-standard-fortitude"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "45f0fc9dcc3298806dd573c6",
+      "name": "Lore",
+      "original_label": "Lore",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/100",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "player",
+      "slot": "Helmets",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "36",
+        "original_label": "Lore",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "475172513043a06e738abfea",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/36",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "163",
+        "original_label": "Chains of Honor",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "4a06c4b589a3b0cd1373e36e",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/slots/Helmets/1",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "category": "runeword",
+      "details": {
+        "original_label": "Flickering Flame",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-lore-progression-equipment",
+        "fissure-druid-peasant-crown-caster-progression-alternative",
+        "fissure-druid-player-flickering flame-helmets-main-alternatives-helm-word-alternative",
+        "fissure-druid-ravenlore-equipment-tail-alternative",
+        "fissure-druid-tarnhelm-caster-progression-alternative"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-player-flickering flame-helmets-main-alternatives-helm-word-alternative"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "4df9b85fd7b405ab09cb8a55",
+      "name": "Fortitude",
+      "original_label": "Fortitude Sacred Armor (ethereal)",
+      "build": "fissure-druid",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/1/merc/Body Armor/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-1-merc-fortitude",
+        "fissure-merc-standard-fortitude"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "4f221e6270758eb44a665948",
+      "name": "Lore",
+      "original_label": "Lore",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/items/36",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Unreferenced definitions",
+      "side": "unspecified",
+      "slot": "36",
+      "category": "runeword",
+      "base_code": "skp",
+      "aliases": [],
+      "sockets": 2,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 2,
+        "quality": 7
+      },
+      "details": {
+        "base": "skp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword101",
+        "uniqueValues": [
+          10,
+          1,
+          2,
+          2
+        ],
+        "superior": [],
+        "defense": 11,
+        "sockets": 2,
+        "socketedItems": [
+          "r09",
+          "r12"
+        ],
+        "stats": {
+          "energy": 10,
+          "item_allskills": 1,
+          "item_lightradius": 2,
+          "item_manaafterkill": 2
+        },
+        "description": "11 def",
+        "container": "unreferenced_definition",
+        "item_ref": "36",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": null,
+        "role": "unreferenced_definition",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Skull Cap",
+        "canonical_id": "runeword101",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "50c1e70aaca072b7e058aa84",
+      "name": "Lore",
+      "original_label": "Lore",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/tt9vl0l2.json",
+      "source_locator": "/profiles/0/items/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "dr3",
+      "aliases": [],
+      "sockets": 2,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 2,
+        "quality": 7
+      },
+      "details": {
+        "base": "dr3",
+        "quality": 7,
+        "ilvl": 99,
+        "staff": {
+          "staff234": [
+            3
+          ]
+        },
+        "superior": {},
+        "uniqueValues": [
+          10,
+          1,
+          2,
+          2
+        ],
+        "unique": "runeword101",
+        "defense": 24,
+        "sockets": 2,
+        "socketedItems": [
+          "r09",
+          "r12"
+        ],
+        "stats": {
+          "energy": 10,
+          "item_allskills": 1,
+          "item_lightradius": 2,
+          "item_manaafterkill": 2,
+          "item_singleskill#234": 3
+        },
+        "description": "24 def 3 fissure",
+        "container": "items",
+        "item_ref": "32",
+        "profile_uid": "rbu7YOQO",
+        "profile_date": "2026-02-16 20:23:31",
+        "mercenary_id": "6",
+        "role": "items",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Antlers",
+        "canonical_id": "runeword101",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": false
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "51c359cb7a1cf841bfeefc12",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/tt9vl0l2.json",
+      "source_locator": "/profiles/2/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "uar",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uar",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "unique": "runeword067",
+        "defense": 600,
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 200,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "2700 def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "23",
+        "profile_uid": "Ldr3qiiX",
+        "profile_date": "2026-02-16 20:23:31",
+        "mercenary_id": "10",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Sacred Armor",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": false
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "5452d60fbf485e0a53ddbf42",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/8/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "utp",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "utp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword040",
+        "uniqueValues": [
+          50,
+          70,
+          200,
+          100,
+          8,
+          2,
+          20
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 525,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r14",
+          "r22",
+          "r30",
+          "r24"
+        ],
+        "stats": {
+          "fireresist": 50,
+          "lightresist": 50,
+          "coldresist": 50,
+          "poisonresist": 50,
+          "item_armor_percent": 85,
+          "item_demondamage_percent": 200,
+          "item_undeaddamage_percent": 100,
+          "lifedrainmindam": 8,
+          "item_allskills": 2,
+          "strength": 20
+        },
+        "description": "15% def eth",
+        "container": "mercItems",
+        "item_ref": "163",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Archon Plate",
+        "canonical_id": "runeword040",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "55655bb2fa1ebff6d881fd08",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/tt9vl0l2.json",
+      "source_locator": "/profiles/1/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "uar",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uar",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "unique": "runeword067",
+        "defense": 600,
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 200,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "2700 def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "23",
+        "profile_uid": "QaIr2BVm",
+        "profile_date": "2026-02-16 20:23:31",
+        "mercenary_id": "10",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Sacred Armor",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": false
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "567e5103ff315e6feab65d97",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/34",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "161",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "575d612845d92f2bd89727e6",
+      "name": "Lore",
+      "original_label": "Lore Antlers (+3 Fissure)",
+      "build": "fissure-druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Helmet",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/0/player/Helmet/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-player-starter-lore"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "590518b0ac67f977497004dd",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/7/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "White Skills",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "uar",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uar",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword067",
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "superior": [],
+        "defense": 600,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 200,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "2700 def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "8",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Sacred Armor",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "60985335eb1061c665311e42",
+      "name": "Fortitude",
+      "original_label": "Fortitude (merc; merc table)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/prose_only_items/8",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Prose alternatives",
+      "side": "unspecified",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "original_label": "Fortitude (merc; merc table)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "664cf7b40945395e5ed0a283",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/8/items/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "utp",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "quality": 7
+      },
+      "details": {
+        "base": "utp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword040",
+        "uniqueValues": [
+          50,
+          70,
+          200,
+          100,
+          8,
+          2,
+          20
+        ],
+        "superior": [],
+        "defense": 524,
+        "sockets": 4,
+        "socketedItems": [
+          "r14",
+          "r22",
+          "r30",
+          "r24"
+        ],
+        "stats": {
+          "fireresist": 50,
+          "lightresist": 50,
+          "coldresist": 50,
+          "poisonresist": 50,
+          "item_armor_percent": 70,
+          "item_demondamage_percent": 200,
+          "item_undeaddamage_percent": 100,
+          "lifedrainmindam": 8,
+          "item_allskills": 2,
+          "strength": 20
+        },
+        "description": "890 def",
+        "container": "items",
+        "item_ref": "155",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "items",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Archon Plate",
+        "canonical_id": "runeword040",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "698a014b528bd88b413985dd",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/merc/Body Armor/end/1",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Chains of Honor",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-duress-end-merc-resistance-alternative"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "6d0841f5de36e8c4b41cb6fe",
+      "name": "Lore",
+      "original_label": "Lore",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/slots/Helmets/9",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "category": "runeword",
+      "details": {
+        "original_label": "Lore",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-lore-progression-equipment",
+        "fissure-druid-peasant-crown-caster-progression-alternative",
+        "fissure-druid-player-flickering flame-helmets-main-alternatives-helm-word-alternative",
+        "fissure-druid-ravenlore-equipment-tail-alternative",
+        "fissure-druid-tarnhelm-caster-progression-alternative"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-lore-progression-equipment"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "6dd749dfd8d5890b214717ea",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate (ethereal)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/4/merc/Body Armor/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Chains of Honor Archon Plate (ethereal)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "7f672b820c559f813a443357",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/2/mercItems/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "uh9",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uh9",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 158,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_armor_percent": 15
+        },
+        "description": "8 aura 15% fire pierce 15% def 75 mana eth",
+        "container": "mercItems",
+        "item_ref": "161",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Bone Visage",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "80304addfea864fae95f8a6e",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/0/mercItems/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Standard Fissure Druid",
+      "side": "merc",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "uh9",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uh9",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 158,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_armor_percent": 15
+        },
+        "description": "8 aura 15% fire pierce 15% def 75 mana eth",
+        "container": "mercItems",
+        "item_ref": "161",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Bone Visage",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "8527ac0f76b252d04fa523b2",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/items/129",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Unreferenced definitions",
+      "side": "unspecified",
+      "slot": "129",
+      "category": "runeword",
+      "base_code": "dr3",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "quality": 7
+      },
+      "details": {
+        "base": "dr3",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": [],
+        "defense": 24,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "staff": {
+          "staff234": [
+            3
+          ],
+          "staff225": [
+            3
+          ],
+          "staff229": [
+            3
+          ]
+        },
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_singleskill#234": 3,
+          "item_singleskill#225": 3,
+          "item_singleskill#229": 3
+        },
+        "description": "24 def 8 aura 15% fire pierce 3 fissure 3 molten boulder 3 firestorm 75 mana",
+        "container": "unreferenced_definition",
+        "item_ref": "129",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": null,
+        "role": "unreferenced_definition",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Antlers",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "8c2de614b203fd030aaf0ac3",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/110",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "player",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "155",
+        "original_label": "Chains of Honor",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "8ebee78446dbd8bd26cca4be",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/215",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "Helmet",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "161",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "94894ece20885621485e102c",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame Bone Visage (ethereal)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/4/merc/Helmet/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Hardcore",
+      "side": "merc",
+      "slot": "Helmet",
+      "category": "runeword",
+      "details": {
+        "original_label": "Flickering Flame Bone Visage (ethereal)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "971ced0633872867961e7293",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/37",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "161",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "ab6a3705aa615e190f7efa2a",
+      "name": "Fortitude",
+      "original_label": "Fortitude Sacred Armor (ethereal)",
+      "build": "fissure-druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/2/merc/Body Armor/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-2-merc-fortitude",
+        "fissure-merc-magic-find-fortitude"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "aefdad19f000161ef5056f73",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/8/mercItems/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "uh9",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uh9",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 158,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_armor_percent": 15
+        },
+        "description": "8 aura 15% fire pierce 15% def 75 mana eth",
+        "container": "mercItems",
+        "item_ref": "161",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Bone Visage",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "af3130710c7393c25e3ec0f1",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/19",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "player",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "129",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "b4f06b99678df99fc7b00002",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/92",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "player",
+      "slot": "Helmets",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "129",
+        "original_label": "Flickering Flame",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "b7f146704cdcea9251cd1600",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/merc/Body Armor/end/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Fortitude",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-duress-end-merc-resistance-alternative"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "bc8b07d04c74f7f5ad888d43",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/26",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "8",
+        "original_label": "Fortitude",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "bf00b56eff1ad8ae68786c15",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate (ethereal)",
+      "build": "fissure-druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-variants/fissure-druid.json",
+      "source_locator": "/variants/3/merc/Body Armor/0",
+      "details": {
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-3-merc-chains-honor",
+        "fissure-merc-ubers-chains-of-honor"
+      ],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "ce851e47cdb60e2a9c477c47",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/3/player/Body Armor/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Chains of Honor Archon Plate",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-3-player-chains-honor"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-3-player-chains-honor"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "d2a5c378bd9e970d7ec3078c",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor Archon Plate (ethereal)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/3/merc/Body Armor/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Chains of Honor Archon Plate (ethereal)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-3-merc-chains-honor",
+        "fissure-merc-ubers-chains-of-honor"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-3-merc-chains-honor",
+        "fissure-merc-ubers-chains-of-honor"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "df297238ef46d815378371c6",
+      "name": "Flickering Flame",
+      "original_label": "Flickering Flame",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/6/items/head",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Physical Damage",
+      "side": "player",
+      "slot": "head",
+      "category": "runeword",
+      "base_code": "dr3",
+      "aliases": [],
+      "sockets": 3,
+      "ethereal": null,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 3,
+        "quality": 7
+      },
+      "details": {
+        "base": "dr3",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword066",
+        "uniqueValues": [
+          3,
+          8,
+          15,
+          75,
+          1,
+          50
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 25,
+        "ethbugged": false,
+        "sockets": 3,
+        "socketedItems": [
+          "r04",
+          "r21",
+          "r26"
+        ],
+        "staff": {
+          "staff244": [
+            3
+          ],
+          "staff229": [
+            3
+          ],
+          "staff234": [
+            3
+          ]
+        },
+        "stats": {
+          "item_elemskill#1": 3,
+          "item_aura#100": 8,
+          "passive_fire_pierce": 15,
+          "maxmana": 75,
+          "item_halffreezeduration": 1,
+          "item_poisonlengthresist": 50,
+          "item_armor_percent": 15,
+          "item_singleskill#244": 3,
+          "item_singleskill#229": 3,
+          "item_singleskill#234": 3
+        },
+        "description": "8 aura 15% fire pierce 3 volcano 3 fissure 3 molten boulder 15% def 75 mana",
+        "container": "items",
+        "item_ref": "147",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "items",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Antlers",
+        "canonical_id": "runeword066",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "59dd2d7c9fe2eab7cad555cddf14e523310fd7344968e100f7c50c44df4f7003",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "e03efccc7ad554e898955fa1",
+      "name": "Fortitude",
+      "original_label": "Fortitude Sacred Armor (ethereal)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/2/merc/Body Armor/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "original_label": "Fortitude Sacred Armor (ethereal)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-druid-2-merc-fortitude",
+        "fissure-merc-magic-find-fortitude"
+      ],
+      "source_rule_ids": [
+        "fissure-druid-2-merc-fortitude",
+        "fissure-merc-magic-find-fortitude"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "e2c80116e778f5a58e02b355",
+      "name": "Lore",
+      "original_label": "Lore Antlers (+3 Fissure)",
+      "kind": "demand",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/variants/0/player/Helmet/0",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Helmet",
+      "category": "runeword",
+      "details": {
+        "original_label": "Lore Antlers (+3 Fissure)",
+        "role": "documented_alternative",
+        "recommended": true,
+        "resolution_status": "resolved"
+      },
+      "identity_id": "da88d5c7a74e4b37b5a0c11dfb8bbf376c10d539e919aa7bffce3efc2b75a167",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [
+        "fissure-player-starter-lore"
+      ],
+      "source_rule_ids": [
+        "fissure-player-starter-lore"
+      ],
+      "source_status": "verified"
+    },
+    {
+      "id": "e63fe50591816813ab357b3f",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/3/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "uar",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "uar",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword067",
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "superior": [],
+        "defense": 600,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 200,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "2700 def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "8",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Sacred Armor",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "ed2771059f4d4c0c98c8e883",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/planners/vf0106vk.json",
+      "source_locator": "/profiles/0/mercItems/tors",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Standard Fissure Druid",
+      "side": "merc",
+      "slot": "tors",
+      "category": "runeword",
+      "base_code": "utp",
+      "aliases": [],
+      "sockets": 4,
+      "ethereal": true,
+      "rarity": "runeword",
+      "predicates": {
+        "sockets": 4,
+        "ethereal": true,
+        "quality": 7
+      },
+      "details": {
+        "base": "utp",
+        "quality": 7,
+        "ilvl": 99,
+        "unique": "runeword067",
+        "uniqueValues": [
+          200,
+          300,
+          25,
+          15,
+          12,
+          12,
+          30
+        ],
+        "superior": {
+          "qm002": [
+            15
+          ]
+        },
+        "defense": 525,
+        "ethereal": true,
+        "ethbugged": false,
+        "sockets": 4,
+        "socketedItems": [
+          "r01",
+          "r12",
+          "r14",
+          "r28"
+        ],
+        "stats": {
+          "item_armor_percent": 215,
+          "item_mindamage_percent": 300,
+          "item_maxdamage_percent": 300,
+          "item_fastercastrate": 25,
+          "item_skillongethit#60#20": 15,
+          "item_damagetomana": 12,
+          "item_hp_perlevel": 12,
+          "fireresist": 30,
+          "lightresist": 30,
+          "coldresist": 30,
+          "poisonresist": 30
+        },
+        "description": "15% def 12 life/lvl 30@ eth",
+        "container": "mercItems",
+        "item_ref": "162",
+        "profile_uid": null,
+        "profile_date": "2023-02-16 02:09:23",
+        "mercenary_id": "11",
+        "role": "mercItems",
+        "recommended": false,
+        "resolution_status": "resolved",
+        "base_name": "Archon Plate",
+        "canonical_id": "runeword067",
+        "related_builds": [
+          "fissure-druid"
+        ],
+        "related_classes": [
+          "Druid"
+        ],
+        "recommendation_status": "planner evidence; guide association is not set endorsement",
+        "historical": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_id",
+      "review_state": "discovery_only",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "f7d954f94c7297b15b6eaf4a",
+      "name": "Fortitude",
+      "original_label": "Fortitude",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/23",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "unspecified",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "162",
+        "original_label": "Fortitude",
+        "profile_id": "vf0106vk",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    },
+    {
+      "id": "fc26c476fe25b90dd7ad4aa4",
+      "name": "Chains of Honor",
+      "original_label": "Chains of Honor",
+      "kind": "demand",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/196",
+      "build": "fissure-druid",
+      "class": "Druid",
+      "variant": "Guide mention",
+      "side": "merc",
+      "slot": "Body Armor",
+      "category": "runeword",
+      "details": {
+        "role": "guide_mention",
+        "raw_item_id": "74",
+        "original_label": "Chains of Honor",
+        "profile_id": "fc01065b",
+        "resolution_status": "resolved",
+        "recommended": true
+      },
+      "identity_id": "9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0",
+      "identity_status": "resolved",
+      "identity_basis": "canonical_name",
+      "review_state": "rule_review",
+      "related_rule_ids": [],
+      "source_rule_ids": [],
+      "source_status": "verified"
+    }
+  ],
+  "flame_rift_followup": {
+    "occurrence_id": "8adb46f5364167fd98200028",
+    "span": 162,
+    "planner_pin": {
+      "path": "pricing/raw/mr/planners/vf0106vk.json",
+      "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+    },
+    "decoded_locator": "/items/149",
+    "observed": {
+      "base": "cm3",
+      "quality": 6,
+      "unique": "unique402",
+      "uniqueValues": [
+        300,
+        -70
+      ],
+      "ethereal": false,
+      "sockets": 0
+    },
+    "finding": "Original unique identity verified against decoded planner item149 and catalog unique402; both witness files now pin-validated by table-equivalence compiler. Original versus crafted variants remain separate.",
+    "status": "original_identity_verified_and_table_linked_with_validated_pins"
+  },
+  "general_table_review_candidates": [
+    {
+      "occurrence_id": "081fde9b3a046f942e554fa0",
+      "name": "Ravenlore",
+      "slot": "Helmets",
+      "profile_id": "fissure-druid-ravenlore-equipment-tail-alternative",
+      "source_locator": "/item-spans/91",
+      "rule": "Druid fire damage helmet",
+      "conditions": [
+        "Elemental skills and enemy fire resistance reduction support Fissure. Resistance reduction alone does not break fire immunity; Raven levels do not improve Fissure. No fire facet is assumed."
+      ],
+      "source_review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Elemental skills and enemy fire resistance reduction support Fissure. Resistance reduction alone does not break fire immunity; Raven levels do not improve Fissure. No fire facet is assumed. No numeric price, full loadout or set ownership is inferred."
+    },
+    {
+      "occurrence_id": "196349a23742659542acb2f2",
+      "name": "Thundergod's Vigor",
+      "slot": "Belts",
+      "profile_id": "fissure-druid-thundergod-s-vigor-defensive-alternative",
+      "source_locator": "/item-spans/120",
+      "rule": "Lightning absorb and resistance-cap belt alternative",
+      "conditions": [
+        "The raised lightning cap needs actual lightning resistance. Lightning absorb is a flat amount."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred."
+    },
+    {
+      "occurrence_id": "1a005bec92108e595e1a5bf8",
+      "name": "Skullder's Ire",
+      "slot": "Body Armor",
+      "profile_id": "fissure-druid-skullder-body-armor-utility-alternative",
+      "source_locator": "/item-spans/105",
+      "rule": "Magic Find armor alternative",
+      "conditions": [
+        "Magic Find scales with wearer level; ethereal use relies on the armor repairing itself."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred."
+    },
+    {
+      "occurrence_id": "1f54a60dd54c7c74461f3a6f",
+      "name": "Phoenix",
+      "slot": "Off-Hand",
+      "profile_id": "fissure-druid-phoenix-off-hand-aura-recipe",
+      "source_locator": "/item-spans/72",
+      "rule": "Fire caster resistance reduction and Redemption alternative",
+      "conditions": [
+        "Fire resistance reduction applies to the active wielder. Redemption needs usable corpses, so sustain is not guaranteed against isolated bosses. Enhanced Damage and attack procs do not multiply fire spell damage. Weapon and shield rune effects differ; ethereal is accepted only for a casting weapon."
+      ],
+      "source_review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed."
+    },
+    {
+      "occurrence_id": "32696514d342b7ba85c76e03",
+      "name": "Chance Guards",
+      "slot": "Gloves",
+      "profile_id": "fissure-druid-chance-guards-find-absorb-alternative",
+      "source_locator": "/item-spans/116",
+      "rule": "Magic Find glove alternative",
+      "conditions": [
+        "Balance Magic Find against clear speed and survival."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred."
+    },
+    {
+      "occurrence_id": "35f586098c1477a170bbde85",
+      "name": "Tarnhelm",
+      "slot": "Helmets",
+      "profile_id": "fissure-druid-tarnhelm-caster-progression-alternative",
+      "source_locator": "/item-spans/99",
+      "rule": "Skill and Magic Find helmet alternative",
+      "conditions": [
+        "Balance Magic Find against clear speed and survival."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred."
+    },
+    {
+      "occurrence_id": "430bcd732af838b2c59b88e0",
+      "name": "Naj's Puzzler",
+      "slot": "Weapon-Swap",
+      "profile_id": "fissure-druid-naj-teleport-swap",
+      "source_locator": "/item-spans/86",
+      "rule": "Teleport-charge weapon swap",
+      "conditions": [
+        "Use as a teleport swap alternative when the active loadout lacks Teleport; this is not a main damage weapon recommendation."
+      ],
+      "source_review": null
+    },
+    {
+      "occurrence_id": "469d6b0a25bf6785613f6ed1",
+      "name": "Earthshaker",
+      "slot": "Weapon",
+      "profile_id": "fissure-druid-earthshaker-caster-remainder-alternative",
+      "source_locator": "/item-spans/70",
+      "rule": "Fissure elemental skill weapon alternative",
+      "conditions": [
+        "Elemental skill levels support Fissure. Weapon Enhanced Damage, IAS, knockback and the on-striking Fissure proc do not improve a cast Fissure. Ethereal is accepted for casting only; no melee durability or socket filler is assumed."
+      ],
+      "source_review": "2026-09-27: Reviewed exact guide caster alternative; native element, skill and conditional set effects remain distinct. Elemental skill levels support Fissure. Weapon Enhanced Damage, IAS, knockback and the on-striking Fissure proc do not improve a cast Fissure. Ethereal is accepted for casting only; no melee durability or socket filler is assumed. No numeric price or full loadout is inferred."
+    },
+    {
+      "occurrence_id": "4c63909aac5311ba74d81d2f",
+      "name": "Harmony",
+      "slot": "Weapon-Swap",
+      "profile_id": "fissure-druid-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "source_locator": "/item-spans/88",
+      "rule": "Vigor movement swap",
+      "conditions": [
+        "Vigor supplies movement only while this weapon set is active and the recipient is within aura range. This is a movement swap, not a damage-roll or permanent buff requirement. Revive charges and Valkyrie require separate summon/charge checks and are not assumed active. Check bow equip requirements."
+      ],
+      "source_review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred."
+    },
+    {
+      "occurrence_id": "54b9867b425952000285528b",
+      "name": "Sandstorm Trek",
+      "slot": "Boots",
+      "profile_id": "fissure-druid-trek-boots-alternative",
+      "source_locator": "/item-spans/128",
+      "rule": "Player movement and defensive boot alternative",
+      "conditions": [
+        "Check wearer requirements and complete loadout needs. Native minimum rolls retain utility; the guide listing does not establish a price or best-in-slot claim.",
+        "Recovery breakpoints and poison resistance depend on the full loadout. Ethereal use requires functioning self-repair; allow durability to recover."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal."
+    },
+    {
+      "occurrence_id": "5b8ad42d7486e442169578cf",
+      "name": "Moser's Blessed Circle",
+      "slot": "Off-Hand",
+      "profile_id": "fissure-druid-moser-s-blessed-circle-off-hand-shield-utility-alternative",
+      "source_locator": "/item-spans/81",
+      "rule": "Resistance and blocking shield alternative",
+      "conditions": [
+        "Two native sockets provide customization; no Perfect Diamonds, runes or jewels are assumed present. Socket additions must be checked separately. Increased blocking and faster block rate do not establish maximum block without character level, Dexterity and the full loadout. Upgrading changes requirements and base blocking."
+      ],
+      "source_review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Two native sockets provide customization; no Perfect Diamonds, runes or jewels are assumed present. Socket additions must be checked separately. Increased blocking and faster block rate do not establish maximum block without character level, Dexterity and the full loadout. Upgrading changes requirements and base blocking. No numeric price, full loadout or set ownership is inferred."
+    },
+    {
+      "occurrence_id": "5e0a449d1e3278c2762f9c48",
+      "name": "Verdungo's Hearty Cord",
+      "slot": "Belts",
+      "profile_id": "fissure-druid-verdungo-s-hearty-cord-defensive-alternative",
+      "source_locator": "/item-spans/119",
+      "rule": "Physical damage reduction and life belt alternative",
+      "conditions": [
+        "Vitality benefits the player; physical damage reduction is distinct from elemental resistance."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred."
+    },
+    {
+      "occurrence_id": "6d8f438c73ee4665acfd88db",
+      "name": "Ancients' Pledge",
+      "slot": "Off-Hand",
+      "profile_id": "fissure-druid-ancients-pledge-progression-equipment",
+      "source_locator": "/item-spans/83",
+      "rule": "Player skill and survival progression alternative",
+      "conditions": [
+        "Resistance utility does not establish maximum block or Cannot Be Frozen."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred."
+    },
+    {
+      "occurrence_id": "723777758f0b92515c98d59f",
+      "name": "Natalya's Soul",
+      "slot": "Boots",
+      "profile_id": "fissure-druid-natalya-s-soul-boots-belts-alternative",
+      "source_locator": "/item-spans/129",
+      "rule": "Movement and elemental resistance boots alternative",
+      "conditions": [
+        "Native movement and cold/lightning resistance do not require other set pieces. Full-set damage reduction and other conditional bonuses are not inferred."
+      ],
+      "source_review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Native movement and cold/lightning resistance do not require other set pieces. Full-set damage reduction and other conditional bonuses are not inferred. No numeric price, full loadout or set ownership is inferred."
+    },
+    {
+      "occurrence_id": "7334b8330a7e14cf10b367b1",
+      "name": "Wisp Projector",
+      "slot": "Rings",
+      "profile_id": "fissure-druid-wisp-projector-find-absorb-alternative",
+      "source_locator": "/item-spans/148",
+      "rule": "Lightning absorb ring alternative",
+      "conditions": [
+        "Lightning absorb is a percentage; summon charges are not passive equipped bonuses."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred."
+    },
+    {
+      "occurrence_id": "77dd71816de530939e7896de",
+      "name": "Aldur's Advance",
+      "slot": "Boots",
+      "profile_id": "fissure-druid-aldur-boots-alternative",
+      "source_locator": "/item-spans/126",
+      "rule": "Player movement and defensive boot alternative",
+      "conditions": [
+        "Check wearer requirements and complete loadout needs. Native minimum rolls retain utility; the guide listing does not establish a price or best-in-slot claim.",
+        "Individual boots supply movement, life and fire resistance; other Aldur set bonuses require actual companion pieces."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal."
+    },
+    {
+      "occurrence_id": "8159235139e8678570b83aae",
+      "name": "Dwarf Star",
+      "slot": "Rings",
+      "profile_id": "fissure-druid-dwarf-star-defensive-alternative",
+      "source_locator": "/item-spans/147",
+      "rule": "Fire absorb and life ring alternative",
+      "conditions": [
+        "Fire absorb is a percentage; Magic Damage Reduced is a flat amount."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred."
+    },
+    {
+      "occurrence_id": "8adb46f5364167fd98200028",
+      "name": "Flame Rift",
+      "slot": "Unique Charms",
+      "profile_id": "fissure-druid-flame-rift-original-sunder-alternative",
+      "source_locator": "/item-spans/162",
+      "rule": "Fire immunity-breaking inventory alternative",
+      "conditions": [
+        "Keep in active inventory and meet level 75. This reviews an existing original charm; Latent and Renewed identities and their generated modifiers are separate.",
+        "Use only when the actual setup deals relevant fire damage against immune targets. Breaking immunity does not remove all enemy resistance; follow-up resistance reduction and survival still depend on the complete setup.",
+        "The negative wearer resistance is a cost, not a damage bonus. Prefer the less-negative penalty; account for it in the full resistance or physical mitigation total."
+      ],
+      "source_review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred."
+    },
+    {
+      "occurrence_id": "93eb3b9e053709de993b0651",
+      "name": "Bul-Kathos' Wedding Band",
+      "slot": "Rings",
+      "profile_id": "fissure-druid-bk-ring-rings-utility-alternative",
+      "source_locator": "/item-spans/144",
+      "rule": "Skill and life ring alternative",
+      "conditions": [
+        "Life leech applies to eligible physical attack damage, not spell damage or Smite."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred."
+    },
+    {
+      "occurrence_id": "96a4e0ec13f7c1dc56f2bd1d",
+      "name": "Goldwrap",
+      "slot": "Belts",
+      "profile_id": "fissure-druid-goldwrap-find-absorb-alternative",
+      "source_locator": "/item-spans/121",
+      "rule": "Magic Find belt alternative",
+      "conditions": [
+        "Attack or trap-laying speed depends on the full setup; IAS does not improve spell casting. Upgrading the Heavy Belt increases potion capacity and equip requirements."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred."
+    },
+    {
+      "occurrence_id": "9e0008615b99a5343ef0baea",
+      "name": "Leaf",
+      "slot": "Weapon",
+      "profile_id": "fissure-druid-player-leaf-weapon-main-alternatives-caster-word-remainder",
+      "source_locator": "/item-spans/71",
+      "rule": "Fire skill staff alternative",
+      "conditions": [
+        "Fire skill levels benefit eligible fire skills, not every class skill. Sorceress Warmth soft levels do not count as Enchant hard-point synergy; native staffmods are assessed separately. Inserted fire damage is weapon damage, not a spell multiplier."
+      ],
+      "source_review": "2026-09-27: Reviewed exact caster weapon recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred."
+    },
+    {
+      "occurrence_id": "a40da8de7c7c8c6f054b4db5",
+      "name": "Bloodfist",
+      "slot": "Gloves",
+      "profile_id": "fissure-druid-bloodfist-caster-survival-alternative",
+      "source_locator": "/item-spans/117",
+      "rule": "Life and hit recovery glove alternative",
+      "conditions": [
+        "Hit recovery depends on the full setup. Increased Attack Speed helps attacks, not spell casting. Added minimum weapon damage does not improve Smite or spells; it is relevant to direct weapon attacks. Upgrading changes defense and requirements, not these fixed life/recovery bonuses."
+      ],
+      "source_review": "2026-09-26: Reviewed exact standalone guide alternative. Native casting/survival priorities preserve attack mechanics, skill exclusions and standalone set properties. Hit recovery depends on the full setup. Increased Attack Speed helps attacks, not spell casting. Added minimum weapon damage does not improve Smite or spells; it is relevant to direct weapon attacks. Upgrading changes defense and requirements, not these fixed life/recovery bonuses. No numeric price, full loadout or set ownership is inferred."
+    },
+    {
+      "occurrence_id": "b1f86dc6631fe91406dc58b7",
+      "name": "Wealth",
+      "slot": "Body Armor",
+      "profile_id": "fissure-druid-player-wealth-body-armor-main-alternatives-word-utility-alternative",
+      "source_locator": "/item-spans/106",
+      "rule": "Magic Find and Gold Find armor",
+      "conditions": [
+        "Magic Find and Gold Find must be active when rewards are generated. This armor supplies no resistance or attack speed; verify survival and travel tradeoffs. Mana after each kill is kill credit, not leech."
+      ],
+      "source_review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred."
+    },
+    {
+      "occurrence_id": "bb4300852ce26aadb35c41e8",
+      "name": "Phoenix",
+      "slot": "Weapon",
+      "profile_id": "fissure-druid-phoenix-weapon-aura-recipe",
+      "source_locator": "/item-spans/68",
+      "rule": "Fire caster resistance reduction and Redemption alternative",
+      "conditions": [
+        "Fire resistance reduction applies to the active wielder. Redemption needs usable corpses, so sustain is not guaranteed against isolated bosses. Enhanced Damage and attack procs do not multiply fire spell damage. Weapon and shield rune effects differ; ethereal is accepted only for a casting weapon."
+      ],
+      "source_review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed."
+    },
+    {
+      "occurrence_id": "d6b474f9698a096094252119",
+      "name": "Magefist",
+      "slot": "Gloves",
+      "profile_id": "fissure-druid-magefist-caster-progression-alternative",
+      "source_locator": "/item-spans/114",
+      "rule": "Casting speed and mana regeneration glove alternative",
+      "conditions": [
+        "Faster Cast Rate affects spells and teleport, not attacks or trap laying. Added fire attack damage does not increase spell damage."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred."
+    },
+    {
+      "occurrence_id": "e637434191609bedea5c3042",
+      "name": "Peasant Crown",
+      "slot": "Helmets",
+      "profile_id": "fissure-druid-peasant-crown-caster-progression-alternative",
+      "source_locator": "/item-spans/98",
+      "rule": "Skill and movement progression helmet alternative",
+      "conditions": [
+        "Compare resistances and defensive needs in the full setup."
+      ],
+      "source_review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred."
+    },
+    {
+      "occurrence_id": "ef19ab0a8807556c936fd3e3",
+      "name": "Lidless Wall",
+      "slot": "Off-Hand-Swap",
+      "profile_id": "fissure-druid-lidless-wall-off-hand-swap-shield-utility-alternative",
+      "source_locator": "/item-spans/90",
+      "rule": "Casting and skill shield alternative",
+      "conditions": [
+        "Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler."
+      ],
+      "source_review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred."
+    },
+    {
+      "occurrence_id": "f2adeb03fc81b26d81cb8af4",
+      "name": "Rain",
+      "slot": "Body Armor",
+      "profile_id": "fissure-druid-player-rain-body-armor-main-alternatives-support-word-alternative",
+      "source_locator": "/item-spans/111",
+      "rule": "Fissure skill and mana armor alternative",
+      "conditions": [
+        "Druid levels support Fissure. Damage Taken Goes to Mana does not absorb damage. Cyclone Armor requires a when-struck proc and has finite absorption; it is not assumed active. Twister on striking does not increase Fissure damage."
+      ],
+      "source_review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred."
+    }
+  ],
+  "validated_table_links": [
+    {
+      "occurrence_id": "45f0fc9dcc3298806dd573c6",
+      "profile_id": "fissure-druid-lore-progression-equipment"
+    },
+    {
+      "occurrence_id": "b4f06b99678df99fc7b00002",
+      "profile_id": "fissure-druid-player-flickering flame-helmets-main-alternatives-helm-word-alternative"
+    },
+    {
+      "occurrence_id": "081fde9b3a046f942e554fa0",
+      "profile_id": "fissure-druid-ravenlore-equipment-tail-alternative"
+    },
+    {
+      "occurrence_id": "196349a23742659542acb2f2",
+      "profile_id": "fissure-druid-thundergod-s-vigor-defensive-alternative"
+    },
+    {
+      "occurrence_id": "1a005bec92108e595e1a5bf8",
+      "profile_id": "fissure-druid-skullder-body-armor-utility-alternative"
+    },
+    {
+      "occurrence_id": "1f54a60dd54c7c74461f3a6f",
+      "profile_id": "fissure-druid-phoenix-off-hand-aura-recipe"
+    },
+    {
+      "occurrence_id": "32696514d342b7ba85c76e03",
+      "profile_id": "fissure-druid-chance-guards-find-absorb-alternative"
+    },
+    {
+      "occurrence_id": "35f586098c1477a170bbde85",
+      "profile_id": "fissure-druid-tarnhelm-caster-progression-alternative"
+    },
+    {
+      "occurrence_id": "430bcd732af838b2c59b88e0",
+      "profile_id": "fissure-druid-naj-teleport-swap"
+    },
+    {
+      "occurrence_id": "469d6b0a25bf6785613f6ed1",
+      "profile_id": "fissure-druid-earthshaker-caster-remainder-alternative"
+    },
+    {
+      "occurrence_id": "4c63909aac5311ba74d81d2f",
+      "profile_id": "fissure-druid-player-harmony-weapon-swap-main-alternatives-word-utility-alternative"
+    },
+    {
+      "occurrence_id": "54b9867b425952000285528b",
+      "profile_id": "fissure-druid-trek-boots-alternative"
+    },
+    {
+      "occurrence_id": "5b8ad42d7486e442169578cf",
+      "profile_id": "fissure-druid-moser-s-blessed-circle-off-hand-shield-utility-alternative"
+    },
+    {
+      "occurrence_id": "5e0a449d1e3278c2762f9c48",
+      "profile_id": "fissure-druid-verdungo-s-hearty-cord-defensive-alternative"
+    },
+    {
+      "occurrence_id": "6d8f438c73ee4665acfd88db",
+      "profile_id": "fissure-druid-ancients-pledge-progression-equipment"
+    },
+    {
+      "occurrence_id": "723777758f0b92515c98d59f",
+      "profile_id": "fissure-druid-natalya-s-soul-boots-belts-alternative"
+    },
+    {
+      "occurrence_id": "7334b8330a7e14cf10b367b1",
+      "profile_id": "fissure-druid-wisp-projector-find-absorb-alternative"
+    },
+    {
+      "occurrence_id": "77dd71816de530939e7896de",
+      "profile_id": "fissure-druid-aldur-boots-alternative"
+    },
+    {
+      "occurrence_id": "8159235139e8678570b83aae",
+      "profile_id": "fissure-druid-dwarf-star-defensive-alternative"
+    },
+    {
+      "occurrence_id": "93eb3b9e053709de993b0651",
+      "profile_id": "fissure-druid-bk-ring-rings-utility-alternative"
+    },
+    {
+      "occurrence_id": "96a4e0ec13f7c1dc56f2bd1d",
+      "profile_id": "fissure-druid-goldwrap-find-absorb-alternative"
+    },
+    {
+      "occurrence_id": "9e0008615b99a5343ef0baea",
+      "profile_id": "fissure-druid-player-leaf-weapon-main-alternatives-caster-word-remainder"
+    },
+    {
+      "occurrence_id": "a40da8de7c7c8c6f054b4db5",
+      "profile_id": "fissure-druid-bloodfist-caster-survival-alternative"
+    },
+    {
+      "occurrence_id": "b1f86dc6631fe91406dc58b7",
+      "profile_id": "fissure-druid-player-wealth-body-armor-main-alternatives-word-utility-alternative"
+    },
+    {
+      "occurrence_id": "bb4300852ce26aadb35c41e8",
+      "profile_id": "fissure-druid-phoenix-weapon-aura-recipe"
+    },
+    {
+      "occurrence_id": "d6b474f9698a096094252119",
+      "profile_id": "fissure-druid-magefist-caster-progression-alternative"
+    },
+    {
+      "occurrence_id": "e637434191609bedea5c3042",
+      "profile_id": "fissure-druid-peasant-crown-caster-progression-alternative"
+    },
+    {
+      "occurrence_id": "ef19ab0a8807556c936fd3e3",
+      "profile_id": "fissure-druid-lidless-wall-off-hand-swap-shield-utility-alternative"
+    },
+    {
+      "occurrence_id": "f2adeb03fc81b26d81cb8af4",
+      "profile_id": "fissure-druid-player-rain-body-armor-main-alternatives-support-word-alternative"
+    },
+    {
+      "occurrence_id": "8adb46f5364167fd98200028",
+      "profile_id": "fissure-druid-flame-rift-original-sunder-alternative"
+    }
+  ],
+  "validation": {
+    "maintenance_tests": "15 passed; includes red-green rejection of stale corroborating planner",
+    "native_table_helmet_bank": "36 staged and selected cases pass",
+    "runtime_generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+    "runtime_change": "none; publication reproduced same generation",
+    "source_link_only": "27 pre-existing named/runeword alternatives and original Flame Rift reuse existing rules. Their remaining item-bank/price/roll validation stays in its own coverage queue."
+  },
+  "ubers_narrative_links": {
+    "status": "verified",
+    "occurrences": [
+      "475172513043a06e738abfea",
+      "567e5103ff315e6feab65d97",
+      "971ced0633872867961e7293"
+    ],
+    "section": 25,
+    "profile_ids": [
+      "fissure-merc-ubers-chains-of-honor",
+      "fissure-merc-ubers-flickering-flame"
+    ],
+    "proof": "Exact primary variant quote, class and merc equipment plus mandatory typed Might dependency; raw guide same-section location is checked. preferred guide endorsements now accepted consistently with demand compiler.",
+    "tests": "26 source-context checks;42 completion checks. Existing108 native Fissure merc cases cover unchanged runtime rules.",
+    "next": "Standard player Flickering Flame span19 is Setup section16, whose quote is longer than wp-a-builds variants1 quote; exact common quote is present. Needs explicit variant-player proof, not reuse of mercenary kind. Standard/MF Fortitude spans23/26 have Might/HolyFreeze conflict and typed disjunction, not one unconditional mercenary type. General merc table section46 has multiple bearer branches; preserve all."
+  },
+  "standard_player_link": {
+    "occurrence_id": "af3130710c7393c25e3ec0f1",
+    "span": 19,
+    "section": 16,
+    "profile_id": "fissure-player-standard-flickering-flame",
+    "status": "verified",
+    "scope": "Exact Standard quote from primary variant1 occurs in raw Setup paragraph. Intro span1 and mercenary passages remain separate.",
+    "validation": "75 source-context/completion tests pass; lint/format5files clean; exact ledger reference reviewed"
+  },
+  "fortitude_followup": {
+    "status": "two_variant_prose_occurrences_linked",
+    "reviews": [
+      "fissure-merc-standard-fortitude-prose",
+      "fissure-merc-magic-find-fortitude-prose"
+    ],
+    "occurrence_ids": [
+      "f7d954f94c7297b15b6eaf4a",
+      "bc8b07d04c74f7f5ad888d43"
+    ],
+    "scope": "Separate broader armor component review preserves legal armor recipes, Druid, Might/Holy Freeze, Infinity required and ethereal preference. Earlier ethereal Sacred Armor source issue remains unchanged. Other planner and primary variant occurrences remain separate.",
+    "validation": {
+      "staged_bank": 126,
+      "selected_bank": 126,
+      "new_choice_tests": 12,
+      "remaining_source_tests": "passed except obsolete global distinct-build count; corrected to exact Fissure variant endorsement and all3 narrow-source tests pass",
+      "lint": "clean"
+    }
+  },
+  "remaining_candidate_occurrence_ids": [
+    "172cbfe41bc62a1e1d1627aa",
+    "1c3f80a65741d815282ed5e5",
+    "25c43cd8ae0eaebd97be3c3a",
+    "2bf423eccfc30e87a827854b",
+    "2ca6b1589fc045ac1c4ffa16",
+    "2f0637a0fa6c35fae7b151e1",
+    "31f4af24e217868ef28b63b1",
+    "31f5b7488ab302e0c39d6296",
+    "320016de064c605c9232ae1a",
+    "3710c5fffc272c9d385c9c4c",
+    "44b10c491e3ef82769eacdf4",
+    "4df9b85fd7b405ab09cb8a55",
+    "4f221e6270758eb44a665948",
+    "50c1e70aaca072b7e058aa84",
+    "51c359cb7a1cf841bfeefc12",
+    "5452d60fbf485e0a53ddbf42",
+    "55655bb2fa1ebff6d881fd08",
+    "575d612845d92f2bd89727e6",
+    "590518b0ac67f977497004dd",
+    "60985335eb1061c665311e42",
+    "664cf7b40945395e5ed0a283",
+    "698a014b528bd88b413985dd",
+    "80304addfea864fae95f8a6e",
+    "8527ac0f76b252d04fa523b2",
+    "8ebee78446dbd8bd26cca4be",
+    "ab6a3705aa615e190f7efa2a",
+    "aefdad19f000161ef5056f73",
+    "b7f146704cdcea9251cd1600",
+    "bf00b56eff1ad8ae68786c15",
+    "ce851e47cdb60e2a9c477c47",
+    "d2a5c378bd9e970d7ec3078c",
+    "df297238ef46d815378371c6",
+    "e03efccc7ad554e898955fa1",
+    "e2c80116e778f5a58e02b355",
+    "e63fe50591816813ab357b3f",
+    "ed2771059f4d4c0c98c8e883",
+    "fc26c476fe25b90dd7ad4aa4"
+  ],
+  "completion_counts": {
+    "identities": 2570,
+    "occurrences": 62891,
+    "reviewed_occurrences": 2313,
+    "excluded_occurrences": 4822,
+    "coverage_rows": 8637,
+    "remaining_tasks": 114855
+  },
+  "next_concrete_gap": {
+    "items": [
+      "Three missing player four-Topaz armor uses: Berserk, Double Throw, Lightning Strike",
+      "Global Gemmed Dusk Shroud pattern-collection identity review",
+      "Other completion-contract source/variant/price/report gaps"
+    ],
+    "finding": "All21merc resistance-armor occurrences now reviewed:20new bounded table-equivalence proofs plus existing Zeal exact pattern source. Duplicate newly-added Zeal role removed; existing rule/cases retained. See GEMMED_DUSK_SHROUD_REVIEW.json."
+  },
+  "general_chains_of_honor": {
+    "status": "implemented_tested_published",
+    "profile_id": "fissure-druid-chains-of-honor-general-armor",
+    "source_slot": "/fissure-druid/slots/Body Armor/5",
+    "table_occurrence": "8c2de614b203fd030aaf0ac3",
+    "validation": {
+      "staged_bank": 27,
+      "selected_bank": 27,
+      "saved_replays_matched": 20,
+      "maintenance_tests": 59,
+      "generation": "d2d3523681af701e4f4374fb223b1ace0c6702289e81201b0164e2a922653496",
+      "report": "tmp/fissure-coh-example.txt"
+    }
+  },
+  "general_armor_tail": {
+    "status": "four_assessments_published_all_five_raw_armor_component_references_linked",
+    "profile_ids": [
+      "fissure-druid-smoke-general-armor",
+      "fissure-druid-treachery-general-armor",
+      "fissure-druid-vipermagi-general-armor",
+      "fissure-druid-perfect-topaz-general-armor"
+    ],
+    "raw_table_spans_linked": [
+      112,
+      113,
+      109
+    ],
+    "raw_topaz_spans_pending": [],
+    "ias_fix": "Existing fissure-starter-merc-treachery IAS priority now requires known Act1/Act2 Insight-compatible attacking bearer; unknown or Act3 caster stays neutral. Other original role predicates unchanged.",
+    "validation": {
+      "staged_cases": 68,
+      "selected_cases": 68,
+      "shared_template_tests": 15,
+      "maintenance_tests": 59,
+      "ias_red_green": true,
+      "replays_matched": 20,
+      "generation": "2856b37a1b9a62d4ef47231bba57c0760b88da1e192a5cf66f8b0ece8c500933"
+    },
+    "raw_topaz_spans_linked": [
+      107,
+      108
+    ],
+    "topaz_source_proof": {
+      "planner": "pricing/raw/mr/planners/vf0106vk.json:/items/82",
+      "native_gems": "third-parties/d2data/json/gems.json:Perfect Topaz helm/armor24MF",
+      "source_links": [
+        "ee4737fc39641c54a19681b0",
+        "8ff3e7f18db075fe8cd1b1ce"
+      ],
+      "scope": "Bounded complete raw-table entry plus native base,4gemcodes and96MF; no independent full loadout from the filler mention. Does not reclassify unresolved pattern identity globally.",
+      "tests": "72 source/completion suite checks plus4focused including new stale planner/gem hash rejection"
+    }
+  },
+  "general_enigma": {
+    "status": "implemented_tested_published",
+    "profile_id": "fissure-druid-enigma-general-armor",
+    "raw_table_span": 104,
+    "source_slot": "/fissure-druid/slots/Body Armor/0",
+    "validation": {
+      "staged_bank": 33,
+      "selected_bank": 33,
+      "maintenance_tests": 44,
+      "replays_matched": 20,
+      "generation": "e4820a20cb59eca54703f012fc4e7472d29cdfb39e136017b103250f92a04786",
+      "report": "tmp/fissure-enigma-example.txt"
+    }
+  },
+  "starter_life_leech": {
+    "status": "implemented_tested_published",
+    "profiles": [
+      "fissure-starter-merc-undead-crown",
+      "fissure-starter-merc-bulwark"
+    ],
+    "scope": "Only stat60 priority changed; requires known Act1/Act2 attacking bearer for Starter Insight context. Other defenses remain independently annotated. Role predicates unchanged.",
+    "validation": {
+      "red_failures": 2,
+      "unit_tests": 6,
+      "staged_bank": 32,
+      "selected_bank": 32,
+      "saved_replays_matched": 20,
+      "generation": "7fdd3afaf2dc607c096585f8d50742df713e561c1a06d0be23a573b3398c8ced"
+    },
+    "remaining_review": "Audit other Starter mercenary stat benefits (Vitality, maximum Life, Cannot Be Frozen and requirements) against actual native hireling effects; these are not established by fixing leech."
+  },
+  "mercenary_vitality": {
+    "status": "implemented_tested_published",
+    "profile": "fissure-starter-merc-rockstopper",
+    "evidence": "pricing/knowledge/assessment/planning/MERCENARY_ATTRIBUTE_REVIEW.json",
+    "validation": {
+      "red_failures": 1,
+      "unit_tests": 6,
+      "staged_bank": 6,
+      "selected_bank": 6,
+      "saved_replays_matched": 20,
+      "generation": "66abc4ae2b669c3ddf0586e3d0c72f05f461eab946b7a9d2f3a2698dc76b5076"
+    }
+  }
+}

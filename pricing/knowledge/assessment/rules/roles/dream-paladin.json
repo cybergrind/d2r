@@ -398,6 +398,3365 @@
         "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
         "source_date": "May 22, 2026"
       }
+    },
+    {
+      "id": "dream-paladin-0-gheeds-inventory",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "dream-paladin-1-gheeds-inventory",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "dream-paladin-0-annihilus",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "dream-paladin-1-annihilus",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "dream-paladin-2-annihilus",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "dream-paladin-0-laying-hands",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack-speed and demon-damage gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Laying of Hands"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ulg"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "121:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Damage bonus applies to weapon damage against demons; it is not general damage against every monster or a bonus to elemental aura damage.",
+        "Verify equip requirements, weapon/aura attack-speed setup and complete survival requirements; these gloves do not establish an attack breakpoint or any set-completion bonus.",
+        "The cited48% FCR belongs to Weapon-Swap and75% IAS to the mercenary; neither is a glove or main-player requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Laying of Hands [The Disciple set]",
+          "This is the Standard Best in Slot (BiS) Dream Paladin featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing most tasks well.",
+          "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+          "The Standard Dream Paladin uses an Act 2 Might Mercenary with The Reaper's Toll for Damage, -50% to Enemy Physical Resistance, and a Slow. Treachery and Guillaume's Face add to his damage and survivability. This Mercenary reaches the 75% Increased Attack Speed Breakpoint for maximum Decrepify procs."
+        ],
+        "review": "2026-09-25: Reviewed exact Laying of Hands set-glove component. Native20IAS and350weapon damage against demons are desirable for the reviewed attacking use,50fire resistance supporting. Do not relabel demon damage as generic Enhanced Damage, apply it to elemental auras, synthesize set bonuses or infer a price. Keep complete weapon/aura/buff and source-specific role qualifications. Dream Ubers armor source conflict remains outside this batch."
+      }
+    },
+    {
+      "id": "dream-paladin-1-laying-hands",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack-speed and demon-damage gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Laying of Hands"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ulg"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "121:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Damage bonus applies to weapon damage against demons; it is not general damage against every monster or a bonus to elemental aura damage.",
+        "Verify equip requirements, weapon/aura attack-speed setup and complete survival requirements; these gloves do not establish an attack breakpoint or any set-completion bonus.",
+        "Verify Hand of Justice/Dragon/double Dream and the Act1 Faith Fanaticism support; gloves alone do not establish the hybrid aura or maximum attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Laying of Hands [The Disciple set]",
+          "The Hybrid variant uses Hand of Justice and Dragon to have a Level 30 Holy Fire Aura on top of the Level 30 Holy Shock Aura provided by double Dreams.",
+          "With both high Fire and Lightning Damage on top of the Physical Damage provided by the Hand of Justice itself, this setup encounters virtually zero issues with Immunities. This is even more so the case if you use Crack of the Heavens and Flame Rift, a devastating combo on the Hybrid build. A Teleport Charges Amulet provides this variant with much needed mobility and repositioning ability given that it misses out on Enigma.",
+          "In order to maintain maximum Attack Speed on the Hybrid Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-25: Reviewed exact Laying of Hands set-glove component. Native20IAS and350weapon damage against demons are desirable for the reviewed attacking use,50fire resistance supporting. Do not relabel demon damage as generic Enhanced Damage, apply it to elemental auras, synthesize set bonuses or infer a price. Keep complete weapon/aura/buff and source-specific role qualifications. Dream Ubers armor source conflict remains outside this batch."
+      }
+    },
+    {
+      "id": "dream-paladin-1-merc-shaftstop",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor.",
+        "The cited Cold Rogue uses Faith and Vampire Gaze; verify the armor IAS/resistance jewel and full attack-speed setup separately. Armor alone does not establish those socket contents or maximum attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Shaftstop (Mesh Armor, ethereal; 15 IAS / 15 All Res jewel)",
+          "The Hybrid variant uses Hand of Justice and Dragon to have a Level 30 Holy Fire Aura on top of the Level 30 Holy Shock Aura provided by double Dreams.",
+          "With both high Fire and Lightning Damage on top of the Physical Damage provided by the Hand of Justice itself, this setup encounters virtually zero issues with Immunities. This is even more so the case if you use Crack of the Heavens and Flame Rift, a devastating combo on the Hybrid build. A Teleport Charges Amulet provides this variant with much needed mobility and repositioning ability given that it misses out on Enigma.",
+          "In order to maintain maximum Attack Speed on the Hybrid Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-26: Reviewed Shaftstop physical survival armor: native30%physical reduction desirable,60life supporting. Helmet leech and socket-jewel IAS are separate. Explicit Mesh Armor uses retain original base; generic identity uses accept verified Mesh/Boneweave upgrade chain subject to equip fit. Dream/Lightning Strike cite ethereal; Strafe alternative does not inherit primary Chains of Honor ethereal status. No perfect enhanced-defense requirement, best-base claim or price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-2-merc-shaftstop",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "uhn"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor.",
+        "The cited Cold Rogue uses Faith and Vampire Gaze; verify the armor IAS/resistance jewel and full attack-speed setup separately. Armor alone does not establish those socket contents or maximum attack speed."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Shaftstop (ethereal; 15 IAS / 15 All Res jewel)",
+          "The Ubers variant specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith; Crushing Blow, Open Wounds, Damage Reduction, Resistances, and Life are priority stats.",
+          "You can use a Teleport Charges Amulet for mobility to justify using Chains of Honor for more Damage and All Resistances. Last Wish is ideal in that it provides a source of Life Tap for Life Sustain, Fade for Damage Reduction, All Resistances, and Curse Duration Reduction, and has high Crushing Blow.",
+          "Pre-buffing Enchant with Demon Limb is good here. Thundergod's Vigor and stacked Lightning Resistance allows this build to tank Uber Mephisto.",
+          "Treachery and Demon Limb are used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating.",
+          "In order to maintain maximum Attack Speed on the Ubers Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-26: Reviewed Shaftstop physical survival armor: native30%physical reduction desirable,60life supporting. Helmet leech and socket-jewel IAS are separate. Explicit Mesh Armor uses retain original base; generic identity uses accept verified Mesh/Boneweave upgrade chain subject to equip fit. Dream/Lightning Strike cite ethereal; Strafe alternative does not inherit primary Chains of Honor ethereal status. No perfect enhanced-defense requirement, best-base claim or price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-0-merc-treachery-native",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Fade and armor utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "201:17103",
+        "99:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
+        "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
+        "Armor properties benefit its wearer; the player does not inherit mercenary IAS or resistances. A shared Fade prebuff requires the player to equip appropriate armor and trigger Fade separately.",
+        "The cited 75% IAS Decrepify setup also requires actual IAS jewels in the weapon and helmet; armor IAS alone does not reach it."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Treachery Archon Plate (ethereal)",
+          "This is the Standard Best in Slot (BiS) Dream Paladin featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing most tasks well.",
+          "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+          "The Standard Dream Paladin uses an Act 2 Might Mercenary with The Reaper's Toll for Damage, -50% to Enemy Physical Resistance, and a Slow. Treachery and Guillaume's Face add to his damage and survivability. This Mercenary reaches the 75% Increased Attack Speed Breakpoint for maximum Decrepify procs."
+        ],
+        "review": "2026-09-26: Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Treachery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-0-player-enigma",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "This is the Standard Best in Slot (BiS) Dream Paladin featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing most tasks well.",
+          "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+          "The Standard Dream Paladin uses an Act 2 Might Mercenary with The Reaper's Toll for Damage, -50% to Enemy Physical Resistance, and a Slow. Treachery and Guillaume's Face add to his damage and survivability. This Mercenary reaches the 75% Increased Attack Speed Breakpoint for maximum Decrepify procs."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-0-raven-frost",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring (120 AR / 6 ML / 8 LL / Resistances / Teleport charges)",
+          "This is the Standard Best in Slot (BiS) Dream Paladin featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing most tasks well.",
+          "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+          "The Standard Dream Paladin uses an Act 2 Might Mercenary with The Reaper's Toll for Damage, -50% to Enemy Physical Resistance, and a Slow. Treachery and Guillaume's Face add to his damage and survivability. This Mercenary reaches the 75% Increased Attack Speed Breakpoint for maximum Decrepify procs."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-1-raven-frost",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring (10 FCR / 120 AR / 6 ML / All Res / MF / Teleport charges)",
+          "The Hybrid variant uses Hand of Justice and Dragon to have a Level 30 Holy Fire Aura on top of the Level 30 Holy Shock Aura provided by double Dreams.",
+          "With both high Fire and Lightning Damage on top of the Physical Damage provided by the Hand of Justice itself, this setup encounters virtually zero issues with Immunities. This is even more so the case if you use Crack of the Heavens and Flame Rift, a devastating combo on the Hybrid build. A Teleport Charges Amulet provides this variant with much needed mobility and repositioning ability given that it misses out on Enigma.",
+          "In order to maintain maximum Attack Speed on the Hybrid Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-2-raven-frost",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring (10 FCR / 120 AR / 6 ML / Resistances / Teleport charges)",
+          "The Ubers variant specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith; Crushing Blow, Open Wounds, Damage Reduction, Resistances, and Life are priority stats.",
+          "You can use a Teleport Charges Amulet for mobility to justify using Chains of Honor for more Damage and All Resistances. Last Wish is ideal in that it provides a source of Life Tap for Life Sustain, Fade for Damage Reduction, All Resistances, and Curse Duration Reduction, and has high Crushing Blow.",
+          "Pre-buffing Enchant with Demon Limb is good here. Thundergod's Vigor and stacked Lightning Resistance allows this build to tank Uber Mephisto.",
+          "Treachery and Demon Limb are used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating.",
+          "In order to maintain maximum Attack Speed on the Ubers Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-0-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/variants/0/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Paladin Hellfire Torch",
+          "This is the Standard Best in Slot (BiS) Dream Paladin featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing most tasks well."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "dream-paladin-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Paladin Hellfire Torch",
+          "The Hybrid variant uses Hand of Justice and Dragon to have a Level 30 Holy Fire Aura on top of the Level 30 Holy Shock Aura provided by double Dreams."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "dream-paladin-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Paladin Hellfire Torch",
+          "The Ubers variant specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith; Crushing Blow, Open Wounds, Damage Reduction, Resistances, and Life are priority stats."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "dream-paladin-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Body Armor/early/5",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "dream-paladin-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "dream-paladin-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Helmet/early/3",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "dream-paladin-early-merc-cure",
+      "template": "merc_survival",
+      "item": "Cure",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Helmet/early/5",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Cure"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "dream-paladin-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Rings/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-skullder-body-armor-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Skullder's Ire",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Body Armor/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skullder's Ire"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/217"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-wizardspike-weapon-swap-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Wizardspike",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Weapon-Swap/1",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wizardspike"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/262"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-ground-merc-early",
+      "template": "merc_survival",
+      "item": "Ground",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ground"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-guardian-angel-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Guardian Angel",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Body Armor/mid/5",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-the-gladiator-s-bane-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Gladiator's Bane",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Body Armor/mid/3",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Gladiator's Bane"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/250"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-skin-of-the-flayed-one-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Skin of the Flayed One",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/merc/Body Armor/early/3",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Flayed One"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/211"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-dwarf-star-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Dwarf Star",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Rings/8",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dwarf Star"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/274"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-verdungo-s-hearty-cord-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Verdungo's Hearty Cord",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Belts/2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Verdungo's Hearty Cord"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/376"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-string-of-ears-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "String of Ears",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Belts/1",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "String of Ears"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/242"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/dream-paladin/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-thundergod-s-vigor-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Thundergod's Vigor",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Belts/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Thundergod's Vigor"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/246"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-wisp-projector-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Wisp Projector",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Rings/7",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wisp Projector"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/319"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-chance-guards-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Chance Guards",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Gloves/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chance Guards"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/104"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-goldwrap-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Goldwrap",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Belts/5",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldwrap"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/115"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/dream-paladin/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-charge-alternative-weapon-swap-3",
+      "template": "charged_utility",
+      "item": "Staff of Teleportation",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Weapon-Swap/3",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Staff of Teleportation"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/532"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/54"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-charge-alternative-weapon-swap-4",
+      "template": "charged_utility",
+      "item": "Bone Wand of Life Tap",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Weapon-Swap/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bone Wand of Life Tap"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/578"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/82"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-charge-alternative-amulets-4",
+      "template": "charged_utility",
+      "item": "Teleport Charge Amulet",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dream-paladin/slots/Amulets/4",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Teleport Charge Amulet"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/533"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/54"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-duress-end-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Body Armor/end/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Helmet/mid/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-merc-early-hustle-armor-alternative",
+      "template": "merc_survival",
+      "item": "Hustle (armor)",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Body Armor/early/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact armor-slot Hustle alternative; native armor recipe is separate from weapon Hustle. Three filled sockets and a capacity-eligible body armor are required. IAS, movement, recovery and resistance support the stated use; weapon proc/aura and price are not inferred. Mercenary ethereal durability is safe, but player armor must be nonethereal. Evade is prioritized only for the player, not assumed for mercenaries. Existing Non-Ladder item use does not establish recipe creation availability.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (armor)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/29",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-merc-early-hustle-weapon-alternative",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Mercenary attack and aura alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Hustle (weapon)"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Hustle (weapon)"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7br"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7o7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7p7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7sr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7st"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7tr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9b7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9br"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9p9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9sr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9st"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9tr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "bar"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "brn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pik"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "spr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "spt"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tri"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "93:0",
+        "151:122",
+        "198:16513"
+      ],
+      "conditions": [
+        "Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary.",
+        "Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts.",
+        "Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use.",
+        "This reviewed branch is for the cited Act 2 mercenary with an eligible spear/polearm. Other mercenary types and sword alternatives are not inferred. Ethereal durability is safe; verify equip requirements, attack-speed breakpoints and life leech elsewhere."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Weapon/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact weapon-slot Hustle alternative, distinct from armor. Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary. Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts. Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use. This reviewed branch is for the cited Act 2 mercenary with an eligible spear/polearm. Other mercenary types and sword alternatives are not inferred. Ethereal durability is safe; verify equip requirements, attack-speed breakpoints and life leech elsewhere.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (weapon)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/258",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/122",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/dream-paladin/variants/0",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/dream-paladin/merc/Mercenary Type/early",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-highlord-s-wrath-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Highlord's Wrath",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Amulets/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Highlord's Wrath"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Deadly Strike applies to eligible weapon physical damage, not elemental spell damage or Dragon Talon kicks. Its level-scaled chance is not an independent multiplicative chance on top of Critical Strike. Check actual attack-speed breakpoints. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/276",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-seraph-s-hymn-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Seraph's Hymn",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Amulets/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Seraph's Hymn"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Defensive Aura skills require the relevant aura to be used. Damage and Attack Rating against demons/undead support eligible weapon attacks, not Blessed Hammer, Fist of the Heavens or Smite. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/302",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-nature-s-peace-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Nature's Peace",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Rings/9",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Nature's Peace"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Slain Monsters Rest in Peace applies to eligible kills by the wearer, not kills by mercenaries or summons, and prevents reuse of affected corpses. Flat physical damage reduction is not percent reduction. Prevent Monster Heal is not universal boss protection. Oak Sage charges need an actual living summon and available charges; no life bonus is inferred from ownership. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/300",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-goldskin-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Goldskin",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Body Armor/early/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldskin"
+        ],
+        "review": "2026-09-26: Reviewed exact early mercenary armor alternative. Goldskin provides all resistance and defense; its gold bonus applies to mercenary killing blows, not every player kill. Venom Ward is poison-specific protection: poison resistance, a higher cap and reduced poison length do not supply other resistances. Neither supplies life leech. Native minimum rolls and either ethereal state are useful; verify equipment requirements and complete defenses. No numerical price or universal ethereal premium is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/91",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-nosferatu-s-coil-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Nosferatu's Coil",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Belts/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Nosferatu's Coil"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Life leech needs eligible physical damage and a drainable target; it does not leech elemental spell damage. Slows Target applies through eligible attacks and is subject to target limits. Check the complete attack-speed breakpoint. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/374",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-goblin-toe-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Goblin Toe",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Boots/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goblin Toe"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Crushing Blow requires eligible attacks, including Smite; ranged attacks have reduced effect. These boots provide no Faster Run/Walk. Native or upgraded boots change requirements; no completed attack-speed or survival setup is inferred. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/110",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-gore-rider-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Gore Rider",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Boots/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gore Rider"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Crushing Blow and Open Wounds require eligible attacks and can support Smite; Deadly Strike does not improve Smite or kicks. Ranged Crushing Blow has reduced effect. Upgrading changes base kick damage and requirements, not the innate proc chances. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/241",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-bloodfist-caster-survival-alternative",
+      "template": "named_player_utility",
+      "item": "Bloodfist",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Gloves/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bloodfist"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native casting/survival priorities preserve attack mechanics, skill exclusions and standalone set properties. Hit recovery depends on the full setup. Increased Attack Speed helps attacks, not spell casting. Added minimum weapon damage does not improve Smite or spells; it is relevant to direct weapon attacks. Upgrading changes defense and requirements, not these fixed life/recovery bonuses. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/103",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-dracul-s-grasp-dracul-alternative",
+      "template": "named_player_utility",
+      "item": "Dracul's Grasp",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Gloves/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dracul's Grasp"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native attack proc and sustain priorities preserve attack mechanics, skill exclusions and standalone set properties. Life Tap is a chance-to-cast curse on eligible striking attacks, including Smite and kicks, not a guaranteed active buff; another curse can overwrite it. Smite can heal through Life Tap but cannot use ordinary life leech. Ordinary life leech for other attacks depends on physical damage and target drain. Open Wounds supports eligible hits; Life after each kill requires wearer kill credit. These gloves provide no Increased Attack Speed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/364",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-flame-rift-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Flame Rift",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Unique Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Flame Rift"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/402",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-crack-of-the-heavens-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Crack of the Heavens",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Unique Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Crack of the Heavens"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/403",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-bone-break-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Bone Break",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Unique Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bone Break"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/405",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-grief-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Grief",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Grief Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Flat added Damage supports Smite as well as weapon attacks; Deadly Strike, Ignore Target Defense and target-defense reduction do not improve Smite. Ignore Target Defense does not cover every boss or unique target. Compare IAS against the exact weapon/skill breakpoint. An ethereal repairable base is not a durable player weapon. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Grief",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-last-wish-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Last Wish",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Weapon/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Last Wish Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Crushing Blow, Might and a Life Tap proc support eligible melee attacks, including Smite. Fade requires the when-struck proc; neither proc is a guaranteed active buff. Other curses can replace Life Tap. Weapon Enhanced Damage and Ignore Target Defense do not improve Smite. The weapon has no IAS; verify the full speed setup. This review does not infer rune-cost pricing. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Last Wish",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-faith-end-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Faith",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 1 Cold",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Weapon/end/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Faith Matriarchal Bow"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Fanaticism supports allies only while the Rogue is alive and in aura range. Its rolled aura level is not raised by the weapon All Skills; All Skills supports the mercenary skills separately. Bow damage and resistances belong to the Rogue. Rogues cannot use crossbows; bows are non-ethereal. Check the player attack-speed breakpoint using the actual aura roll. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Faith",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/dream-paladin.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "7100b77dcb161fb368ebb63768751c3f06f0898a1de8e3df8f3fea4383503e95"
+          }
+        ]
+      },
+      "base_codes": [
+        "amb"
+      ]
+    },
+    {
+      "id": "dream-paladin-azurewrath-attack-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Azurewrath",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Weapon/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Azurewrath"
+        ],
+        "review": "2026-09-27: Reviewed exact attack/utility guide alternative. Distinguish Smite, Hammer, Zeal and physical projectile mechanics; no automatic curse activation or incompatible damage multiplier is inferred. Sanctuary is an equipped aura with undead-specific effects, not a general resistance reduction for Holy Shock. Added elemental attack damage and weapon Enhanced Damage are separate from Holy Shock lightning damage. Check the full Zeal speed setup and no socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/301",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-lightsabre-attack-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Lightsabre",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Weapon/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lightsabre"
+        ],
+        "review": "2026-09-27: Reviewed exact attack/utility guide alternative. Distinguish Smite, Hammer, Zeal and physical projectile mechanics; no automatic curse activation or incompatible damage multiplier is inferred. Lightning Absorb is percentage absorption and capped in the full setup. Weapon Enhanced Damage does not multiply Holy Shock lightning damage; mana leech needs physical damage and a drainable target. Ignore Target Defense does not cover every boss or unique target. No socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/259",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-dream-helmets-aura-recipe",
+      "template": "aura_recipe",
+      "item": "Dream",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Helmets/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dream"
+        ],
+        "review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Dream",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r31",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r21",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-dream-off-hand-aura-recipe",
+      "template": "aura_recipe",
+      "item": "Dream",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dream"
+        ],
+        "review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Dream",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r31",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r21",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-dragon-body-armor-aura-recipe",
+      "template": "aura_recipe",
+      "item": "Dragon",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Body Armor/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dragon"
+        ],
+        "review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Dragon",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r29",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r28",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r12",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-reaper-mid-act-2-might-named-merc-weapon",
+      "template": "named_mercenary_weapon",
+      "item": "The Reaper's Toll",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Weapon/mid/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Reaper's Toll"
+        ],
+        "review": "2026-09-27: Exact mercenary table alternative; compatible Act 2 bearer from the same stage or Strafe Standard mercenary source. Decrepify affects eligible physical damage, not elemental resistance. No socket filler, permanent curse uptime or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/326",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/dream-paladin/merc/Mercenary Type/mid/0",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-reaper-end-act-2-might-named-merc-weapon",
+      "template": "named_mercenary_weapon",
+      "item": "The Reaper's Toll",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/merc/Weapon/end/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Reaper's Toll"
+        ],
+        "review": "2026-09-27: Exact mercenary table alternative; compatible Act 2 bearer from the same stage or Strafe Standard mercenary source. Decrepify affects eligible physical damage, not elemental resistance. No socket filler, permanent curse uptime or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/326",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/dream-paladin/merc/Mercenary Type/end/0",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-hand-of-justice-main-alternatives-source-recipe",
+      "template": "source_recipe",
+      "item": "Hand of Justice",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/slots/Weapon/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hand of Justice Phase Blade"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hand of Justice",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r29",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r32",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r11",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r28",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-hand-of-justice-hybrid-source-recipe",
+      "template": "source_recipe",
+      "item": "Hand of Justice",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hand of Justice Phase Blade"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hand of Justice",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r29",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r32",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r11",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r28",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-renewed-crack-of-the-heavens-standard-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/0/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens (Lightning sunder)"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-renewed-crack-of-the-heavens-hybrid-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-renewed-crack-of-the-heavens-ubers-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Paladin",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2/player/Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-merc-resistance-rune-armor",
+      "build": "dream-paladin",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "class": "Paladin",
+      "template": "resistance_rune_armor",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__dream-paladin.html/sections/43",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud",
+          "Your Mercenary needs maximum Resistances, Life Leech, a high damage Weapon, and high Defense and/or Damage Reduction to stay alive reliably. Cannot Be Frozen is also a great stat for maintaining Mercenary DPS and leech. Ethereal gear is preferred since it doesn't lose durability. Mercenary Types and Gear Options at each Gear Level perform equally well in different situations; choose based on Farming Spots and/or personal preference. Gear Level Early-Game Mid-Game End-Game Mercenary Type Act 2 Might Act 2 Might Act 2 Might or Act 1 Cold Weapon Hustle Insight The Reaper's Toll The Reaper's Toll Infinity Faith Matriarchal Bow Body Armor Smoke Lionheart Hustle Skin of the Flayed One Goldskin Rockfleece Gemmed Dusk Shroud Treachery Duress Shaftstop The Gladiator's Bane Duriel's Shell Guardian Angel Treachery Fortitude Chains of Honor Duress Shaftstop Helmet Bulwark Undead Crown Gemmed Mask Temper Ground Cure Guillaume's Face Tal Rasha's Horadric Crest Vampire Gaze Crown of Thieves Stealskull Kira's Guardian Rockstopper Cure Guillaume's Face Andariel's Visage Vampire Gaze The Mercenary is hard to keep alive until you have the minimum gear recommended in this guide. Remember you can drag Healing Potions onto the portrait, or shift + 1/2/3/4 to directly feed them a Healing Potion from your Belt. The Mercenary also gains bonus Resistances from Thawing Potions and Antidote Potions. If your Mercenary dies in battle, you can revive them from any of the Mercenary NPCs in each Act. This does come with an increasing cost, capping at 50,000 Gold. Keep that in mind and decide if the Mercenary is currently worth the cost."
+        ],
+        "review": "2026-09-28: Explicit early mercenary body-armor alternative. Guide bearer context and exact linked fc01065b item93 establish four-socket Dusk Shroud with Ral/Ort/Thul/Tal. Requires actual linked children and four observed30resistances, legal base qualities and identified item. Ethereal preferred, not required. No Life leech, runeword, player Magic Find or price inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fc01065b.json",
+            "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+            "locator": "/data"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r08"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r09"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r10"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r07"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-1-merc-shaftstop-ias-res",
+      "build": "dream-paladin",
+      "variant": "Hybrid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Shaftstop with IAS/all-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 11,
+              "41:0": 11,
+              "43:0": 11,
+              "45:0": 11
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0",
+        "93:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "The actual Scintillating Jewel of Fervor contributes 15% IAS and11-15all resistance. The planner selects15all resistance; lower native Scintillating rolls remain useful. The full Faith Cold Rogue attack-speed and resistance setup must still be checked.",
+        "One linked complete jewel must provide both affixes and all four resistances. Missing socket evidence is unknown; item totals alone do not prove the payload. Native defense/leech rolls need not be perfect; base requirements and full survival remain conditional.",
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Shaftstop (Mesh Armor, ethereal; 15 IAS / 15 All Res jewel)",
+          "The Hybrid variant uses Hand of Justice and Dragon to have a Level 30 Holy Fire Aura on top of the Level 30 Holy Shock Aura provided by double Dreams.",
+          "With both high Fire and Lightning Damage on top of the Physical Damage provided by the Hand of Justice itself, this setup encounters virtually zero issues with Immunities. This is even more so the case if you use Crack of the Heavens and Flame Rift, a devastating combo on the Hybrid build. A Teleport Charges Amulet provides this variant with much needed mobility and repositioning ability given that it misses out on Enigma.",
+          "In order to maintain maximum Attack Speed on the Hybrid Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-29: Reviewed exact dream-paladin/Hybrid socketed mercenary item against primary plannerw670e0o0. Dream profiles1/2 armor65/103->jewel45; LightningStrike vc0106wm profile0 armor4->jewel5, all15IAS/15res. Scintillating33711-15res/Fervor171fixed15IAS. Preserve native wearer, ethereal/base guards and source qualifications; actual jewel minimum affix rolls useful but do not establish perfect/full-loadout readiness or price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          },
+          {
+            "path": "pricing/raw/mr/planners/w670e0o0.json",
+            "locator": "/data",
+            "sha256": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/337",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dream-paladin-2-merc-shaftstop-ias-res",
+      "build": "dream-paladin",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Shaftstop with IAS/all-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Cold"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "uhn"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 11,
+              "41:0": 11,
+              "43:0": 11,
+              "45:0": 11
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0",
+        "93:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "The actual Scintillating Jewel of Fervor contributes 15% IAS and11-15all resistance. The planner selects15all resistance; lower native Scintillating rolls remain useful. The full Faith Cold Rogue attack-speed and resistance setup must still be checked.",
+        "One linked complete jewel must provide both affixes and all four resistances. Missing socket evidence is unknown; item totals alone do not prove the payload. Native defense/leech rolls need not be perfect; base requirements and full survival remain conditional.",
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dream-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dream-paladin",
+        "quotes": [
+          "Shaftstop (ethereal; 15 IAS / 15 All Res jewel)",
+          "The Ubers variant specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith; Crushing Blow, Open Wounds, Damage Reduction, Resistances, and Life are priority stats.",
+          "You can use a Teleport Charges Amulet for mobility to justify using Chains of Honor for more Damage and All Resistances. Last Wish is ideal in that it provides a source of Life Tap for Life Sustain, Fade for Damage Reduction, All Resistances, and Curse Duration Reduction, and has high Crushing Blow.",
+          "Pre-buffing Enchant with Demon Limb is good here. Thundergod's Vigor and stacked Lightning Resistance allows this build to tank Uber Mephisto.",
+          "Treachery and Demon Limb are used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating.",
+          "In order to maintain maximum Attack Speed on the Ubers Dream Paladin, use an Act 1 Cold Mercenary with Faith for its Fanaticism Aura. Vampire Gaze and Shaftstop provide this Mercenary with a much needed 50% Damage Reduction and Life Leech."
+        ],
+        "review": "2026-09-29: Reviewed exact dream-paladin/Ubers socketed mercenary item against primary plannerw670e0o0. Dream profiles1/2 armor65/103->jewel45; LightningStrike vc0106wm profile0 armor4->jewel5, all15IAS/15res. Scintillating33711-15res/Fervor171fixed15IAS. Preserve native wearer, ethereal/base guards and source qualifications; actual jewel minimum affix rolls useful but do not establish perfect/full-loadout readiness or price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          },
+          {
+            "path": "pricing/raw/mr/planners/w670e0o0.json",
+            "locator": "/data",
+            "sha256": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/337",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
     }
   ]
 }

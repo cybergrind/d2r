@@ -68,6 +68,7 @@ class ItemFacts:
     filled_sockets: int | None = None
     empty_sockets: int | None = None
     item_level: int | None = None
+    native_affixes: dict | None = None
 
     @property
     def socket_state(self):
@@ -81,13 +82,13 @@ class ItemFacts:
         return {
             f.name: thaw(getattr(self, f.name))
             for f in fields(self)
-            if f.name != 'item_level' or self.item_level is not None
+            if f.name not in ('item_level', 'native_affixes') or getattr(self, f.name) is not None
         }
 
     def __post_init__(self):
         if type(self.item_level) is not int or not 1 <= self.item_level <= 99:
             object.__setattr__(self, 'item_level', None)
-        for name in ('socket_items', 'stats', 'properties', 'gaps', 'projection_gaps', 'provenance'):
+        for name in ('socket_items', 'stats', 'properties', 'gaps', 'projection_gaps', 'provenance', 'native_affixes'):
             object.__setattr__(self, name, freeze(getattr(self, name)))
 
     def fact(self, name):

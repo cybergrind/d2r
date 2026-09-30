@@ -1,0 +1,45 @@
+{
+  "review_date": "2026-09-28",
+  "status": "implemented_tested_published_source_mirrors_and_discovery_validated",
+  "generation": "51aedd0bfd9142b5fabf43759ab68dd603604423030dc37568799c503713b81f",
+  "profiles": [
+    "berserk-barbarian-starter-topaz-armor",
+    "berserk-barbarian-starter-topaz-helmet"
+  ],
+  "basis": "Explicit cached Starter item labels; native armor and gem definitions. No planner-derived defense, ethereal status or whole-loadout inference.",
+  "missing_planner": {
+    "reference": "r2Hsc2Mk (#6 Starter, level75)",
+    "expected_path": "pricing/raw/mr/planners/r2Hsc2Mk.json",
+    "status": "not_cached",
+    "scope": "Exact historical planner contents remain unverified; text-described configurations supported independently."
+  },
+  "reviewed_primary_occurrences": [
+    "c1aa2106d02a0384be12100b",
+    "be2338a11973278c50819eb5"
+  ],
+  "validation": {
+    "staged_bank": 60,
+    "selected_bank": 60,
+    "saved_replays_matched": 20,
+    "stat_bundle": 2,
+    "pattern_collections": 12,
+    "existing_profiles_unchanged": 2583,
+    "named_gate": {
+      "identities": 548,
+      "sets": 35,
+      "renders": 2958,
+      "errors": 0
+    }
+  },
+  "remaining": "Missing historical planner contents and all non-discovery pricing/variant/report dimensions remain unverified.",
+  "validated_source_mirrors": [
+    "0ff7e7f10298bff5d49f444d",
+    "7d927db7b5a0268e002a7463"
+  ],
+  "mirror_validation": {
+    "tests_passed": 92,
+    "completion_scope": "d500d5f2e52962f964821c6cd69498a9b4f949d558676da66e2f964c07a7c2f0",
+    "runtime_generation_unchanged": "51aedd0bfd9142b5fabf43759ab68dd603604423030dc37568799c503713b81f",
+    "discovery_collections": 2
+  }
+}

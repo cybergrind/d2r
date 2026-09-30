@@ -33,9 +33,13 @@ def test_ethereal_premium_requires_both_flag_and_roll():
     assert assess_tier(replace(item, ethereal=None))['tier'] is None
 
 
-def test_missing_named_policy_is_pending_and_never_implicitly_trash():
+def test_missing_named_policy_is_pending_and_never_implicitly_trash(tmp_path, monkeypatch):
+    from pricing.knowledge.assessment.policies import named_tiers
     from pricing.knowledge.assessment.policies.named_tiers import assess_tier
 
+    rules = tmp_path / 'tiers.json'
+    rules.write_text('{"schema_version": 1, "policies": []}')
+    monkeypatch.setattr(named_tiers, 'RULES', rules)
     result = assess_tier(facts('Long Sword', 'unique', 'Hellplague'))
     assert result['status'] == 'pending_review'
     assert result['tier'] is None
@@ -66,8 +70,10 @@ def test_report_highlights_resolved_tier_without_creating_numeric_price():
     result = {'extraction': extraction, 'assessment': assessment, 'decision': {'price_status': 'unknown'}}
     document = ItemAssessment.from_record({'state': 'complete', 'request_id': 1, 'result': result})
     line = next(line for line in document.to_osd() if line.text.startswith('Trade tier:'))
-    assert line.tone == Tone.VALUABLE
-    assert '2026-09-18' in line.text
+    assert line.tone == Tone.TIER_HIGH
+    assert 'cached asks' not in line.text
+    assert '2026-09-18' not in line.text
+    assert assessment['trade_tier']['source']['date'] == '2026-09-18'
 
 
 def test_named_tier_rejects_conflicting_captured_identity():

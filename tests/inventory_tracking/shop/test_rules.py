@@ -39,7 +39,7 @@ def test_jewelers_monarch_of_deflecting_needs_block_and_fbr_but_any_four_socket_
 
 
 @pytest.mark.parametrize('name', ['Hex: Purge', 'Eldritch Blast', 'Echoing Strike', 'Mirrored Blades'])
-@pytest.mark.parametrize('bonus', [(83, 7, 2), (188, 57, 3), (188, 57, 2)])
+@pytest.mark.parametrize('bonus', [(83, 7, 2), (188, 57, 3)])
 def test_warlock_skill_combinations(name, bonus):
     result = match_item(observation('Kriss', [bonus, (107, skill(name), 3)]))
     assert any(name in reason for reason in result)
@@ -51,10 +51,10 @@ def test_unrelated_tree_does_not_inflate_hex_purge():
     assert not match_item(observation('Kriss', [(83, 1, 2), (107, skill('Hex: Purge'), 3)]))
 
 
-def test_two_warlock_staffmods_sell_at_any_rarity():
+def test_two_warlock_staffmods_need_a_matching_prefix():
     stats = [(107, skill('Hex: Purge'), 3), (107, skill('Eldritch Blast'), 3)]
-    assert any('Hex: Purge' in r and 'Eldritch Blast' in r for r in match_item(observation('Kriss', stats)))
-    assert match_item(observation('Kriss', stats, rarity='normal'))
+    assert not match_item(observation('Kriss', stats))
+    assert not match_item(observation('Kriss', stats, rarity='normal'))
 
 
 @pytest.mark.parametrize(
@@ -140,7 +140,7 @@ def test_unidentified_and_duplicate_unresolved_stats_are_not_hits():
 )
 def test_mastery_and_main_skill_without_class_or_tree_prefix(base, mastery, main):
     result = match_item(observation(base, [(107, skill(mastery), 3), (107, skill(main), 3)]))
-    assert any(mastery in r and main in r for r in result)
+    assert not result
 
 
 def test_every_class_mastery_is_in_catalog():
@@ -161,11 +161,6 @@ def test_every_class_mastery_is_in_catalog():
         ('Diadem', [(194, 0, 3), (80, 0, 35)]),
         ('Circlet', [(83, 1, 2), (105, 0, 20)]),
         ('Coronet', [(83, 7, 2)]),
-        ('Slayer Guard', [(188, 34, 3)]),
-        ('Eldritch Orb', [(105, 0, 20), (107, skill('Lightning'), 3)]),
-        ('War Scepter', [(105, 0, 10), (107, skill('Fist of the Heavens'), 3)]),
-        ('Preserved Head', [(194, 0, 2), (83, 2, 1)]),
-        ('Grimoire', [(188, 57, 3)]),
     ],
 )
 def test_priced_magic_patterns_alert(base, stats):
@@ -204,3 +199,28 @@ def test_utility_charges_are_not_targets(name):
 
 def test_white_staffmod_bases_are_not_shop_targets():
     assert not match_item(observation('Kriss', [(107, skill('Hex: Purge'), 3)], rarity='normal'))
+
+
+@pytest.mark.parametrize('prefix', [[], [(188, 32, 3)], [(188, 57, 2)]])
+def test_screenshot_stiletto_requires_matching_five_or_six_skill_combination(prefix):
+    stats = [(21, 0, 1), (107, skill('Abyss'), 1), (107, skill('Apocalypse'), 3), (107, skill('Eldritch Blast'), 3)]
+    assert not match_item(observation('Stilleto', prefix + stats))
+    for bonus, total in [((83, 7, 2), 5), ((188, 57, 3), 6)]:
+        reasons = match_item(observation('Stilleto', [bonus, *stats]))
+        assert any(f'+{total} Eldritch Blast' in r for r in reasons)
+        if bonus[0] == 188:
+            assert not any('Apocalypse' in r for r in reasons)
+
+
+@pytest.mark.parametrize(
+    ('base', 'stats'),
+    [
+        ('Slayer Guard', [(188, 34, 3)]),
+        ('Eldritch Orb', [(105, 0, 20), (107, skill('Lightning'), 3)]),
+        ('War Scepter', [(105, 0, 10), (107, skill('Fist of the Heavens'), 3)]),
+        ('Preserved Head', [(194, 0, 2), (83, 2, 1)]),
+        ('Grimoire', [(188, 57, 3)]),
+    ],
+)
+def test_class_items_cannot_bypass_skill_combination_gate(base, stats):
+    assert not match_item(observation(base, stats))

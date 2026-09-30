@@ -21,7 +21,8 @@ def resolve_market_tier(facts, reviewed, current):
             name: getattr(current, name)
             for name in ('state', 'request_ids', 'contract', 'segment_id', 'price_estimate')
         }
-    if reviewed.get('status') != 'pending_review' or facts.rarity not in ('unique', 'set'):
+    replaceable = reviewed.get('status') == 'pending_review' or reviewed.get('basis_kind') == 'qualitative'
+    if not replaceable or facts.rarity not in ('unique', 'set'):
         return reviewed
     if not current or current.get('state') != 'observed' or 'current' not in current.get('request_ids', ()):
         return reviewed
@@ -50,7 +51,7 @@ def resolve_market_tier(facts, reviewed, current):
     first = sum(low >= boundary for boundary in BOUNDARIES)
     last = sum(high >= boundary for boundary in BOUNDARIES)
     possible = list(TIERS[first : last + 1])
-    return {
+    market = {
         'status': 'market_supported' if len(possible) == 1 else 'conditional',
         'tier': possible[0] if len(possible) == 1 else None,
         'possible_tiers': possible,
@@ -67,3 +68,10 @@ def resolve_market_tier(facts, reviewed, current):
             'threshold_date': '2026-09-18',
         },
     }
+    if reviewed.get('baseline'):
+        if market['tier'] is None:
+            return {**reviewed, 'market_adjustment': market}
+        for key in ('baseline', 'variant', 'set_context'):
+            if key in reviewed:
+                market[key] = reviewed[key]
+    return market

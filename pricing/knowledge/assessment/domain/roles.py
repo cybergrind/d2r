@@ -29,6 +29,7 @@ class RoleAssessment:
     failed: tuple[str, ...]
     important_rolls: tuple[Mapping, ...]
     alternatives: tuple[str, ...]
+    socket_requirement: Mapping | None = None
 
     def __post_init__(self):
         for field in fields(self):

@@ -94,3 +94,39 @@ def test_upgrade_metadata_must_match_ascending_catalog_chains(failure):
         variants[identity['base_code']] = next(iter(variants.values()))
     with pytest.raises(ValueError, match='upgrade'):
         validate_definition_metadata(definitions, item_metadata, json.loads(CATALOG.read_bytes()))
+
+
+@pytest.mark.parametrize('failure', [None, 'roll', 'source', 'identity'])
+def test_archived_ladder_definition_metadata_is_validated(failure):
+    from pathlib import Path
+
+    from pricing.knowledge.definitions import build_definitions
+
+    definitions = build_definitions(Path(__file__).resolve().parents[3])
+    item_metadata = json.loads(METADATA.read_bytes())
+    archived = item_metadata['identities']['unique']['12']['ladder_definition']
+    if failure == 'roll':
+        archived['roll_ranges']['105']['min'] = 99
+    elif failure == 'source':
+        archived['source']['path'] = 'unreviewed-source.json'
+    elif failure == 'identity':
+        archived['name'] = 'Wrong archived identity'
+    if failure:
+        with pytest.raises(ValueError, match='metadata identity'):
+            validate_definition_metadata(definitions, item_metadata, json.loads(CATALOG.read_bytes()))
+    else:
+        validate_definition_metadata(definitions, item_metadata, json.loads(CATALOG.read_bytes()))
+
+
+def test_publication_rejects_stale_baseline_tier_evidence():
+    from pricing.knowledge.assessment.policies import named_baselines
+
+    with definition_store.definition_snapshot(), artifact_snapshot(runtime_inputs()) as snapshot:
+        mapping = dict(snapshot)
+        path = named_baselines.RULES.resolve()
+        document = json.loads(mapping[path].data)
+        document['rows'][0]['source']['sha256'] = '0' * 64
+        raw = json.dumps(document).encode()
+        mapping[path] = Artifact(raw, hashlib.sha256(raw).hexdigest())
+        with supplied_artifacts(mapping), pytest.raises(ValueError, match='baseline tier source'):
+            validate_runtime_inputs()

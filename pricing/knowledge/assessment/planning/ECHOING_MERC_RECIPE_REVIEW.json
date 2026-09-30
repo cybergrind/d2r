@@ -1,0 +1,571 @@
+{
+  "review_date": "2026-09-28",
+  "guide": {
+    "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+    "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c"
+  },
+  "planner": {
+    "path": "pricing/raw/mr/planners/ucgz20le.json",
+    "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+  },
+  "rows": [
+    {
+      "context": {
+        "span_index": 1,
+        "label": "",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "ZWcxvtFt",
+          "item_id": "95",
+          "position": [
+            67,
+            376
+          ],
+          "section_locator": "/sections/13"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "ZWcxvtFt",
+        "item_id": "95",
+        "position": [
+          67,
+          376
+        ],
+        "section_locator": "/sections/13"
+      },
+      "item": {
+        "base": "9pa",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          260,
+          250,
+          23,
+          6,
+          35,
+          17,
+          5
+        ],
+        "unique": "runeword088",
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r08",
+          "r03",
+          "r07",
+          "r12"
+        ],
+        "stats": {
+          "item_mindamage_percent": 260,
+          "item_maxdamage_percent": 260,
+          "item_tohit_percent": 250,
+          "item_magicbonus": 23,
+          "item_nonclassskill#9": 6,
+          "item_fastercastrate": 35,
+          "item_aura#120": 17,
+          "strength": 5,
+          "energy": 5,
+          "dexterity": 5,
+          "vitality": 5
+        },
+        "description": "17 aura 260% ed 250% ar 6 critical strike eth"
+      },
+      "item_fingerprint": "d6475da7663cad24471f6618a91d406cce9f4bc7021287b016dbc97136330e1a",
+      "section": {
+        "locator": "/sections/13",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          67,
+          32
+        ],
+        "review_state": "pending",
+        "text": "The Act 2 Blessed Aim Mercenary with an helps to buff your damage further while giving him enough damage to Leech Life and stay alive. provides survivability and Attack Speed, while provides the Leech needed to stay up."
+      },
+      "status": "runtime_and_exact_source_reviewed",
+      "profile_id": "echoing-0-insight-merc",
+      "selected_generation": "36439601d229641bacebb023e4856674c54a4bf44b590c0e259d545a883006fb",
+      "review_note": "Starter Blessed Aim versus later Prayer/Cure preserved. No active aura or numerical healing-rate claim. Blank starter label has no invented visible alias."
+    },
+    {
+      "context": {
+        "span_index": 2,
+        "label": "",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "ZWcxvtFt",
+          "item_id": "96",
+          "position": [
+            67,
+            581
+          ],
+          "section_locator": "/sections/13"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "ZWcxvtFt",
+        "item_id": "96",
+        "position": [
+          67,
+          581
+        ],
+        "section_locator": "/sections/13"
+      },
+      "item": {
+        "base": "xtp",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          15,
+          15,
+          2,
+          45
+        ],
+        "unique": "runeword173",
+        "defense": 261,
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r13",
+          "r10",
+          "r20"
+        ],
+        "stats": {
+          "item_skillonhit#278#25": 15,
+          "item_skillongethit#267#5": 15,
+          "item_addclassskills#6": 2,
+          "item_fasterattackrate": 45
+        },
+        "description": "391 def eth"
+      },
+      "item_fingerprint": "cb8697e7152a556b506281464583d183a2580656c2c4dd8f915d61a061ba48c6",
+      "section": {
+        "locator": "/sections/13",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          67,
+          32
+        ],
+        "review_state": "pending",
+        "text": "The Act 2 Blessed Aim Mercenary with an helps to buff your damage further while giving him enough damage to Leech Life and stay alive. provides survivability and Attack Speed, while provides the Leech needed to stay up."
+      },
+      "status": "runtime_quality_boundaries_and_embedded_source_reviewed",
+      "next_review_note": null,
+      "selected_generation": "8df2dd6ecc9c551b0bac06fa4675570b3e03780038fb32516d853456d8a81dff",
+      "review_note": "Normal/superior/low_quality completed recipes supported; exact ethereal base, Blessed Aim mercenary, Warlock and3filled preserved. Native Fade trigger and Non-Ladder Bulwark ranges checked. Blank labels have no invented occurrence aliases."
+    },
+    {
+      "context": {
+        "span_index": 3,
+        "label": "",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "ZWcxvtFt",
+          "item_id": "97",
+          "position": [
+            67,
+            738
+          ],
+          "section_locator": "/sections/13"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "ZWcxvtFt",
+        "item_id": "97",
+        "position": [
+          67,
+          738
+        ],
+        "section_locator": "/sections/13"
+      },
+      "item": {
+        "base": "crn",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          5,
+          100,
+          15,
+          30,
+          6
+        ],
+        "unique": "runeword204",
+        "defense": 45,
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r13",
+          "r16",
+          "r12"
+        ],
+        "stats": {
+          "item_maxhp_percent": 5,
+          "item_armor_percent": 100,
+          "damageresist": 15,
+          "hpregen": 30,
+          "lifedrainmindam": 6
+        },
+        "description": "134 def 6 ll 100% def 15% dr eth"
+      },
+      "item_fingerprint": "02df67a0ddb5edd0ab56be0562a548edb6a82b3288cfa081197dc4ec149021d8",
+      "section": {
+        "locator": "/sections/13",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          67,
+          32
+        ],
+        "review_state": "pending",
+        "text": "The Act 2 Blessed Aim Mercenary with an helps to buff your damage further while giving him enough damage to Leech Life and stay alive. provides survivability and Attack Speed, while provides the Leech needed to stay up."
+      },
+      "status": "runtime_quality_boundaries_and_embedded_source_reviewed",
+      "next_review_note": null,
+      "selected_generation": "8df2dd6ecc9c551b0bac06fa4675570b3e03780038fb32516d853456d8a81dff",
+      "review_note": "Normal/superior/low_quality completed recipes supported; exact ethereal base, Blessed Aim mercenary, Warlock and3filled preserved. Native Fade trigger and Non-Ladder Bulwark ranges checked. Blank labels have no invented occurrence aliases."
+    },
+    {
+      "context": {
+        "span_index": 6,
+        "label": "Insight Giant Thresher",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "13",
+          "position": [
+            76,
+            477
+          ],
+          "section_locator": "/sections/17"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "13",
+        "position": [
+          76,
+          477
+        ],
+        "section_locator": "/sections/17"
+      },
+      "item": {
+        "base": "7wc",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          260,
+          250,
+          23,
+          6,
+          35,
+          17,
+          5
+        ],
+        "unique": "runeword088",
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r08",
+          "r03",
+          "r07",
+          "r12"
+        ],
+        "stats": {
+          "item_mindamage_percent": 260,
+          "item_maxdamage_percent": 260,
+          "item_tohit_percent": 250,
+          "item_magicbonus": 23,
+          "item_nonclassskill#9": 6,
+          "item_fastercastrate": 35,
+          "item_aura#120": 17,
+          "strength": 5,
+          "energy": 5,
+          "dexterity": 5,
+          "vitality": 5
+        },
+        "description": "17 aura 260% ed 250% ar 6 critical strike eth"
+      },
+      "item_fingerprint": "833c6814e77d6d87f498d317b696771397026ae8ca739702dbd4d663cc874137",
+      "section": {
+        "locator": "/sections/17",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          76,
+          32
+        ],
+        "review_state": "pending",
+        "text": "Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime."
+      },
+      "status": "runtime_and_exact_source_reviewed",
+      "profile_id": "echoing-1-insight-merc",
+      "selected_generation": "36439601d229641bacebb023e4856674c54a4bf44b590c0e259d545a883006fb",
+      "review_note": "Starter Blessed Aim versus later Prayer/Cure preserved. No active aura or numerical healing-rate claim. Blank starter label has no invented visible alias."
+    },
+    {
+      "context": {
+        "span_index": 8,
+        "label": "Insight Giant Thresher",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "13",
+          "position": [
+            84,
+            477
+          ],
+          "section_locator": "/sections/21"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "13",
+        "position": [
+          84,
+          477
+        ],
+        "section_locator": "/sections/21"
+      },
+      "item": {
+        "base": "7wc",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          260,
+          250,
+          23,
+          6,
+          35,
+          17,
+          5
+        ],
+        "unique": "runeword088",
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r08",
+          "r03",
+          "r07",
+          "r12"
+        ],
+        "stats": {
+          "item_mindamage_percent": 260,
+          "item_maxdamage_percent": 260,
+          "item_tohit_percent": 250,
+          "item_magicbonus": 23,
+          "item_nonclassskill#9": 6,
+          "item_fastercastrate": 35,
+          "item_aura#120": 17,
+          "strength": 5,
+          "energy": 5,
+          "dexterity": 5,
+          "vitality": 5
+        },
+        "description": "17 aura 260% ed 250% ar 6 critical strike eth"
+      },
+      "item_fingerprint": "833c6814e77d6d87f498d317b696771397026ae8ca739702dbd4d663cc874137",
+      "section": {
+        "locator": "/sections/21",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          84,
+          32
+        ],
+        "review_state": "pending",
+        "text": "Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime."
+      },
+      "status": "runtime_and_exact_source_reviewed",
+      "profile_id": "echoing-2-insight-merc",
+      "selected_generation": "36439601d229641bacebb023e4856674c54a4bf44b590c0e259d545a883006fb",
+      "review_note": "Starter Blessed Aim versus later Prayer/Cure preserved. No active aura or numerical healing-rate claim. Blank starter label has no invented visible alias."
+    },
+    {
+      "context": {
+        "span_index": 127,
+        "label": "Insight Giant Thresher",
+        "side": "player",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "13",
+          "position": [
+            113,
+            346
+          ],
+          "section_locator": "/sections/42"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "13",
+        "position": [
+          113,
+          346
+        ],
+        "section_locator": "/sections/42"
+      },
+      "item": {
+        "base": "7wc",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          260,
+          250,
+          23,
+          6,
+          35,
+          17,
+          5
+        ],
+        "unique": "runeword088",
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r08",
+          "r03",
+          "r07",
+          "r12"
+        ],
+        "stats": {
+          "item_mindamage_percent": 260,
+          "item_maxdamage_percent": 260,
+          "item_tohit_percent": 250,
+          "item_magicbonus": 23,
+          "item_nonclassskill#9": 6,
+          "item_fastercastrate": 35,
+          "item_aura#120": 17,
+          "strength": 5,
+          "energy": 5,
+          "dexterity": 5,
+          "vitality": 5
+        },
+        "description": "17 aura 260% ed 250% ar 6 critical strike eth"
+      },
+      "item_fingerprint": "833c6814e77d6d87f498d317b696771397026ae8ca739702dbd4d663cc874137",
+      "section": {
+        "locator": "/sections/42",
+        "heading": "Insight, Prayer",
+        "anchor": "insight,-prayer-header",
+        "position": [
+          113,
+          43
+        ],
+        "review_state": "pending",
+        "text": "Use a Desert Mercenary with Prayer Aura to increase your passive Life Regeneration. Equip him with Insight Giant Thresher to passively generate mana via meditation Aura."
+      },
+      "status": "general_mana_use_and_exact_source_links_reviewed",
+      "next_review_note": null,
+      "selected_generation": "f9adba7872a9cc7d84b24061822dab07ffb132dfdca980a3294615eb8759c46d",
+      "profile_id": "echoing-overview-insight-merc",
+      "review_note": "General Prayer/Insight Meditation benefit accepts native-legal Act2 polearms without Cure or ethereal gates. Exact source tooltip remains ethereal Giant Thresher. Progression raw side=player is corrected semantically via its immediately preceding Insight/Prayer mercenary section and explicit Mercenary table prose; raw provenance retained."
+    },
+    {
+      "context": {
+        "span_index": 130,
+        "label": "Insight Giant Thresher",
+        "side": "player",
+        "slot": "Weapon",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "13",
+          "position": [
+            114,
+            1013
+          ],
+          "section_locator": "/sections/43"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "13",
+        "position": [
+          114,
+          1013
+        ],
+        "section_locator": "/sections/43"
+      },
+      "item": {
+        "base": "7wc",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          260,
+          250,
+          23,
+          6,
+          35,
+          17,
+          5
+        ],
+        "unique": "runeword088",
+        "ethereal": true,
+        "sockets": 4,
+        "socketedItems": [
+          "r08",
+          "r03",
+          "r07",
+          "r12"
+        ],
+        "stats": {
+          "item_mindamage_percent": 260,
+          "item_maxdamage_percent": 260,
+          "item_tohit_percent": 250,
+          "item_magicbonus": 23,
+          "item_nonclassskill#9": 6,
+          "item_fastercastrate": 35,
+          "item_aura#120": 17,
+          "strength": 5,
+          "energy": 5,
+          "dexterity": 5,
+          "vitality": 5
+        },
+        "description": "17 aura 260% ed 250% ar 6 critical strike eth"
+      },
+      "item_fingerprint": "833c6814e77d6d87f498d317b696771397026ae8ca739702dbd4d663cc874137",
+      "section": {
+        "locator": "/sections/43",
+        "heading": "Gear Progression",
+        "anchor": "gear-progression-header",
+        "position": [
+          114,
+          11
+        ],
+        "review_state": "pending",
+        "text": "Slot Early-Game Mid-Game End-Game Weapon Insight Insight Giant Thresher Body Armor Smoke Lionheart Skin of the Flayed One Rockfleece Treachery Duress Shaftstop Duriel's Shell Guardian Angel Chains of Honor Fortitude Treachery Helmet Bulwark Undead Crown The Face of Horror Gemmed Mask Temper Tal Rasha's Horadric Crest Guillaume's Face Vampire Gaze Crown of Thieves Stealskull Kira's Guardian Rockstopper Cure Grand Crown The Mercenary is hard to keep alive until you have the minimum gear recommended in this guide. Remember you can drag Healing Potions onto the portrait, or shift + 1/2/3/4 to directly feed them a Healing Potion from your Belt. The Mercenary also gains bonus Resistances from Thawing Potions and Antidote Potions. If your Mercenary dies in battle, you can revive them from any of the Mercenary NPCs in each Act. This does come with an increasing cost, capping at 50,000 Gold. Keep that in mind and decide if the Mercenary is currently worth the cost."
+      },
+      "status": "general_mana_use_and_exact_source_links_reviewed",
+      "next_review_note": null,
+      "selected_generation": "f9adba7872a9cc7d84b24061822dab07ffb132dfdca980a3294615eb8759c46d",
+      "profile_id": "echoing-overview-insight-merc",
+      "review_note": "General Prayer/Insight Meditation benefit accepts native-legal Act2 polearms without Cure or ethereal gates. Exact source tooltip remains ethereal Giant Thresher. Progression raw side=player is corrected semantically via its immediately preceding Insight/Prayer mercenary section and explicit Mercenary table prose; raw provenance retained."
+    }
+  ]
+}

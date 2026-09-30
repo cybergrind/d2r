@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from pricing.knowledge.bases import BASE_QUALITIES
+from pricing.knowledge.socket_materials import TYPES as SOCKET_MATERIAL_TYPES
 
 
 @dataclass(frozen=True)
@@ -42,6 +43,9 @@ FAMILIES = (
             }
         ),
     ),
+    Family('socket_material', SOCKET_MATERIAL_TYPES),
+    Family('supply', frozenset({'scro', 'book', 'key', 'bowq', 'xboq'})),
+    Family('consumable', frozenset({'hpot', 'apot', 'wpot', 'mpot', 'rpot', 'spot'})),
     Family('jewelry', frozenset({'ring', 'amul'})),
     Family('helm', frozenset({'helm', 'circ', 'phlm', 'pelt'})),
     Family('armor', frozenset({'tors'})),
@@ -57,7 +61,13 @@ def classify(facts, families=FAMILIES):
     if len(matches) > 1:
         raise ValueError(f'Ambiguous family dispatch: {matches}')
     policy = (
-        'runeword'
+        'socket_material'
+        if matches == ['socket_material']
+        else 'supply'
+        if matches == ['supply']
+        else 'consumable'
+        if matches == ['consumable']
+        else 'runeword'
         if facts.runeword
         else 'named'
         if facts.rarity in ('unique', 'set')

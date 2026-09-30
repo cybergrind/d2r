@@ -1,0 +1,143 @@
+{
+  "review_date": "2026-09-28",
+  "guide": {
+    "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+    "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c"
+  },
+  "planner": {
+    "path": "pricing/raw/mr/planners/ucgz20le.json",
+    "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+  },
+  "rows": [
+    {
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "1ikVhvXU",
+        "item_id": "209",
+        "position": [
+          92,
+          478
+        ],
+        "section_locator": "/sections/24"
+      },
+      "context": {
+        "span_index": 11,
+        "label": "Gheed's Fortune",
+        "side": "player",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "1ikVhvXU",
+          "item_id": "209",
+          "position": [
+            92,
+            478
+          ],
+          "section_locator": "/sections/24"
+        }
+      },
+      "item": {
+        "base": "cm3",
+        "quality": 6,
+        "ilvl": 99,
+        "uniqueValues": [
+          40,
+          160,
+          15
+        ],
+        "unique": "unique359",
+        "sockets": 0,
+        "stats": {
+          "item_magicbonus": 40,
+          "item_goldbonus": 160,
+          "item_reducedprices": 15
+        },
+        "ethereal": false,
+        "description": "160% gold 40 mf 15% prices"
+      },
+      "interpretation_to_validate": "Explicit removal from Ubers inventory, not an endorsement and not global no-demand/trash. The tooltip points to the Magic Find profile.",
+      "status": "negative_tooltip_and_visible_label_reviewed_runtime_demand_corrected",
+      "runtime_audit": {
+        "finding": "Raw guide mention at /item-spans/11 incorrectly has recommended=true. Watchlist has no Ubers context; valid Main alternatives, Standard and Magic Find remain.",
+        "required_followup": null,
+        "selected_generation": "f703eb7fafb4231c29777742c1a4b5c8dd057d487011e90bb2caa2b190038f39",
+        "named_tier_evidence_review": {
+          "old_sha256": "566859a0be8958b8ac43047ffa9538b062c1000fa4ecaae3cc1e978e5ea50ca9",
+          "new_sha256": "573c61f3451b5ee2a010091c7f7b2f0594fb4a45ff4048026d42f11161e1812a",
+          "unchanged_reviewed_rows": [
+            "Eschuta's Temper",
+            "Hellfire Torch",
+            "Guardian Angel",
+            "Shaftstop",
+            "Crown of Thieves",
+            "Duriel's Shell"
+          ]
+        }
+      }
+    },
+    {
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "Khw26jKQ",
+        "item_id": "281",
+        "position": [
+          95,
+          654
+        ],
+        "section_locator": "/sections/25"
+      },
+      "context": {
+        "span_index": 14,
+        "label": "Malice Mythical Sword",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "Khw26jKQ",
+          "item_id": "281",
+          "position": [
+            95,
+            654
+          ],
+          "section_locator": "/sections/25"
+        }
+      },
+      "item": {
+        "base": "7wd",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          100,
+          -100,
+          1,
+          33,
+          -1,
+          -5
+        ],
+        "unique": "runeword106",
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r06",
+          "r01",
+          "r05"
+        ],
+        "stats": {
+          "item_openwounds": 100,
+          "item_damagetargetac": -100,
+          "item_preventheal": 1,
+          "item_mindamage_percent": 33,
+          "item_maxdamage_percent": 33,
+          "item_lightradius": -1,
+          "hpregen": -5
+        },
+        "description": "eth"
+      },
+      "interpretation_to_validate": "Mercenary Off-Hand Malice in an ethereal Mythical Sword. Parent planner stats are separate from rune payload; preserve native recipe order and do not credit mercenary Prevent Monster Heal.",
+      "status": "runtime_companions_and_exact_source_links_reviewed",
+      "next_review_note": "Resolved: all three Sazabi items must be in mercenary_items for this exact Ubers setup; missing or unknown companions remain partial.15 native item-bank scenarios passed. No active Enchant/Fade or companion rolls inferred.",
+      "selected_generation": "8370632a2f856d4e4a464d9952022fbe7b2e2b11c6163c7b929539c3aac3d58d"
+    }
+  ]
+}

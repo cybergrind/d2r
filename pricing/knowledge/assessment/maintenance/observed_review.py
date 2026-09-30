@@ -14,12 +14,22 @@ from pricing.knowledge.refresh import atomic_json
 def review_gaps(assessment, price):
     facts = assessment['facts']
     gaps = []
+    projection = facts.get('projection_gaps', [])
+    final = assessment.get('price_gaps')
+    # Both fields are emitted after the pricing handler executes. Legacy replay
+    # records without that evidence keep their original mapping work.
+    handler_ran = 'contract' in assessment and isinstance(final, list) and all(isinstance(g, str) for g in final)
+    if handler_ran:
+        projection = [reason for reason in projection if reason in final]
     for dimension, reasons in (
         ('capture', facts.get('gaps', [])),
-        ('market_mapping', facts.get('projection_gaps', [])),
+        ('market_mapping', projection),
         ('desirability', assessment.get('coverage_gaps', [])),
     ):
         gaps.extend({'dimension': dimension, 'state': 'pending', 'reason': reason} for reason in sorted(set(reasons)))
+    if handler_ran:
+        residual = set(final) - set(facts.get('gaps', [])) - set(projection)
+        gaps.extend({'dimension': 'market', 'state': 'pending', 'reason': reason} for reason in sorted(residual))
     if price.get('estimate_ist') is None:
         gaps.append(
             {
@@ -41,11 +51,11 @@ def merge_replays(previous, replays, capture_hashes):
         capture_id = fingerprint({'source': source, 'sha256': digest})
         assessment, price = replay['assessment'], replay['price_estimate']
         revision = {
-            'id': fingerprint({'assessment': assessment, 'price_estimate': price}),
             'assessment': deepcopy(assessment),
             'price_estimate': deepcopy(price),
             'gaps': review_gaps(assessment, price),
         }
+        revision['id'] = fingerprint(revision)
         record = records.setdefault(
             capture_id,
             {
@@ -58,6 +68,8 @@ def merge_replays(previous, replays, capture_hashes):
         if not any(r['id'] == revision['id'] for r in record['history']):
             record['history'].append(revision)
         record['latest_revision'] = revision['id']
+        if 'input_format' in replay:
+            record['input_format'] = replay['input_format']
         record['facts'] = deepcopy(assessment['facts'])
         record['gaps'] = revision['gaps']
     return {'schema_version': 1, 'complete': False, 'captures': [records[k] for k in sorted(records)]}

@@ -31,3 +31,22 @@ def test_profile_compiler_accepts_resolvable_escaped_source_pointer(tmp_path):
 def test_profile_compiler_rejects_nonexistent_or_invalid_pointer_despite_matching_hash(tmp_path, pointer):
     with pytest.raises(ValueError, match='source locator'):
         compile_profiles(document_for(tmp_path, pointer), tmp_path)
+
+
+def test_corroborating_planner_is_bundled_and_validated(tmp_path):
+    from pricing.knowledge.assessment.profile_sources import profile_source_paths
+
+    document = document_for(tmp_path, '/variants/0')
+    planner = tmp_path / 'planner.json'
+    planner.write_text('{"data": "pinned planner"}')
+    evidence = {'path': 'planner.json', 'sha256': hashlib.sha256(planner.read_bytes()).hexdigest(), 'locator': '/data'}
+    document['profiles'][0]['source']['corroborating'] = [evidence]
+    assert planner in profile_source_paths(document, tmp_path)
+    assert compile_profiles(document, tmp_path) == document
+    evidence['locator'] = '/missing'
+    with pytest.raises(ValueError, match='source locator'):
+        compile_profiles(document, tmp_path)
+    evidence['locator'] = '/data'
+    planner.write_text('{"data": "changed quality"}')
+    with pytest.raises(ValueError, match='Source changed'):
+        compile_profiles(document, tmp_path)

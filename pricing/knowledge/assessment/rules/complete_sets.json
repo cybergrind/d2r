@@ -1,0 +1,846 @@
+{
+  "schema_version": 1,
+  "scope": "SC / Non-Ladder / PC / RotW",
+  "rows": [
+    {
+      "native_id": "Aldur's Watchtower",
+      "name": "Aldur's Watchtower",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Budget Summon Druid completion; locked weapon and four slots limit alternatives. Boots retain independent movement/resistance demand.",
+      "pieces": [
+        "Aldur's Advance",
+        "Aldur's Deception",
+        "Aldur's Rhythm",
+        "Aldur's Stony Gaze"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Budget Summon Druid completion; locked weapon and four slots limit alternatives. Boots retain independent movement/resistance demand."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Aldur's Watchtower",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Angelical Raiment",
+      "name": "Angelic Raiment",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Attack leveling set. The ring/amulet attack-rating pair is the main reusable combination; the complete four-piece set is optional.",
+      "pieces": [
+        "Angelic Halo",
+        "Angelic Mantle",
+        "Angelic Sickle",
+        "Angelic Wings"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Attack leveling set. The ring/amulet attack-rating pair is the main reusable combination; the complete four-piece set is optional."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Angelical Raiment",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Arcanna's Tricks",
+      "name": "Arcanna's Tricks",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early caster mana and cast-rate set; four occupied slots and weak weapon make common caster runewords easier progression choices.",
+      "pieces": [
+        "Arcanna's Deathwand",
+        "Arcanna's Flesh",
+        "Arcanna's Head",
+        "Arcanna's Sign"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Early caster mana and cast-rate set; four occupied slots and weak weapon make common caster runewords easier progression choices."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Arcanna's Tricks",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Arctic Gear",
+      "name": "Arctic Gear",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Reusable early bow-Amazon set with attack speed, damage and partial bonuses; replace as stronger bow damage becomes available.",
+      "pieces": [
+        "Arctic Binding",
+        "Arctic Furs",
+        "Arctic Horn",
+        "Arctic Mitts"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "high",
+        "reason": "Reusable early bow-Amazon set with attack speed, damage and partial bonuses; replace as stronger bow damage becomes available."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Arctic Gear",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Bane's Garments",
+      "name": "Bane's Garments",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Warlock set utility is concentrated in individual class bonuses and caster slots; full completion is a budget alternative to specialized runeword/unique equipment.",
+      "pieces": [
+        "Bane's Authority",
+        "Bane's Oathmaker",
+        "Bane's Wraithskin"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Warlock set utility is concentrated in individual class bonuses and caster slots; full completion is a budget alternative to specialized runeword/unique equipment."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Bane's Garments",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Berserker's Garb",
+      "name": "Berserker's Arsenal",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early melee set; helmet fire resistance and partial bonuses are useful briefly, but the low base-damage axe limits sustained use.",
+      "pieces": [
+        "Berserker's Hatchet",
+        "Berserker's Hauberk",
+        "Berserker's Headgear"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Early melee set; helmet fire resistance and partial bonuses are useful briefly, but the low base-damage axe limits sustained use."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Berserker's Garb",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Bul-Kathos' Children",
+      "name": "Bul-Kathos' Children",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Paired budget Barbarian swords; elite weapon requirements put the complete pair beyond ordinary leveling. Stronger runeword weapons compete for both slots.",
+      "pieces": [
+        "Bul-Kathos' Sacred Charge",
+        "Bul-Kathos' Tribal Guardian"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Paired budget Barbarian swords; elite weapon requirements put the complete pair beyond ordinary leveling. Stronger runeword weapons compete for both slots."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Bul-Kathos' Children",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Cathan's Traps",
+      "name": "Cathan's Traps",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early attack life-leech ring is more reusable than the full caster-staff set. Full-set leveling is temporary and occupies five slots.",
+      "pieces": [
+        "Cathan's Mesh",
+        "Cathan's Rule",
+        "Cathan's Seal",
+        "Cathan's Sigil",
+        "Cathan's Visage"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Early attack life-leech ring is more reusable than the full caster-staff set. Full-set leveling is temporary and occupies five slots."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Cathan's Traps",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Civerb's Vestments",
+      "name": "Civerb's Vestments",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable.",
+      "pieces": [
+        "Civerb's Cudgel",
+        "Civerb's Icon",
+        "Civerb's Ward"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Civerb's Vestments",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Cleglaw's Brace",
+      "name": "Cleglaw's Brace",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute.",
+      "pieces": [
+        "Cleglaw's Claw",
+        "Cleglaw's Pincers",
+        "Cleglaw's Tooth"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Cleglaw's Brace",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Cow King's Leathers",
+      "name": "Cow King's Leathers",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Reusable attack and magic-find leveling equipment. Boots have standalone utility; full-set bonuses require all three pieces.",
+      "pieces": [
+        "Cow King's Hide",
+        "Cow King's Hooves",
+        "Cow King's Horns"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Reusable attack and magic-find leveling equipment. Boots have standalone utility; full-set bonuses require all three pieces."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Cow King's Leathers",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Death's Disguise",
+      "name": "Death's Disguise",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Reusable attack-leveling set. Belt plus gloves provide Cannot Be Frozen and attack speed; the sword is optional for that combination.",
+      "pieces": [
+        "Death's Guard",
+        "Death's Hand",
+        "Death's Touch"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "high",
+        "reason": "Reusable attack-leveling set. Belt plus gloves provide Cannot Be Frozen and attack speed; the sword is optional for that combination."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Death's Disguise",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Griswold's Legacy",
+      "name": "Griswold's Legacy",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Specialist Paladin full set with substantial socket customization. Weapon socket count and actual fillers matter; full-set tier excludes valuable fillers.",
+      "pieces": [
+        "Griswold's Heart",
+        "Griswold's Honor",
+        "Griswold's Redemption",
+        "Griswold's Valor"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Specialist Paladin full set with substantial socket customization. Weapon socket count and actual fillers matter; full-set tier excludes valuable fillers."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Griswold's Legacy",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Heaven's Brethren",
+      "name": "Heaven's Brethren",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "High equip requirements and four locked slots make complete-set bonuses poor progression value relative to common runewords; individual armor can serve a transitional mercenary.",
+      "pieces": [
+        "Dangoon's Teaching",
+        "Haemosu's Adamant",
+        "Ondal's Almighty",
+        "Taebaek's Glory"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "High equip requirements and four locked slots make complete-set bonuses poor progression value relative to common runewords; individual armor can serve a transitional mercenary."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Heaven's Brethren",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Horazon's Splendor",
+      "name": "Horazon's Splendor",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Warlock caster set completion is a budget class option; skill and casting pieces retain distinct individual demand. Full completion is not assumed from one piece.",
+      "pieces": [
+        "Horazon's Countenance",
+        "Horazon's Dominion",
+        "Horazon's Hold",
+        "Horazon's Legacy",
+        "Horazon's Secrets"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Warlock caster set completion is a budget class option; skill and casting pieces retain distinct individual demand. Full completion is not assumed from one piece."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Horazon's Splendor",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Hsarus' Defense",
+      "name": "Hsarus' Defense",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early attack set with movement/resistances and partial attack rating. Boots/belt supply the reusable pair; shield completion is optional.",
+      "pieces": [
+        "Hsarus' Iron Fist",
+        "Hsarus' Iron Heel",
+        "Hsarus' Iron Stay"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Early attack set with movement/resistances and partial attack rating. Boots/belt supply the reusable pair; shield completion is optional."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Hsarus' Defense",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Hwanin's Majesty",
+      "name": "Hwanin's Majesty",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early mercenary weapon and specialist prevent-monster-heal belt are distinct uses. Full player set locks a two-handed weapon and offers limited value against runeword progression.",
+      "pieces": [
+        "Hwanin's Blessing",
+        "Hwanin's Justice",
+        "Hwanin's Refuge",
+        "Hwanin's Splendor"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Early mercenary weapon and specialist prevent-monster-heal belt are distinct uses. Full player set locks a two-handed weapon and offers limited value against runeword progression."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Hwanin's Majesty",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Immortal King",
+      "name": "Immortal King",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Budget endgame Barbarian melee set with mixed damage and survivability; armor acquisition and high Strength requirements limit full-set leveling utility.",
+      "pieces": [
+        "Immortal King's Detail",
+        "Immortal King's Forge",
+        "Immortal King's Pillar",
+        "Immortal King's Soul Cage",
+        "Immortal King's Stone Crusher",
+        "Immortal King's Will"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Budget endgame Barbarian melee set with mixed damage and survivability; armor acquisition and high Strength requirements limit full-set leveling utility."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Immortal King",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Infernal Tools",
+      "name": "Infernal Tools",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early Necromancer skill and resistance set. Helmet/wand are useful independently; full-set conditions are needed for completion bonuses.",
+      "pieces": [
+        "Infernal Cranium",
+        "Infernal Sign",
+        "Infernal Torch"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Early Necromancer skill and resistance set. Helmet/wand are useful independently; full-set conditions are needed for completion bonuses."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Infernal Tools",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Iratha's Finery",
+      "name": "Iratha's Finery",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Reusable resistance and pierce leveling set, particularly ranged attacks; full-set maximum-resistance benefits require all four pieces.",
+      "pieces": [
+        "Iratha's Coil",
+        "Iratha's Collar",
+        "Iratha's Cord",
+        "Iratha's Cuff"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "high",
+        "reason": "Reusable resistance and pierce leveling set, particularly ranged attacks; full-set maximum-resistance benefits require all four pieces."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Iratha's Finery",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Isenhart's Armory",
+      "name": "Isenhart's Armory",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Very early melee set with fixed modest weapon damage; short-lived leveling utility and abundant alternatives keep ordinary trade priority at the bottom.",
+      "pieces": [
+        "Isenhart's Case",
+        "Isenhart's Horns",
+        "Isenhart's Lightbrand",
+        "Isenhart's Parry"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Very early melee set with fixed modest weapon damage; short-lived leveling utility and abundant alternatives keep ordinary trade priority at the bottom."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Isenhart's Armory",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "M'avina's Battle Hymn",
+      "name": "M'avina's Battle Hymn",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Budget Freezing Arrow Amazon full set; diadem completion demand differs from the common pieces. Full-set and elite bow requirements limit early leveling.",
+      "pieces": [
+        "M'avina's Caster",
+        "M'avina's Embrace",
+        "M'avina's Icy Clutch",
+        "M'avina's Tenet",
+        "M'avina's True Sight"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Budget Freezing Arrow Amazon full set; diadem completion demand differs from the common pieces. Full-set and elite bow requirements limit early leveling."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/M'avina's Battle Hymn",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "McAuley's Folly",
+      "name": "Sander's Folly",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Sander's low-level movement/attack-speed equipment is reusable for leveling; full completion is optional and the wand is a caster-specific slot.",
+      "pieces": [
+        "Sander's Paragon",
+        "Sander's Riprap",
+        "Sander's Superstition",
+        "Sander's Taboo"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "high",
+        "reason": "Sander's low-level movement/attack-speed equipment is reusable for leveling; full completion is optional and the wand is a caster-specific slot."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/McAuley's Folly",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Milabrega's Regalia",
+      "name": "Milabrega's Regalia",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early Paladin set with a reusable magic-find shield, but armor Strength and weapon damage limit the complete set compared with partial use.",
+      "pieces": [
+        "Milabrega's Diadem",
+        "Milabrega's Orb",
+        "Milabrega's Robe",
+        "Milabrega's Rod"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Early Paladin set with a reusable magic-find shield, but armor Strength and weapon damage limit the complete set compared with partial use."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Milabrega's Regalia",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Naj's Ancient Set",
+      "name": "Naj's Ancient Vestige",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Caster progression and teleport-charge staff utility; complete-set equip level is late progression. Teleport charges belong to the staff without requiring all pieces.",
+      "pieces": [
+        "Naj's Circlet",
+        "Naj's Light Plate",
+        "Naj's Puzzler"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Caster progression and teleport-charge staff utility; complete-set equip level is late progression. Teleport charges belong to the staff without requiring all pieces."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Naj's Ancient Set",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Natalya's Odium",
+      "name": "Natalya's Odium",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Budget Assassin set and movement/resistance pieces; late claw requirement and weapon choice constrain complete-set demand. Armor socket count matters separately.",
+      "pieces": [
+        "Natalya's Mark",
+        "Natalya's Shadow",
+        "Natalya's Soul",
+        "Natalya's Totem"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Budget Assassin set and movement/resistance pieces; late claw requirement and weapon choice constrain complete-set demand. Armor socket count matters separately."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Natalya's Odium",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Orphan's Call",
+      "name": "Orphan's Call",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Useful standalone melee helmet, attack-speed gloves, dual-leech belt and blocking shield. Complete set has low completion priority; Guillaume's Face demand does not transfer equally to the other pieces.",
+      "pieces": [
+        "Guillaume's Face",
+        "Magnus' Skin",
+        "Whitstan's Guard",
+        "Wilhelm's Pride"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Useful standalone melee helmet, attack-speed gloves, dual-leech belt and blocking shield. Complete set has low completion priority; Guillaume's Face demand does not transfer equally to the other pieces."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Orphan's Call",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Sazabi's Grand Tribute",
+      "name": "Sazabi's Grand Tribute",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "All three pieces support the reviewed Echoing Strike Ubers Act 5 mercenary alternative; full-set life-leech and survivability require the complete set, not just the helm.",
+      "pieces": [
+        "Sazabi's Cobalt Redeemer",
+        "Sazabi's Ghost Liberator",
+        "Sazabi's Mental Sheath"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "All three pieces support the reviewed Echoing Strike Ubers Act 5 mercenary alternative; full-set life-leech and survivability require the complete set, not just the helm."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Sazabi's Grand Tribute",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Sigon's Complete Steel",
+      "name": "Sigon's Complete Steel",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Reusable attack-leveling set with strong partial attack-speed/leech combinations. Equip Strength and boots/gloves/belt/armor choices matter; all six pieces are not required for each combination.",
+      "pieces": [
+        "Sigon's Gage",
+        "Sigon's Guard",
+        "Sigon's Sabot",
+        "Sigon's Shelter",
+        "Sigon's Visor",
+        "Sigon's Wrap"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "high",
+        "reason": "Reusable attack-leveling set with strong partial attack-speed/leech combinations. Equip Strength and boots/gloves/belt/armor choices matter; all six pieces are not required for each combination."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Sigon's Complete Steel",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Tal Rasha's Wrappings",
+      "name": "Tal Rasha's Wrappings",
+      "tier": "med",
+      "reviewed_at": "2026-09-26",
+      "basis": "Established Sorceress magic-find and survivability full set; armor/amulet and three-piece combinations carry different individual demand. Complete set requires late-game armor level.",
+      "pieces": [
+        "Tal Rasha's Adjudication",
+        "Tal Rasha's Fine-Spun Cloth",
+        "Tal Rasha's Guardianship",
+        "Tal Rasha's Horadric Crest",
+        "Tal Rasha's Lidless Eye"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Established Sorceress magic-find and survivability full set; armor/amulet and three-piece combinations carry different individual demand. Complete set requires late-game armor level."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Tal Rasha's Wrappings",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Tancred's Battlegear",
+      "name": "Tancred's Battlegear",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Amulet/boots provide the useful magic-find pair. Full completion locks weak attack equipment and is not needed for that bonus.",
+      "pieces": [
+        "Tancred's Crowbill",
+        "Tancred's Hobnails",
+        "Tancred's Skull",
+        "Tancred's Spine",
+        "Tancred's Weird"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Amulet/boots provide the useful magic-find pair. Full completion locks weak attack equipment and is not needed for that bonus."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Tancred's Battlegear",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "The Disciple",
+      "name": "The Disciple",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Demon-damage gloves, resistance belt and skill amulet have useful standalone roles. Full completion adds weak armor/boots instead of common stronger alternatives.",
+      "pieces": [
+        "Credendum",
+        "Dark Adherent",
+        "Laying of Hands",
+        "Rite of Passage",
+        "Telling of Beads"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Demon-damage gloves, resistance belt and skill amulet have useful standalone roles. Full completion adds weak armor/boots instead of common stronger alternatives."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/The Disciple",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Trang-Oul's Avatar",
+      "name": "Trang-Oul's Avatar",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Budget/specialist Necromancer full set; shield/gloves/belt partial poison-pierce setup remains distinct from full-set transformation and casting behavior.",
+      "pieces": [
+        "Trang-Oul's Claws",
+        "Trang-Oul's Girth",
+        "Trang-Oul's Guise",
+        "Trang-Oul's Scales",
+        "Trang-Oul's Wing"
+      ],
+      "leveling": {
+        "status": "no_specific_recommendation",
+        "tier": null,
+        "reason": "Budget/specialist Necromancer full set; shield/gloves/belt partial poison-pierce setup remains distinct from full-set transformation and casting behavior."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Trang-Oul's Avatar",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Vidala's Rig",
+      "name": "Vidala's Rig",
+      "tier": "trash",
+      "reviewed_at": "2026-09-26",
+      "basis": "Early ranged leveling and boots/amulet magic-find pair; bow damage limits complete-set longevity compared with Arctic or stronger bows.",
+      "pieces": [
+        "Vidala's Ambush",
+        "Vidala's Barb",
+        "Vidala's Fetlock",
+        "Vidala's Snare"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "low",
+        "reason": "Early ranged leveling and boots/amulet magic-find pair; bow damage limits complete-set longevity compared with Arctic or stronger bows."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Vidala's Rig",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    },
+    {
+      "native_id": "Warlord's Glory",
+      "name": "Warlord's Glory",
+      "tier": "low",
+      "reviewed_at": "2026-09-26",
+      "basis": "Native low-level attack and partial/full-set bonuses offer conditional leveling utility, including complete-set Meditation. Drop availability remains unverified; this is a qualitative utility review, not a market quote.",
+      "pieces": [
+        "Warlord's Authority",
+        "Warlord's Conquest",
+        "Warlord's Crushers",
+        "Warlord's Lust",
+        "Warlord's Mantle"
+      ],
+      "leveling": {
+        "status": "conditional_combination",
+        "tier": "med",
+        "reason": "Native low-level attack and partial/full-set bonuses offer conditional leveling utility, including complete-set Meditation. Drop availability remains unverified; this is a qualitative utility review, not a market quote."
+      },
+      "source": {
+        "path": "third-parties/d2data/json/sets.json",
+        "locator": "/Warlord's Glory",
+        "sha256": "879e0c6d28028255426a671f5e947eb7d61f097e82eba8df20eed10e60861058",
+        "date": "2026-09-26"
+      }
+    }
+  ]
+}

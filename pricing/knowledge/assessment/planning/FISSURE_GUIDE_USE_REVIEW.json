@@ -1,0 +1,587 @@
+{
+  "review_date": "2026-09-28",
+  "rows": [
+    {
+      "profile_id": "fissure-merc-standard-fortitude",
+      "variant": "Standard",
+      "side": "merc",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability.",
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Standard",
+        "purpose": "The Standard Best in Slot Fissure Druid: the balanced jack-of-all-trades version that carefully balances Damage, Magic Find, and Teleport mobility and achieves the 99% FCR breakpoint.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "type": "Act 2 Might per variant prose ('Act 2 Might Mercenary with Infinity'); planner set uses mercType 10 = Holy Freeze, and the guide's Mercenary section is headed 'Infinity, Holy Freeze'",
+        "Weapon": [
+          "Infinity Giant Thresher (ethereal; Ber Mal Ber Ist)"
+        ],
+        "Body Armor": [
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "Helmet": [
+          "Andariel's Visage Demonhead (ethereal; planner jewel 15% IAS / 40% ED)"
+        ],
+        "Off-Hand": []
+      },
+      "source_quotes": [
+        "It carefully balances Damage, Magic Find, and Teleport mobility. A Flickering Flame in an ideal Base is also great for this build. Flame Rift enables this build to crush monsters that are Immune to Fire. This setup achieves the 99% Faster Cast Rate Breakpoint.",
+        "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability.",
+        "Before starting your run, first buff yourself with Battle Command from Call to Arms. Next, cast Summon Grizzly, Summon Spirit Wolf (5x), Summon Dire Wolf (3x), and Oak Sage on whichever weapon loadout has the most + to Skills. Finally, recast Battle Command and then cast Battle Orders."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    },
+    {
+      "profile_id": "fissure-merc-magic-find-fortitude",
+      "variant": "Magic Find",
+      "side": "merc",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Magic Find Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Magic Find",
+        "purpose": "This variant stacks as much Magic Find as possible for high Solo Ancient Tunnels, Stony Tomb, and Icy Cellar farming efficiency; Teleport mobility is a secondary concern.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "type": "Act 2 Might per prose; planner mercType 10 = Holy Freeze",
+        "Weapon": [
+          "Infinity Giant Thresher (ethereal)"
+        ],
+        "Body Armor": [
+          "Fortitude Sacred Armor (ethereal)"
+        ],
+        "Helmet": [
+          "Andariel's Visage Demonhead (ethereal) socketed with a Ruby Jewel of Fervor (prose; planner jewel 15% IAS / 40% ED)"
+        ],
+        "Off-Hand": []
+      },
+      "source_quotes": [
+        "Since the above are compact areas often located close to their respective Waypoints, Teleport mobility is a secondary concern. Several easily accessible Terror Zones are also optimal for this setup. Flame Rift enables this build to crush monsters that are Immune to Fire.",
+        "The Magic Find Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    },
+    {
+      "profile_id": "fissure-merc-ubers-chains-of-honor",
+      "variant": "Ubers",
+      "side": "merc",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+          "Chains of Honor Archon Plate (ethereal)"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Ubers",
+        "purpose": "The Ubers variant is made possible by Flame Rift; it specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith, mainly using Firestorm.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "type": "Act 2 Might (prose and planner agree: mercType 11)",
+        "Weapon": [
+          "Infinity Thresher (ethereal)"
+        ],
+        "Body Armor": [
+          "Chains of Honor Archon Plate (ethereal)"
+        ],
+        "Helmet": [
+          "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift"
+        ],
+        "Off-Hand": []
+      },
+      "source_quotes": [
+        "-x% to Enemy Fire Resistance, + to Skills, Damage Reduction, Resistances, and Life are priority stats on this setup. Swapping to Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction. Use a Lower Resist Charge Wand on Weapon-Swap to further reduce their Fire Resistance.",
+        "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+        "Max out Oak Sage instead of Volcano for increased survivability. Put additional points into Summon Dire Wolf for more Summon Grizzly Life if you have any left over."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    },
+    {
+      "profile_id": "fissure-merc-ubers-flickering-flame",
+      "variant": "Ubers",
+      "side": "merc",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+          "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift"
+        ],
+        "review": "2026-09-25: explicit variant prose establishes the mercenary role; planner ethereal examples are preferences, not mandatory minima. Companion gear remains a loadout dependency, not a price claim."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Flickering Flame"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Ubers",
+        "purpose": "The Ubers variant is made possible by Flame Rift; it specializes in defeating the Uber Bosses, including mini-Ubers such as Lilith, mainly using Firestorm.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "type": "Act 2 Might (prose and planner agree: mercType 11)",
+        "Weapon": [
+          "Infinity Thresher (ethereal)"
+        ],
+        "Body Armor": [
+          "Chains of Honor Archon Plate (ethereal)"
+        ],
+        "Helmet": [
+          "Flickering Flame Bone Visage (ethereal) - Resist Fire Aura to counter Flame Rift"
+        ],
+        "Off-Hand": []
+      },
+      "source_quotes": [
+        "-x% to Enemy Fire Resistance, + to Skills, Damage Reduction, Resistances, and Life are priority stats on this setup. Swapping to Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction. Use a Lower Resist Charge Wand on Weapon-Swap to further reduce their Fire Resistance.",
+        "The Ubers Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Flickering Flame provides you with Resist Fire Aura to help you counter Flame Rift. It also uses Chains of Honor to have Life Leech for better survivability with Flickering Flame equipped.",
+        "Max out Oak Sage instead of Volcano for increased survivability. Put additional points into Summon Dire Wolf for more Summon Grizzly Life if you have any left over."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    },
+    {
+      "profile_id": "fissure-player-starter-lore",
+      "variant": "Starter",
+      "side": "player",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lore Antlers (+3 Fissure)"
+        ],
+        "review": "2026-09-25: Starter prose prioritizes +skills without a numeric Fissure minimum; +3 belongs to the pictured Lore Antlers planner target. Reviewed inference: a positive Fissure staffmod provides skill support, with +3 preferred rather than mandatory. Completed non-ethereal Lore pelt and Druid remain required. Native Lore all-skills is recognized only when captured; no missing stat is invented. This does not establish farming readiness, perfect rolls, preferred base or price."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Lore"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:234",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Starter",
+        "purpose": "The Starter variant meets the minimum gear requirements for farming the Starter tagged areas; most of this gear can be acquired by early Nightmare with a standard progression.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "Weapon": [
+          "Spirit Crystal Sword"
+        ],
+        "Off-Hand": [
+          "Ancients' Pledge Kite Shield"
+        ],
+        "Weapon-Swap": [
+          "Staff of Teleportation (planner: magic Battle Staff, Teleport charges, 40 Fire Res)",
+          "Harmony (prose: 'You can also use a Harmony for faster travel')"
+        ],
+        "Off-Hand-Swap": [],
+        "Helmet": [
+          "Lore Antlers (+3 Fissure)"
+        ],
+        "Body Armor": [
+          "Stealth Hard Leather Armor"
+        ],
+        "Gloves": [
+          "Magic Heavy Gloves 30 Fire Resist / 25% MF"
+        ],
+        "Belt": [
+          "Caster Crafted Belt 'Cruel Clasp' Sharkskin Belt (10% FCR, 9 Str, 20 Mana, 10% Mana Regen, 10 Cold-Light-Fire Res)"
+        ],
+        "Boots": [
+          "Magic Heavy Boots 20% FRW"
+        ],
+        "Amulet": [
+          "Magic Amulet +2 Elemental Skills / 10% FCR"
+        ],
+        "Rings": [
+          "Magic Ring 10% FCR / +7 All Resistances (x2)"
+        ],
+        "Charms": [
+          "Grand Charm 7% FRW / 30 Cold Res (x3)",
+          "Grand Charm 7% FRW / 30 Light Res (x2)",
+          "Grand Charm 12% FHR / 30 Fire Res (x2)"
+        ],
+        "Prebuff": [],
+        "Other": [
+          "Lower Resist Charge Wand kept in inventory and/or Horadric Cube (recharge with Gold or Chipped Gem + Ort Rune cube recipe)"
+        ]
+      },
+      "source_quotes": [
+        "Prioritize Resistances, + to Skills, Life, and Magic Find stats on your gear. Use a Staff of Teleportation on Weapon-Swap to reposition. You can also use a Harmony for faster travel. Keep a Lower Resist Charge Wand in your inventory and/or Horadric Cube to break monster Fire Immunity/lower monster Fire Resistances if necessary.",
+        "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    },
+    {
+      "profile_id": "fissure-player-standard-flickering-flame",
+      "variant": "Standard",
+      "side": "player",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Flickering Flame in an ideal Base (prose: 'also great for this build')"
+        ],
+        "review": "2026-09-25: Explicit player helmet choice. Lore preserves the planner +3 Fissure staffmod while allowing other pelt bases. Flickering Flame prose does not quantify ideal Base, so no mandatory staffmod or best-base threshold is invented. Ravenlore socket requirement applies only to Ubers. Completed recipes and nonethereal player use remain distinct from base preparation; demand does not imply a price. Local itemtypes Class excludes Barbarian primal helms from the Druid player role."
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Flickering Flame"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "status": "endorsement_and_native_bank_verified",
+      "source_variant_flags": {
+        "name": "Standard",
+        "purpose": "The Standard Best in Slot Fissure Druid: the balanced jack-of-all-trades version that carefully balances Damage, Magic Find, and Teleport mobility and achieves the 99% FCR breakpoint.",
+        "planner_only": false,
+        "delta_only": false
+      },
+      "source_equipment": {
+        "Weapon": [
+          "Heart of the Oak Flail"
+        ],
+        "Off-Hand": [
+          "Phoenix Monarch"
+        ],
+        "Weapon-Swap": [
+          "Call to Arms Crystal Sword"
+        ],
+        "Off-Hand-Swap": [
+          "Spirit Monarch"
+        ],
+        "Helmet": [
+          "Magic Dream Spirit (Gaean-type pelt) +3 Elemental Skills / +3 Fissure / +3 Hurricane / +3 Summon Grizzly, socketed Defender's Fire Colossal Jewel + Fire Rainbow Facet (table: 'Gaean Antlers of the Colossus')",
+          "Flickering Flame in an ideal Base (prose: 'also great for this build')",
+          "Ravenlore (intro prose: 'takes the spotlight upon acquiring Ravenlore or Flickering Flame, Phoenix, and Infinity')"
+        ],
+        "Body Armor": [
+          "Enigma Archon Plate"
+        ],
+        "Gloves": [
+          "Magefist"
+        ],
+        "Belt": [
+          "Arachnid Mesh"
+        ],
+        "Boots": [
+          "War Traveler"
+        ],
+        "Amulet": [
+          "Caster Crafted Amulet 'Entropy Necklace' +2 Druid Skills / 10% FCR / 20 Mana / 10% Mana Regen / 20 All Res / 35% MF"
+        ],
+        "Rings": [
+          "The Stone of Jordan",
+          "Rare Ring 'Viper Whorl' 10% FCR / 20 Str / 41 Light Res / 11 Cold-Fire-Poison Res / 25% MF"
+        ],
+        "Charms": [
+          "Druid Hellfire Torch",
+          "Annihilus",
+          "Gheed's Fortune",
+          "Crafted Flame Rift (Crafted Sunder Charm: -70% Fire Res on the charm, 24% FHR, 65 Life, 10 MDR, 25% MF)",
+          "Grand Charm +1 Elemental Skills / 45 Life (x6)",
+          "Small Charm 11 Cold Res / 7% MF (x3)",
+          "Small Charm 11 Light Res / 7% MF",
+          "Small Charm +5 All Res / 7% MF (x3)"
+        ],
+        "Prebuff": [
+          "Call to Arms (Battle Command, summons on the +skills loadout, then Battle Command again and Battle Orders; refresh every 2-3 minutes)"
+        ],
+        "Other": []
+      },
+      "source_quotes": [
+        "It carefully balances Damage, Magic Find, and Teleport mobility. A Flickering Flame in an ideal Base is also great for this build. Flame Rift enables this build to crush monsters that are Immune to Fire. This setup achieves the 99% Faster Cast Rate Breakpoint.",
+        "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability.",
+        "Before starting your run, first buff yourself with Battle Command from Call to Arms. Next, cast Summon Grizzly, Summon Spirit Wolf (5x), Summon Dire Wolf (3x), and Oak Sage on whichever weapon loadout has the most + to Skills. Finally, recast Battle Command and then cast Battle Orders."
+      ],
+      "validation": {
+        "generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+        "selected_bank": "177 passed (69 player, 108 mercenary)",
+        "saved_replays": "20 match on text, price_estimate, extraction",
+        "demand_red": "2 player failures; 5 mercenary failures including aura explanation",
+        "focused_green": "26 player checks, 5 mercenary checks",
+        "compiled_diff": "six endorsements and one aura explanation; all2564 profiles unchanged"
+      }
+    }
+  ],
+  "required_work": [
+    "Read the exact pinned source for each role; confirm endorsement and variant/wearer before adding guide-use rows.",
+    "Review native bank coverage for all six configurations, not only representative recipe effects.",
+    "Preserve source conflicts and alternative conditions; do not infer endorsement merely from an existing role.",
+    "Rebuild demand/profiles, validate and publish only after source review."
+  ],
+  "observations": [
+    "Standard and Magic Find Fortitude sources explicitly disagree on mercenary aura: variant prose says Might, planners say Holy Freeze. Preserve that distinction when reviewing endorsement; do not invent a resolved mercenary choice.",
+    "The four old Fissure mercenary profiles currently lack mercenary_type predicates. Review whether their component-only scope is sufficient, or whether source-specific bearer constraints are missing, before promoting them to precise setup recommendations.",
+    "All six source variants have planner_only=false and delta_only=false. This is source context, not by itself proof that every role predicate matches its cited setup."
+  ],
+  "suggested_order": [
+    "Review player Lore and Flickering Flame first: exact source class/slot and native staffmod/elemental benefits; no conflicting mercenary aura decision needed.",
+    "Review Ubers mercenary Chains of Honor and Flickering Flame next: prose/planner agree on Act2Might; native leech/resistance/aura beneficiaries must stay distinct from player benefits.",
+    "Review Standard/Magic Find Fortitude with explicit preservation of the Might/HolyFreeze source disagreement. Component utility can be qualified without claiming a settled exact mercenary setup."
+  ],
+  "current_state_findings": {
+    "date": "2026-09-28",
+    "mercenary_constraints": "All four existing mercenary roles already have typed mercenary_type and companion depends_on clauses. Earlier concern was based only on must; no missing guard may be inferred from must alone. Standard/MF accepts Might or Holy Freeze and states source conflict; Ubers requires Might plus Infinity and complementary helm/armor.",
+    "aura_explanation_gap": "fissure-merc-ubers-flickering-flame-stats priority151:100 inherits generic not-transferred-to-player explanation. Native Resist Fire aura supports nearby party; fire skills and enemy-fire-resistance remain wearer-only. Correct explanation and verify before endorsement.",
+    "aura_native_evidence": {
+      "path": "third-parties/d2data/json/skills.json",
+      "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+      "locator": "/100",
+      "observed": {
+        "skill": "Resist Fire",
+        "auratargetstate": "resistfire",
+        "aurastat1": "fireresist",
+        "aurarangecalc": "ln12"
+      },
+      "source_use": "Ubers prose explicitly says aura helps counter Flame Rift; do not claim active aura or exact resistance from item alone."
+    }
+  },
+  "next_source_work": "Review FISSURE_SOURCE_LINK_REVIEW.json exact source occurrences. A demand endorsement does not close every table, planner or raw-guide occurrence. Preserve Hardcore, source conflict and older shared-planner differences.",
+  "compiled_diff_audit": {
+    "guide_demand": {
+      "added": [
+        "fissure-merc-magic-find-fortitude",
+        "fissure-merc-standard-fortitude",
+        "fissure-merc-ubers-chains-of-honor",
+        "fissure-merc-ubers-flickering-flame",
+        "fissure-player-standard-flickering-flame",
+        "fissure-player-starter-lore"
+      ],
+      "removed": [],
+      "changed": []
+    },
+    "stat_evaluation": {
+      "added": [],
+      "removed": [],
+      "changed": [
+        "fissure-merc-ubers-flickering-flame-stats"
+      ]
+    }
+  },
+  "unchanged_profile_count": 2564,
+  "status": "six_endorsements_verified_source_occurrence_review_still_required"
+}

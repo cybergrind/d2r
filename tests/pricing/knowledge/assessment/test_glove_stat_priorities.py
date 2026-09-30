@@ -14,7 +14,9 @@ def test_javelin_glove_annotations_require_skill_ias_pair_and_keep_boss_dependen
     configs = [
         c
         for c in compile_stat_configurations(reviews, profiles, root=ROOT)
-        if 'glov' in c.types and c.role_id.startswith('lightning-')
+        if 'glov' in c.types
+        and c.role_id.startswith(('lightning-fury-', 'lightning-strike-'))
+        and set(c.qualities) <= {'rare', 'magic'}
     ]
     assert len(configs) == 5
 

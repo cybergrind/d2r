@@ -31,6 +31,7 @@ def test_runeword_definitions_are_built_and_searchable_in_offline_kb(tmp_path):
     inputs = {
         'third-parties/d2data/json/allstrings-eng.json': {},
         'third-parties/d2data/json/qualityitems.json': {},
+        'third-parties/d2data/json/propertygroups.json': {},
         'third-parties/d2data/json/skills.json': {},
         'third-parties/d2data/json/automagic.json': {},
         'third-parties/d2data/json/rareprefix.json': {},
@@ -160,3 +161,15 @@ def test_fire_skill_range_uses_property_element_layer():
         '126:1': {'stat_id': 126, 'layer': 1, 'min': 2, 'max': 2, 'property': 'fireskill', 'better': 'higher'}
     }
     assert not scalar_ranges(record, {'fireskill': {**properties['fireskill'], 'val1': None}}, {'item_elemskill': 126})
+
+
+def test_class_skill_ranges_use_the_property_class_layer():
+    # Local properties.json func21 stores the class in val1, not in the item param.
+    for code, layer in (('ama', 0), ('sor', 1), ('nec', 2), ('pal', 3), ('bar', 4), ('dru', 5), ('ass', 6), ('war', 7)):
+        spec = {'func1': 21, 'stat1': 'item_addclassskills', 'val1': layer}
+        row = {'prop1': code, 'min1': 1, 'max1': 3}
+        assert scalar_ranges(row, {code: spec}, {'item_addclassskills': 83}) == {
+            f'83:{layer}': {'stat_id': 83, 'layer': layer, 'min': 1, 'max': 3, 'property': code, 'better': 'higher'}
+        }
+        for invalid in (None, True, -1, 8, '1'):
+            assert scalar_ranges(row, {code: {**spec, 'val1': invalid}}, {'item_addclassskills': 83}) == {}

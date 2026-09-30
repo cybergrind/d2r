@@ -1,3 +1,17 @@
+> **Scope clarification, 2026-09-29:** prioritize valuable SC/Non-Ladder items
+> and valuable or exceptional best-in-slot leveling items. Generic leveling and
+> ordinary starter progression are out of scope. Preserve mixed-use trade/endgame
+> candidates. See COMPLETION_CONTRACT.md; older exhaustive leveling instructions
+> below are superseded. The old completion queue still needs scope migration.
+
+<!-- completion-contract-2026-09-27 -->
+**Authoritative end goal and stopping rule:** [Completion contract](COMPLETION_CONTRACT.md).
+The task is unfinished until all final gates pass for one scope manifest and
+selected generation, with zero pending or blocked required work. Batches,
+publications and milestones never stop execution. Next implementation priority:
+make the completion ledger/gate trustworthy, then drain the entire remaining queue.
+This planning update changes no runtime artifacts or published coverage claims.
+
 # Offline item assessment implementation plan
 
 Date: 2026-09-24. Status: implementation in progress; see the verified

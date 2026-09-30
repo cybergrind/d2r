@@ -1,0 +1,489 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "identity_id": "1d84e00137af6dcb90340851879d5d7295c95080675999552a8fa00c4c13c849",
+      "identity_fingerprint": "9d3f68fdbb8017b9c29883bf0a1225644bb41d3b2a7f776989f022d853584ad0",
+      "review_date": "2026-09-28",
+      "reason": "Reviewed collection of distinct Dusk Shroud socket configurations: player four-Perfect-Topaz magic-find armor and mercenary Ral/Ort/Thul/Tal resistance armor. Every scoped occurrence retains its own exact source and build-role binding. This resolves label discovery only, not exhaustive variants or pricing.",
+      "members": [
+        {
+          "occurrence_id": "14f7592c9b302c4ff3d4e824",
+          "occurrence_fingerprint": "49e920b0371cbd58bf1ca1d6b3ada7dfbbb41e23bcc256244c7ab8e63f96ed99",
+          "profile_id": "lightning-fury-amazon-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "7b5de33912eeecbe2a6bb999568ab25cfb2b8218d814b67bdc7c8df2996ba3be"
+        },
+        {
+          "occurrence_id": "23a0d0eaba9fc96f21d89433",
+          "occurrence_fingerprint": "31bd729fff2faedcca4a5b595e46623e6d5122d6896575834c9f4c7da1547fb8",
+          "profile_id": "poison-nova-necromancer-merc-resistance-rune-armor",
+          "profile_fingerprint": "eb2d4ade9196e9f839365b16626ea35d24aee43ecb492585810c41fa8bc08764"
+        },
+        {
+          "occurrence_id": "25793e9630f227d167ae2468",
+          "occurrence_fingerprint": "87fcdc982656582d4f9553ac58c8bc4df2a811bb6a13b1574074dff63509c1f8",
+          "profile_id": "enchant-sorceress-merc-resistance-rune-armor",
+          "profile_fingerprint": "cabb662a43cb292239e566c7c5fdba51b090ad32bf9eb54ad3aefff3cafa555a"
+        },
+        {
+          "occurrence_id": "2ea27d5ac55f102a085c04cf",
+          "occurrence_fingerprint": "d60ffc64f6cb4817f7d27e9f16f3cad7c01e83d02a658f5bf5b77c9acf713911",
+          "profile_id": "lightning-strike-amazon-merc-resistance-rune-armor",
+          "profile_fingerprint": "e0a2bfebd179d648509b88aaac2b80694337f8ba23a82e83b000edf026039e9b"
+        },
+        {
+          "occurrence_id": "315d2c747c5e41662637cded",
+          "occurrence_fingerprint": "96014417e3c3a9bef13944f5be5c30ad527f0c12ee2d0d4271bd615a972757e6",
+          "profile_id": "double-throw-barbarian-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "3d269963c7c386a3d88e5c858c2941bdc02fd722d3cc2d18d7d9b524211844e8"
+        },
+        {
+          "occurrence_id": "36ba6a0ab2adb07dff27a3e9",
+          "occurrence_fingerprint": "8de55cd93b9f82f5f70ee95f0534426596a7e9322bea986f143d56fc09229dea",
+          "profile_id": "poison-nova-necromancer-merc-resistance-rune-armor",
+          "profile_fingerprint": "eb2d4ade9196e9f839365b16626ea35d24aee43ecb492585810c41fa8bc08764"
+        },
+        {
+          "occurrence_id": "3863dc65ed53476e967a4527",
+          "occurrence_fingerprint": "62cac6aa978a9b72c964e5c6fa5e7bcaa71785ba20922e4747867c622e24b95b",
+          "profile_id": "zeal-paladin-early-merc-resistance-armor",
+          "profile_fingerprint": "0d1a4455d883e40552bb524f99524bf049a0b6bea9b2dde7a7ff96b2df438e1b"
+        },
+        {
+          "occurrence_id": "3d4741d3255f146827aa4f18",
+          "occurrence_fingerprint": "bd007358dc84b4a773286b2d04c4aa5fbed86da76106dbdaf0bd5ad5bf5380cb",
+          "profile_id": "summoner-necromancer-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "0d5c7dc00b3ba2778af605e7c667f8ef0b75f856fdd50afec54888e9b7e820bf"
+        },
+        {
+          "occurrence_id": "48cdfc50af49554b9f559281",
+          "occurrence_fingerprint": "b970885e2f41838e09884ef859fca10e32739046fa03a461b173c78dc3c0aa5d",
+          "profile_id": "dream-paladin-merc-resistance-rune-armor",
+          "profile_fingerprint": "558d77a8d84dbcd7c60e40bea0c18eb23ae9423d676c77ca1cfffcbb768bb51d"
+        },
+        {
+          "occurrence_id": "652f2af219b7bc1b39ad5599",
+          "occurrence_fingerprint": "0f6eb189d9fc80ef4bc02876153b45f42cd1d956205885ab62cf5b383993b42f",
+          "profile_id": "summoner-necromancer-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "0d5c7dc00b3ba2778af605e7c667f8ef0b75f856fdd50afec54888e9b7e820bf"
+        },
+        {
+          "occurrence_id": "66ebd1735cd92a19d037256f",
+          "occurrence_fingerprint": "a5c01059fd27ed5193c38363d2f15e6eb4874722dc94aad2f732f460cf0ba14a",
+          "profile_id": "berserk-barbarian-merc-resistance-rune-armor",
+          "profile_fingerprint": "41ebeb2656f9ba2bcb9073706140829f8aadf8242973709ebc38eb89139e72c7"
+        },
+        {
+          "occurrence_id": "6e3b8475ca2b59447d7d7715",
+          "occurrence_fingerprint": "67ca282ead4caf58bb7b55a774f1808ccc6475deaa246051237a098e7d6033b2",
+          "profile_id": "berserk-barbarian-perfect-topaz-general-armor",
+          "profile_fingerprint": "b22565304ea34aac4628a017a61c4f6f92d7d2caebe26671f39d4d4a1a76b9fa"
+        },
+        {
+          "occurrence_id": "81428467f1d88b3be8f3a0ef",
+          "occurrence_fingerprint": "f622270d833796d1eb7d5e828cedc06857357933bb8c988c5beaf74e9715dc94",
+          "profile_id": "double-throw-barbarian-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "3d269963c7c386a3d88e5c858c2941bdc02fd722d3cc2d18d7d9b524211844e8"
+        },
+        {
+          "occurrence_id": "85497de4cb41914f5ffa18e2",
+          "occurrence_fingerprint": "0db60cedf0c927d04b86d0bf32a31244b6a4279b6ecb18dd2b2e3130e1181779",
+          "profile_id": "fissure-druid-merc-resistance-rune-armor",
+          "profile_fingerprint": "358688cfb07daf82db10399763a979771793b31942db0dae28eae60bcd767b4c"
+        },
+        {
+          "occurrence_id": "859d42d09186b6de64b3a343",
+          "occurrence_fingerprint": "b0010b5c974aaa92da1bfc5851221641dd821c0467dd2a045ca4c71a09845ddb",
+          "profile_id": "lightning-fury-amazon-guide-merc-resistance-rune-armor",
+          "profile_fingerprint": "7b5de33912eeecbe2a6bb999568ab25cfb2b8218d814b67bdc7c8df2996ba3be"
+        },
+        {
+          "occurrence_id": "88aa87aaff47910b0f9bcc6b",
+          "occurrence_fingerprint": "0b0aa2be405ab5a8209f9efa016f86ef1906d813c2aae84d3dd93797014c0562",
+          "profile_id": "lightning-sorceress-merc-resistance-rune-armor",
+          "profile_fingerprint": "10661c7aba24efa57ad6004c0ebd153d3e4d2127be977cc7c25ad31ba8fcdfe2"
+        },
+        {
+          "occurrence_id": "9bb979ca12cd38add76025ff",
+          "occurrence_fingerprint": "e8efd8fdea557722a54712dde94cd92f8be47067cdd64c29a75bc6f6692891e5",
+          "profile_id": "enchant-sorceress-merc-resistance-rune-armor",
+          "profile_fingerprint": "cabb662a43cb292239e566c7c5fdba51b090ad32bf9eb54ad3aefff3cafa555a"
+        },
+        {
+          "occurrence_id": "9eb2390203a1d134305af3b1",
+          "occurrence_fingerprint": "c3029bb18e497ee740a7b0e89d371652baddba8e7e1f35d5941bc6d95142ae99",
+          "profile_id": "double-throw-barbarian-guide-perfect-topaz-general-armor",
+          "profile_fingerprint": "b231e2950a2f45b4b8ab72ad87bab10a6215d19959660cb30c00baa8fc69c843"
+        },
+        {
+          "occurrence_id": "a2ebdb33538659e221cb0722",
+          "occurrence_fingerprint": "f0dc7b27a335f7ed0ddc8da7e2d088d9176224d6670725836a84e4a466235676",
+          "profile_id": "lightning-strike-amazon-perfect-topaz-general-armor",
+          "profile_fingerprint": "4a6a48dae9caa82e4a756fe90b9551fcd4e99f41363fbc638d3fabe35ac65f58"
+        },
+        {
+          "occurrence_id": "a32c01447887560b40b2ff3e",
+          "occurrence_fingerprint": "856828312ef89dfcf24c61816d35780210dad13ecc8085cffabc936a8e8230cf",
+          "profile_id": "fissure-druid-merc-resistance-rune-armor",
+          "profile_fingerprint": "358688cfb07daf82db10399763a979771793b31942db0dae28eae60bcd767b4c"
+        },
+        {
+          "occurrence_id": "a79784279808aee11e14218a",
+          "occurrence_fingerprint": "605c86a77d4d65276ab947487db1fc99cc8a5fc35e97f04ea2c12de37bb4c87b",
+          "profile_id": "lightning-strike-amazon-merc-resistance-rune-armor",
+          "profile_fingerprint": "e0a2bfebd179d648509b88aaac2b80694337f8ba23a82e83b000edf026039e9b"
+        },
+        {
+          "occurrence_id": "d9c20355a71a090b0d8ceb5e",
+          "occurrence_fingerprint": "921d302671f621560902d4bef3211638f3fe851ed159bc3bc624b7f887224c1d",
+          "profile_id": "lightning-sorceress-merc-resistance-rune-armor",
+          "profile_fingerprint": "10661c7aba24efa57ad6004c0ebd153d3e4d2127be977cc7c25ad31ba8fcdfe2"
+        },
+        {
+          "occurrence_id": "ee4737fc39641c54a19681b0",
+          "occurrence_fingerprint": "1593eca9c592fb9dea221b97050cf7cc13f1f0bbe6f8968a57a21dfb5f981459",
+          "profile_id": "fissure-druid-perfect-topaz-general-armor",
+          "profile_fingerprint": "deae6d796f734b83804400dce243e0757ea8d99191db924996b7e305011ea1c9"
+        },
+        {
+          "occurrence_id": "f197f14864a2cfeb17f855d3",
+          "occurrence_fingerprint": "7e9a70dc565df711623ad214bd098b4e56172a3e09e0e34475936d8054ed13bb",
+          "profile_id": "berserk-barbarian-merc-resistance-rune-armor",
+          "profile_fingerprint": "41ebeb2656f9ba2bcb9073706140829f8aadf8242973709ebc38eb89139e72c7"
+        },
+        {
+          "occurrence_id": "f1ec1c2545812475344d30cc",
+          "occurrence_fingerprint": "304e12f8e283b0f41151ba440ad4b76edd267717af8bcbfe2c739d83a25f93fd",
+          "profile_id": "dream-paladin-merc-resistance-rune-armor",
+          "profile_fingerprint": "558d77a8d84dbcd7c60e40bea0c18eb23ae9423d676c77ca1cfffcbb768bb51d"
+        }
+      ]
+    },
+    {
+      "identity_id": "885b751515dbc00660d7fb373625e7aeb93ca5747192d150e597d1d0fcfd30b5",
+      "identity_fingerprint": "27136f0e7667635c720ad46d82c5b7b74ee82d0e2978b2fcfe9fcf83ce4e82c8",
+      "review_date": "2026-09-28",
+      "reason": "Explicit four-Perfect-Topaz player Dusk Shroud collection. Reviewed primary Body Armor alternatives retain build-specific rules and full linked 96% Magic Find payload. Discovery only; no inferred market or exhaustive variant coverage.",
+      "members": [
+        {
+          "occurrence_id": "bed88b54a6dd8e34d036fcf3",
+          "occurrence_fingerprint": "9892e1a9389c96b87280a183a91a1c32ba16d7adeed349020409cae17e88de27",
+          "profile_id": "berserk-barbarian-perfect-topaz-general-armor",
+          "profile_fingerprint": "b22565304ea34aac4628a017a61c4f6f92d7d2caebe26671f39d4d4a1a76b9fa"
+        }
+      ]
+    },
+    {
+      "identity_id": "ec7bb87b84d6b7ca6ba88bdad56b4cf2c49f89172cbd4ffc2538bbb84de42d57",
+      "identity_fingerprint": "8ca9e2c063ec0419429694fd88a48d8fd5b8b721f285854715f9e91fb39f0685",
+      "review_date": "2026-09-28",
+      "reason": "Explicit four-Perfect-Topaz player Dusk Shroud collection. Reviewed primary Body Armor alternatives retain build-specific rules and full linked 96% Magic Find payload. Discovery only; no inferred market or exhaustive variant coverage.",
+      "members": [
+        {
+          "occurrence_id": "30e9f51a348e2947997fb1e6",
+          "occurrence_fingerprint": "2c37a26a0c878a419f0073cb9506bc2278cdb510602df468757c84e975a27eb8",
+          "profile_id": "double-throw-barbarian-guide-perfect-topaz-general-armor",
+          "profile_fingerprint": "b231e2950a2f45b4b8ab72ad87bab10a6215d19959660cb30c00baa8fc69c843"
+        },
+        {
+          "occurrence_id": "c566f271d5687315385593b2",
+          "occurrence_fingerprint": "7455f0a311081bdf508446a81b77ef35beee73f5e23824a742eb366c04ceba4f",
+          "profile_id": "lightning-strike-amazon-perfect-topaz-general-armor",
+          "profile_fingerprint": "4a6a48dae9caa82e4a756fe90b9551fcd4e99f41363fbc638d3fabe35ac65f58"
+        },
+        {
+          "occurrence_id": "fc969aab0bbcd4e1e89cadaa",
+          "occurrence_fingerprint": "deab4122458953199ae2ac0489b1a03a5e5ed32cf91cfbcb09a8465ecb0aae2e",
+          "profile_id": "fissure-druid-perfect-topaz-general-armor",
+          "profile_fingerprint": "deae6d796f734b83804400dce243e0757ea8d99191db924996b7e305011ea1c9"
+        }
+      ]
+    },
+    {
+      "identity_id": "6cd4c253ce1810de1e9e4ccd4a3f38411966f520a92770c2f413348e4df2945a",
+      "identity_fingerprint": "95d4aac882ca0b0c2e06fbdbe314978aa92e80aad1007d4af29f6514f9e8cb80",
+      "review_date": "2026-09-28",
+      "reason": "Explicit Berserk Starter gemmed equipment configuration, retained as a pattern collection with two exact structured source references. Native base and gem effects define the reviewed rule; unavailable historical planner details are not inferred. Discovery only.",
+      "members": [
+        {
+          "occurrence_id": "0ff7e7f10298bff5d49f444d",
+          "occurrence_fingerprint": "0b66b9ebf7efbf6eb2c1b989e614b562aa5bacf55e76266861170ffa4c9c4349",
+          "profile_id": "berserk-barbarian-starter-topaz-armor",
+          "profile_fingerprint": "4b2086dc45b0126c7b4031a6f64294b0d4b7ed0bda42909438eb5d832959e469"
+        },
+        {
+          "occurrence_id": "c1aa2106d02a0384be12100b",
+          "occurrence_fingerprint": "8f5ed8778ac6a5cf954fce2a2fe2386f53d389ef86e945fa7e6db72e9376f87a",
+          "profile_id": "berserk-barbarian-starter-topaz-armor",
+          "profile_fingerprint": "4b2086dc45b0126c7b4031a6f64294b0d4b7ed0bda42909438eb5d832959e469"
+        }
+      ]
+    },
+    {
+      "identity_id": "03134a36615675d90e21efb99e3849c6e0ca3584ec3e4382f10966c8ef6a38fc",
+      "identity_fingerprint": "ed244f1e3de8ed738d3bfe07546aabb33aa600c3e95008c6ef823d8c5d86c462",
+      "review_date": "2026-09-28",
+      "reason": "Explicit Berserk Starter gemmed equipment configuration, retained as a pattern collection with two exact structured source references. Native base and gem effects define the reviewed rule; unavailable historical planner details are not inferred. Discovery only.",
+      "members": [
+        {
+          "occurrence_id": "7d927db7b5a0268e002a7463",
+          "occurrence_fingerprint": "79599e16e702d8411d8b9b2596ce478150b2f151800a530213192a6cbef7be90",
+          "profile_id": "berserk-barbarian-starter-topaz-helmet",
+          "profile_fingerprint": "8af3ae9a3aa59bd62994924a365b0b19677e43f7240767916fdadbcc29f0faaf"
+        },
+        {
+          "occurrence_id": "be2338a11973278c50819eb5",
+          "occurrence_fingerprint": "43c6c581962a996be690f26b89347a23d5503753d2ae860008d7364e0f1936ea",
+          "profile_id": "berserk-barbarian-starter-topaz-helmet",
+          "profile_fingerprint": "8af3ae9a3aa59bd62994924a365b0b19677e43f7240767916fdadbcc29f0faaf"
+        }
+      ]
+    },
+    {
+      "identity_id": "9b8154b4c0d25a28f22928fe29c9061abc72d9ff2f8484eb50e5bfe26d1654c0",
+      "identity_fingerprint": "0a81ecd6d26276d05f298faf5a0572d9deede9049f2f8a27e3a0aaf212de928e",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed magic Crown pattern, resolved through its reviewed filled configuration and native inserted-item effects. Empty preparation rule remains distinct and partial. Discovery only; no inferred defense/affix premium or numerical price.",
+      "members": [
+        {
+          "occurrence_id": "726e64607d31aa855b7f8277",
+          "occurrence_fingerprint": "015621830f8ed29011629cbb02a71b201a9a48b53532f7cef16804dde12b4481",
+          "profile_id": "lightning-strike-amazon-topaz-crown-filled",
+          "profile_fingerprint": "d32354350ca54648a86a93c23d998156914d1c3d5b1f7956e6b5a4d97e9ab401"
+        }
+      ]
+    },
+    {
+      "identity_id": "ea86a3f25238b74467c08f4defc800c3872d8ddca898fe3a1b8ff1413ae2cad1",
+      "identity_fingerprint": "60a673c067c68cb3c657842a733d61b4e5631b012ebdd2a713150242f4c58bbd",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed magic Crown pattern, resolved through its reviewed filled configuration and native inserted-item effects. Empty preparation rule remains distinct and partial. Discovery only; no inferred defense/affix premium or numerical price.",
+      "members": [
+        {
+          "occurrence_id": "4f39baf33c684c6f48cd7f7a",
+          "occurrence_fingerprint": "ca6ac8f6f59930f78396f690133263e256570dcfb658020cfbc0ceec7a4d0cac",
+          "profile_id": "lightning-strike-amazon-resist-crown-filled",
+          "profile_fingerprint": "d00598a5d6d67b0d09bf55be15055286c14ed123d7fc67bb461eae3fd89c721a"
+        }
+      ]
+    },
+    {
+      "identity_id": "34708be7e3416f55424c4de57fda20515475f8082fd2cdc686cb7d378e029854",
+      "identity_fingerprint": "92b1de36a3fe7400eca28672c91bd1892582b119c133322c0b6994374196678a",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed Double Throw Diadem pattern, resolved through reviewed three-jewel ED/IAS configuration and suffix requirements. Empty preparation rule remains distinct and partial. Discovery only; no inferred defense/affix premium or numerical price.",
+      "members": [
+        {
+          "occurrence_id": "ce29fcc71269d34af62f3bff",
+          "occurrence_fingerprint": "accc71c80b5f8da00d520275d37014c77e33231ddb085fdd0ddcefb9cc0cd5f5",
+          "profile_id": "double-throw-barbarian-guide-speed-diadem-filled",
+          "profile_fingerprint": "470eab91f88f4476b008e6c1fa67aeef0ea1b38a5f8a57d69e877d3e58f718ce"
+        }
+      ]
+    },
+    {
+      "identity_id": "6708908749d89d5d727b186ea6c45d1720ea7d20b4d8bd3fbaa3dfe6c4134486",
+      "identity_fingerprint": "e123597d6f288112152674e216f9e2a7ddb2a9b9e3866a9ebd496fd40fc3ecb2",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed Double Throw Diadem pattern, resolved through reviewed three-jewel ED/IAS configuration and suffix requirements. Empty preparation rule remains distinct and partial. Discovery only; no inferred defense/affix premium or numerical price.",
+      "members": [
+        {
+          "occurrence_id": "f7dcbfa78e05eb5fa3a0142e",
+          "occurrence_fingerprint": "55871a92cab2ce864fea85594ab933dd8d5c9a5fdaecec6bcea78743df75a073",
+          "profile_id": "double-throw-barbarian-guide-nirvana-diadem-filled",
+          "profile_fingerprint": "944088578e1a1eb671c8ae371b49c91ba18d8103043db3804bfc801f5b23e08f"
+        }
+      ]
+    },
+    {
+      "identity_id": "5de8678cca1680a2820a0b911962501e65d15e5e6e683b533a2b349abe5d2b9f",
+      "identity_fingerprint": "adb754cab9915a54c0873afa748c946a6e3cd7621bfb2477f4898763a7373053",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed Double Throw Diadem pattern, resolved through reviewed three-jewel ED/IAS configuration and suffix requirements. Empty preparation rule remains distinct and partial. Discovery only; no inferred defense/affix premium or numerical price.",
+      "members": [
+        {
+          "occurrence_id": "0e99b5d940f58c561daf5459",
+          "occurrence_fingerprint": "a0d3023a0fa1b288c56816a0661592e1a1f8a3fa8cc08cee96e2ca301dfa5b01",
+          "profile_id": "double-throw-barbarian-guide-luck-diadem-filled",
+          "profile_fingerprint": "9cb6bdafe07075e92b36553f8b76a2202b380a6262d5c34553f2aeb9d209a4f8"
+        }
+      ]
+    },
+    {
+      "identity_id": "13d89ed146b49f192f6718b19b978a00bf5be5a1d33168c274443596fbe6f3ae",
+      "identity_fingerprint": "bbdcd1fa4726afefc497d5c73241a36e92c0a6a7b58df2955f1e6a0ff1592594",
+      "review_date": "2026-09-28",
+      "reason": "Explicit completed Fissure four-Ist Monarch, retained as a pattern collection with two exact structured source references. Native shield affixes and linked Ist effects define the reviewed configuration. Discovery only.",
+      "members": [
+        {
+          "occurrence_id": "05f633d15dd1f256f6220402",
+          "occurrence_fingerprint": "610f0917bbcc8a2f5b3b09c82ec3c688b90a905359834164eaa61ccc89a642f1",
+          "profile_id": "fissure-druid-magic-find-shield-ist-filled",
+          "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473"
+        },
+        {
+          "occurrence_id": "67a6147f299e1e6713b9d38a",
+          "occurrence_fingerprint": "d150025b5549431780fe488b29b91ec1f02a6c06cf207f12e25a3dd2e78c72d6",
+          "profile_id": "fissure-druid-magic-find-shield-ist-filled",
+          "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473"
+        }
+      ]
+    },
+    {
+      "identity_id": "15ef6231667ccc6d7d51b5a6579fa3dc2ce0c08ef2f5c1755be880bbe45a89a5",
+      "identity_fingerprint": "622c0d823af928b13bb3b07aafb2e647b4dc4a11ab4accc9f8a7d7dcb33828e8",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "f8630c7bde42beded681954f",
+          "occurrence_fingerprint": "edc9dc54e93d8ac99fb42ef8ebc52ed0d23f7d5cc10a97cbe440c78455f6fbff",
+          "profile_id": "lightning-fury-amazon-guide-main-shield-facet-shield-filled",
+          "profile_fingerprint": "25fa78606f4647b9d55e103d471f14bef4800df3a30a2c34e115cdee3b77f7dc"
+        }
+      ]
+    },
+    {
+      "identity_id": "18fa132810106f74a49014c986acec45719f679f02e2b6f9ad7a71d30942fae4",
+      "identity_fingerprint": "d57c9c8e6458e964a48ba4dbbe00837e48a9e9a3217432b9a96a4c0537c9c8d4",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "c1824eee42199d201e3c97bb",
+          "occurrence_fingerprint": "02aa03f8458d3ccbc28f159bb0112c465fabcaabc448336d38f40242a6ae04db",
+          "profile_id": "blizzard-sorceress-main-swap-facet-shield-filled",
+          "profile_fingerprint": "3a591763e3960a54c52aa261aead162dbff7172f860c2464ae2e01ea5577fe5b"
+        },
+        {
+          "occurrence_id": "e14e1ec34ae1937b092049ea",
+          "occurrence_fingerprint": "22043a298d72c67c0658cab629c137926f8a493943dbc8482915e17817555637",
+          "profile_id": "blizzard-sorceress-main-shield-facet-shield-filled",
+          "profile_fingerprint": "7ca98b7728a45a5101f3def0cdaa7628b27c8d6a5abf80a76d218ac447613c90"
+        }
+      ]
+    },
+    {
+      "identity_id": "2216b5e21ec80b7480d7e662db8e7b18af78aff9482f4c30fded505dafe4f8a1",
+      "identity_fingerprint": "208c3b06b5b9457be10e1175a094467446c5e9d34a656650675869263c0897dc",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "8a367ac3f701448c86ab8137",
+          "occurrence_fingerprint": "6ba4564f51d21eab39108fc37481b2b335d1b5b768d1ed619dfd8c1e7516a1c1",
+          "profile_id": "lightning-strike-amazon-main-shield-facet-shield-filled",
+          "profile_fingerprint": "78454102815dfcc7f998cd26a745b5e4625b7c9e2962fbe7a40eedc4a55738ff"
+        },
+        {
+          "occurrence_id": "cea53ddf4354f3c2836a4a7e",
+          "occurrence_fingerprint": "f8708114f1f9b8f18271b915454b9cc1f26f9a7bdbbe8c826993d18406aba802",
+          "profile_id": "lightning-sorceress-main-shield-facet-shield-filled",
+          "profile_fingerprint": "cd05a6dc7af34343946fc28b2fd2b76f145899d05a982c5a6dc813cd5d1d08d0"
+        }
+      ]
+    },
+    {
+      "identity_id": "296c309096e720ea5401cb04e2171e755a30a42c7c782c42dd64e0a88d3b4807",
+      "identity_fingerprint": "28adbcb3526266fe155e51c1b83d6a3b6e1034c2226bf49f211b6ebb5867c14c",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "47046543c3518ff259973252",
+          "occurrence_fingerprint": "39b9fbe8b4216f07200fa2e3a812f798747b8a16e23949fddd1515fa517793e1",
+          "profile_id": "lightning-sentry-assassin-main-shield-facet-shield-filled",
+          "profile_fingerprint": "060b22d1b392fe51f75b4341c312ecf26f2d0435c60dde991bb43964e5de7a32"
+        },
+        {
+          "occurrence_id": "82ef628604d3740c9187a17f",
+          "occurrence_fingerprint": "42f16d5e0662840bc69796d3938ad251c4bf970f941d883e052a8f2ab9f24f8c",
+          "profile_id": "lightning-sentry-assassin-main-swap-facet-shield-filled",
+          "profile_fingerprint": "34c7322e8ae4ad22b8a7e89355970db950f90989ff66420feeedf69157cdcb4d"
+        }
+      ]
+    },
+    {
+      "identity_id": "4e115996b0e594ce2a66adb6eeb2d91f4fc1cdc72137c7b1e528b1c6b128e782",
+      "identity_fingerprint": "a120786ac6bda30f18942a244fdb93bb7b67d15a2c9b30a762b607228a00b6b9",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "3430805bb22a092bde942f42",
+          "occurrence_fingerprint": "fd9ddf151d886d96ea9dd8811f077640ea24c2b89e10a4717b7995b984ad5b51",
+          "profile_id": "fissure-druid-main-shield-facet-shield-filled",
+          "profile_fingerprint": "194260b4e93d7372b4d1d673934ce063f06f6c14a4325e8dbf8a02063707eaf0"
+        }
+      ]
+    },
+    {
+      "identity_id": "646495d9691b6816e5f176030535323b0924cac22994ebb138c2d31f7fb5f84c",
+      "identity_fingerprint": "273fe8368f4fd583234c5c15f3f34051085993063e0e0ea3e89d4b7fbf8188fd",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "73b5a2c90fa68bc3a200d9b7",
+          "occurrence_fingerprint": "02e645c81cc40851ad9b6092ac3197c5baf6d0a659581941d74459c7d5af9e79",
+          "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
+          "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198"
+        },
+        {
+          "occurrence_id": "78065e918f6807cc81928851",
+          "occurrence_fingerprint": "cbbbf776c8762169fdf6c3a6c1eea67011e73eb16656439607c56f887e48a405",
+          "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
+          "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198"
+        }
+      ]
+    },
+    {
+      "identity_id": "9a820562a1b1b98ea0716b366c3032aca35c4ea39917efe4dddc67bf66ae3ce8",
+      "identity_fingerprint": "75f59d40e16491ef8fcc4459ac1bcd87fe9271cafa11579659de63c6f81172ba",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "c3d76b27012a8ab68f89f443",
+          "occurrence_fingerprint": "241e8af3b0336ea0326b2ee25306a2bc638158833fb1e3d335a623f42fdd7839",
+          "profile_id": "poison-nova-necromancer-main-shield-facet-shield-filled",
+          "profile_fingerprint": "d5c808acf57e934fb1ffc567551334bb5e8970cd57da19f2e9058636cfc652a3"
+        }
+      ]
+    },
+    {
+      "identity_id": "daf698f40978fc96aa310e5fb689fa0f6fb6f60b06fd1e4a9e8e0ea2d863fa9b",
+      "identity_fingerprint": "5b93c736211008e4191fcc41a343a9684d28f6887b34565aa780c10b96c9d626",
+      "review_date": "2026-09-28",
+      "reason": "Every occurrence links to its separately reviewed completed facet configuration. Preserve build, element, rolls and trigger differences; discovery only, not a price or complete variant review.",
+      "members": [
+        {
+          "occurrence_id": "12f134889066a72feb507b2a",
+          "occurrence_fingerprint": "7cc42045b961e96bad11fa0c75fbc76a5c8ad8a7a743820856a3d8096178631d",
+          "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
+          "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9"
+        },
+        {
+          "occurrence_id": "75ac3c148b75bf437ee9b511",
+          "occurrence_fingerprint": "b5979d694d4d77a20ee91b45581574932fc57888411e1851086e7bb468001c21",
+          "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
+          "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9"
+        }
+      ]
+    },
+    {
+      "identity_id": "00588f2cdade73741e8b586d030b801821a07d1d9e64d863a36f2e1cc4490b1b",
+      "identity_fingerprint": "a8b0634aa070e638dd53731337ab5bcd32609b41b896dc90663f6ffca59ffa49",
+      "review_date": "2026-09-30",
+      "reason": "Exact Nova Magic Find abbreviated Ist reference resolves to the reviewed Ist-filled Vipermagi armor configuration. Preserve actual recipient, captured rune and105totalFCR; no free-rune pricing or full equipment ownership inferred.",
+      "members": [
+        {
+          "occurrence_id": "e2473f99a17fda0314c22944",
+          "occurrence_fingerprint": "bb29efbfeefd17f0c176c1dbf910a1b650bde6c34810bf631d380d4008030110",
+          "profile_id": "nova-sorceress-guide-2-vipermagi-ist",
+          "profile_fingerprint": "4448de1e0151c2245d627545e2b21883497c84ee774d66d390b464200967cac2"
+        }
+      ]
+    }
+  ]
+}

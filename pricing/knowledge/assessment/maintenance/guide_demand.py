@@ -11,11 +11,39 @@ def review_key(row):
     return row['item']
 
 
+def _validate_component(row, profile):
+    if 'pattern_component' not in row:
+        return
+    component = row['pattern_component']
+    if (
+        not isinstance(component, dict)
+        or set(component) != {'kind', 'text'}
+        or component['kind'] != 'socket_jewel'
+        or not isinstance(component['text'], str)
+        or not component['text'].strip()
+        or 'jewel' not in component['text'].casefold()
+        or not row.get('pattern_label')
+        or component['text'] not in row['pattern_label']
+        or profile.get('types') != ['jewl']
+    ):
+        raise ValueError('Pattern component requires a quoted socket jewel and a jewel-only profile')
+
+
 def compile_demand(uses, profiles):
     from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 
     by_id = {p['id']: p for p in profiles}
     for row in uses:
+        if 'pattern_label' in row and (
+            'pattern' not in row or not isinstance(row['pattern_label'], str) or not row['pattern_label'].strip()
+        ):
+            raise ValueError('Pattern label requires a reviewed pattern and nonempty text')
+        if 'pattern_source_slot' in row and (
+            not row.get('pattern_label')
+            or not isinstance(row['pattern_source_slot'], str)
+            or not row['pattern_source_slot'].strip()
+        ):
+            raise ValueError('Pattern source slot requires an explicit pattern label and nonempty text')
         profile = by_id.get(row['profile_id'])
         if (
             not profile
@@ -25,6 +53,26 @@ def compile_demand(uses, profiles):
             or row.get('profile_fingerprint') != fingerprint(profile)
         ):
             raise ValueError(f'Stale guide-use review: {row["profile_id"]}')
+        if row.get('scope') != profile.get('scope', 'softcore'):
+            raise ValueError(f'Guide-use scope disagrees with reviewed profile: {profile["id"]}')
+        if row.get('season', 'non_ladder') != profile.get('season', 'non_ladder'):
+            raise ValueError(f'Guide-use season disagrees with reviewed profile: {profile["id"]}')
+        _validate_component(row, profile)
+        coverage = row.get('source_coverage')
+        if 'source_coverage' in row:
+            from pricing.knowledge.assessment.maintenance.source_matching import requires_eq
+
+            if (
+                not isinstance(coverage, dict)
+                or set(coverage) != {'kind', 'remaining_branches'}
+                or coverage.get('kind') != 'preparation_only'
+                or not isinstance(coverage.get('remaining_branches'), list)
+                or not coverage['remaining_branches']
+                or any(not isinstance(s, str) or not s.strip() for s in coverage['remaining_branches'])
+                or not row.get('pattern_label')
+                or not requires_eq(profile.get('must', {}), 'fact_eq', 'socket_contents', 'empty')
+            ):
+                raise ValueError('Invalid preparation source coverage')
     summaries = {}
     for item in sorted({review_key(r) for r in uses}):
         rows = [r for r in uses if review_key(r) == item]

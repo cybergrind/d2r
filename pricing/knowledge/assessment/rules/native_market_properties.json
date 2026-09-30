@@ -161,6 +161,11 @@
       "label": "+{{value}} to Chaos Skills (Warlock Only)",
       "native_label": "+{{value}} to Chaos Skills (Warlock Only)"
     },
+    "97:411": {
+      "property_id": "1878",
+      "label": "+{{value}} to Town Portal",
+      "native_label": "+{{value}} to Townportal O Skill"
+    },
     "107:9": {
       "property_id": "858",
       "label": "+{{value}} to Critical Strike (Amazon Only)",
@@ -2746,10 +2751,6 @@
     },
     "97:410": {
       "label": "+{{value}} to Talic's Whirlwind",
-      "reason": "no exact market label"
-    },
-    "97:411": {
-      "label": "+{{value}} to Townportal O Skill",
       "reason": "no exact market label"
     },
     "97:412": {
@@ -5490,8 +5491,8 @@
     }
   },
   "inputs": {
-    "inventory_tracking/items/data/item_metadata.json": "381ba77a7512486f32dff7591f3c96074d49eb07fcbca2e655e16459795a7350",
+    "inventory_tracking/items/data/item_metadata.json": "bd94c683b3e0b8661298c819df824a6f7df21018f3542b693a5ae00184b345b8",
     "pricing/data/appraisal-properties.json": "a045eb3cbe641497511cc4443f9bcb56f72619782ce382ae458dc6d8edcf596a"
   },
-  "review": "2026-09-24: Scalar skill families; exact labels plus reviewed Warlock class wording alias."
+  "review": "2026-09-28: Scalar skill families; exact labels plus reviewed Warlock class and Town Portal oskill wording aliases."
 }

@@ -113,6 +113,18 @@ def named_base(row):
 
 def apply_mechanics(row):
     apply_unsocketed_contents(row)
+    from pricing.knowledge.market_socket_materials import apply_material_facts
+
+    if apply_material_facts(row):
+        return
+    from pricing.knowledge.market_consumables import apply_potion_facts
+
+    if apply_potion_facts(row):
+        return
+    from pricing.knowledge.market_supplies import apply_scroll_facts
+
+    if apply_scroll_facts(row):
+        return
     if row.get('category') == 'crafted':
         from pricing.knowledge.market_crafted import apply_crafted_facts
 

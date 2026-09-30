@@ -1,0 +1,1357 @@
+{
+  "review_date": "2026-09-28",
+  "status": "reviewed",
+  "finding": "In newly implemented filled Crown rules, socket payload in depends_on made known wrong fillers appear conditional. Required captured payload was moved into must, with opposite-payload role-status tests. Existing rules below need separate review of whether dependency is actual captured content or a legitimate external/optional setup condition.",
+  "candidates": [
+    {
+      "profile_id": "gold-find-standard-off-hand-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Phase Blade (6x Lem Rune) - table lists 'Gemmed Crystal Sword'"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-war-cry-weapon-swap-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-war-cry-off-hand-swap-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-whirlwind-weapon-swap-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-whirlwind-off-hand-swap-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Off-Hand-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-leap-only-weapon-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "gold-find-leap-only-off-hand-lem-sword",
+      "role": "Six-Lem gold-find sword",
+      "dependencies": [
+        {
+          "label": "Six linked Lem runes provide 450% extra gold from monsters.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune",
+              "Lem Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/4/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crystal Sword (6x Lem Rune, ethereal)"
+        ],
+        "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Reviewed source explicitly supports missing preparation as conditional; do not convert the preparation role into completed-item-only matching."
+    },
+    {
+      "profile_id": "berserk-barbarian-4-stormshield",
+      "role": "Defensive Stormshield setup",
+      "dependencies": [
+        {
+          "label": "Actual linked Shael Rune",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Shael Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/variants/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "quotes": [
+          "Stormshield (Shael Rune)",
+          "Chaos Sanctuary preparation in a full game: isolate and destroy the Seal Bosses to spawn Diablo fast (Gameplay section refers to 'the Chaos Prep Build Variant'; no tab exists, loadout from planner profile #4; Act 5 Barbarian mercenary with Lawbringer).",
+          "Even in a full game, this build can spawn Diablo incredibly fast by focusing on popping Seals and assassinating the Seal Boss Super Uniques. See the \"Chaos Prep\" Build Variant to learn more about this strategy.",
+          "Optional: Cast Battle Cry near Act Bosses before slaying them with Berserk. This is especially helpful for reducing Diablo's Life on the \"Chaos Prep\" Build Variant."
+        ],
+        "review": "2026-09-26: Reviewed Softcore defensive shield configuration; native damage reduction, blocking and resistances desirable, Strength supporting. Exact named rune payload retained when cited. Native fixed rolls remain useful; no full-loadout cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/253"
+          }
+        ]
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Named item remains a preparation candidate: guard allows empty sockets (and unsocketed unique where legal). Required socket dependency explicitly false for empty/wrong fillers and unknown for unread children; never inferred complete. Preserve nonethereal player guard. Independent native bank covers ready/empty/wrong/unread/ethereal plus unsocketed unique.",
+      "validation": {
+        "selected_cases": 29,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125",
+        "test_file": "tests/pricing/knowledge/assessment/item_bank/cases/named_socket_preparation.py"
+      }
+    },
+    {
+      "profile_id": "lightning-sorceress-3-stormshield",
+      "role": "Defensive Stormshield setup",
+      "dependencies": [
+        {
+          "label": "Actual linked Shael Rune",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Shael Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "quotes": [
+          "Stormshield socketed with Shael Rune",
+          "Specialises in defeating the Uber Bosses and mini-Ubers with Static Field and Charged Bolt, prioritising -Enemy Lightning Res, + Skills, Damage Reduction, Resistances and Life, at the 105% FCR breakpoint.",
+          "Swapping in Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction. Using a Lower Resist Charge Wand on Weapon-Swap and Infinity on an Act 2 Mercenary enables you to maximize your damage output against all Uber Bosses except Uber Mephisto.",
+          "Crack of the Heavens breaks Uber Mephisto's Lightning Immunity, allowing you to deal more damage to him. Use Lightning Resist Charms to counteract its negative effect.",
+          "The Ubers Lightning Sorceress uses an Act 5 Frenzy Mercenary with 2x Plagues for their Lower Resist proc. This high Level Lower Resist breaks Uber Mephisto's Lightning Immunity. Vampire Gaze and Treachery make him tanky while avoiding high Defense.",
+          "Note: It is better to use the Standard Act 2 Might Mercenary with Infinity against every Uber Boss besides Uber Mephisto."
+        ],
+        "review": "2026-09-26: Reviewed Softcore defensive shield configuration; native damage reduction, blocking and resistances desirable, Strength supporting. Exact named rune payload retained when cited. Native fixed rolls remain useful; no full-loadout cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/253"
+          }
+        ]
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Named item remains a preparation candidate: guard allows empty sockets (and unsocketed unique where legal). Required socket dependency explicitly false for empty/wrong fillers and unknown for unread children; never inferred complete. Preserve nonethereal player guard. Independent native bank covers ready/empty/wrong/unread/ethereal plus unsocketed unique.",
+      "validation": {
+        "selected_cases": 29,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125",
+        "test_file": "tests/pricing/knowledge/assessment/item_bank/cases/named_socket_preparation.py"
+      }
+    },
+    {
+      "profile_id": "meteor-sorceress-4-stormshield",
+      "role": "Defensive Stormshield setup",
+      "dependencies": [
+        {
+          "label": "Actual linked Um Rune",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Um Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/meteor-sorceress/variants/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/meteor-sorceress",
+        "quotes": [
+          "Stormshield socketed with Um Rune",
+          "One of the most common ways to kill the Uber Bosses as a Sorceress: as much Damage Reduction as possible while over-stacking Resistance for Mephisto's level 20 Conviction and a large Life pool, at 86% FHR and 105% FCR.",
+          "Note: You can use the Mercenary's Fade from Treachery Archon Plate to help with both Resistance and Damage Reduction.",
+          "Use Lower Resist at all times against bosses from Wand of Lower Resistance. Use Static Field to get bosses down to half of their Life. Trap bosses with Bone Prison from Marrowwalk. Spam Meteor to prevent the bosses from healing with burning Damage Over Time (DOT).",
+          "This setup for your Mercenary is a little different but aims to use x% Chance of Crushing Blow from Guillaume's Face, Fade from Treachery Archon Plate, and Conviction from Infinity Giant Thresher. Might Aura works great for extra Physical Damage."
+        ],
+        "review": "2026-09-26: Reviewed Softcore defensive shield configuration; native damage reduction, blocking and resistances desirable, Strength supporting. Exact named rune payload retained when cited. Native fixed rolls remain useful; no full-loadout cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/253"
+          }
+        ]
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Named item remains a preparation candidate: guard allows empty sockets (and unsocketed unique where legal). Required socket dependency explicitly false for empty/wrong fillers and unknown for unread children; never inferred complete. Preserve nonethereal player guard. Independent native bank covers ready/empty/wrong/unread/ethereal plus unsocketed unique.",
+      "validation": {
+        "selected_cases": 29,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125",
+        "test_file": "tests/pricing/knowledge/assessment/item_bank/cases/named_socket_preparation.py"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-rune-master-qualified-equipment",
+      "role": "Five-Ist Berserk off-hand magic-find alternative",
+      "dependencies": [
+        {
+          "label": "Five sockets filled with five verified Ist runes.",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 5
+              },
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Ist Rune",
+                  "Ist Rune",
+                  "Ist Rune",
+                  "Ist Rune",
+                  "Ist Rune"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/slots/Off-Hand/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rune Master (5x Ist Rune s )"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Rune Master (5x Ist Rune s ). Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/313",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Preserve actual Ist fillers as preparation dependency, but require five existing sockets: native unique rolls3-5, cannot add sockets to3/4copies. Five empty sockets remain conditional; unknown socketcount remains uncertain.",
+      "validation": {
+        "staged_cases": 59,
+        "selected_cases": 59,
+        "unit_tests": 4,
+        "saved_replays": 20,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125"
+      }
+    },
+    {
+      "profile_id": "dragon-talon-assassin-stormlash-qualified-equipment",
+      "role": "Dragon Talon Static Field and Crushing Blow weapon alternative",
+      "dependencies": [
+        {
+          "label": "One socket filled with a verified Shael rune.",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Shael Rune"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Stormlash ( Shael Rune )"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Stormlash ( Shael Rune ). Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/360",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Named item remains a preparation candidate: guard allows empty sockets (and unsocketed unique where legal). Required socket dependency explicitly false for empty/wrong fillers and unknown for unread children; never inferred complete. Preserve nonethereal player guard. Independent native bank covers ready/empty/wrong/unread/ethereal plus unsocketed unique.",
+      "validation": {
+        "selected_cases": 29,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125",
+        "test_file": "tests/pricing/knowledge/assessment/item_bank/cases/named_socket_preparation.py"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-griswold-s-honor-named-shield-tail",
+      "role": "Three-Ist Zeal magic-find shield alternative",
+      "dependencies": [
+        {
+          "label": "Match the source fillers or distinct active set companions.",
+          "when": {
+            "op": "socket_runes_equal",
+            "value": [
+              "Ist Rune",
+              "Ist Rune",
+              "Ist Rune"
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2023-02-16",
+        "quotes": [
+          "Griswold's Honor (3x Ist Runes)"
+        ],
+        "review": "2026-09-27: Reviewed exact source use and native effects. Filler identity and distinct partial-set companions are required where specified. Charged skills are not passive bonuses; original magic sunder only breaks matching magic immunity. No numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Griswold's Honor",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      },
+      "review_status": "preparation_dependency_preserved",
+      "decision": "Named item remains a preparation candidate: guard allows empty sockets (and unsocketed unique where legal). Required socket dependency explicitly false for empty/wrong fillers and unknown for unread children; never inferred complete. Preserve nonethereal player guard. Independent native bank covers ready/empty/wrong/unread/ethereal plus unsocketed unique.",
+      "validation": {
+        "selected_cases": 29,
+        "generation": "cb8d40abb205f4c697934d17f2f839cd3475ec8cda3a62c95a08cedb3460e125",
+        "test_file": "tests/pricing/knowledge/assessment/item_bank/cases/named_socket_preparation.py"
+      }
+    },
+    {
+      "profile_id": "fist-of-the-heavens-paladin-mask-topaz-find",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "3 verified Perfect Topazes for 72% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 72,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__fist-of-the-heavens-paladin.html/sections/34",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Mask (3x perfecttopaz)"
+        ],
+        "review": "2026-09-27: Reviewed low-investment socketed Magic Find armor alternative from the exact gear slot. Native Topaz armor effect is 24 MF each, not weapon lightning damage or shield resistance. All socketed gems must be distinct linked Perfect Topazes. This is a Find alternative, not proof of adequate survival, a full loadout, or trade value.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/gpy",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Exact source names completed Topaz setup. Required linked gems and native MF effect moved into must; native bank covers both qualities, wrong/empty/unread contents, low MF, ethereal, class and magic-quality exclusion.",
+      "validation": {
+        "staged_cases": 40,
+        "selected_cases": 40,
+        "unit_tests": 2,
+        "saved_replays": 20,
+        "generation": "f007866311e896d5df293b15fd17ad9b0bacaffaff9a41d57f58e569b16f3973"
+      }
+    },
+    {
+      "profile_id": "fist-of-the-heavens-paladin-gothic-plate-topaz-find",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__fist-of-the-heavens-paladin.html/sections/34",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/fist-of-the-heavens-paladin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gothic Plate (4x perfecttopaz)"
+        ],
+        "review": "2026-09-27: Reviewed low-investment socketed Magic Find armor alternative from the exact gear slot. Native Topaz armor effect is 24 MF each, not weapon lightning damage or shield resistance. All socketed gems must be distinct linked Perfect Topazes. This is a Find alternative, not proof of adequate survival, a full loadout, or trade value.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/gpy",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Exact source names completed Topaz setup. Required linked gems and native MF effect moved into must; native bank covers both qualities, wrong/empty/unread contents, low MF, ethereal, class and magic-quality exclusion.",
+      "validation": {
+        "staged_cases": 40,
+        "selected_cases": 40,
+        "unit_tests": 2,
+        "saved_replays": 20,
+        "generation": "f007866311e896d5df293b15fd17ad9b0bacaffaff9a41d57f58e569b16f3973"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-specialist-shield-ist-filled",
+      "role": "Completed Jeweler's Sacred Targe of Deflecting (4x Ist Runes)",
+      "dependencies": [
+        {
+          "label": "Four linked Ist runes and shield Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Ist Rune",
+                  "Ist Rune",
+                  "Ist Rune",
+                  "Ist Rune"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 100,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Jeweler's Sacred Targe of Deflecting (4x Ist Runes)"
+        ],
+        "review": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/n8010616.json",
+            "locator": "/data",
+            "sha256": "46a66db20b6be85e65ec88f95067704d3ebccbaae353dbfd195712e15abde63b"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/422",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/173",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r24",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Source explicitly specifies completed setup and actual linked fillers; wrong captured contents fail must. Empty specialist shield preparation is a separate unchanged role.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 9,
+        "saved_replays": 20,
+        "generation": "557d05c78ae6be95dd34d492d1f38f52c3943359f264acab3e807e4905e257c0"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-socket-helm-cham",
+      "role": "Guillaume's Face (Cham Rune) alternative",
+      "dependencies": [
+        {
+          "label": "Verified Cham Rune",
+          "when": {
+            "all": [
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Cham Rune"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "153:0",
+                "value": 1,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Guillaume's Face (Cham Rune)"
+        ],
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r32",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Guillaume's Face",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Existing guard requires filled socket: this is completed named-rune setup, not empty preparation. Actual rune and effect now mandatory; unread children remain uncertain.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 6,
+        "saved_replays": 20,
+        "generation": "11bf4e26b12e737c236216fbadcd6b679e2aa66cdcb7210e052b4f4c05b8de60"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-socket-helm-um",
+      "role": "Guillaume's Face (Um Rune) alternative",
+      "dependencies": [
+        {
+          "label": "Verified Um Rune",
+          "when": {
+            "all": [
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Um Rune"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 15,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 15,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 15,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "45:0",
+                "value": 15,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Guillaume's Face (Um Rune)"
+        ],
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r22",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Guillaume's Face",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Existing guard requires filled socket: this is completed named-rune setup, not empty preparation. Actual rune and effect now mandatory; unread children remain uncertain.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 6,
+        "saved_replays": 20,
+        "generation": "11bf4e26b12e737c236216fbadcd6b679e2aa66cdcb7210e052b4f4c05b8de60"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-socket-helm-ber",
+      "role": "Guillaume's Face (Ber Rune) alternative",
+      "dependencies": [
+        {
+          "label": "Verified Ber Rune",
+          "when": {
+            "all": [
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Ber Rune"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "36:0",
+                "value": 8,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Guillaume's Face (Ber Rune)"
+        ],
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r30",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Guillaume's Face",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Existing guard requires filled socket: this is completed named-rune setup, not empty preparation. Actual rune and effect now mandatory; unread children remain uncertain.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 6,
+        "saved_replays": 20,
+        "generation": "11bf4e26b12e737c236216fbadcd6b679e2aa66cdcb7210e052b4f4c05b8de60"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-socket-helm-topazes",
+      "role": "Gemmed Mask (3x Perfect Topazes) alternative",
+      "dependencies": [
+        {
+          "label": "Verified Perfect Topaz, Perfect Topaz, Perfect Topaz",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 72,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Gemmed Mask (3x Perfect Topazes)"
+        ],
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/gpy",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Source explicitly specifies completed setup and actual linked fillers; wrong captured contents fail must. Empty specialist shield preparation is a separate unchanged role.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 9,
+        "saved_replays": 20,
+        "generation": "557d05c78ae6be95dd34d492d1f38f52c3943359f264acab3e807e4905e257c0"
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-socket-helm-resistance",
+      "role": "Gemmed Mask (Ral Rune, Ort Rune, Thul Rune) alternative",
+      "dependencies": [
+        {
+          "label": "Verified Ral Rune, Ort Rune, Thul Rune",
+          "when": {
+            "all": [
+              {
+                "op": "socket_runes_equal",
+                "value": [
+                  "Ral Rune",
+                  "Ort Rune",
+                  "Thul Rune"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "39:0",
+                "value": 30,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "41:0",
+                "value": 30,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "43:0",
+                "value": 30,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/32",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Gemmed Mask (Ral Rune, Ort Rune, Thul Rune)"
+        ],
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Source explicitly specifies completed setup and actual linked fillers; wrong captured contents fail must. Empty specialist shield preparation is a separate unchanged role.",
+      "validation": {
+        "staged_cases": 47,
+        "selected_cases": 47,
+        "unit_tests": 9,
+        "saved_replays": 20,
+        "generation": "557d05c78ae6be95dd34d492d1f38f52c3943359f264acab3e807e4905e257c0"
+      }
+    },
+    {
+      "profile_id": "fissure-druid-perfect-topaz-general-armor",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fissure-druid/slots/Body Armor/3",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud (4x Perfect Topaz es )"
+        ],
+        "review": "2026-09-28: Reviewed exact general caster armor alternative. Nonethereal player use, legal recipe or named upgrade chain; linked Topaz payload required. Casting speed differs from IAS; on-struck Fade is not an active buff. No full loadout or market price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-perfect-topaz-general-armor",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/berserk-barbarian/slots/Body Armor/4",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud (4x Perfect Topaz )"
+        ],
+        "review": "2026-09-28: Reviewed explicit player armor alternative. Four captured Perfect Topazes and 96% Magic Find required, nonethereal for repairable sustained player use. Native base qualities may vary; no defense or price premium inferred. This is distinct from the mercenary four-resistance-rune armor.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-perfect-topaz-general-armor",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/double-throw-barbarian-guide/slots/Body Armor/7",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud (4x Perfect Topaz es )"
+        ],
+        "review": "2026-09-28: Reviewed explicit player armor alternative. Four captured Perfect Topazes and 96% Magic Find required, nonethereal for repairable sustained player use. Native base qualities may vary; no defense or price premium inferred. This is distinct from the mercenary four-resistance-rune armor.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    },
+    {
+      "profile_id": "lightning-strike-amazon-perfect-topaz-general-armor",
+      "role": "Socketed Perfect Topaz Magic Find armor alternative",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/lightning-strike-amazon/slots/Body Armor/4",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud (4x Perfect Topaz es )"
+        ],
+        "review": "2026-09-28: Reviewed explicit player armor alternative. Four captured Perfect Topazes and 96% Magic Find required, nonethereal for repairable sustained player use. Native base qualities may vary; no defense or price premium inferred. This is distinct from the mercenary four-resistance-rune armor.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-topaz-armor",
+      "role": "Starter Dusk Shroud with 4 Perfect Topazes",
+      "dependencies": [
+        {
+          "label": "4 verified Perfect Topazes for 96% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 96,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/berserk-barbarian/variants/0/player/Body Armor/0",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud (4x Perfect Topaz)"
+        ],
+        "review": "2026-09-28: Explicit cached Starter equipment label specifies base and complete Topaz payload. Native gem table supplies24MF per gem in body armor/helm. This reviews the stated item configuration, not the unavailable r2Hsc2Mk planner or a particular defense roll. Nonethereal repairable player alternative; combat requirements remain separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          },
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/uui"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-topaz-helmet",
+      "role": "Starter Crown with 3 Perfect Topazes",
+      "dependencies": [
+        {
+          "label": "3 verified Perfect Topazes for 72% Magic Find",
+          "when": {
+            "all": [
+              {
+                "op": "socket_gems_equal",
+                "value": [
+                  "Perfect Topaz",
+                  "Perfect Topaz",
+                  "Perfect Topaz"
+                ]
+              },
+              {
+                "op": "stat_at_least",
+                "key": "80:0",
+                "value": 72,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/berserk-barbarian/variants/0/player/Helmet/0",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Crown (3x Perfect Topaz)"
+        ],
+        "review": "2026-09-28: Explicit cached Starter equipment label specifies base and complete Topaz payload. Native gem table supplies24MF per gem in body armor/helm. This reviews the stated item configuration, not the unavailable r2Hsc2Mk planner or a particular defense roll. Nonethereal repairable player alternative; combat requirements remain separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/gpy"
+          },
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/crn"
+          }
+        ]
+      },
+      "review_status": "verified",
+      "decision": "Completed Topaz configuration requires captured gems and their native magic-find effect in must; known wrong contents fail the role.",
+      "validation": {
+        "staged_cases": 165,
+        "selected_wrong_gem_cases": 18,
+        "maintenance_tests": 51,
+        "saved_replays": 20,
+        "generation": "331fb2e86f486b8cb46da3d08d4e533f28e6779810e7ecd2344ca6b7f19c7a0e"
+      }
+    }
+  ],
+  "review_counts": {
+    "preparation_dependency_preserved": 12,
+    "verified": 15
+  }
+}

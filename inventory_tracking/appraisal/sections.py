@@ -1,5 +1,23 @@
 """Plain-text presentation of offline appraisal drafts; never infer a valuation."""
 
+from pricing.knowledge.assessment.policies.value_watch import softcore_watches
+
+
+WATCH_PLACEHOLDERS = frozenset({'-', 'no roll', 'no roll bucket'})
+# Reviewed legacy guide descriptions, retained in the evidence JSON. Match exact
+# descriptions so mixed-use or newly researched conditions are not silently lost.
+WATCH_GUIDE_DISPLAY = {
+    'Versatile Leveling Set Drops in Value after Early Ladder': None,
+    'Versatile Leveling Set Drops in Value quickly': None,
+    'Extremely strong survivability Helmet for Leveling More useful on Hardcore': None,
+    'Strong +1 to All Skills Helmet for Leveling Used on several budget builds Drops in Value after Early Ladder': None,
+    'High Resistance Shield Used during Leveling and in Hardcore': None,
+    'Solid Magic Find option until Harlequin Crest Drops in Value after Early Ladder': None,
+    "Used on early-game Mercenaries and full Tal Rasha's Wrappings setups Drops in Value after Early Ladder": (
+        "Used in full Tal Rasha's Wrappings setups."
+    ),
+}
+
 
 def review_lines(extraction):
     lines = list(extraction.get('issues', []))
@@ -68,7 +86,7 @@ def value_watch_lines(result):
         for r in result.get('assessment', {}).get('roles', [])
         if r['status'] in ('matched', 'partial')
     }
-    for row in result.get('value_watch', [])[:1]:
+    for row in softcore_watches(result.get('value_watch', []))[:1]:
         details = row['details']
         lines.append('VALUABLE CANDIDATE' if details['priority'] == 'valuable_candidate' else 'BUILD DEMAND')
         contexts = sorted(
@@ -88,14 +106,17 @@ def value_watch_lines(result):
             if len(shown) == 3:
                 break
         for key in ('roll_bucket', 'guide_conditions', 'stat_priority'):
-            if details.get(key) and details[key] != '-':
-                lines.append(f'  {details[key]}')
+            detail = details.get(key)
+            if key == 'guide_conditions':
+                detail = WATCH_GUIDE_DISPLAY.get(detail, detail)
+            if detail and str(detail).strip().rstrip('.').casefold() not in WATCH_PLACEHOLDERS:
+                lines.append(f'  {detail}')
     return lines
 
 
 def unavailable_price_line(result, estimate):
     reason = estimate.get('unavailable_reason')
-    if reason == 'unclassified':
+    if reason in ('unclassified', 'capture_incomplete'):
         assessment = result.get('assessment', {})
         gaps = assessment.get('price_gaps', [])
         if gaps and all(g.startswith('No verified market mapping') for g in gaps):
@@ -176,12 +197,16 @@ def full_assessment_lines(result):
 
 
 def leveling_lines(result):
+    """Show the strongest reviewed leveling uses; ordinary progression stays in JSON."""
     lines = []
     for use in result.get('assessment', {}).get('leveling', []):
+        if use.get('generic') or use.get('tier') != 'high':
+            continue
         classes = ', '.join(use['classes']) if len(use['classes']) < 8 else 'all classes'
         context = f'{use["side"]}, {classes}, {", ".join(use["archetypes"])}'
         level = f'; equip level {use["required_level"]}' if use.get('required_level') is not None else ''
-        lines.append(f'Leveling: {use["tier"]} — {context}{level}. {use["reason"]}')
+        label = 'mid' if use['tier'] == 'med' else use['tier']
+        lines.append(f'Leveling: {label} — {context}{level}. {use["reason"]}')
         for shortfall in use.get('requirements_fit', {}).get('shortfalls', []):
             lines.append('  Needs: ' + shortfall)
         for condition in use['conditions']:
@@ -193,8 +218,11 @@ def tier_lines(result):
     tier = result.get('assessment', {}).get('trade_tier', {})
     if tier.get('status') not in ('reviewed', 'conditional', 'market_supported'):
         return []
-    label = tier['tier'] or 'conditional: ' + ' / '.join(tier['possible_tiers'])
-    line = f'Trade tier: {label} (cached asks, {tier["source"]["date"]})'
+    labels = {'med': 'mid'}
+    label = labels.get(tier['tier'], tier['tier']) or 'conditional: ' + ' / '.join(
+        labels.get(value, value) for value in tier['possible_tiers']
+    )
+    line = f'Trade tier: {label}'
     if tier.get('intrinsic_rolls'):
         line += ' — before socket additions'
     if tier.get('tier') and tier.get('reasons'):
@@ -207,4 +235,15 @@ def price_lines(result):
     from inventory_tracking.appraisal.prepared_prices import prepared_price_lines
 
     lines.extend(prepared_price_lines(result))
+    return lines
+
+
+def utility_lines(result):
+    utility = result.get('assessment', {}).get('utility')
+    if not utility:
+        return []
+    label = 'Supply use' if utility.get('kind') == 'supply' else 'Consumable use'
+    lines = [label + (':' if utility['status'] == 'usable' else ' (verify item):')]
+    for key in ('effects', 'uses', 'improvements', 'gaps'):
+        lines.extend('  ' + line for line in utility.get(key, []))
     return lines

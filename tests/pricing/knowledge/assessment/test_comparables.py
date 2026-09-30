@@ -88,3 +88,19 @@ def test_listing_region_is_not_an_item_affix_and_does_not_relax_scope():
     for changed in ({'800': True}, {'798': 'PlayStation'}, {'799': 'hardcore'}, {'1854': 'resurrected'}, {'510': 14}):
         wrong = {**rows[0], 'properties': {**rows[0]['properties'], **changed}}
         assert not evaluate(contract(), [wrong])['accepted']
+
+
+def test_price_examples_show_distinct_sellers_and_their_actual_price_votes():
+    rows = [
+        listing('a', listing_id='a-expensive', ask_ist=3),
+        listing('a', listing_id='a-cheap', ask_ist=1),
+        listing('b', listing_id='b-offer', ask_ist=2),
+        listing('c', listing_id='c-offer', ask_ist=3),
+    ]
+    result = price_from_comparables(evaluate(contract(), rows), today=date(2026, 9, 24))
+    assert result['estimate_ist'] == 2
+    assert result['sellers'] == 3
+    assert {r['seller_id'] for r in result['comparables']} == {'a', 'b', 'c'}
+    assert next(r for r in result['comparables'] if r['seller_id'] == 'a')['listing_id'] == 'a-cheap'
+    reordered = price_from_comparables(evaluate(contract(), list(reversed(rows))), today=date(2026, 9, 24))
+    assert reordered['comparables'] == result['comparables']

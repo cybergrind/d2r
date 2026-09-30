@@ -1,0 +1,876 @@
+{
+  "review_date": "2026-09-28",
+  "native_source": {
+    "path": "third-parties/d2data/json/runes.json",
+    "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "words": [
+      "Bulwark",
+      "Call to Arms",
+      "Chains of Honor",
+      "Flickering Flame",
+      "Fortitude",
+      "Heart of the Oak",
+      "Hustle (weapon)",
+      "Infinity",
+      "Lore",
+      "Rhyme",
+      "Spirit",
+      "Treachery"
+    ]
+  },
+  "basis": "Completed recipe native effects retain support across nonmagical normal/superior/low_quality. No creation legality, socket preparation, new build endorsement or price inferred.",
+  "changed_profiles": [
+    "abyss-mf-cta-prebuff",
+    "abyss-standard-cta-prebuff",
+    "abyss-warlock-build-guide-0-merc-bulwark-native",
+    "abyss-warlock-build-guide-0-merc-treachery-native",
+    "abyss-warlock-build-guide-1-merc-fortitude",
+    "abyss-warlock-build-guide-2-merc-fortitude",
+    "abyss-warlock-merc-chains-of-honor",
+    "berserk-barbarian-0-merc-bulwark-native",
+    "berserk-barbarian-0-rhyme",
+    "berserk-barbarian-1-merc-treachery-native",
+    "berserk-barbarian-merc-early-hustle-weapon-alternative",
+    "berserk-barbarian-merc-mid-hustle-weapon-alternative",
+    "blessed-hammer-paladin-0-merc-bulwark-native",
+    "blessed-hammer-paladin-0-rhyme",
+    "blessed-hammer-paladin-1-merc-fortitude",
+    "blessed-hammer-paladin-2-merc-chains-honor",
+    "blessed-hammer-paladin-3-merc-fortitude",
+    "blessed-hammer-paladin-3-player-chains-honor",
+    "blizzard-mf-cta-prebuff",
+    "blizzard-set-cta-prebuff",
+    "blizzard-set-spirit-shield",
+    "blizzard-sorceress-0-merc-bulwark-native",
+    "blizzard-sorceress-0-rhyme",
+    "blizzard-sorceress-1-merc-fortitude",
+    "blizzard-sorceress-3-merc-fortitude",
+    "blizzard-starter-spirit-sword",
+    "double-throw-barbarian-guide-0-merc-bulwark-native",
+    "double-throw-barbarian-guide-1-heart-oak",
+    "double-throw-barbarian-guide-1-player-fortitude",
+    "double-throw-barbarian-guide-merc-early-hustle-weapon-alternative",
+    "double-throw-barbarian-guide-merc-mid-hustle-weapon-alternative",
+    "double-throw-barbarian-guide-player-main-alternatives-hustle-weapon-alternative",
+    "dream-paladin-0-merc-treachery-native",
+    "dream-paladin-merc-early-hustle-weapon-alternative",
+    "echoing-mf-cta-prebuff",
+    "echoing-standard-cta-prebuff",
+    "echoing-strike-warlock-guide-0-rhyme",
+    "echoing-strike-warlock-guide-1-merc-chains-honor",
+    "echoing-strike-warlock-guide-2-merc-chains-honor",
+    "echoing-ubers-cta-prebuff",
+    "enchant-sorceress-0-merc-bulwark-native",
+    "enchant-sorceress-0-merc-treachery-native",
+    "enchant-sorceress-1-merc-chains-honor",
+    "enchant-sorceress-2-merc-chains-honor",
+    "fire-blast-assassin-0-rhyme",
+    "fire-blast-assassin-1-heart-oak",
+    "fire-blast-assassin-1-merc-fortitude",
+    "fire-mf-cta-prebuff",
+    "fire-standard-cta-prebuff",
+    "fire-warlock-guide-0-merc-bulwark-native",
+    "fire-warlock-guide-0-merc-treachery-native",
+    "fire-warlock-guide-0-rhyme",
+    "fire-warlock-guide-1-merc-fortitude",
+    "fire-warlock-guide-2-merc-fortitude",
+    "fissure-druid-1-heart-oak",
+    "fissure-druid-1-merc-fortitude",
+    "fissure-druid-2-heart-oak",
+    "fissure-druid-2-merc-fortitude",
+    "fissure-druid-3-merc-chains-honor",
+    "fissure-druid-3-player-chains-honor",
+    "fissure-merc-magic-find-fortitude",
+    "fissure-merc-standard-fortitude",
+    "fissure-merc-ubers-chains-of-honor",
+    "fissure-merc-ubers-flickering-flame",
+    "fissure-player-standard-flickering-flame",
+    "fissure-player-starter-lore",
+    "fissure-starter-merc-bulwark",
+    "fissure-starter-merc-treachery",
+    "fissure-starter-spirit-sword",
+    "fist-of-the-heavens-paladin-0-merc-bulwark-native",
+    "fist-of-the-heavens-paladin-1-merc-bulwark-native",
+    "fist-of-the-heavens-paladin-2-heart-oak",
+    "fist-of-the-heavens-paladin-2-merc-fortitude",
+    "fist-of-the-heavens-paladin-3-merc-chains-honor",
+    "fist-of-the-heavens-paladin-4-merc-fortitude",
+    "foh-starter-spirit-shield",
+    "gold-find-barbarian-0-merc-treachery-native",
+    "gold-find-barbarian-1-heart-oak",
+    "gold-find-barbarian-2-heart-oak",
+    "gold-find-barbarian-3-heart-oak",
+    "hammer-mf-spirit-shield",
+    "hammer-standard-spirit-shield",
+    "hammer-starter-spirit-shield",
+    "hammer-starter-spirit-sword",
+    "holy-bolt-starter-spirit-shield",
+    "lightning-fury-amazon-guide-0-merc-bulwark-native",
+    "lightning-fury-amazon-guide-0-rhyme",
+    "lightning-fury-amazon-guide-1-merc-fortitude",
+    "lightning-fury-amazon-guide-2-merc-fortitude",
+    "lightning-fury-amazon-guide-3-merc-treachery-native",
+    "lightning-fury-amazon-guide-3-player-chains-honor",
+    "lightning-fury-amazon-guide-merc-early-hustle-weapon-alternative",
+    "lightning-fury-amazon-guide-merc-mid-hustle-weapon-alternative",
+    "lightning-mf-cta-prebuff",
+    "lightning-sentry-assassin-0-merc-bulwark-native",
+    "lightning-sentry-assassin-0-rhyme",
+    "lightning-sentry-assassin-1-merc-fortitude",
+    "lightning-sentry-assassin-2-heart-oak",
+    "lightning-sentry-assassin-2-merc-fortitude",
+    "lightning-sorceress-0-merc-bulwark-native",
+    "lightning-sorceress-0-rhyme",
+    "lightning-sorceress-1-heart-oak",
+    "lightning-sorceress-1-merc-fortitude",
+    "lightning-sorceress-2-merc-fortitude",
+    "lightning-sorceress-3-merc-treachery-native",
+    "lightning-sorceress-3-player-chains-honor",
+    "lightning-standard-cta-prebuff",
+    "lightning-starter-spirit-shield",
+    "lightning-starter-spirit-sword",
+    "lightning-strike-amazon-0-merc-bulwark-native",
+    "lightning-strike-amazon-0-rhyme",
+    "lightning-strike-amazon-2-merc-treachery-native",
+    "lightning-strike-amazon-2-player-chains-honor",
+    "lightning-strike-amazon-merc-early-hustle-weapon-alternative",
+    "lightning-strike-amazon-merc-mid-hustle-weapon-alternative",
+    "lightning-strike-infinity-player",
+    "meteor-mf-cta-prebuff",
+    "meteor-mf-spirit-shield",
+    "meteor-set-cta-prebuff",
+    "meteor-set-spirit-shield",
+    "meteor-sorceress-0-rhyme",
+    "meteor-sorceress-1-merc-fortitude",
+    "meteor-sorceress-1-player-chains-honor",
+    "meteor-sorceress-3-merc-fortitude",
+    "meteor-sorceress-4-merc-treachery-native",
+    "meteor-standard-cta-prebuff",
+    "meteor-standard-spirit-shield",
+    "mirrored-blades-warlock-guide-1-merc-chains-honor",
+    "mirrored-standard-cta-prebuff",
+    "mirrored-starter-rhyme-grimoire",
+    "mirrored-ubers-cta-prebuff",
+    "nova-hybrid-infinity-merc",
+    "nova-sorceress-guide-0-merc-bulwark-native",
+    "nova-sorceress-guide-0-merc-treachery-native",
+    "nova-sorceress-guide-1-merc-chains-honor",
+    "nova-sorceress-guide-2-merc-chains-honor",
+    "nova-sorceress-guide-3-merc-chains-honor",
+    "nova-sorceress-guide-3-player-chains-honor",
+    "nova-standard-infinity-player",
+    "poison-nova-necromancer-0-merc-bulwark-native",
+    "poison-nova-necromancer-0-rhyme",
+    "poison-nova-necromancer-1-merc-fortitude",
+    "poison-nova-necromancer-2-merc-fortitude",
+    "poison-nova-necromancer-merc-mid-hustle-weapon-alternative",
+    "smite-paladin-0-merc-bulwark-native",
+    "smite-paladin-0-rhyme",
+    "smite-paladin-1-player-chains-honor",
+    "smite-paladin-2-player-chains-honor",
+    "smite-shared-treachery",
+    "strafe-amazon-0-merc-bulwark-native",
+    "strafe-amazon-0-merc-treachery-native",
+    "strafe-amazon-1-merc-chains-honor",
+    "strafe-amazon-1-player-fortitude",
+    "strafe-amazon-2-merc-chains-honor",
+    "strafe-amazon-2-player-fortitude",
+    "strafe-amazon-player-main-alternatives-hustle-weapon-alternative",
+    "summoner-necromancer-guide-0-merc-treachery-native",
+    "summoner-necromancer-guide-1-heart-oak",
+    "wake-of-fire-assassin-0-merc-bulwark-native",
+    "wake-of-fire-assassin-0-rhyme",
+    "wake-of-fire-assassin-1-merc-fortitude",
+    "zeal-paladin-merc-word-fortitude-end",
+    "zeal-paladin-merc-word-treachery-end",
+    "zeal-paladin-merc-word-treachery-mid"
+  ],
+  "existing_missing_guide_use_reviews": [
+    "fissure-merc-magic-find-fortitude",
+    "fissure-merc-standard-fortitude",
+    "fissure-merc-ubers-chains-of-honor",
+    "fissure-merc-ubers-flickering-flame",
+    "fissure-player-standard-flickering-flame",
+    "fissure-player-starter-lore"
+  ],
+  "recovery_note": "Original mutation updated roles, then stopped before review writes because six pre-existing Fissure roles lack explicit guide-use rows. This continuation revalidated the complete quality-only diff and updates existing pins without fabricating endorsements.",
+  "source_context_pins": [
+    "zeal-standard-uber-fortitude-repeat-12",
+    "zeal-standard-uber-fortitude-repeat-25",
+    "abyss-named-merc-table-span-108"
+  ],
+  "unchanged_behavior_audit": "All compiled fields except qualities identical as JSON values; all other profiles unchanged.",
+  "fingerprints": {
+    "abyss-mf-cta-prebuff": {
+      "before": "b14d0172d819dd44e50be4f99cc50d4c910085b0e63da81654b7e9f749e473b9",
+      "after": "d4bcc1f22d86a808bb9cb3f739085521e650f8dfd4b8ce41b365c79b5a2af77e"
+    },
+    "abyss-standard-cta-prebuff": {
+      "before": "4c98e57e71f613a712d70e675888ad2310fb3b38c5399b53aacebc3f6e87f8a2",
+      "after": "3292ec6132a5516e8cb7e87e5abc7b1a266ce28b8244e5e2392143b5bf27a4b2"
+    },
+    "abyss-warlock-build-guide-0-merc-bulwark-native": {
+      "before": "564bf035db4a355bd479c6725053fdeaeaf0a9f7af647cc1481fddc7b8e2b134",
+      "after": "bcf8f90c0f07adaff8468553f057b67e0b5c0686371b7d07bb2e20e370a5badc"
+    },
+    "abyss-warlock-build-guide-0-merc-treachery-native": {
+      "before": "047cac7a0493a15fe2ea7e3939bb003c7db533c2ef3b440fc3c9a269506020bd",
+      "after": "636768c9576db96742b7a7ee8abac560e4db19694a5ea00b9121ca8436849dcb"
+    },
+    "abyss-warlock-build-guide-1-merc-fortitude": {
+      "before": "81145bc5d504caf26e0bb8aba3a148560058f42a89a62b2e26077ee5bbb85ce6",
+      "after": "68f3c7afa0a7f5a4ef9c671d942fd3dd280808a7f07259d93d7f2a857e412224"
+    },
+    "abyss-warlock-build-guide-2-merc-fortitude": {
+      "before": "65718f3d6f596f2ac38e495318ed4899df6a1df627729c81f50b299c8b79bf14",
+      "after": "a362b3c2028a0552f8b2a3f5476b084a6fe4199e5430db0d1726c440ab7a1ef7"
+    },
+    "abyss-warlock-merc-chains-of-honor": {
+      "before": "c9c1afd5b354bbe7fd47f8c95db9fe5921d27bc9f9f00af224dce8d5a968bd28",
+      "after": "b55f7e80d3c5ab363c645e50fa74c64d974632658600f6943a034c3d087567fc"
+    },
+    "berserk-barbarian-0-merc-bulwark-native": {
+      "before": "0f688d61bb33bc5e2bc336305d8321e779679d2e04e3a3621473a710000cd78e",
+      "after": "f060ae0932256fc0214b9b8bd69c0804f6489f582a013e7a7c6e279c58e1b577"
+    },
+    "berserk-barbarian-0-rhyme": {
+      "before": "9146c4f0e14e8603187f36fa9cb1e7e7fc0a52ceeb1f68c986c073dad317d7b3",
+      "after": "fbf6ac51652774f56bf819e6fd8d5eeaeb107ca5161d5f1b50dd56d1eb5a9b94"
+    },
+    "berserk-barbarian-1-merc-treachery-native": {
+      "before": "392cdd3165bc6c403476577a65e2fc5ae1f329cbdf17fd906014fdb277e9db03",
+      "after": "7230e11a1b904109c42e2c6cbe4757bfb377aacbc3f38a3c2093ff3dc0b5f7ba"
+    },
+    "berserk-barbarian-merc-early-hustle-weapon-alternative": {
+      "before": "5d4498b684470a4bcda398053204546be59756b74c3922b9a1764b90b3963098",
+      "after": "4a6a2c613429c17dbc6ef238d8813fbd622bdb9fae9bb54cb2363a150a6beea1"
+    },
+    "berserk-barbarian-merc-mid-hustle-weapon-alternative": {
+      "before": "d2d6dc726a19169fa93fbae2382c519701d4863be98badb6bd813fb5bf96b2ca",
+      "after": "c71f655feea14d0d457ad4d30f7d9fb12f45d787ce05062f2de6393190b3c416"
+    },
+    "blessed-hammer-paladin-0-merc-bulwark-native": {
+      "before": "aca50033a589b66457e42e0577e2ed284bc90201fc4ecd414a4a6201c904d4d5",
+      "after": "11f2b17a8d86e7f267cb924ec98dea4712056a68ec0ac9bbf490ec313de49939"
+    },
+    "blessed-hammer-paladin-0-rhyme": {
+      "before": "903cba85b681fdd18fdbeff1980c6f7233b31eab2cf4e2a2d0f671fd011f48eb",
+      "after": "ea2c61ca78d3dc65b7d91e0c35888b3126a60fdc742aa86741d04c99a5d1aa0b"
+    },
+    "blessed-hammer-paladin-1-merc-fortitude": {
+      "before": "e7a3aa20d972f7a13c1575b7860b6021c45f37b4b19c6e3da1bd792174aeb830",
+      "after": "4e15339dbdacc9265c7b156f4fb50bdba00f6e0ecaaff743e10b924a448e3183"
+    },
+    "blessed-hammer-paladin-2-merc-chains-honor": {
+      "before": "d52a41317bd6731cc74fb0dea8d6a82f15ed7b7d02f8d8a00c6f08f67f1522d0",
+      "after": "2ed6e188633199de6589dbc890241827e082a6309a98bec69c9e3f20b5a0a29f"
+    },
+    "blessed-hammer-paladin-3-merc-fortitude": {
+      "before": "308040dc137e74b4e3f2adaaefc498e05e7c6c712829ed16128a902b9edd4151",
+      "after": "2b6707d79ebc3906ccb941e4b068a06a64bfb140a22dc9f142157f18a0c45698"
+    },
+    "blessed-hammer-paladin-3-player-chains-honor": {
+      "before": "25f22705c0878463201a05ed54b3f070ebf58fc5d3b84ae43d4b92449429b84d",
+      "after": "f290b194d3f241538c94bda0d1ff4c9f48b255c3de0dea9b1caf333b6e4a2b9c"
+    },
+    "blizzard-mf-cta-prebuff": {
+      "before": "ac7d85fb6f1f109bbf11c51df57223d81c6ac6eb2e9b88e4b1da7c54927770e0",
+      "after": "33259c7d2a6febc0d73503c2a733241384ee66eb27e595911ecbbcc5adaacdd9"
+    },
+    "blizzard-set-cta-prebuff": {
+      "before": "1d04bac9d1da0c714d2c60789d84fe51ad02355c8069e775308273bbd03ec34f",
+      "after": "295f0a099200c2a8fc6b12ed7827c664410bb6a6bc5ddf9f5313b5e124bce508"
+    },
+    "blizzard-set-spirit-shield": {
+      "before": "abc7f335de5664ee49d85d412d7a2f7baea29aba9bcfda53bd45c8f88a750f5e",
+      "after": "48f5f6d5628edbb8198dcc4947d17a01c6ce6ddefa735c44597028b2f5183912"
+    },
+    "blizzard-sorceress-0-merc-bulwark-native": {
+      "before": "cbd263fa1b711631728c787be274a95df0d3f56ab470c8fffb80233d24a3a5b0",
+      "after": "8b3d93592b5d4190e7ca50ff1046361af4f437e9317a579c9be6c8c61d579c82"
+    },
+    "blizzard-sorceress-0-rhyme": {
+      "before": "f8e1a55fb6fec330e0c734fb540a8edb98d88e13941b8a37f6de54c1cc4868b7",
+      "after": "f5384b7eea710ec0018d9243aef18b4b7f76fbf5fb974155153a2b02f6b79a49"
+    },
+    "blizzard-sorceress-1-merc-fortitude": {
+      "before": "c5045a62b3b3c7c56ef30052152652ac2d5d1fa72c646253ef28be7dbf35f29a",
+      "after": "bd1e0727875262843f1d10662a0064f019b6a1ec6aaa477f52587bb542d7d85a"
+    },
+    "blizzard-sorceress-3-merc-fortitude": {
+      "before": "db7a4c31434a02fdff9de2682977bea24f8ed1aed231771ab942a62a74b704b6",
+      "after": "cd40d2cfe99b8c428160a19a664547fb7723500c40ffb48f6a451113825ff612"
+    },
+    "blizzard-starter-spirit-sword": {
+      "before": "2081ab3da98f3913377ec1aac3d6de958a3881b6722a211af9a61ed267f84da8",
+      "after": "0340faea0e14cbfa4ff365f68b86f07e889e389b643997bc500fcca374b1bbc2"
+    },
+    "double-throw-barbarian-guide-0-merc-bulwark-native": {
+      "before": "3aa746727b268efa30ae54a1a5ca1ed3c23f870b8f39701cab28b94e906b3aad",
+      "after": "a2204cdf185e2c8788e8a7356d09c53a1f52e393f896bf3fc8e95190bc551138"
+    },
+    "double-throw-barbarian-guide-1-heart-oak": {
+      "before": "84f215a5aa2077d231286d21896d70be2db9adaa073194d3dd3318e178ae73d9",
+      "after": "05883763256e04e6b000605942c53e9fca799afa62e979d26b5ff94ff45ae4ab"
+    },
+    "double-throw-barbarian-guide-1-player-fortitude": {
+      "before": "a31d18e48263079d82155e3197c28c45d5832b24e121db0202210643b1d8fb81",
+      "after": "dba3aa07062078dc224ce44749f25270157dcbd572817a2bbc8dbf563c39b267"
+    },
+    "double-throw-barbarian-guide-merc-early-hustle-weapon-alternative": {
+      "before": "956d353cfbfa1995676b9165daa40336127b94e6e84807a29357a02a25fa41c1",
+      "after": "5756cd4767fdd71320cd3b45e22d51b36a514bac0fadc10e7650b0fceb1a3853"
+    },
+    "double-throw-barbarian-guide-merc-mid-hustle-weapon-alternative": {
+      "before": "6db50fc572c2ca2f18d59430e0eca0803ed7e8faa3dd6cf5c71a655d3a87d107",
+      "after": "f91a02a9baa902ecb4598f4e2e445b2d7c9aad1d86eeb60c8c6b562bcee0d1f8"
+    },
+    "double-throw-barbarian-guide-player-main-alternatives-hustle-weapon-alternative": {
+      "before": "c4311c2237647c23e7392a355bf29101dfda3306fb93fa0dd41886a6359e8dbd",
+      "after": "bebf2cd91f42e793235dd31b9d4d3d5b00a3f85d031dacdec714bf38cf27b9f8"
+    },
+    "dream-paladin-0-merc-treachery-native": {
+      "before": "201e912aad9a068ffa958fb6723cf2a4d6302069e471b9f5c7af8ed913be2701",
+      "after": "db617fb6284654a85be5ea5ce70cf3e0ed117c024e985ed09600b31816fbbe5f"
+    },
+    "dream-paladin-merc-early-hustle-weapon-alternative": {
+      "before": "15f8e7682a81eac1073a0cf792a95d326d95318b0ed60f304549805aea9fa5b2",
+      "after": "e24f07e7e25124643cd396f66fe8fb85f8b7caabfa3924d42ccce7533561ca23"
+    },
+    "echoing-mf-cta-prebuff": {
+      "before": "d693237f60c645c25c8a6e9c0e1ef3d319463f09fe121d25e9c45ff082fc7117",
+      "after": "a07f1144605d12de3e9c8e9334b0f2df5ac1eb600494f914a58274389b7e5b5f"
+    },
+    "echoing-standard-cta-prebuff": {
+      "before": "a8f7fb2f136001728443957dd708833d9fc16fbfba9255d8ae46267ee846de9a",
+      "after": "93826a838a21b4d645d8466a6ac4279a2310d49c49c82ce00da5af7cd508a6a0"
+    },
+    "echoing-strike-warlock-guide-0-rhyme": {
+      "before": "a60758e1ce5e790328704ea922b01c5b100ef2be9ba038d647eee4e45b79f8fa",
+      "after": "a38d489e904a528c040694cca35f09ab300484fdd48cd0100c649b6133de443e"
+    },
+    "echoing-strike-warlock-guide-1-merc-chains-honor": {
+      "before": "8521503f640e69def08a67481eb34a3eb141e4174fa3d846abdd5ab6e87a8523",
+      "after": "00d7a6e2da67f6d30817c45632dc0b96c0326c372330b62c2de354bde3fae21d"
+    },
+    "echoing-strike-warlock-guide-2-merc-chains-honor": {
+      "before": "2b74332b24faaace41e2fe38bc5a27f784490b052a9bf294d377d575e3557337",
+      "after": "0100e7404adc5d16232e1c425d081cde48b2118cc61710b537ca617f75c56a5f"
+    },
+    "echoing-ubers-cta-prebuff": {
+      "before": "e8864878ecef90cf63c56d51e2f2f9d0d4639a351754ce7a1373b38754c4823f",
+      "after": "99e9234b237f212458baf96f686a11081f14de5e4ec0f1ba4384094b0c3e9f14"
+    },
+    "enchant-sorceress-0-merc-bulwark-native": {
+      "before": "4d5ee6996206781e70db539cafb5a9ad1da04e22443ae3b6dc3f10ab3a0450d7",
+      "after": "a4e3201bfb84d119da0b3da6346281e3fee085ad0811342ebff7181b98b19d5d"
+    },
+    "enchant-sorceress-0-merc-treachery-native": {
+      "before": "cdfb7a97f6b0218c9163e94efcc4224204fe912b0c9a2a7f4a453fecd492d4e9",
+      "after": "7d8c0423caaa7d99c9e5fe1b6470555419069f885e3bcd59ecafd32e710eaacb"
+    },
+    "enchant-sorceress-1-merc-chains-honor": {
+      "before": "2d0d536ba5c82c613f70605aa34a5388d45adeba4c680c952d6cc13c1da34d6a",
+      "after": "10e872ac4d76eb6b1e5fe410103195816e548ecc52a68ac1103b84997f0dac93"
+    },
+    "enchant-sorceress-2-merc-chains-honor": {
+      "before": "99f022ea70f46ac0d819ab42ea3c7cb9cb9f96d67a30d57c9008c4c2b6c57bcb",
+      "after": "5b37fcdfd7fe1fbfc95f4b274bebb733bd4b7c7aff8d316843e1a59fe68f8cbc"
+    },
+    "fire-blast-assassin-0-rhyme": {
+      "before": "bad993747b5eaeddd5cb04700325e5119438e34cd991eb84c2e68c81d829ba00",
+      "after": "22bc7902fad5dc3998773279987b28ca2eecb1edf069068c75df7750f890ec9a"
+    },
+    "fire-blast-assassin-1-heart-oak": {
+      "before": "68e94c5bf07a4166608de1d02051d2ec76b33d631e4014d9d8990099ea65212b",
+      "after": "8a3c7adfdcc5d85887d1241b08bca2f5c295dae50820bec3e3fbd339c0c1b0ce"
+    },
+    "fire-blast-assassin-1-merc-fortitude": {
+      "before": "839731f064798affa32c89885f6de548086b0b5901c2f51cc0e3f65fd3778839",
+      "after": "72d69df62cce50f1d77d68edd0fa95fd010af1f9151dc7cfb9cf6629b8b4e8a7"
+    },
+    "fire-mf-cta-prebuff": {
+      "before": "f044778c865592f6a112994b4d621ea6278691afe08a3a3c34650c14bbeaf3b7",
+      "after": "264c54ee905367d328382fc39b9b1a7b61358fa1bd5e7c2da77b63228b8ce806"
+    },
+    "fire-standard-cta-prebuff": {
+      "before": "8e627198041be8f2c91356d031d5b3374793ed6afb0e01019728ad725cbc2798",
+      "after": "30ddaee2d191950a182a8a9281def8a23a520f204e63ddd17ffc095530af6d54"
+    },
+    "fire-warlock-guide-0-merc-bulwark-native": {
+      "before": "2b379a2212007c154c491e98c82f37fe64ec0041495934d43aba3d522783de15",
+      "after": "d30ed2d3beff886aeee88954c98a9df52c331621f52d7807c870473d821deb45"
+    },
+    "fire-warlock-guide-0-merc-treachery-native": {
+      "before": "1ca7cd0bfc1add43fd7be0e73326127de772ea905af1fc81018257c9ed5add16",
+      "after": "962ba1fa3fa434b91dd0fa9c067a7c31cbb0736bc508e6239c8fb0d478760c6f"
+    },
+    "fire-warlock-guide-0-rhyme": {
+      "before": "09a36dfc6b97da8d9d3a746d0a57c27641112bb20f257aa356b20f07a3ec4f46",
+      "after": "3566ba72dda3b17f3b139e822bb5a52e76c7ab4b5494067341871fb7c3a9a6e4"
+    },
+    "fire-warlock-guide-1-merc-fortitude": {
+      "before": "e08f6927e8731edea46fd74f37f68ce7c355e2c4a1cb2e07e11f65f6df2c9221",
+      "after": "1a3eea07f14d07004214ed641c5bdeaa5c1ec551fa75e1d0387bc98262652b85"
+    },
+    "fire-warlock-guide-2-merc-fortitude": {
+      "before": "301644e61329b4d4ac8bc355420ff9a6ae62b8080a908b7c62688541a2cc02a7",
+      "after": "228683e829e0ae67882b11bc95bfca616b60a8636c4580c37a80474d416cc35c"
+    },
+    "fissure-druid-1-heart-oak": {
+      "before": "001ad1bdfa97fb45854db0b59675626057676dd25fe40dffcf855f84f50a9b58",
+      "after": "91a7c8bea23bd81e99c74e4a130fb5a909be9f169fb040520d44ea23dbc11d4a"
+    },
+    "fissure-druid-1-merc-fortitude": {
+      "before": "de00715605c6b36c28ddfa2aed5020ae4ccfba2bae936d1f9eb44c8d286159fb",
+      "after": "2ad14f8b9d0a00fad2d5bfa200a5fac4073f73e21f4e6b8da835c346c7c13640"
+    },
+    "fissure-druid-2-heart-oak": {
+      "before": "a9a7799defd9ae40c8a8758fe25771692da08e1b663b7a1a3b106ec496f1d17b",
+      "after": "ace7fa78a2a372ed69a6203a7b141c484870f3d3ffa55338cb9acd6d024e6181"
+    },
+    "fissure-druid-2-merc-fortitude": {
+      "before": "229bee7e4830b20bdc3b781be1812a03368ebb77cba6e3bdc9eac92961c90ef8",
+      "after": "c4e673366cd3160fea0321249edd77fe937fda672532ae35de84728ccd6a6fda"
+    },
+    "fissure-druid-3-merc-chains-honor": {
+      "before": "d2eca97f343a7441de49edf871bf54f015c5d12b1f58c399f05853f2ad12bd16",
+      "after": "1a6d05aa83f2bed5ad7ec0aace3d8eeb6a75a9672fa170c68f4be998027156f7"
+    },
+    "fissure-druid-3-player-chains-honor": {
+      "before": "0edd2e50fe0ff788bb5cf2266ad652ac78b193417a0a92f29a14e3bad1809158",
+      "after": "365eea2fa0de5cd91a5f4d59e93437ebc2e1d99565dc5e63de60c8f7893f0546"
+    },
+    "fissure-merc-magic-find-fortitude": {
+      "before": "45ea733a718e6a6aef6d9e933cb4b7053a09df490942c8b9f0bc7cbf8895edbc",
+      "after": "efec768d75e08232966f85389239fe924fcaf65074dd3293e52e4287ea47a6e9"
+    },
+    "fissure-merc-standard-fortitude": {
+      "before": "29154d10d9bc7e274952abac85f4ae809d687925e92a128767858abea1d18ba2",
+      "after": "a549e4200d259aa2be0b47391f7935d1964799ad1ccbcd97b198d0993914f44e"
+    },
+    "fissure-merc-ubers-chains-of-honor": {
+      "before": "1b451572dcdbb6dc9d5bd4bbf24c052ffb59389c9a4654a6c0543aa83f5feff0",
+      "after": "161b77182df9402a4dffd6f083b47910af8e54dae17193fc1cb38d970629724a"
+    },
+    "fissure-merc-ubers-flickering-flame": {
+      "before": "d21464baaa78af588ee334df67b35aacf870cae54d9ca361b7d4d77900de8d40",
+      "after": "d20c14d48fa6c1b654289ce08c26dc84911a869a99d1d38c7ae6efef45d5a4c8"
+    },
+    "fissure-player-standard-flickering-flame": {
+      "before": "f52700d55bdf2910a251425c19fd312b1fcdb1311764a64d3afcf5793597950c",
+      "after": "f93d223db5c1d96f3873c1d801c3ca031a23db5814f53ed352a5af1de91a961d"
+    },
+    "fissure-player-starter-lore": {
+      "before": "6128f42981f377754dab96ffbf2843112a1b3d50ddb54271f8fd9139b4742de6",
+      "after": "8ca593b8e5d8e850379b49a7a5fd5785cec81605f95bd46213829bd52e7cd6d0"
+    },
+    "fissure-starter-merc-bulwark": {
+      "before": "942ad6322890dfc0ed572fee1cb625bd9171ff5d833e93aed54b001443a4d142",
+      "after": "a5629bdfde2e258584d0368b9cacf39dc28efa49d54fb0551c9093bbd3823b81"
+    },
+    "fissure-starter-merc-treachery": {
+      "before": "2da2325954abf32d35ed369409c07653e498935d4c510c68296227051935428b",
+      "after": "7e339c16aae23acba6b379162b0ca1d619a0529d4d679b820369fa1aaa0f9077"
+    },
+    "fissure-starter-spirit-sword": {
+      "before": "069882e1d18da7025324a5e9d4127ee50c3d21504d9ea4eca25e53e9fc5199a2",
+      "after": "52439a16626fb7f5cc024d96dbb92be36ff88b29ac18a590c3146cc4837c5370"
+    },
+    "fist-of-the-heavens-paladin-0-merc-bulwark-native": {
+      "before": "3f71ce91e70e4d8b19764d1dc3ec018e8f5b9c76492762a25ca82edfe6f94f9f",
+      "after": "0cf65c4a4cc9f4924b2706be733c2a04d5ca215939efae2c8a1128c418f2300c"
+    },
+    "fist-of-the-heavens-paladin-1-merc-bulwark-native": {
+      "before": "7a55732dc8a78815bba19a58361933bc6395066db20f1be96928128a9fb620df",
+      "after": "c9b2ec4fd5b7b55faf9e35c162c7e0dc85b88ba6b77d786158abdccc72d60d9c"
+    },
+    "fist-of-the-heavens-paladin-2-heart-oak": {
+      "before": "491696791b9d48a8253e2bcbdca88a7ca62d06e8cd4637156ddc759cccb1aad8",
+      "after": "989bfc7548779d8a583d592152c5f8f8e05f3802b46e14bf10f47c7888d9f627"
+    },
+    "fist-of-the-heavens-paladin-2-merc-fortitude": {
+      "before": "6d5f43728ee42541fa8a7163451f0b51bee7bbe7cf9f020df05fab3a62b77643",
+      "after": "d5e1a4b8ed043a951c0892aa5c40d6be810b914b0a55f36f8a3d74cb6310cfe4"
+    },
+    "fist-of-the-heavens-paladin-3-merc-chains-honor": {
+      "before": "21beb4b6998899cc88f556f60465b2b1b0b9254c6b55d8dd8ede27001137d978",
+      "after": "8b2b0bdbc92336e5aa9e13910b46e3ed92e4e75987d4407574e10fd7eb1b7f22"
+    },
+    "fist-of-the-heavens-paladin-4-merc-fortitude": {
+      "before": "b277f8e875cbc50d07b8f465ddab5d5e51b476f76d1e28b853b4ed0395d0d92b",
+      "after": "9d189f30d063697f9027fa91b6f34ea1cc176b5389e7740b320604d3c9b22713"
+    },
+    "foh-starter-spirit-shield": {
+      "before": "75bb4b688ec421b606dded12b33fac9336e06e7ede89333b51e42bec5adafb42",
+      "after": "ad915b07d1cb7a6ef3e63ca834f75af2386ce7360e0fe8ed5730ad9eb082f589"
+    },
+    "gold-find-barbarian-0-merc-treachery-native": {
+      "before": "cb0adae3951a2aa6bef233d38a7d30273392068c34f13fb80ead1357974391e9",
+      "after": "f1946eeb486c90d3991741fe4fe6f45640e54a7b7c88c1870a17471cfedec25a"
+    },
+    "gold-find-barbarian-1-heart-oak": {
+      "before": "a827e4528b3de19614b4058f6cf8e84379bd98e5020ee29732562a6410bc1bc4",
+      "after": "723d47e8c0ed9cd06b46a287cba9c007ca4d0b01f26ce0947975d2cce4c1d894"
+    },
+    "gold-find-barbarian-2-heart-oak": {
+      "before": "91a4047d9aa4686ad0482da65f6bb8e13f61b4abe7aba432dfcd02a81caf73ee",
+      "after": "b211fa3242e87de191147a4d22009238cc3572b9fcf74f65f7b37c4abfe61e59"
+    },
+    "gold-find-barbarian-3-heart-oak": {
+      "before": "2750c206863a2c767c874e49af145a7678af0ccfc9d6078d66f549bec0f6f417",
+      "after": "f348e72953457dc55ead9708b8e58ea4ec62f96126809d354dd7e1ad3cf39490"
+    },
+    "hammer-mf-spirit-shield": {
+      "before": "8389fdbdb5025d6f8221c5e5dca6d1bcc5b73960792e400c8c6d526781c1a90c",
+      "after": "23e9723d76cf366960451182acaa2ba6b9791bb7d7013433a027f0fbd5882998"
+    },
+    "hammer-standard-spirit-shield": {
+      "before": "fe6ec1dff53f83e3a74068a84200ca211a91e828cecc66569627ee233ddc3172",
+      "after": "efedf90b33746673de1bd582cb0ed87a347d2f27d9e1681547d789e096ab8516"
+    },
+    "hammer-starter-spirit-shield": {
+      "before": "b0a540ebb83b5f3085f377944107380b99c9a6a154bf26c7280c0516a12e067a",
+      "after": "994f4f3d2d4db04b94787c761a21a765f1add6fcdc721fda78ef86c660654d10"
+    },
+    "hammer-starter-spirit-sword": {
+      "before": "8ad655677bd2f4e82e6fc1812617c60abe6ccd5f5d383637a09798a01d3984b7",
+      "after": "c2fec4f4f934f1487f16a6545cd2dee9b6e310dcd00cde6237e33a1c3a511a20"
+    },
+    "holy-bolt-starter-spirit-shield": {
+      "before": "3dcd01f06ae26789bc5c4dbb44b9942873a6d777e9e14a4815b07bcd3b4e4680",
+      "after": "91da5c4f3db53d22d0dc2b31f8c2aafaaf34bda672cf756cbc931782048b552d"
+    },
+    "lightning-fury-amazon-guide-0-merc-bulwark-native": {
+      "before": "057117b2dec4df9d4e90b3c2f493e0538154c80a4587ada14a0466819844e640",
+      "after": "5ce582a50d65ef9bc6e2c0158009c307d5ef1a6276dcf91ec2842d636e20b6a7"
+    },
+    "lightning-fury-amazon-guide-0-rhyme": {
+      "before": "ad0a9b1ab57525e60c27df983d258c0c99df6fd9d7a46376d666ccbadbd3ad67",
+      "after": "2e847da90d2581e6abd7456cbe89b1d3e2bdddbabc331bc9d0037ceb05bac5ca"
+    },
+    "lightning-fury-amazon-guide-1-merc-fortitude": {
+      "before": "4c51439bec20a2d4ace98a8da6ea4edea4283d0e1b85f90423a035736b8f31ba",
+      "after": "57683a978eefc86acd59fa6405de0cd29109cba55c65efb73b6dedc499e01906"
+    },
+    "lightning-fury-amazon-guide-2-merc-fortitude": {
+      "before": "01f8360e6017bff69fd8b2affae3b7c90638dd47be962a824aaab064ceec567b",
+      "after": "46946c79cccc8db0ab2a2fe6f97705880ab689f2e710c735e6795e0ba0eda857"
+    },
+    "lightning-fury-amazon-guide-3-merc-treachery-native": {
+      "before": "880c168c8f74548ab15abc82082189a0571d92668f3ac16c39849a9eddb236f3",
+      "after": "5f2c26a96364264f2f569f8f7666453dbc119883c3bf0fd28e6c0b574c08b0c6"
+    },
+    "lightning-fury-amazon-guide-3-player-chains-honor": {
+      "before": "66a59676bc20860f962672bdabdb979432d46bdd3137c3d413899d60b6f6fff9",
+      "after": "d1a60b88667d8cb0a08d26f22e9cc153864b378089cd562bd36016f2090a5933"
+    },
+    "lightning-fury-amazon-guide-merc-early-hustle-weapon-alternative": {
+      "before": "81be46c0559914fd716fe500d900ba4873ba576adfc23300f75ca16478a469ca",
+      "after": "ba26e783b5e0b5a546d7bbcf40ffd950f8662c8564d7f2b6fa32fabc9bc4f7c3"
+    },
+    "lightning-fury-amazon-guide-merc-mid-hustle-weapon-alternative": {
+      "before": "9dd87536d44416961fb501226ff0bce38686c91b56c893031202e9ae66b65bb6",
+      "after": "8556edede45c4d547df24b72fc7b611846acfcaf1b467dcbc04518176f46ea9f"
+    },
+    "lightning-mf-cta-prebuff": {
+      "before": "8f00e8125189d4f11d68823bdbabf46742ff646aa9aa1f288ead43bc5c23eda0",
+      "after": "dc2aecf314abd59150b2f14a3b934648fe88d587968c91ad1130c34db6f118d5"
+    },
+    "lightning-sentry-assassin-0-merc-bulwark-native": {
+      "before": "843575d9e2c22d72a22985420a849524f19bea7e6099a8c3032f75ee46a58a39",
+      "after": "1f44ad434c9ec701ebf2d6619b06a9e68e3bcdb088dc6a4ede2674a719b97485"
+    },
+    "lightning-sentry-assassin-0-rhyme": {
+      "before": "9cd39b6ed93dcba57e617b6ee447245baf4b9c33786dd8214103b5a382551644",
+      "after": "83b56b2034fc7385afe323b811b13ff9ea317e4fd4c876ef7099ba52ff595c3d"
+    },
+    "lightning-sentry-assassin-1-merc-fortitude": {
+      "before": "644ca8bacb97a3496861a52cfe7b7f94fdee97fd9faac41bf5b09dd076a521a5",
+      "after": "30af246577e01070c30e45987b92114ff4a4178bbaddaefa79d4991196c2bcab"
+    },
+    "lightning-sentry-assassin-2-heart-oak": {
+      "before": "a53ef4ec4401a348c3c6322a3a3f559f59776fa1fb080c355153501cbc831c2d",
+      "after": "7d64073220751a07cab88c4d40a6d4e8b15a04676ccf0ac79f1fa3ab24276a86"
+    },
+    "lightning-sentry-assassin-2-merc-fortitude": {
+      "before": "b2d6d9effedbe16de45b92347a52480a755d75ae9e6453fa247935e651e97bd3",
+      "after": "b97933693944942adff8a004a4150bb6a2cb4ea6786a72dab26c9e4c0c2bf424"
+    },
+    "lightning-sorceress-0-merc-bulwark-native": {
+      "before": "f47e41f7fc97b5ceddceba939736deb5f1d8ff1423db6eaddc62511dab2b95f8",
+      "after": "f4ad9ee2d52577697bb672c3e48423acd6c22146c7260f34dda8844d3ac9e887"
+    },
+    "lightning-sorceress-0-rhyme": {
+      "before": "07c3b105d7005e1977ebfd6c728cc7d179082f53b0568039f4d96be1a7facf60",
+      "after": "4381f0512285113158cc904e7dc554c377db9e7f0211f0cc54e3d110f8c6151c"
+    },
+    "lightning-sorceress-1-heart-oak": {
+      "before": "04e3df40ada5f42a9c74384f86e68905e8421e139baa61a007fc8b994b962589",
+      "after": "24d3387e81300e3e63c3143c255a52c81c13e738a36f17db734bd1ffb73c21f7"
+    },
+    "lightning-sorceress-1-merc-fortitude": {
+      "before": "e5224b0c8055d5804b40230b13c9b8979fd14b2600a0d8ce22af7408c6860ba2",
+      "after": "9105c10d5997bad177277cabb70d82681d23bcc64727d3a4b02273949e168db7"
+    },
+    "lightning-sorceress-2-merc-fortitude": {
+      "before": "882e59c974773040c9de173790481b7618b496a19079df9454171bb37386ab39",
+      "after": "b77973b86933aca67bf1a5cc057ea782ee6e8f619ef5e2b32f1dbc7c8aa74b5e"
+    },
+    "lightning-sorceress-3-merc-treachery-native": {
+      "before": "4c38efdc3c3fbc795f1c90e28b0836811b7bd88c1b3b6265c7b8ddf221d549a3",
+      "after": "3d5fd8f529ed28b5a452179d2b6b27d60278f7dc92a8f4fb16864bb2f4427bff"
+    },
+    "lightning-sorceress-3-player-chains-honor": {
+      "before": "46de6f8eaaf7947ee6136cb2b6da71df1fd13f1c18cafaf964e9e7610899159b",
+      "after": "3354b629ed08809b72f7577fd48d3cd5144c268b4dcd27af874982abe003a615"
+    },
+    "lightning-standard-cta-prebuff": {
+      "before": "42b3b88b818b99cc2e842fe419b95d31faea7f2d5e1f030a60437c12a738793c",
+      "after": "9c59ff214c8036b0ca56398fe58fcbd138a7d7bbc8bdf034f7969d77d9a685ee"
+    },
+    "lightning-starter-spirit-shield": {
+      "before": "94582f2a0a1043873aeb9ef4b9ac967b8e66b7b5aaba3244a2af3bf2e401c2ab",
+      "after": "6943044c67625c90c92a7e9a3267e85fc9559eef8498ec441ecf9db093c046bb"
+    },
+    "lightning-starter-spirit-sword": {
+      "before": "88f5b4ef6e7c6a6301f8bfbe6703d062de7c4fb2817daa3ea70ae139b2c59aa4",
+      "after": "fab0ee00b64b4b87b77ed13882ad5d58a40731b1d9e2ee9780a5324213034153"
+    },
+    "lightning-strike-amazon-0-merc-bulwark-native": {
+      "before": "aebd0bbb0d4c9fd6f75dae5abddd233ea45076e8524f153f6c04b4d9e8180430",
+      "after": "a965efe24eafe0abbb12c10ad4cf63441e2eaea3e55c7b43e24020e6aeb7ec64"
+    },
+    "lightning-strike-amazon-0-rhyme": {
+      "before": "0bdcb5da4de8680cf5966943cedefe841e60b5aa4d6e5803aaefd5fc1f1972fe",
+      "after": "91e3abe2a82fb612a39a5de7dff0f0d79a344c4b70c64eb127e107331496830c"
+    },
+    "lightning-strike-amazon-2-merc-treachery-native": {
+      "before": "0471f11ab51f629b8517beb9fc9e9dfec2a5fb7de53409a98a4b9a3161b31310",
+      "after": "7f947997ce28a8e1145879452eb0bcc0cd46a10ec56b69d542dadea0f2ebf4d5"
+    },
+    "lightning-strike-amazon-2-player-chains-honor": {
+      "before": "f49015f730d027e40222b24b907d07541e6e303552a086842996a0745c9276c0",
+      "after": "cbd65d5ef7866fd714fbe8e273fd5979ebbd17a53e586b63e93ffa713a522705"
+    },
+    "lightning-strike-amazon-merc-early-hustle-weapon-alternative": {
+      "before": "8d4d2568de14c4c5b2522cd09be1b0ef277d12c671571a94586bfe400c4d6c80",
+      "after": "8e05b6274ecf677b1773cf22de389d296d014af6cc559b417f53ae6da860a271"
+    },
+    "lightning-strike-amazon-merc-mid-hustle-weapon-alternative": {
+      "before": "bb1017a0d88596e433bf4f57bb25a6058cbea8449272d1eb17f1bacca8cf78e6",
+      "after": "7826216e46697c8d5d0f01199cfca43683b1a4806b3aa46a5893f02101ca6cbb"
+    },
+    "lightning-strike-infinity-player": {
+      "before": "dfe704e8f55f410c51c515f7f7c7b74749ad44347acab1829c5ddeb9c8ddd430",
+      "after": "97419462681cd1b7d83f9d6a484e3c78f6eab0544ca3dde0360695b59f552181"
+    },
+    "meteor-mf-cta-prebuff": {
+      "before": "d7e58a92b0314074ed103f462994cc8d8e829249bd4b0a9ee3846b40f07fb84a",
+      "after": "e23a66ccb1d3c5583c71ab918122713a76bdb62a7b7cc11405024435c5cfe6f6"
+    },
+    "meteor-mf-spirit-shield": {
+      "before": "5fc341eaa5ae82c2a2d7996259a56f4369e05e9b5f3da2de54bdb05915efc144",
+      "after": "a5c85f4a03ac195cb2572ebcd900f1fb4525f7f7fb25c1c2cabf27242cd32bf3"
+    },
+    "meteor-set-cta-prebuff": {
+      "before": "24e9ce1e022dac0fb66e1ce237af1d4954f361bbb54da33f1b51a8f475420b7f",
+      "after": "72f3a99b9d3e64ed586a09dfff06425c125bfb4f52cc97e909fc8d5a15bf7940"
+    },
+    "meteor-set-spirit-shield": {
+      "before": "2f8d9b794077228d9d315dc49d7b6f0238e62612c9b274727a99b9d3a529fbda",
+      "after": "9034836bfcde9fb0431540ae6ab5a5bd938cb891487369f7b3f86732342287d4"
+    },
+    "meteor-sorceress-0-rhyme": {
+      "before": "ac06c0ecfb7e665c282c7938be35fc16c8d6088903edd5d6983fe02f352de48e",
+      "after": "2e49587a80e0935412dbb3a6a03072930b20b6d045b72377dfafe60d7742946c"
+    },
+    "meteor-sorceress-1-merc-fortitude": {
+      "before": "91ca6fbc6e1c94ef110377746bf1ba3ed2755cfe7ab1fd9cf3e15f81a3d5d10a",
+      "after": "d8909dc636b972fb47aaf2a6bb15e07b1d55bd6b4b884274a8c76b960beea1da"
+    },
+    "meteor-sorceress-1-player-chains-honor": {
+      "before": "8c74e879b5da83f40baa66f3dafec696650131102263553cc349a297178306af",
+      "after": "0c9368913c0d8a6726c05889d22096d81e7bc207336a95f3b53c6647a6b596c0"
+    },
+    "meteor-sorceress-3-merc-fortitude": {
+      "before": "ac24cae5ad2ed902ec1586d30c036d232d30237433ee0e3647613bd51cd669b1",
+      "after": "c4f5aff22094d2b63efa31c850c2e931a150aedf14a72cb17bffc28e38a8911c"
+    },
+    "meteor-sorceress-4-merc-treachery-native": {
+      "before": "7006edccb90c8591ee6ebcdf1154352f0def0885e4a556f7235132fd48a363d6",
+      "after": "c2b057792b03c5d76135b73753411c093974e540c37150a28011449ae641d93a"
+    },
+    "meteor-standard-cta-prebuff": {
+      "before": "74762bfcac8562c9020aee68209e6bfe627413855a056476ff717d58a8d547cb",
+      "after": "20a6c3b76269144ba23423e94f03b391ace7236945d1ddf9a0ccb8c6b250065d"
+    },
+    "meteor-standard-spirit-shield": {
+      "before": "ed62f5d3d188efb9af1283cba9de8c01d535ff364a52e0b9b6aed122e53c3489",
+      "after": "48006cb8d7b25eca9525d50410287a57a8cdc0331886da4eda3fd5a1e6e603a2"
+    },
+    "mirrored-blades-warlock-guide-1-merc-chains-honor": {
+      "before": "40c4fb5815d2cb3d1344563bb2dfce5b2dc1c2d6c793740be6b0bf0fd75645a8",
+      "after": "65aed62c3320d28e2853f39832a0c5a39ba21d88e475a6a50c6ab296a5ed11a0"
+    },
+    "mirrored-standard-cta-prebuff": {
+      "before": "38ad18a747b79db62e57ec7de8b331426abc461cfdf34fa88e1fc3c9189fe527",
+      "after": "12c654ef64c59faddfc4aa46fb72ad3780bdb00023da5f1fbe271f526a742306"
+    },
+    "mirrored-starter-rhyme-grimoire": {
+      "before": "8d59dec9d3cb9955331815776d50a445606e0c515245d60476214062245a8da4",
+      "after": "f3ba7dcfaaa8ad56bc650068d27c95af5adab0697609c4a6b56900afd9e4b7e3"
+    },
+    "mirrored-ubers-cta-prebuff": {
+      "before": "58022027099b027aaa9d7d59ae2b6098e1e40c60c196802da0d90c139d59113a",
+      "after": "09f56fbee4a8c70ab3191a9d0f80ffe7e18962ddc3f11521fa3e611fd1c72f75"
+    },
+    "nova-hybrid-infinity-merc": {
+      "before": "cb8535ea5d37f2fbbe1eab7df65126512982c049646907b4bf6faee506e5356a",
+      "after": "d8978ee612753c8ce9ff5e39846259f7d779416cf612c810ef405b24a2b7c599"
+    },
+    "nova-sorceress-guide-0-merc-bulwark-native": {
+      "before": "f03b089196fa180e36ec0c292d70ec0ae4f5320fcaaf9dd14ade5604263b4667",
+      "after": "1d5bbb915223516161bb0c87032308d3669c435983d6e49370c029340bdeca9c"
+    },
+    "nova-sorceress-guide-0-merc-treachery-native": {
+      "before": "763c912941cfb480b289c8170cdbe90407e250e87cd2df52237f8a90b6caea37",
+      "after": "9f4598f7ca152ccc439bcf5830ab1df0247c8fb3f8e7583addb9175518fcae6b"
+    },
+    "nova-sorceress-guide-1-merc-chains-honor": {
+      "before": "9576edae5603a5e5a4c5ab578a9beb8c6a2580684993fdada15c40877e28d6fc",
+      "after": "02f956f8d405bcf2eda66bef962809bf26186e028ce4f47d85b1713fdc23691e"
+    },
+    "nova-sorceress-guide-2-merc-chains-honor": {
+      "before": "02e08cf888fb29dd3023a0ba308038a9fa95ae509de3f12a0c738330c1e0b229",
+      "after": "3769326488380838306fdc0415b4e7f3a728acc35cadafad38cc0974edf2ab8f"
+    },
+    "nova-sorceress-guide-3-merc-chains-honor": {
+      "before": "2dc3ddd3407d4797c71a07250d2ec432d08945547725469ec08822e77c1a7011",
+      "after": "d7f17c44bc53134ecf575a8597eafaf18afd4d492319031b4af9ec46354dcba3"
+    },
+    "nova-sorceress-guide-3-player-chains-honor": {
+      "before": "1ebca0a26219b565d84717d91e58bdd21895d495ce2268e6ec20a76d5b6b2fba",
+      "after": "0473e6eccbc7c60fa11c09fa464fb6e1d7e8bd2e8bd9c5e8c851075dab465f22"
+    },
+    "nova-standard-infinity-player": {
+      "before": "3a4a61459761de0651a34d7f374d74c72f30cf9957f174dc9874cc564083e244",
+      "after": "8550d7a649d6a7ec6db0117494bf63ac45776fc0ecbd7ed38e4d45aa5721a71a"
+    },
+    "poison-nova-necromancer-0-merc-bulwark-native": {
+      "before": "29a951eeee9e8e2e42032e6fb2cd10d71925b60295458da019f1d78de69e8f88",
+      "after": "d52752de72e550026834607c289afc6972f772c76f033645c027eb9923b66cf1"
+    },
+    "poison-nova-necromancer-0-rhyme": {
+      "before": "cef627355a54d8d1b65e4057d6d26f62bc8ebe453d1632f27303db43b46e6003",
+      "after": "4d6d3ba893395141efcddf0d29d6a64e049dadb75b51e91d2f2cd2002971a23d"
+    },
+    "poison-nova-necromancer-1-merc-fortitude": {
+      "before": "69086efc62acf67420b34260d96f784357e79e74664ae25812fd1022bc89ec30",
+      "after": "4f2e573f32c008d421b736434b9876dac6192c50e43679eeadbb0d1623c4ca83"
+    },
+    "poison-nova-necromancer-2-merc-fortitude": {
+      "before": "201adfd9c84bfda5cf748ef9b145f8187375ac234c36b065099f1212acaaabab",
+      "after": "f1bfe91969eadc59ec4241d1fcaff67fbb42f0c214ac28110ecda058a77e8ec5"
+    },
+    "poison-nova-necromancer-merc-mid-hustle-weapon-alternative": {
+      "before": "5bbe5099dce1a3049c6c3aea9fa13c71972260f37a3197a57df3af302f261018",
+      "after": "eea47ef63b4cc054bebf6fed8da857adfc65402104983fd4a9cee86abfa717db"
+    },
+    "smite-paladin-0-merc-bulwark-native": {
+      "before": "36fa12bd55fc74ded1898f4c40b3acda9195fc1369e93735c233e97e99671ce8",
+      "after": "a24320eaace1af3337ea6eb4addd87b330172589e55bcec9cf53aef34a6b9b91"
+    },
+    "smite-paladin-0-rhyme": {
+      "before": "a298fb937e2b5a1c1b0b8363d271e9a48df9f4beea3ece692c4f03db54dd0841",
+      "after": "1a158fdf0d6c6de680d09e0faf6b665b56b5eae3693e7d53fbda77d6af83af4b"
+    },
+    "smite-paladin-1-player-chains-honor": {
+      "before": "a75f7c1e67201ce134781a9c295f361a6f7b667bc1f239ebe5d3078745f488f5",
+      "after": "2df86a3141704e4164152ce90bdb6f73394f7ecff89f9306548f8d18fef690d5"
+    },
+    "smite-paladin-2-player-chains-honor": {
+      "before": "f0f5f65ce96b425c451adf098dca2075817fe576276979592e44ead182f21ddb",
+      "after": "ac9c40d0ca9cff0c9e8d41a493b674ffd44754db77b069e4f823e30e528b3ade"
+    },
+    "smite-shared-treachery": {
+      "before": "878d639a1ed157467f83b1cf2240220ace0a8875f57d9954e25f210380a84c00",
+      "after": "18f8ff1d4a1b10e19cab9bb294ba8fa0b56da0d7283615cfea4fc5f93dd7d378"
+    },
+    "strafe-amazon-0-merc-bulwark-native": {
+      "before": "1d61333ccd521de0c7c531ce6f54454fbb0018e0a8aa564ad772549f29ee321a",
+      "after": "b7ee41886fa938fcf964b308d577b290e3d73c6ff5dfbf64dc4b15293f9d3890"
+    },
+    "strafe-amazon-0-merc-treachery-native": {
+      "before": "5e91dc721397968f2c6b1efc1aeee6c06e1032aef7ed359833d42360245f618a",
+      "after": "4118e37e2b6d8862ca6dd62b1b629ee147b9c2106dd2bf5a976acad4e85d0642"
+    },
+    "strafe-amazon-1-merc-chains-honor": {
+      "before": "f0ef3a9aa72e6afec5273182bbc7f51fea66a94d923904d89be65349c93f6fbf",
+      "after": "e91812dd04b9df372539875c7441a8825945ff8d70de777fcd206f4f4c2ae792"
+    },
+    "strafe-amazon-1-player-fortitude": {
+      "before": "1ddd27b36100d60b9d0e2316ac0a6dc46db152e22e0624b6ed2c343b900ed841",
+      "after": "fe543b3933fbc488eddc35e2333fde6ef411e21099bce252ee68a27227680bfe"
+    },
+    "strafe-amazon-2-merc-chains-honor": {
+      "before": "5c1142bdf04667ff74522cb41c27bc10d717e4f4e53a765f0cc33e6701307cd1",
+      "after": "ad63b46ec6945e311c3f35ba97655b99408fa31fd28dc21d4eab22a2d38eb63f"
+    },
+    "strafe-amazon-2-player-fortitude": {
+      "before": "af2f62d8386b85a68ea6f466e517ec2346d74804681227b8db1a09b84c7b8b00",
+      "after": "7a09aed9da8630c54beaedfdd0784b606d3fd7a2d9b13ddbc4ae6fbcbf81e843"
+    },
+    "strafe-amazon-player-main-alternatives-hustle-weapon-alternative": {
+      "before": "7ab34d362f42a035c4bd00a6aded947e7308bf03c757485e5556c14d5eec3641",
+      "after": "dafafec928aa2fd90fa0c6a35c4f9e8bd70b51e4ac30c554531d873e63d1b9e4"
+    },
+    "summoner-necromancer-guide-0-merc-treachery-native": {
+      "before": "ad5e09e9984b5a5949884fc2a8c27938d0b41e99bb0f9ef37c3b301efdd35d97",
+      "after": "368c36072c5c45c361a8baf91ab112f1f096db9c39b9e843ad27fcf65fbe233e"
+    },
+    "summoner-necromancer-guide-1-heart-oak": {
+      "before": "cf627a9b76f3a66ba60bdf506ae28fdeb6021a965cc4b048d08bdf22e5044e96",
+      "after": "f0fa4d9914467b130522f7b53530837a2eac5e9077e9de27d17e5a5e5b1934f9"
+    },
+    "wake-of-fire-assassin-0-merc-bulwark-native": {
+      "before": "58e8b13adaf75b0d0b550c1ac788dcc73745a2392b851c33cf0ccf93f4c2f80e",
+      "after": "dfb67873c25279452e0ec6aa6516211d7af0ba7bb10c9e9d71289d536542390c"
+    },
+    "wake-of-fire-assassin-0-rhyme": {
+      "before": "99197bc4974ed46c923474ba08f2971883ee6bc2f9866e96b7903b6dac728b69",
+      "after": "8a2d58fe889f08f39235641771259416fb7c62037854ca85c926431d8f56a7fa"
+    },
+    "wake-of-fire-assassin-1-merc-fortitude": {
+      "before": "3d727e5c8a93b65dc89b94bc435be2c5686aa79914d5f5c71c85a50aacfcc00d",
+      "after": "58e2f9d03b2e15bb6e14badb2eae550855bfb1130c347601f41b1a842410814e"
+    },
+    "zeal-paladin-merc-word-fortitude-end": {
+      "before": "ed6f2c6901a9f29c9bea053693ef6306927f8fdcdc3d5fb49019c6ed0362499d",
+      "after": "f4bd54d91134910c96d5acc14e94c8cf68b9981d200e112526793b414bac41bc"
+    },
+    "zeal-paladin-merc-word-treachery-end": {
+      "before": "372d04edb9f8492c7ed1397b8f662db6dcf8976b15f25d2ce843959e66865fdc",
+      "after": "49cbc4c7114128e6127eda11b4eb014db181aa7befbd38ca7b1b573059b7e10c"
+    },
+    "zeal-paladin-merc-word-treachery-mid": {
+      "before": "3e82e4a4c333cfef93227addabe386201e5a757a39b2bc20e17c261839f2a1f8",
+      "after": "dcc1f53440a0b81b525a6bd52df34c1bfe427afa183b614e8113c9e3c1b517ee"
+    }
+  },
+  "verification": {
+    "generation": "61a3fb086a7d0dd5c584a23bc94dc501700f4651eb32aab60790a0ba18c7b39b",
+    "family_tests": "124 passed +1 stale pre-existing Bulwark count failure; corrected test asserts explicit20-build set and passed isolated. No runtime change for that test.",
+    "native_bank": "108 staged and108selected passed;12recipe examples, not all164 configurations",
+    "saved_report_parity": "20 texts/price_estimate/extractions match staged",
+    "all_item_complete": false,
+    "completion_counts": {
+      "identities": 2570,
+      "occurrences": 62891,
+      "reviewed_occurrences": 1689,
+      "excluded_occurrences": 4822,
+      "coverage_rows": 8624,
+      "remaining_tasks": 115402
+    }
+  }
+}

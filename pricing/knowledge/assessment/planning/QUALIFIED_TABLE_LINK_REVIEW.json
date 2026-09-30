@@ -1,0 +1,196 @@
+{
+  "status": "14_qualified_links_verified",
+  "rows": [
+    {
+      "occurrence_id": "0dc335178f2b061037f3696a",
+      "name": "Angelic Halo",
+      "profile_id": "strafe-amazon-angelic-halo-qualified-equipment",
+      "primary_label": "Angelic Halo (2-Piece Set)",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__strafe-amazon.html",
+      "source_locator": "/item-spans/87",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"dh0106qa\" data-d2planner-id=\"58\">Angelic Halo</span> (2-Piece Set)<br/><span class=\"d2planner-item\" data-d2planner-id=\"unique268\">Bul-Kathos&#x27; Wedding Band</span></td><td style=\"text-align:left\" data-border-color=\"#057af0\">+x to All Skills<br/><mark class=\"has-inline-color has-mid-grean-color\">+x to Attack Rating<br/>+x Minimum Damage <br/>+x Maximum Damage</mark><br/>Adds x Cold damage<br/><mark class=\"has-inline-color has-mid-grean-color\">+x% Mana stolen per hit <br/>+x% Life stolen per",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "1673b362c81307073a447d2f",
+      "name": "Angelic Wings",
+      "profile_id": "berserk-barbarian-angelic-wings-qualified-equipment",
+      "primary_label": "Angelic Wings (2-Piece Angelic Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/118",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"123\">Angelic Wings</span> (2-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Angelic Set</mark>)</td><td style=\"text-align:left\" data-border-color=\"#057af0\"><span class=\"has-inline-color has-mid-grean-color\">+x to All Skills<br/>+x to Barbarian Skills<br/>+x% Increased Attack Speed</span><br/><span class=\"has-inline-color has-mid-grean-color\">+x% Faster Cast Rate</span><br/>+x to Attack Rating<br/><span class=\"has-inline-color has-mid-grean-color\">x% ",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "1ab1b9200b588e1d373f8613",
+      "name": "Angelic Halo",
+      "profile_id": "berserk-barbarian-angelic-halo-qualified-equipment",
+      "primary_label": "Angelic Halo (2-Piece Angelic Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/124",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"124\">Angelic Halo</span> (2-Piece <span class=\"has-inline-color has-d-2-set-items-color\">Angelic Set</span>)</td><td style=\"text-align:left\" data-border-color=\"#057af0\"><span class=\"has-inline-color has-mid-grean-color\">+x% Faster Cast Rate<br/>+x to Attack Rating<br/></span>+x Life<br/>X Resist +x%<br/>Lightning Absorb x%<br/>Fire Absorb x%<br/>Magic Damage Reduced by x<br/><span class=\"has-inline-color has-mid-grean-color\">x% Better Chance of Getting Magic Items",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "2ddaabaec467f050995579e3",
+      "name": "Angelic Wings",
+      "profile_id": "double-throw-barbarian-guide-angelic-wings-qualified-equipment",
+      "primary_label": "Angelic Wings (2-Piece Angelic Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/177",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"41\">Angelic Wings</span> (2-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Angelic Set</mark>)</td><td style=\"text-align:left\" data-border-color=\"#057af0\"><span class=\"has-inline-color has-mid-grean-color\">5% Chance to cast level 2 <span class=\"d2planner-skill\">Amplify Damage</span> on striking</span><br/>+x to All Skills<br/>+x to Barbarian Skills<br/>+x% Faster Run/Walk<span class=\"has-inline-color has-mid-grean-color\"><br/>+x% Increased Attack Spe",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "5e887d5ef2e4adf7000179de",
+      "name": "Deathbit",
+      "profile_id": "double-throw-barbarian-guide-deathbit-weapon-named-throwing-alternative",
+      "primary_label": "Deathbit (Upgraded)",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/40",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"24\">Deathbit</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"73\">Ethereal The Scalper</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"32\">The Scalper</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"138\">Ethereal Demon&#x27;s Arch</span><br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "626aeb95b5e965a442bde772",
+      "name": "Immortal King's Pillar",
+      "profile_id": "double-throw-barbarian-guide-immortal-king-s-pillar-qualified-equipment",
+      "primary_label": "Immortal King's Pillar (3-Piece Immortal King's Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/167",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"46\">Immortal King&#x27;s Pillar</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Immortal King&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"152\">Sigon&#x27;s Sabot</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Sigon&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"36\">Sander&#x27;s Riprap</span></td><td ",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "77037eb02f52e6d3cb75a58a",
+      "name": "Deathbit",
+      "profile_id": "double-throw-barbarian-guide-deathbit-off-hand-named-throwing-alternative",
+      "primary_label": "Deathbit (Upgraded)",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/63",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"24\">Deathbit</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"73\">Ethereal The Scalper</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"32\">The Scalper</span> (Upgraded)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"138\">Ethereal Demon&#x27;s Arch</span><br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "841fc59a5708f5d7b223665a",
+      "name": "Immortal King's Forge",
+      "profile_id": "berserk-barbarian-immortal-king-s-forge-qualified-equipment",
+      "primary_label": "Immortal King's Forge (3-Piece Immortal King's Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/91",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"99\">Immortal King&#x27;s Forge</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Immortal King&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"144\">Sigon&#x27;s Gage</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Sigon&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"106\">Death&#x27;s Hand</span> (2-Piece <ma",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "86073d5299e7a366b1368196",
+      "name": "Angelic Wings",
+      "profile_id": "strafe-amazon-angelic-wings-qualified-equipment",
+      "primary_label": "Angelic Wings (2-Piece Set)",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__strafe-amazon.html",
+      "source_locator": "/item-spans/84",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"dh0106qa\" data-d2planner-id=\"59\">Angelic Wings</span> (2-Piece Set)</td><td style=\"text-align:left\" data-border-color=\"#057af0\"><mark class=\"has-inline-color has-mid-grean-color\">5% Chance to cast level 2 <span class=\"d2planner-skill\">amplifydamage</span> on striking</mark><br/>+x to All Skills<br/><mark class=\"has-inline-color has-mid-grean-color\">+x to Character Skills <br/>+x% Faster Run/Walk <br/>+x% Increased Attack Speed</mark><br/>+x to Attack Rating<br/><mark class=\"has-inline-color h",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "94b65b7813eb38536a88475d",
+      "name": "Trang-Oul's Wing",
+      "profile_id": "poison-nova-necromancer-trang-oul-s-wing-named-shield-tail",
+      "primary_label": "Trang-Oul's Wing (3-Piece Trang-Oul's Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+      "source_locator": "/item-spans/45",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"fw0106lo\" data-d2planner-id=\"27\">Trang-Oul&#x27;s Wing</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Trang-Oul&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"fw0106lo\" data-d2planner-id=\"26\">Homunculus</span><br/><span class=\"d2planner-item\" data-d2planner-profile=\"fw0106lo\" data-d2planner-id=\"144\">Darkforce Spawn</span><br/><span class=\"d2planner-item\" data-d2planner-profile=\"fw0106lo\" data-d2planner-id=\"53\">Stormshield</span><br/><span c",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "9d19f000ca9ca531650b1684",
+      "name": "Stormlash",
+      "profile_id": "dragon-talon-assassin-stormlash-qualified-equipment",
+      "primary_label": "Stormlash ( Shael Rune )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__dragon-talon-assassin.html",
+      "source_locator": "/item-spans/36",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"410106uk\" data-d2planner-id=\"19\">Stormlash</span> (<span class=\"d2planner-item\">Shael Rune</span>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"410106uk\" data-d2planner-id=\"7\">Beast Berserker Axe</span><br/><span class=\"d2planner-item\" data-d2planner-profile=\"410106uk\" data-d2planner-id=\"21\">Black Flail</span><br/><span class=\"d2planner-item\">Wizardspike</span><mark class=\"has-inline-color has-mid-red-color\"><sup>1</sup></mark></td><td style=\"text-align:left\" data-border-color=\"#0",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "a73e334c2f5657dc2ce446f7",
+      "name": "Immortal King's Pillar",
+      "profile_id": "berserk-barbarian-immortal-king-s-pillar-qualified-equipment",
+      "primary_label": "Immortal King's Pillar (3-Piece Immortal King's Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/108",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"101\">Immortal King&#x27;s Pillar</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Immortal King&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"145\">Sigon&#x27;s Sabot</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Sigon&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"62\">Rare Boots</span></td><td style=\"te",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "cbf9fa8e9ad7f361cd52fc33",
+      "name": "Immortal King's Forge",
+      "profile_id": "double-throw-barbarian-guide-immortal-king-s-forge-qualified-equipment",
+      "primary_label": "Immortal King's Forge (3-Piece Immortal King's Set )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/149",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"44\">Immortal King&#x27;s Forge</span> (3-Piece <mark class=\"has-inline-color has-d-2-set-items-color\">Immortal King&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"150\">Sigon&#x27;s Gage</span> (3-Pierce <mark class=\"has-inline-color has-d-2-set-items-color\">Sigon&#x27;s Set</mark>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"db0106mf\" data-d2planner-id=\"37\">Death&#x27;s Hand</span> (2-Piece <ma",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    },
+    {
+      "occurrence_id": "e00e7e7d6d247977d0fdd649",
+      "name": "Rune Master",
+      "profile_id": "berserk-barbarian-rune-master-qualified-equipment",
+      "primary_label": "Rune Master (5x Ist Rune s )",
+      "reason": "Primary label is qualified; exact plain-label equivalence does not apply.",
+      "guide": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/32",
+      "html_excerpt": "<span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"143\">Rune Master</span> (5x <span class=\"d2planner-item\">Ist Rune</span><span class=\"has-inline-color has-d-2-magic-immune-runes-and-crafted-items-color\">s</span>)<br/><span class=\"d2planner-item\" data-d2planner-profile=\"rk0106ln\" data-d2planner-id=\"98\">Blade of Ali Baba</span> (2x <span class=\"d2planner-item\">Ist Rune</span><span class=\"has-inline-color has-d-2-magic-immune-runes-and-crafted-items-color\">s</span>)<br/><span class=\"d2planner-item\" data-d2planner-p",
+      "status": "qualified_label_and_dependency_verified_and_linked"
+    }
+  ],
+  "linked_occurrence_ids": [
+    "0dc335178f2b061037f3696a",
+    "1673b362c81307073a447d2f",
+    "1ab1b9200b588e1d373f8613",
+    "2ddaabaec467f050995579e3",
+    "626aeb95b5e965a442bde772",
+    "841fc59a5708f5d7b223665a",
+    "86073d5299e7a366b1368196",
+    "9d19f000ca9ca531650b1684",
+    "a73e334c2f5657dc2ce446f7",
+    "cbf9fa8e9ad7f361cd52fc33",
+    "e00e7e7d6d247977d0fdd649",
+    "5e887d5ef2e4adf7000179de",
+    "77037eb02f52e6d3cb75a58a",
+    "94b65b7813eb38536a88475d"
+  ],
+  "validation": {
+    "staged_item_bank": "55 passed",
+    "selected_item_bank": "55 passed",
+    "source_and_completion_tests": "69 passed",
+    "lint": "passed",
+    "selected_generation": "877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec",
+    "runtime_changed": false,
+    "coverage": {
+      "cases": 4655,
+      "required_targets": 4325,
+      "targets_missing_cases": 3543
+    },
+    "completion_counts": {
+      "identities": 2570,
+      "occurrences": 62891,
+      "reviewed_occurrences": 2300,
+      "excluded_occurrences": 4822,
+      "coverage_rows": 8624,
+      "remaining_tasks": 114791
+    }
+  }
+}

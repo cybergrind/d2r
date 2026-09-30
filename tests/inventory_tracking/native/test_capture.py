@@ -70,3 +70,42 @@ def test_restart_after_capture_suppresses_signature_results():
         assert result['status'] == 'stale'
         assert result['unit_table_candidates'] == []
         assert (Path(directory) / 'capture.json').exists()
+
+
+@pytest.mark.parametrize('failing_read', [0, 1], ids=['before-capture', 'after-capture'])
+def test_short_header_read_while_the_game_starts_or_exits_is_stale_not_a_crash(failing_read):
+    # 2026-09-30: `make serve` died with "ValueError: Short PE header read" during attach; a
+    # header that cannot be read is the same "changed under us" case as a changed header.
+    import tempfile
+    from pathlib import Path
+    from unittest.mock import patch
+
+    from inventory_tracking.native.capture_probe import capture_image
+    from inventory_tracking.native.images import read_pe
+
+    from .test_images import fixture, mapping
+
+    data = fixture() + bytes(8192 - 512)
+    pe = read_pe(lambda offset, size: data[offset : offset + size])
+    token = {'pid': 123, 'start_ticks': '1'}
+    images = {'identity': token, 'candidate_base': 8192, 'images': [{'base': 8192, 'pe': pe}]}
+    header_reads = []
+
+    def pread(fd, size, offset):
+        if offset == 8192 and size == 64:  # the DOS header read that opens every read_pe
+            header_reads.append(offset)
+            if len(header_reads) - 1 == failing_read:
+                return b''
+        return data[offset - 8192 : offset - 8192 + size]
+
+    with (
+        tempfile.TemporaryDirectory() as directory,
+        patch('inventory_tracking.native.capture_probe.identity', return_value=token),
+        patch('inventory_tracking.native.capture_probe.process_mappings', return_value=[mapping(8192)]),
+        patch('inventory_tracking.native.capture_probe.os.open', return_value=77),
+        patch('inventory_tracking.native.capture_probe.os.close'),
+        patch('inventory_tracking.native.capture_probe.os.pread', side_effect=pread),
+    ):
+        result = capture_image(123, images, Path(directory))
+
+    assert result['status'] == 'stale'

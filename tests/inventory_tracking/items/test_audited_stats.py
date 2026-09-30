@@ -96,3 +96,22 @@ def test_cosmetic_and_set_effects_are_internal_diagnostics(stat, text):
 )
 def test_invalid_or_unreviewed_effects_remain_unresolved(stat):
     assert decode_stats([stat], viewer_level=91)[2] == [stat]
+
+
+@pytest.mark.parametrize(
+    ('stat', 'text'),
+    [
+        (native(254, 23), 'Increased Stack Size (+23)'),
+        (native(254, 60), 'Increased Stack Size (+60)'),
+        (native(157, 20), 'Fires Magic Arrows (Level 20)'),
+        (native(158, 7), 'Fires Explosive Arrows or Bolts (Level 7)'),
+        (native(366, 10), '-10% to Enemy Physical Damage Resistance'),
+        (native(365, 8), '+91 to Maximum Magic Damage (Based on Character Level)'),
+        (native(215, 8), '+91% Enhanced Defense (Based on Character Level)'),
+    ],
+)
+def test_full_item_definition_gaps(stat, text):
+    rows, _, unresolved = decode_stats([stat], viewer_level=91)
+    assert not unresolved
+    assert rows[0]['text'] == text
+    assert rows[0]['memory_stat'] == stat

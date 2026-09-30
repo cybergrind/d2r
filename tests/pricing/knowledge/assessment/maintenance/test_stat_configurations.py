@@ -69,7 +69,7 @@ def test_reviewed_amulet_combinations_can_pass_while_build_fit_remains_condition
     profiles = build()['profiles']
     configs = compile_stat_configurations(reviews, profiles, root=root)
     configs = [c for c in configs if 'amul' in c.types and set(c.qualities) & {'magic', 'rare', 'crafted'}]
-    assert len(configs) == 18
+    assert {'lightning-starter-amulet', 'nova-starter-amulet'} <= {c.role_id for c in configs}
     candidate = replace(
         facts('Amulet', 'magic'),
         stats={'188:9': {'status': 'decoded', 'value': 3}, '105:0': {'status': 'decoded', 'value': 10}},

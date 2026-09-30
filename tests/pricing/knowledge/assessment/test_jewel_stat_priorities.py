@@ -11,7 +11,11 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 def test_jewel_markers_require_both_mods_and_correct_wearer_recipient():
     profiles = build()['profiles']
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
-    configs = [c for c in compile_stat_configurations(reviews, profiles, root=ROOT) if 'jewl' in c.types]
+    configs = [
+        c
+        for c in compile_stat_configurations(reviews, profiles, root=ROOT)
+        if 'jewl' in c.types and 'magic' in c.qualities
+    ]
     assert len(configs) == 7
     for config in configs:
         player = config.role_id == 'hammer-ubers-ias-lightning-jewel'
@@ -21,7 +25,9 @@ def test_jewel_markers_require_both_mods_and_correct_wearer_recipient():
         other = 'mercenary_items' if player else 'player_items'
         values = {'93:0': 15, key: 10}
 
-        def evaluate(values, context=None, config=config, **changes):
+        def evaluate(values, context=None, config=config, player=player, **changes):
+            if player and context is not None:
+                context = {'player_class': 'Paladin', **context}
             item = replace(
                 facts('Jewel', 'magic'),
                 stats={k: {'status': 'decoded', 'value': v} for k, v in values.items()},

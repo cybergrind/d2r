@@ -59,11 +59,72 @@ def test_roll_styles_are_attached_to_rows_not_matching_text():
 def test_published_osd_retains_semantic_colors(tmp_path):
     import time
 
-    from inventory_tracking.appraisal.overlay import publish_display, read_display
+    from inventory_tracking.hud.payloads import card_lines
+    from inventory_tracking.hud.process import card_widgets
+    from inventory_tracking.hud.scene import publish_layer, read_scene
 
-    path = tmp_path / 'osd.json'
+    lines = ItemAssessment.from_record(saved_result()).to_osd()
+    publish_layer(tmp_path, 'appraisal', card_widgets(lines))
+    [widget] = read_scene(tmp_path, now=time.monotonic())
+    assert card_lines(widget.payload) == lines
+    publish_layer(tmp_path, 'appraisal', [])
+    assert read_scene(tmp_path, now=time.monotonic()) == []
+
+
+def test_trade_and_leveling_tiers_share_readable_colors():
+    from rich.style import Style
+
+    from inventory_tracking.presentation import PALETTE
+
+    colors = {'high': '#55ff55', 'med': '#ffff55', 'low': '#77aaff', 'trash': '#ff5555'}
+    for tier, color in colors.items():
+        record = saved_result()
+        record['result']['assessment'] = {
+            'trade_tier': {'status': 'reviewed', 'tier': tier, 'source': {'date': '2026-09-26'}},
+            'leveling': [
+                {
+                    'tier': tier,
+                    'classes': ['Sorceress'],
+                    'side': 'player',
+                    'archetypes': ['caster'],
+                    'reason': 'Leveling use',
+                    'conditions': [],
+                }
+            ],
+        }
+        document = ItemAssessment.from_record(record)
+        rows = [line for line in document.to_osd() if line.text.startswith(('Trade tier:', 'Leveling:'))]
+        assert len(rows) == (2 if tier == 'high' else 1)
+        for row in rows:
+            assert Style.parse(PALETTE[row.tone]).color.get_truecolor().hex == color
+            assert color in render_markup([row])
+        assert document.to_rich().plain == document.to_text()
+
+
+def test_owned_copies_show_after_the_stats_with_the_best_copy_on_the_osd():
     record = saved_result()
-    publish_display(path, record)
-    assert read_display(path, time.monotonic()) == ItemAssessment.from_record(record).to_osd()
-    publish_display(path, None)
-    assert read_display(path, time.monotonic()) == []
+    record['result']['owned'] = {
+        'kind': 'unique Snowclash',
+        'count': 3,
+        'relation': 'worse',
+        'perfection': 0.5,
+        'copies': [
+            {
+                'location': f'Mule · stash ({x},0)',
+                'identical': False,
+                'perfection': p,
+                'relation': r,
+                'better': [],
+                'worse': w,
+            }
+            for x, p, r, w in [(0, 0.2, 'better', []), (1, 0.9, 'worse', ['CR +12% vs 15']), (2, 0.4, 'mixed', [])]
+        ],
+    }
+    document = ItemAssessment.from_record(record)
+    texts = [line.text for line in document.lines]
+    header = texts.index('Owned: 3 x unique Snowclash — an owned copy rolls better; rolls 50% of max')
+    assert texts[header + 1] == '  Mule · stash (1,0) (90% rolls) — worse — new worse: CR +12% vs 15'
+    assert document.lines[header].tone == Tone.LOW
+    osd = [line.text for line in document.to_osd()]
+    assert texts[header + 1] in osd
+    assert texts[header + 2] not in osd

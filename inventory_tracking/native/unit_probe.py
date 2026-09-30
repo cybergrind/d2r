@@ -17,8 +17,9 @@ from inventory_tracking.reports import publish
 
 
 class ResearchReader:
-    def __init__(self, fd, mappings):
+    def __init__(self, fd, mappings, *, budget=8 * 1024 * 1024):
         self.fd = fd
+        self.budget = budget
         self.mappings = mappings
         self.starts = [m['start'] for m in mappings]
         self.bytes_requested = 0
@@ -26,7 +27,7 @@ class ResearchReader:
 
     def read(self, address, size):
         self.bytes_requested += size
-        if not 0 < size <= 8192 or self.bytes_requested > 8 * 1024 * 1024:
+        if not 0 < size <= 8192 or self.bytes_requested > self.budget:
             raise ValueError('research read budget exceeded')
         cursor = address
         start_index = max(0, bisect_right(self.starts, address) - 1)

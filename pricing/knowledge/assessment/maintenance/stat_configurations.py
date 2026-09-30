@@ -55,15 +55,13 @@ def compile_stat_configurations(reviews, profiles, *, root=None):
 
 
 def identity_bound_requirement(role):
-    """Keep named selectors in the stat gate, even when evaluated outside the index."""
-    names = role.get('names')
-    if not names:
-        return role['must']
-    if not isinstance(names, list) or any(not isinstance(n, str) or not n.strip() for n in names):
-        raise ValueError('Stat compiler requires explicit valid item names')
-    return {
-        'all': [
-            {'any': [{'op': 'fact_eq', 'field': 'name', 'value': name} for name in names]},
-            role['must'],
-        ]
-    }
+    """Keep named/base selectors in stat gates even outside the candidate index."""
+    bounds = []
+    for selector, field in (('names', 'name'), ('base_codes', 'base_code')):
+        values = role.get(selector)
+        if not values:
+            continue
+        if not isinstance(values, list) or any(not isinstance(value, str) or not value.strip() for value in values):
+            raise ValueError(f'Stat compiler requires explicit valid {selector}')
+        bounds.append({'any': [{'op': 'fact_eq', 'field': field, 'value': value} for value in values]})
+    return {'all': [*bounds, role['must']]} if bounds else role['must']

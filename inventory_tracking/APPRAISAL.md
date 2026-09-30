@@ -45,8 +45,8 @@ awaits the user's varied-item review; no further fixed probe sequence is require
 ## Win+S inventory collection
 
 The same worker handles **Win+S** (Niri `Mod+S`, installed 2026-09-25): it reads every
-item of the focused character — inventory, cube, equipped, mercenary, personal stash
-and all shared tabs — into the collection database
+item of the focused character — inventory, cube, equipped, mercenary equipment, personal
+stash and all shared tabs — and the character sheet into the collection database
 (`inventory_tracking/runs/collection/collection.sqlite`, `--collection-database`) and
 notifies "<character>: N items · new · moved · gone". Reports land under
 `inventory_tracking/runs/collection/<run>/` (`capture.json`, `report.json`). Each capture
@@ -56,6 +56,86 @@ cells per grid (`… collection space --fits 2x4` lists mules with room). Query 
 `uv run --offline python -m inventory_tracking.collection query <words>`. Plan and
 research notes in `inventory_tracking/collection/`.
 
+## Automatic collection when the stash closes
+
+With `--stash-auto` (default since 2026-09-27; `--no-stash-auto` disables it) the
+worker polls the game's open-panel flags twice a second (`--stash-poll-seconds`,
+`layout_notes.md` "Open-panel flags") and runs the Win+S collection by itself every
+time the stash panel goes from open to closed: sort the stash, close it, and the
+database and page are refreshed without a key press. One visit yields one capture;
+a game exit with the stash open is logged, not announced. Reports carry
+`trigger: stash-closed`; the log line is "Stash closed; collecting".
+
+## Automatic assessment after "identify all"
+
+With `--identify-auto` (default since 2026-09-27; `--no-identify-auto` disables it) the
+worker reads the identified flag of every magic-or-better item in the main inventory
+and the Horadric Cube (tagged `[cube]`) once a second in town (`--identify-poll-seconds`; five seconds elsewhere). Items that
+were unidentified on the previous read and are identified now — Cain's identify all,
+or a scroll — are read in full, decoded and run through the same offline KB Alt+D
+uses. The OSD shows "Identified N — k keep · c check · v vendor" and, per item, the
+verdict, its best-rolled stats (abbreviated: FCR, FR, @, life…) and the reason: keep
+for a value watch, a confirmed farming build use, a high/mid trade tier or asks of one Ist or
+more; check for an evidenced conditional build use, a leveling use, a low tier or small asks;
+vendor otherwise, with the failed-rule count. Only keep/check items get a row; vendor
+items are counted in the header and nothing else, and the desktop notification is
+sent only when there is something to keep or check. Since 2026-09-28, the automatic
+farming attention policy keeps starter-only roles quiet (Before Spirit, Starter,
+Starter alternative, early, FoH Starter and Holy Bolt Starter progression labels).
+Other conditional roles need positive matched evidence and an explicit remaining
+condition; their reasons include progression and the conditions to review. Full
+role assessments remain available in Alt+D. Independent value-watch, trade-tier,
+price or reviewed leveling evidence can still justify an alert. Here the vendor
+bucket means no supported reason for a farming alert, not a proof of zero value.
+An unavailable price is described as "no supported estimate", not "no listings".
+Slot-pattern leveling uses
+("a ring with any life, mana or resistance", `generic: true` in the report) never
+count and are no longer shown by Alt+D either. `identify-latest.json` in the run
+directory holds every row and a `timing` block (since 2026-09-27: reader-lock wait,
+memory read, decode and per-item KB retrieval in milliseconds, with the slowest
+item); the worker logs the same as one `Identify timing:` line per pass and each
+poll as `Identify probe:` (DEBUG, or INFO when a read took 250 ms or more or found
+newly identified items). Alt+D closes the summary at once (over an empty cell it
+closes it and shows nothing else). The first read after
+attaching, after leaving town or after a failed read is a baseline: items identified
+while away are not announced. The poll skips while Alt+D owns the reader or the OSD.
+
+## Owned copies and roll comparison
+
+Since 2026-09-30 Alt+D and the identify summary look the item up in the collection
+database (`--collection-database`, read-only; the data is only as fresh as the last Win+S or
+stash-close capture) and compare it against the copies you still own.
+"The same item" means the same unique/set (definition id), the same runeword, the same
+normal/superior base (ethereal flag and socket count included), or a magic/rare/crafted item on
+the same base with the same kinds of stats. Ethereal and non-ethereal copies never match. The
+item under the cursor is not counted as its own copy. Every variable stat the two items share is compared
+using its roll range and direction. The new item is **better** only when it beats every copy.
+It is **worse/equal** when any copy rolls at least as well, and **mixed** otherwise. **Same**
+means an owned duplicate with nothing variable to compare. Alt+D adds
+"Owned: N x … — relation; rolls P% of max" after the stats, followed by the best-rolled copies
+with per-stat differences ("new better: +165% Enhanced Defense vs 160"). The OSD shows the header and the top copy.
+The identify reason gains "owned N: …". A keep that rests only on a matched build use becomes
+**check** when an owned copy rolls at least as well. Trade reasons (value watch, tier, asks) stay
+keep, because a second copy still sells. The Alt+D cache key includes the database's modification
+time, so a new capture invalidates cached comparisons. Code: `appraisal/owned.py`.
+
+## Character sheet and the equipped-only pass
+
+Every collection also records the character sheet (since 2026-09-27): the player
+unit's full stat list decoded into readable lines (attributes, life/mana/stamina,
+defense, attack rating, resistances, gold, and every item/skill bonus such as faster
+cast rate or magic find) plus the raw stat triples, one row per capture in the
+`character_stats` table (schema 4) so the sheet has a history. Resistances are raw
+stat values: the game subtracts the difficulty penalty and caps at the maximum before
+display. Attack rating is the `tohit` stat, not the dexterity-derived sheet total,
+and skill damage is not a stat. The notification's last line reads
+"Level 92: str …; life …, mana …, defense …"; the page's "Characters" panel and
+`uv run --offline python -m inventory_tracking.collection stats [name] [--history]`
+list the lines. `collect --equipped` (`make equipped`, or `request --equipped` to the
+worker; no key bound) records only what the character and the mercenary wear, still
+with the sheet, and leaves inventory/stash placements untouched. Win+D stays the shop
+scan (`shop/README.md`).
+
 ## Run on the host
 
 ```sh
@@ -63,9 +143,11 @@ uv run --offline -m inventory_tracking.appraisal serve
 ```
 
 The worker may start before the game: while no `D2R.exe` is running it prints
-**Waiting for D2R.exe**, publishes `report.json` with state `waiting` and retries every
-`reconnect_delay` seconds (default 2). Other attach failures (unsupported build, memory
-access) still abort. Wait for **Ready for Alt+D**, focus D2R, hover an item, press **Alt+D**
+**Waiting for D2R.exe**, and while the game sits in its menus with no character in a
+game (no unit table yet) it prints **Waiting for a character in game**; both publish
+`report.json` with state `waiting` and retry every `reconnect_delay` seconds (default
+2), and menu-time image captures are removed rather than kept as attachment evidence.
+Other attach failures (unsupported build, memory access) still abort. Wait for **Ready for Alt+D**, focus D2R, hover an item, press **Alt+D**
 and hold the hover until the assessment appears in the right-side OSD. The installed Niri binding disables key
 repeat. It is a global binding; the worker requires D2R compositor focus and exact
 X11 process ownership before reading a request and before publishing its result.
@@ -110,16 +192,17 @@ Terminal logs use Rich spans from the same model. `NO_COLOR` disables terminal
 colors; redirected output, `probe.log` and `appraisal.txt` stay plain text.
 Restart the worker to load presentation or palette changes.
 
-The click-through assessment card is centered vertically in the right half of the
-output containing the focused D2R workspace. Niri output names are matched to
-GDK monitor connectors, so monitor enumeration order does not affect placement.
-Moving D2R between outputs updates placement and card dimensions. `OSD.monitor`
-can explicitly override this with a monitor index; the default `None` follows D2R. It appears only after Alt+D and hides
-when the item, stats, viewer context or game focus changes, or after 30 seconds
-from completion. Hover checks run every 0.2 seconds; a stalled worker's display
-lease expires after 1.5 seconds. Returning to the item does not reopen the card:
-press Alt+D again. Long output is ellipsized to fit the output; the complete text
-remains in `appraisal.txt`. `osd.log` records GTK startup/display errors.
+The click-through assessment card is drawn on the HUD canvas (`inventory_tracking/hud`,
+started by `serve`; plan in `hud/plan.md`). It sits in slot `assessment` of
+`HUD.slots`, positioned in fractions of the D2R window (default 20% from its left, 12%
+from its top), and is at most 45% of the window wide; longer lines wrap and output
+longer than the window is ellipsized. The canvas follows the game's output via Niri
+(`OSD.monitor` can pin a monitor index) and hides while D2R is unfocused. The card
+appears only after Alt+D and hides when the item, stats, viewer context or game focus
+changes, or after 30 seconds from completion. Hover checks run every 0.2 seconds; a
+stalled worker's layer lease expires after 1.5 seconds. Returning to the item does not
+reopen the card: press Alt+D again. The complete text remains in `appraisal.txt`.
+`hud.log` in the run directory records canvas startup/display errors.
 
 Override the display duration and cache expiry when starting the worker:
 
@@ -298,3 +381,15 @@ assigned. Multiple-stat display lines remain unmarked until their attribution is
 reviewed. Reviewed amulet skill/FCR combinations can carry markers while their overall
 build fit remains conditional on the full loadout. Advisory reviews never bypass
 typed socket, skill, equipment or other dependency checks.
+
+### Value-focused leveling output (2026-09-29)
+
+The shared text/Rich/OSD report displays only the strongest reviewed leveling
+recommendations (`high`). Ordinary `med`/`mid`, `low` and generic slot-pattern
+recommendations stay in structured assessment evidence and are omitted from
+visible reports. Trade tiers, item stats, roll ranges and pricing are independent
+of this display filter. Retained high recommendations still show set companions,
+other conditions and verified equip-requirement shortfalls. The user's scope is
+Non-Ladder trade value plus valuable/exceptional leveling items, not a generic
+leveling walkthrough. High-review coverage still requires the broader value-scope
+migration; hiding a line does not establish a completed item assessment.

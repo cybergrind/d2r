@@ -69,3 +69,67 @@ def test_rhyme_preparation_requires_all_staffmods_and_empty_sockets(quality):
     assert set(evaluate(replace(item, stats={k: {'status': 'decoded', 'value': 3} for k in keys})).annotations) == set(
         keys
     )
+
+
+@pytest.mark.parametrize('quality', ['normal', 'superior'])
+def test_completed_rhyme_priorities_do_not_match_empty_preparation(quality):
+    profiles = build()['profiles']
+    reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
+    configs = [
+        c
+        for c in compile_stat_configurations(reviews, profiles, root=ROOT)
+        if c.role_id in ('mirrored-starter-rhyme-grimoire', 'mirrored-starter-rhyme-grimoire-base')
+    ]
+    assert len(configs) == 2
+    keys = ('107:392', '107:389', '107:377')
+    item = replace(
+        facts('Grimoire', quality, 'Rhyme'),
+        runeword='Rhyme',
+        sockets=2,
+        socket_contents='filled',
+        stats={k: {'status': 'decoded', 'value': 1} for k in keys},
+    )
+
+    def evaluate(candidate, context=None):
+        context = {'player_class': 'Warlock'} if context is None else context
+        return StatsEvaluator().evaluate(
+            candidate, configs, context, role_outcomes=assess_role_results(candidate, profiles, context)
+        )
+
+    result = evaluate(item)
+    assert set(result.annotations) == set(keys)
+    for annotation in result.annotations.values():
+        assert annotation['desirability'] == 'desirable'
+        assert annotation['roll_quality'] == 'unassessed'
+        assert {c['role_id'] for c in annotation['contributions']} == {'mirrored-starter-rhyme-grimoire'}
+    for key in keys:
+        assert not evaluate(
+            replace(item, stats={k: v for k, v in item.stats.items() if k != key}, capture_complete=False)
+        ).annotations
+    wrong_skill = {k: v for k, v in item.stats.items() if k != '107:389'}
+    wrong_skill['107:404'] = {'status': 'decoded', 'value': 3}
+    assert not evaluate(replace(item, stats=wrong_skill)).annotations
+    for changes in (
+        {'name': None},
+        {'name': 'Other'},
+        {'runeword': None},
+        {'runeword': 'Splendor'},
+        {'socket_contents': None},
+        {'socket_contents': 'partial'},
+        {'sockets': None},
+        {'sockets': 1},
+        {'rarity': 'magic'},
+        {'ethereal': True},
+        {'ethereal': None},
+        {'identified': False},
+        {'base_code': facts('Monarch').base_code},
+    ):
+        assert not evaluate(replace(item, **changes)).annotations
+    for context in ({}, {'player_class': 'Sorceress'}):
+        assert not evaluate(item, context).annotations
+    empty = replace(item, name=None, runeword=None, socket_contents='empty')
+    assert all(
+        {c['role_id'] for c in a['contributions']} == {'mirrored-starter-rhyme-grimoire-base'}
+        for a in evaluate(empty).annotations.values()
+    )
+    assert set(evaluate(empty).annotations) == set(keys)

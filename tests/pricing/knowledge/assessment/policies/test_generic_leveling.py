@@ -57,9 +57,15 @@ def test_generic_leveling_reaches_shared_report_without_trade_tier():
         profiles=[],
     )
     assert result['trade_tier']['tier'] is None
-    lines = leveling_lines({'assessment': result})
-    assert any('all classes' in line for line in lines)
-    assert any('Early leveling' in line for line in lines)
+    [use] = result['leveling']
+    assert use['generic'] is True
+    assert use['reason']
+    # Slot-pattern uses are evidence in the JSON only; the shared text/OSD never shows them.
+    assert leveling_lines({'assessment': result}) == []
+    specific = {**use, 'generic': False, 'classes': ['Sorceress'], 'archetypes': ['caster']}
+    assert leveling_lines({'assessment': {'leveling': [specific]}}) == []
+    specific['tier'] = 'high'
+    assert any('Sorceress' in line for line in leveling_lines({'assessment': {'leveling': [specific]}}))
 
 
 @pytest.mark.parametrize(

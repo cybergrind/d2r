@@ -1,8 +1,8 @@
 """Build portable unique/set facts from cached game tables without network access.
 
 Raw property parameters are preserved: not every min/max pair is a numeric roll
-range (charged skills, for example). Requirement reductions and inherent ethereal
-flags are deliberately unresolved until their arithmetic has a verified adapter.
+range (charged skills, for example). Fixed requirement reductions and inherent
+ethereal flags use native integer arithmetic; variable modifiers stay unresolved.
 """
 
 from __future__ import annotations
@@ -14,6 +14,7 @@ import re
 from datetime import UTC, datetime
 from pathlib import Path
 
+from pricing.knowledge.item_requirements import fixed_requirements, single_skill_level
 from pricing.knowledge.localization import merge_game_strings
 
 
@@ -135,6 +136,15 @@ def _reconcile(rows, catalog):
 
 def build_item_facts(root: Path) -> dict:
     """Export every unique/set row, preserving inactive and unresolved records."""
+    from pricing.knowledge.non_ladder_named import (
+        ITEMS,
+        NAMES,
+        UNIQUE_IDS,
+        UNIQUE_ITEMS,
+        ordinary_angelic,
+        ordinary_unique_records,
+    )
+
     root = Path(root)
     raw = root / 'pricing/raw/d2data'
     bases = {}
@@ -142,14 +152,38 @@ def build_item_facts(root: Path) -> dict:
         for key, record in _read(raw / f'{table}.json').items():
             bases[key] = (table, record)
     types = _read(raw / 'itemtypes.json')
+    skill_path = 'third-parties/d2data/json/skills.json'
+    skills = _read(root / skill_path, {})
     string_path = 'pricing/raw/mr/planners/game-strings.json'
     english_path = 'third-parties/d2data/json/allstrings-eng.json'
     planner_rows = _read(root / string_path, [])
     planner_strings = merge_game_strings({}, planner_rows)
     strings = merge_game_strings(_read(root / english_path, {}), planner_rows)
     rows = []
+    ordinary_items = None
+    ordinary_uniques = None
+    mode_inputs = {}
     for table, quality in (('uniqueitems', 'unique'), ('setitems', 'set')):
         for key, record in _read(raw / f'{table}.json').items():
+            source_path = f'pricing/raw/d2data/{table}.json'
+            if quality == 'unique' and record.get('*ID') in UNIQUE_IDS and record.get('firstLadderSeason') == 15:
+                if ordinary_uniques is None:
+                    ordinary_uniques, review = ordinary_unique_records(root, lambda p: _read(root / p), mode_inputs)
+                    for path in review['sources']:
+                        mode_inputs[path] = hashlib.sha256((root / path).read_bytes()).hexdigest()
+                original = ordinary_uniques.get(key)
+                if original is None or any(original.get(k) != record.get(k) for k in ('*ID', 'index', 'code')):
+                    raise ValueError(f'Conflicting ordinary unique facts: {key}')
+                record, source_path = original, UNIQUE_ITEMS
+            if quality == 'set' and record.get('index') in NAMES and record.get('firstLadderSeason') == 15:
+                if ordinary_items is None:
+                    ordinary_items, _, review = ordinary_angelic(root, lambda p: _read(root / p), mode_inputs)
+                    for path in review['sources']:
+                        mode_inputs[path] = hashlib.sha256((root / path).read_bytes()).hexdigest()
+                original = ordinary_items.get(key)
+                if original is None or any(original.get(k) != record.get(k) for k in ('*ID', 'index', 'item', 'set')):
+                    raise ValueError(f'Conflicting ordinary Angelic facts: {key}')
+                record, source_path = original, ITEMS
             internal = record.get('index', str(key))
             name = strings.get(internal, internal)
             code = record.get('code' if quality == 'unique' else 'item')
@@ -163,10 +197,9 @@ def build_item_facts(root: Path) -> dict:
             level = _integer(record.get('lvl req'))
             if level is not None and base_requirements['level'] is not None:
                 level = max(level, base_requirements['level'])
-            requirements = {**base_requirements, 'level': level}
+            level = single_skill_level(level, stats, skills)
             modifiers = [s for s in stats if s['property'] in ('ease', 'ethereal')]
-            if modifiers:
-                requirements.update(strength=None, dexterity=None)
+            requirements = fixed_requirements(base_requirements, level, modifiers)
             item_type = base.get('type')
             type_record = types.get(item_type, {})
             bodyloc = type_record.get('BodyLoc1')
@@ -175,7 +208,7 @@ def build_item_facts(root: Path) -> dict:
                 slot = 'weapon'
             elif bodyloc in ('rarm', 'larm'):
                 slot = 'offhand'
-            provenance = [{'path': f'pricing/raw/d2data/{table}.json', 'record_key': str(key)}]
+            provenance = [{'path': source_path, 'record_key': str(key)}]
             if base:
                 provenance.append({'path': f'pricing/raw/d2data/{base_table}.json', 'record_key': code})
             if name != internal:
@@ -225,8 +258,12 @@ def build_item_facts(root: Path) -> dict:
                         else 'unique spawnable flag absent'
                     ),
                     'provenance': provenance,
-                    'source': f'pricing/raw/d2data/{table}.json',
-                    'gaps': (['requirement modifier arithmetic unresolved'] if modifiers else [])
+                    'source': source_path,
+                    'gaps': (
+                        ['requirement modifier arithmetic unresolved']
+                        if modifiers and any(requirements[key] is None for key in ('strength', 'dexterity'))
+                        else []
+                    )
                     + (['base not resolved'] if not base else [])
                     + (['equip level missing'] if level is None else [])
                     + (['set-wide bonuses not in cached setitems table'] if quality == 'set' else []),
@@ -239,7 +276,8 @@ def build_item_facts(root: Path) -> dict:
         f'pricing/raw/d2data/{name}.json'
         for name in ('uniqueitems', 'setitems', 'weapons', 'armor', 'misc', 'itemtypes')
     ]
-    input_paths += [string_path, english_path, catalog_path]
+    input_paths += [string_path, english_path, catalog_path, skill_path]
+    input_paths += list(mode_inputs)
     manifest = [
         {'path': path, 'sha256': hashlib.sha256((root / path).read_bytes()).hexdigest()}
         for path in input_paths
@@ -247,8 +285,8 @@ def build_item_facts(root: Path) -> dict:
     ]
     return {
         'schema_version': 1,
-        'adapter_version': 3,
-        'adapter_updated_at': '2026-09-24',
+        'adapter_version': 6,
+        'adapter_updated_at': '2026-09-30',
         'generated_at': datetime.now(UTC).isoformat(),
         'input_manifest': manifest,
         'rows': rows,

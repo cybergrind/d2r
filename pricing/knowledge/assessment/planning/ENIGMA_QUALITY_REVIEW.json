@@ -1,0 +1,213 @@
+{
+  "status": "reviewed_quality_only",
+  "review_date": "2026-09-28",
+  "native_source": {
+    "path": "third-parties/d2data/json/runes.json",
+    "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "locator": "/Enigma"
+  },
+  "basis": "Completed nonmagical Enigma retains native runeword effects across normal, superior and low_quality. Item identity, legal sockets, bearer and setup predicates are unchanged. No new source configuration review or numerical price is inferred.",
+  "changed_profiles": [
+    "abyss-warlock-build-guide-1-player-enigma",
+    "abyss-warlock-build-guide-2-player-enigma",
+    "berserk-barbarian-1-player-enigma",
+    "berserk-barbarian-4-player-enigma",
+    "blessed-hammer-paladin-1-player-enigma",
+    "blessed-hammer-paladin-2-player-enigma",
+    "double-throw-barbarian-guide-2-player-enigma",
+    "dragon-talon-assassin-1-player-enigma",
+    "dream-paladin-0-player-enigma",
+    "echoing-strike-warlock-guide-1-player-enigma",
+    "echoing-strike-warlock-guide-2-player-enigma",
+    "echoing-strike-warlock-guide-3-player-enigma",
+    "fire-blast-assassin-1-player-enigma",
+    "fire-warlock-guide-1-player-enigma",
+    "fire-warlock-guide-2-player-enigma",
+    "fissure-druid-1-player-enigma",
+    "fissure-druid-2-player-enigma",
+    "fist-of-the-heavens-paladin-2-player-enigma",
+    "fist-of-the-heavens-paladin-3-player-enigma",
+    "gold-find-barbarian-1-player-enigma",
+    "gold-find-barbarian-2-player-enigma",
+    "gold-find-barbarian-3-player-enigma",
+    "lightning-fury-amazon-guide-1-player-enigma",
+    "lightning-fury-amazon-guide-2-player-enigma",
+    "lightning-sentry-assassin-1-player-enigma",
+    "lightning-sentry-assassin-2-player-enigma",
+    "lightning-sorceress-1-player-enigma",
+    "lightning-strike-amazon-1-player-enigma",
+    "mirrored-blades-warlock-guide-1-player-enigma",
+    "mirrored-blades-warlock-guide-2-player-enigma",
+    "poison-nova-necromancer-1-player-enigma",
+    "poison-nova-necromancer-2-player-enigma",
+    "summoner-necromancer-guide-1-player-enigma",
+    "summoner-necromancer-guide-2-player-enigma",
+    "wake-of-fire-assassin-1-player-enigma"
+  ],
+  "unchanged_behavior_audit": "All compiled fields except qualities byte-equivalent as JSON values; all other profiles unchanged.",
+  "fingerprints": {
+    "abyss-warlock-build-guide-1-player-enigma": {
+      "before": "8ff2b75c89e8495fa70572e0b8ad9b901f7486a7464573d1a3d114f7b8a34cb0",
+      "after": "2e21d68be58b6c58c7ebfd3c8e1373a7bd20724ccc1a51332684339990cddd66"
+    },
+    "abyss-warlock-build-guide-2-player-enigma": {
+      "before": "cb075a980e967c6026e8ade3489b8d74da3c38984c202a7bac6bbddf9f913e3b",
+      "after": "909db4cb056b4c45a4c6ebb53f9e247ca466c542864f80040ef14547b7d3837d"
+    },
+    "berserk-barbarian-1-player-enigma": {
+      "before": "659717b3e656ec365c8c7765f148da2c24a114357f46763b8e7907a6ae7dd743",
+      "after": "0a2c6b2e0ac8587ca1959a4e0a05f2bfc307a8677574553a7b4ccf6becabac12"
+    },
+    "berserk-barbarian-4-player-enigma": {
+      "before": "9df0e0ed584b44cbc1ac649ed1858f6c1e68f2c765811f1060c3b031415c851f",
+      "after": "a287f8a11378aa004753ba518d65cb3477d47ec1794689d24b8e095c782508c0"
+    },
+    "blessed-hammer-paladin-1-player-enigma": {
+      "before": "e16786f2cc2af4ea0f604b968371d3b11f21f8e218db294d9c7281fba91ac031",
+      "after": "6b94c0f8c85b74043819905f39cc4499fb4301a9faf77d30c93d6d49cfc3cea4"
+    },
+    "blessed-hammer-paladin-2-player-enigma": {
+      "before": "b1cd6cd8d997dfc111cbcf8259796ee798e58bfbb28dc42b0ece7124bb5ac862",
+      "after": "92b63318a9a317b85077eb2845985a519db00e1c71a019a8ed1ae6d217239317"
+    },
+    "double-throw-barbarian-guide-2-player-enigma": {
+      "before": "6d246c39a606637a8e2d042ae9c127f20bb6d908df078436fcf3ad34734ac64e",
+      "after": "dbef2b729514409706f996ad50eb958cb1eada9ea184a3dc6a81dd997b1a5b9a"
+    },
+    "dragon-talon-assassin-1-player-enigma": {
+      "before": "0dc242c55371eca83fefb3d0b972543e1ba15c9dd3a7373f88979f13b5db5cc1",
+      "after": "53b0d1c24f0654cf71411eea9de4b4902ed0466b9c631a14fd30e6d5613b4306"
+    },
+    "dream-paladin-0-player-enigma": {
+      "before": "8a06c8d84de1cbdfcc840f24b674f24aa0cc2d1203a88bd39d37e9ee8b2a924a",
+      "after": "775f4fed9ee874b0370be73b31af833565ede2d2350c654effdb31d90fae1dcf"
+    },
+    "echoing-strike-warlock-guide-1-player-enigma": {
+      "before": "a2b8076d1736c74dfa2157a9af1da6ea83cf19b948a4ef8848cddc3f14d65a3d",
+      "after": "50d43cc981a66fcc0b509dbb4ed45dbdbc5c08b24bc3d6543b1ad9fabbcc5223"
+    },
+    "echoing-strike-warlock-guide-2-player-enigma": {
+      "before": "f709532a1261b2fe478869fced86afbf688eeb4d55cacf7bdd3beac008e50b1c",
+      "after": "ff21ebafadd7abafbabfdeb40249d8bea88c1dd7f5cb3c87ff5c403d37011c1c"
+    },
+    "echoing-strike-warlock-guide-3-player-enigma": {
+      "before": "68ecf3dab4d1b93a9009e217dfbbe940f42c2872f988d0da9c971f35e3213e95",
+      "after": "e08cc0f2ea05d76753800ba12fe7c582fdb1668f0f9ca2af4381f7cc12be71d0"
+    },
+    "fire-blast-assassin-1-player-enigma": {
+      "before": "5fbfedd3f043fe2a75f8e8db01e30a66aef1bf56b90f18606a9a6d9aa0e31033",
+      "after": "71b1f276980dd459954675f7e9cf6e82d7f622a7a2658a71ad3faa0ea8b68a25"
+    },
+    "fire-warlock-guide-1-player-enigma": {
+      "before": "9faec8672b673e3a0a569ca880a01ac51e3d2cc060f6565b4c04f60843602ed6",
+      "after": "67645f8d94636e35b2d2f4b8176bb63feb1b867351c2e996b93ec681d817a66e"
+    },
+    "fire-warlock-guide-2-player-enigma": {
+      "before": "9851bd840440a0e862e30597feffc66d80df157367b8c6108e592cf65c915eb2",
+      "after": "4b58330c553b37ded2c005df75dd2e54a87244bae02626f905945556316297b1"
+    },
+    "fissure-druid-1-player-enigma": {
+      "before": "c15efb2f57ef234578e182e95cc3730c6bbebe1785cb627816bec9db463b75f6",
+      "after": "19748931c0c721ced473e242fd9a9cb064223a7e756f7a881ce150eef3b7712c"
+    },
+    "fissure-druid-2-player-enigma": {
+      "before": "eee99e3163f48c83c3275f5481bb64726315cc8d8a00a2f2fbaec61b7e843162",
+      "after": "6250b8924bef1ecf7f5effe3b8b164358f9870ae21a931fd10e62b5c66f73756"
+    },
+    "fist-of-the-heavens-paladin-2-player-enigma": {
+      "before": "4abf8f2ef4fc90835cf1f3d515f6b8c437fb6240ef62f8660a22d3c5242dbf80",
+      "after": "a43d91268ca2483e01f6b2a7b56c289659708d53a14286a8d3fe6799d08d3c25"
+    },
+    "fist-of-the-heavens-paladin-3-player-enigma": {
+      "before": "44580890090292fe8cd4237b0fa3205b26dde9eb817739b68f554afeb75fe702",
+      "after": "fef3fa23e16904bd575208a7f509e2be4ff24d6f69eba1a82ff51b311272d512"
+    },
+    "gold-find-barbarian-1-player-enigma": {
+      "before": "07ba7401a8dbb3800efbdf5220d9fd6882f9ee9cce4e583dd61bf8727afb0079",
+      "after": "fbe14c2cbb185ecb37f11f2ccfd6d75e0c38d8c62397916856551ba77c3fb805"
+    },
+    "gold-find-barbarian-2-player-enigma": {
+      "before": "108a6e15e09be6eb69ea758431261d8195089df8220aeca12db22a6281d3634c",
+      "after": "d086dd000e1312d24edc3fa79b99b91d1de74d53e050653ad824c6328354c695"
+    },
+    "gold-find-barbarian-3-player-enigma": {
+      "before": "e7cb04934818fd7cb36edeb4fab73841338ee765c69057e28bf15e6bc8a54fb9",
+      "after": "dff87d180874979d394e99e9abdc71dd8045f95314a988046c41754b67d92f21"
+    },
+    "lightning-fury-amazon-guide-1-player-enigma": {
+      "before": "acd35010105b2647b37b42329c4a30c8f7fe01ef7024bbf428baf8311f4baccb",
+      "after": "ea8238e5e24fdeeb634e330d629ad3b7d3433769e993146306499fb3ccdbb4fa"
+    },
+    "lightning-fury-amazon-guide-2-player-enigma": {
+      "before": "4a002dca00f4e479876d0f471a2c769b688e2a1bbe51b21b2412bcc104d19216",
+      "after": "11183f53f413863ae228e741038dfe694c1a0ac22a0363f7a94b9a4a0c53e2b4"
+    },
+    "lightning-sentry-assassin-1-player-enigma": {
+      "before": "3d2b567ecbeae1eebf4e38482b46018af0c28ccd08d63dbb64765fd2a51cace1",
+      "after": "9054da08dc9b0a952ab523094bc6783bc7cf58f57959e40750d21d9fe2265941"
+    },
+    "lightning-sentry-assassin-2-player-enigma": {
+      "before": "6965782f73b1bc414a7fe3edd20d2f8c63a0b0f49b5b4e8529869808cb79bcfc",
+      "after": "3c3eccb35edf1837e73f5e08e9b577dd8a1726d80f9e68adb813cdc12ae7906f"
+    },
+    "lightning-sorceress-1-player-enigma": {
+      "before": "51df95d180bf82f75963e99cd8959907661e435b0f879bd52e9c1bf9b42ca582",
+      "after": "6cc1422a9d8e821ec6db6bd9426f483c0b66824e4e955c5eb34eb0a77492e482"
+    },
+    "lightning-strike-amazon-1-player-enigma": {
+      "before": "95a08e2112f85f43e915967ebcb88f64d1b1d50f2f1c75f6c60d64f55f5663bb",
+      "after": "18b03d28f5b9b6e95d169aa783a2cfd224e941f67492310645d7592fb06ffd71"
+    },
+    "mirrored-blades-warlock-guide-1-player-enigma": {
+      "before": "130503a806e37571059d6a34814e6832ee6546a11c6d0ece47d254bc3a085440",
+      "after": "e708ddc591bcffc7dc3779fdca85ec6751da3ce177661f4dbfb8d59da4a6223b"
+    },
+    "mirrored-blades-warlock-guide-2-player-enigma": {
+      "before": "d5e9cfca930592fd03dde865635b8a2e1fa4d446a17b7a627ec3bc16242af92c",
+      "after": "262018fab5ea8eb7a6f90b1cbc27564f3895fb04a29d042a36d432b0a714e8e9"
+    },
+    "poison-nova-necromancer-1-player-enigma": {
+      "before": "2c9c9555acd0e4f67d921975faa130371e436062e553b53f23c90a9c28943d5e",
+      "after": "66acd2ead4221aeaab1d0a1224376906e0dd4f1210fc89e0ea8c87154dbb28cc"
+    },
+    "poison-nova-necromancer-2-player-enigma": {
+      "before": "ce603cb7236581e8cd9c8f49c4dbe119c192a166facd44d50da2844a0fa4f719",
+      "after": "ce71d0e5273357460b96b986adf33bced2993f12da29105764945b7514d1bb84"
+    },
+    "summoner-necromancer-guide-1-player-enigma": {
+      "before": "15ee7fe59865918437a8887b6c9b250517759ff6ee95c901e2e0bd2789f1b4df",
+      "after": "6fdbc93617165310aa3d9bfafa370cb725ef847480dcf1127af09cb8f56ff4cd"
+    },
+    "summoner-necromancer-guide-2-player-enigma": {
+      "before": "87c227f25fd3ba0e322660cc2da73a11a9a6b791cdaf3004dc17175268437295",
+      "after": "00f4feb263b26ffea09516f4fafe2ee1da59a58f3aee6e1cbdf575dc33b9d891"
+    },
+    "wake-of-fire-assassin-1-player-enigma": {
+      "before": "6e016b3f83e2ab8dbdd616a38c2a507a5c43cdd53482e1d431b45cd22b2e97c4",
+      "after": "be2a8fdaa4c91189de354ee9d82ce8037932b04a884570e04f322aee502a6f97"
+    }
+  },
+  "verification": {
+    "family_test_log": "tmp/enigma-quality-green.log",
+    "family_test_result": "36 passed; includes 35 explicit build/base variants",
+    "staged_bank_first_log": "tmp/enigma-quality-bank-green.log",
+    "staged_bank_first_result": "210 passed",
+    "bank_scope": "35 independently authored build/base variants x3qualities x4scenarios =420 cases",
+    "quality_field_only": true,
+    "staged_bank_boundary_log": "tmp/enigma-quality-bank-boundaries.log",
+    "staged_bank_boundary_result": "210 passed; additional normal/superior negative and unknown scenarios",
+    "selected_generation": "75e01d7bd96ed3f80b4e18c9ce4f6b3a7c4757c20e8a77da97924ffd1dc38db9",
+    "selected_bank_log": "tmp/enigma-quality-bank-selected.log",
+    "selected_bank_result": "420 passed;3673 deselected",
+    "saved_report_parity": "20 texts/price_estimate/extractions match staged",
+    "completion_counts": {
+      "identities": 2570,
+      "occurrences": 62891,
+      "reviewed_occurrences": 1689,
+      "excluded_occurrences": 4822,
+      "coverage_rows": 8298,
+      "remaining_tasks": 113446
+    },
+    "all_item_complete": false
+  }
+}

@@ -18,8 +18,10 @@ from pricing.knowledge.assessment.mechanics.prepared_comparisons import socket_o
 from pricing.knowledge.assessment.mechanics.upgrade_comparisons import upgrade_outcome_requests
 from pricing.knowledge.assessment.mechanics.upgrade_defense import with_defense_outcomes
 from pricing.knowledge.assessment.mechanics.upgrades import upgrade_paths
+from pricing.knowledge.assessment.policies.consumables import assess_consumable
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
-from pricing.knowledge.assessment.policies.named_tiers import assess_tier
+from pricing.knowledge.assessment.policies.named_baselines import assess_tier
+from pricing.knowledge.assessment.policies.supplies import assess_supply
 from pricing.knowledge.assessment.profiles import (
     assess_role_results,
     load_candidates,
@@ -54,8 +56,24 @@ def assess_result(extraction, *, profiles=None, loadout=None):
 
 def _assess(extraction, *, profiles=None, loadout=None):
     facts = normalize(extraction)
-    stat_configs = load_stat_candidates(facts) if profiles is None else ()
     family, policy = classify(facts)
+    if facts.provenance.get('capture', {}).get('item_identity', {}).get('mode_eligibility') == 'ladder_only':
+        reason = 'Recognized Ladder-only item version is outside Softcore / Non-Ladder scope.'
+        return AssessmentResult(
+            family=family,
+            quality_policy=policy,
+            facts=facts,
+            roles=(),
+            base_uses=(),
+            leveling=(),
+            trade_tier={'status': 'out_of_scope', 'reason': reason},
+            ethereal_preference={},
+            coverage_gaps=(),
+            price_gaps=(reason,),
+            contract=None,
+            comparison_requests=(),
+        )
+    stat_configs = load_stat_candidates(facts) if profiles is None else ()
     if profiles is None:
         profiles, cached_gaps = load_candidates(facts)
         # Per-item diagnostics must never mutate the shared profile cache.
@@ -66,7 +84,8 @@ def _assess(extraction, *, profiles=None, loadout=None):
     upgrades = with_defense_outcomes(facts, contract, upgrade_paths(facts))
     roles = assess_role_results(facts, profiles, loadout, upgrades=upgrades)
     base_uses = assess_runeword_base(facts)
-    if not roles:
+    utility = {'consumable': assess_consumable, 'supply': assess_supply}.get(family, lambda facts: None)(facts)
+    if not roles and not utility:
         coverage_gaps.append('No reviewed build-role profile applies; absence is not evidence of no demand.')
     requests = (
         (
@@ -90,6 +109,7 @@ def _assess(extraction, *, profiles=None, loadout=None):
     )
     return AssessmentResult(
         family=family,
+        utility=utility,
         quality_policy=policy,
         facts=facts,
         roles=roles,

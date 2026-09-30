@@ -1,0 +1,73 @@
+"""Match stat-qualified trade watch entries without changing price contracts."""
+
+import math
+
+
+# Explicit scope markers in cached setup labels. Do not treat arbitrary mention
+# of Hardcore (including mixed-mode labels) as an exclusion.
+HARDCORE_LABEL_MARKERS = ('(hardcore)', '(hardcore;', '(hardcore only)', '(hardcore section;', '(hardcore section)')
+
+
+def matching_watches(rows, facts):
+    matched = []
+    for row in rows:
+        conditions = row.get('details', {}).get('native_conditions')
+        if conditions is None:
+            if row.get('kind') != 'affixed_value_watch':
+                matched.append(row)
+            continue
+        if (
+            facts.identified is not True
+            or facts.rarity != row.get('rarity')
+            or facts.base_name != row.get('name')
+            or facts.ethereal is not False
+            or facts.sockets != 0
+            or facts.socket_contents != 'empty'
+            or not conditions
+        ):
+            continue
+        for key, limits in conditions.items():
+            stat = facts.stats.get(key, {})
+            value = stat.get('value')
+            if (
+                stat.get('status') != 'decoded'
+                or type(value) not in (int, float)
+                or not math.isfinite(value)
+                or not limits['min'] <= value <= limits['max']
+            ):
+                break
+        else:
+            matched.append(row)
+    return softcore_watches(matched)
+
+
+def softcore_watches(rows):
+    """Keep original evidence intact while omitting explicitly Hardcore demand."""
+    scoped = []
+    for row in rows:
+        details = row.get('details', {})
+        contexts = details.get('build_contexts', [])
+        kept, removed = [], []
+        for context in contexts:
+            variant = context.get('variant') or ''
+            label = (context.get('original_label') or '').casefold()
+            hardcore = (
+                context.get('scope') == 'hardcore'
+                or variant.strip().casefold().startswith('hardcore')
+                or any(marker in label for marker in HARDCORE_LABEL_MARKERS)
+            )
+            (removed if hardcore else kept).append(context)
+        if not removed:
+            scoped.append(row)
+            continue
+        hardcore_only = {c['build'] for c in removed} - {c['build'] for c in kept}
+        builds = [build for build in details.get('builds', []) if build not in hardcore_only]
+        if details.get('priority') == 'build_demand' and not builds and not kept:
+            continue
+        scoped.append(
+            {
+                **row,
+                'details': {**details, 'build_contexts': kept, 'builds': builds, 'build_count': len(builds)},
+            }
+        )
+    return scoped

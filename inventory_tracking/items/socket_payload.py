@@ -12,12 +12,16 @@ def decode_payload(child, base):
         return result
     decoded, _, unresolved = decode_stats(candidates[0]['stats'], base=base)
     for row in decoded:
-        native = row.get('memory_stat')
-        if native:
-            result['stats'][f'{native["id"]}:{native["layer"]}'] = {
+        for native in row.get('memory_stats', [row.get('memory_stat')]):
+            if not native:
+                continue
+            key = f'{native["id"]}:{native["layer"]}'
+            semantic = row.get('native_values', {}).get(key, row)
+            result['stats'][key] = {
                 'status': row['status'],
-                'value': row.get('value'),
+                'value': semantic.get('value'),
                 'raw': native['raw'],
+                **({'unit': semantic['unit']} if 'unit' in semantic else {}),
             }
     result['stats_complete'] = not unresolved
     return result

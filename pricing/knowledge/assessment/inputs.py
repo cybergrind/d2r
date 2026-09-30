@@ -4,14 +4,29 @@ from pricing.knowledge.assessment import base_use
 from pricing.knowledge.assessment.adapters import market_projection
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.mechanics import base_tiers
-from pricing.knowledge.assessment.policies import generic_leveling, leveling, named_tiers
+from pricing.knowledge.assessment.policies import (
+    complete_sets,
+    consumables,
+    generic_leveling,
+    leveling,
+    named_baselines,
+    named_leveling,
+    named_tiers,
+)
 
 
 def artifact_inputs():
     return {
+        consumables.SOURCE.resolve(): 'reviewed native potion, supply and loose socket-material definitions',
         OUTPUT.resolve(): 'reviewed profiles and guide demand',
         market_projection.CATALOG.resolve(): 'native market projections',
         named_tiers.RULES.resolve(): 'named tier rules',
+        named_baselines.RULES.resolve(): 'named identity baselines',
+        named_leveling.RULES.resolve(): 'named leveling reviews',
+        complete_sets.RULES.resolve(): 'complete-set tier reviews',
+        complete_sets.NATIVE.resolve(): 'native complete-set membership and bonuses',
+        (named_tiers.ROOT / 'pricing/data/appraisal-value-watch.json').resolve(): 'named baseline demand evidence',
+        (named_tiers.RULES.parent / 'named_tier_reviews.json').resolve(): 'complete named qualitative tier reviews',
         (named_tiers.ROOT / 'pricing/data/wp-i-uniques-misc.json').resolve(): 'named tier research',
         (named_tiers.ROOT / 'pricing/data/wp-h-jewels-charms.json').resolve(): 'unique charm tier research',
         (

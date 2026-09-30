@@ -2,6 +2,8 @@
 
 import json
 
+import pytest
+
 from pricing.knowledge.facts import build_item_facts
 
 
@@ -38,7 +40,7 @@ def test_equip_level_is_not_drop_level_and_absent_level_is_unknown(tmp_path):
     assert early['item_id'] != unknown['item_id']
 
 
-def test_set_bonuses_are_conditional_and_modifier_requirements_not_guessed(tmp_path):
+def test_set_bonuses_are_conditional_and_fixed_requirements_are_calculated(tmp_path):
     root = write_inputs(
         tmp_path,
         {
@@ -61,7 +63,7 @@ def test_set_bonuses_are_conditional_and_modifier_requirements_not_guessed(tmp_p
         },
     )
     reduced, hat = build_item_facts(root)['rows']
-    assert reduced['requirements']['strength'] is None
+    assert reduced['requirements']['strength'] == 12
     assert reduced['base_requirements']['strength'] == 15
     assert [s['property'] for s in hat['stats']] == ['mana']
     assert hat['conditional_effects'][0]['condition']['pieces_required'] == 2
@@ -152,3 +154,87 @@ def test_english_fallback_joins_new_names_and_preserves_translation_provenance(t
     assert override['name'] == 'Planner Name'
     assert {'path': str(planner.relative_to(root)), 'record_key': 'OverrideKey'} in override['provenance']
     assert any(s['path'] == str(english.relative_to(root)) and s.get('sha256') for s in document['input_manifest'])
+
+
+@pytest.mark.parametrize(
+    ('strength', 'dexterity', 'minimum', 'maximum', 'ethereal', 'expected'),
+    [
+        (58, 0, -20, -20, False, (47, 0)),
+        (208, 0, -60, -60, False, (84, 0)),
+        (98, 35, -30, -30, False, (69, 25)),
+        (98, 35, -30, -30, True, (59, 15)),
+        (15, 5, 0, 0, True, (5, 0)),
+        (15, 5, -100, -100, False, (0, 0)),
+        (15, 5, -20, -10, False, (None, None)),
+        (15, 5, None, -20, False, (None, None)),
+    ],
+)
+def test_native_requirement_rounding_and_unresolved_rolls(
+    tmp_path, strength, dexterity, minimum, maximum, ethereal, expected
+):
+    native = {'index': 'Reduced', 'code': 'cap', 'lvl req': 8, 'prop1': 'ease', 'min1': minimum, 'max1': maximum}
+    if ethereal:
+        native.update(prop2='ethereal', min2=1, max2=1)
+    root = write_inputs(tmp_path, {'1': native})
+    path = root / 'pricing/raw/d2data/armor.json'
+    armor = json.loads(path.read_text())
+    armor['cap'].update(reqstr=strength, reqdex=dexterity)
+    path.write_text(json.dumps(armor))
+    row = build_item_facts(root)['rows'][0]
+    assert row['requirements'] == {'level': 8, 'strength': expected[0], 'dexterity': expected[1]}
+    assert row['requirements_known'] == (expected[0] is not None)
+    assert ('requirement modifier arithmetic unresolved' in row['gaps']) == (expected[0] is None)
+
+
+def test_tal_rasha_native_reduced_requirements():
+    from pathlib import Path
+
+    rows = {row['name']: row for row in build_item_facts(Path.cwd())['rows']}
+    assert rows["Tal Rasha's Fine-Spun Cloth"]['requirements'] == {'level': 53, 'strength': 47, 'dexterity': 0}
+    assert rows["Tal Rasha's Guardianship"]['requirements'] == {'level': 71, 'strength': 84, 'dexterity': 0}
+
+
+@pytest.mark.parametrize(('skill_id', 'native_level', 'skill_level'), [(111, 17, 18), (121, 23, 30)])
+def test_native_single_skill_raises_equip_level_and_pins_skill_source(tmp_path, skill_id, native_level, skill_level):
+    root = write_inputs(
+        tmp_path,
+        {
+            '16': {
+                'index': 'Rusthandle',
+                'code': 'wnd',
+                'lvl req': native_level,
+                'prop1': 'skill',
+                'par1': skill_id,
+                'min1': 1,
+                'max1': 3,
+            },
+        },
+    )
+    skills = root / 'third-parties/d2data/json/skills.json'
+    skills.parent.mkdir(parents=True)
+    skills.write_text(json.dumps({str(skill_id): {'skill': 'Granted skill', '*Id': skill_id, 'reqlevel': skill_level}}))
+    result = build_item_facts(root)
+    assert result['rows'][0]['requirements']['level'] == skill_level
+    assert any(row['path'] == str(skills.relative_to(root)) for row in result['input_manifest'])
+    skills.write_text('{}')
+    assert build_item_facts(root)['rows'][0]['requirements']['level'] is None
+
+
+@pytest.mark.parametrize(
+    ('property_name', 'param', 'low', 'high', 'expected'),
+    [
+        ('skill', 'feral rage', 1, 2, 12),
+        ('skill', 232, 1, 2, 12),
+        ('skill', 'missing', 1, 2, None),
+        ('skill', 232, 0, 2, None),
+        ('skill', 232, 0, 0, 5),
+        ('hit-skill', 232, 5, 7, 5),
+        ('charged', 232, 30, 14, 5),
+    ],
+)
+def test_single_skill_requirement_preserves_native_parameter_semantics(property_name, param, low, high, expected):
+    from pricing.knowledge.item_requirements import single_skill_level
+
+    skills = {'232': {'skill': 'Feral Rage', 'reqlevel': 12}}
+    prop = {'property': property_name, 'param': param, 'min': low, 'max': high}
+    assert single_skill_level(5, [prop], skills) == expected

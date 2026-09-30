@@ -1,0 +1,185 @@
+{
+  "source_record": "inventory_tracking/runs/alt-d/20260926T094143Z-a4494b4a/request-5/report.json",
+  "captured_at": "2026-09-26T09:44:16.034127+00:00",
+  "extraction": {
+    "item": {
+      "name": "Griswold's Heart",
+      "set_name": "Griswold's Legacy",
+      "base_name": "Ornate Armor",
+      "base_code": "xar",
+      "item_type": "tors",
+      "identified": true,
+      "category": "armor",
+      "rarity": "set",
+      "requirements": {},
+      "affixes": [
+        {
+          "property_id": "437",
+          "value": 20,
+          "label": "+{{value}} to Strength",
+          "memory_stat": {
+            "layer": 0,
+            "id": 0,
+            "raw": 20
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "420",
+          "value": -40,
+          "label": "Requirements +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 91,
+            "raw": -40
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      "sockets": 3,
+      "ethereal": false,
+      "socket_contents": "empty",
+      "socket_items": [],
+      "empty_sockets": 3,
+      "filled_sockets": 0
+    },
+    "source": {
+      "engine": "memory_snapshot",
+      "viewer_context": {
+        "player_id": 2394132314,
+        "level": 92
+      },
+      "item_identity": {
+        "table": "set",
+        "table_id": 82,
+        "offset": 52
+      },
+      "container": {
+        "page": 4,
+        "name": "Shared stash"
+      },
+      "unit_id": 3660451674,
+      "owner_id": 1507211755,
+      "owner_type": 0,
+      "item_owner_id": 1507211755,
+      "player_id": 2394132314,
+      "position": [
+        2,
+        4
+      ],
+      "run_id": null,
+      "captured_at": "2026-09-26T09:44:15.139999+00:00",
+      "snapshot_only": true,
+      "stat_capture_complete": true,
+      "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+    },
+    "unresolved_stats": [],
+    "decoded_stats": [
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 0,
+          "raw": 20
+        },
+        "status": "decoded",
+        "name": "strength",
+        "text": "+20 to Strength",
+        "value": 20,
+        "label": "+{{value}} to Strength"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 31,
+          "raw": 917
+        },
+        "status": "decoded",
+        "name": "armorclass",
+        "text": "Defense: 917",
+        "value": 917
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 67,
+          "raw": -5
+        },
+        "status": "decoded",
+        "name": "velocitypercent",
+        "text": "Armor movement penalty: -5% (inherent base effect)",
+        "value": -5,
+        "presentation": "internal",
+        "origin": "base_type"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 72,
+          "raw": 39
+        },
+        "status": "decoded",
+        "name": "durability",
+        "text": "Durability: 39",
+        "value": 39
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 73,
+          "raw": 60
+        },
+        "status": "decoded",
+        "name": "maxdurability",
+        "text": "Maximum durability: 60",
+        "value": 60
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 91,
+          "raw": -40
+        },
+        "status": "decoded",
+        "name": "item_req_percent",
+        "text": "Requirements -40%",
+        "value": -40,
+        "label": "Requirements +{{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 26,
+          "id": 188,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "item_addskill_tab",
+        "text": "+2 to Defensive Auras (Paladin Only)",
+        "value": 2,
+        "label": "+{{value}} to Defensive Auras (Paladin Only)"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 194,
+          "raw": 3
+        },
+        "status": "decoded",
+        "name": "item_numsockets",
+        "text": "Sockets: 3 \u2014 3 empty",
+        "value": 3,
+        "socket_source": "complete_child_scan"
+      }
+    ],
+    "issues": [],
+    "review": [
+      "Requirements are unverified; socket contents are labeled by evidence source.",
+      "Ranges describe item definitions; totals can include socket or set contributions.",
+      "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+      "Values are from the captured total stat array; socket/set contributions are not separated.",
+      "Snapshot evidence is historical; it does not establish current inventory state."
+    ],
+    "appraisal_ready": false,
+    "offline": true,
+    "status": "needs_review"
+  }
+}

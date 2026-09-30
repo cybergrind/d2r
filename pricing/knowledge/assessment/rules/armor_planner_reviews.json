@@ -1,0 +1,2965 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_completed_armor_recipes",
+  "inputs": {
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "pricing/raw/mr/guides__abyss-warlock-build-guide.html": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b",
+    "pricing/raw/mr/guides__blessed-hammer-paladin.html": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d",
+    "pricing/raw/mr/guides__dream-paladin.html": "0f7f0079b7f795b581a0c43f00153ca60c86c7d44b12ee3b1d72e6437d5eddf6",
+    "pricing/raw/mr/guides__echoing-strike-warlock-guide.html": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
+    "pricing/raw/mr/guides__fire-warlock-guide.html": "bace8df5bb9632d39b2d77ee4d1507d686b4b42c1f9576f4259eab9a418511a4",
+    "pricing/raw/mr/guides__lightning-fury-amazon-guide.html": "3de47d7ab2d67ebd4b8c1e346c6c3c3ea835fcee67bf3c6d78e76304a11ad533",
+    "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html": "43284655035f7931d06f1023db7c56dae2210b6925927b22784cdd276660ea08",
+    "pricing/raw/mr/planners/4p7r70l7.json": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f",
+    "pricing/raw/mr/planners/f80206a8.json": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "pricing/raw/mr/planners/gsg0p0l0.json": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a",
+    "pricing/raw/mr/planners/rg2je0ld.json": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+    "pricing/raw/mr/planners/ucgz20le.json": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91",
+    "pricing/raw/mr/planners/vdglw0lu.json": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539",
+    "pricing/raw/mr/planners/w670e0o0.json": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0",
+    "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+    "third-parties/d2data/json/itemtypes.json": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "third-parties/d2data/json/runes.json": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "pricing/raw/mr/planners/3q1ia0lw.json": "456aa6c2b90fab151db47ce21f915bbade4481787a54e95f63c831052c56454c",
+    "pricing/data/appraisal-planner-candidate-tab-audit.json": "b74cf1e131acfcb9fcfb8a2156f033bb003430d9a4bf3cfa5812e5f7763efef2",
+    "pricing/raw/mr/guides__smite-paladin.html": "d78950a39ab48ae4e0802cb5ac8d410f5dec8f9a58acf6a7062c676f8db32c21",
+    "pricing/data/wp-a-variants/smite-paladin.json": "895f7a32ea3177c2a4689abeee00cb4480c86e9fbf4ca186f119906f2a7c5c6a"
+  },
+  "rows": [
+    {
+      "id": "fire-warlock-guide-1-merc-fortitude:planner:17b5f0c718d89e1cf63c52bb",
+      "profile_id": "fire-warlock-guide-1-merc-fortitude",
+      "profile_sha256": "1a3eea07f14d07004214ed641c5bdeaa5c1ec551fa75e1d0387bc98262652b85",
+      "use_sha256": "0bd11dd9fc452c9f52ff3a3ae485a2a729c8f37256e39ddcfb9d71c7e47e2973",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "section_index": 16,
+        "quote": "Acquiring a Flame Rift is a high priority as well as any other way of reducing your enemies Fire Resistance like Flickering Flame and Defender's Fire. Mang Song's Lesson is the strongest option but comes with higher gear requirements. Obsession is much easier to gear with and to max Resistances. Enigma takes your farming capabilities to the next level. Call to Arms on the swap makes this already tanky build almost immortal.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 1,
+        "profile_uid": "RNwMKmEi",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "39",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 200,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "description": "2358 def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "17b5f0c718d89e1cf63c52bb",
+        "sha256": "e68d1af8730630d29cc665bb3aecf5418c72fcfa5b00485786445c5be9c9fcfe"
+      },
+      "children": [
+        {
+          "occurrence_id": "d7037226ba60ef9355b9c0eb",
+          "sha256": "2e540f375011dce861cf4d91a13b02a3d2e56db78a7b8477526e07289f2d8c38"
+        },
+        {
+          "occurrence_id": "d7c5f5660400c178592746f5",
+          "sha256": "4f0bd26e3f186f130508ed78786cc569dee5366aa034aa1968bfbbac13578fe7"
+        },
+        {
+          "occurrence_id": "30e3559545bd9b6352b485d3",
+          "sha256": "bc18eeb44699ea31e46a066c5cfce7a2bbd37945cea8b08276c6f1a80d0f7937"
+        },
+        {
+          "occurrence_id": "41b4639cebdb2aa7cd751f70",
+          "sha256": "e521560bc3061bbb1a604b81a499ea2c6dda1931ab9a7df80993eac5d98c9a3f"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "fire-warlock-guide-1-player-enigma:planner:1e9105ab7af0faadb5ef49c4",
+      "profile_id": "fire-warlock-guide-1-player-enigma",
+      "profile_sha256": "67645f8d94636e35b2d2f4b8176bb63feb1b867351c2e996b93ec681d817a66e",
+      "use_sha256": "109ae34244eff0f4bad676c098bada8133506287f83cea381abf58c15626a600",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "section_index": 16,
+        "quote": "Acquiring a Flame Rift is a high priority as well as any other way of reducing your enemies Fire Resistance like Flickering Flame and Defender's Fire. Mang Song's Lesson is the strongest option but comes with higher gear requirements. Obsession is much easier to gear with and to max Resistances. Enigma takes your farming capabilities to the next level. Call to Arms on the swap makes this already tanky build almost immortal.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 1,
+        "profile_uid": "RNwMKmEi",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "4",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "1e9105ab7af0faadb5ef49c4",
+        "sha256": "cf0467bf55910530498d670c9059c0c2cf900c23618f119875da7971b07d9831"
+      },
+      "children": [
+        {
+          "occurrence_id": "ad935ca4ad4b3c931db7cc96",
+          "sha256": "caf3dd4554915a6d071f989628ec74d4bb7a99b30a9de8758263f1175de4e993"
+        },
+        {
+          "occurrence_id": "6e8f539d1b2107a43577c28c",
+          "sha256": "4f0dd356f1f4a4fa491869100b50df2a24aa5598d370babfac567ac47b47f525"
+        },
+        {
+          "occurrence_id": "ce015981f5fb2ae2816c3747",
+          "sha256": "6f3407cb7f9e764c03aff8eff6a26cf90484114fbdbca52445814ccaa1fd8c50"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-2-merc-fortitude:planner:220f809252fbfb4af75c11d0",
+      "profile_id": "lightning-fury-amazon-guide-2-merc-fortitude",
+      "profile_sha256": "46946c79cccc8db0ab2a2fe6f97705880ab689f2e710c735e6795e0ba0eda857",
+      "use_sha256": "c29ca529b3005228accd8aa814a9b06affa5561af9b38a79341dc61afc7663f7",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "section_index": 20,
+        "quote": "The Mobility/Magic Find Lightning Fury Amazon uses Arachnid Mesh and a Caster Crafted Amulet with at least 9% FCR or 19% FCR. It also stacks its inventory full of Shimmering Small Charm of Good Luck. Chance to Pierce, Attack Speed, and Damage are sacrificed for FCR and MF. You can also use a setup with Crack of the Heavens, Thunderstroke, Highlord's Wrath, Griffon's Eye socketed with a Guardian's Thunder, and an extra Rare Ring to destroy Lightning Immunes and achieve 52% IAS while not losing Attack Speed. This increases the frequency of repair trips, however. This build achieves the 30% Increased Attack Speed Breakpoint for Lightning Fury and at least 82% Chance to Pierce.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f"
+        },
+        "profile_index": 2,
+        "profile_uid": "nN40XQpD",
+        "profile_name": "Magic Find",
+        "player_class_code": "ama",
+        "slot": "tors",
+        "item_id": "21",
+        "expected_item": {
+          "base": "uar",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {
+            "qm002": [
+              15
+            ]
+          },
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 601,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 215,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "ethbugged": false,
+          "description": "15% def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "220f809252fbfb4af75c11d0",
+        "sha256": "2164feb6a4a68fe0a34c048de25ae2c9b2e101c9a6cdba5b42b6f784f2483021"
+      },
+      "children": [
+        {
+          "occurrence_id": "048aea5a65d50cf3b4dc437a",
+          "sha256": "37ae9d0f0007c5ffcfe051963baf97bcbec60619945441a9f2c7e73a785ee528"
+        },
+        {
+          "occurrence_id": "68bc3d3621439c4b1dab512e",
+          "sha256": "08beaa24bdee181962999b5a957d4e794a50816cfbb3039e20c4eb48c4ddbb8f"
+        },
+        {
+          "occurrence_id": "30a4fc88aba81fe8e2b93b38",
+          "sha256": "3dcfb7788a684a61f0ff5e9254b9012b21321fc9fcc0095a2b6b52d47060fe98"
+        },
+        {
+          "occurrence_id": "ca47b4eaf08eea148828afed",
+          "sha256": "6988ad3a703903dfd00422d72c6cc4c8c04ecf871df8aa378f99b7b1fbcf9911"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "blessed-hammer-paladin-1-player-enigma:planner:23f3eb1b9d20b85017c6b853",
+      "profile_id": "blessed-hammer-paladin-1-player-enigma",
+      "profile_sha256": "6b94c0f8c85b74043819905f39cc4499fb4301a9faf77d30c93d6d49cfc3cea4",
+      "use_sha256": "fddac8457acce92838f9b3f8ad0be23e0de0f0a922ab808d1714d9268c1d5d2a",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "section_index": 16,
+        "quote": "This build with the Spirit Sacred Targe, Sling and Hellwarden's Will enables you to reach the 125% FCR breakpoint and travel to your destination as fast as possible, as well as output the most damage per second (dps).",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 1,
+        "profile_uid": "HxoCbTiH",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "1",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "23f3eb1b9d20b85017c6b853",
+        "sha256": "cb1bc3bdec9247ee781c00d2bff2441d5eebe417ebdfe54160cadc3594ae650d"
+      },
+      "children": [
+        {
+          "occurrence_id": "10b2a05b0edf95ac80997dd6",
+          "sha256": "3a3b42ec3f30bcb3aa412f698745f3dabbd88b2781134eda26588916ce9dbb34"
+        },
+        {
+          "occurrence_id": "b043879061c38d77e924114c",
+          "sha256": "c2663a2bbf9268e878255a8d208e7ca3aa31a2b2d1e6c84034e60b3416aa5db5"
+        },
+        {
+          "occurrence_id": "f4c09574a28c2a3ca4aa51eb",
+          "sha256": "f5169a31d8ffd148647285906985ee83c1023c529441e87ce7b1b0f7192c4b8e"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-2-player-enigma:planner:40a29fe049358b9e23fc6092",
+      "profile_id": "lightning-fury-amazon-guide-2-player-enigma",
+      "profile_sha256": "11183f53f413863ae228e741038dfe694c1a0ac22a0363f7a94b9a4a0c53e2b4",
+      "use_sha256": "24e83e983b78802cc5cab04fea96d4e35b7f661ab00242956c5310d3690fccb6",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "section_index": 20,
+        "quote": "The Mobility/Magic Find Lightning Fury Amazon uses Arachnid Mesh and a Caster Crafted Amulet with at least 9% FCR or 19% FCR. It also stacks its inventory full of Shimmering Small Charm of Good Luck. Chance to Pierce, Attack Speed, and Damage are sacrificed for FCR and MF. You can also use a setup with Crack of the Heavens, Thunderstroke, Highlord's Wrath, Griffon's Eye socketed with a Guardian's Thunder, and an extra Rare Ring to destroy Lightning Immunes and achieve 52% IAS while not losing Attack Speed. This increases the frequency of repair trips, however. This build achieves the 30% Increased Attack Speed Breakpoint for Lightning Fury and at least 82% Chance to Pierce.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f"
+        },
+        "profile_index": 2,
+        "profile_uid": "nN40XQpD",
+        "profile_name": "Magic Find",
+        "player_class_code": "ama",
+        "slot": "tors",
+        "item_id": "2",
+        "expected_item": {
+          "base": "uui",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {
+            "qm002": [
+              15
+            ]
+          },
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 468,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1,
+            "item_armor_percent": 15
+          },
+          "ethbugged": false,
+          "description": "15% def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "40a29fe049358b9e23fc6092",
+        "sha256": "ad0ad8dec855ff9b8735d698d467aa3a144095253ed09f93fd4542d4df4ae9df"
+      },
+      "children": [
+        {
+          "occurrence_id": "39dfc5d4d27bbfa919062d25",
+          "sha256": "939ce6105dc8b13e55b1b902461691acd1dafbe46eeb662eb2f6b74a560246e7"
+        },
+        {
+          "occurrence_id": "12825aeae88bbf57abfdc5b3",
+          "sha256": "4bc6438174f6b7ab40a244df104f0856bd189d2e60a5ad976f46d1cc00e73755"
+        },
+        {
+          "occurrence_id": "b7ba36d0833bb703b26c424d",
+          "sha256": "77787be3d5f0df69a770ee7fdf2c5ba59e0f885d432ede47019576a03f5b0332"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "fire-warlock-guide-2-merc-fortitude:planner:47f02f0a073e5d200b20c74d",
+      "profile_id": "fire-warlock-guide-2-merc-fortitude",
+      "profile_sha256": "228683e829e0ae67882b11bc95bfca616b60a8636c4580c37a80474d416cc35c",
+      "use_sha256": "f13da1b55c98cb3fb91bd419972da8531372808173d27c970f434a6756fb3f1b",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "section_index": 20,
+        "quote": "Thanks to pieces like Obsession, Defender's Fire, and Enigma already inherently providing Magic Find, we only need to swap out a few pieces to easily reach >450% MF.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 2,
+        "profile_uid": "xImjObsu",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "117",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 200,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "description": "2358 def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "47f02f0a073e5d200b20c74d",
+        "sha256": "7c37b55e68a80c4bf8c17f59b77c07ec44d9dfbfaf27c98cac09729132215efe"
+      },
+      "children": [
+        {
+          "occurrence_id": "16cc226602c90ae38881c443",
+          "sha256": "899be183af287416d54a84187110dcf7e030dfc8a5ed161c4b019879ec36deb5"
+        },
+        {
+          "occurrence_id": "5eccec89a18b815fb7d1ab76",
+          "sha256": "87febda1ed4aea0852c91fa9533c040452263c6ccc8c3da25f2c2811f7b19e2f"
+        },
+        {
+          "occurrence_id": "ab4fbe438fdc56c4ec6caa47",
+          "sha256": "a0ab68f396cc9a06c680f910221314f2f3fd1132a4a01819bf94c9647ab9a4e4"
+        },
+        {
+          "occurrence_id": "0ffa229fdb39c28c4a5fc92d",
+          "sha256": "138e8747bae392d9a7681587b968064fff187d787dea8c41493e7e80d6250692"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "abyss-warlock-build-guide-2-merc-fortitude:planner:51029a4301791d6fb5f264d6",
+      "profile_id": "abyss-warlock-build-guide-2-merc-fortitude",
+      "profile_sha256": "a362b3c2028a0552f8b2a3f5476b084a6fe4199e5430db0d1726c440ab7a1ef7",
+      "use_sha256": "920a78269af034d9eab953d24965cd76fa1bce6b4366fb0852835f1727a34fca",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "section_index": 20,
+        "quote": "Note on this setup you only Consume a Defiler, and do not spawn additional ones. They die too easily in the early game without investment.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 2,
+        "profile_uid": "wNE5FX6D",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "191",
+        "expected_item": {
+          "base": "uar",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 600,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 200,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "description": "2700 def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "51029a4301791d6fb5f264d6",
+        "sha256": "0bbd424bc35c7c97268db5345b51424888792705a4778ec1ab91348ec503ac49"
+      },
+      "children": [
+        {
+          "occurrence_id": "4cdcd5c1a6cd8291615bce94",
+          "sha256": "20a2c1517db737471f0ac974256654b8bc0e4d485588dd22a6b8810aa3f4362e"
+        },
+        {
+          "occurrence_id": "a831ca7aadb4cc377060a75c",
+          "sha256": "a5650a5338ae79270192cb9b348069a346ca2e31c155839a3db0622ba6142191"
+        },
+        {
+          "occurrence_id": "7188b766001d72d7afa815d9",
+          "sha256": "994b98d63b50b16189aa9f2c63bc7eb83debb80216dc0a3408cde9bfaaea5c9b"
+        },
+        {
+          "occurrence_id": "eb54f20f036290092d0fc706",
+          "sha256": "3d536f62554393cc7f6879d66062f6c60bbc8bba22b0c193df867fa6e30c66ef"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "abyss-warlock-build-guide-2-player-enigma:planner:62b2ec4d8ada1c48a59aed38",
+      "profile_id": "abyss-warlock-build-guide-2-player-enigma",
+      "profile_sha256": "909db4cb056b4c45a4c6ebb53f9e247ca466c542864f80040ef14547b7d3837d",
+      "use_sha256": "f655306f08d859f9735f15a45fbe2384f3da903985adc60eee8b1ed6532edc91",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "section_index": 20,
+        "quote": "Note on this setup you only Consume a Defiler, and do not spawn additional ones. They die too easily in the early game without investment.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 2,
+        "profile_uid": "wNE5FX6D",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "177",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "62b2ec4d8ada1c48a59aed38",
+        "sha256": "f9571ed300968df0dc8a0cc72aaa854231607b6e8ab2892959de632cd93b6278"
+      },
+      "children": [
+        {
+          "occurrence_id": "efa5a8a1815d2ead981a28dd",
+          "sha256": "2fca801c45a5c130e1b402bd5b824c634222edfc0f98130f560019b189f63bae"
+        },
+        {
+          "occurrence_id": "b4424781df772dcbdb4c9cc8",
+          "sha256": "57de46abb7990c42c0357c21a55b7d41287520d36370a17e419663368cdb0a51"
+        },
+        {
+          "occurrence_id": "d1b7dae22e2b3fe00b525910",
+          "sha256": "ee9b76433ed8984dce366419ea959636835e2bd723e6c060cfea61dc5a58a252"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "echoing-strike-warlock-guide-3-player-enigma:planner:7f8ee88ed60bf8de59470c8b",
+      "profile_id": "echoing-strike-warlock-guide-3-player-enigma",
+      "profile_sha256": "e08cc0f2ea05d76753800ba12fe7c582fdb1668f0f9ca2af4381f7cc12be71d0",
+      "use_sha256": "f5c4bc95c5354ab53ebb18092ac6c742138fc7633258b2e9bd9bbfed43331b8b",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "section_index": 24,
+        "quote": "The desired Demon would be a Pit Lord from the Furnace of Pain, due to it being naturally Immune to most damage types other than Physical and Magic. This makes for tanky enough of a pet to survive Uber Tristram and the Colossal Ancients.",
+        "guide_tab": "Ubers",
+        "variant_alias": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 3,
+        "profile_uid": "Khw26jKQ",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "59",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "7f8ee88ed60bf8de59470c8b",
+        "sha256": "c02b022b5b16c6848f96038cd672d794cc72ebd489fb6f3d3c73557adae7ea83"
+      },
+      "children": [
+        {
+          "occurrence_id": "3b2c20da342c458d8bf89869",
+          "sha256": "81185213564a1db4121d6c8f6223afa17837b71b8ebe3e2a132f908155f54bbe"
+        },
+        {
+          "occurrence_id": "84d9e2aa7b9a15726e74485e",
+          "sha256": "53082d0bf37409296f5e94ba77f667328e64e9c079ff4f93d09fe5881a1fe44f"
+        },
+        {
+          "occurrence_id": "5249fc6b231ee90016269171",
+          "sha256": "9d6b9a0cf4fc76a9134d5a8fb6006d2d2569ff70848fce3490706e89af4f0ca9"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "abyss-warlock-build-guide-1-merc-fortitude:planner:83b734242b1498c0187b7ba6",
+      "profile_id": "abyss-warlock-build-guide-1-merc-fortitude",
+      "profile_sha256": "68f3c7afa0a7f5a4ef9c671d942fd3dd280808a7f07259d93d7f2a857e412224",
+      "use_sha256": "0c210171732d30757878fa779174f6b5e1e130b2b2dee56c803de48e119c5d41",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "section_index": 16,
+        "quote": "The Standard Abyss Warlock setup maximizes damage output, maintains the fastest 125% FCR Breakpoint and shreds as much Magic Resistance as possible.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 1,
+        "profile_uid": "dGH5vCiB",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "79",
+        "expected_item": {
+          "base": "uar",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 600,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 200,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "description": "2700 def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "83b734242b1498c0187b7ba6",
+        "sha256": "148af51c221a57adc7207b99168d18c7a27ec39dc7675b7aba2f4340e911fbc0"
+      },
+      "children": [
+        {
+          "occurrence_id": "f3aa531e2a179480917602f9",
+          "sha256": "473e529ee15e5479de9a6dda7b9053e611392d8decfb8d628ed37f44f758a606"
+        },
+        {
+          "occurrence_id": "264f869f51557ae9b8a1dd4a",
+          "sha256": "d7a126f07cb8e192034fdc0b2ac84af4c8e6e313c3470d33a307aff4835de318"
+        },
+        {
+          "occurrence_id": "44389daec101274159cb04b4",
+          "sha256": "63fa31f912ff680e1bf7d236ed320cc860a5dbaaf2d6129844e1ede0b5db3a3a"
+        },
+        {
+          "occurrence_id": "743cbeb01e1a9eeff0abd70c",
+          "sha256": "9b691dab43c506fd9dab49409b5d18f1b365e69cde49234b9337feeddfc7e815"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "blessed-hammer-paladin-2-player-enigma:planner:8e9a865d63d15502d66be1c9",
+      "profile_id": "blessed-hammer-paladin-2-player-enigma",
+      "profile_sha256": "92b63318a9a317b85077eb2845985a519db00e1c71a019a8ed1ae6d217239317",
+      "use_sha256": "85b1c4d8b1fef9651c97f3a08b732f26b00a7f097e48c8425e35ce1c9ddacbbf",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "section_index": 20,
+        "quote": "The most important items for this variant are Void, Spirit Sacred Targe, Sling and Arachnid Mesh.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 2,
+        "profile_uid": "SOPaTLww",
+        "profile_name": "Magic Find",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "1",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "8e9a865d63d15502d66be1c9",
+        "sha256": "5ef7f39d73641b159a89f49d8f2d359ac0bd52f9161ae66d29288208c855bbe2"
+      },
+      "children": [
+        {
+          "occurrence_id": "73a45ff8eef58d88247488bd",
+          "sha256": "455da68698b1f838f6ef51f0887600fd1755f039e8aacd1bc860144af5881470"
+        },
+        {
+          "occurrence_id": "d3e30a0ff0504e2553377b95",
+          "sha256": "ce73224cf8dafdc9ad308c3d1f1cb3ba519b3f5d2dabb1480b60f489a25beef4"
+        },
+        {
+          "occurrence_id": "b5fe8d52bb9ea32e80544671",
+          "sha256": "fa66d872dc99490bbee0b6892ad1ceccb20204b3a4505d7c4ff890c4b972c936"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "dream-paladin-0-player-enigma:planner:902a7f7c1ad482bf31e52ddb",
+      "profile_id": "dream-paladin-0-player-enigma",
+      "profile_sha256": "775f4fed9ee874b0370be73b31af833565ede2d2350c654effdb31d90fae1dcf",
+      "use_sha256": "1fc1978be08bc78dbd4397d90d08e792675722b393ecd46f85073571c7f66208",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__dream-paladin.html",
+        "section_index": 12,
+        "quote": "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/w670e0o0.json",
+          "sha256": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+        },
+        "profile_index": 0,
+        "profile_uid": "iW6ooOCM",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "2",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "902a7f7c1ad482bf31e52ddb",
+        "sha256": "6161a194fe353771488151d734fc80c783e7234d42d19ebabf5e21571e5a5616"
+      },
+      "children": [
+        {
+          "occurrence_id": "f252de399a4293096b2bd447",
+          "sha256": "f873f2dfae1cf4051571210650f5940cccc21bca2669716947e6a52ed8948a1f"
+        },
+        {
+          "occurrence_id": "1295a3a0c3950aac2efa5570",
+          "sha256": "f2f0a816834b30f48edc2719510007b7467272242fe9adefcfbbee7fc4c11362"
+        },
+        {
+          "occurrence_id": "5376bce445b607ec589045a0",
+          "sha256": "eaf0adc865a7db1995e0701843bed918cd57d6a55262d735614b88b2b7b8b798"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "echoing-strike-warlock-guide-2-player-enigma:planner:b1653cd7bdf76e8d68c2a2ab",
+      "profile_id": "echoing-strike-warlock-guide-2-player-enigma",
+      "profile_sha256": "ff21ebafadd7abafbabfdeb40249d8bea88c1dd7f5cb3c87ff5c403d37011c1c",
+      "use_sha256": "a16a7764b56aa03486eb351b1979a2f36cb9dfbb180a352b2b12c75c147fff13",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "section_index": 20,
+        "quote": "The Magic Find Echoing Strike Warlock stacks up to 423% Magic Find while still being able to competently farm in Players 8 Difficulty, while maintaining the 125% FCR Breakpoint.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 2,
+        "profile_uid": "1ikVhvXU",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "192",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "b1653cd7bdf76e8d68c2a2ab",
+        "sha256": "b1962768983d1026c055ee1ba1202fdc032cfb22d0fb5e43ff03f367e7a5a6f5"
+      },
+      "children": [
+        {
+          "occurrence_id": "119fc087a3ce5f3a99adc665",
+          "sha256": "6768d922ca2922f20c150f826637a51f98344dc5550c18b5b45f372daf7771d8"
+        },
+        {
+          "occurrence_id": "1f59ea85be95ac1f2abd5609",
+          "sha256": "afd80b9f46ceb47d524356358f88ad5947e16202050992430af0f0758444b638"
+        },
+        {
+          "occurrence_id": "dd25365a79bf07762ce37f08",
+          "sha256": "025c183693d37a3c57b16d8b493524e45eb3d8ea304e6e6d7de904efad1a3178"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "fire-warlock-guide-2-player-enigma:planner:c72b9c6809ae553ffe7014eb",
+      "profile_id": "fire-warlock-guide-2-player-enigma",
+      "profile_sha256": "4b58330c553b37ded2c005df75dd2e54a87244bae02626f905945556316297b1",
+      "use_sha256": "eb81595fc4f583772cd10a3cebbf602c36c4a9e5a5755cd4347a2d235635060f",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "section_index": 20,
+        "quote": "Thanks to pieces like Obsession, Defender's Fire, and Enigma already inherently providing Magic Find, we only need to swap out a few pieces to easily reach >450% MF.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 2,
+        "profile_uid": "xImjObsu",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "106",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "c72b9c6809ae553ffe7014eb",
+        "sha256": "531d04bec659a0e9601fc660813a8790cf96a6ae2a885a830716f117707d4db5"
+      },
+      "children": [
+        {
+          "occurrence_id": "91bf84ff1909b913d3c08701",
+          "sha256": "fc8e06452a05bac9771f719768e6cf42d7654c378dbf5184213a06aa8dc74080"
+        },
+        {
+          "occurrence_id": "b9e3180bf188b26739556f1e",
+          "sha256": "8ee608938fd3e1e77176396ae435dcc91f96d3efe6307069b01fc5d6a20f66cb"
+        },
+        {
+          "occurrence_id": "6e12f2af182288f5ae159875",
+          "sha256": "fc872a973c0bf2fefcf965d6e7ca705b71c5da22cd42d14a6804d1021cbc35fc"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "echoing-strike-warlock-guide-1-player-enigma:planner:c9f10dfb4445c90e7927875a",
+      "profile_id": "echoing-strike-warlock-guide-1-player-enigma",
+      "profile_sha256": "50d43cc981a66fcc0b509dbb4ed45dbdbc5c08b24bc3d6543b1ad9fabbcc5223",
+      "use_sha256": "605ad8147caf216ea4a939a3da15d831d16f2a93c417a1af2240f80730986896",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "section_index": 16,
+        "quote": "The build still needs a source of Flat Attack Rating, Life Stolen per Hit and Mana Stolen per Hit to operate easily and automate non-Potion use.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 1,
+        "profile_uid": "LmIammQ8",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "321",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "c9f10dfb4445c90e7927875a",
+        "sha256": "f6a75f2635a907d99310e9e83451116fe9a88e4bd276597d6aff1f28a1b3bc73"
+      },
+      "children": [
+        {
+          "occurrence_id": "6fb556fbd11222824cdfd65f",
+          "sha256": "c46cdac6272fc416cc5ed25a69f80368b7f0e7483947da0e1cf66126cbffe278"
+        },
+        {
+          "occurrence_id": "9baf6082cac7afea6e993e10",
+          "sha256": "76ce8628a8b3356e4912dc775ae04bd97ea8a02682bd6efde74c4436d908a85f"
+        },
+        {
+          "occurrence_id": "549e9d1940f5da7aa79dd89c",
+          "sha256": "c885f66a708f54ec88a3cbc32522e543200ecb88777be61bfa4fe595db68877f"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "abyss-warlock-build-guide-1-player-enigma:planner:e7861bc814d2822b8292a4e6",
+      "profile_id": "abyss-warlock-build-guide-1-player-enigma",
+      "profile_sha256": "2e21d68be58b6c58c7ebfd3c8e1373a7bd20724ccc1a51332684339990cddd66",
+      "use_sha256": "07fa69aa51217ffccbb20acbeae774855d195259d9542c063749eaa56d3e5c21",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "section_index": 16,
+        "quote": "The Standard Abyss Warlock setup maximizes damage output, maintains the fastest 125% FCR Breakpoint and shreds as much Magic Resistance as possible.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 1,
+        "profile_uid": "dGH5vCiB",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "2",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "e7861bc814d2822b8292a4e6",
+        "sha256": "27e48eb9c02a4f54ccd61edbc428f72e2fbca12c754f4032b7ee401f779a3065"
+      },
+      "children": [
+        {
+          "occurrence_id": "f7d0828ae915d63b4c3ae454",
+          "sha256": "dc45b92cd1d34ff336743fe25640fd752ffe6f66361dcd1118901217ffa87f2e"
+        },
+        {
+          "occurrence_id": "1d2dfce6fa5cb3d8d6f67763",
+          "sha256": "a5790cd033c4af414917a3eab2c862baea8fad7718718546d3a845559fb76b9a"
+        },
+        {
+          "occurrence_id": "5de65407ed2d11eb543da0d0",
+          "sha256": "57c6c3a34b444ceb80027a9c62ed751dd0434d57eaaaae20fa3b8705a736c5c4"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-player-enigma:planner:ece4b7d7a4b82a41639f258f",
+      "profile_id": "mirrored-blades-warlock-guide-1-player-enigma",
+      "profile_sha256": "e708ddc591bcffc7dc3779fdca85ec6751da3ce177661f4dbfb8d59da4a6223b",
+      "use_sha256": "97c51c8551cfacd3c51d2784b8eb12c0996660f43e2d45318f9fc42bacf96ef8",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "section_index": 19,
+        "quote": "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468"
+        },
+        "profile_index": 1,
+        "profile_uid": "lMWSt4RR",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "33",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "ece4b7d7a4b82a41639f258f",
+        "sha256": "98711b87f7196180e36588b10657ce161d4cf5fd639f4382a5e2dfdd019a10f8"
+      },
+      "children": [
+        {
+          "occurrence_id": "4f1327ee486afab4b43a8c83",
+          "sha256": "468eabf912e8f114ceddc51ad1a145b78746bb2e7fafaf714d8b7ae438d04343"
+        },
+        {
+          "occurrence_id": "a07646fcbcc1d9c876d6e327",
+          "sha256": "7b92e94a8d704ba10f264b2fd4936ea60274e43a26c0040736f4288ef1b0283d"
+        },
+        {
+          "occurrence_id": "11b60bee85684358fb6bc8a9",
+          "sha256": "ef3f7f81842608fef113b7c4734490b7a27381b0f90a247fd90370bed3a93b18"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "blessed-hammer-paladin-1-merc-fortitude:planner:f07515c472ce73a68328c97f",
+      "profile_id": "blessed-hammer-paladin-1-merc-fortitude",
+      "profile_sha256": "4e15339dbdacc9265c7b156f4fb50bdba00f6e0ecaaff743e10b924a448e3183",
+      "use_sha256": "5569e02f104f49b0ee2fa33d1b487bd0e94cf88f1883834ce9273c8054b07fb1",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "section_index": 16,
+        "quote": "This build with the Spirit Sacred Targe, Sling and Hellwarden's Will enables you to reach the 125% FCR breakpoint and travel to your destination as fast as possible, as well as output the most damage per second (dps).",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 1,
+        "profile_uid": "HxoCbTiH",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "118",
+        "expected_item": {
+          "base": "uar",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            200,
+            300,
+            25,
+            15,
+            12,
+            12,
+            30
+          ],
+          "unique": "runeword067",
+          "defense": 600,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r01",
+            "r12",
+            "r14",
+            "r28"
+          ],
+          "stats": {
+            "item_armor_percent": 200,
+            "item_mindamage_percent": 300,
+            "item_maxdamage_percent": 300,
+            "item_fastercastrate": 25,
+            "item_skillongethit#60#20": 15,
+            "item_damagetomana": 12,
+            "item_hp_perlevel": 12,
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "poisonresist": 30
+          },
+          "description": "2700 def 12 life/lvl 30@ eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "10",
+        "mercenary_type": "Act 2 Holy Freeze"
+      },
+      "parent": {
+        "occurrence_id": "f07515c472ce73a68328c97f",
+        "sha256": "9d8958cbca4346b596c036579d9e045f5ffa7bd40bf01f0152989d3205aaf63d"
+      },
+      "children": [
+        {
+          "occurrence_id": "ddbde6b197238df1e9bf8ff4",
+          "sha256": "efa29d962ef8db2af7e76326eaf2aa1459b6573a684d6517d0b5e7b888bc9a99"
+        },
+        {
+          "occurrence_id": "1bf39751f36a024ffb2d3766",
+          "sha256": "573d44b06cb010dfe7a7e3f37cae5b5aa12e41eb65ba56581ae973efe12e3e68"
+        },
+        {
+          "occurrence_id": "58a79503c6a565896895c114",
+          "sha256": "910d0e7bdcc3b784d63e109b963ff651b52e2d57d0442d3006b568fe25e94f2d"
+        },
+        {
+          "occurrence_id": "b4a1960839bfbd1fa9e289a1",
+          "sha256": "1a7cd73d1c78ef96570659f97adf2334e123a61342e3d45d9bcb72ac88539a4e"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-player-enigma:planner:f7463cc0ff6e0c047977885d",
+      "profile_id": "mirrored-blades-warlock-guide-2-player-enigma",
+      "profile_sha256": "262018fab5ea8eb7a6f90b1cbc27564f3895fb04a29d042a36d432b0a714e8e9",
+      "use_sha256": "d51def54daad2c33d1005ce0976fc1a0534ba8563c65bb3921de07cf4ff5ce12",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "section_index": 20,
+        "quote": "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+        "guide_tab": "Ubers",
+        "variant_alias": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468"
+        },
+        "profile_index": 2,
+        "profile_uid": "fc4fpPx9",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "99",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            775,
+            14,
+            45,
+            0,
+            2,
+            0,
+            1
+          ],
+          "unique": "runeword059",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r31",
+            "r06",
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 775,
+            "item_healafterkill": 14,
+            "item_fastermovevelocity": 45,
+            "item_strength_perlevel": 6,
+            "item_allskills": 2,
+            "item_find_magic_perlevel": 8,
+            "item_nonclassskill#54": 1
+          },
+          "description": "1036 def +775 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "f7463cc0ff6e0c047977885d",
+        "sha256": "33811403235d89bb218d02b1252137030a936f8f09cb48318239b2ac71886a6a"
+      },
+      "children": [
+        {
+          "occurrence_id": "fcd7fdfe2f59be6d0babac2c",
+          "sha256": "8a4400565889cec527155c6e04769c9861527b398918b1b74f43e2ae037c2a94"
+        },
+        {
+          "occurrence_id": "a7bfc494c34393e0a513cd3c",
+          "sha256": "ab8c91100c88a4d4f6d5005dd4bb836e6fa536199b05be2ffbb4e019efb1be85"
+        },
+        {
+          "occurrence_id": "be2ce11c722b2ed4234a2b26",
+          "sha256": "ea44be8e91c4d81f5f18211970dd8d33025cac9252a9bbf7956fbf53640a931d"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected completed armor recipe and full rune payload bound to its existing reviewed Softcore use, native base/recipe and actual player or mercenary context. Independent item stat, market, report and item-bank obligations remain required."
+    },
+    {
+      "id": "smite-paladin-1-player-chains-honor:planner:69cf68c896a6a27bb40d1cd2",
+      "profile_id": "smite-paladin-1-player-chains-honor",
+      "profile_sha256": "2df86a3141704e4164152ce90bdb6f73394f7ecff89f9306548f8d18fef690d5",
+      "use_sha256": "924ac3cb4e087c3e697dfb11444f5cf3f1343617519c62419381ff902bb57c45",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__smite-paladin.html",
+        "section_index": 16,
+        "quote": "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/3q1ia0lw.json",
+          "sha256": "456aa6c2b90fab151db47ce21f915bbade4481787a54e95f63c831052c56454c"
+        },
+        "profile_index": 1,
+        "profile_uid": "wWZSCWUk",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "32",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "defense": 524,
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 70,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "description": "890 def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "69cf68c896a6a27bb40d1cd2",
+        "sha256": "b37c1d3ced78131d065d8728648443f85f214d86c17075bbad57ae7f3f6a411b"
+      },
+      "children": [
+        {
+          "occurrence_id": "69818dc5aeea83a59c35f449",
+          "sha256": "aeadaf8ed7c73e972467fb55195c13ffadf124f2f574be355c8fc40a1ecd973b"
+        },
+        {
+          "occurrence_id": "8224e3931f2ed0232dbf1315",
+          "sha256": "477ab061c449f5eb9e67fa01f25c9338b2076730bb42e0c49fbc186d808dda2f"
+        },
+        {
+          "occurrence_id": "b1c2cf7dbe20ffaac003872f",
+          "sha256": "0bf48d86a2227221961b87f012fa4c5e5c3d4db115c3b7add6a2733b9dcf38c4"
+        },
+        {
+          "occurrence_id": "c326254d925dd6568eea6244",
+          "sha256": "887e8e04f8d7e33da7f91d470e1eb9edd3fe82d0b50b0a23f0786518ecf55b71"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "echoing-strike-warlock-guide-2-merc-chains-honor:planner:6e65bcdfa37fbbfabb59dc98",
+      "profile_id": "echoing-strike-warlock-guide-2-merc-chains-honor",
+      "profile_sha256": "0100e7404adc5d16232e1c425d081cde48b2118cc61710b537ca617f75c56a5f",
+      "use_sha256": "b0ecb96b5021fe237809fb3e10f9acc0091bb77e5f6c3dd25cbf6fa651f63037",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "section_index": 20,
+        "quote": "The Magic Find Echoing Strike Warlock stacks up to 423% Magic Find while still being able to competently farm in Players 8 Difficulty, while maintaining the 125% FCR Breakpoint.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 2,
+        "profile_uid": "1ikVhvXU",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "195",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 70,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "description": "1336 def eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "6",
+        "mercenary_type": "Act 2 Prayer"
+      },
+      "parent": {
+        "occurrence_id": "6e65bcdfa37fbbfabb59dc98",
+        "sha256": "e3e4d1b7b5675c34c45af7bae4ab71f27a5eb551437283f88ee1987339423150"
+      },
+      "children": [
+        {
+          "occurrence_id": "cbc8f1a535e55539417c04e9",
+          "sha256": "321d43bae63e0885a66a41450aef4a354e1d33d8474a148299d1c5652bdf1f3f"
+        },
+        {
+          "occurrence_id": "4abca48264daf9a936f47058",
+          "sha256": "d342b2a1b0a7ba08f01ef35c82d173158bbdb1672d9c15e023f467c854d2c8b4"
+        },
+        {
+          "occurrence_id": "03cb86a45af61bae784923cb",
+          "sha256": "dddff3e0b9df000e39902def68d1a5aa99daaef2ff3cea41fc28d8b78714e89b"
+        },
+        {
+          "occurrence_id": "80fbc9e0a0cdbd59acca5daf",
+          "sha256": "594c2cf5333e2c057699f1499a2f2b0b1fb89644b45f2f87f4d313406de83429"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "echoing-strike-warlock-guide-1-merc-chains-honor:planner:7b250791850df5dbba5cedf4",
+      "profile_id": "echoing-strike-warlock-guide-1-merc-chains-honor",
+      "profile_sha256": "00d7a6e2da67f6d30817c45632dc0b96c0326c372330b62c2de354bde3fae21d",
+      "use_sha256": "705c82fd141c47b723bf3e8439b3562036e34750ac6f188fb31fc41261a37f81",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "section_index": 16,
+        "quote": "The build still needs a source of Flat Attack Rating, Life Stolen per Hit and Mana Stolen per Hit to operate easily and automate non-Potion use.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 1,
+        "profile_uid": "LmIammQ8",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "40",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 70,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "description": "1336 def eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "6",
+        "mercenary_type": "Act 2 Prayer"
+      },
+      "parent": {
+        "occurrence_id": "7b250791850df5dbba5cedf4",
+        "sha256": "e02c52e1ef988a4f59e56b0dfee85cad03910e5dcdaea18913c8596965c0c00f"
+      },
+      "children": [
+        {
+          "occurrence_id": "554166405d5260114363369a",
+          "sha256": "0c8254a3da3e94ca5655bf34f3336c0d53b9398d8659d4a4c26764074d34a156"
+        },
+        {
+          "occurrence_id": "37aa9c004b793fbda191ab1a",
+          "sha256": "1b4d66f37b85a530a6340bc552ed05d0a6006c0205883787a09d02cefb3fa35b"
+        },
+        {
+          "occurrence_id": "8df3b7abfdc96894defde120",
+          "sha256": "8137a52a396d0a9ee9b987c9f8ee1f138d74c102b50aaa045ed13ea88ca201cc"
+        },
+        {
+          "occurrence_id": "175b041ce93c894b5d99b6a5",
+          "sha256": "fbcd736ded4bf806bd5c9be3272e551683370aff0bcce7c8523a1520e0a11031"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "dream-paladin-0-merc-treachery-native:planner:81f11c3e34100872f2bb115a",
+      "profile_id": "dream-paladin-0-merc-treachery-native",
+      "profile_sha256": "db617fb6284654a85be5ea5ce70cf3e0ed117c024e985ed09600b31816fbbe5f",
+      "use_sha256": "5e22e2a3fdd09a0a1d710a9d9cc9e9691e724169860847c3ef2f6f5f0ba6af85",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__dream-paladin.html",
+        "section_index": 12,
+        "quote": "It carefully balances Damage, Magic Find, and Teleport mobility. Crack of the Heavens and Bone Break increase your damage against their respective Immunities. This setup achieves the 48% Faster Cast Rate Breakpoint on Weapon-Swap.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/w670e0o0.json",
+          "sha256": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+        },
+        "profile_index": 0,
+        "profile_uid": "iW6ooOCM",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "46",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            15,
+            15,
+            2,
+            45
+          ],
+          "unique": "runeword173",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 3,
+          "socketedItems": [
+            "r13",
+            "r10",
+            "r20"
+          ],
+          "stats": {
+            "item_skillonhit#278#25": 15,
+            "item_skillongethit#267#5": 15,
+            "item_addclassskills#6": 2,
+            "item_fasterattackrate": 45
+          },
+          "description": "786 def eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "81f11c3e34100872f2bb115a",
+        "sha256": "9a62544b064afee438ec97394006ff17138eb50f1fde73c43ff79d69f1cee45c"
+      },
+      "children": [
+        {
+          "occurrence_id": "405d259c85b3187ed39b04b4",
+          "sha256": "7c8859fd91dd63d084790d303500e8ae81f9898111437261fc0fd7841e730abe"
+        },
+        {
+          "occurrence_id": "ce60ebec807d4753da57c13a",
+          "sha256": "89cac138a94cc67dd36905ae7e44cf77202382952c0239f08cf7101c5cd251b9"
+        },
+        {
+          "occurrence_id": "b71a168bdc71165e51f902d5",
+          "sha256": "fb791ba24eec15c19e0cff2c63687b9f81b928e42fbcf0d7a70b5b09d4d9007a"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-merc-chains-honor:planner:dfd6bf26f7daa9a279e95110",
+      "profile_id": "mirrored-blades-warlock-guide-1-merc-chains-honor",
+      "profile_sha256": "65aed62c3320d28e2853f39832a0c5a39ba21d88e475a6a50c6ab296a5ed11a0",
+      "use_sha256": "d67a6a5fb5cfa3316dd35bc91d8ea9905bc1c8c91b2ecd59583eacb72864e833",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "section_index": 19,
+        "quote": "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468"
+        },
+        "profile_index": 1,
+        "profile_uid": "lMWSt4RR",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "tors",
+        "item_id": "117",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "defense": 524,
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 70,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "description": "1336 def eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "dfd6bf26f7daa9a279e95110",
+        "sha256": "750b610177b154ce0d93dc230067d164e36d73f37509941a0e4b8ce5655f1feb"
+      },
+      "children": [
+        {
+          "occurrence_id": "aabf36d809c14406da4d9885",
+          "sha256": "40c8342aecd57d3551797846482a083d2446f40d27fbc69fc870d79556f37a76"
+        },
+        {
+          "occurrence_id": "9d59d648fd4e83d496857c6d",
+          "sha256": "1619c7a91b0f49f37d77f392d3dfbb1d635342810750e61a8ac26d8133008d22"
+        },
+        {
+          "occurrence_id": "90cfeb1ca7c9847d1981bdde",
+          "sha256": "30b2d8a8b9fc158a26c0c730be403defdf3aa7e5b29deb742dbfec73284558a9"
+        },
+        {
+          "occurrence_id": "6e29f5992c36b864768d810d",
+          "sha256": "f8de501c06ea9f5b34ca43cba8fe0669445964b31b0d77c11cf0302c5e4e1223"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-3-player-chains-honor:planner:e2f6abbc40b67cb724522e1d",
+      "profile_id": "lightning-fury-amazon-guide-3-player-chains-honor",
+      "profile_sha256": "d1a60b88667d8cb0a08d26f22e9cc153864b378089cd562bd36016f2090a5933",
+      "use_sha256": "5924517307b7f429e570c762d3726d3225691cca33cb3cb6671698f89374df6b",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "section_index": 24,
+        "quote": "Use Stormshield if you have not acquired the ultra-rare Jeweler's Monarch of Deflecting. Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction.",
+        "guide_tab": "Ubers",
+        "variant_alias": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f"
+        },
+        "profile_index": 3,
+        "profile_uid": "EHil0s3G",
+        "profile_name": "Ubers",
+        "player_class_code": "ama",
+        "slot": "tors",
+        "item_id": "63",
+        "expected_item": {
+          "base": "uui",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {
+            "qm002": [
+              15
+            ]
+          },
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "defense": 468,
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 85,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "ethbugged": false,
+          "description": "15% def"
+        },
+        "coverage": "player_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "parent": {
+        "occurrence_id": "e2f6abbc40b67cb724522e1d",
+        "sha256": "e0080ee7cf2cd0e45ec0c9bab145d80aa4dcc27adfef2f990d5a8b1f702f0254"
+      },
+      "children": [
+        {
+          "occurrence_id": "1ebf61db7313d0a660485677",
+          "sha256": "fb6a2116e35bd8770f969debf0b362d51773dd3a5bdf040ab71f1c16ed3f69a5"
+        },
+        {
+          "occurrence_id": "d015f4a189688b0498e921a2",
+          "sha256": "0fa8cda128ea423ee85b64d92df35c4a3092b71eeb8af7f83e965690ff350c46"
+        },
+        {
+          "occurrence_id": "0605832c6c9430775c82a797",
+          "sha256": "25211c11e9fd43f7b10131a17a29a4839756b2a9fc4123dc04ac921e2c90a53f"
+        },
+        {
+          "occurrence_id": "01725eab0aa69efc0366ae0e",
+          "sha256": "ca0c57bfe118b9ccbebd168a9fb5793c1d041a7194abada0fcde47d9106c0ba9"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "lightning-fury-amazon-guide-3-merc-treachery-native:planner:f420563e28fda4bd967bb42c",
+      "profile_id": "lightning-fury-amazon-guide-3-merc-treachery-native",
+      "profile_sha256": "5f2c26a96364264f2f569f8f7666453dbc119883c3bf0fd28e6c0b574c08b0c6",
+      "use_sha256": "a383baf155a5d478aa9fce2f7707913fd9055faafc2093d6325bc63dbe7787ac",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "section_index": 24,
+        "quote": "Use Stormshield if you have not acquired the ultra-rare Jeweler's Monarch of Deflecting. Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction.",
+        "guide_tab": "Ubers",
+        "variant_alias": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f"
+        },
+        "profile_index": 3,
+        "profile_uid": "EHil0s3G",
+        "profile_name": "Ubers",
+        "player_class_code": "ama",
+        "slot": "tors",
+        "item_id": "71",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            15,
+            15,
+            2,
+            45
+          ],
+          "unique": "runeword173",
+          "defense": 261,
+          "ethereal": true,
+          "sockets": 3,
+          "socketedItems": [
+            "r13",
+            "r10",
+            "r20"
+          ],
+          "stats": {
+            "item_skillonhit#278#25": 15,
+            "item_skillongethit#267#5": 15,
+            "item_addclassskills#6": 2,
+            "item_fasterattackrate": 45
+          },
+          "description": "391 def eth"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "mercenary_id": "38",
+        "mercenary_type": "Act 5 Frenzy"
+      },
+      "parent": {
+        "occurrence_id": "f420563e28fda4bd967bb42c",
+        "sha256": "35f995de20d86d8280c1aec7a4f566abcff70d8f5291b91ace668ff28b26a3c8"
+      },
+      "children": [
+        {
+          "occurrence_id": "1f37969a44d9b8aa6182af2f",
+          "sha256": "0531b8c4bd0e49037241e8d57779d451e3aade378e91af638d78c8068b9c6cb0"
+        },
+        {
+          "occurrence_id": "6a3cb10ab633374b1a34dd3e",
+          "sha256": "88d76f70936ead209dbd09350422d26b406e4f0584b775da5815c4f97d039dde"
+        },
+        {
+          "occurrence_id": "238f18ea573470f11ae6249a",
+          "sha256": "a39fbf43de7416b01e8042acb7e16c8c244102279a08fa57cbe8c6128cea043d"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected armor recipe bound to its existing reviewed build use. Independent identity, variant, pricing, report and item-bank obligations remain."
+    },
+    {
+      "id": "blessed-hammer-paladin-2-merc-chains-honor:planner:d6c1d0fa11985e636ce8500f",
+      "profile_id": "blessed-hammer-paladin-2-merc-chains-honor",
+      "profile_sha256": "2ed6e188633199de6589dbc890241827e082a6309a98bec69c9e3f20b5a0a29f",
+      "use_sha256": "730de79930e068f7aa4bcde20e0868d3bb83e0b7aed5d3f3827b655c1acb8da9",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "section_index": 20,
+        "quote": "The most important items for this variant are Void, Spirit Sacred Targe, Sling and Arachnid Mesh.",
+        "guide_tab": "Magic Find",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 2,
+        "profile_uid": "SOPaTLww",
+        "profile_name": "Magic Find",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "24",
+        "expected_item": {
+          "base": "utp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            50,
+            70,
+            200,
+            100,
+            8,
+            2,
+            20
+          ],
+          "unique": "runeword040",
+          "sockets": 4,
+          "socketedItems": [
+            "r14",
+            "r22",
+            "r30",
+            "r24"
+          ],
+          "stats": {
+            "fireresist": 50,
+            "lightresist": 50,
+            "coldresist": 50,
+            "poisonresist": 50,
+            "item_armor_percent": 70,
+            "item_demondamage_percent": 200,
+            "item_undeaddamage_percent": 100,
+            "lifedrainmindam": 8,
+            "item_allskills": 2,
+            "strength": 20
+          },
+          "defense": 524,
+          "description": "1336 def eth",
+          "ethereal": true
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "equipment_branches": {
+          "/all/6": 0
+        },
+        "mercenary_id": "10",
+        "mercenary_type": "Act 2 Holy Freeze"
+      },
+      "parent": {
+        "occurrence_id": "d6c1d0fa11985e636ce8500f",
+        "sha256": "6b971a6730cd37ba5b006aaf94acc2ba81b56a3274098751d2fca3ae253402f2"
+      },
+      "children": [
+        {
+          "occurrence_id": "9d65192564731f909a348f86",
+          "sha256": "c75c970a2bbe4dd40ce3b1f6010908df7363daab800bbe348bcd20ffc7e54544"
+        },
+        {
+          "occurrence_id": "269a6f92dadf39e41031aeb7",
+          "sha256": "f21a54e37e4dc0c52ad9a3e5d5ecd96c2dc4e2127c74ed2bfd9b731b346e0e5d"
+        },
+        {
+          "occurrence_id": "256c383d5232720b2d5b1a75",
+          "sha256": "2d5a0d02faf9a10dde484d36bd81408c4787af7e42cdc78e284346d919415544"
+        },
+        {
+          "occurrence_id": "ac889d61f1f42eca284ea373",
+          "sha256": "d2ebc992efd7e6434d6fae64e5d1e22eb553448d97caa3ccc9cd7260357c8f1a"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected MF planner uses the ethereal Archon Plate branch of the unchanged Chains of Honor rule. Sacred Armor remains a separate eligible alternative; no full-loadout, price or roll assessment is implied."
+    },
+    {
+      "id": "smite-shared-treachery:planner:efc52981351058c67d1496f0",
+      "profile_id": "smite-shared-treachery",
+      "profile_sha256": "18f8ff1d4a1b10e19cab9bb294ba8fa0b56da0d7283615cfea4fc5f93dd7d378",
+      "use_sha256": "830e74a8778dc89284e5eb18627eed61b3c3761be275b0f4aafb547cc28cfa3d",
+      "planner_endorsement": {
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__smite-paladin.html",
+        "section_index": 17,
+        "quote": "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+        "guide_tab": "Standard",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/3q1ia0lw.json",
+          "sha256": "456aa6c2b90fab151db47ce21f915bbade4481787a54e95f63c831052c56454c"
+        },
+        "profile_index": 1,
+        "profile_uid": "wWZSCWUk",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "tors",
+        "item_id": "81",
+        "expected_item": {
+          "base": "xtp",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            15,
+            15,
+            2,
+            45
+          ],
+          "unique": "runeword173",
+          "defense": 261,
+          "sockets": 3,
+          "socketedItems": [
+            "r13",
+            "r10",
+            "r20"
+          ],
+          "stats": {
+            "item_skillonhit#278#25": 15,
+            "item_skillongethit#267#5": 15,
+            "item_addclassskills#6": 2,
+            "item_fasterattackrate": 45
+          },
+          "description": "261 def"
+        },
+        "coverage": "merc_runeword_component",
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "shared_armor": "mercenary_player_fade",
+        "ethereal_scope": "nonethereal_only",
+        "mercenary_id": "11",
+        "mercenary_type": "Act 2 Might"
+      },
+      "parent": {
+        "occurrence_id": "efc52981351058c67d1496f0",
+        "sha256": "2860ebd7d6217bf6994c5becff54cf4e0396d21218a929bb38f330ae875b1a59"
+      },
+      "children": [
+        {
+          "occurrence_id": "984aadaa42e261715bbe7d35",
+          "sha256": "add8d58840246b85500afb7031325ec7cd308637d0788c9bf14cc78e009dac6c"
+        },
+        {
+          "occurrence_id": "e6dac517b61ad01f1aebd4c7",
+          "sha256": "fd430e342367c612f164194417bff65e9a6c76db690d6a98488f1e71f8b29019"
+        },
+        {
+          "occurrence_id": "77110a1721d5211ae904efa5",
+          "sha256": "eed1457397ac532f1d7ee36f39828b92ffcf50882d7ebebdcd6c9e8b9fcb15e8"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "The Standard Smite guide explicitly shares nonethereal Treachery between the Might mercenary and player for Fade. Link the selected Mage Plate example and its exact rune recipe only within this nonethereal use; an omitted planner ethereal flag is not an observed false value. The generic runtime base rule, player equip condition and independent assessment obligations remain."
+    }
+  ]
+}

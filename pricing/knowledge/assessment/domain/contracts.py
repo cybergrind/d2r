@@ -24,6 +24,7 @@ class ComparableContract:
     base_rarity: str | None = None
     socket_payload: tuple[str, ...] = ()
     required_level: int | None = None
+    catalog_id: str | None = None
 
     def __post_init__(self):
         object.__setattr__(self, 'properties', freeze(self.properties))

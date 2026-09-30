@@ -12,6 +12,14 @@ from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.reports import publish
 
 
+def headers_match(fd, base, pe) -> bool:
+    """False when the loaded PE headers differ or cannot be read (the game starting or exiting)."""
+    try:
+        return read_pe(lambda offset, size: os.pread(fd, size, base + offset)) == pe
+    except OSError, ValueError:
+        return False
+
+
 def capture_image(pid, images, directory) -> dict[str, Any]:
     token = images['identity']
     base = images['candidate_base']
@@ -29,7 +37,7 @@ def capture_image(pid, images, directory) -> dict[str, Any]:
     ]
     fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
     try:
-        if identity(pid) != token or read_pe(lambda offset, size: os.pread(fd, size, base + offset)) != pe:
+        if identity(pid) != token or not headers_match(fd, base, pe):
             return {'status': 'stale', 'error': 'Process or PE headers changed before capture'}
         path = directory / 'image.bin'
         with path.open('xb') as stream:
@@ -48,7 +56,7 @@ def capture_image(pid, images, directory) -> dict[str, Any]:
         for block in result['blocks']:
             address, size = block['address'], block['size']
             block['mapping_stable'] = read_mappings(before, address, size) == read_mappings(after, address, size)
-        if identity(pid) != token or read_pe(lambda offset, size: os.pread(fd, size, base + offset)) != pe:
+        if identity(pid) != token or not headers_match(fd, base, pe):
             result['status'] = 'stale'
         with path.open('rb') as stream:
             result['sha256'] = hashlib.file_digest(stream, 'sha256').hexdigest()

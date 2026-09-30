@@ -66,3 +66,97 @@ def test_projection_compiler_refuses_ambiguous_market_labels():
     result = compile_projection(metadata(), properties)
     assert '83:2' not in result['mappings']
     assert result['unmapped']['83:2']['reason'] == 'ambiguous market label'
+
+
+def test_magic_pierce_uses_verified_numeric_market_field_and_preserves_roll():
+    import json
+    from pathlib import Path
+
+    properties = json.loads(Path('pricing/data/appraisal-properties.json').read_text())['properties']
+    assert properties['1877']['labels'] == ['-{{value}}% to Enemy Magic Resistance']
+    assert properties['1877']['types'] == ['number']
+    for roll in (3, 5, 8):
+        result = normalize(extraction([(358, 0, roll, roll)]))
+        assert result.properties == {'1877': roll}
+        assert result.stats['358:0']['market_property'] == '1877'
+        assert not result.projection_gaps
+
+
+def test_magic_pierce_mapping_rejects_other_parameters_unresolved_and_conflicts():
+    data = extraction([(358, 1, 5, 5)])
+    assert '1877' not in normalize(data).properties
+    data = extraction([(358, 0, 5, 5)])
+    data['decoded_stats'][0]['status'] = 'unresolved'
+    assert '1877' not in normalize(data).properties
+    data = extraction(
+        [(358, 0, 5, 5)], [{'property_id': '1877', 'value': 3, 'memory_stat': {'id': 358, 'layer': 0, 'raw': 3}}]
+    )
+    result = normalize(data)
+    assert '1877' not in result.properties
+    assert any('conflict' in gap.lower() for gap in result.gaps)
+
+
+def test_complete_native_sling_can_form_exact_named_contract():
+    from pricing.knowledge.assessment.handlers.named import NamedHandler
+    from tests.pricing.knowledge.assessment.item_bank.cases.echoing_sling import RING
+
+    item = normalize(RING.capture())
+    contract, gaps = NamedHandler().contract(item, 'ring')
+    assert contract is not None, gaps
+    assert contract.to_dict()['properties']['1877'] == 3
+    assert not gaps
+
+
+def test_town_portal_oskill_mapping_is_specific_to_native_identity():
+    import json
+    from pathlib import Path
+
+    properties = json.loads(Path('pricing/data/appraisal-properties.json').read_text())['properties']
+    assert properties['1878']['labels'] == ['+{{value}} to Town Portal']
+    assert properties['1878']['types'] == ['number']
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.maintenance.market_projection import compile_projection
+
+    compiled = compile_projection(metadata(), properties)
+    assert compiled['mappings']['97:411']['property_id'] == '1878'
+    assert compiled['mappings']['97:411']['native_label'] == '+{{value}} to Town Portal'
+    native = json.loads(Path('third-parties/d2data/json/uniqueitems.json').read_text())['415']
+    assert (native['prop1'], native['par1'], native['min1'], native['max1']) == ('oskill', 'Townportal O Skill', 1, 1)
+    result = normalize(extraction([(97, 411, 1, 1)]))
+    assert result.properties == {'1878': 1}
+    for stat in (107, 151, 204):
+        assert '1878' not in normalize(extraction([(stat, 411, 1, 1)])).properties
+
+
+def test_sling_comparison_does_not_mix_magic_pierce_rolls():
+    from pricing.knowledge.assessment.comparables import evaluate
+    from pricing.knowledge.assessment.handlers.named import NamedHandler
+    from tests.pricing.knowledge.assessment.item_bank.cases.echoing_sling import RING
+    from tests.pricing.knowledge.assessment.test_comparables import listing
+
+    contract, gaps = NamedHandler().contract(normalize(RING.capture()), 'ring')
+    assert contract is not None, gaps
+    data = contract.to_dict()
+    candidate = listing(
+        name='Sling',
+        rarity='unique',
+        sockets=0,
+        socket_contents='empty',
+        base_code=data['base_code'],
+        properties=data['properties'],
+    )
+    result = evaluate(
+        data,
+        [
+            candidate,
+            {
+                **candidate,
+                'seller_id': 'other',
+                'listing_id': 'other',
+                'properties': {**candidate['properties'], '1877': 5},
+            },
+        ],
+    )
+    assert result['summary']['priced_sellers'] == 1
+    assert len(result['rejected']) == 1
+    assert result['rejected'][0]['reasons']

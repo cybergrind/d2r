@@ -5,7 +5,7 @@ Placement says where one copy of that item was seen. Nothing here reads memory o
 the knowledge base.
 """
 
-from typing import Any, Literal, Self
+from typing import Any, ClassVar, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -26,6 +26,72 @@ class Character(Record):
     class_id: int | None = None
     class_name: str | None = None
     level: int | None = None
+
+
+class CharacterStats(Record):
+    """The character sheet as the player unit's full stat list shows it: items and skills applied.
+
+    Resistances are the raw stat values: the game subtracts the difficulty penalty and
+    caps at the maximum before display. Attack rating is the `tohit` stat, not the
+    sheet's dexterity-derived total. `lines` are readable rows for every stat in the
+    list; `stats` and `base_stats` keep the raw (id, layer, raw) triples.
+    """
+
+    level: int | None = None
+    strength: int | None = None
+    dexterity: int | None = None
+    vitality: int | None = None
+    energy: int | None = None
+    life: int | None = None
+    life_max: int | None = None
+    mana: int | None = None
+    mana_max: int | None = None
+    stamina: int | None = None
+    stamina_max: int | None = None
+    defense: int | None = None
+    attack_rating: int | None = None
+    fire_resist: int | None = None
+    cold_resist: int | None = None
+    lightning_resist: int | None = None
+    poison_resist: int | None = None
+    experience: int | None = None
+    gold: int | None = None
+    gold_bank: int | None = None
+    lines: list[str] = []
+    stats: list[dict[str, int]] = []
+    base_stats: list[dict[str, int]] = []
+
+    SHEET: ClassVar[tuple[str, ...]] = (
+        'level',
+        'strength',
+        'dexterity',
+        'vitality',
+        'energy',
+        'life',
+        'life_max',
+        'mana',
+        'mana_max',
+        'stamina',
+        'stamina_max',
+        'defense',
+        'attack_rating',
+        'fire_resist',
+        'cold_resist',
+        'lightning_resist',
+        'poison_resist',
+        'experience',
+        'gold',
+        'gold_bank',
+    )
+
+    def sheet(self) -> dict[str, int | None]:
+        return {name: getattr(self, name) for name in self.SHEET}
+
+    @property
+    def summary(self) -> str:
+        """One notification line: level, attributes, life, mana, defense."""
+        attributes = f'str {self.strength}, dex {self.dexterity}, vit {self.vitality}, ene {self.energy}'
+        return f'Level {self.level}: {attributes}; life {self.life_max}, mana {self.mana_max}, defense {self.defense}'
 
 
 class Location(Record):
@@ -188,5 +254,8 @@ class CaptureSummary(Record):
     unchanged: int
     gone: int
 
+    def text(self, noun: str = 'items') -> str:
+        return f'{self.total} {noun} · {self.new} new · {self.moved} moved · {self.gone} gone'
+
     def __str__(self) -> str:
-        return f'{self.total} items · {self.new} new · {self.moved} moved · {self.gone} gone'
+        return self.text()

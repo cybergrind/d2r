@@ -8,6 +8,7 @@ from pricing.knowledge.assessment.domain.roles import RoleAssessment
 from pricing.knowledge.assessment.mechanics.equipment import assess_requirements
 from pricing.knowledge.assessment.mechanics.upgrades import upgrade_paths
 from pricing.knowledge.assessment.repository import ProfileRepository
+from pricing.knowledge.assessment.roles.candidates import SELECTORS
 from pricing.knowledge.assessment.roles.predicates import Truth, evaluate, native_keys, validate
 from pricing.knowledge.assessment.roles.preparation import dependency_upgrade, describe_upgrade
 from pricing.knowledge.assessment.roles.socket_payload import has_verified_socket_item
@@ -48,8 +49,13 @@ def validate_profiles(profiles):
 
     catalog = metadata()
     types = {b['type'] for b in catalog['bases'].values()}
+    native_base_codes = {b['code'] for b in catalog['bases'].values()}
     ids = set()
     for profile in profiles:
+        if profile.get('scope', 'softcore') not in ('softcore', 'hardcore'):
+            raise ValueError('Unsupported build profile scope')
+        if profile.get('season', 'non_ladder') not in ('non_ladder', 'ladder'):
+            raise ValueError('Unsupported build profile season')
         if profile['id'] in ids or (not profile.get('names') and not profile.get('types')):
             raise ValueError('Duplicate or unscoped build profile')
         ids.add(profile['id'])
@@ -78,6 +84,16 @@ def validate_profiles(profiles):
             validate(preference['when'])
         if profile.get('review_status') not in ('reviewed_candidate_rule', 'reviewed_setup'):
             raise ValueError('Profile is not reviewed for execution')
+        if 'base_codes' in profile:
+            codes = profile['base_codes']
+            if (
+                not isinstance(codes, list)
+                or not codes
+                or any(not isinstance(code, str) for code in codes)
+                or len(codes) != len(set(codes))
+                or set(codes) - native_base_codes
+            ):
+                raise ValueError('Invalid native base selectors in build profile')
         if set(profile.get('types', [])) - types:
             raise ValueError('Unknown item type in build profile')
         if not profile['source'].get('locator') or not profile['source'].get('sha256'):
@@ -119,8 +135,11 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
             continue
         if p.get('names') and facts.name is not None and facts.name not in p['names']:
             continue
+        if p.get('base_codes') and facts.base_code is not None and facts.base_code not in p['base_codes']:
+            continue
         matched, missing, failed = [], [], []
-        for selector, value in [('qualities', facts.rarity), ('types', facts.item_type), ('names', facts.name)]:
+        for selector, attribute in SELECTORS:
+            value = getattr(facts, attribute)
             if p.get(selector) and value is None:
                 missing.append(f'Role selector {selector} is unknown.')
         keys = p.get('required_any_stats', [])
@@ -160,8 +179,11 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
         if p.get('names') and facts.name:
             matched.append('Named setup component: ' + facts.name)
         socket_item = p.get('required_socket_item', p.get('required_rune'))
+        socket_requirement = None
         if socket_item:
-            if has_verified_socket_item(facts, socket_item):
+            confirmed = has_verified_socket_item(facts, socket_item)
+            socket_requirement = {'item': socket_item, 'confirmed': confirmed, 'applicable': can_prepare}
+            if confirmed:
                 matched.append('Setup socket: ' + socket_item)
             else:
                 missing.append('Setup socket requires ' + socket_item + '; not confirmed on this item.')
@@ -220,6 +242,7 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
                     'skill_trace': skill_trace.to_dict() if skill_trace else None,
                     'dependencies': dependencies,
                     'equipment': equipment,
+                    'socket_requirement': socket_requirement,
                     'ethereal_preference': p.get('ethereal_preference'),
                     'preferences': [
                         {'label': pref['label'], 'status': evaluate(pref['when'], facts, loadout).truth}

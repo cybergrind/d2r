@@ -234,14 +234,18 @@
       "variant": "Starter",
       "side": "player",
       "slot": "Off-Hand",
-      "role": "Rhyme Grimoire / starter skills",
+      "role": "Starter skill shield",
       "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Rhyme"
+      ],
       "types": [
         "grim"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -252,13 +256,18 @@
           },
           {
             "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
             "field": "base_code",
             "value": "wa5"
           },
           {
             "op": "fact_eq",
-            "field": "ethereal",
-            "value": false
+            "field": "runeword",
+            "value": "Rhyme"
           },
           {
             "op": "fact_eq",
@@ -269,6 +278,11 @@
             "op": "fact_eq",
             "field": "socket_contents",
             "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
           },
           {
             "op": "stat_at_least",
@@ -287,34 +301,2401 @@
             "key": "107:377",
             "value": 1,
             "absent_is_zero": true
-          },
-          {
-            "op": "fact_eq",
-            "field": "runeword",
-            "value": "Rhyme"
           }
         ]
       },
-      "preferences": [],
       "important_stats": [
+        "153:0",
+        "80:0",
+        "102:0",
+        "20:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
         "107:392",
         "107:389",
         "107:377"
       ],
       "conditions": [
-        "Check equipment requirements and the rest of the Mirrored Blades starter setup."
+        "Rhyme supplies Cannot Be Frozen, resistance and farming utility; block chance still depends on class, Dexterity and level, not the shield alone.",
+        "The exact listed base and equipment requirements matter; this completed Shael/Eth shield is separate from an empty two-socket preparation base.",
+        "The source uses Rhyme on main and swap sets; one captured shield does not prove a second equipped copy or both active sets.",
+        "All specified staffmods are required together for this exact cited skill setup; more points remain useful without an assumed price premium."
       ],
-      "alternatives": [],
+      "preferences": [],
       "source": {
-        "path": "pricing/data/wp-a-variants/mirrored-blades-warlock-guide.json",
-        "locator": "/variants/0/player/Off-Hand",
-        "sha256": "45fbf99861e59e0a5657821f9da816f52003e2a81322f614ec3bea9df534157b",
-        "source_date": "June 6, 2026"
-      },
-      "review_notes": "2026-09-24: source explicitly names Rhyme Grimoire with +1 Mirrored Blades, +1 Hex Purge, +1 Summon Defiler. Native skill IDs verified against local metadata; Hex Purge389 is distinct from explosion404. Empty preparation and completed two-socket recipe are separate roles. No price inferred.",
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Rhyme Grimoire (Shael Eth; Grimoire automods +1 Mirrored Blades / +1 Hex: Purge / +1 Summon Defiler)",
+          "Rhyme Grimoire (Grimoire automods +3 Mirrored Blades / +3 Bind Demon / +3 Consume)",
+          "The Mirrored Blades Warlock requires a few things to get off the ground: as much Enhanced Damage and Increased Attack Speed on the weapon and from other sources, a source of Cannot Be Frozen, and capped Resistances.",
+          "The Act 2 Might Mercenary with an [Insight Partizan] helps to provide you with mana, while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up.",
+          "As a Warlock, keep in mind that you can wield a 2-Handed Weapon in a single hand.",
+          "The Charms shown represent a collection of similarly valuable stats you can find in these slots."
+        ],
+        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Rhyme"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-standard-cta-prebuff",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Battle Orders / Battle Command prebuff",
+      "review_status": "reviewed_candidate_rule",
       "names": [
-        "Rhyme"
+        "Call to Arms"
+      ],
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "crs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Call to Arms"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 5
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "97:149",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "97:155",
+            "value": 2,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Pair with Spirit on the player weapon swap.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_swap_items",
+            "value": "Spirit"
+          }
+        }
+      ],
+      "preferences": [
+        {
+          "label": "+6 Battle Orders native roll",
+          "when": {
+            "op": "stat_at_least",
+            "key": "97:149",
+            "value": 6,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "97:149",
+        "97:155",
+        "127:0"
+      ],
+      "conditions": [
+        "Verify weapon and swap-shield equip requirements; cast Battle Command twice, then Battle Orders. This gear assessment does not establish an active buff."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Call to Arms Crystal Sword",
+          "Call to Arms Crystal Sword: Battle Command x2 then Battle Orders",
+          "Hex: Purge",
+          "2x Summon Defiler",
+          "Bind Demon with Fanaticism aura",
+          "Spirit Monarch"
+        ],
+        "review": "2026-09-25: Explicit Crystal Sword prebuff component. Require native Battle Orders1+ and Battle Command2+; maximum BO6 is a useful native-roll target, not an entry requirement. Spirit pairing applies only when named on the swap; main-set or mercenary possession is not swap evidence. Ethereal planner examples are not a universal requirement/premium. No active buff, arbitrary other base fit or price inferred."
+      }
+    },
+    {
+      "id": "mirrored-ubers-cta-prebuff",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Battle Orders / Battle Command prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Call to Arms"
+      ],
+      "types": [
+        "swor"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "crs"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Call to Arms"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 5
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "97:149",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "97:155",
+            "value": 2,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Pair with Spirit on the player weapon swap.",
+          "when": {
+            "op": "context_contains",
+            "field": "player_swap_items",
+            "value": "Spirit"
+          }
+        }
+      ],
+      "preferences": [
+        {
+          "label": "+6 Battle Orders native roll",
+          "when": {
+            "op": "stat_at_least",
+            "key": "97:149",
+            "value": 6,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "important_stats": [
+        "97:149",
+        "97:155",
+        "127:0"
+      ],
+      "conditions": [
+        "Verify weapon and swap-shield equip requirements; cast Battle Command twice, then Battle Orders. This gear assessment does not establish an active buff."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Call to Arms Crystal Sword",
+          "Call to Arms: Battle Command x2, Battle Orders",
+          "Consume on a Summon Goatman (damage + life buff)",
+          "Sigil: Lethargy laid on each boss, recast as needed",
+          "Bind Demon with Fanaticism",
+          "Spirit Monarch"
+        ],
+        "review": "2026-09-25: Explicit Crystal Sword prebuff component. Require native Battle Orders1+ and Battle Command2+; maximum BO6 is a useful native-roll target, not an entry requirement. Spirit pairing applies only when named on the swap; main-set or mercenary possession is not swap evidence. Ethereal planner examples are not a universal requirement/premium. No active buff, arbitrary other base fit or price inferred."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-gheeds-inventory",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-annihilus",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-annihilus",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-laying-hands",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack-speed and demon-damage gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Laying of Hands"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ulg"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "121:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Damage bonus applies to weapon damage against demons; it is not general damage against every monster or a bonus to elemental aura damage.",
+        "Verify equip requirements, weapon/aura attack-speed setup and complete survival requirements; these gloves do not establish an attack breakpoint or any set-completion bonus.",
+        "Verify the cited over3000life with Battle Orders and weapon/demon attack-speed setup; glove utility does not prove these full-build targets."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Laying of Hands (The Disciple)",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-25: Reviewed exact Laying of Hands set-glove component. Native20IAS and350weapon damage against demons are desirable for the reviewed attacking use,50fire resistance supporting. Do not relabel demon damage as generic Enhanced Damage, apply it to elemental auras, synthesize set bonuses or infer a price. Keep complete weapon/aura/buff and source-specific role qualifications. Dream Ubers armor source conflict remains outside this batch."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-laying-hands",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack-speed and demon-damage gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Laying of Hands"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ulg"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "121:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Damage bonus applies to weapon damage against demons; it is not general damage against every monster or a bonus to elemental aura damage.",
+        "Verify equip requirements, weapon/aura attack-speed setup and complete survival requirements; these gloves do not establish an attack breakpoint or any set-completion bonus.",
+        "Verify Open Wounds, Cannot Be Frozen, Crushing Blow and75Lightning Resistance against Uber Mephisto's Conviction; the gloves do not supply that preparation."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Laying of Hands (The Disciple)",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction.",
+          "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+          "The charms are for boosting resistances, so that you have 75 Lightning Resistance vs Uber Mephisto's Conviction. Enigma provides mobility via Teleport. Make sure to lay Sigil: Lethargy on each boss and recast as needed. Use Consume on a Summon Goatman for the damage and life buff.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher."
+        ],
+        "review": "2026-09-25: Reviewed exact Laying of Hands set-glove component. Native20IAS and350weapon damage against demons are desirable for the reviewed attacking use,50fire resistance supporting. Do not relabel demon damage as generic Enhanced Damage, apply it to elemental auras, synthesize set bonuses or infer a price. Keep complete weapon/aura/buff and source-specific role qualifications. Dream Ubers armor source conflict remains outside this batch."
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-merc-chains-honor",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited Might setup uses Pride and Andariel's Visage; their combined +4 all skills can improve native Might, not Pride's item-granted Concentration level."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-merc-andariel-native",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "With Pride, native Might benefits from skills. Standard cites Chains of Honor; Ubers armor conflicts between prose and planner, and remains separate from this helmet component."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-merc-andariel-native",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "With Pride, native Might benefits from skills. Standard cites Chains of Honor; Ubers armor conflicts between prose and planner, and remains separate from this helmet component."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction.",
+          "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+          "The charms are for boosting resistances, so that you have 75 Lightning Resistance vs Uber Mephisto's Conviction. Enigma provides mobility via Teleport. Make sure to lay Sigil: Lethargy on each boss and recast as needed. Use Consume on a Summon Goatman for the damage and life buff.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher."
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-player-enigma",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium.",
+        "Physical attack, spell and minion damage requirements remain build-specific; Enigma mobility does not substitute for the required weapon or attack-rating/leech setup."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-player-enigma",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium.",
+        "Physical attack, spell and minion damage requirements remain build-specific; Enigma mobility does not substitute for the required weapon or attack-rating/leech setup."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction.",
+          "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+          "The charms are for boosting resistances, so that you have 75 Lightning Resistance vs Uber Mephisto's Conviction. Enigma provides mobility via Teleport. Make sure to lay Sigil: Lethargy on each boss and recast as needed. Use Consume on a Summon Goatman for the damage and life buff.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-raven-frost",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring 120 AR / 6% ML / 8% LL / 20 Str / 41 Cold Res / 11 Fire+Light+Poison Res",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-raven-frost",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring 120 AR / 8% LL / 20 Str / 15 Dex / 41 Lightning Res / 11 Fire+Cold+Poison Res",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction.",
+          "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+          "The charms are for boosting resistances, so that you have 75 Lightning Resistance vs Uber Mephisto's Conviction. Enigma provides mobility via Teleport. Make sure to lay Sigil: Lethargy on each boss and recast as needed. Use Consume on a Summon Goatman for the damage and life buff.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Hellfire Torch (planner 20/20; the gear table oddly labels it 'Hellfiretorch (Paladin)')",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": [
+        "The table Paladin label conflicts with its linked Warlock planner: class selector 7 confirms a Warlock Torch; reviewed source resolution retained."
       ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Hellfire Torch",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/early/3",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-aldur-boots-alternative",
+      "template": "player_footwear",
+      "item": "Aldur's Advance",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Aldur's Advance"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Aldur's Advance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-waterwalk-boots-alternative",
+      "template": "player_footwear",
+      "item": "Waterwalk",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Boots/0",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Waterwalk"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/238"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Boots/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Rings/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-skullder-body-armors-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Skullder's Ire",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armors",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Body Armors/3",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Skullder's Ire"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/217"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-stealth-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Stealth",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armors",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Body Armors/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Stealth"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Stealth"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/tors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-guardian-angel-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Guardian Angel",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/mid/4",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-skin-of-the-flayed-one-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Skin of the Flayed One",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/early/2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Skin of the Flayed One"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/211"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-the-face-of-horror-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Face of Horror",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/merc/Helmet/early/2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "The Face of Horror"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/78"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-chance-guards-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Chance Guards",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Gloves/0",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Chance Guards"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/104"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-goldwrap-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Goldwrap",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Belts/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Goldwrap"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/115"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/mirrored-blades-warlock-guide/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-charge-alternative-weapon-swap-4",
+      "template": "charged_utility",
+      "item": "Staff of Teleportation",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon-Swap/4",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Staff of Teleportation"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/532"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/54"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-gull-weapon-swap-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Gull",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon-Swap/2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Gull"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/39"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/knif"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/dgr"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-blade-of-ali-baba-weapon-swap-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Blade of Ali Baba",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon-Swap/1",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Blade of Ali Baba"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/157"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/swor"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/9fc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/merc/Helmet/mid/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-tal-rasha-s-guardianship-tal-player-alternative",
+      "template": "named_player_utility",
+      "item": "Tal Rasha's Guardianship",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armors",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/slots/Body Armors/4",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Tal Rasha's Guardianship"
+        ],
+        "review": "2026-09-26: Reviewed exact guide player set-piece alternative. Native and legally upgraded bases accepted, never downgraded identities; sets cannot be ethereal. Only native standalone stats prioritized: armor MF/MDR/resistance, amulet Sorceress skills/resources, belt MF/resources, orb FCR/resources and the build-relevant elemental mastery. Conditional set bonuses require actual companion equipment and are not inferred from one piece. Meteor primary Fire Ball, Blizzard cold and Lightning lightning mastery priorities are source-backed. No numerical price or finished set ownership follows from a gear-table mention.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Tal Rasha's Howling Wind"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/tors"
+          },
+          {
+            "path": "third-parties/d2data/json/cubemain.json",
+            "sha256": "0b3deb18f4b1605e72a11a8d72e8ce73f1fbd662546d2a875d182be9b70b53e8",
+            "locator": "/154"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-lidless-wall-off-hand-swap-shield-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Lidless Wall",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/slots/Off-Hand-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Lidless Wall"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/230",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-pride-end-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Pride",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/merc/Weapon/end/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Pride Giant Thresher"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Concentration supports eligible allied damage while the mercenary is alive and recipients are within aura range. This weapon has no native weapon Enhanced Damage, IAS or life leech; mercenary damage and sustain can suffer. Freeze Target may destroy corpses needed for corpse skills; blind can interfere with curses on eligible targets. Do not infer complete aura uptime. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Pride",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/mirrored-blades-warlock-guide.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "45fbf99861e59e0a5657821f9da816f52003e2a81322f614ec3bea9df534157b"
+          }
+        ]
+      },
+      "base_codes": [
+        "7wc"
+      ]
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-tomb-reaver-weapon-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Tomb Reaver",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Tomb Reaver"
+        ],
+        "review": "2026-09-27: Reviewed casting versus attack mechanics: Echoing Strike uses FCR and cannot apply Crushing Blow, Open Wounds, on-striking or on-attacking effects; Mirrored Blades uses IAS and consumes weapon durability. Casting-only ethereal use does not authorize normal melee. Native animation/skill source and cached guide Mechanics section were inspected; no numerical premium is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/298",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/392",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-rift-experimental-proc-recipe",
+      "template": "player_combat_weapon",
+      "item": "Rift",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Experimental alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__mirrored-blades-warlock-guide.html/sections/9",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Rift"
+        ],
+        "review": "2026-09-27: The source explicitly calls these examples fun experimentation with Mirrored Blades procs, not optimized loadouts. Reviewed attack/on-hit triggers, native elemental damage and physical attack effects; death triggers and uncast charges are not passive bonuses. No transfer to Echoing Strike or numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Rift",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r15",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r18",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r20",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r25",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-destruction-experimental-proc-recipe",
+      "template": "player_combat_weapon",
+      "item": "Destruction",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Experimental alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__mirrored-blades-warlock-guide.html/sections/9",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Destruction"
+        ],
+        "review": "2026-09-27: The source explicitly calls these examples fun experimentation with Mirrored Blades procs, not optimized loadouts. Reviewed attack/on-hit triggers, native elemental damage and physical attack effects; death triggers and uncast charges are not passive bonuses. No transfer to Echoing Strike or numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Destruction",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r26",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r28",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r30",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r31",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r18",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-protector-s-stone-v1-weapon-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "host": "Tomb Reaver",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Tomb Reaver (ethereal Cryptic Axe, 3 sockets: Protector's Stone Colossal Jewel + Ohm Rune + Zod Rune)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-protector-s-stone-v2-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Warlock",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Guillaume's Face",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "source_date": "June 6, 2026",
+        "quotes": [
+          "Guillaume's Face (Orphan's Call) socketed with Protector's Stone (unique Colossal Jewel: 50% ED / 5% Exp / 50% Gold / 35% MF)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-2-merc-andariel-ias-fire",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Ubers",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The actual linked jewel must supply 15% IAS and 30% fire resistance. It offsets the native -30% fire penalty and brings helmet IAS to 35%; complete mercenary resistance caps and weapon breakpoints remain separate.",
+        "An IAS/enhanced-damage Ruby jewel or Ral rune alone does not satisfy this reviewed setup. Lower fire-resistance rolls may be useful, but do not fully offset the native penalty.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "With Pride, native Might benefits from skills. Standard cites Chains of Honor; Ubers armor conflicts between prose and planner, and remains separate from this helmet component."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)",
+          "This version is the best for dealing with the Ubers: Open Wounds from Gore Rider to stop regeneration, Cannot Be Frozen, Crushing Blow from Gore Rider and Guillaume's Face, and charms for 75 Lightning Resistance against Uber Mephisto's Conviction.",
+          "The first is having a source of x% Chance of Open Wounds, which is obtained from Gore Rider to stop regeneration. Cannot Be Frozen allows you to maintain fast attack speed for applying Open Wounds and dealing massive damage through Crushing Blow, which is gained from Gore Rider and Guillaume's Face.",
+          "The charms are for boosting resistances, so that you have 75 Lightning Resistance vs Uber Mephisto's Conviction. Enigma provides mobility via Teleport. Make sure to lay Sigil: Lethargy on each boss and recast as needed. Use Consume on a Summon Goatman for the damage and life buff.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher."
+        ],
+        "review": "2026-09-28: Reviewed exact mirrored-blades-warlock-guide / Ubers source helmet explicitly specifying 15IAS/30fire resistance. Require actual linked jewel, one filled socket, native bearer and ethereal/base guards. Native Ruby fire prefix376 is16-30, Fervor171 fixed15IAS; this source selects30 to offset the helmet penalty, not a generic minimum valuable jewel. Keep full-loadout/source conflicts qualified; no price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/376",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-blades-warlock-guide-1-merc-andariel-ias-fire",
+      "build": "mirrored-blades-warlock-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Warlock"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The actual linked jewel must supply 15% IAS and 30% fire resistance. It offsets the native -30% fire penalty and brings helmet IAS to 35%; complete mercenary resistance caps and weapon breakpoints remain separate.",
+        "An IAS/enhanced-damage Ruby jewel or Ral rune alone does not satisfy this reviewed setup. Lower fire-resistance rolls may be useful, but do not fully offset the native penalty.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "With Pride, native Might benefits from skills. Standard cites Chains of Honor; Ubers armor conflicts between prose and planner, and remains separate from this helmet component."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/mirrored-blades-warlock-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "June 6, 2026",
+        "url": "https://maxroll.gg/d2/guides/mirrored-blades-warlock-guide",
+        "quotes": [
+          "Andariel's Visage (ethereal) socketed with Ruby Jewel of Fervor (15% IAS / 30 Fire Res)",
+          "The Standard Mirrored Blades Warlock decimates enemies in a single swing; Enigma is a high priority for Teleport, balancing mobility, damage, attack speed and Magic Find, with Deadly Strike as the key damage stat.",
+          "Act 2 Might Mercenary with a Pride Giant Thresher provides the most Off-Weapon Enhanced Damage you can get to boost your damage. [Chains of Honor Archon Plate] and Andariel's Visage help keep him alive, while also providing +4 All Skills to boost his aura even higher.",
+          "Allocate enough Stat Points into Vitality to reach over 3,000 life with Call to Arms Crystal Sword Battle Orders and put the remaining into Strength.",
+          "Grab any demon as your pet using the Bind Demon ability. It can provide the Fanaticism aura for a free increase to attack speed and damage!"
+        ],
+        "review": "2026-09-28: Reviewed exact mirrored-blades-warlock-guide / Standard source helmet explicitly specifying 15IAS/30fire resistance. Require actual linked jewel, one filled socket, native bearer and ethereal/base guards. Native Ruby fire prefix376 is16-30, Fervor171 fixed15IAS; this source selects30 to offset the helmet penalty, not a generic minimum valuable jewel. Keep full-loadout/source conflicts qualified; no price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/376",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
     }
   ]
 }

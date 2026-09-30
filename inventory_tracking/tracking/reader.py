@@ -73,8 +73,13 @@ class LiveReader:
             raise ValueError('unsupported game build')
         images = inspect_images(pid, game)
         if images['status'] != 'candidate':
-            raise ValueError('game image unavailable')
+            # D2R.exe starting or exiting: the image is not (or no longer) mapped; retry.
+            reason = images.get('error') or images['status']
+            raise GameNotReady(f'game image unavailable ({reason})')
         capture = capture_image(pid, images, directory)
+        if capture['status'] == 'stale':
+            # The image changed or became unreadable mid-attach (game starting or exiting): retry.
+            raise GameNotReady(f'game image changed during attach: {capture.get("error", "stale capture")}')
         if capture['status'] != 'captured' or len({x['table_address'] for x in capture['unit_table_candidates']}) != 1:
             # In the menus the unit table does not exist yet; it appears once a character is in a game.
             raise GameNotReady('unit table unavailable; enter a game with a character')

@@ -1,0 +1,352 @@
+{
+  "schema_version": 1,
+  "status": "source_validated_semantic_review_pending",
+  "rows": [
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "147",
+          "position": [
+            91,
+            9269
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 55,
+          "label": "",
+          "side": "player",
+          "slot": "Gloves",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "147",
+            "position": [
+              91,
+              9269
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "122185f80626d9b0f607ffd3934921ae30ad4bd7b05cf7fdbbf2193ee8d2e083"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 55,
+          "label": "",
+          "side": "player",
+          "slot": "Gloves",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "147",
+            "position": [
+              91,
+              9269
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "xlg",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            10,
+            150,
+            15,
+            270,
+            40
+          ],
+          "unique": "set137",
+          "defense": 35,
+          "sockets": 0,
+          "stats": {
+            "item_crushingblow": 10,
+            "tohit": 150,
+            "dexterity": 15,
+            "firemindam": 140,
+            "firemaxdam": 270,
+            "maxhp": 40
+          },
+          "description": "35 def 150 ar 15 dex 40 life"
+        },
+        "socket_definitions": {}
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dGH5vCiB",
+          "item_id": "92",
+          "position": [
+            91,
+            9468
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 57,
+          "label": "Caster Crafted Bramble Mitts",
+          "side": "player",
+          "slot": "Gloves",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dGH5vCiB",
+            "item_id": "92",
+            "position": [
+              91,
+              9468
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "cec949cf68fa2674ab07669dbdebc76ced4a68340549f29e2cb642bab7dfac4d"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 57,
+          "label": "Caster Crafted Bramble Mitts",
+          "side": "player",
+          "slot": "Gloves",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dGH5vCiB",
+            "item_id": "92",
+            "position": [
+              91,
+              9468
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/1",
+        "item": {
+          "base": "ulg",
+          "quality": 8,
+          "ilvl": 99,
+          "mods": {
+            "mp372": [
+              30
+            ],
+            "mp392": [
+              30
+            ],
+            "mp353": [
+              30
+            ],
+            "ms287": [
+              25
+            ]
+          },
+          "crafted": {
+            "crf084": [
+              10,
+              20,
+              3
+            ]
+          },
+          "name": "Caster Crafted",
+          "defense": 62,
+          "sockets": 0,
+          "stats": {
+            "fireresist": 30,
+            "lightresist": 30,
+            "coldresist": 30,
+            "item_magicbonus": 25,
+            "manarecoverybonus": 10,
+            "maxmana": 20,
+            "item_manaafterkill": 3
+          },
+          "description": "62 def 20 mana 10% mana reg 30 cr 30 lr 30 fr 3 maek 25 mf"
+        },
+        "socket_definitions": {}
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "152",
+          "position": [
+            91,
+            10304
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 61,
+          "label": "",
+          "side": "player",
+          "slot": "Belts",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "152",
+            "position": [
+              91,
+              10304
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "96d589269f09cc68a34d0cc8f1651bd72bd3d921a650f47899c1befcf3f5c1d4"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 61,
+          "label": "",
+          "side": "player",
+          "slot": "Belts",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "152",
+            "position": [
+              91,
+              10304
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "utc",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            20,
+            20,
+            20,
+            150,
+            7,
+            15,
+            75
+          ],
+          "unique": "unique418",
+          "defense": 67,
+          "sockets": 0,
+          "stats": {
+            "item_fastercastrate": 20,
+            "item_fastergethitrate": 20,
+            "item_fastermovevelocity": 20,
+            "item_armor_percent": 150,
+            "passive_mag_pierce": 7,
+            "fireresist": 15,
+            "lightresist": 15,
+            "coldresist": 15,
+            "poisonresist": 15,
+            "item_goldbonus": 75
+          },
+          "description": "20 frw 20 fcr 20 fhr 150% def 15@ 75% gold"
+        },
+        "socket_definitions": {}
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "148",
+          "position": [
+            91,
+            10419
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 62,
+          "label": "",
+          "side": "player",
+          "slot": "Belts",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "148",
+            "position": [
+              91,
+              10419
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "19e98946fd29357b9b7cb39d51bd3cf53b630fd46c049b8298468dd55ace441a"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 62,
+          "label": "",
+          "side": "player",
+          "slot": "Belts",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "148",
+            "position": [
+              91,
+              10419
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "vbl",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            10,
+            20
+          ],
+          "unique": "set134",
+          "defense": 3,
+          "sockets": 0,
+          "stats": {
+            "item_fastercastrate": 10,
+            "maxhp": 20
+          },
+          "description": ""
+        },
+        "socket_definitions": {}
+      }
+    }
+  ]
+}

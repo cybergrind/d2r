@@ -48,16 +48,18 @@ def test_exact_named_ask_cohorts_can_supply_missing_trade_tier(tmp_path, stem, p
     assert outcome['source']['date'] == '2026-09-25'
     from inventory_tracking.appraisal.sections import tier_lines
 
-    assert tier_lines(result) == [f'Trade tier: {tier} (cached asks, 2026-09-25)']
+    label = 'mid' if tier == 'med' else tier
+    assert tier_lines(result) == [f'Trade tier: {label}']
 
 
-def test_band_crossing_tier_boundary_does_not_claim_a_single_tier(tmp_path):
+def test_band_crossing_tier_boundary_keeps_identity_baseline_and_uncertain_market_tier(tmp_path):
     extraction, rows = cohort('atma_scarab', [0.7, 0.8, 1])
     result = retrieve_draft(extraction, database(tmp_path, rows), as_of=date(2026, 9, 25))
     tier = result['assessment']['trade_tier']
-    assert tier['status'] == 'conditional'
-    assert tier['tier'] is None
-    assert tier['possible_tiers'] == ['low', 'med']
+    assert tier['status'] == 'reviewed'
+    assert tier['tier'] == 'low'
+    assert tier['market_adjustment']['tier'] is None
+    assert tier['market_adjustment']['possible_tiers'] == ['low', 'med']
 
 
 def test_thin_stale_or_wrong_variant_asks_do_not_fill_tier_gap(tmp_path):
@@ -67,12 +69,15 @@ def test_thin_stale_or_wrong_variant_asks_do_not_fill_tier_gap(tmp_path):
     assert fresh['assessment']['trade_tier']['status'] == 'market_supported'
     stale = retrieve_draft(extraction, db, as_of=date(2026, 11, 1))
     assert stale['price_estimate']['excluded_observations'] == {'stale': 3}
-    assert stale['assessment']['trade_tier']['status'] == 'pending_review'
+    assert stale['assessment']['trade_tier']['status'] == 'reviewed'
+    assert stale['assessment']['trade_tier']['tier'] == 'low'
+    assert stale['assessment']['trade_tier']['basis_kind'] == 'qualitative'
 
     rows[-1]['ethereal'] = True
     thin = retrieve_draft(extraction, database(tmp_path, rows), as_of=date(2026, 9, 25))
     assert thin['price_estimate']['estimate_ist'] is None
-    assert thin['assessment']['trade_tier']['status'] == 'pending_review'
+    assert thin['assessment']['trade_tier']['status'] == 'reviewed'
+    assert thin['assessment']['trade_tier']['tier'] == 'low'
 
 
 def test_existing_tier_and_noncurrent_results_are_not_reclassified(tmp_path):

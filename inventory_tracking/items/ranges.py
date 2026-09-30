@@ -2,23 +2,41 @@
 
 from typing import Any
 
+from inventory_tracking.items.per_level_ranges import annotate_per_level_range
 from inventory_tracking.items.stat_constants import TOTAL_LABELS
+from pricing.knowledge.property_groups import selected_ranges
 
 
 def annotate_roll_ranges(decoded: list[dict[str, Any]], identity):
     if not identity:
         return
+    ranges = dict(identity['roll_ranges'])
+    observed = {}
     for row in decoded:
+        native = [row['memory_stat']] if row.get('memory_stat') else row.get('memory_stats', [])
+        for stat in native:
+            key = f'{stat.get("id")}:{stat.get("layer")}'
+            if key in observed:
+                observed[key] = {'status': 'conflicting'}
+            else:
+                observed[key] = {'status': row.get('status'), 'value': row.get('value')}
+    for group in identity.get('property_groups', ()):
+        ranges.update(selected_ranges(group, observed) or {})
+    for row in decoded:
+        if row.get('origin') == 'level_formula':
+            annotate_per_level_range(row, identity)
+            continue
         stat: dict[str, Any] = row.get('memory_stat') or next(iter(row.get('memory_stats', [])), {})
-        definition = identity['roll_ranges'].get(f'{stat.get("id")}:{stat.get("layer")}')
+        definition = ranges.get(f'{stat.get("id")}:{stat.get("layer")}')
         if definition is None:
-            definition = identity['roll_ranges'].get(str(stat.get('id')))
+            definition = ranges.get(str(stat.get('id')))
         label = row.get('range_label') or row.get('label')
         if not label and stat.get('id') in TOTAL_LABELS:
             label = TOTAL_LABELS[stat['id']] + ': {{value}}'
         value = row.get('value')
         if (
             row['status'] != 'decoded'
+            or row.get('origin') == 'shield_block_total'
             or not definition
             or stat.get('layer') != definition.get('layer', 0)
             or not label

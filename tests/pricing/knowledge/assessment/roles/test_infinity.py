@@ -21,7 +21,7 @@ def infinity(base):
 
 def test_infinity_roles_separate_wearer_pierce_from_mercenary_weapon_damage():
     profiles = build()['profiles']
-    roles = {r['id']: r for r in assess_roles(infinity('Scythe'), profiles)}
+    roles = {r['id']: r for r in assess_roles(infinity('Scythe'), profiles, {'player_class': 'Sorceress'})}
     player = roles['nova-standard-infinity-player']
     merc = roles['nova-hybrid-infinity-merc']
     assert player['side'] == 'player'
@@ -36,9 +36,13 @@ def test_infinity_roles_separate_wearer_pierce_from_mercenary_weapon_damage():
 def test_amazon_spear_role_is_independent_of_nova_role_and_requires_real_aura():
     profiles = build()['profiles']
     item = infinity('Matriarchal Spear')
-    roles = {r['id']: r for r in assess_roles(item, profiles)}
+    roles = {r['id']: r for r in assess_roles(item, profiles, {'player_class': 'Amazon'})}
     assert 'lightning-strike-infinity-player' in roles
     assert 'nova-standard-infinity-player' not in roles
     changed = replace(item, stats={'151:123': {'status': 'decoded', 'value': 0}})
-    role = next(r for r in assess_roles(changed, profiles) if r['id'] == 'lightning-strike-infinity-player')
+    role = next(
+        r
+        for r in assess_roles(changed, profiles, {'player_class': 'Amazon'})
+        if r['id'] == 'lightning-strike-infinity-player'
+    )
     assert role['status'] == 'failed'

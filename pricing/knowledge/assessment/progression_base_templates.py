@@ -16,13 +16,32 @@ class ProgressionBaseTemplate:
     strength: str
     tradeoff: str
     version: int = 1
+    reviewed_sources: tuple[str, ...] = ()
 
     @property
     def source_locators(self):
+        if self.reviewed_sources:
+            return self.reviewed_sources
         return tuple(f'appraisal-utility.json:{base}/sockets_by_runeword/{self.runeword}' for base in self.members)
 
 
 TEMPLATES = (
+    ProgressionBaseTemplate(
+        'Lionheart',
+        ('Mage Plate',),
+        'Light armor base for the reviewed Strafe Amazon Starter Lionheart setup.',
+        'Life, attributes, resistances and off-weapon damage support progression; this recipe supplies no '
+        'attack speed or life leech. Superior defense is optional, not evidence of a valuable trade base.',
+        reviewed_sources=('pricing/data/wp-a-builds.json#/strafe-amazon/variants/0/player/Body Armor',),
+    ),
+    ProgressionBaseTemplate(
+        'Duress',
+        ('Dusk Shroud',),
+        'Light armor base for the reviewed budget kicker Duress setup.',
+        'Compare wearer requirements and the complete Ubers setup; superior defense is not required '
+        'and this source does not establish the best possible base or a trade premium.',
+        reviewed_sources=('pricing/data/wp-a-builds.json#/dragon-talon-assassin/variants/0/player/Body Armor',),
+    ),
     ProgressionBaseTemplate(
         'Stealth',
         ('Quilted Armor', 'Leather Armor', 'Hard Leather Armor', 'Studded Leather'),
@@ -51,6 +70,10 @@ TEMPLATES = (
 )
 EXCEPTIONS = MappingProxyType(
     {
+        (
+            'Duress',
+            'Dusk Shroud',
+        ): 'For Ubers, the guide recommends level 90; verify boots, Attack Rating, Cannot Be Frozen and resistances.',
         ('Lore', 'Diadem'): 'Diadem requires level 64; this is not an early-leveling base.',
         ('Rhyme', 'Targe'): 'Paladin only: inspect inherent resistance rolls against the intended setup.',
         ('Rhyme', 'Preserved Head'): 'Necromancer only: inspect desired staffmods against the intended setup.',
@@ -82,3 +105,8 @@ def evaluate_progression_base(facts, runeword):
     if exception := EXCEPTIONS.get((runeword, facts.base_name)):
         missing.append(exception)
     return 'player progression', [template.strength], missing, template.tradeoff
+
+
+def reviewed_base_sources(facts, runeword):
+    template = INDEX.get((runeword, facts.base_name))
+    return template.reviewed_sources if template else ()

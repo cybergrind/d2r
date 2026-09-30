@@ -17,10 +17,16 @@
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
           {
             "op": "fact_eq",
             "field": "runeword",
@@ -81,10 +87,16 @@
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
           {
             "op": "fact_eq",
             "field": "runeword",
@@ -800,12 +812,12 @@
         "Insight"
       ],
       "types": [
-        "pole",
-        "spea"
+        "pole"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -828,6 +840,85 @@
             "op": "stat_at_least",
             "key": "151:120",
             "value": 12
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
           }
         ]
       },
@@ -885,7 +976,14 @@
         "quotes": [
           "Insight Partizan in an Exceptional Base (ethereal in planner)"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage. 2026-09-27: Native Insight permits polearms, staves and bows, not spears. This Act 2 role requires a legal four-socket polearm. Completed low-quality bases remain eligible; base quality does not replace mercenary/loadout checks or change the existing mana-priority review.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Insight",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
       }
     },
     {
@@ -900,12 +998,12 @@
         "Insight"
       ],
       "types": [
-        "pole",
-        "spea"
+        "pole"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -928,6 +1026,85 @@
             "op": "stat_at_least",
             "key": "151:120",
             "value": 12
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
           }
         ]
       },
@@ -990,7 +1167,14 @@
         "quotes": [
           "Insight Giant Thresher (ethereal)"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage. 2026-09-27: Native Insight permits polearms, staves and bows, not spears. This Act 2 role requires a legal four-socket polearm. Completed low-quality bases remain eligible; base quality does not replace mercenary/loadout checks or change the existing mana-priority review.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Insight",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
       }
     },
     {
@@ -1005,12 +1189,12 @@
         "Insight"
       ],
       "types": [
-        "pole",
-        "spea"
+        "pole"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -1033,6 +1217,85 @@
             "op": "stat_at_least",
             "key": "151:120",
             "value": 12
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
           }
         ]
       },
@@ -1095,7 +1358,14 @@
         "quotes": [
           "Insight Giant Thresher (ethereal)"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage. 2026-09-27: Native Insight permits polearms, staves and bows, not spears. This Act 2 role requires a legal four-socket polearm. Completed low-quality bases remain eligible; base quality does not replace mercenary/loadout checks or change the existing mana-priority review.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Insight",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
       }
     },
     {
@@ -1934,6 +2204,3492 @@
           "4x Ruby Small Charm of Good Luck (11 FR / 7 MF)"
         ],
         "review": "2026-09-24: reviewed explicit numeric Small Charm combination; each stat category required. Cited numbers remain targets, not inferred universal minimums or price. All-resistance means all four elemental resistances. Other charm sizes and named unique charms are separate."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-gheeds-inventory",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-gheeds-inventory",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-gheeds-inventory",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-annihilus",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-annihilus",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-annihilus",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-soj",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "The Stone of Jordan",
+          "The Stone of Jordan",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration.",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning. Self-using Infinity also opens up the Mercenary to use insight for much better Mana Regeneration.",
+          "With Magefist, Arachnid Mesh, Skin of the Vipermagi Serpentskin Armor, Griffon's Eye Diadem and 10% Faster Cast Rate (FCR) across your jewelry, ideally the Amulet, bring you to the 105% FCR breakpoint.",
+          "With energy shield as your primary defense, you don't need to worry about elemental Resistances. Focus on Poison Resistance to cover your primary threat.",
+          "Self using infinity opens up the Mercenaries' Weapon choice. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Equip Insight Giant Thresher for additional Mana Regeneration, Chains of Honor Archon Plate, and Cure Diadem grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly.",
+          "With the addition of Crack of the Heavens, all Immunities are broken and our combined -xx% Enemy Lightning Resistance gear brings monster's Resistances low enough to deal damage!"
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-soj",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout.",
+        "The selected source does not establish a main-loadout cast-rate threshold for this configuration; do not inherit a number from another variant."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "The Stone of Jordan",
+          "The Stone of Jordan",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-soj",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout.",
+        "The Hydra Hybrid is life-based and the source warns of harder mana management; the ring does not establish Energy Shield defenses.",
+        "The selected source does not establish a main-loadout cast-rate threshold for this configuration; do not inherit a number from another variant."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "The Stone of Jordan",
+          "The Stone of Jordan",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances.",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning. Hydra is also an incredible damage boost to any Act Boss fight.",
+          "This Fire Hybrid is Life-based because Hydra requires the remaining Skill Points after maxing out Nova damage. Faster Cast Rate is a lot easier to reach, allowing you to use Chains of Honor in combination with Charms to cap out Resistances.",
+          "Note: The Mana management is more difficult and this variant is less durable than any other version.",
+          "The Mercenary is clear-cut across all variants. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Use Infinity Giant Thresher, Chains of Honor Archon Plate, and Cure Diadem for maximum damage output and durability."
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-magefist",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Cast-rate and mana gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and the complete skill, resistance, resource and survival setup; gloves are only one component.",
+        "Verify self-equipped Infinity, Energy Shield and the cited armor/helm/belt/jewelry setup; mana and poison protection need full-loadout review."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Magefist",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration.",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning. Self-using Infinity also opens up the Mercenary to use insight for much better Mana Regeneration.",
+          "With Magefist, Arachnid Mesh, Skin of the Vipermagi Serpentskin Armor, Griffon's Eye Diadem and 10% Faster Cast Rate (FCR) across your jewelry, ideally the Amulet, bring you to the 105% FCR breakpoint.",
+          "With energy shield as your primary defense, you don't need to worry about elemental Resistances. Focus on Poison Resistance to cover your primary threat.",
+          "Self using infinity opens up the Mercenaries' Weapon choice. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Equip Insight Giant Thresher for additional Mana Regeneration, Chains of Honor Archon Plate, and Cure Diadem grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly.",
+          "With the addition of Crack of the Heavens, all Immunities are broken and our combined -xx% Enemy Lightning Resistance gear brings monster's Resistances low enough to deal damage!"
+        ],
+        "review": "2026-09-26: Reviewed Magefist glove component: cast rate desirable, mana regeneration supporting; fire-skill bonus desirable only for the reviewed fire use. Native legal upgrade chain accepted for generic Magefist mentions, Fissure Ubers restricted to explicitly cited Crusader Gauntlets. Keep main/swap casting, recovery, full-setup and skill-type distinctions. Prebuff-only and conflicting starter examples remain separate; no price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/tgl"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-magefist",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Cast-rate and mana gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "27:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and the complete skill, resistance, resource and survival setup; gloves are only one component.",
+        "This MF variant changes charms and an armor socket from Standard; verify the retained casting and Energy Shield setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Magefist",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-26: Reviewed Magefist glove component: cast rate desirable, mana regeneration supporting; fire-skill bonus desirable only for the reviewed fire use. Native legal upgrade chain accepted for generic Magefist mentions, Fissure Ubers restricted to explicitly cited Crusader Gauntlets. Keep main/swap casting, recovery, full-setup and skill-type distinctions. Prebuff-only and conflicting starter examples remain separate; no price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/tgl"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-magefist",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Fire-skill caster gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "27:0",
+        "126:1"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and the complete skill, resistance, resource and survival setup; gloves are only one component.",
+        "The Hydra hybrid is life-based and has more difficult mana management; do not inherit Energy Shield assumptions from Standard."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Magefist",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances.",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning. Hydra is also an incredible damage boost to any Act Boss fight.",
+          "This Fire Hybrid is Life-based because Hydra requires the remaining Skill Points after maxing out Nova damage. Faster Cast Rate is a lot easier to reach, allowing you to use Chains of Honor in combination with Charms to cap out Resistances.",
+          "Note: The Mana management is more difficult and this variant is less durable than any other version.",
+          "The Mercenary is clear-cut across all variants. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Use Infinity Giant Thresher, Chains of Honor Archon Plate, and Cure Diadem for maximum damage output and durability."
+        ],
+        "review": "2026-09-26: Reviewed Magefist glove component: cast rate desirable, mana regeneration supporting; fire-skill bonus desirable only for the reviewed fire use. Native legal upgrade chain accepted for generic Magefist mentions, Fissure Ubers restricted to explicitly cited Crusader Gauntlets. Keep main/swap casting, recovery, full-setup and skill-type distinctions. Prebuff-only and conflicting starter examples remain separate; no price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/tgl"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-vipermagi",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Caster armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              }
+            ]
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "Verify self-equipped Infinity and the complete Energy Shield/mana setup; poison resistance is the cited resistance priority, while other resistances remain supporting protection.",
+        "The Standard setup uses an armor Rainbow Facet; verify its actual element and rolls separately."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Skin of the Vipermagi Serpentskin Armor (Rainbow Facet Jewel)",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration.",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning. Self-using Infinity also opens up the Mercenary to use insight for much better Mana Regeneration.",
+          "With Magefist, Arachnid Mesh, Skin of the Vipermagi Serpentskin Armor, Griffon's Eye Diadem and 10% Faster Cast Rate (FCR) across your jewelry, ideally the Amulet, bring you to the 105% FCR breakpoint.",
+          "With energy shield as your primary defense, you don't need to worry about elemental Resistances. Focus on Poison Resistance to cover your primary threat.",
+          "Self using infinity opens up the Mercenaries' Weapon choice. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Equip Insight Giant Thresher for additional Mana Regeneration, Chains of Honor Archon Plate, and Cure Diadem grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly.",
+          "With the addition of Crack of the Heavens, all Immunities are broken and our combined -xx% Enemy Lightning Resistance gear brings monster's Resistances low enough to deal damage!"
+        ],
+        "review": "2026-09-26: Reviewed Vipermagi caster armor component. Cast rate and all skills desirable; resistances supporting, poison desirable in the cited Nova Energy Shield setup. Native20-35resistance range is not a minimum35roll gate. Generic identity mentions accept the verified exceptional/elite chain; explicit Serpentskin citations retain original base scope. Socket/full-loadout qualifications retained, no numerical price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-vipermagi",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Caster armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              }
+            ]
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "Verify self-equipped Infinity and the complete Energy Shield/mana setup; poison resistance is the cited resistance priority, while other resistances remain supporting protection.",
+        "The MF variant replaces the armor Rainbow Facet with Ist and changes charms; the retained gear still needs the full 105% cast-rate setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Skin of the Vipermagi Serpentskin Armor (Ist Rune)",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-26: Reviewed Vipermagi caster armor component. Cast rate and all skills desirable; resistances supporting, poison desirable in the cited Nova Energy Shield setup. Native20-35resistance range is not a minimum35roll gate. Generic identity mentions accept the verified exceptional/elite chain; explicit Serpentskin citations retain original base scope. Socket/full-loadout qualifications retained, no numerical price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-merc-chains-honor",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited setup uses Cure plus Insight while the player self-equips Infinity; verify Energy Shield and mana support."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration.",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning. Self-using Infinity also opens up the Mercenary to use insight for much better Mana Regeneration.",
+          "With Magefist, Arachnid Mesh, Skin of the Vipermagi Serpentskin Armor, Griffon's Eye Diadem and 10% Faster Cast Rate (FCR) across your jewelry, ideally the Amulet, bring you to the 105% FCR breakpoint.",
+          "With energy shield as your primary defense, you don't need to worry about elemental Resistances. Focus on Poison Resistance to cover your primary threat.",
+          "Self using infinity opens up the Mercenaries' Weapon choice. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Equip Insight Giant Thresher for additional Mana Regeneration, Chains of Honor Archon Plate, and Cure Diadem grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly.",
+          "With the addition of Crack of the Heavens, all Immunities are broken and our combined -xx% Enemy Lightning Resistance gear brings monster's Resistances low enough to deal damage!"
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-merc-chains-honor",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited setup uses Cure plus Insight while the player self-equips Infinity; verify Energy Shield and mana support."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-player-chains-honor",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Player skill and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uea"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The Hydra hybrid is life-based; armor plus charms must cover resistances. Mana management is harder and Energy Shield assumptions from Standard do not apply."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Wyrmhide (Dol Um Ber Ist)",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances.",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning. Hydra is also an incredible damage boost to any Act Boss fight.",
+          "This Fire Hybrid is Life-based because Hydra requires the remaining Skill Points after maxing out Nova damage. Faster Cast Rate is a lot easier to reach, allowing you to use Chains of Honor in combination with Charms to cap out Resistances.",
+          "Note: The Mana management is more difficult and this variant is less durable than any other version.",
+          "The Mercenary is clear-cut across all variants. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Use Infinity Giant Thresher, Chains of Honor Archon Plate, and Cure Diadem for maximum damage output and durability."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-3-merc-chains-honor",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited setup uses Cure plus Infinity for the life-based Hydra hybrid; do not inherit the Standard Energy Shield assumptions."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances.",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning. Hydra is also an incredible damage boost to any Act Boss fight.",
+          "This Fire Hybrid is Life-based because Hydra requires the remaining Skill Points after maxing out Nova damage. Faster Cast Rate is a lot easier to reach, allowing you to use Chains of Honor in combination with Charms to cap out Resistances.",
+          "Note: The Mana management is more difficult and this variant is less durable than any other version.",
+          "The Mercenary is clear-cut across all variants. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Use Infinity Giant Thresher, Chains of Honor Archon Plate, and Cure Diadem for maximum damage output and durability."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-0-merc-treachery-native",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Fade and armor utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Holy Freeze"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ltp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "201:17103",
+        "99:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
+        "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
+        "Armor properties benefit its wearer; the player does not inherit mercenary IAS or resistances. A shared Fade prebuff requires the player to equip appropriate armor and trigger Fade separately."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Treachery Light Plate (ethereal in planner)",
+          "While the Nova Sorceress excels at the early stages of Leveling, it struggles to come online in Hell; with decent +x to Skills, at least 105% FCR and decent Mana you can start using it in the easier farm areas.",
+          "Spirit Sword, Stealth, Lore and Splendor Shield are easily farmable Runewords at Nightmare Countess. Combined with a Caster Crafted Belt and FCR on all your jewellery pieces you can reach the 105% Faster Cast Rate breakpoint.",
+          "With this setup you can easily start farming for Coven, Crescent Moon and Spirit Monarch. These items will dramatically increase your damage output and gets you towards the pure Nova build. Use lower resistance in your weapon swap to increase your damage as needed.",
+          "The Mercenary in this variant ensures massive Mana Regeneration with Insight Partizan in an Exceptional Base. Treachery Light Plate and a Helmet with x% Life stolen per hit such as Bulwark Crown keep your Mercenary alive. With Holy Freeze he can get rid of monsters Immune to Lightning on low player counts."
+        ],
+        "review": "2026-09-26: Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Treachery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-0-merc-bulwark-native",
+      "build": "nova-sorceress-guide",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Starter mercenary leech and physical protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Holy Freeze"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "crn"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "76:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Life leech requires eligible physical damage and a leechable target; verify the actual weapon, full resistance coverage and mercenary survival.",
+        "The cited base and aura describe this setup, not a universal best base. Verify actual equipment requirements and the full hit-recovery/attack-speed breakpoints; helmet defense and ethereal status do not imply a numerical price premium.",
+        "This review uses the Non-Ladder Bulwark definition; Ladder-only revisions must not replace its native rolls."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Bulwark Crown ('a Helmet with x% Life stolen per hit such as Bulwark Crown')",
+          "While the Nova Sorceress excels at the early stages of Leveling, it struggles to come online in Hell; with decent +x to Skills, at least 105% FCR and decent Mana you can start using it in the easier farm areas.",
+          "Spirit Sword, Stealth, Lore and Splendor Shield are easily farmable Runewords at Nightmare Countess. Combined with a Caster Crafted Belt and FCR on all your jewellery pieces you can reach the 105% Faster Cast Rate breakpoint.",
+          "With this setup you can easily start farming for Coven, Crescent Moon and Spirit Monarch. These items will dramatically increase your damage output and gets you towards the pure Nova build. Use lower resistance in your weapon swap to increase your damage as needed.",
+          "The Mercenary in this variant ensures massive Mana Regeneration with Insight Partizan in an Exceptional Base. Treachery Light Plate and a Helmet with x% Life stolen per hit such as Bulwark Crown keep your Mercenary alive. With Holy Freeze he can get rid of monsters Immune to Lightning on low player counts."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-1-griffon-eye",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Lightning damage and casting helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Griffon's Eye"
+      ],
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "330:0",
+        "334:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Native10%lightning damage/15%enemy-lightning reduction rolls retain useful lightning support; socket additions and perfect native rolls are separate.",
+        "Faster Cast Rate supports casting and Teleport; this helmet alone does not establish a complete breakpoint, immunity solution or full resistance loadout.",
+        "Current cited socket is Guardian's Thunder; its native5\u201310 elemental rolls remain usable. Historical Rainbow Facet examples do not replace the current planner payload."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration.",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning. Self-using Infinity also opens up the Mercenary to use insight for much better Mana Regeneration.",
+          "With Magefist, Arachnid Mesh, Skin of the Vipermagi Serpentskin Armor, Griffon's Eye Diadem and 10% Faster Cast Rate (FCR) across your jewelry, ideally the Amulet, bring you to the 105% FCR breakpoint.",
+          "With energy shield as your primary defense, you don't need to worry about elemental Resistances. Focus on Poison Resistance to cover your primary threat.",
+          "Self using infinity opens up the Mercenaries' Weapon choice. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Equip Insight Giant Thresher for additional Mana Regeneration, Chains of Honor Archon Plate, and Cure Diadem grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly.",
+          "With the addition of Crack of the Heavens, all Immunities are broken and our combined -xx% Enemy Lightning Resistance gear brings monster's Resistances low enough to deal damage!"
+        ],
+        "review": "2026-09-26: Reviewed named lightning helmet at native minimum rolls, with per-child ordinary/Colossal Jewel matching. Lightning modifiers desirable; skills/FCR and defense evaluated separately from full gear and socket premiums. Perfect illustrative jewel rolls are targets, not minimum utility. FoH table/planner options remain explicit; no fabricated numeric price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/336"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/421"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Actual linked lightning jewel matching the reviewed socket option",
+          "when": {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "name": "Guardian's Thunder",
+            "stats": {
+              "330:0": 5,
+              "334:0": 5
+            }
+          }
+        }
+      ],
+      "preferences": []
+    },
+    {
+      "id": "nova-sorceress-guide-2-griffon-eye",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Lightning damage and casting helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Griffon's Eye"
+      ],
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "330:0",
+        "334:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Native10%lightning damage/15%enemy-lightning reduction rolls retain useful lightning support; socket additions and perfect native rolls are separate.",
+        "Faster Cast Rate supports casting and Teleport; this helmet alone does not establish a complete breakpoint, immunity solution or full resistance loadout.",
+        "Current cited socket is Guardian's Thunder; its native5\u201310 elemental rolls remain usable. Historical Rainbow Facet examples do not replace the current planner payload."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-26: Reviewed named lightning helmet at native minimum rolls, with per-child ordinary/Colossal Jewel matching. Lightning modifiers desirable; skills/FCR and defense evaluated separately from full gear and socket premiums. Perfect illustrative jewel rolls are targets, not minimum utility. FoH table/planner options remain explicit; no fabricated numeric price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/336"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/421"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Actual linked lightning jewel matching the reviewed socket option",
+          "when": {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "name": "Guardian's Thunder",
+            "stats": {
+              "330:0": 5,
+              "334:0": 5
+            }
+          }
+        }
+      ],
+      "preferences": []
+    },
+    {
+      "id": "nova-sorceress-guide-3-griffon-eye",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Lightning damage and casting helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Griffon's Eye"
+      ],
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "330:0",
+        "334:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Native10%lightning damage/15%enemy-lightning reduction rolls retain useful lightning support; socket additions and perfect native rolls are separate.",
+        "Faster Cast Rate supports casting and Teleport; this helmet alone does not establish a complete breakpoint, immunity solution or full resistance loadout.",
+        "In Hydra Hybrid, the elemental bonuses support Nova/lightning damage; they do not increase Hydra fire damage.",
+        "Current cited socket is Guardian's Thunder; its native5\u201310 elemental rolls remain usable. Historical Rainbow Facet examples do not replace the current planner payload."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances.",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning. Hydra is also an incredible damage boost to any Act Boss fight.",
+          "This Fire Hybrid is Life-based because Hydra requires the remaining Skill Points after maxing out Nova damage. Faster Cast Rate is a lot easier to reach, allowing you to use Chains of Honor in combination with Charms to cap out Resistances.",
+          "Note: The Mana management is more difficult and this variant is less durable than any other version.",
+          "The Mercenary is clear-cut across all variants. Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference. Use Infinity Giant Thresher, Chains of Honor Archon Plate, and Cure Diadem for maximum damage output and durability."
+        ],
+        "review": "2026-09-26: Reviewed named lightning helmet at native minimum rolls, with per-child ordinary/Colossal Jewel matching. Lightning modifiers desirable; skills/FCR and defense evaluated separately from full gear and socket premiums. Perfect illustrative jewel rolls are targets, not minimum utility. FoH table/planner options remain explicit; no fabricated numeric price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/336"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/421"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Actual linked lightning jewel matching the reviewed socket option",
+          "when": {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "name": "Guardian's Thunder",
+            "stats": {
+              "330:0": 5,
+              "334:0": 5
+            }
+          }
+        }
+      ],
+      "preferences": []
+    },
+    {
+      "id": "nova-sorceress-guide-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Sorceress)",
+          "The best setup for Nova utilizes Infinity Scythe as weapon to maximize damage against monsters Immune to Lightning; self-using Infinity opens up the Mercenary to use Insight for much better Mana Regeneration."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "nova-sorceress-guide-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Sorceress)",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "nova-sorceress-guide-3-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/3/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Sorceress)",
+          "The Hydra-Hybrid adds a source of Fire Damage to deal with monsters Immune to Lightning; Hydra is also an incredible damage boost to any Act Boss fight. This Fire Hybrid is Life-based; FCR is easier to reach, allowing Chains of Honor with Charms to cap Resistances."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "nova-sorceress-guide-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/merc/Body Armor/early/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/merc/Helmet/early/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-early-merc-cure",
+      "template": "merc_survival",
+      "item": "Cure",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Cure"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-1-merc-cure",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/1",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure Diadem (ethereal) \u2014 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'",
+          "Act 2 Might or Holy Freeze \u2014 'Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference' (planner: Holy Freeze, id 10)",
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-26: Reviewed exact ethereal Cure helmet and mercenary choice from this guide variant. Native level1 Cleansing shortens curse/poison duration; it does not independently heal. Prayer synergy belongs only to actual Prayer mercenaries. Perfect defense/resistance rolls not required; complete gear and equip requirements remain separate."
+      },
+      "conditions": [
+        "Verify mercenary level, strength and dexterity requirements. Ethereal durability is safe on mercenaries; no automatic price premium is inferred.",
+        "Cleansing reduces curse and poison duration; healing through Prayer requires an actual Prayer mercenary. Cure alone does not establish the Prayer/Insight combination or supply life leech.",
+        "Guide-specific ethereal base; this component does not establish the full loadout.",
+        "The cited Might/Holy Freeze mercenary does not gain Prayer healing from Cure. The guide healing wording is not a supported property of this setup; Cleansing still shortens poison and curses."
+      ],
+      "role": "Mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Cure"
+      ],
+      "types": [
+        "helm",
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Cure"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "151:109",
+        "45:0",
+        "110:0",
+        "76:0",
+        "99:0"
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-2-merc-cure",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure Diadem (ethereal)",
+          "Act 2 Might or Holy Freeze (planner: Holy Freeze)",
+          "Insight Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-26: Reviewed exact ethereal Cure helmet and mercenary choice from this guide variant. Native level1 Cleansing shortens curse/poison duration; it does not independently heal. Prayer synergy belongs only to actual Prayer mercenaries. Perfect defense/resistance rolls not required; complete gear and equip requirements remain separate."
+      },
+      "conditions": [
+        "Verify mercenary level, strength and dexterity requirements. Ethereal durability is safe on mercenaries; no automatic price premium is inferred.",
+        "Cleansing reduces curse and poison duration; healing through Prayer requires an actual Prayer mercenary. Cure alone does not establish the Prayer/Insight combination or supply life leech.",
+        "Guide-specific ethereal base; this component does not establish the full loadout.",
+        "The cited Might/Holy Freeze mercenary does not gain Prayer healing from Cure. The guide healing wording is not a supported property of this setup; Cleansing still shortens poison and curses."
+      ],
+      "role": "Mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Cure"
+      ],
+      "types": [
+        "helm",
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Cure"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "151:109",
+        "45:0",
+        "110:0",
+        "76:0",
+        "99:0"
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-3-merc-cure",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/3",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure Diadem (ethereal)",
+          "Act 2 Might or Holy Freeze \u2014 'The Mercenary is clear-cut across all variants' (planner: Holy Freeze)",
+          "Infinity Giant Thresher (ethereal) \u2014 merc holds Infinity since player uses Eschuta's"
+        ],
+        "review": "2026-09-26: Reviewed exact ethereal Cure helmet and mercenary choice from this guide variant. Native level1 Cleansing shortens curse/poison duration; it does not independently heal. Prayer synergy belongs only to actual Prayer mercenaries. Perfect defense/resistance rolls not required; complete gear and equip requirements remain separate."
+      },
+      "conditions": [
+        "Verify mercenary level, strength and dexterity requirements. Ethereal durability is safe on mercenaries; no automatic price premium is inferred.",
+        "Cleansing reduces curse and poison duration; healing through Prayer requires an actual Prayer mercenary. Cure alone does not establish the Prayer/Insight combination or supply life leech.",
+        "Guide-specific ethereal base; this component does not establish the full loadout.",
+        "The cited Might/Holy Freeze mercenary does not gain Prayer healing from Cure. The guide healing wording is not a supported property of this setup; Cleansing still shortens poison and curses."
+      ],
+      "role": "Mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Cure"
+      ],
+      "types": [
+        "helm",
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Cure"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "151:109",
+        "45:0",
+        "110:0",
+        "76:0",
+        "99:0"
+      ]
+    },
+    {
+      "id": "nova-sorceress-guide-waterwalk-boots-alternative",
+      "template": "player_footwear",
+      "item": "Waterwalk",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Waterwalk"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/238"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Boots/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-ground-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Ground",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Helmets/4",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ground"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-ground-merc-early",
+      "template": "merc_survival",
+      "item": "Ground",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/merc/Helmet/early/3",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ground"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-verdungo-s-hearty-cord-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Verdungo's Hearty Cord",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Belts/3",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Verdungo's Hearty Cord"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/376"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-string-of-ears-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "String of Ears",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Belts/4",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "String of Ears"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/242"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-frostburn-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Frostburn",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Gloves/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Frostburn"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/106"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-chance-guards-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Chance Guards",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Gloves/3",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chance Guards"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/104"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-goldwrap-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Goldwrap",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Belts/1",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldwrap"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/115"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-magefist-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Magefist",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Gloves/0",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/105"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-silkweave-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Silkweave",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Boots/0",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Silkweave"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/239"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/boot"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/merc/Helmet/mid/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-tal-rasha-s-adjudication-tal-player-alternative",
+      "template": "named_player_utility",
+      "item": "Tal Rasha's Adjudication",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Amulets/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tal Rasha's Adjudication"
+        ],
+        "review": "2026-09-26: Reviewed exact guide player set-piece alternative. Native and legally upgraded bases accepted, never downgraded identities; sets cannot be ethereal. Only native standalone stats prioritized: armor MF/MDR/resistance, amulet Sorceress skills/resources, belt MF/resources, orb FCR/resources and the build-relevant elemental mastery. Conditional set bonuses require actual companion equipment and are not inferred from one piece. Meteor primary Fire Ball, Blizzard cold and Lightning lightning mastery priorities are source-backed. No numerical price or finished set ownership follows from a gear-table mention.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Tal Rasha's Adjudication"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/amul"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-tal-rasha-s-fine-spun-cloth-tal-player-alternative",
+      "template": "named_player_utility",
+      "item": "Tal Rasha's Fine-Spun Cloth",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/slots/Belts/2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tal Rasha's Fine-Spun Cloth"
+        ],
+        "review": "2026-09-26: Reviewed exact guide player set-piece alternative. Native and legally upgraded bases accepted, never downgraded identities; sets cannot be ethereal. Only native standalone stats prioritized: armor MF/MDR/resistance, amulet Sorceress skills/resources, belt MF/resources, orb FCR/resources and the build-relevant elemental mastery. Conditional set bonuses require actual companion equipment and are not inferred from one piece. Meteor primary Fire Ball, Blizzard cold and Lightning lightning mastery priorities are source-backed. No numerical price or finished set ownership follows from a gear-table mention.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Tal Rasha's Fire-Spun Cloth"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "third-parties/d2data/json/cubemain.json",
+            "sha256": "0b3deb18f4b1605e72a11a8d72e8ce73f1fbd662546d2a875d182be9b70b53e8",
+            "locator": "/154"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-the-oculus-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "The Oculus",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Weapon/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Oculus"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Chance to cast Teleport when struck can move the wearer unexpectedly. Casting alone does not consume weapon durability, so an ethereal casting copy remains usable; melee attacks are a separate durability concern. Check the complete casting breakpoint and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/284",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-lidless-wall-off-hand-shield-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Lidless Wall",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lidless Wall"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/230",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-player-memory-weapon-swap-main-alternatives-word-utility-alternative",
+      "template": "player_progression_equipment",
+      "item": "Memory",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Weapon-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Memory"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Memory",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-entropy-locket-caster-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Entropy Locket",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Amulets/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Entropy Locket"
+        ],
+        "review": "2026-09-27: Reviewed exact casting/utility guide alternative. Match damage types and observed skill tabs; exclude incompatible attack modifiers and unproven triggered effects. Casting speed, mana and survival support the listed builds. Magic Skill Damage supports the Echoing Strike build through active Hex: Purge magic damage, not the physical echoes themselves; it does not multiply Nova lightning damage. Miasma Chains requires an on-striking event, which Echoing Strike cannot trigger. No additional skill levels are supplied. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/417",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/48",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-player-crescent moon-weapon-main-alternatives-caster-word-remainder",
+      "template": "player_progression_equipment",
+      "item": "Crescent Moon",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Crescent Moon"
+        ],
+        "review": "2026-09-27: Reviewed exact caster weapon recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Crescent Moon",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r22",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r03",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-renewed-crack-of-the-heavens-main-alternatives-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/slots/Unique Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-renewed-crack-of-the-heavens-standard-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens (planner: 'Crafted Crack of the Heavens' Sunder Charm \u2014 24 FHR, 10% Lightning pierce, 75 Mana, 10 DR, 25 MF)"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-renewed-crack-of-the-heavens-magic-find-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-renewed-crack-of-the-heavens-hydra-hybrid-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Crack of the Heavens",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Crack of the Heavens"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/434",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-guardian-s-thunder-v1-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Guardian's Thunder",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Griffon's Eye",
+      "element": "lightning",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/421",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-rainbow-facet-v1-body-armor-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Rainbow Facet",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "host": "Skin of the Vipermagi",
+      "element": "lightning",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/1/player/Body Armor/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Vipermagi Serpentskin Armor (Rainbow Facet Jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/392",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/396",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-guardian-s-thunder-v2-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Guardian's Thunder",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Griffon's Eye",
+      "element": "lightning",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/421",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-guardian-s-thunder-v3-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Guardian's Thunder",
+      "class": "Sorceress",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Griffon's Eye",
+      "element": "lightning",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/3/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/421",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-sorceress-guide-2-vipermagi-ist",
+      "build": "nova-sorceress-guide",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Magic Find Vipermagi with Ist Rune",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              }
+            ]
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_runes_equal",
+            "value": [
+              "Ist Rune"
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "Verify self-equipped Infinity and the complete Energy Shield/mana setup; poison resistance is the cited resistance priority, while other resistances remain supporting protection.",
+        "The MF variant replaces the armor Rainbow Facet with Ist and changes charms; the retained gear still needs the full 105% cast-rate setup.",
+        "The socket payload must be captured on this armor; equal parent totals do not establish an actual linked rune or jewel. Useful native resistance rolls need not be perfect; no numerical price follows from build suitability."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Skin of the Vipermagi Serpentskin Armor (Ist Rune)",
+          "With few changes you can easily get your Magic Find above 300: replace all your charms with Small Charm of Good Luck with Mana or Resistances, and replace the Rainbow Facet Jewel in your Armor with an Ist rune.",
+          "With few changes you can easily get your Magic Find above 300. Simply replace all your charms with Small Charm of Good Luck with Mana or Resistances. Replace the Rainbow Facet Jewel in your Armor with an ist rune."
+        ],
+        "review": "2026-09-29: Reviewed exact Magic Find armor socket from structured guide. Nova actual Ist socket contributes25MF in armor; preserve105totalFCR and native Serpentskin base constraint. Preserve native armor role separately, actual child identity, nonethereal/class and complete setup qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          }
+        ]
       }
     }
   ]

@@ -7,9 +7,11 @@ from pricing.knowledge.assessment.handlers.socket_fillers import compare_equipme
 from pricing.knowledge.assessment.mechanics.affixed_charges import affixed_charge_properties
 from pricing.knowledge.assessment.mechanics.affixed_cold import affixed_cold_properties
 from pricing.knowledge.assessment.mechanics.affixed_per_level import affixed_per_level_properties
+from pricing.knowledge.assessment.mechanics.affixed_physical import affixed_physical_properties
 from pricing.knowledge.assessment.mechanics.affixed_poison import affixed_poison_properties
 from pricing.knowledge.assessment.mechanics.affixed_triggers import affixed_trigger_properties
 from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
+from pricing.knowledge.assessment.mechanics.shield_blocking import modifier_blocking
 from pricing.knowledge.assessment.mechanics.superior_quality import (
     superior_flat_damage,
     superior_roll_gaps,
@@ -67,6 +69,7 @@ def exact_contract(facts, family, policy, supported):
             affixed_per_level_properties,
             affixed_cold_properties,
             affixed_poison_properties,
+            affixed_physical_properties,
         ):
             values, keys, errors = project(facts)
             for key, value in values.items():
@@ -102,6 +105,8 @@ def exact_contract(facts, family, policy, supported):
         quality_facts = socket_comparison.facts if socket_comparison else facts
         gaps.extend(superior_roll_gaps(quality_facts, 'weapons' if family == 'weapon' else 'armor'))
     properties = comparison_properties(facts, family, gaps)
+    if family == 'shield':
+        modifier_blocking(facts, properties, gaps)
     for key, value in affix_properties.items():
         if key in properties and properties[key] != value:
             gaps.append(f'Affix effect market property {key} conflicts with captured component.')

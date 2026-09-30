@@ -1,0 +1,205 @@
+{
+  "item": {
+    "name": "Sacred Rondache",
+    "base_name": "Sacred Rondache",
+    "base_code": "pac",
+    "item_type": "ashd",
+    "identified": true,
+    "category": "armor",
+    "rarity": "normal",
+    "requirements": {},
+    "affixes": [
+      {
+        "property_id": "446",
+        "value": 28,
+        "label": "{{value}}% Increased Chance of Blocking",
+        "memory_stat": {
+          "layer": 0,
+          "id": 20,
+          "raw": 28
+        },
+        "descriptor_offset": 232
+      },
+      {
+        "property_id": "427",
+        "value": 27,
+        "label": "Fire Resist +{{value}}%",
+        "memory_stat": {
+          "layer": 0,
+          "id": 39,
+          "raw": 27
+        },
+        "descriptor_offset": 232
+      },
+      {
+        "property_id": "428",
+        "value": 27,
+        "label": "Lightning Resist +{{value}}%",
+        "memory_stat": {
+          "layer": 0,
+          "id": 41,
+          "raw": 27
+        },
+        "descriptor_offset": 232
+      },
+      {
+        "property_id": "426",
+        "value": 27,
+        "label": "Cold Resist +{{value}}%",
+        "memory_stat": {
+          "layer": 0,
+          "id": 43,
+          "raw": 27
+        },
+        "descriptor_offset": 232
+      },
+      {
+        "property_id": "401",
+        "value": 27,
+        "label": "Poison Resist +{{value}}%",
+        "memory_stat": {
+          "layer": 0,
+          "id": 45,
+          "raw": 27
+        },
+        "descriptor_offset": 232
+      }
+    ],
+    "sockets": 0,
+    "ethereal": false,
+    "socket_contents": "empty",
+    "empty_sockets": 0,
+    "filled_sockets": 0
+  },
+  "source": {
+    "engine": "memory_snapshot",
+    "viewer_context": {
+      "player_id": 3027025597,
+      "level": 92
+    },
+    "container": {
+      "page": 3,
+      "name": "Horadric Cube"
+    },
+    "unit_id": 738527309,
+    "owner_id": 3027025597,
+    "owner_type": 0,
+    "item_owner_id": 3027025597,
+    "player_id": 3027025597,
+    "position": [
+      0,
+      0
+    ],
+    "run_id": null,
+    "captured_at": "2026-09-27T11:45:15.720974+00:00",
+    "snapshot_only": true,
+    "stat_capture_complete": true,
+    "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+  },
+  "unresolved_stats": [],
+  "decoded_stats": [
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 20,
+        "raw": 28
+      },
+      "status": "decoded",
+      "name": "toblock",
+      "text": "28% Increased Chance of Blocking",
+      "value": 28,
+      "label": "{{value}}% Increased Chance of Blocking"
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 31,
+        "raw": 160
+      },
+      "status": "decoded",
+      "name": "armorclass",
+      "text": "Defense: 160",
+      "value": 160
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 39,
+        "raw": 27
+      },
+      "status": "decoded",
+      "name": "fireresist",
+      "text": "Fire Resist +27%",
+      "value": 27,
+      "label": "Fire Resist +{{value}}%"
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 41,
+        "raw": 27
+      },
+      "status": "decoded",
+      "name": "lightresist",
+      "text": "Lightning Resist +27%",
+      "value": 27,
+      "label": "Lightning Resist +{{value}}%"
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 43,
+        "raw": 27
+      },
+      "status": "decoded",
+      "name": "coldresist",
+      "text": "Cold Resist +27%",
+      "value": 27,
+      "label": "Cold Resist +{{value}}%"
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 45,
+        "raw": 27
+      },
+      "status": "decoded",
+      "name": "poisonresist",
+      "text": "Poison Resist +27%",
+      "value": 27,
+      "label": "Poison Resist +{{value}}%"
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 72,
+        "raw": 66
+      },
+      "status": "decoded",
+      "name": "durability",
+      "text": "Durability: 66",
+      "value": 66
+    },
+    {
+      "memory_stat": {
+        "layer": 0,
+        "id": 73,
+        "raw": 68
+      },
+      "status": "decoded",
+      "name": "maxdurability",
+      "text": "Maximum durability: 68",
+      "value": 68
+    }
+  ],
+  "issues": [],
+  "review": [
+    "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+    "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+    "Values are from the captured total stat array; socket/set contributions are not separated.",
+    "Snapshot evidence is historical; it does not establish current inventory state."
+  ],
+  "appraisal_ready": false,
+  "offline": true,
+  "status": "needs_review"
+}

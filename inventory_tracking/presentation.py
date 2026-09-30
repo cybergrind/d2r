@@ -30,11 +30,21 @@ class Tone(StrEnum):
     DEMAND = 'demand'
     PREFERRED = 'preferred'
     LEVELING = 'leveling'
+    TIER_HIGH = 'tier_high'
+    TIER_MED = 'tier_med'
+    TIER_LOW = 'tier_low'
+    TIER_TRASH = 'tier_trash'
     ETHEREAL_TARGET = 'ethereal_target'
     ETHEREAL_DESIRED = 'ethereal_desired'
     ETHEREAL_UNDESIRED = 'ethereal_undesired'
     STAT_DESIRABLE = 'stat_desirable'
     STAT_SUPPORTING = 'stat_supporting'
+    # Level guide / loot marks (user, 2026-09-30): one colour per POI kind.
+    LEVEL_NEXT = 'level_next'
+    LEVEL_PREVIOUS = 'level_previous'
+    WAYPOINT = 'waypoint'
+    POI = 'poi'
+    EXIT = 'exit'
 
 
 PALETTE = MappingProxyType(
@@ -58,11 +68,20 @@ PALETTE = MappingProxyType(
         Tone.DEMAND: 'bold bright_cyan',
         Tone.PREFERRED: 'bold bright_green',
         Tone.LEVELING: 'bold #66ddbb',
+        Tone.TIER_HIGH: 'bold #55ff55',
+        Tone.TIER_MED: 'bold #ffff55',
+        Tone.TIER_LOW: 'bold #77aaff',
+        Tone.TIER_TRASH: 'bold #ff5555',
         Tone.ETHEREAL_TARGET: '#77aaff',
         Tone.ETHEREAL_DESIRED: 'bright_green',
         Tone.ETHEREAL_UNDESIRED: 'bright_red',
         Tone.STAT_DESIRABLE: 'bright_green',
         Tone.STAT_SUPPORTING: '#77aaff',
+        Tone.LEVEL_NEXT: '#44e05a',
+        Tone.LEVEL_PREVIOUS: '#c080ff',
+        Tone.WAYPOINT: '#6fa8ff',
+        Tone.POI: '#ffee33',
+        Tone.EXIT: '#dddddd',
     }
 )
 
@@ -79,14 +98,19 @@ class StyledLine:
     tone: Tone = Tone.DEFAULT
     osd: bool = True
     spans: tuple[StyledSpan, ...] = ()
+    arrow: str | None = None
 
     def __post_init__(self):
+        if self.arrow is not None and self.arrow not in ('→', '↗', '↑', '↖', '←', '↙', '↓', '↘'):
+            raise ValueError('Invalid directional arrow')
         object.__setattr__(self, 'spans', tuple(self.spans))
         if self.spans and ''.join(span.text for span in self.spans) != self.text:
             raise ValueError('Styled spans must preserve the complete literal line')
 
     def to_payload(self) -> dict:
         result = {'text': self.text, 'tone': self.tone.value}
+        if self.arrow is not None:
+            result['arrow'] = self.arrow
         if self.spans:
             result['spans'] = [{'text': span.text, 'tone': span.tone.value} for span in self.spans]
         return result
@@ -104,6 +128,7 @@ class StyledLine:
             value['text'],
             Tone(value.get('tone', 'default')),
             spans=tuple(StyledSpan(span['text'], Tone(span.get('tone', 'default'))) for span in spans),
+            arrow=value.get('arrow'),
         )
 
 
@@ -114,6 +139,13 @@ def render_rich(lines: Iterable[StyledLine]) -> Text:
             text.append(span.text, style=PALETTE[span.tone])
         text.append('\n')
     return text
+
+
+def tone_rgb(tone: Tone) -> tuple[float, float, float]:
+    """The tone's foreground as cairo RGB floats (white when the palette entry has no colour)."""
+    color = Style.parse(PALETTE[tone]).color
+    red, green, blue = color.get_truecolor() if color else (255, 255, 255)
+    return red / 255, green / 255, blue / 255
 
 
 def render_markup(lines: Iterable[StyledLine]) -> str:

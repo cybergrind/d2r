@@ -1,4 +1,6 @@
+import json
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 
@@ -8,7 +10,12 @@ from pricing.knowledge.assessment.stat_bundle import validate_stat_bundle
 
 def test_compiled_stats_are_embedded_and_tampering_is_rejected():
     document = build()
-    assert len(document['stat_evaluation']['configurations']) == 256
+    reviews = json.loads(Path('pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
+    expected = {row['id'] for row in reviews}
+    configurations = document['stat_evaluation']['configurations']
+    assert expected
+    assert len(configurations) == len(expected) == len(reviews)
+    assert {row['id'] for row in configurations} == expected
     validate_stat_bundle(document)
     changed = deepcopy(document)
     changed['stat_evaluation']['configurations'][0]['priorities'][0]['desirability'] = 'supporting'
@@ -37,7 +44,7 @@ def test_pinned_bundle_supplies_stats_and_legacy_bundle_cannot_read_worktree_rev
     ]
     with repository.snapshot():
         result = assess(extraction)
-        assert len(result['stat_evaluation']['configurations']) == 13
+        assert len(result['stat_evaluation']['configurations']) == 27
         assert set(result['stat_evaluation']['annotations']) == {'188:9', '105:0'}
         assert {r['status'] for r in result['stat_evaluation']['configurations']} == {'failed', 'matched'}
         assert 'stat_evaluation' not in assess(extraction, profiles=[])

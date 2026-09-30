@@ -9,6 +9,8 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
+from pricing.knowledge.assessment.maintenance.guide_spans import occurrence_source
+
 
 ROOT = Path(__file__).resolve().parents[4]
 SCOPE = ('build', 'variant', 'side', 'slot')
@@ -16,6 +18,7 @@ SCOPE = ('build', 'variant', 'side', 'slot')
 
 def audit_occurrences(occurrences, profiles):
     index = defaultdict(list)
+    source_keys = {profile['id']: occurrence_source(profile['source']) for profile in profiles}
     for profile in profiles:
         index[tuple(profile.get(key) for key in SCOPE)].append(profile)
     rows, seen = [], set()
@@ -30,8 +33,8 @@ def audit_occurrences(occurrences, profiles):
         source_rules = [
             p['id']
             for p in related
-            if p['source']['path'] == occurrence.get('source_id')
-            and (locator == p['source']['locator'] or locator.startswith(p['source']['locator'].rstrip('/') + '/'))
+            if source_keys[p['id']][0] == occurrence.get('source_id')
+            and (locator == source_keys[p['id']][1] or locator.startswith(source_keys[p['id']][1].rstrip('/') + '/'))
         ]
         status = (
             'discovery_only'

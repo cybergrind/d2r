@@ -85,3 +85,33 @@ Gameplay priorities: 31, 155, 219, 358. Internal classification candidates:
   magicprefix,magicsuffix,automagic,gems,sets}.json: local definition references.
 
 Audit scratch details: /tmp/d2r-stat-audit.json; script: /tmp/d2r-stat-audit.py.
+
+## 2026-09-30 — Shield blocking totals
+
+Native stat 20 (`toblock`) on shield-family bases contains native base blocking.
+Local D2MOO `source/D2Common/src/Items/Items.cpp:5364` sets it from `nBlock`;
+`third-parties/d2data/json/armor.json` gives Monarch 22 and Sacred Rondache 28.
+The saved Spirit Monarch raw capture has 22 without a blocking affix. Local
+itemtypes identifies `shie`, `ashd`, `head` and `grim` as shield descendants.
+
+Decoder output now says `Shield blocking (base + bonuses): N%` and marks
+`origin=shield_block_total`. It preserves raw/value and existing property ID;
+ordinary non-shield bonuses (Guardian Angel 20) keep the bonus label. Roll
+annotation rejects this origin: overlapping raw totals do not prove affix rolls.
+This is not the wearer's chance to block, which also depends on class/level/
+Dexterity and game state.
+
+Base/affixed shield comparisons now subtract the verified native base before
+matching market property 446. JMOD total 42 becomes bonus 20; an unmodified
+Sacred Rondache total 28 contributes no blocking modifier. Missing, malformed or
+conflicting base/total evidence blocks comparison. Socket effects are not removed
+by this projection and existing filled-socket policies remain in force. Named shields now use the same native-base projection in a local modifier view
+for fixed-property and variable-roll comparison, preserving original capture facts.
+Original/upgraded Civerb's Ward, Visceratuant and variable Spirit Ward are covered.
+Completed-runeword comparisons now use the same modifier view: Rhyme compares
+its +20 bonus and Spirit has no blocking modifier. Fixed recipe/rune bonuses are
+retained as intrinsic listing defaults, but native base blocking is never one.
+Spirit Ward bonuses outside 20–30 fail named roll validation. These checks concern
+comparison semantics, not proof that market evidence exists for every shield.
+The decoded-only Sacred Rondache replay preserves its historical text; it is not
+raw-decoder coverage. Fresh native decoding is covered by the direct unit cases.

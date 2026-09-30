@@ -356,6 +356,8 @@ def build():
     profiles = load('pricing/data/appraisal-build-profiles.json')['profiles']
     targets, audit, inventory = [], [], []
     for profile in profiles:
+        if profile.get('scope', 'softcore') != 'softcore' or profile.get('season', 'non_ladder') != 'non_ladder':
+            continue
         if 'magic' not in profile.get('qualities', []):
             continue
         targets.append(

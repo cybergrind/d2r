@@ -122,12 +122,14 @@ def audit(rows, *, today, all_items=False):
         groups[quality, row['name'], policy(category, quality)].append(row)
     items = []
     totals = defaultdict(Counter)
+    blockers = defaultdict(Counter)
     for (quality, name, selected_policy), candidates in sorted(groups.items()):
         counts, examples, ready = Counter(), defaultdict(list), 0
         for row in candidates:
             missing = gaps(row, today)
             ready += not missing
-            counts.update(missing)
+            counts.update(set(missing))
+            blockers[selected_policy].update(set(missing))
             for key in missing:
                 if len(examples[key]) < 2:
                     examples[key].append({k: row.get(k) for k in ('listing_id', 'source')})
@@ -142,15 +144,29 @@ def audit(rows, *, today, all_items=False):
                 'examples': dict(examples),
             }
         )
-        totals[selected_policy].update(scoped_observations=len(candidates), structurally_ready=ready, identities=1)
+        totals[selected_policy].update(
+            scoped_observations=len(candidates),
+            structurally_ready=ready,
+            blocked_observations=len(candidates) - ready,
+            identities=1,
+        )
     return {
         'schema_version': 1,
-        **({'by_policy': {key: dict(value) for key, value in sorted(totals.items())}} if all_items else {}),
+        **(
+            {
+                'by_policy': {
+                    key: {**value, 'blocker_counts': dict(sorted(blockers[key].items()))}
+                    for key, value in sorted(totals.items())
+                }
+            }
+            if all_items
+            else {}
+        ),
         'as_of': today.isoformat(),
         'limitation': (
             'Structural prerequisites only. Ready rows may still lack required rolls, match no captured variant, '
             'fail captured socket-contribution checks, or fail independent-seller/dispersion gates. '
-            'No tier or price is inferred.'
+            'Blocker counts overlap; blocked_observations counts each row once. No tier or price is inferred.'
         ),
         'items': items,
     }

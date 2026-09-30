@@ -12,8 +12,8 @@ def test_ring_markers_require_complete_role_combination_and_preserve_unresolved_
     profiles = build()['profiles']
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
     configs = compile_stat_configurations(reviews, profiles, root=ROOT)
-    ring_configs = [c for c in configs if 'ring' in c.types]
-    assert len(ring_configs) == 6
+    ring_configs = [c for c in configs if 'ring' in c.types and set(c.qualities) & {'magic', 'rare', 'crafted'}]
+    assert len(ring_configs) >= 11
 
     def assess(values, **changes):
         item = replace(

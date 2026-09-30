@@ -91,20 +91,6 @@ def test_hover_probe_error_hides_visible_result(monkeypatch):
     assert frames[-1] is None
 
 
-def test_display_lease_hides_on_worker_stall_missing_or_bad_frame(tmp_path):
-    from inventory_tracking.appraisal.overlay import read_display
-    from inventory_tracking.reports import publish
-
-    path = tmp_path / 'osd.json'
-    assert read_display(path, 10) == []
-    publish(path, {'checked_at': 10, 'lines': ['Ring', 'Price unknown']})
-    assert read_display(path, 10.1) == ['Ring', 'Price unknown']
-    assert read_display(path, 11.5) == []
-    assert read_display(path, 9) == []
-    path.write_text('{')
-    assert read_display(path, 10) == []
-
-
 def test_cache_key_ignores_capture_time_but_preserves_viewer_and_raw_facts():
     import copy
 
@@ -127,22 +113,6 @@ def test_cache_key_ignores_capture_time_but_preserves_viewer_and_raw_facts():
     other['observation']['unresolved_stats'][0]['raw'] = 2
     assert item_key(other) != item_key(frozen)
     assert frozen['observation']['source']['captured_at'] == 'yesterday'
-
-
-def test_overlay_process_clears_and_reaps_on_service_failure(tmp_path, monkeypatch):
-    from unittest.mock import Mock
-
-    import pytest
-
-    from inventory_tracking.appraisal import overlay
-
-    process = Mock(returncode=0)
-    monkeypatch.setattr(overlay.subprocess, 'Popen', Mock(return_value=process))
-    with pytest.raises(RuntimeError, match='service failed'), overlay.overlay_process(tmp_path, True) as path:
-        raise RuntimeError('service failed')
-    process.terminate.assert_called_once()
-    process.wait.assert_called_once_with(timeout=3)
-    assert overlay.read_display(path, overlay.time.monotonic()) == []
 
 
 def test_cache_is_bounded_and_hit_does_not_extend_expiration():

@@ -47,6 +47,18 @@ def location_label(placement) -> str:
     return where
 
 
+def character_payload(store: CollectionStore, character) -> dict[str, Any]:
+    """A character row plus its latest sheet (None until a capture recorded one)."""
+    payload = character.model_dump()
+    latest = store.character_stats(character.name)
+    if latest:
+        seen_at, sheet = latest[0]
+        payload['stats'] = {'seen_at': seen_at, 'summary': sheet.summary, 'lines': sheet.lines, **sheet.sheet()}
+    else:
+        payload['stats'] = None
+    return payload
+
+
 def export_payload(store: CollectionStore) -> dict[str, Any]:
     rows = []
     for item, placement in store.query():
@@ -83,7 +95,7 @@ def export_payload(store: CollectionStore) -> dict[str, Any]:
         )
     return {
         'generated_at': store.db.execute("SELECT strftime('%Y-%m-%dT%H:%M:%SZ','now')").fetchone()[0],
-        'characters': [c.model_dump() for c in store.characters()],
+        'characters': [character_payload(store, c) for c in store.characters()],
         'counts': store.counts(),
         'spaces': [
             {

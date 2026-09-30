@@ -34,7 +34,8 @@ def resolve_pointer(document, locator):
 
 
 def source_identity(key, row):
-    quality = {'uniques': 'unique', 'sets': 'set'}.get(row.get('type'), row.get('type'))
+    kind = row.get('type', row.get('rarity'))
+    quality = {'uniques': 'unique', 'sets': 'set'}.get(kind, kind)
     if key.startswith('UQ-'):
         quality = 'unique'
     elif key.startswith('ST-'):

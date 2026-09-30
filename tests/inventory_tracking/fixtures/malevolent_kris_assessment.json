@@ -1,0 +1,601 @@
+{
+  "source": "inventory_tracking/runs/alt-d/20260928T061011Z-a257c062/request-33/report.json",
+  "result": {
+    "extraction": {
+      "item": {
+        "name": "Kriss",
+        "base_name": "Kriss",
+        "base_code": "kri",
+        "item_type": "knif",
+        "identified": true,
+        "category": "weapons",
+        "rarity": "magic",
+        "requirements": {},
+        "affixes": [],
+        "sockets": 0,
+        "ethereal": false,
+        "socket_contents": "empty",
+        "empty_sockets": 0,
+        "filled_sockets": 0
+      },
+      "source": {
+        "engine": "memory_snapshot",
+        "native_affixes": {
+          "prefix": [
+            1496
+          ],
+          "suffix": [
+            202
+          ],
+          "auto": []
+        },
+        "viewer_context": {
+          "player_id": 3133670684,
+          "level": 92
+        },
+        "container": {
+          "page": 0,
+          "name": "Main inventory"
+        },
+        "unit_id": 541072671,
+        "owner_id": 3133670684,
+        "owner_type": 0,
+        "item_owner_id": 3133670684,
+        "player_id": 3133670684,
+        "position": [
+          3,
+          0
+        ],
+        "run_id": null,
+        "captured_at": "2026-09-28T17:23:08.249262+00:00",
+        "snapshot_only": true,
+        "stat_capture_complete": true,
+        "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+      },
+      "unresolved_stats": [],
+      "decoded_stats": [
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 21,
+            "raw": 2
+          },
+          "status": "decoded",
+          "name": "mindamage",
+          "text": "Minimum damage: 2",
+          "value": 2
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 22,
+            "raw": 35
+          },
+          "status": "decoded",
+          "name": "maxdamage",
+          "text": "Maximum damage: 35",
+          "value": 35
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 68,
+            "raw": 20
+          },
+          "status": "decoded",
+          "name": "attackrate",
+          "text": "Base weapon speed: -20 (lower is faster; not increased attack speed)",
+          "value": -20
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 72,
+            "raw": 12
+          },
+          "status": "decoded",
+          "name": "durability",
+          "text": "Durability: 12",
+          "value": 12
+        },
+        {
+          "memory_stat": {
+            "layer": 0,
+            "id": 73,
+            "raw": 24
+          },
+          "status": "decoded",
+          "name": "maxdurability",
+          "text": "Maximum durability: 24",
+          "value": 24
+        },
+        {
+          "memory_stat": {
+            "layer": 402,
+            "id": 107,
+            "raw": 1
+          },
+          "status": "decoded",
+          "name": "item_singleskill",
+          "text": "+1 (1-3) to Abyss (Warlock Only)",
+          "value": 1,
+          "staffmod_range": {
+            "min": 1,
+            "max": 3,
+            "source": {
+              "path": "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp",
+              "symbol": "sub_6FC52650",
+              "source_date": "2026-09-23"
+            }
+          },
+          "range_label": "+{{value}} to Abyss (Warlock Only)",
+          "roll_range": {
+            "min": 1,
+            "max": 3,
+            "layer": 402,
+            "source": {
+              "path": "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp",
+              "symbol": "sub_6FC52650",
+              "source_date": "2026-09-23"
+            },
+            "scope": "native staffmod magnitude; not an affix tier"
+          },
+          "roll_quality": "low"
+        },
+        {
+          "memory_stat": {
+            "layer": 56,
+            "id": 188,
+            "raw": 3
+          },
+          "status": "decoded",
+          "name": "item_addskill_tab",
+          "text": "+3 (1-3) to Demon Skills (Warlock Only) [T1; T1: 3-3]",
+          "value": 3,
+          "label": "+{{value}} to Demon Skills (Warlock Only)",
+          "roll_range": {
+            "stat_id": 188,
+            "layer": 56,
+            "min": 3,
+            "max": 3,
+            "property": "skilltab",
+            "better": "higher",
+            "affix": "Malevolent",
+            "affix_id": 1496,
+            "source": {
+              "path": "third-parties/d2data/json/magicprefix.json",
+              "source_date": "2026-09-23",
+              "record_key": "711"
+            },
+            "tiers": [
+              {
+                "min": 3,
+                "max": 3
+              },
+              {
+                "min": 2,
+                "max": 2
+              },
+              {
+                "min": 1,
+                "max": 1
+              }
+            ],
+            "quality_range": {
+              "min": 1,
+              "max": 3
+            },
+            "scope": "captured affix tier"
+          },
+          "roll_quality": "perfect",
+          "roll_quality_range": {
+            "min": 1,
+            "max": 3,
+            "scope": "all eligible tiers for this base and rarity"
+          },
+          "roll_tier": 1,
+          "roll_tier_count": 3
+        }
+      ],
+      "issues": [],
+      "review": [
+        "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+        "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+        "Values are from the captured total stat array; socket/set contributions are not separated.",
+        "Snapshot evidence is historical; it does not establish current inventory state."
+      ],
+      "appraisal_ready": false,
+      "offline": true,
+      "status": "needs_review"
+    },
+    "assessment": {
+      "roles": [
+        {
+          "id": "abyss-starter-dagger",
+          "build": "abyss-warlock-build-guide",
+          "variant": "Before Spirit",
+          "side": "player",
+          "slot": "Weapon",
+          "role": "caster skill support",
+          "review_status": "reviewed_candidate_rule",
+          "source": {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+            "source_date": "May 22, 2026",
+            "locator": "/abyss-warlock-build-guide/variants/0",
+            "quotes": [
+              "Before you find the Runes and Base for Spirit and Ancients' Pledge, check any Daggers and Books you find for chances at bonus Skill ranks and good affixes like All Resistance on a Magic Grimoire.",
+              "An Act 2 Might Mercenary offers a solid tank that provides tons of utility and added damage, especially against the small handful of Magic Immune monsters. Insight provides easy Mana Regeneration via Meditation Aura. Bulwark is a must have for early game survivability for Life Steal. Treachery provides the Attack Speed necessary to Leech as well as Resistances via Fade."
+            ]
+          },
+          "status": "partial",
+          "rule_trace": {
+            "truth": "true",
+            "reason": "any",
+            "observed": null,
+            "expected": null,
+            "children": [
+              {
+                "truth": "false",
+                "reason": "Native stat 127:0 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 83:7 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 188:58 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "Native stat 107:402 >= 1",
+                "observed": 1,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 107:399 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              }
+            ]
+          },
+          "skill_trace": {
+            "truth": "true",
+            "reason": "any",
+            "observed": null,
+            "expected": null,
+            "children": [
+              {
+                "truth": "false",
+                "reason": "Native stat 127:0 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 83:7 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 188:58 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "Native stat 107:402 >= 1",
+                "observed": 1,
+                "expected": 1,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 107:399 >= 1",
+                "observed": 0,
+                "expected": 1,
+                "children": []
+              }
+            ]
+          },
+          "dependencies": [],
+          "equipment": null,
+          "ethereal_preference": null,
+          "preferences": [],
+          "matched": [
+            "Relevant skill bonus: +1 (1-3) to Abyss (Warlock Only)"
+          ],
+          "missing": [
+            "Pre-runeword candidate only; whole-loadout FCR and requirements need review."
+          ],
+          "failed": [],
+          "important_rolls": [
+            {
+              "id": 107,
+              "parameter": 402,
+              "raw": 1,
+              "value": 1,
+              "status": "decoded",
+              "origin": "captured_total",
+              "name": "item_singleskill",
+              "text": "+1 (1-3) to Abyss (Warlock Only)",
+              "unit": null,
+              "market_property": "1579"
+            }
+          ],
+          "alternatives": [
+            "Spirit Crystal Sword"
+          ],
+          "socket_requirement": null
+        },
+        {
+          "id": "abyss-warlock-build-guide-skill-charge-combination",
+          "build": "abyss-warlock-build-guide",
+          "variant": "Main alternatives",
+          "side": "player",
+          "slot": "Weapon",
+          "role": "Arch-Devil's Kris of Lower Resistance skill/charge combination",
+          "review_status": "reviewed_candidate_rule",
+          "source": {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/abyss-warlock-build-guide/slots/Weapon/13",
+            "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+            "source_date": "May 22, 2026",
+            "quotes": [
+              "Arch-Devil's Kris of Lower Resistance"
+            ],
+            "review": "2026-09-28: Retain +2 Warlock and observed Lower Resist charge identity together, including depleted candidates. Passive class skills remain useful without remaining charges. Skill91 native aura affects elemental/poison resistance only, not magic; available charges are supporting utility, not Abyss magic damage. Typed per-stat charge activation establishes availability; no whole-item charge dependency suppresses passive skills.",
+            "corroborating": [
+              {
+                "path": "third-parties/d2data/json/magicprefix.json",
+                "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+                "locator": "/715"
+              },
+              {
+                "path": "third-parties/d2data/json/magicsuffix.json",
+                "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+                "locator": "/594"
+              },
+              {
+                "path": "third-parties/d2data/json/skills.json",
+                "locator": "/91",
+                "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+              }
+            ]
+          },
+          "status": "failed",
+          "rule_trace": {
+            "truth": "false",
+            "reason": "all",
+            "observed": null,
+            "expected": null,
+            "children": [
+              {
+                "truth": "unknown",
+                "reason": "player_class: Warlock",
+                "observed": null,
+                "expected": "Warlock",
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "identified: True",
+                "observed": true,
+                "expected": true,
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "base_code: kri",
+                "observed": "kri",
+                "expected": "kri",
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 83:7 >= 2",
+                "observed": 0,
+                "expected": 2,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Charged skill 91: at least 0 remaining",
+                "observed": [],
+                "expected": 0,
+                "children": []
+              }
+            ]
+          },
+          "skill_trace": null,
+          "dependencies": [],
+          "equipment": null,
+          "ethereal_preference": null,
+          "preferences": [],
+          "matched": [],
+          "missing": [
+            "Warlock skill levels benefit Abyss even with depleted charges. Lower Resist affects fire, lightning, cold and poison resistance, not magic resistance; it does not directly increase Abyss damage.",
+            "Cast Lower Resist only with remaining charges for applicable elemental or poison damage. Empty non-ethereal copies can recharge; empty ethereal copies retain skills but cannot recharge. Meet equipment requirements."
+          ],
+          "failed": [
+            "Required role properties are not satisfied."
+          ],
+          "important_rolls": [],
+          "alternatives": [],
+          "socket_requirement": null
+        },
+        {
+          "id": "abyss-warlock-table-dagger-arch-devil",
+          "build": "abyss-warlock-build-guide",
+          "variant": "Gear Options dagger alternative",
+          "side": "player",
+          "slot": "Weapon",
+          "role": "Arch-Devil's Kris of Lower Resistance skill/charge combination",
+          "review_status": "reviewed_candidate_rule",
+          "source": {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/21",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+            "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+            "source_date": "May 22, 2026",
+            "quotes": [
+              "Arch-Devil's Kris of Lower Resistance"
+            ],
+            "review": "2026-09-28: Corrected exact embedded reference gsg0p0l0 set dGH5vCiB item226, verified at cached HTML position [91, 2173]. Magic Kriss with +2Warlock, LowerReslevel3/max82 charges, Abyss/Miasma/SummonDefiler staffmods and twoIst. Maximum example rolls and optional staffmods/fillers are not minimum requirements for the named caster candidate. Observed Abyss/Miasma staffmods add relevant skill ranks; passive skills remain useful with depleted charges. No physical attack/Prevent Monster Heal benefit to Abyss or active curse is inferred. Summon/Bind staffmods retain their separate summon-use context rather than adding to Abyss spell ranks.",
+            "corroborating": [
+              {
+                "path": "pricing/data/appraisal-guide-sections.json",
+                "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/sections/29",
+                "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+              },
+              {
+                "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+                "locator": "/data",
+                "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+              },
+              {
+                "path": "third-parties/d2data/json/magicprefix.json",
+                "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+                "locator": "/715"
+              },
+              {
+                "path": "third-parties/d2data/json/magicsuffix.json",
+                "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+                "locator": "/594"
+              },
+              {
+                "path": "third-parties/d2data/json/skills.json",
+                "locator": "/91",
+                "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+              },
+              {
+                "path": "pricing/data/appraisal-guide-sections.json",
+                "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/embedded_item_refs/9",
+                "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+              }
+            ]
+          },
+          "status": "failed",
+          "rule_trace": {
+            "truth": "false",
+            "reason": "all",
+            "observed": null,
+            "expected": null,
+            "children": [
+              {
+                "truth": "unknown",
+                "reason": "player_class: Warlock",
+                "observed": null,
+                "expected": "Warlock",
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "identified: True",
+                "observed": true,
+                "expected": true,
+                "children": []
+              },
+              {
+                "truth": "true",
+                "reason": "base_code: kri",
+                "observed": "kri",
+                "expected": "kri",
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Native stat 83:7 >= 2",
+                "observed": 0,
+                "expected": 2,
+                "children": []
+              },
+              {
+                "truth": "false",
+                "reason": "Charged skill 91: at least 0 remaining",
+                "observed": [],
+                "expected": 0,
+                "children": []
+              }
+            ]
+          },
+          "skill_trace": null,
+          "dependencies": [],
+          "equipment": null,
+          "ethereal_preference": null,
+          "preferences": [],
+          "matched": [],
+          "missing": [
+            "Warlock skill levels benefit Abyss even with depleted charges. Lower Resist affects fire, lightning, cold and poison resistance, not magic resistance; it does not directly increase Abyss damage.",
+            "Cast Lower Resist only with remaining charges for applicable elemental or poison damage. Empty non-ethereal copies can recharge; empty ethereal copies retain skills but cannot recharge. Meet equipment requirements."
+          ],
+          "failed": [
+            "Required role properties are not satisfied."
+          ],
+          "important_rolls": [
+            {
+              "id": 107,
+              "parameter": 402,
+              "raw": 1,
+              "value": 1,
+              "status": "decoded",
+              "origin": "captured_total",
+              "name": "item_singleskill",
+              "text": "+1 (1-3) to Abyss (Warlock Only)",
+              "unit": null,
+              "market_property": "1579"
+            }
+          ],
+          "alternatives": [],
+          "socket_requirement": null
+        }
+      ],
+      "trade_tier": {
+        "status": "pending_review",
+        "tier": null,
+        "possible_tiers": []
+      },
+      "leveling": []
+    },
+    "value_watch": [],
+    "price_estimate": {
+      "estimate_ist": null,
+      "confidence": "insufficient",
+      "basis": "unavailable",
+      "scope": "Softcore / Non-Ladder / PC / Reign of the Warlock",
+      "dates": [],
+      "sellers": 0,
+      "notes": [
+        "Asks are not confirmed sale prices.",
+        "Weapon damage-modifier coverage is unproven."
+      ],
+      "excluded_observations": {},
+      "publication_policy": {
+        "minimum_sellers": 3,
+        "maximum_age_days": 30,
+        "maximum_dispersion": 5,
+        "as_of": "2026-09-28"
+      },
+      "unavailable_reason": "unclassified"
+    }
+  }
+}

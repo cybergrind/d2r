@@ -137,4 +137,37 @@ def test_poison_facet_price_checks_rates_duration_and_single_source():
             },
         ],
     }
-    assert assess(venom, profiles=[])['contract'] is None
+    venom_contract = assess(venom, profiles=[])['contract']
+    assert venom_contract['catalog_id'] == '2188191106'
+    assert venom_contract['properties'] == {'589': 37, '783': 5, '723': 4}
+
+
+def test_poison_levelup_requires_catalog_variant_and_rejects_other_or_missing_catalog():
+    from tests.pricing.knowledge.assessment.item_bank.cases.loose_facets import CASES
+
+    case = next(case for case in CASES if case.id == 'loose-facet/poison/level-up/perfect')
+    contract = assess(case.item.capture(), profiles=[])['contract']
+    assert contract is not None
+    assert contract['catalog_id'] == '2188191106'
+    row = {
+        **{key: contract[key] for key in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents')},
+        'catalog_id': '2188191106',
+        'properties': contract['properties'],
+        'scope_status': 'verified',
+        'evidence_kind': 'ask',
+        'unit_policy': 'single_item',
+        'seller_id': 'seller',
+        'ask_ist': 1,
+    }
+    assert reject_reasons(contract, row) == []
+    for catalog in (None, '', 'other-facet'):
+        assert 'Different or unknown market catalog variant.' in reject_reasons(
+            contract, {**row, 'catalog_id': catalog}
+        )
+    # Catalog identity is only a market discriminator; captured native event still
+    # has to be the exact 100% level-23 Venom level-up proc.
+    from dataclasses import replace
+
+    for event in ((197, 278 * 64 + 23, 100), (199, 278 * 64 + 22, 100), (199, 278 * 64 + 23, 99)):
+        item = replace(case.item, raw_stats=(*case.item.raw_stats[:-1], event))
+        assert assess(item.capture(), profiles=[])['contract'] is None

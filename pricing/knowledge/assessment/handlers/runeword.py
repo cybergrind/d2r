@@ -10,6 +10,7 @@ from pricing.knowledge.assessment.mechanics.per_level import fixed_per_level_key
 from pricing.knowledge.assessment.mechanics.poison import POISON_KEYS, fixed_poison_total
 from pricing.knowledge.assessment.mechanics.rune_physical import fixed_physical_rune_keys
 from pricing.knowledge.assessment.mechanics.runeword_rolls import variable_roll_gaps
+from pricing.knowledge.assessment.mechanics.shield_blocking import modifier_facts
 from pricing.knowledge.assessment.mechanics.triggers import named_trigger_properties
 from pricing.knowledge.definition_store import catalog
 
@@ -28,13 +29,11 @@ def elemental_effects(definition, family):
 def intrinsic_properties(facts, definition, family):
     """Only unchanged, decoded, explicitly projected fixed recipe bonuses.
 
-    Includes portable rune effects and verified shield-base blocking. Other
-    base/staffmod contributions remain explicit; variable modifiers never become intrinsic.
+    Includes portable rune effects. Native shield blocking has already been
+    removed from this modifier view; variable bonuses never become intrinsic.
     """
     ranges = {k: dict(v) for k, v in definition.get('roll_ranges', {}).items()}
     contributions = [definition.get('socket_bonus_ranges', {}).get(family, {})]
-    if family == 'shield':
-        contributions.append(definition.get('base_stat_ranges', {}).get(facts.base_code, {}))
     for contribution in contributions:
         for key, spec in contribution.items():
             if key in ranges:
@@ -67,6 +66,11 @@ class RunewordHandler:
         definition = definitions().get(facts.runeword)
         if not definition:
             return None, ['Runeword definition is absent from the offline KB.']
+        if family == 'shield':
+            projected, block_gaps = modifier_facts(facts)
+            gaps.extend(block_gaps)
+            if projected is not None:
+                facts = projected
         triggers, consumed, trigger_gaps = named_trigger_properties(facts, definition)
         charges, charge_keys, charge_gaps = fixed_charge_properties(facts, definition)
         consumed |= charge_keys

@@ -32,6 +32,8 @@ def test_armor_base_comparisons_require_actual_defense(base, family):
     assert contract is None
     assert any('defense' in gap.lower() for gap in gaps)
     item = replace(item, stats={'31:0': {'id': 31, 'value': 100, 'status': 'decoded'}})
+    if family == 'shield':
+        item = replace(item, stats={**item.stats, '20:0': {'value': 22, 'status': 'decoded'}}, properties={'446': 22})
     contract, gaps = HANDLERS['base'].contract(item, family)
     assert not gaps
     assert contract.properties['1855'] == 100
@@ -79,6 +81,7 @@ def test_named_unique_does_not_mix_original_and_unverified_upgraded_base():
         item,
         stats={
             **item.stats,
+            '83:3': {'status': 'decoded', 'value': 1},
             '245:0': {
                 'status': 'decoded',
                 'raw': 5,

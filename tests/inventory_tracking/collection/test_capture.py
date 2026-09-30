@@ -15,6 +15,7 @@ from inventory_tracking.collection.capture import (
     build_sightings,
     candidate_kind,
     character_from,
+    character_stats_from,
     find_mercenary,
     is_shared_candidate,
     read_item_record,
@@ -220,6 +221,8 @@ def test_read_owner_grids_rejects_foreign_inventory():
 def test_candidate_kind(mode, page, owner, address, expected):
     unit = {'address': address, 'mode': mode, 'details': {'quality': 2, 'owner_id': owner, 'inventory_page': page}}
     assert candidate_kind(unit, MAIN, {TAB_A, TAB_B}, {0xD100}) == expected
+    equipped = expected if page == 255 else None
+    assert candidate_kind(unit, MAIN, {TAB_A, TAB_B}, {0xD100}, scope='equipment') == equipped
 
 
 def test_find_mercenary_requires_the_local_players_hireling():
@@ -270,8 +273,60 @@ def test_character_from_player_unit(insight_capture):
     )
 
 
-def record_from(insight_capture, *, merc=False):
-    """A full-pass record: the Insight row placed in every container kind, plus an unknown base."""
+def test_character_stats_from_player_unit_reads_the_sheet(insight_capture):
+    main = next(u for u in insight_capture['snapshot']['groups']['players']['units'] if u['unit_id'] == MAIN)
+    stats = character_stats_from(main)
+    assert stats is not None
+    assert stats.sheet() == {
+        'level': 91,
+        'strength': 172,
+        'dexterity': 135,
+        'vitality': 307,
+        'energy': 36,
+        'life': 1503,
+        'life_max': 1503,
+        'mana': 733,
+        'mana_max': 733,
+        'stamina': 473,
+        'stamina_max': 473,
+        'defense': 894,
+        'attack_rating': 179,
+        'fire_resist': 221,
+        'cold_resist': 222,
+        'lightning_resist': 190,
+        'poison_resist': 185,
+        'experience': 1856207552,
+        'gold': 161774,
+        'gold_bank': 2025909,
+    }
+    assert stats.summary == 'Level 91: str 172, dex 135, vit 307, ene 36; life 1503, mana 733, defense 894'
+    assert stats.lines[:4] == ['Level: 91', 'Life: 1503/1503', 'Mana: 733/733', 'Stamina: 473/473']
+    for text in (
+        '+172 to Strength',
+        'Fire Resist +221%',
+        '+46% Faster Run/Walk',
+        '+75% Faster Hit Recovery',
+        '+127% Faster Cast Rate',
+        '84% Better Chance of Getting Magic Items',
+        '127% Extra Gold from Monsters',
+        'Regenerate Mana 15%',
+        'Attacker Takes Damage of 14',
+        '+2 to Warlock Skill Levels',
+    ):
+        assert text in stats.lines
+    assert not any(line.startswith(('hitpoints:', 'maxhp:', 'level:')) for line in stats.lines)
+    assert any(line.startswith('passive mastery melee dmg: raw 65') for line in stats.lines)
+    assert len(stats.stats) == 77
+    assert stats.base_stats[0] == {'id': 0, 'layer': 0, 'raw': 156}
+    assert character_stats_from({'details': {'name': 'x', 'full_stats': {'error': 'unreadable'}}}) is None
+
+
+def record_from(insight_capture, *, merc=False, scope='all'):
+    """A full-pass record: the Insight row placed in every container kind, plus an unknown base.
+
+    `scope='equipment'` keeps only the worn rows (player body slot 1 plus the mercenary
+    weapon when `merc`), no grids and no stash units, as the Win+D pass records it.
+    """
     snapshot = copy.deepcopy(insight_capture['snapshot'])
     template = snapshot['resources']['items'][0]
     rows = []
@@ -298,6 +353,11 @@ def record_from(insight_capture, *, merc=False):
     stack['resource_stats'] = dict(stack['resource_stats'], stack_count=43)
     broken = add(1006, 'player', owner_id=MAIN, inventory_page=3, x=0, y=0)
     broken['txt_id'] = 999999
+    worn = add(1008, 'player', owner_id=MAIN, inventory_page=255, body_location=1, x=1, y=0)
+    worn['mode'] = 1
+    for unit in snapshot['groups']['items']['units']:
+        if unit['unit_id'] == 1008:
+            unit['mode'] = 1
     if merc:
         merc_row = add(1007, 'mercenary', owner_id=NO_OWNER, inventory_page=255, body_location=4, x=4, y=0)
         merc_row['mode'] = 1
@@ -315,7 +375,23 @@ def record_from(insight_capture, *, merc=False):
                 'details': {'monster_data_u32': [0] * 21 + [MAIN]},
             }
         )
+    if scope == 'equipment':
+        rows = [row for row in rows if row['details']['inventory_page'] == 255]
+        kinds = {key: kind for key, kind in kinds.items() if key in {str(row['unit_id']) for row in rows}}
     snapshot['resources'] = {'complete': True, 'items': rows, 'kinds': kinds}
+    if scope == 'equipment':
+        return {
+            'snapshot': snapshot,
+            'player_id': MAIN,
+            'stash_units': [],
+            'shared_ids': [],
+            'mercenary': {'unit_id': MERC, 'item_addresses': []} if merc else None,
+            'spaces': [],
+            'location': 1,
+            'issues': [] if merc else ['Mercenary: not in memory; its equipment was not recorded'],
+            'timing': {'ms': 1.0, 'bytes_requested': 10},
+            'scope': 'equipment',
+        }
     return {
         'snapshot': snapshot,
         'player_id': MAIN,
@@ -369,6 +445,8 @@ def record_from(insight_capture, *, merc=False):
 def test_build_sightings_places_every_container_and_isolates_failures(insight_capture):
     build = build_sightings(record_from(insight_capture), run_id='r1', captured_at='2026-09-25T12:00:00+00:00')
     assert build.character.name == 'CybergrindAA'
+    assert build.character_stats is not None
+    assert (build.character_stats.level, build.character_stats.strength) == (91, 172)
     assert build.tabs == {TAB_B: 1, TAB_A: 2}
     assert build.containers == [
         ('CybergrindAA', 'inventory', None),
@@ -381,6 +459,7 @@ def test_build_sightings_places_every_container_and_isolates_failures(insight_ca
     ]
     labels = sorted(s.location.label for s in build.sightings)
     assert labels == [
+        'CybergrindAA · equipped (1,0)',
         'CybergrindAA · inventory (3,1)',
         'CybergrindAA · stash (0,6)',
         'shared · materials (0,0)',
@@ -406,3 +485,23 @@ def test_build_sightings_includes_the_mercenary_when_its_grid_was_read(insight_c
     assert [(s.location.x, s.location.y) for s in merc_items] == [(4, 0)]
     assert build.issues
     assert all('1006' in issue for issue in build.issues)
+
+
+def test_equipment_scope_records_only_worn_items_of_character_and_mercenary(insight_capture):
+    build = build_sightings(record_from(insight_capture, merc=True, scope='equipment'), run_id='r1', captured_at='t')
+    assert build.scope == 'equipment'
+    assert build.containers == [('CybergrindAA', 'equipped', None), ('CybergrindAA', 'mercenary', None)]
+    assert sorted(s.location.label for s in build.sightings) == [
+        'CybergrindAA · equipped (1,0)',
+        'CybergrindAA · mercenary (4,0)',
+    ]
+    assert build.spaces == []
+    assert build.tabs == {}
+    assert build.issues == []
+
+
+def test_equipment_scope_without_a_mercenary_leaves_its_container_untouched(insight_capture):
+    build = build_sightings(record_from(insight_capture, scope='equipment'), run_id='r1', captured_at='t')
+    assert build.containers == [('CybergrindAA', 'equipped', None)]
+    assert [s.location.container for s in build.sightings] == ['equipped']
+    assert build.issues == ['Mercenary: not in memory; its equipment was not recorded']

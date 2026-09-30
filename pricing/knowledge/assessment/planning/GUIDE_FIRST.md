@@ -1,10 +1,54 @@
+> **Scope clarification, 2026-09-29:** prioritize valuable SC/Non-Ladder items
+> and valuable or exceptional best-in-slot leveling items. Generic leveling and
+> ordinary starter progression are out of scope. Preserve mixed-use trade/endgame
+> candidates. See COMPLETION_CONTRACT.md; older exhaustive leveling instructions
+> below are superseded. The old completion queue still needs scope migration.
+
+<!-- completion-contract-2026-09-27 -->
+**Authoritative end goal and stopping rule:** [Completion contract](COMPLETION_CONTRACT.md).
+The task is unfinished until all final gates pass for one scope manifest and
+selected generation, with zero pending or blocked required work. Batches,
+publications and milestones never stop execution. Next implementation priority:
+make the completion ledger/gate trustworthy, then drain the entire remaining queue.
+This planning update changes no runtime artifacts or published coverage claims.
+
 # Offline guide-first assessment and compact build-use reports
+
+**Execution update2026-09-26:** Phase1 tier gate is published and verified in
+`39ee03c46fb5d42f6ab70d1b8a5484e80d23ce87113478f660c82174bdc6cfe9`.
+408uniques,140set pieces,35sets,2958rendered cases; all gate counters zero.
+The pause/checkpoint below is historical and superseded. Phase2 is active; follow
+the complete remaining queue. Validation and exact limits are in the newest handoff.
 
 Planned 2026-09-25. This is the next delivery priority, before further per-build
 vertical slices or new market collection. Reuse existing cached extraction,
 occurrence audits, reviewed rules and report components. No new engine or wholesale
 re-extraction of already verified facts. This document specifies work, not completed
 coverage or newly established item prices.
+
+## Mandatory priority — universal tiers before further handlers (2026-09-26)
+
+The user's latest Guardian Angel scan again rendered no trade tier. The earlier
+548-policy milestone did not prove runtime baseline coverage: Guardian Angel's
+policy covers only an ethereal perfect-roll variant. **Tiering is incomplete.**
+
+Pause unrelated build/stat/base/market implementation. Scan all gathered builds,
+variants, mercenary gear, swaps and alternatives; review valuable uniques, every
+set piece and complete sets. Assign every eligible entry a baseline trade tier
+(high/mid/low/trash), with separate leveling tiers for valuable leveling items.
+Premium roll/ethereal/socket conditions must refine a baseline, never erase it.
+High green / mid yellow / low blue / trash red applies to trade and leveling.
+
+Follow [NAMED_TIER_ROLLOUT.md](NAMED_TIER_ROLLOUT.md), which now contains the concrete
+baseline/adjustment architecture, complete-set distinction and census/rendering gates.
+Require zero missing eligible baselines, zero valid items without a rendered trade
+tier, and completed leveling review before resuming other handlers. Verify Guardian
+Angel, socketed Shako and Griswold through the published runtime. Policy presence,
+a successful build or publication alone does not establish completion.
+
+The incremental batch cadence below is suspended until that universal tier gate
+passes. Preserve already staged Hoto/Griffon/Rhyme work; do not continue or describe
+it as published. No new implementation is authorized by this planning checkpoint.
 
 ## Acceleration strategy — complete inventory, incremental reviewed rules
 

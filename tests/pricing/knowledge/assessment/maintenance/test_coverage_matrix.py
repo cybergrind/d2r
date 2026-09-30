@@ -134,5 +134,6 @@ def test_observed_capture_gaps_enter_dimension_queues_without_valuation():
     assert row['facts']['sockets'] is None
     for key in ('capture', 'market_mapping', 'desirability', 'market'):
         assert any(q['row_id'] == row['id'] for q in result['review_queues'][key])
-    assert row['dimensions']['named_tiers']['state'] == 'pending'
+    assert row['facts']['rarity'] not in ('unique', 'set')
+    assert row['dimensions']['named_tiers']['state'] == 'excluded'
     assert not any(q['row_id'] == 'identity:u' for q in result['review_queues']['named_tiers'])

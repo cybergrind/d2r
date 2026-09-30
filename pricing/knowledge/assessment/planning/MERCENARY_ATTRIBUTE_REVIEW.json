@@ -1,0 +1,38 @@
+{
+  "review_date": "2026-09-28",
+  "scope": "Native stat-beneficiary audit of all compiled mercenary stat configurations",
+  "sources": [
+    {
+      "path": "third-parties/d2data/json/itemstatcost.json",
+      "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+    },
+    {
+      "path": "third-parties/D2MOO/source/D2Common/src/D2StatList.cpp",
+      "sha256": "8c1710c5cd14295f67aaadf905f827e01475197137f9af2cc191d23a85a613d4"
+    }
+  ],
+  "findings": [
+    {
+      "stat": "3:0",
+      "native": "vitality op9 -> maxhp/maxstamina",
+      "implementation": "D2StatList op9 requires UNIT_PLAYER",
+      "assessment": "No mercenary Vitality survival priority. Corrected fissure-starter-merc-rockstopper; preserve raw display."
+    },
+    {
+      "stat": "1:0",
+      "native": "energy op8",
+      "implementation": "D2StatList op8 requires UNIT_PLAYER",
+      "assessment": "No existing mercenary Energy priorities found."
+    },
+    {
+      "stat": "76:0",
+      "native": "item_maxhp_percent op11 -> maxhp",
+      "implementation": "D2StatList op11 accepts UNIT_PLAYER or UNIT_MONSTER",
+      "assessment": "Do not remove maximum Life percent mercenary priorities on the basis of Vitality behavior."
+    }
+  ],
+  "limitations": [
+    "Local reconstructed algorithm is legacy corroboration; native RotW stat table preserves the operators. No host runtime HP experiment performed.",
+    "Other beneficiary effects, requirements, context and whole-loadout interactions remain separately reviewable."
+  ]
+}

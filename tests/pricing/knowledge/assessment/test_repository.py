@@ -70,14 +70,15 @@ def test_compiler_rejects_changed_source_even_when_rule_shape_is_valid(tmp_path)
     import pytest
 
     from pricing.knowledge.assessment.maintenance.compile import compile_profiles
+    from pricing.knowledge.assessment.profile_sources import profile_references
 
     document = build()
     source = tmp_path / 'source.json'
     source.write_text(json.dumps({'reviewed': 'source'}))
-    for profile in document['profiles']:
-        profile['source']['path'] = 'source.json'
-        profile['source']['locator'] = '/reviewed'
-        profile['source']['sha256'] = hashlib.sha256(source.read_bytes()).hexdigest()
+    for _, reference in profile_references(document):
+        reference['path'] = 'source.json'
+        reference['locator'] = '/reviewed'
+        reference['sha256'] = hashlib.sha256(source.read_bytes()).hexdigest()
     assert compile_profiles(document, tmp_path) == document
     source.write_text('changed source')
     with pytest.raises(ValueError, match='Source changed'):

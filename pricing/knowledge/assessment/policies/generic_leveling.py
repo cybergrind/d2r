@@ -1,4 +1,9 @@
-"""Reviewed affixed and socketed leveling utility, independent of trade tiers and prices."""
+"""Reviewed affixed and socketed leveling utility, independent of trade tiers and prices.
+
+These uses are slot-and-stat patterns ("a ring with any life, mana or resistance"), not
+judgements about a particular item, so they carry `generic: True`: reports keep them as
+evidence, but neither the Alt+D text nor the identify summary presents them (2026-09-27).
+"""
 
 import hashlib
 import json
@@ -146,6 +151,7 @@ def assess_generic_leveling(facts, *, loadout=None):
             {
                 'tier': 'med',
                 'status': 'conditional',
+                'generic': True,
                 'side': pattern.side,
                 'classes': ['all classes'],
                 'archetypes': [archetype],

@@ -9,6 +9,17 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from types import MappingProxyType
 
+from pricing.knowledge.assessment.domain.facts import FactStatus, StatKey
+
+
+@dataclass(frozen=True)
+class StaffmodTarget:
+    key: StatKey
+    skill: str
+    minimum: int
+    preferred: int
+    build: str
+
 
 @dataclass(frozen=True)
 class CasterBaseTemplate:
@@ -24,6 +35,8 @@ class CasterBaseTemplate:
     ethereal_reason: str
     source_locators: tuple[str, ...]
     exceptions: Mapping[str, tuple[str, ...]]
+    staffmods: tuple[StaffmodTarget, ...] = ()
+    reviewed_sources: tuple[str, ...] = ()
 
 
 def compile_templates(templates):
@@ -45,21 +58,48 @@ def compile_templates(templates):
     return MappingProxyType(index)
 
 
+WHITE_BASES = (
+    'Bone Wand',
+    'Grim Wand',
+    'Petrified Wand',
+    'Tomb Wand',
+    'Grave Wand',
+    'Polished Wand',
+    'Ghost Wand',
+    'Lich Wand',
+    'Unearthed Wand',
+)
+
+
 TEMPLATES = (
     *(
         CasterBaseTemplate(
             id=identity,
-            version=1,
+            version=2 if word == 'White' else 1,
             runeword=word,
-            members=(base,),
+            members=WHITE_BASES if word == 'White' else (base,),
             role=role,
-            strength=f'Reviewed {base} base for {word} caster utility.',
+            strength='Two-socket-capable wand for White; suitability depends on the staffmods.'
+            if word == 'White'
+            else f'Reviewed {base} base for {word} caster utility.',
             requirement=requirement,
             tradeoff=tradeoff,
             ethereal_caveat='An ethereal weapon cannot be repaired if used for melee attacks.',
             ethereal_reason='Spell casting does not consume weapon durability; melee use does.',
-            source_locators=(f'appraisal-utility.json:{base}/sockets_by_runeword/{word}',),
+            source_locators=tuple(
+                f'appraisal-utility.json:{member}/sockets_by_runeword/{word}'
+                for member in (WHITE_BASES if word == 'White' else (base,))
+            ),
             exceptions=MappingProxyType({}),
+            staffmods=(StaffmodTarget(StatKey(107, 92), 'Poison Nova', 2, 3, 'Poison Nova Necromancer'),)
+            if word == 'White'
+            else (),
+            reviewed_sources=(
+                'pricing/data/appraisal-guide-sections.json#'
+                '/sources/pricing~1raw~1mr~1guides__poison-nova-necromancer.html/sections/33',
+            )
+            if word == 'White'
+            else (),
         )
         for identity, word, base, role, requirement, tradeoff in (
             (
@@ -79,7 +119,7 @@ TEMPLATES = (
                 'A two-handed staff replaces weapon and shield; prebuff skill targets depend on the intended setup.',
             ),
             (
-                'white-bone-wand',
+                'white-poison-nova-wands',
                 'White',
                 'Bone Wand',
                 'White player caster',
@@ -160,12 +200,31 @@ def evaluate_caster_base(facts, runeword):
     if template is None:
         return None
     missing = [template.requirement, *template.exceptions.get(facts.base_name, ())]
+    strengths = [template.strength]
+    for target in template.staffmods:
+        observed = facts.stat(target.key)
+        if observed.status == FactStatus.KNOWN and observed.value >= target.minimum:
+            strengths.append(f'+{observed.value} {target.skill} meets the {target.build} base target.')
+        else:
+            missing.append(
+                f'For {target.build}, seek +{target.minimum}-{target.preferred} {target.skill}; '
+                'staffmods cannot be added by making the runeword.'
+            )
+        if observed.status != FactStatus.KNOWN or observed.value < target.preferred:
+            missing.append(
+                f'+{target.preferred} {target.skill} is the stronger staffmod; the guide accepts +{target.minimum}.'
+            )
     tradeoff = template.tradeoff
     if facts.ethereal is None:
         missing.append('Ethereal status has not been read.')
     elif facts.ethereal:
         tradeoff += ' ' + template.ethereal_caveat
-    return template.role, [template.strength], missing, tradeoff
+    return template.role, strengths, missing, tradeoff
+
+
+def reviewed_caster_sources(facts, runeword):
+    template = INDEX.get((runeword, facts.base_name))
+    return template.reviewed_sources if template else ()
 
 
 def caster_ethereal_preference(role, base_name):

@@ -174,11 +174,31 @@ def decode_items(
                 },
                 'source': {
                     'engine': 'memory_snapshot',
+                    **(
+                        {'native_affixes': range_context['native_affixes']}
+                        if range_context and 'native_affixes' in range_context
+                        else {}
+                    ),
                     **({'superior_quality': superior_quality} if superior_quality is not None else {}),
                     **({'superior_flat_damage': flat_damage} if flat_damage else {}),
                     **({'viewer_context': viewer} if viewer else {}),
                     **(
-                        {'item_identity': {k: identity[k] for k in ('table', 'table_id', 'offset')}} if identity else {}
+                        {
+                            'item_identity': {
+                                k: identity[k]
+                                for k in (
+                                    'table',
+                                    'table_id',
+                                    'offset',
+                                    'method',
+                                    'observed_table_id',
+                                    'mode_eligibility',
+                                )
+                                if k in identity
+                            }
+                        }
+                        if identity
+                        else {}
                     ),
                     'container': container,
                     'unit_id': row['unit_id'],
@@ -232,6 +252,9 @@ def decode_items(
             issues.append('Item is unidentified.')
         if rarity in ('unique', 'set') and identity is None:
             issues.append('Unique/set identity could not be read.')
+        if flags is not None and flags & RUNEWORD_FLAG and identity is None:
+            issues.append('Runeword identity could not be read.')
+            results[-1]['source']['runeword_identity_unresolved'] = True
         if item['sockets'] is None:
             issues.append('Socket count could not be read.')
         elif item['sockets'] > 0 and item['socket_contents'] is None:

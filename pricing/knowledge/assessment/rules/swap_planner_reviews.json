@@ -1,0 +1,1623 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_cta_spirit_swaps",
+  "inputs": {
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "pricing/raw/mr/planners/ucgz20le.json": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+    "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+    "third-parties/d2data/json/itemtypes.json": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "third-parties/d2data/json/itemstatcost.json": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237",
+    "pricing/raw/mr/guides__echoing-strike-warlock-guide.html": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
+    "third-parties/d2data/json/runes.json": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "pricing/raw/mr/guides__fire-warlock-guide.html": "bace8df5bb9632d39b2d77ee4d1507d686b4b42c1f9576f4259eab9a418511a4",
+    "pricing/raw/mr/planners/vdglw0lu.json": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539",
+    "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html": "43284655035f7931d06f1023db7c56dae2210b6925927b22784cdd276660ea08",
+    "pricing/raw/mr/planners/rg2je0ld.json": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+    "pricing/raw/mr/guides__abyss-warlock-build-guide.html": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b",
+    "pricing/raw/mr/planners/gsg0p0l0.json": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+  },
+  "rows": [
+    {
+      "id": "echoing-standard-cta-prebuff:planner:013f0f4d27c748eaec67b7f5",
+      "profile_id": "echoing-standard-cta-prebuff",
+      "profile_sha256": "93826a838a21b4d645d8466a6ac4279a2310d49c49c82ce00da5af7cd508a6a0",
+      "use_sha256": "2725aace8835e87cdf1258832ad62bb0db263b9ebed953eb456a3d4277870abc",
+      "parent": {
+        "occurrence_id": "013f0f4d27c748eaec67b7f5",
+        "sha256": "105995684fbfb2ba1821709b4f68bdde5d74943d7fe5751ea0c789ec62a3b263"
+      },
+      "children": [
+        {
+          "occurrence_id": "a1330ba6dc7af5ccc77860f1",
+          "sha256": "5258822ce52e544df586363fac453d8e214a0795de2c971f052ad07fde3d4153"
+        },
+        {
+          "occurrence_id": "44355d995e3c6571627911df",
+          "sha256": "05edf2836b2853a81c70e77af481925fc4e4e4cf739c35dd189c1fb08c72786b"
+        },
+        {
+          "occurrence_id": "4824feab8750a538335a5ee3",
+          "sha256": "f65ffe177cd6f07e5231a7c5b080cbf2e24ef26da1b1dc4c15e11d33c58aed9f"
+        },
+        {
+          "occurrence_id": "38a4202ea8073b56dd06e58a",
+          "sha256": "aaa013f7fc43ade2ae207f40ebc0b270a0c330f377791437e1b7b3de2f1286d3"
+        },
+        {
+          "occurrence_id": "2f3a18d5739e53705424f61a",
+          "sha256": "e1dd33049575502fe6685c0058a6f7aa98d84caf018067d5fff7511d01fdf35d"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/echoing-strike-warlock-guide/variants/1/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword",
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 1,
+        "profile_uid": "LmIammQ8",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "17",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "18",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "ethereal": true,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "222 def 35 fcr 112 mana 8 magic abs eth"
+          },
+          "locator": "/profiles/1/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "fire-mf-cta-prebuff:planner:254f9508a04832df7bd45995",
+      "profile_id": "fire-mf-cta-prebuff",
+      "profile_sha256": "264c54ee905367d328382fc39b9b1a7b61358fa1bd5e7c2da77b63228b8ce806",
+      "use_sha256": "e5aa49ad55dea53307bde6e8d6fc28297fb5b047cf035f71e227afaf3e59cc07",
+      "parent": {
+        "occurrence_id": "254f9508a04832df7bd45995",
+        "sha256": "eb46f65236263d38e138fd1b33a76ce6b73c30ef3c1093b445e3f784261dda7c"
+      },
+      "children": [
+        {
+          "occurrence_id": "43299adc084ced10dc289335",
+          "sha256": "3bd680624dfdeae824e37e234f1b607210971a0c9e7440b6cc8e2e5621526e77"
+        },
+        {
+          "occurrence_id": "7564a7b3c0472bd575128456",
+          "sha256": "b9dd9896806a8691c0be7e76b73a2ed65e274562802c98b0a4339ebfecc5bea9"
+        },
+        {
+          "occurrence_id": "8e7ee745ee922b0e8d05b656",
+          "sha256": "4e210a065c1e4d5bca7eeda976ffb4ba845814f107cbf9db807eed004624be30"
+        },
+        {
+          "occurrence_id": "0e238f53c6bbd9f52395019e",
+          "sha256": "f80dd9475bc78575b178a62fb67bc24802a2d31dadab2783d2a4c2b062d2e8ab"
+        },
+        {
+          "occurrence_id": "d2b1f4362cbe736cf1a5e148",
+          "sha256": "342d48b17dcbc32f6b46c6f6095349996e31f8e50c26decb485f1f7c7f50cf26"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fire-warlock-guide/variants/2/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword (ethereal)",
+        "variant_alias": "Magic Find",
+        "guide_tab": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 2,
+        "profile_uid": "xImjObsu",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "110",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "111",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "ethereal": true,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "222 def 35 fcr 112 mana 8 magic abs eth"
+          },
+          "locator": "/profiles/2/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "echoing-ubers-cta-prebuff:planner:34e4e8a9c45ec1b0f792e2a1",
+      "profile_id": "echoing-ubers-cta-prebuff",
+      "profile_sha256": "99e9234b237f212458baf96f686a11081f14de5e4ec0f1ba4384094b0c3e9f14",
+      "use_sha256": "90872506c4e46962fdab9256cb178e709b1ab5955c86c0b489820ef11cedc812",
+      "parent": {
+        "occurrence_id": "34e4e8a9c45ec1b0f792e2a1",
+        "sha256": "722669e9ec84b31b2b21a6dc41b29cf750fc6d7e4ac2c00fd6b63e06b8cea076"
+      },
+      "children": [
+        {
+          "occurrence_id": "02abd2cbdbfb87970a41a18d",
+          "sha256": "a5a459ecf95627b7fd8ee42ddec5abad276014ed80c53448d0998a6be22c8fac"
+        },
+        {
+          "occurrence_id": "d5c0152583fbde70d5ead642",
+          "sha256": "019d96e7017ee23d5f6c5f1958579995e6ea1800b8fecbcfff9956c7f7cec472"
+        },
+        {
+          "occurrence_id": "e079602396470330ed84f554",
+          "sha256": "4360a0c0def5567a43f3ef725edccfe21b6265ce03b2e159a8dc2f2868f28d6b"
+        },
+        {
+          "occurrence_id": "176a9f9a91d9a595702ce8f9",
+          "sha256": "4e460620a339098aa1322b14f9ecfcd852bae1535c8be343b72b54d1ec3511e9"
+        },
+        {
+          "occurrence_id": "4f6ea9ca45ca8ce5109342b0",
+          "sha256": "d16dea15efacd0cccdac7d36d8fa458a5e7125e22000311aac9aa19236b62ec7"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/echoing-strike-warlock-guide/variants/3/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword",
+        "variant_alias": "Ubers",
+        "guide_tab": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 3,
+        "profile_uid": "Khw26jKQ",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "56",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "57",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "ethereal": true,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "222 def 35 fcr 112 mana 8 magic abs eth"
+          },
+          "locator": "/profiles/3/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "mirrored-ubers-cta-prebuff:planner:60f5520e335dcd4efabad46a",
+      "profile_id": "mirrored-ubers-cta-prebuff",
+      "profile_sha256": "09f56fbee4a8c70ab3191a9d0f80ffe7e18962ddc3f11521fa3e611fd1c72f75",
+      "use_sha256": "2a5a82329804111e2acf4a383c37f740ebccb68d9adb3fc7e5bb923f9c8bf1c2",
+      "parent": {
+        "occurrence_id": "60f5520e335dcd4efabad46a",
+        "sha256": "4bb2a9627d98d8074a57897533ea3c91c35e39780d5309884009c1067be042ff"
+      },
+      "children": [
+        {
+          "occurrence_id": "e7ac74ffd5b661a8dde51de6",
+          "sha256": "4c6af224cf43de3b33a80c6eea59b9c69ce752fbf72fa65ffdc96301dacceae0"
+        },
+        {
+          "occurrence_id": "5d9bfdf18dc90d203201f731",
+          "sha256": "ca2fe23b4e6708ef599e9d1e1bcf5315b676290ab99d64076660816e0326ce47"
+        },
+        {
+          "occurrence_id": "3d6a53b4c1e9cc4d169c52be",
+          "sha256": "0ee272ee079401a8783a9bf136116b37a0185f797590c05a587115d95f1c7a31"
+        },
+        {
+          "occurrence_id": "2954174efe053119c77e6037",
+          "sha256": "750248182f8f44b96a8a885aa345e209f480bdf6826a84431d48a66e028d8071"
+        },
+        {
+          "occurrence_id": "d82889e803a89f70bd581d02",
+          "sha256": "5b672904333e49e7a061d65b7e2aa40e4be376c40c329347562bc7a2853bd4d1"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/mirrored-blades-warlock-guide/variants/2/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword",
+        "variant_alias": "Ubers",
+        "guide_tab": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468"
+        },
+        "profile_index": 2,
+        "profile_uid": "fc4fpPx9",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "90",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "91",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "148 def 35 fcr 112 mana 8 magic abs"
+          },
+          "locator": "/profiles/2/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "abyss-standard-cta-prebuff:planner:8daded2d3b872d2326c13893",
+      "profile_id": "abyss-standard-cta-prebuff",
+      "profile_sha256": "3292ec6132a5516e8cb7e87e5abc7b1a266ce28b8244e5e2392143b5bf27a4b2",
+      "use_sha256": "8b1a9d1eab380ec71f8a7c860c8166903567032668406b456118675f1c1c151d",
+      "parent": {
+        "occurrence_id": "8daded2d3b872d2326c13893",
+        "sha256": "f00b58a8a3819cfb8253b9f0a66ce43b5e959f33e13507f7142c78592a87e2a1"
+      },
+      "children": [
+        {
+          "occurrence_id": "3dcbd024eb2cf768d8d48c0e",
+          "sha256": "6eb4e8902ca9f442883b1de3ecf912c3655f68024e86fb5bab756dc11a4a7338"
+        },
+        {
+          "occurrence_id": "bda584195a431a286c3425ba",
+          "sha256": "4076b5d9c28482546f4e12ea637eac23d0072e2c41c40a089688068bdd58263f"
+        },
+        {
+          "occurrence_id": "ee9e97ed46ebc61ad35a22ad",
+          "sha256": "8dd03c47bec59daa7c202c249ab9d4ff7ab7e2ceebea71be129ee2dccb3b8c3c"
+        },
+        {
+          "occurrence_id": "dc48ed81ddddaf2560a31e69",
+          "sha256": "ebe5bd73fdd26efbbbbc634b0310b021f924e076a1290a886ce97a2995c5d222"
+        },
+        {
+          "occurrence_id": "1968adf923cd9946eb63a320",
+          "sha256": "91b288baf0287ec77788fd7b8d0114cd4b944a5014c019f240723f368859d94f"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/abyss-warlock-build-guide/variants/1/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword (ethereal)",
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 1,
+        "profile_uid": "dGH5vCiB",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "12",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "14",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "148 def 35 fcr 112 mana 8 magic abs"
+          },
+          "locator": "/profiles/1/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "fire-standard-cta-prebuff:planner:94c35a99a4c0f4ef24d86808",
+      "profile_id": "fire-standard-cta-prebuff",
+      "profile_sha256": "30ddaee2d191950a182a8a9281def8a23a520f204e63ddd17ffc095530af6d54",
+      "use_sha256": "172c941ef354b83f5507d007f11743ad1afc4bc7adf2410f623421431c85e80a",
+      "parent": {
+        "occurrence_id": "94c35a99a4c0f4ef24d86808",
+        "sha256": "3405b13f426de0065fee52e1bf0b2a490a23a9057f165b2d22bf8cace5398f9b"
+      },
+      "children": [
+        {
+          "occurrence_id": "5272775c385ac49df5bc1f36",
+          "sha256": "039bf4ff13d36afa74f306747b205d6da9c73b28191dfa8913d063e0bc03ec9e"
+        },
+        {
+          "occurrence_id": "83f61ae6858b8744c0cb16d6",
+          "sha256": "3f5d631bec8085dc124c002b54c42ea268a747735b8205655b1511864ac5d52e"
+        },
+        {
+          "occurrence_id": "671dba483edb66ebcd70c29f",
+          "sha256": "3a6d87a822d12e54b6d346984e8a3ba35dd3eb1dc5a220278c9ac86e91da4bf2"
+        },
+        {
+          "occurrence_id": "2fa3fdaf81782e83403fa2e5",
+          "sha256": "21dc17a2d0c5546c234401ac46a9ff6321c22cb6b74ddd3d3c7bb4624472b4ae"
+        },
+        {
+          "occurrence_id": "e650f713ee119aa55c43779d",
+          "sha256": "99ae7bc6cd5b85784c6445e2b2db2e6e85d8a380a067c882ea24cab9147d715d"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/fire-warlock-guide/variants/1/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword (ethereal)",
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 1,
+        "profile_uid": "RNwMKmEi",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "8",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "9",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "ethereal": true,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "222 def 35 fcr 112 mana 8 magic abs eth"
+          },
+          "locator": "/profiles/1/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "abyss-mf-cta-prebuff:planner:aac2a5f1fce3751972e3446f",
+      "profile_id": "abyss-mf-cta-prebuff",
+      "profile_sha256": "d4bcc1f22d86a808bb9cb3f739085521e650f8dfd4b8ce41b365c79b5a2af77e",
+      "use_sha256": "a1768e1a690f3fdd8ef310d7067ba3ebdab9acdb5918d1b996dc5a4f30c56eb4",
+      "parent": {
+        "occurrence_id": "aac2a5f1fce3751972e3446f",
+        "sha256": "d41c11819d9b4079250a25df3eaef1f2d1fb22780cff1e33b3edd02383b60fea"
+      },
+      "children": [
+        {
+          "occurrence_id": "770e919ec73d49708f1d75e5",
+          "sha256": "1c39aa4326c9807af4d106ca64547b57b546e7b7c41f8d25ea3f56204f8263d2"
+        },
+        {
+          "occurrence_id": "b479c3e6b4ab097fbaff28f4",
+          "sha256": "8bb997b260474af4ce4a0785d06880c08fac2eb272901ce39b74b944513c53e4"
+        },
+        {
+          "occurrence_id": "0afd34f71966a113276e361b",
+          "sha256": "6243e0b056eb514b5d9b359d5ecdaff16b4da875d966d9c0f339457481070430"
+        },
+        {
+          "occurrence_id": "df0fd87013c629029a3aeb30",
+          "sha256": "aafdb118cf4097864380e93a9487fc3d0fa20a4c1ca3ad47e4d712ca92f1ef2b"
+        },
+        {
+          "occurrence_id": "19075b269fc9c823bdabb461",
+          "sha256": "fce941cae06d9f1eb48818f7ac5415e4718b7ed3635f2bac4fbe81d47373ef43"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/abyss-warlock-build-guide/variants/2/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword (ethereal)",
+        "variant_alias": "Magic Find",
+        "guide_tab": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "profile_index": 2,
+        "profile_uid": "wNE5FX6D",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "185",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "186",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "148 def 35 fcr 112 mana 8 magic abs"
+          },
+          "locator": "/profiles/2/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "echoing-mf-cta-prebuff:planner:b1cf171129d975a15bf3d105",
+      "profile_id": "echoing-mf-cta-prebuff",
+      "profile_sha256": "a07f1144605d12de3e9c8e9334b0f2df5ac1eb600494f914a58274389b7e5b5f",
+      "use_sha256": "df7e4c88738b7f1d0bea230e5ba53824f668ae8971075cde0ae64357fe315031",
+      "parent": {
+        "occurrence_id": "b1cf171129d975a15bf3d105",
+        "sha256": "8c5a59aeaa3a4e7bc996ada7f25600fae57a1fdc6961658988288905a62c1db4"
+      },
+      "children": [
+        {
+          "occurrence_id": "af02324715f36fd0089a084a",
+          "sha256": "e5082b75fe889a6e15d3a6224cc57ec9614c95eaefba5a5f26c512a7f33329e6"
+        },
+        {
+          "occurrence_id": "c4ffb75896c8b87e6f188d84",
+          "sha256": "696a0073e5041f799952072d6f6b63eee872a256aac85b0bf389fbadb0245eb6"
+        },
+        {
+          "occurrence_id": "38eae5af078b956b1824fc9e",
+          "sha256": "3b91aea7888bef7f160f8cacea0395f2d01e177ceade1d389179ec7ff21c3b89"
+        },
+        {
+          "occurrence_id": "316fdf8bee22c72628bd9db0",
+          "sha256": "1f28210a97e2ccc3bd087a95ad3afdae5f9102f7a73edd06487803664a09438a"
+        },
+        {
+          "occurrence_id": "7c174487c6f712eb5def05c3",
+          "sha256": "09f7e5af6f78b2d059eaf011d79363d7d1f49eeb502a6f35a832ed1643313b74"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/echoing-strike-warlock-guide/variants/2/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword",
+        "variant_alias": "Magic Find",
+        "guide_tab": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "profile_index": 2,
+        "profile_uid": "1ikVhvXU",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "188",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "ethereal": true,
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "190",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "ethereal": true,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "222 def 35 fcr 112 mana 8 magic abs eth"
+          },
+          "locator": "/profiles/2/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    },
+    {
+      "id": "mirrored-standard-cta-prebuff:planner:bf540a022c57764cf9f73601",
+      "profile_id": "mirrored-standard-cta-prebuff",
+      "profile_sha256": "12c654ef64c59faddfc4aa46fb72ad3780bdb00023da5f1fbe271f526a742306",
+      "use_sha256": "2faa67d0aa0ac73e15e80093d0db796012f09bee2ab030a5da5d98fdd60f5308",
+      "parent": {
+        "occurrence_id": "bf540a022c57764cf9f73601",
+        "sha256": "0e5230564175baf5107eca87e13d2dbe19938a83b4fd5f2498cbcc704455b36b"
+      },
+      "children": [
+        {
+          "occurrence_id": "ef9ce3fe1b2754311eb49d46",
+          "sha256": "acdc5cfd75cf75f029cf43237dab176335fb454b28ae3e891b7a846a61b3adc4"
+        },
+        {
+          "occurrence_id": "a4f7e0cad344fdeaeb844ce6",
+          "sha256": "c8ab9b99d89b90b112b6df14bf4fca48e3b89f2fccc9d47b85e8b8e292b48927"
+        },
+        {
+          "occurrence_id": "4121ee0554326b41c7e6035d",
+          "sha256": "650a005e3c4288bc82f3d000afe382caa2805e78aa8cf2471a535cac67864279"
+        },
+        {
+          "occurrence_id": "bbe1ee35d44ea625de37a2a7",
+          "sha256": "ba9fca3dcc72b9534a0d8840ad672ee946e9bd47637517ca5cbd1845d08d453c"
+        },
+        {
+          "occurrence_id": "58a06c78a668b63a37919e94",
+          "sha256": "cc43ac57a59acef613922664fadf4e93c194c503638a0e4a0bcb19fa44368588"
+        }
+      ],
+      "planner_endorsement": {
+        "prebuff_swap": "cta_spirit",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "coverage": "player_runeword_component",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__mirrored-blades-warlock-guide.html",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/mirrored-blades-warlock-guide/variants/1/player/Weapon-Swap/0"
+        },
+        "quote": "Call to Arms Crystal Sword",
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/rg2je0ld.json",
+          "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468"
+        },
+        "profile_index": 1,
+        "profile_uid": "lMWSt4RR",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "slot": "rarm2",
+        "item_id": "52",
+        "expected_item": {
+          "base": "crs",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            40,
+            240,
+            1,
+            6,
+            6,
+            4,
+            12
+          ],
+          "unique": "runeword039",
+          "sockets": 5,
+          "socketedItems": [
+            "r11",
+            "r08",
+            "r23",
+            "r24",
+            "r27"
+          ],
+          "stats": {
+            "item_fasterattackrate": 40,
+            "item_mindamage_percent": 240,
+            "item_maxdamage_percent": 240,
+            "item_allskills": 1,
+            "item_nonclassskill#155": 6,
+            "item_nonclassskill#149": 6,
+            "item_nonclassskill#146": 4,
+            "hpregen": 12
+          },
+          "description": "240% ed 6 battle command 6 battle orders 4 battle cry"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "companion": {
+          "item_id": "53",
+          "item": {
+            "base": "uit",
+            "quality": 7,
+            "ilvl": 99,
+            "superior": {},
+            "uniqueValues": [
+              55,
+              112,
+              250,
+              22,
+              35,
+              8,
+              2
+            ],
+            "unique": "runeword155",
+            "defense": 148,
+            "sockets": 4,
+            "socketedItems": [
+              "r07",
+              "r10",
+              "r09",
+              "r11"
+            ],
+            "stats": {
+              "item_fastergethitrate": 55,
+              "maxmana": 112,
+              "armorclass_vs_missile": 250,
+              "vitality": 22,
+              "item_fastercastrate": 35,
+              "item_absorbmagic": 8,
+              "item_allskills": 2
+            },
+            "description": "148 def 35 fcr 112 mana 8 magic abs"
+          },
+          "locator": "/profiles/1/items/larm2",
+          "recipe_state": "validated_native_spirit_recipe",
+          "recipe_sources": {
+            "planner": {
+              "path": "pricing/raw/mr/planners/game-data.json",
+              "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+            },
+            "runes": {
+              "path": "third-parties/d2data/json/runes.json",
+              "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+            },
+            "armor": {
+              "path": "third-parties/d2data/json/armor.json",
+              "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+            },
+            "types": {
+              "path": "third-parties/d2data/json/itemtypes.json",
+              "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+            }
+          }
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary equipment-table entry and guide-selected planner establish the CTA swap. Native BO/BC rolls and the actual Spirit swap companion validate the existing rule; ethereal is unrestricted and absent flags stay unknown. This links CTA and its runes only; companion, price and other assessment obligations remain independent."
+    }
+  ]
+}

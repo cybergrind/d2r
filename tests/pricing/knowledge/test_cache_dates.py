@@ -69,3 +69,33 @@ def test_listing_updated_after_pull_day_invalidates_cache_date(tmp_path):
     rows, manifest = import_cache(tmp_path)
     assert rows[0]['observed_at'] is None
     assert 'after' in manifest['files'][0]['observation_date_error']
+
+
+def test_nested_explicit_pull_date_keeps_exact_provenance(tmp_path):
+    cache = cache_root(tmp_path)
+    path = cache / 'nested.json'
+    path.write_text(
+        json.dumps({'_meta': {'pulled': '2026-09-20'}, 'listings': [listing(updated_at='2026-09-20T12:00:00Z')]})
+    )
+    rows, manifest = import_cache(tmp_path)
+    assert rows[0]['observed_at'] == '2026-09-20'
+    assert rows[0]['observation_date_source']['field'] == '/_meta/pulled'
+    assert rows[0]['observation_date_source']['sha256'] == hashlib.sha256(path.read_bytes()).hexdigest()
+    assert manifest['files'][0]['observed_at'] == '2026-09-20'
+
+
+@pytest.mark.parametrize('nested', ['2026-09-19', False, '2026-09-20T12:00:00Z'])
+def test_conflicting_or_invalid_nested_pull_day_does_not_fall_back(tmp_path, nested):
+    cache = cache_root(tmp_path)
+    (cache / 'conflict.json').write_text(
+        json.dumps(
+            {
+                'pulled': '2026-09-20',
+                '_meta': {'pulled': nested},
+                'listings': [listing(updated_at='2026-09-18T12:00:00Z')],
+            }
+        )
+    )
+    rows, manifest = import_cache(tmp_path)
+    assert rows[0]['observed_at'] is None
+    assert manifest['files'][0]['observation_date_error']

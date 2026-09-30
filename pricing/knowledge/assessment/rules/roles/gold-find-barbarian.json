@@ -1180,6 +1180,2424 @@
         ],
         "review": "2026-09-25: Reviewed explicit six-Lem slot payload. Standard source names Phase Blade in planner and Crystal Sword in table; retain both alternatives. Other roles preserve Crystal Sword identity. Ethereal is a documented non-attacking variant, not a damage/price premium. Exact complete rune linkage required; missing preparation remains conditional."
       }
+    },
+    {
+      "id": "gold-find-barbarian-0-gheeds-inventory",
+      "build": "gold-find-barbarian",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Gold farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "160% gold gain",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 160,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/0/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-1-gheeds-inventory",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Gold farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "160% gold gain",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 160,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-2-gheeds-inventory",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Gold farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "160% gold gain",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 160,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-3-gheeds-inventory",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Gold farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "160% gold gain",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 160,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-1-annihilus",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-2-annihilus",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "gold-find-barbarian-3-annihilus",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "gold-find-budget-tal-merc",
+      "build": "gold-find-barbarian",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Gold farming leech helm",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Tal Rasha's Horadric Crest"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Cited Act 2 Might setup",
+          "when": {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        },
+        {
+          "label": "Gold-find socket jewel",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "79:0": 1
+            }
+          }
+        }
+      ],
+      "important_stats": [
+        "60:0",
+        "7:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "79:0"
+      ],
+      "conditions": [
+        "Verify mercenary equip requirements, leech effectiveness against the target and complete survival setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/0/merc/Helmet",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Tal Rasha's Horadric Crest Death Mask (magic Jewel 30% Extra Gold)",
+          "Act 2 Might (prose: 'Hire the Might Aura Mercenary')"
+        ],
+        "review": "2026-09-25: Explicit mercenary helm utility: life leech desirable, observed life/resistances supporting; mana leech/mana do not receive mercenary priority. Nonethereal set item required. This configuration covers the cited Act2 Might setup, not all aura variants. No universal defense premium or numerical price. Source gold jewel30 is a target, not a minimum. Require positive gold on a captured socket jewel; parent gold alone cannot prove it. Mercenary gold only contributes under the applicable kill attribution."
+      },
+      "preferences": [
+        {
+          "label": "30% gold-find socket jewel (source target)",
+          "when": {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "79:0": 30
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-1-goldwrap",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Gold farming belt",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Goldwrap"
+      ],
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "93:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, belt capacity and the complete damage/survival setup; ethereal durability limits sustained player use."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Goldwrap",
+          "The Gold Find Barbarian's main focus is to stack x% Extra Gold From Monsters while maintaining some sort of survivability and damage; main damage from Grief Phase Blade or Oath.",
+          "Survivability comes from Resistances, Life, Damage Reduction. Your main Damage comes from Grief Phase Blade or Oath. Note: If you need to get back to town, we use the Scroll of Town Portal on the Belt.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Before your targets die, be sure to swap to your setup with more x% Extra Gold From Monsters if possible and use Find Item as well to gain additional Gold."
+        ],
+        "review": "2026-09-25: Explicit player farming belt component. Magic find and gold find retain distinct role priorities; attack speed supports attack variants only, never spell cast speed. Native 30MF is fixed; 50-80gold varies. Minimum gold roll remains useful; 80gold is only a target for gold farming. Defense and light radius receive no farming priority. Legal upgrades preserve utility but do not prove equip/capacity, whole-build fit or value. No ethereal, upgrade or defense premium and no numerical price inferred."
+      },
+      "preferences": [
+        {
+          "label": "80% extra gold (maximum native roll)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80
+          }
+        }
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-2-goldwrap",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Gold farming belt",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Goldwrap"
+      ],
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 105
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, belt capacity and the complete damage/survival setup; ethereal durability limits sustained player use."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Goldwrap",
+          "Arachnid Mesh (table footnote 1: 'recommended for the use of farming with Warcry and if you lack other options')",
+          "The War Cry variant uses Faster Cast Rate and lots of yelling: get 105% FCR while maintaining + to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand; everything else stacks Gold Find and survivability.",
+          "Get 105% FCR while maintaining a good amount of +x to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand. Everything else is just for stacking more x% Extra Gold From Monsters (Gold Find) and survivability.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Arachnid Mesh is recommended for the use of farming with Warcry and if you lack other options."
+        ],
+        "review": "2026-09-25: Explicit player farming belt component. Magic find and gold find retain distinct role priorities; attack speed supports attack variants only, never spell cast speed. Native 30MF is fixed; 50-80gold varies. Minimum gold roll remains useful; 80gold is only a target for gold farming. Defense and light radius receive no farming priority. Legal upgrades preserve utility but do not prove equip/capacity, whole-build fit or value. No ethereal, upgrade or defense premium and no numerical price inferred. The source requires 105% total cast rate; enforce typed character context. Arachnid Mesh is an explicit alternative, not equivalent gold utility."
+      },
+      "preferences": [
+        {
+          "label": "80% extra gold (maximum native roll)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80
+          }
+        }
+      ],
+      "alternatives": [
+        "Arachnid Mesh for War Cry as noted in the guide; evaluate its cast speed separately."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-3-goldwrap",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Belt",
+      "role": "Gold farming belt",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Goldwrap"
+      ],
+      "types": [
+        "belt"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "93:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, belt capacity and the complete damage/survival setup; ethereal durability limits sustained player use."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Goldwrap",
+          "There are plenty of gear options for the Gold Find Whirlwind Barbarian; stack as much Extra Gold as you can while keeping survivability and damage (Grief Phase Blade or Oath).",
+          "Survivability can come from Resistances, Life, Damage Reduction or the use of leap. Damage comes from Grief Phase Blade or Oath. Options for the Off-Hand slot could be another Grief Phase Blade for damage or Gemmed Crystal Sword for more Gold Find. On Swap, we can have either Gemmed Crystal Sword or something like Heart of the Oak Flail for additional Faster Cast Rate and + to All Skills.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Use Whirlwind to spin through as many Council Members as possible."
+        ],
+        "review": "2026-09-25: Explicit player farming belt component. Magic find and gold find retain distinct role priorities; attack speed supports attack variants only, never spell cast speed. Native 30MF is fixed; 50-80gold varies. Minimum gold roll remains useful; 80gold is only a target for gold farming. Defense and light radius receive no farming priority. Legal upgrades preserve utility but do not prove equip/capacity, whole-build fit or value. No ethereal, upgrade or defense premium and no numerical price inferred."
+      },
+      "preferences": [
+        {
+          "label": "80% extra gold (maximum native roll)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 80
+          }
+        }
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-0-merc-treachery-native",
+      "build": "gold-find-barbarian",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Fade and armor utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "201:17103",
+        "99:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
+        "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
+        "Armor properties benefit its wearer; the player does not inherit mercenary IAS or resistances. A shared Fade prebuff requires the player to equip appropriate armor and trigger Fade separately."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "quotes": [
+          "Treachery Mage Plate",
+          "The Gold Find Barbarian requires a decent amount of gear prior to being able to effectively farm; use Warcry's Stun with Leap, enabling your Mercenary to kill stuff for maximum gold.",
+          "Getting things like Resistances, Life, Skills, Damage, overall survivability, and a good Mercenary setup are all pivotal to the build's ability to farm. Use Warcry's Stun with Leap, enabling your Mercenary to kill stuff for maximum gold.",
+          "To keep your Mercenary alive, equip him with Treachery and Tal Rasha's Horadric Crest for Life and Resistances. Insight is a pretty easy Runeword to find and farm that gives a great amount of damage and Quality of Life with Meditation. Hire the Might Aura Mercenary, to gain extra Physical Damage."
+        ],
+        "review": "2026-09-26: Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Treachery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-1-player-enigma",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium.",
+        "Enigma mobility competes with gold-find armor alternatives; its magic find is not extra gold from monsters, and mercenary Wealth is a separate piece."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "The Gold Find Barbarian's main focus is to stack x% Extra Gold From Monsters while maintaining some sort of survivability and damage; main damage from Grief Phase Blade or Oath.",
+          "Survivability comes from Resistances, Life, Damage Reduction. Your main Damage comes from Grief Phase Blade or Oath. Note: If you need to get back to town, we use the Scroll of Town Portal on the Belt.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Before your targets die, be sure to swap to your setup with more x% Extra Gold From Monsters if possible and use Find Item as well to gain additional Gold."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-2-player-enigma",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium.",
+        "Enigma mobility competes with gold-find armor alternatives; its magic find is not extra gold from monsters, and mercenary Wealth is a separate piece."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "The War Cry variant uses Faster Cast Rate and lots of yelling: get 105% FCR while maintaining + to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand; everything else stacks Gold Find and survivability.",
+          "Get 105% FCR while maintaining a good amount of +x to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand. Everything else is just for stacking more x% Extra Gold From Monsters (Gold Find) and survivability.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Arachnid Mesh is recommended for the use of farming with Warcry and if you lack other options."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-3-player-enigma",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium.",
+        "Enigma mobility competes with gold-find armor alternatives; its magic find is not extra gold from monsters, and mercenary Wealth is a separate piece."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "There are plenty of gear options for the Gold Find Whirlwind Barbarian; stack as much Extra Gold as you can while keeping survivability and damage (Grief Phase Blade or Oath).",
+          "Survivability can come from Resistances, Life, Damage Reduction or the use of leap. Damage comes from Grief Phase Blade or Oath. Options for the Off-Hand slot could be another Grief Phase Blade for damage or Gemmed Crystal Sword for more Gold Find. On Swap, we can have either Gemmed Crystal Sword or something like Heart of the Oak Flail for additional Faster Cast Rate and + to All Skills.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Use Whirlwind to spin through as many Council Members as possible."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-1-heart-oak",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Caster/prebuff weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Heart of the Oak"
+      ],
+      "types": [
+        "mace"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "fla"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Heart of the Oak"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "105:0",
+        "77:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Native30resistance rolls retain this skill/casting utility; full cast-rate breakpoints and equipment requirements still need the complete loadout.",
+        "This is a casting weapon: Faster Cast Rate does not increase physical attack speed, and ethereal durability requires care if used to strike.",
+        "Swap-only casting/prebuff utility must not replace evaluation of the main attack weapons; benefits require switching to that weapon set.",
+        "The cited two-weapon swap requires two actual Heart of the Oak weapons for combined +6 skills; one captured weapon establishes only its own +3."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Heart of the Oak Flail (ethereal)",
+          "Heart of the Oak Flail (ethereal)",
+          "The Gold Find Barbarian's main focus is to stack x% Extra Gold From Monsters while maintaining some sort of survivability and damage; main damage from Grief Phase Blade or Oath.",
+          "Survivability comes from Resistances, Life, Damage Reduction. Your main Damage comes from Grief Phase Blade or Oath. Note: If you need to get back to town, we use the Scroll of Town Portal on the Belt.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Before your targets die, be sure to swap to your setup with more x% Extra Gold From Monsters if possible and use Find Item as well to gain additional Gold."
+        ],
+        "review": "2026-09-26: Reviewed completed Heart of the Oak Flail casting role at native minimum resistance. Main-hand and swap use remain distinct; explicit ethereal planner scope retained where stated, otherwise ethereal status does not change casting utility. Skills/FCR desirable, mana/resistances supporting. No two-weapon total, trap attack speed, complete breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Heart of the Oak"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-2-heart-oak",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Caster skill and resistance weapon",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Heart of the Oak"
+      ],
+      "types": [
+        "mace"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "fla"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Heart of the Oak"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "105:0",
+        "77:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Native30resistance rolls retain this skill/casting utility; full cast-rate breakpoints and equipment requirements still need the complete loadout.",
+        "This is a casting weapon: Faster Cast Rate does not increase physical attack speed, and ethereal durability requires care if used to strike."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Heart of the Oak Flail (ethereal)",
+          "The War Cry variant uses Faster Cast Rate and lots of yelling: get 105% FCR while maintaining + to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand; everything else stacks Gold Find and survivability.",
+          "Get 105% FCR while maintaining a good amount of +x to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand. Everything else is just for stacking more x% Extra Gold From Monsters (Gold Find) and survivability.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Arachnid Mesh is recommended for the use of farming with Warcry and if you lack other options."
+        ],
+        "review": "2026-09-26: Reviewed completed Heart of the Oak Flail casting role at native minimum resistance. Main-hand and swap use remain distinct; explicit ethereal planner scope retained where stated, otherwise ethereal status does not change casting utility. Skills/FCR desirable, mana/resistances supporting. No two-weapon total, trap attack speed, complete breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Heart of the Oak"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-3-heart-oak",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Caster/prebuff weapon swap",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Heart of the Oak"
+      ],
+      "types": [
+        "mace"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "fla"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Heart of the Oak"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "105:0",
+        "77:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Native30resistance rolls retain this skill/casting utility; full cast-rate breakpoints and equipment requirements still need the complete loadout.",
+        "This is a casting weapon: Faster Cast Rate does not increase physical attack speed, and ethereal durability requires care if used to strike.",
+        "Swap-only casting/prebuff utility must not replace evaluation of the main attack weapons; benefits require switching to that weapon set.",
+        "Prose alternative to the six-Lem gold-find swap; casting speed and skills compete with extra-gold equipment."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Heart of the Oak Flail (prose alternative 'for additional Faster Cast Rate and + to All Skills')",
+          "There are plenty of gear options for the Gold Find Whirlwind Barbarian; stack as much Extra Gold as you can while keeping survivability and damage (Grief Phase Blade or Oath).",
+          "Survivability can come from Resistances, Life, Damage Reduction or the use of leap. Damage comes from Grief Phase Blade or Oath. Options for the Off-Hand slot could be another Grief Phase Blade for damage or Gemmed Crystal Sword for more Gold Find. On Swap, we can have either Gemmed Crystal Sword or something like Heart of the Oak Flail for additional Faster Cast Rate and + to All Skills.",
+          "Might Aura works great for the Mercenary to deal massive Physical Damage in combination with Breath of the Dying War Pike. The goal is to stack Gold Find so Crown of Thieves and Wealth Sacred Armor are the main choice.",
+          "Use Whirlwind to spin through as many Council Members as possible."
+        ],
+        "review": "2026-09-26: Reviewed completed Heart of the Oak Flail casting role at native minimum resistance. Main-hand and swap use remain distinct; explicit ethereal planner scope retained where stated, otherwise ethereal status does not change casting utility. Skills/FCR desirable, mana/resistances supporting. No two-weapon total, trap attack speed, complete breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Heart of the Oak"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Barbarian)",
+          "The Gold Find Barbarian's main focus is to stack x% Extra Gold From Monsters while maintaining some sort of survivability and damage; main damage from Grief Phase Blade or Oath."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "gold-find-barbarian-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "War Cry",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Barbarian)",
+          "The War Cry variant uses Faster Cast Rate and lots of yelling: get 105% FCR while maintaining + to All Skills through Heart of the Oak Flail and Suicide Branch Burnt Wand; everything else stacks Gold Find and survivability."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "gold-find-barbarian-3-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/variants/3/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Barbarian)",
+          "There are plenty of gear options for the Gold Find Whirlwind Barbarian; stack as much Extra Gold as you can while keeping survivability and damage (Grief Phase Blade or Oath)."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "gold-find-barbarian-4-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/variants/4/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Barbarian)",
+          "Planner set 2 'Leap Only' (both 2026 profiles) matching the Gameplay section's 'Leap variant' playstyle - keep enemies pinned with short Leaps so the Mercenary gets the kills; not a tab on the page."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-4-annihilus",
+      "template": "unique_inventory_charm",
+      "item": "Annihilus",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Leap Only",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/variants/4/player/Charms/1",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus",
+          "Planner set 2 'Leap Only' (both 2026 profiles) matching the Gameplay section's 'Leap variant' playstyle - keep enemies pinned with short Leaps so the Mercenary gets the kills; not a tab on the page."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/merc/Body Armor/early/2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/merc/Helmet/early/1",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-wizardspike-weapon-swap-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Wizardspike",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Weapon-Swap/3",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wizardspike"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/262"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-wizardspike-off-hand-swap-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Wizardspike",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Off-Hand-Swap/3",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wizardspike"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/262"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-dwarf-star-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Dwarf Star",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Rings/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dwarf Star"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/274"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-chance-guards-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Chance Guards",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Gloves/0",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chance Guards"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/104"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-goldwrap-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Goldwrap",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Belts/1",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldwrap"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/115"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-goldskin-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Goldskin",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Body Armor/2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldskin"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/91"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/tors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-blade-of-ali-baba-weapon-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Blade of Ali Baba",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Weapon/4",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Blade of Ali Baba"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/157"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/swor"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/variants/0"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/9fc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-blade-of-ali-baba-off-hand-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Blade of Ali Baba",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Off-Hand/1",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Blade of Ali Baba"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/157"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/swor"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/variants/0"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/9fc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-blade-of-ali-baba-weapon-swap-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Blade of Ali Baba",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Weapon-Swap/2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Blade of Ali Baba"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/157"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/swor"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/variants/0"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/9fc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-blade-of-ali-baba-off-hand-swap-find-weapon-alternative",
+      "template": "named_player_utility",
+      "item": "Blade of Ali Baba",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/gold-find-barbarian/slots/Off-Hand-Swap/2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Blade of Ali Baba"
+        ],
+        "review": "2026-09-26: Reviewed exact guide gear-table loot weapon alternatives. MF only applies on the active set at the kill or Find Item, not an inactive swap. Gold Find is prioritized specifically for Gold Find Barbarian. Casting or passive holding allows ethereal without attack durability consumption; no melee damage endorsement. Gull native 100MF, Ali Baba native per-level MF240 and GF239 verified. Ali Baba native socket property is capped to the two-socket Tulwar and preserved when upgraded; Gull accepts zero or one socket. No rune or jewel content inferred. Gold Find guide Budget explicitly uses mercenary kills while the player casts War Cry/Leap. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/157"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/swor"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/gold-find-barbarian/variants/0"
+          },
+          {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+            "locator": "/9fc"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-telling-of-beads-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Telling of Beads",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Amulets/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Telling of Beads"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Only standalone skill and resistance benefits are assessed; partial or complete Disciple set bonuses need actual companion pieces. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Telling of Beads",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-trang-oul-s-girth-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Trang-Oul's Girth",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Belts/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Trang-Oul's Girth"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Cannot Be Frozen addresses ordinary chill, not every slowing effect. The conditional cold resistance bonus needs other set pieces and is not part of this standalone belt assessment. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Trang-Oul's Girth",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-player-wealth-body-armor-main-alternatives-word-utility-alternative",
+      "template": "player_progression_equipment",
+      "item": "Wealth",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Body Armor/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wealth"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Wealth",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-merc-wealth-body-armor-end-word-utility-alternative",
+      "template": "merc_survival",
+      "item": "Wealth",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/merc/Body Armor/end/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wealth"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Wealth",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-grief-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Grief",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Grief Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Flat added Damage supports Smite as well as weapon attacks; Deadly Strike, Ignore Target Defense and target-defense reduction do not improve Smite. Ignore Target Defense does not cover every boss or unique target. Compare IAS against the exact weapon/skill breakpoint. An ethereal repairable base is not a durable player weapon. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Grief",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-oath-balrog-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Oath",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives / Balrog Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7gs"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Oath Balrog Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Ethereal Oath is durable through the native Indestructible property, which must be observed for an ethereal candidate. Enhanced Damage and total IAS support weapon attacks. Iron Golem and Heart of Wolverine charges do not mean those summons are active; ethereal charges cannot be repaired/refilled. Check the documented sword base, hand usage and speed breakpoint. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Oath",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-unbending-will-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Unbending Will",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Weapon/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Unbending Will Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Combat skill levels and weapon damage support Barbarian attacks. Ordinary life leech does not heal converted Berserk magic damage. Taunt is a proc, not a guaranteed debuff on all targets. Compare the documented sword and full attack-speed setup; do not infer Non-Ladder recipe availability. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Unbending Will",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-breath-of-the-dying-end-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Breath of the Dying",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/merc/Weapon/end/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Breath of the Dying War Pike"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Weapon damage, IAS and life leech support mercenary attacks; leech still depends on physical damage and target drain effectiveness. Strength and Dexterity support requirements and attacks. Vitality, Energy and mana leech do not supply mercenary resources; Prevent Monster Heal is not credited to the mercenary. This review does not transfer the weapon bonuses to the player. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Breath of the Dying",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/gold-find-barbarian.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "415b4d5d265fbf6bb7edf50301a2c779a716960858b2679dbb65934d54376a81"
+          }
+        ]
+      },
+      "base_codes": [
+        "7p7"
+      ]
+    },
+    {
+      "id": "gold-find-barbarian-immortal-king-s-will-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Immortal King's Will",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Helmets/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Immortal King's Will"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Warcries support buffs and Find Item. Two native sockets are available, but no gold or magic-find fillers or other set pieces are assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Immortal King's Will",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-infernostride-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Infernostride",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/slots/Boots/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Infernostride"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. The raised fire resistance cap needs actual fire resistance from the full setup. Wearer Gold Find supports farming; do not infer additional mercenary Gold Find or a permanently active Blaze proc. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/237",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-protector-s-stone-v1-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Immortal King's Will",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/1/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Immortal King's Will Avenger Guard (sd1d70lu: Cham Rune + Protector's Stone Colossal Jewel; 848y90l7: Cham Rune + Lem Rune)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gold-find-barbarian-protector-s-stone-v3-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Barbarian",
+      "build": "gold-find-barbarian",
+      "variant": "Whirlwind",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Immortal King's Will",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/gold-find-barbarian/variants/3/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/gold-find-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Immortal King's Will Avenger Guard (Cham Rune + Protector's Stone Colossal Jewel / or Cham + Lem)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
     }
   ]
 }

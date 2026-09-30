@@ -2,7 +2,7 @@
 
 Generated offline with `uv run --offline python -m inventory_tracking.shop.build_catalog`.
 
-26 builds; 5126 equipment-list entries; 200 named/generic magic labels; 446 compiled rules.
+26 builds; 5126 equipment-list entries; 200 named/generic magic labels; 502 compiled rules.
 
 The JSON catalog preserves every source locator, source hash, item predicate, build association, and equipment-list entry. Names describe cited examples; equivalent compatible bases of the same item type also qualify. Monarch and elite throwing-base restrictions remain explicit.
 
@@ -16,28 +16,28 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 
 | Build | Equipment entries | Associated rules |
 |---|---:|---:|
-| abyss-warlock-build-guide | 146 | 20 |
+| abyss-warlock-build-guide | 146 | 28 |
 | berserk-barbarian | 268 | 64 |
 | blessed-hammer-paladin | 197 | 32 |
-| blizzard-sorceress | 222 | 41 |
-| double-throw-barbarian-guide | 268 | 57 |
+| blizzard-sorceress | 222 | 44 |
+| double-throw-barbarian-guide | 268 | 60 |
 | dragon-talon-assassin | 111 | 14 |
 | dream-paladin | 173 | 34 |
 | echoing-strike-warlock-guide | 189 | 29 |
 | enchant-sorceress | 173 | 35 |
 | fire-blast-assassin | 149 | 22 |
 | fire-warlock-guide | 198 | 23 |
-| fissure-druid | 248 | 57 |
+| fissure-druid | 248 | 59 |
 | fist-of-the-heavens-paladin | 215 | 25 |
 | gold-find-barbarian | 198 | 11 |
-| lightning-fury-amazon-guide | 237 | 38 |
-| lightning-sentry-assassin | 185 | 49 |
-| lightning-sorceress | 243 | 60 |
-| lightning-strike-amazon | 213 | 72 |
+| lightning-fury-amazon-guide | 237 | 40 |
+| lightning-sentry-assassin | 185 | 51 |
+| lightning-sorceress | 243 | 61 |
+| lightning-strike-amazon | 213 | 75 |
 | meteor-sorceress | 241 | 34 |
 | mirrored-blades-warlock-guide | 146 | 16 |
 | nova-sorceress-guide | 165 | 31 |
-| poison-nova-necromancer | 258 | 67 |
+| poison-nova-necromancer | 258 | 68 |
 | smite-paladin | 159 | 33 |
 | strafe-amazon | 169 | 31 |
 | summoner-necromancer-guide | 169 | 31 |
@@ -124,7 +124,7 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Garnet Sharkskin Belt of the Squid | compiled_affixes | 1 |
 | Garnet Sharkskin Gloves of Alacrity | compiled_affixes | 1 |
 | Glacial Diadem of the Magus | compiled_affixes | 1 |
-| Grand Charm | reviewed_generic_combinations | 16 |
+| Grand Charm | reviewed_generic_combinations | 27 |
 | Graverobber's Grand Charm of Balance | compiled_affixes | 1 |
 | Graverobber's Grand Charm of Vita | compiled_affixes | 3 |
 | Harpoonist's Grand Charm | compiled_affixes | 1 |
@@ -145,18 +145,18 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Lancer's Matriarchal Javelin of Quickness | compiled_affixes | 1 |
 | Lancer's Vampirebone Gloves of Alacrity | compiled_affixes | 1 |
 | Lapis Grand Charm of Life | compiled_affixes | 3 |
-| Large Charm | reviewed_generic_combinations | 2 |
+| Large Charm | reviewed_generic_combinations | 4 |
 | Large Charm of Vita | compiled_affixes | 2 |
 | Lion Branded Grand Charm of Balance | compiled_affixes | 1 |
 | Lion Branded Grand Charm of Vita | compiled_affixes | 3 |
 | Long Staff of Teleportation | compiled_affixes | 1 |
 | Lower Resist Charge Wand | charge_alias | 1 |
-| Magic Amulet | reviewed_generic_combinations | 28 |
+| Magic Amulet | reviewed_generic_combinations | 30 |
 | Magic Belt | reviewed_generic_combinations | 9 |
 | Magic Boots | reviewed_generic_combinations | 1 |
-| Magic Diadem | reviewed_generic_combinations | 13 |
+| Magic Diadem | reviewed_generic_combinations | 17 |
 | Magic Gloves | reviewed_generic_combinations | 4 |
-| Magic Ring | reviewed_generic_combinations | 5 |
+| Magic Ring | reviewed_generic_combinations | 6 |
 | Natural Grand Charm | compiled_affixes | 1 |
 | Natural Grand Charm of Balance | compiled_affixes | 1 |
 | Natural Grand Charm of Inertia | compiled_affixes | 1 |
@@ -166,8 +166,8 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Powered Amulet of the Whale | compiled_affixes | 1 |
 | Powered Eldritch Orb of the Magus | compiled_affixes | 1 |
 | Prismatic Amulet | compiled_affixes | 1 |
-| Resistance Grand Charm | reviewed_generic_combinations | 16 |
-| Resistance Small Charm | reviewed_generic_combinations | 31 |
+| Resistance Grand Charm | reviewed_generic_combinations | 27 |
+| Resistance Small Charm | reviewed_generic_combinations | 43 |
 | Rose Branded War Scepter of the Apprentice | compiled_affixes | 1 |
 | Ruby Boots of Acceleration | compiled_affixes | 1 |
 | Ruby Chain Boots of Acceleration | compiled_affixes | 1 |
@@ -211,7 +211,7 @@ Charms, jewels and other items not present in ordinary vendor stock are cataloge
 | Shimmering Small Charm of Good Luck | compiled_affixes | 1 |
 | Shimmering Small Charm of Inertia | compiled_affixes | 1 |
 | Shimmering Small Charm of Vita | compiled_affixes | 1 |
-| Small Charm | reviewed_generic_combinations | 31 |
+| Small Charm | reviewed_generic_combinations | 43 |
 | Small Charm of Good Luck | compiled_affixes | 1 |
 | Small Charm of Sustenance | compiled_affixes | 1 |
 | Small Charm of Vita | compiled_affixes | 1 |

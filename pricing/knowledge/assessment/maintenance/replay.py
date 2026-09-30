@@ -35,7 +35,10 @@ STEMS = (
     'large_charm_life35',
     'hellplague',
     'runic_talons',
+    'trainers_grand_charm_life37',
+    'sacred_rondache_res27',
 )
+OBSERVATION_STEMS = frozenset({'sacred_rondache_res27'})
 
 
 def replay(stem, database=DEFAULT_DATABASE):
@@ -45,25 +48,32 @@ def replay(stem, database=DEFAULT_DATABASE):
     if not path.exists():
         path = ROOT / 'tests/inventory_tracking/fixtures' / f'{stem}.json'
     saved = json.loads(path.read_text())
-    row = saved['snapshot']['resources']['items'][0]
-    arrays = row['resource_stats']
-    if arrays.get('stat_diagnostics') and 'stats_pointer' in row:
-        arrays['damage_modifiers'] = owned_damage_modifiers(arrays['stat_diagnostics'], row)
-        arrays['defense_modifiers'] = owned_defense_modifiers(arrays['stat_diagnostics'], row)
-    extraction = decode_items(
-        saved['snapshot'],
-        saved['report'],
-        inventory_page=row['details']['inventory_page'],
-        inventory_owner_id=row['details']['owner_id'],
-    )[0]
+    input_format = 'decoded_observation' if stem in OBSERVATION_STEMS else 'raw_snapshot'
+    extraction = saved if stem in OBSERVATION_STEMS else decode_snapshot(saved)
     result = retrieve_draft(extraction, database)
     return {
         'source': str(path.relative_to(ROOT)),
+        'input_format': input_format,
         'extraction': extraction,
         'assessment': result['assessment'],
         'price_estimate': result['price_estimate'],
         'text': format_appraisal({'state': 'complete', 'request_id': stem, 'result': result}),
     }
+
+
+def decode_snapshot(saved):
+    """Replay native decoding only when the fixture actually contains raw evidence."""
+    row = saved['snapshot']['resources']['items'][0]
+    arrays = row['resource_stats']
+    if arrays.get('stat_diagnostics') and 'stats_pointer' in row:
+        arrays['damage_modifiers'] = owned_damage_modifiers(arrays['stat_diagnostics'], row)
+        arrays['defense_modifiers'] = owned_defense_modifiers(arrays['stat_diagnostics'], row)
+    return decode_items(
+        saved['snapshot'],
+        saved['report'],
+        inventory_page=row['details']['inventory_page'],
+        inventory_owner_id=row['details']['owner_id'],
+    )[0]
 
 
 def main():

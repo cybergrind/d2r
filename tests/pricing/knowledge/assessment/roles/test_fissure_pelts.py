@@ -54,6 +54,17 @@ def test_core_pelt_combination_is_candidate_before_socket_preparation(variant):
     assert assess(prepared(), variant)[0]['dependencies'][-1]['status'] == 'true'
 
 
+def test_colossal_jewel_rolls_do_not_violate_the_other_rainbow_facets_native_bounds():
+    item = prepared()
+    colossal = {
+        **item.socket_items[0],
+        'stats_complete': True,
+        'stats': {key: {'status': 'decoded', 'value': 10} for key in ('329:0', '333:0')},
+    }
+    item = replace(item, socket_items=[colossal, item.socket_items[1]])
+    assert assess(item)[0]['dependencies'][-1]['status'] == 'true'
+
+
 @pytest.mark.parametrize('change', ['elemental', 'fissure', 'wrong-tab', 'ethereal', 'class', 'rare', 'circlet'])
 def test_rejects_wrong_skill_combination_or_item(change):
     item = pelt()

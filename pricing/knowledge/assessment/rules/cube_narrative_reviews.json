@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "scope": "horadric_cube_narrative_only",
+  "inputs": {
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "pricing/raw/mr/guides__blizzard-sorceress.html": "915ca8d599404dbf38d0087b07a9cf3f01af2f2f3ad1cb8137a3de975640c221",
+    "pricing/raw/mr/guides__dragon-talon-assassin.html": "ec0c26fd19f67f1a581fe1ad1fee0f43742fd34002e039919a9a1d8bea4286cb",
+    "pricing/raw/mr/guides__fire-wall-sorceress-guide.html": "0b2d0cd3dbfc00a2a1cd920ed80bcf1fd54bd9773cf76c7c9d4366808879cdd8",
+    "pricing/raw/mr/guides__fissure-druid.html": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2",
+    "pricing/raw/mr/guides__frozen-orb-meteor-sorceress.html": "84dbf677ed32f42f9e085fa45ebffd69aa7c4783827bd819b28b77ae4e470a10",
+    "pricing/raw/mr/guides__frozen-orb-sorceress.html": "60fcb4de09599b6e664c9ee7d6218bb5cc1d53e0fd5cdda63e7338c8ce4d7c7f",
+    "pricing/raw/mr/guides__hydra-sorceress.html": "042cf3d87f8f9ecebbffc1dff0bc9c5385f4da32f5bcf5299e458296a3fb7f83",
+    "pricing/raw/mr/guides__lightning-fury-amazon-guide.html": "3de47d7ab2d67ebd4b8c1e346c6c3c3ea835fcee67bf3c6d78e76304a11ad533",
+    "pricing/raw/mr/guides__lightning-strike-amazon.html": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd",
+    "pricing/raw/mr/guides__meteor-sorceress.html": "226323e689c70454720dd5debaf7f7cac5d895e12bb09757e6915d1c6ece0475",
+    "pricing/raw/mr/guides__nova-sorceress-guide.html": "79f362f67c1edfde15c5601cb2d7c17c321940fa078f07fbbad653b0a92ea7bb"
+  },
+  "rows": [
+    {
+      "occurrence_id": "03a08f256e6396d8ac2f11b1",
+      "occurrence_sha256": "9960957ce67126d5afe9ba143b43d54b444f9a3c9302378a89f8711122a618e4",
+      "section_index": 32,
+      "quote": "Recharge this Wand using Gold at a repair vendor or the Chipped Gem + Ort Rune @CUBE@Horadric Cube Recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "0a125403bbbc358aaf9c16c2",
+      "occurrence_sha256": "b4e182e13ab0e3a8229076933664c505bc98cf1d890d960d76bf988962dfe604",
+      "section_index": 26,
+      "quote": "Repair this Wand as needed using Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "1f1123040019190d15680125",
+      "occurrence_sha256": "02c604540e6911569788b67a67e79e0bcb1a1bc48e556f1deb4c6c4e112dab85",
+      "section_index": 12,
+      "quote": "Keep a Lower Resist Charge Wand in your inventory and/or @CUBE@Horadric Cube to break monster Fire Immunity/lower monster Fire Resistances if necessary.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "27fb13743385ba768c0e9071",
+      "occurrence_sha256": "b3e09d25c7e3ce872a5cb6a531b6ba2cd900e4305cb8cad5b50c24a59cf25037",
+      "section_index": 33,
+      "quote": "Keep a back-up Titan's Revenge or Thunderstroke in your inventory (inside the @CUBE@Horadric Cube to save space) to swap to when Quantity is depleted on your active weapon.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "2900e48b85d92458358a680c",
+      "occurrence_sha256": "d4a99ca87884c1cb58f3cf9ad3521e442c35954624c24c08c34dbd8435509d96",
+      "section_index": 32,
+      "quote": "Recharge this Wand as needed using Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube Recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "4cb4658de1ac8cdc487d776b",
+      "occurrence_sha256": "9f6e1bc8eef6d782917b3bd9d6ad17575a8369e2987236579e09788b641542d1",
+      "section_index": 29,
+      "quote": "Keep additional Javelin in your inventory or @CUBE@Horadric Cube to minimize repair trip frequency.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "5a105dbe18fe262c5e80cfc3",
+      "occurrence_sha256": "62ebd0d65a768c6761929aa6b525e4debbcf092000615427db67952783424174",
+      "section_index": 28,
+      "quote": "Recharge this Wand using Gold at a repair vendor or the Chipped Gem + Ort Rune @CUBE@Horadric Cube Recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "6225f18c995bf41e3eb1ae6f",
+      "occurrence_sha256": "4584846e9a9156721569cd4402ecf8d6c127086812eb1b933e63fa1c53de7b9c",
+      "section_index": 25,
+      "quote": "Upgrade your Boots to the highest base possible, using the @CUBE@Horadric Cube recipe.",
+      "classification": "upgrade_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "66baace34b2dad0d9af1c4ed",
+      "occurrence_sha256": "2d6dd963bed0ed1080b6ec04ce39c03e9bbfa3aaa7732aa004a9615fa7ed5ac4",
+      "section_index": 35,
+      "quote": "Repair this Wand as needed using Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "7e3f2a336d6b01ca0fb0c1e3",
+      "occurrence_sha256": "303d154b4e4547faa6fb50b7f0e462228b232d5ebb4760e63f0702ebf122b3e6",
+      "section_index": 32,
+      "quote": "Before obtaining Flame Rift and/or Infinity, you should purchase a Lower Resist Charge Wand from Nightmare Drognan and either equip it on your Weapon-Swap or keep it in your inventory/@CUBE@Horadric Cube.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "810bfc6690310e1451a999c8",
+      "occurrence_sha256": "f6f977df33108bd85956c4939615cd403f5322f23eab879ed2b2ea65f07fcbc2",
+      "section_index": 27,
+      "quote": "Repair this Wand as needed using Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "85eb43b1165a7d667e2c0238",
+      "occurrence_sha256": "0eeeb1ba73057f8f5df82ccc740122010d5aca41f3534374d7308a1691d9cace",
+      "section_index": 26,
+      "quote": "Repair this Wand with Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe to regain the Charges.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "861d2e39e8524a8d9f64d73f",
+      "occurrence_sha256": "755b90477a8d9be1e78d943f2af98a04904fc6adde8cb6ed4e534de951fa6979",
+      "section_index": 23,
+      "quote": "Utilize your @CUBE@Horadric Cube to put Arachnid Mesh, Magefist, and a Faster Cast Rate Ring into it.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "b5b39800f823b07f0144eee9",
+      "occurrence_sha256": "f727fd153699dacc234452fd2d91a0c880bf35898c8f0b8627df42c84ff1b822",
+      "section_index": 26,
+      "quote": "Repair this Wand as needed using Gold or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "cf31c506405d5b9612233894",
+      "occurrence_sha256": "101978da142a9918df7429fb1903ec591742dc1bb9022e559ba177e4041d9ccf",
+      "section_index": 30,
+      "quote": "Recharge it at a repair merchant or the Chipped Gem + Ort Rune @CUBE@Horadric Cube recipe.",
+      "classification": "recharge_recipe_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    },
+    {
+      "occurrence_id": "fff8afacceefd42e55d04128",
+      "occurrence_sha256": "02ef1c38ab7e60d5655b2a0f8103049bf0751ddf6c3479cf59cc92b7c84f9638",
+      "section_index": 32,
+      "quote": "Switch to Memory from your @CUBE@Horadric Cube and buff yourself with Frozen Armor and Energy Shield as well.",
+      "classification": "storage_context",
+      "reviewed_at": "2026-09-30",
+      "reason": "Review only this Cube mention as a utility container; preserve referenced equipment, recipe ingredients, swap roles and all identity obligations."
+    }
+  ]
+}

@@ -7,8 +7,9 @@ from pathlib import Path
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.domain.facts import freeze, thaw
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
-from pricing.knowledge.assessment.mechanics.equipment import assess_requirements
+from pricing.knowledge.assessment.mechanics.equipment import assess_requirements, named_requirements
 from pricing.knowledge.assessment.policies.generic_leveling import assess_generic_leveling
+from pricing.knowledge.assessment.policies.named_leveling import supplemental_uses
 
 
 DATA = Path(__file__).resolve().parents[3] / 'data'
@@ -44,7 +45,7 @@ def assess_leveling(facts, *, loadout=None):
     if facts.identified is not True or facts.rarity not in ('unique', 'set'):
         return generic
     try:
-        definition, _ = resolve_named_definition(facts)
+        definition, _ = resolve_named_definition(facts, identity_only=True)
         if definition is None:
             return []
         index = _load(
@@ -52,7 +53,7 @@ def assess_leveling(facts, *, loadout=None):
         )
     except OSError, ValueError, KeyError, TypeError:
         return []  # No reviewed use claimed; never infer a "none" tier from missing data.
-    uses = list(generic)
+    uses = [*generic, *supplemental_uses(facts, definition, loadout=loadout)]
     seen = set()
     for source, identity in index.get((facts.rarity, facts.name), ()):
         if facts.item_type != identity.get('item_type') or (facts.rarity == 'set' and facts.ethereal is True):
@@ -68,8 +69,9 @@ def assess_leveling(facts, *, loadout=None):
         if key in seen:
             continue
         seen.add(key)
-        original = facts.base_code == identity.get('base_code') and facts.ethereal is False and facts.sockets == 0
-        requirements = thaw(identity.get('requirements', {})) if original and identity.get('requirements_known') else {}
+        requirements = named_requirements(
+            facts, definition, thaw(identity.get('requirements', {})) if identity.get('requirements_known') else {}
+        )
         if not requirements:
             conditions.append('Equip requirements for this variant need verification before leveling use.')
         uses.append(

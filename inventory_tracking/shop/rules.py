@@ -1,10 +1,12 @@
-"""Shopping targets that sell in this economy. Match decoded stats, never tooltip text or prices.
+"""Shopping targets matched on decoded stats, never tooltip text or prices.
 
-Every rule cites a priced blue pattern: guides/pricing.html §2 (blue table), pricing-primer
+Legacy resale patterns cite: guides/pricing.html §2 (blue table), pricing-primer
 §3.3 and pindle-anya §4.1 (Anya rows), Traderie asks 2026-09-18/19. Build-list candidates
 (starter / pre-runeword pieces, resistance gear, Teleport / Life Tap / Lower Resist charges,
 Echoing weapons at a 1-Ist median behind 63 sellers) do not alert. The compiled build catalog
 stays available behind `build_candidates=True` for offline audits only.
+Reviewed +3 tree amulets and +5/+6 staffmod combinations are usefulness candidates
+(AMULETS.md, SKILL_REVIEW.md), not verified price claims.
 """
 
 import json
@@ -12,16 +14,16 @@ from functools import cache
 from pathlib import Path
 
 from inventory_tracking.items.stat_constants import CLASS_NAMES, SKILL_TABS, StatId
+from inventory_tracking.shop.amulets import match_amulet
 from inventory_tracking.shop.catalog import match_catalog
+from inventory_tracking.shop.staffmods import PRIMARY_SKILLS, companions
 
 
 LIFE, DEXTERITY, BLOCK, DAMAGE_REDUCTION, IAS, FRW, FHR, FBR, FCR = 7, 2, 20, 34, 93, 96, 99, 102, 105
 # Skill-tab layers are class_id * 8 + tree, in SKILL_TABS order.
 GLOVE_TREES = (0, 1, 2, 50)  # Bow, Passive, Javelin, Martial Arts: "of Alacrity" gloves
 JAVELIN_TREE = 2
-WARCRIES = 34
 TRAPS = 48
-WARLOCK_TREES = (56, 57, 58)
 CLAW_TYPES = ('h2h', 'h2h2')
 # Any-affix 4-socket magic rolls of these bases sell at the 4os bucket minimum (9.3 / 11.4 Ist).
 FOUR_SOCKET_ELITES = ('Monarch', 'Archon Plate')
@@ -45,7 +47,7 @@ def tree_name(layer):
 
 
 def match_item(observation, *, build_candidates=False):
-    """Reasons to buy a loaded item for resale; a hit is a priced pattern, not a BiS claim."""
+    """Resale patterns and explicitly labeled amulet build uses; no universal BiS claim."""
     item = observation['item']
     if item.get('identified') is not True:
         return []
@@ -62,8 +64,10 @@ def match_item(observation, *, build_candidates=False):
                 if stat['id'] in (17, 18) and stat['layer'] == 0:
                     stats[stat['id'], 0] = stat['raw']
 
+    unknown = {(s['id'], s['layer']) for s in observation.get('unresolved_stats', [])}
+
     def value(stat, layer=0):
-        return stats.get((stat, layer), 0)
+        return 0 if (stat, layer) in unknown else stats.get((stat, layer), 0)
 
     def class_bonus(name):
         return value(StatId.CLASS_SKILLS, CLASS_NAMES.index(name))
@@ -71,7 +75,7 @@ def match_item(observation, *, build_candidates=False):
     def tree(layer):
         return value(StatId.SKILL_TAB, layer)
 
-    reasons = []
+    reasons = match_amulet(observation, stats)
     kind, base = item['item_type'], item['base_name']
     sockets, ias, fcr = value(StatId.SOCKETS), value(IAS), value(FCR)
     # Native +3 staffmods of demanded skills; class/tree prefixes apply only to their own skill.
@@ -103,8 +107,6 @@ def match_item(observation, *, build_candidates=False):
             if sockets >= 3:
                 frw = f' / {value(FRW):g} FRW' if value(FRW) >= 30 else ''
                 reasons.append(f"Artisan's {base}: 3-socket magic {base}{frw}")
-        if kind == 'phlm' and tree(WARCRIES) >= 3:
-            reasons.append(f'Echoing Barbarian helm: +{tree(WARCRIES):g} Warcries')
         if kind == 'glov' and ias >= 20:
             for layer in GLOVE_TREES:
                 if tree(layer) >= 3:
@@ -125,25 +127,22 @@ def match_item(observation, *, build_candidates=False):
         ):
             amazon = f' / +{class_bonus("Amazon"):g} Amazon' if class_bonus('Amazon') else ''
             reasons.append(f'+{tree(JAVELIN_TREE):g} Javelin and Spear Skills / {ias:g} IAS javelin{amazon}')
-        if native and ((kind == 'orb' and fcr >= 20) or (kind == 'scep' and fcr >= 10)):
-            reasons.append(f'{base} / {fcr:g} FCR + ' + ' / '.join(f'+3 {t["name"]}' for t in native))
-        if kind == 'head' and sockets >= 2 and class_bonus('Necromancer') >= 1:
-            reasons.append(f'{base}: {sockets:g} sockets + {class_bonus("Necromancer"):g} Necromancer')
-        if kind == 'grim':
-            for layer in WARLOCK_TREES:
-                if tree(layer) >= 3:
-                    reasons.append(f'+{tree(layer):g} {tree_name(layer)} grimoire')
-
     for target in native:
+        if target['name'] not in PRIMARY_SKILLS:
+            continue
         class_part = value(StatId.CLASS_SKILLS, target['class_id'])
         tree_part = tree(target['tab_layer'])
-        if class_part >= 2 or tree_part >= 2:
+        if class_part >= 2 or tree_part >= 3:
             single = value(StatId.CLASS_SINGLE_SKILL, target['id'])
             bonus = class_part + tree_part
-            reasons.append(f'+{bonus + single:g} {target["name"]} (+{bonus:g} class/tree +{single:g} staffmod)')
-    # Two demanded +3 staffmods on one item (mastery + main skill) sell without a skill prefix.
-    if len(native) >= 2:
-        reasons.append(' / '.join(f'+3 {t["name"]}' for t in native))
+            prefix = (
+                f'+{class_part:g} {CLASS_NAMES[target["class_id"]]}'
+                if class_part >= 2
+                else f'+{tree_part:g} {tree_name(target["tab_layer"])}'
+            )
+            extras = [f'+3 {t["name"]}' for t in native if t['name'] in companions(target['name'])]
+            suffix = '; also ' + ' / '.join(extras) if extras else ''
+            reasons.append(f'+{bonus + single:g} {target["name"]} ({prefix} +{single:g} staffmod){suffix}')
     if build_candidates:
         reasons.extend(match_catalog(observation, stats))
     return list(dict.fromkeys(reasons))

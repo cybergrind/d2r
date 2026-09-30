@@ -39,7 +39,7 @@ CONTEXT = {'player_class': 'Druid', 'mercenary_type': 'Act 2 Might', 'mercenary_
         ('magic-find', 30, 'false'),
         ('magic-find', 41, 'false'),
         ('standard', 40, 'true'),
-        ('standard', 31, 'false'),
+        ('standard', 31, 'true'),
     ],
 )
 def test_variant_socket_targets_and_ethereal_preference(variant, ed, expected):
@@ -49,6 +49,8 @@ def test_variant_socket_targets_and_ethereal_preference(variant, ed, expected):
     assert role['rule_trace']['truth'] == 'true'
     assert role['dependencies'][-1]['status'] == expected
     assert role['status'] == 'partial'
+    if variant == 'standard':
+        assert role['preferences'][1]['status'] == ('true' if ed >= 40 else 'false')
     assert assess_roles(replace(item, ethereal=True), [profile], CONTEXT)[0]['preferences'][0]['status'] == 'true'
 
 

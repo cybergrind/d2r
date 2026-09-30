@@ -3,8 +3,11 @@
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
 
+from pricing.knowledge.assessment.domain.equipment import EQUIPMENT_CONTEXT_FIELDS, equipment_snapshot
 from pricing.knowledge.assessment.domain.facts import Fact, FactStatus
 
+
+COLLECTION_CONTEXT_FIELDS = frozenset({'player_items', 'mercenary_items', 'player_swap_items'})
 
 NUMERIC_CONTEXT_FIELDS = frozenset(
     {
@@ -12,6 +15,7 @@ NUMERIC_CONTEXT_FIELDS = frozenset(
         'player_strength',
         'player_dexterity',
         'player_total_fcr',
+        'player_total_fhr',
         'mercenary_level',
         'mercenary_strength',
         'mercenary_dexterity',
@@ -35,11 +39,22 @@ class AssessmentContext:
     player_total_fcr: int | None = None
     # Explicit intended encounter/activity; never inferred from gear or mercenary type.
     activity: str | None = None
+    # Explicit recovery total for this loadout; a hovered item cannot supply it.
+    player_total_fhr: int | None = None
+    # Equipment on the alternate weapon set, not inventory or the active set.
+    player_swap_items: tuple[str, ...] | frozenset[str] | None = None
+
+    # Explicit slot facts, separate from name-only membership and hovered inventory.
+    player_equipment: Mapping | None = None
+    mercenary_equipment: Mapping | None = None
+    player_swap_equipment: Mapping | None = None
 
     def __post_init__(self):
         for field in fields(self):
             value = getattr(self, field.name)
-            if field.name.endswith('_items'):
+            if field.name in EQUIPMENT_CONTEXT_FIELDS:
+                value = equipment_snapshot(value)
+            elif field.name in COLLECTION_CONTEXT_FIELDS:
                 valid = isinstance(value, (list, tuple, set, frozenset)) and all(
                     type(item) is str and bool(item.strip()) for item in value
                 )

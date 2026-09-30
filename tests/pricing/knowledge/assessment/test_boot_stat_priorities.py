@@ -11,7 +11,11 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 def test_boot_markers_keep_three_resistance_gold_find_and_starter_combinations_separate():
     profiles = build()['profiles']
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
-    configs = [c for c in compile_stat_configurations(reviews, profiles, root=ROOT) if 'boot' in c.types]
+    configs = [
+        c
+        for c in compile_stat_configurations(reviews, profiles, root=ROOT)
+        if 'boot' in c.types and set(c.qualities) & {'magic', 'rare', 'crafted'}
+    ]
     assert len(configs) == 10
     values = {'96:0': 10, '39:0': 5, '41:0': 5, '43:0': 5, '99:0': 5, '79:0': 5, '80:0': 5, '110:0': 5, '2:0': 5}
     for config in configs:

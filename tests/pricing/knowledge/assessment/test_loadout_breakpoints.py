@@ -10,21 +10,27 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 RULE = {'op': 'context_at_least', 'field': 'player_total_fcr', 'value': 105}
 
 
-def test_breakpoint_uses_explicit_loadout_total_not_hovered_item_stats():
-    validate(RULE)
-    item = replace(facts('Ring', 'rare'), stats={'105:0': {'status': 'decoded', 'value': 200}})
-    assert evaluate(RULE, item, {}).truth == 'unknown'
-    for total, expected in ((0, 'false'), (104, 'false'), (105, 'true'), (200, 'true')):
-        result = evaluate(RULE, item, {'player_total_fcr': total})
+@pytest.mark.parametrize(
+    ('field', 'key', 'target'), [('player_total_fcr', '105:0', 105), ('player_total_fhr', '99:0', 86)]
+)
+def test_breakpoint_uses_explicit_loadout_total_not_hovered_item_stats(field, key, target):
+    rule = {'op': 'context_at_least', 'field': field, 'value': target}
+    validate(rule)
+    item = replace(facts('Ring', 'rare'), stats={key: {'status': 'decoded', 'value': 200}})
+    assert evaluate(rule, item, {}).truth == 'unknown'
+    for total, expected in ((0, 'false'), (target - 1, 'false'), (target, 'true'), (200, 'true')):
+        result = evaluate(rule, item, {field: total})
         assert result.truth == expected
         assert result.observed == total
-        assert result.expected == 105
+        assert result.expected == target
 
 
-def test_malformed_totals_stay_unknown():
+@pytest.mark.parametrize('field', ['player_total_fcr', 'player_total_fhr'])
+def test_malformed_totals_stay_unknown(field):
+    rule = {**RULE, 'field': field}
     for total in (True, -1, '105', 105.0, float('inf'), None):
-        context = AssessmentContext.from_input({'player_total_fcr': total})
-        assert evaluate(RULE, facts('Ring'), context).truth == 'unknown'
+        context = AssessmentContext.from_input({field: total})
+        assert evaluate(rule, facts('Ring'), context).truth == 'unknown'
 
 
 @pytest.mark.parametrize(

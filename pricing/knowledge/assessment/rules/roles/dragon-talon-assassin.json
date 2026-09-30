@@ -493,9 +493,18 @@
         "set"
       ],
       "must": {
-        "op": "context_eq",
-        "field": "player_class",
-        "value": "Assassin"
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
       },
       "depends_on": [
         {
@@ -510,7 +519,11 @@
         }
       ],
       "important_stats": [
-        "136:0"
+        "136:0",
+        "93:0",
+        "41:0",
+        "99:0",
+        "0:0"
       ],
       "conditions": [
         "Verify equipment requirements and full-loadout attack-speed, Attack Rating, Cannot Be Frozen and resistance requirements before attempting Ubers; the guide recommends level 90."
@@ -524,8 +537,11 @@
         "quotes": [
           "Guillaume's Face [Orphan's Call set] (15 IAS / 30 Light Res jewel)"
         ],
-        "review": "2026-09-24: exact Budget helmet and combined jewel target from the cited setup. Both socket properties must belong to one captured jewel, not parent totals or separate jewels. Full build readiness and numeric trade price are independent."
-      }
+        "review": "2026-09-24: exact Budget helmet and combined jewel target from the cited setup. Both socket properties must belong to one captured jewel, not parent totals or separate jewels. Full build readiness and numeric trade price are independent. Native priorities reviewed 2026-09-25: player kick Crushing Blow/IAS/resistance differs from mercenary pre-fight Enchant support. No automatic defense, weapon damage, Deadly Strike, mana or fire-pierce transfer priority. Existing socket and upgrade dependencies remain mandatory."
+      },
+      "types": [
+        "helm"
+      ]
     },
     {
       "id": "dragon-talon-budget-goblin-toe",
@@ -544,20 +560,29 @@
       "must": {
         "all": [
           {
-            "op": "context_eq",
-            "field": "player_class",
-            "value": "Assassin"
+            "all": [
+              {
+                "op": "context_eq",
+                "field": "player_class",
+                "value": "Assassin"
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              },
+              {
+                "op": "stat_at_least",
+                "key": "136:0",
+                "value": 25,
+                "absent_is_zero": true
+              }
+            ]
           },
           {
             "op": "fact_eq",
-            "field": "ethereal",
-            "value": false
-          },
-          {
-            "op": "stat_at_least",
-            "key": "136:0",
-            "value": 25,
-            "absent_is_zero": true
+            "field": "identified",
+            "value": true
           }
         ]
       },
@@ -588,8 +613,11 @@
           "The main focus is to get as many Resistances as possible and use Boots upgraded to the highest base. Cannot Be Frozen and Attack Rating are also extremely important.",
           "Crushing Blow is extremely important to kill Ubers quickly."
         ],
-        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
-      }
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand. Native priorities reviewed 2026-09-25: player kick Crushing Blow/IAS/resistance differs from mercenary pre-fight Enchant support. No automatic defense, weapon damage, Deadly Strike, mana or fire-pierce transfer priority. Existing socket and upgrade dependencies remain mandatory."
+      },
+      "types": [
+        "boot"
+      ]
     },
     {
       "id": "dragon-talon-budget-hexfire-merc",
@@ -617,16 +645,51 @@
         {
           "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
           "when": {
-            "op": "socket_jewel_matches",
-            "stats": {
-              "329:0": 3,
-              "333:0": 3
-            }
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "count": 1,
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "329:0": 6
+                  }
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "333:0": 6
+                  }
+                }
+              }
+            ]
           }
         }
       ],
       "important_stats": [
-        "126:1"
+        "126:1",
+        "329:0"
       ],
       "preferences": [
         {
@@ -640,7 +703,8 @@
       ],
       "conditions": [
         "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
-        "Verify mercenary equip requirements and the complete cited Enchant setup."
+        "Verify mercenary equip requirements and the complete cited Enchant setup.",
+        "Use one captured Fire Rainbow Facet with 3-5% fire skill damage and 3-5% fire resistance reduction. Parent totals cannot prove the socket payload. Fire skill damage supports Enchant damage, not its Attack Rating bonus; the mercenary fire pierce is not transferred to the player."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -652,7 +716,41 @@
           "Hexfire Shamshir (ethereal; Fire Rainbow Facet)",
           "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
         ],
-        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand. Native priorities reviewed 2026-09-25: player kick Crushing Blow/IAS/resistance differs from mercenary pre-fight Enchant support. No automatic defense, weapon damage, Deadly Strike, mana or fire-pierce transfer priority. Existing socket and upgrade dependencies remain mandatory. 2026-09-29: Bind this exact build use to Assassin context and one actual named Fire Rainbow Facet in its native 3-5/3-5 range. Keep Act 3 Fire bearer and socket preparation as separate dependencies. Ethereal remains a preference, not a required minimum; missing or incomplete payload remains uncertain.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/156"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/394"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/398"
+          }
+        ]
+      },
+      "types": [
+        "swor"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
       }
     },
     {
@@ -681,11 +779,45 @@
         {
           "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
           "when": {
-            "op": "socket_jewel_matches",
-            "stats": {
-              "329:0": 3,
-              "333:0": 3
-            }
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "count": 1,
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "329:0": 6
+                  }
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "333:0": 6
+                  }
+                }
+              }
+            ]
           }
         }
       ],
@@ -704,7 +836,8 @@
       ],
       "conditions": [
         "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
-        "Verify mercenary equip requirements and the complete cited Enchant setup."
+        "Verify mercenary equip requirements and the complete cited Enchant setup.",
+        "Use one captured Fire Rainbow Facet with 3-5% fire skill damage and 3-5% fire resistance reduction. Parent totals cannot prove the socket payload. Fire skill damage supports Enchant damage, not its Attack Rating bonus; the mercenary fire pierce is not transferred to the player."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -716,7 +849,41 @@
           "Ormus' Robes Dusk Shroud (ethereal; Fire Rainbow Facet)",
           "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
         ],
-        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand. Native priorities reviewed 2026-09-25: player kick Crushing Blow/IAS/resistance differs from mercenary pre-fight Enchant support. No automatic defense, weapon damage, Deadly Strike, mana or fire-pierce transfer priority. Existing socket and upgrade dependencies remain mandatory. 2026-09-29: Bind this exact build use to Assassin context and one actual named Fire Rainbow Facet in its native 3-5/3-5 range. Keep Act 3 Fire bearer and socket preparation as separate dependencies. Ethereal remains a preference, not a required minimum; missing or incomplete payload remains uncertain.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/358"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/394"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/398"
+          }
+        ]
+      },
+      "types": [
+        "tors"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
       }
     },
     {
@@ -745,22 +912,58 @@
         {
           "label": "Socket a Fire Rainbow Facet with fire skill damage and enemy fire resistance reduction.",
           "when": {
-            "op": "socket_jewel_matches",
-            "stats": {
-              "329:0": 3,
-              "333:0": 3
-            }
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              },
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "count": 1,
+                "stats": {
+                  "329:0": 3,
+                  "333:0": 3
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "329:0": 6
+                  }
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Rainbow Facet",
+                  "stats": {
+                    "333:0": 6
+                  }
+                }
+              }
+            ]
           }
         }
       ],
       "important_stats": [
-        "127:0"
+        "127:0",
+        "329:0"
       ],
       "preferences": [],
       "conditions": [
         "The Fire Iron Wolf provides Enchant before Ubers and will not survive the fight; this is pre-fight support gear, not a survival setup.",
         "Verify mercenary equip requirements and the complete cited Enchant setup.",
-        "Use Lidless Wall until the mercenary has enough Strength for an ethereal Spirit Monarch."
+        "Use Lidless Wall until the mercenary has enough Strength for an ethereal Spirit Monarch.",
+        "Use one captured Fire Rainbow Facet with 3-5% fire skill damage and 3-5% fire resistance reduction. Parent totals cannot prove the socket payload. Fire skill damage supports Enchant damage, not its Attack Rating bonus; the mercenary fire pierce is not transferred to the player."
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -772,7 +975,1063 @@
           "Lidless Wall (Grim Shield; Fire Rainbow Facet) until enough Strength for an Ethereal Spirit Monarch",
           "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
         ],
-        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand."
+        "review": "2026-09-25: exact Budget setup and prose. Upgrade, socket and wearer requirements remain separate from current-item trade value; no price inferred from guide demand. Native priorities reviewed 2026-09-25: player kick Crushing Blow/IAS/resistance differs from mercenary pre-fight Enchant support. No automatic defense, weapon damage, Deadly Strike, mana or fire-pierce transfer priority. Existing socket and upgrade dependencies remain mandatory. 2026-09-29: Bind this exact build use to Assassin context and one actual named Fire Rainbow Facet in its native 3-5/3-5 range. Keep Act 3 Fire bearer and socket preparation as separate dependencies. Ethereal remains a preference, not a required minimum; missing or incomplete payload remains uncertain.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/230"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/394"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/398"
+          }
+        ]
+      },
+      "types": [
+        "shie"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-1-annihilus",
+      "build": "dragon-talon-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "dragon-talon-budget-duress",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Budget kicker armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Duress"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uui"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Duress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "136:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, upgraded boots, Attack Rating, Cannot Be Frozen, resistances and the full attack-speed setup; the guide recommends level 90 before attempting Ubers.",
+        "Alternative armor such as Duriel's Shell occupies this same slot; replacing Duress changes the available Crushing Blow and resistance sources."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress Dusk Shroud",
+          "This budget version of this build is capable of killing Ubers. We recommend a minimum Level of 90 before attempting Ubers, otherwise you'll struggle with your hit chance!",
+          "The main focus is to get as many Resistances as possible and use Boots upgraded to the highest base. Cannot Be Frozen and Attack Rating are also extremely important.",
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings.",
+          "Crushing Blow is extremely important to kill Ubers quickly.",
+          "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
+        ],
+        "review": "2026-09-25: Reviewed budget player Duress Dusk Shroud component. Completed3socket armor, identified normal/superior nonethereal base for sustained melee use. Native15CrushingBlow supports the cited priority; observed elemental resistances support survival. Other native properties/variableED rolls are outside this narrow priority review, not worthless or required perfect rolls. Level90 and complete Ubers equipment remain qualifications. Dream Paladin planner/prose conflict does not add a reviewed use. No market price or best-base claim."
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-1-player-enigma",
+      "build": "dragon-talon-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "We dual-wield the new Patch 2.6 Runeword Mosaic to permanently have the damage from Tiger Strike and sustain of Cobra Strike.",
+          "Upgraded Gore Rider and Guillaume's Face provide the necessary Damage and Chance of Crushing Blow, you don't need to worry about being Frozen. Dracul's Grasp, brings even more sustain when fighting the Ubers.",
+          "With Enigma lets you teleport around, allowing you to keep up your charges easily, even on long distances. Balance out your Resistances with Fade and Charms.",
+          "Hexfire, Ormus' Robes, Flickering Flame, and an Ethereal Spirit Monarch are his optimal setup.",
+          "Optional: Utilize your Horadric Cube to put Arachnid Mesh, Magefist, and a Faster Cast Rate Ring into it. Use these items when you use Teleport from Enigma to move around.",
+          "Disclaimer: The Mosaic Runeword is disabled for Patch 3.2 / Season 14 on Ladder. You are able to build it Non-Ladder and in Single Player."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-0-raven-frost",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Angelic Halo [Angelical Raiment set]",
+          "Raven Frost",
+          "This budget version of this build is capable of killing Ubers. We recommend a minimum Level of 90 before attempting Ubers, otherwise you'll struggle with your hit chance!",
+          "The main focus is to get as many Resistances as possible and use Boots upgraded to the highest base. Cannot Be Frozen and Attack Rating are also extremely important.",
+          "Sources of Cannot Be Frozen can be Kira's Guardian, Duriel's Shell, or Ravenfrost. A good source of Attack Rating is the combination of Angelic Halo, and Angelic Wings.",
+          "Crushing Blow is extremely important to kill Ubers quickly.",
+          "The Fire version of the Iron Wolf provides you with up to +452% Attack Rating by applying Enchant. He will NOT survive the Ubers, so don't worry about keeping him alive. Hexfire Shamshir, Ormus' Robes Dusk Shroud, Flickering Flame, and a Lidless Wall are his optimal setup until he has enough Strength for an Ethereal Spirit Monarch."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-1-raven-frost",
+      "build": "dragon-talon-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring (120 AR / 8 LL / +20 Str / +40 Life / Resistances)",
+          "We dual-wield the new Patch 2.6 Runeword Mosaic to permanently have the damage from Tiger Strike and sustain of Cobra Strike.",
+          "Upgraded Gore Rider and Guillaume's Face provide the necessary Damage and Chance of Crushing Blow, you don't need to worry about being Frozen. Dracul's Grasp, brings even more sustain when fighting the Ubers.",
+          "With Enigma lets you teleport around, allowing you to keep up your charges easily, even on long distances. Balance out your Resistances with Fade and Charms.",
+          "Hexfire, Ormus' Robes, Flickering Flame, and an Ethereal Spirit Monarch are his optimal setup.",
+          "Optional: Utilize your Horadric Cube to put Arachnid Mesh, Magefist, and a Faster Cast Rate Ring into it. Use these items when you use Teleport from Enigma to move around.",
+          "Disclaimer: The Mosaic Runeword is disabled for Patch 3.2 / Season 14 on Ladder. You are able to build it Non-Ladder and in Single Player."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-0-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/variants/0/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Assassin)",
+          "This budget version of this build is capable of killing Ubers. We recommend a minimum Level of 90 before attempting Ubers, otherwise you'll struggle with your hit chance!"
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "dragon-talon-assassin-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hellfire Torch (Assassin)",
+          "We dual-wield the new Patch 2.6 Runeword Mosaic to permanently have the damage from Tiger Strike and sustain of Cobra Strike."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "dragon-talon-assassin-wizardspike-weapon-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Wizardspike",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Weapon/4",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wizardspike"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/262"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-verdungo-s-hearty-cord-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Verdungo's Hearty Cord",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Belts/2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Verdungo's Hearty Cord"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/376"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-string-of-ears-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "String of Ears",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Belts/3",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "String of Ears"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/242"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/dragon-talon-assassin/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-thundergod-s-vigor-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Thundergod's Vigor",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Belts/1",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Thundergod's Vigor"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/246"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-wisp-projector-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Wisp Projector",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Rings/0",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wisp Projector"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/319"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-magefist-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Magefist",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Gloves/3",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/105"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-charge-alternative-weapon-swap-1",
+      "template": "charged_utility",
+      "item": "Wand of Life Tap",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/dragon-talon-assassin/slots/Weapon-Swap/1",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wand of Life Tap"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/578"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/82"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-highlord-s-wrath-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Highlord's Wrath",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Amulets/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Highlord's Wrath"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Deadly Strike applies to eligible weapon physical damage, not elemental spell damage or Dragon Talon kicks. Its level-scaled chance is not an independent multiplicative chance on top of Critical Strike. Check actual attack-speed breakpoints. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/276",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-the-cat-s-eye-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "The Cat's Eye",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Amulets/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Cat's Eye"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Dexterity can support equipment, attack rating and shield block; it does not imply a universal spell or kick damage bonus. Verify complete-loadout attack speed and block. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/269",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-metalgrid-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Metalgrid",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Amulets/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Metalgrid"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Attack Rating helps eligible attacks, not Smite or spells. Iron Golem and Iron Maiden charges require separate charge, summon and survival checks; merely wearing this amulet does not establish an active golem or aura. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/375",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-dracul-s-grasp-dracul-alternative",
+      "template": "named_player_utility",
+      "item": "Dracul's Grasp",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Gloves/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Dracul's Grasp"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native attack proc and sustain priorities preserve attack mechanics, skill exclusions and standalone set properties. Life Tap is a chance-to-cast curse on eligible striking attacks, including Smite and kicks, not a guaranteed active buff; another curse can overwrite it. Smite can heal through Life Tap but cannot use ordinary life leech. Ordinary life leech for other attacks depends on physical damage and target drain. Open Wounds supports eligible hits; Life after each kill requires wearer kill credit. These gloves provide no Increased Attack Speed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/364",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-player-sanctuary-off-hand-main-alternatives-support-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Sanctuary",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Off-Hand/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sanctuary"
+        ],
+        "review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Sanctuary",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r18",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r23",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-shadow-dancer-specialist-equipment-alternative",
+      "template": "named_player_utility",
+      "item": "Shadow Dancer",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Boots 4/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Shadow Dancer Myrmidon Greaves"
+        ],
+        "review": "2026-09-27: Reviewed exact low-frequency guide alternative. Shadow Dancer source Boots 4 is the parser repeated boots row and names the native Myrmidon Greaves base; canonical slot is Boots. Echoing uses cast speed, not IAS; native kick base, repairability and damage type remain separate. Myrmidon Greaves supply the kick base; Enhanced Defense and ethereal defense do not increase kick damage. Shadow Disciplines support the relevant utility skills, not Martial Arts levels or hard-point synergies. Check the actual strength/level requirement and full attack-speed setup; these boots have no IAS. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/309",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-stormlash-qualified-equipment",
+      "template": "qualified_equipment",
+      "item": "Stormlash",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Stormlash ( Shael Rune )"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Stormlash ( Shael Rune ). Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/360",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-mosaic-off-hand-aura-recipe",
+      "template": "aura_recipe",
+      "item": "Mosaic",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Mosaic"
+        ],
+        "review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Mosaic",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r23",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r25",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r11",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__dragon-talon-assassin.html/sections/12",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-black-main-alternatives-source-recipe",
+      "template": "source_recipe",
+      "item": "Black",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/slots/Weapon/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Black Flail"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Black",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dragon-talon-assassin-black-budget-source-recipe",
+      "template": "source_recipe",
+      "item": "Black",
+      "class": "Assassin",
+      "build": "dragon-talon-assassin",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/dragon-talon-assassin/variants/0/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/dragon-talon-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Black Flail (Thul-Io-Nef)"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Black",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
       }
     }
   ]

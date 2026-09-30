@@ -2,6 +2,21 @@ import pytest
 
 from pricing.knowledge.assessment import base_use
 from pricing.knowledge.assessment.adapters.capture import bases_by_code
+from pricing.knowledge.assessment.mechanics.recipe_index import compile_recipe_index
+
+
+def test_code_index_preserves_aliases_without_ambiguous_recommendation_joins():
+    rows = [
+        {'kind': 'base_rule', 'name': 'KB name', 'base_code': 'native-a'},
+        {'kind': 'base_rule', 'name': 'KB name', 'details': {'recommended': True}},
+        {'kind': 'base_rule', 'name': 'Ambiguous', 'base_code': 'native-b'},
+        {'kind': 'base_rule', 'name': 'Ambiguous', 'base_code': 'native-c'},
+        {'kind': 'base_rule', 'name': 'Ambiguous', 'details': {'recommended': True}},
+    ]
+    index = compile_recipe_index(rows, {})
+    assert index.by_code['native-a'] == tuple(rows[:2])
+    assert index.by_code['native-b'] == (rows[2],)
+    assert index.by_code['native-c'] == (rows[3],)
 
 
 def test_recipe_index_preserves_all_base_rules_and_mercenary_alternatives():

@@ -29,6 +29,11 @@ def test_missing_items_have_separate_blockers_and_definition_only_is_not_source_
             'status': status,
             'reference': {'set_id': 'set', 'item_id': item},
         }
-        for status, item in [('missing_item', '1'), ('missing_item', '2'), ('definition_only', '3')]
+        for status, item in [
+            ('missing_item', '1'),
+            ('missing_item', '2'),
+            ('definition_only', '3'),
+            ('native_definition_only', '4'),
+        ]
     ]
     assert len(source_conflicts(rows, {})) == 2

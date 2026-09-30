@@ -141,3 +141,23 @@ def test_runeword_recipe_contents_do_not_require_a_named_item_filler_description
     assert result['gaps'] == {}
     unknown = audit([{**word, 'base_rarity': None}], today=date(2026, 9, 25), all_items=True)['items'][0]
     assert unknown['gaps']['base_rarity'] == 1
+
+
+def test_policy_blockers_count_rows_once_without_summing_overlapping_gaps():
+    incomplete = row(listing_id='bad', ethereal=None, sockets=None, socket_contents='unknown')
+    affixed = row(listing_id='rare', category='base', rarity='rare', observed_at=None)
+    result = audit(
+        [row(), incomplete, dict(incomplete), affixed, row(listing_id='foreign', scope_status='rejected')],
+        today=date(2026, 9, 25),
+        all_items=True,
+    )
+    named = result['by_policy']['named']
+    assert named['scoped_observations'] == 2
+    assert named['structurally_ready'] == 1
+    assert named['blocked_observations'] == 1
+    assert named['blocker_counts'] == {'ethereal': 1, 'socket_contents': 1, 'sockets': 1}
+    rare = result['by_policy']['affixed']
+    assert rare['blocked_observations'] == 1
+    assert rare['blocker_counts'] == {'undated': 1}
+    assert 'estimate_ist' not in named
+    assert audit([], today=date(2026, 9, 25), all_items=True)['by_policy'] == {}

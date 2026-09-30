@@ -47,3 +47,21 @@ def test_localized_fissure_projects_by_native_skill_identity():
     from pricing.knowledge.assessment.adapters.market_projection import market_properties
 
     assert market_properties()['107:234'] == '1121'
+
+
+def test_sling_town_portal_oskill_uses_native_localized_player_label():
+    stat = {'id': 97, 'layer': 411, 'raw': 1}
+    rows, _, unresolved = decode_stats([stat])
+    assert not unresolved
+    assert rows[0]['text'] == '+1 to Town Portal'
+    assert rows[0]['memory_stat'] == stat
+    assert metadata()['skills']['411']['internal_name'] == 'Townportal O Skill'
+
+
+def test_town_portal_compiler_uses_descriptor_without_guessing_other_nonplayer_names():
+    from inventory_tracking.items.build_metadata import build_skills
+
+    rows = {'portal': {'*Id': 411, 'skill': 'Townportal O Skill', 'skilldesc': 'otownportal'}}
+    descriptors = {'portal': {'skilldesc': 'otownportal', 'str name': 'skillan219'}}
+    assert build_skills(rows, descriptors, {'skillan219': 'Town Portal'})['411']['name'] == 'Town Portal'
+    assert build_skills(rows, descriptors, {})['411']['name'] == 'Townportal O Skill'

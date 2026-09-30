@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "status": "source_validated_semantic_review_pending",
+  "rows": [
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "143",
+          "position": [
+            91,
+            6174
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 37,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "143",
+            "position": [
+              91,
+              6174
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "68ff79cf847cdc6f380c4afa253a17f52018d516f52db14c56539b27473cb730"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 37,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "143",
+            "position": [
+              91,
+              6174
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "ci3",
+          "quality": 4,
+          "ilvl": 99,
+          "mods": {
+            "mp713": [
+              2
+            ],
+            "ms175": [
+              20
+            ],
+            "mp331": [
+              20
+            ],
+            "ms511": [
+              -5
+            ],
+            "mp420": [
+              2
+            ],
+            "ms377": [
+              30
+            ]
+          },
+          "name": "Rare",
+          "defense": 60,
+          "sockets": 2,
+          "socketedItems": [
+            135,
+            "r24"
+          ],
+          "stats": {
+            "item_addclassskills#7": 2,
+            "item_fastercastrate": 20,
+            "fireresist": 20,
+            "lightresist": 20,
+            "coldresist": 20,
+            "poisonresist": 20,
+            "item_charged_skill#43#5": 32,
+            "item_numsockets": 2,
+            "strength": 30
+          },
+          "description": "60 def 2  20 fcr 30 str 20@ 32 charges"
+        },
+        "socket_definitions": {
+          "135": {
+            "base": "cjw",
+            "quality": 6,
+            "ilvl": 99,
+            "uniqueValues": [
+              25,
+              10,
+              35,
+              10,
+              5,
+              35,
+              50
+            ],
+            "unique": "unique425",
+            "sockets": 0,
+            "stats": {
+              "item_skillongethit#387#1": 25,
+              "passive_mag_mastery": 10,
+              "magicmindam": 15,
+              "magicmaxdam": 35,
+              "passive_mag_pierce": 10,
+              "item_addexperience": 5,
+              "item_magicbonus": 35,
+              "item_goldbonus": 50
+            },
+            "ethereal": false,
+            "description": "5% exp 50% gold 35 mf"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "144",
+          "position": [
+            91,
+            6289
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 38,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "144",
+            "position": [
+              91,
+              6289
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "1cc19b33ab617d540dd4e79d0d1cfcdc46d52171d2e6440392c3c1dedff49ce1"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 38,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "144",
+            "position": [
+              91,
+              6289
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "ci3",
+          "quality": 3,
+          "ilvl": 99,
+          "mods": {
+            "mp705": [
+              3
+            ],
+            "ms175": [
+              20
+            ]
+          },
+          "defense": 60,
+          "sockets": 2,
+          "socketedItems": [
+            135,
+            "r22"
+          ],
+          "stats": {
+            "item_addskill_tab#23": 3,
+            "item_fastercastrate": 20
+          },
+          "description": "60 def 3  20 fcr"
+        },
+        "socket_definitions": {
+          "135": {
+            "base": "cjw",
+            "quality": 6,
+            "ilvl": 99,
+            "uniqueValues": [
+              25,
+              10,
+              35,
+              10,
+              5,
+              35,
+              50
+            ],
+            "unique": "unique425",
+            "sockets": 0,
+            "stats": {
+              "item_skillongethit#387#1": 25,
+              "passive_mag_mastery": 10,
+              "magicmindam": 15,
+              "magicmaxdam": 35,
+              "passive_mag_pierce": 10,
+              "item_addexperience": 5,
+              "item_magicbonus": 35,
+              "item_goldbonus": 50
+            },
+            "ethereal": false,
+            "description": "5% exp 50% gold 35 mf"
+          }
+        }
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "140",
+          "position": [
+            91,
+            6404
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 39,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "140",
+            "position": [
+              91,
+              6404
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "73c58e7a13aa60be810c31f1f5fb25764d75e6e71eaf7a456bf2ea4d1ca2a3a0"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 39,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "140",
+            "position": [
+              91,
+              6404
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "uh9",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            10,
+            1,
+            20,
+            50,
+            15,
+            5
+          ],
+          "unique": "runeword205",
+          "defense": 157,
+          "sockets": 3,
+          "socketedItems": [
+            "r24",
+            "r08",
+            "r16"
+          ],
+          "stats": {
+            "item_skillongethit#393#5": 10,
+            "item_allskills": 1,
+            "item_fastercastrate": 20,
+            "item_armor_percent": 50,
+            "item_magicbonus": 15,
+            "item_healafterkill": 5
+          },
+          "description": "235 def 50% def 5 laek 15 mf"
+        },
+        "socket_definitions": {}
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "141",
+          "position": [
+            91,
+            6519
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 40,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "141",
+            "position": [
+              91,
+              6519
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "6727a30f78bc8f05f5028a9aff4503abf545b9e7f68e2cc4db131caf3abeac88"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 40,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "141",
+            "position": [
+              91,
+              6519
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "xsk",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            1,
+            8,
+            8,
+            20,
+            20,
+            215,
+            6
+          ],
+          "unique": "unique419",
+          "defense": 87,
+          "sockets": 0,
+          "stats": {
+            "item_allskills": 1,
+            "passive_fire_pierce": 8,
+            "passive_mag_pierce": 8,
+            "item_fastercastrate": 20,
+            "item_fasterattackrate": 20,
+            "item_armor_percent": 215,
+            "item_manaafterkill": 6
+          },
+          "description": "8% fire pierce 215% def 6 maek"
+        },
+        "socket_definitions": {}
+      }
+    },
+    {
+      "evidence": {
+        "guide": {
+          "path": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+          "sha256": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b"
+        },
+        "planner": {
+          "path": "pricing/raw/mr/planners/gsg0p0l0.json",
+          "sha256": "ef68b8d0973e5e2b25bfba5c98b942db50e1f304de3bf42d880631ec1e17083a"
+        },
+        "reference": {
+          "profile_id": "gsg0p0l0",
+          "set_id": "dm4EcrJ5",
+          "item_id": "142",
+          "position": [
+            91,
+            6634
+          ],
+          "section_locator": "/sections/29"
+        },
+        "expected_context": {
+          "span_index": 41,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "142",
+            "position": [
+              91,
+              6634
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "item_fingerprint": "9d18f9b4822ca943c85fd6eaf6b2f83b1e178444f99b90600579ac45f090d9fb"
+      },
+      "resolved": {
+        "context": {
+          "span_index": 41,
+          "label": "",
+          "side": "player",
+          "slot": "Helmets",
+          "reference": {
+            "profile_id": "gsg0p0l0",
+            "set_id": "dm4EcrJ5",
+            "item_id": "142",
+            "position": [
+              91,
+              6634
+            ],
+            "section_locator": "/sections/29"
+          }
+        },
+        "profile_locator": "/profiles/3",
+        "item": {
+          "base": "usk",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            0,
+            1,
+            20,
+            10
+          ],
+          "unique": "set135",
+          "defense": 154,
+          "sockets": 0,
+          "stats": {
+            "item_tohitpercent_perlevel": 2,
+            "item_addclassskills#7": 1,
+            "strength": 20,
+            "magic_damage_reduction": 10
+          },
+          "description": "154 def 20 str 10 mdr"
+        },
+        "socket_definitions": {}
+      }
+    }
+  ]
+}

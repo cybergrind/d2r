@@ -59,9 +59,10 @@ def test_deaths_set_tail_batch_keeps_leveling_and_companion_requirements_separat
     guard = demand_for("Death's Guard", document)
     assert hand is not None
     assert guard is not None
-    assert hand['distinct_builds'] == 1
-    assert hand['lower_bound_grade'] == 'Low'
-    assert guard['distinct_builds'] == 3
+    # Enchant plus the independently reviewed Zeal alternative.
+    assert hand['distinct_builds'] == 2
+    assert hand['lower_bound_grade'] == 'Med'
+    assert guard['distinct_builds'] == 4
     assert hand['grade'] == guard['grade'] == 'Pending'
     leveling = assess_leveling(facts('Leather Gloves', 'set', "Death's Hand"))
     assert leveling
@@ -78,12 +79,13 @@ def test_utility_demand_counts_alternatives_without_promoting_them_to_combat_gea
     demon = demand_for('Demon Limb', document)
     assert naj is not None
     assert demon is not None
-    assert naj['distinct_builds'] == 13
+    assert naj['distinct_builds'] == 14
     assert naj['preferred_builds'] == []
-    assert len(naj['alternative_builds']) == 13
-    assert demon['distinct_builds'] == 3
-    assert demon['alternative_builds'] == ['strafe-amazon']
-    assert len(demon['contexts']) == 4
+    assert len(naj['alternative_builds']) == 14
+    assert 'abyss-warlock-build-guide' in naj['alternative_builds']
+    assert demon['distinct_builds'] == 4
+    assert demon['alternative_builds'] == ['strafe-amazon', 'zeal-paladin']
+    assert len(demon['contexts']) == 5
     reviewed_ids = {
         u['profile_id']
         for u in document['guide_demand']['uses']
@@ -99,13 +101,14 @@ def test_mercenary_and_cbf_alternatives_count_distinct_endorsing_builds():
 
     document = build()
     expected = {
-        'Vampire Gaze': 4,
-        'Crown of Thieves': 1,
-        'Stealskull': 3,
-        "Duriel's Shell": 2,
-        "Kira's Guardian": 1,
-        'Rockstopper': 1,
-        'Undead Crown': 1,
+        'Vampire Gaze': 8,
+        'Crown of Thieves': 3,
+        'Stealskull': 5,
+        "Duriel's Shell": 4,
+        "Kira's Guardian": 3,
+        # Starter Fissure plus reviewed mid-progression mercenary alternatives.
+        'Rockstopper': 29,
+        'Undead Crown': 3,
     }
     for name, count in expected.items():
         summary = demand_for(name, document)
@@ -113,7 +116,12 @@ def test_mercenary_and_cbf_alternatives_count_distinct_endorsing_builds():
         assert summary['distinct_builds'] == count, name
         assert summary['grade'] == 'Pending'
     crown = demand_for('Crown of Thieves', document)
-    assert {c['variant'] for c in crown['contexts']} == {'Standard', 'War Cry', 'Whirlwind'}
+    assert {c['variant'] for c in crown['contexts'] if c['build'] == 'gold-find-barbarian'} == {
+        'Standard',
+        'War Cry',
+        'Whirlwind',
+    }
+    assert crown['alternative_builds'] == ['abyss-warlock-build-guide', 'zeal-paladin']
     duriel = demand_for("Duriel's Shell", document)
     assert duriel['preferred_builds'] == []
     assert {c['side'] for c in duriel['contexts']} == {'player', 'merc'}
@@ -123,12 +131,13 @@ def test_sigons_starter_demand_does_not_expand_to_uncited_set_pieces():
     from pricing.knowledge.assessment.build_profiles import build
 
     document = build()
-    for name, count in {"Sigon's Visor": 2, "Sigon's Gage": 3, "Sigon's Sabot": 3, "Sigon's Wrap": 1}.items():
+    for name, count in {"Sigon's Visor": 3, "Sigon's Gage": 4, "Sigon's Sabot": 4, "Sigon's Wrap": 2}.items():
         summary = demand_for(name, document)
         assert summary is not None, name
         assert summary['distinct_builds'] == count
         assert summary['grade'] == 'Pending'
-        assert {c['variant'] for c in summary['contexts']} == {'Starter'}
+        assert {c['variant'] for c in summary['contexts']} == {'Starter', 'Guide mention'}
+        assert summary['alternative_builds'] == ['zeal-paladin']
         assert {c['side'] for c in summary['contexts']} == {'player'}
     assert demand_for("Sigon's Shelter", document) is None
     assert demand_for("Sigon's Guard", document) is None

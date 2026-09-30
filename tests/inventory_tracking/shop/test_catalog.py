@@ -92,6 +92,9 @@ def test_all_reviewed_magic_profiles_keep_their_item_predicates():
     profiles = json.loads((ROOT / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
     compiled = {t['id']: t for t in catalog()['targets']}
     for profile in profiles:
+        if profile.get('scope', 'softcore') != 'softcore' or profile.get('season', 'non_ladder') != 'non_ladder':
+            assert 'profile:' + profile['id'] not in compiled
+            continue
         if 'magic' in profile.get('qualities', []):
             target = compiled['profile:' + profile['id']]
             assert target['must'] == item_predicate(profile['must'])
@@ -139,3 +142,53 @@ def test_named_combinations_do_not_drop_a_required_modifier():
         assert predicate(target['must'], {}, values, set()) is True
         for key in values:
             assert predicate(target['must'], {}, {**values, key: values[key] - 1}, set()) is False
+
+
+@pytest.mark.parametrize(('value', 'expected'), [(15, True), (14, False)])
+def test_socket_predicate_requires_linked_jewel_evidence_and_preserves_unknown(value, expected):
+    from pricing.knowledge.assessment.adapters.capture import normalize
+
+    rule = {'op': 'socket_jewel_matches', 'stats': {'93:0': 15}, 'count': 1}
+    capture = observed('Diadem', [(194, 0, 1)])
+    empty = normalize(capture)
+    assert predicate(rule, {}, {}, set(), resolve_facts=lambda: empty) is None
+    assert predicate({'not': rule}, {}, {}, set(), resolve_facts=lambda: empty) is None
+    capture['item'].update(
+        socket_contents='filled',
+        filled_sockets=1,
+        empty_sockets=0,
+        socket_items=[
+            {
+                'unit_id': 1,
+                'position': 0,
+                'item_type': 'jewl',
+                'name': 'Jewel',
+                'stats_complete': True,
+                'stats': {'93:0': {'status': 'decoded', 'value': value}},
+            }
+        ],
+    )
+    filled = normalize(capture)
+    assert predicate(rule, {}, {}, set(), resolve_facts=lambda: filled) is expected
+
+
+def test_shop_compilation_excludes_ladder_and_hardcore_profiles(monkeypatch):
+    from inventory_tracking.shop import build_catalog
+
+    original_load = build_catalog.load
+    profiles = original_load('pricing/data/appraisal-build-profiles.json')['profiles']
+    source = next(p for p in profiles if 'magic' in p['qualities'])
+    modes = [
+        {**source, 'id': 'test-softcore-non-ladder', 'scope': 'softcore', 'season': 'non_ladder'},
+        {**source, 'id': 'test-hardcore', 'scope': 'hardcore'},
+        {**source, 'id': 'test-ladder', 'scope': 'softcore', 'season': 'ladder'},
+    ]
+    monkeypatch.setattr(
+        build_catalog,
+        'load',
+        lambda p: {'profiles': modes} if p == 'pricing/data/appraisal-build-profiles.json' else original_load(p),
+    )
+    targets = {t['id'] for t in build_catalog.build()['targets']}
+    assert 'profile:test-softcore-non-ladder' in targets
+    assert 'profile:test-hardcore' not in targets
+    assert 'profile:test-ladder' not in targets

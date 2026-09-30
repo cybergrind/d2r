@@ -82,3 +82,49 @@ def test_delivery_message_survives_incomplete_samples_for_one_second(tmp_path, h
     expected = [f'merc potion sent (Shift+{column})']
     assert presenter.render(now=100.999) == expected
     assert presenter.render(now=101) == []
+
+
+def test_stale_image_capture_is_retried_as_not_ready(tmp_path):
+    from inventory_tracking.native.session import GameNotReady
+
+    reader = LiveReader(tmp_path)
+    with (
+        patch('inventory_tracking.tracking.reader.select_game_process', return_value=12),
+        patch(
+            'inventory_tracking.tracking.reader.inspect_game',
+            return_value={
+                'memory_access': True,
+                'executable_fingerprint': {'sha256': 'supported'},
+            },
+        ),
+        patch('inventory_tracking.tracking.reader.SUPPORTED_SHA256', 'supported'),
+        patch('inventory_tracking.tracking.reader.inspect_images', return_value={'status': 'candidate'}),
+        patch(
+            'inventory_tracking.tracking.reader.capture_image',
+            return_value={'status': 'stale', 'error': 'Process or PE headers changed before capture'},
+        ),
+        pytest.raises(GameNotReady, match='changed'),
+    ):
+        reader.connect(tmp_path)
+
+
+@pytest.mark.parametrize(
+    'images',
+    [{'status': 'stale', 'error': 'Mappings changed during discovery'}, {'status': 'no_candidate'}],
+)
+def test_game_image_not_found_yet_is_retried_as_not_ready(tmp_path, images):
+    # D2R.exe starting or exiting: the image is not (or no longer) mapped; serve waits instead of crashing.
+    from inventory_tracking.native.session import GameNotReady
+
+    reader = LiveReader(tmp_path)
+    with (
+        patch('inventory_tracking.tracking.reader.select_game_process', return_value=12),
+        patch(
+            'inventory_tracking.tracking.reader.inspect_game',
+            return_value={'memory_access': True, 'executable_fingerprint': {'sha256': 'supported'}},
+        ),
+        patch('inventory_tracking.tracking.reader.SUPPORTED_SHA256', 'supported'),
+        patch('inventory_tracking.tracking.reader.inspect_images', return_value=images),
+        pytest.raises(GameNotReady, match='game image unavailable'),
+    ):
+        reader.connect(tmp_path)

@@ -35,3 +35,12 @@ def test_eschuta_lightning_premium_requires_class_skills_and_leaves_other_varian
         other = item('Eldritch Orb', "Eschuta's Temper", values)
         assert assess_tier(other)['tier'] is None
     assert assess_tier(replace(base, socket_contents='filled'))['tier'] is None
+
+
+@pytest.mark.parametrize('defense', [99, 141, 180])
+def test_socketed_shako_keeps_item_tier_without_native_defense_premium(defense):
+    shako = replace(item('Shako', 'Harlequin Crest', {'31:0': defense}), sockets=1, socket_contents='filled')
+    result = assess_tier(shako)
+    assert result['tier'] == 'med'
+    assert result['reasons'] == ['Underlying item; socket additions excluded']
+    assert assess_tier(replace(shako, ethereal=True))['tier'] is None

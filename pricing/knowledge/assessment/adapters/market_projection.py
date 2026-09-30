@@ -1,6 +1,6 @@
 """Reviewed native identities missing from the decoder's scalar market facets.
 
-Verified against pricing/data/appraisal-properties.json (2026-09-24).
+Verified against pricing/data/appraisal-properties.json (2026-09-24; magic pierce 2026-09-28).
 Parameters are part of identity: class skills, skill tabs, staffmods, oskills and
 wearer auras must never share a projection merely because their skill names match.
 Values here are decoded units (not encoded raw values, especially Flee).
@@ -41,6 +41,8 @@ NATIVE_PROPERTIES = {
     '334:0': '736',  # Enemy Lightning Resistance reduction
     '335:0': '609',  # Enemy Cold Resistance reduction
     '336:0': '723',  # Enemy Poison Resistance reduction
+    '357:0': '1879',  # Magic Skill Damage; cached numeric field, distinct from flat Magic Damage 654.
+    '358:0': '1877',  # Enemy Magic Resistance reduction; cached numeric field, positive magnitude.
     '83:3': '442',  # Paladin skill levels
     '188:9': '516',  # Sorceress Lightning tab
     '188:10': '517',  # Sorceress Cold tab

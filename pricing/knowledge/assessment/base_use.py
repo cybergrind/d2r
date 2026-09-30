@@ -11,11 +11,15 @@ from pathlib import Path
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.adapters.capture import bases_by_code
-from pricing.knowledge.assessment.caster_base_templates import caster_ethereal_preference, evaluate_caster_base
+from pricing.knowledge.assessment.caster_base_templates import (
+    caster_ethereal_preference,
+    evaluate_caster_base,
+    reviewed_caster_sources,
+)
 from pricing.knowledge.assessment.domain.facts import FactStatus, StatKey, freeze
 from pricing.knowledge.assessment.mechanics.preparation import prepare_sockets
 from pricing.knowledge.assessment.mechanics.recipe_index import compile_recipe_index
-from pricing.knowledge.assessment.progression_base_templates import evaluate_progression_base
+from pricing.knowledge.assessment.progression_base_templates import evaluate_progression_base, reviewed_base_sources
 
 
 MERC_WORDS = frozenset({'Insight', 'Infinity', 'Pride', 'Obedience'})
@@ -99,15 +103,20 @@ def player_quality(facts, name, *, wearer=None):
         else:
             missing.append('Optional premium: 15% Enhanced Damage / +3 Attack Rating; cannot be added later.')
         tradeoff = 'Grief damage and IAS rolls are rolled when making the word; superior ED affects base damage only.'
-    elif name == 'Spirit' and facts.base_name in ('Monarch', 'Sacred Targe'):
-        role = 'Paladin caster' if facts.base_name == 'Sacred Targe' else 'non-Paladin caster'
-        if facts.base_name == 'Sacred Targe':
+    elif name == 'Spirit' and (facts.base_name == 'Monarch' or facts.item_type == 'ashd'):
+        role = 'Paladin caster' if facts.item_type == 'ashd' else 'non-Paladin caster'
+        if facts.item_type == 'ashd':
             resists = [roll(facts, stat) for stat in (39, 41, 43, 45)]
             if resists == [45] * 4:
                 strengths.append('Perfect inherent resistances: +45 all resistances.')
             else:
+                if resists[0] is not None and len(set(resists)) == 1 and resists[0] > 0:
+                    strengths.append(f'Inherent +{resists[0]} all resistances carry into Spirit.')
                 missing.append('Preferred inherent roll: +45 all resistances; cannot be added to this base.')
-            strengths.append('High-block, low-strength elite Paladin shield.')
+            if facts.base_name == 'Sacred Targe':
+                strengths.append('High-block, low-strength elite Paladin shield.')
+            else:
+                strengths.append('Paladin shield alternative for Spirit; compare strength requirements and blocking.')
         else:
             strengths.append('Lowest strength requirement among non-Paladin four-socket shields (156).')
         missing.append('Premium defense needs a separate base-defense roll check; it is optional for Spirit.')
@@ -157,7 +166,7 @@ def assess_runeword_base(facts):
     if facts.runeword or facts.rarity not in BASE_QUALITIES or not facts.base_name:
         return []
     index = recipe_index()
-    catalog = index.by_base.get(facts.base_name, ())
+    catalog = index.by_code.get(facts.base_code, ())
     recommended = {r['details']['runeword']: r for r in catalog if r.get('details', {}).get('recommended')}
     rows = []
     for recipe in catalog:
@@ -210,7 +219,12 @@ def assess_runeword_base(facts):
                 'missing': missing,
                 'alternatives': [n for n in alternatives if n != facts.base_name],
                 'tradeoff': tradeoff,
-                'sources': [recipe.get('source_locator'), recommended.get(name, {}).get('source_locator')],
+                'sources': [
+                    recipe.get('source_locator'),
+                    recommended.get(name, {}).get('source_locator'),
+                    *reviewed_base_sources(facts, name),
+                    *reviewed_caster_sources(facts, name),
+                ],
             }
         )
         if extra := additional_player_use(facts, recipe, recommendation):

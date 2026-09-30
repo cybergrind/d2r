@@ -11,7 +11,16 @@ def test_atmas_scarab_poison_matches_tooltip():
     assert not unresolved
 
 
-def test_multiple_poison_sources_remain_explicit_until_verified():
+def test_multiple_poison_sources_preserve_rates_without_inventing_a_combined_tooltip():
     stats = [{'id': i, 'layer': 0, 'raw': value} for i, value in [(57, 102), (58, 102), (59, 100), (326, 2)]]
-    _, _, unresolved = decode_stats(stats)
-    assert unresolved == stats
+    rows, facets, unresolved = decode_stats(stats)
+    assert not unresolved
+    assert not facets
+    assert [r['memory_stat'] for r in rows] == stats
+    assert [(r['value'], r['unit']) for r in rows] == [
+        (102 / 256, 'damage_per_frame'),
+        (102 / 256, 'damage_per_frame'),
+        (4, 'seconds'),
+        (2, 'count'),
+    ]
+    assert not any('Damage over' in r['text'] for r in rows)

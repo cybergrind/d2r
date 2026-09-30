@@ -237,7 +237,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -406,7 +406,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -502,7 +502,7 @@
         "80:0"
       ],
       "conditions": [
-        "Check the full loadout against this variant’s cast-rate breakpoint, resistance and resource requirements."
+        "Check the full loadout against this variant\u2019s cast-rate breakpoint, resistance and resource requirements."
       ],
       "alternatives": [],
       "source": {
@@ -614,6 +614,3166 @@
       "types": [
         "belt"
       ]
+    },
+    {
+      "id": "enchant-sorceress-1-gheeds-inventory",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-gheeds-inventory",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-annihilus",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-annihilus",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-soj",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout.",
+        "Verify the cited 105% cast rate on weapon swap separately; the ring does not establish the swap setup.",
+        "The selected source does not establish a main-loadout cast-rate threshold for this configuration; do not inherit a number from another variant."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "The Stone of Jordan",
+          "Magic Ring of the Apprentice (10 FCR / 6 ML / +90 Mana / All Res / MF)",
+          "This is the Standard Best in Slot (BiS) Enchant Sorceress featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing the most tasks well.",
+          "It also attains 99% Piercing Attack between Razortail and Demon Machine for maximum penetration. Demon Machine is used for its high Attack Speed and Fires Explosive Arrows or Bolts stat (large Area of Effect damage). Flame Rift increases your damage against monsters that are Immune to Fire. This setup reaches the 105% Faster Cast Rate Breakpoint on Weapon-Swap for casting Teleport.",
+          "The Standard Bow Enchant Sorceress uses an Act 2 prayer Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Chains of Honor Archon Plate and Cure maximize this Mercenary's damage and survivability.",
+          "Memory can be used to pre-buff Energy Shield to make the Enchant Sorceress tankier."
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "enchant-mf-nagelring",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Magic-find ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Nagelring"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, remaining damage, resource and defensive needs; this component does not prove the full setup.",
+        "Verify weapon-swap cast rate separately; this variant does not state a main-loadout threshold."
+      ],
+      "preferences": [
+        {
+          "label": "30% magic find (maximum native roll)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 30
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Nagelring",
+          "Magic Ring of the Apprentice (10 FCR / 6 ML / Mana / All Res / MF)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-25: Reviewed Nagelring magic-find component. Native15-30MF; minimum roll remains useful,30 is an optional target. Only observed MF receives priority here; attack rating, magic damage reduction and thorns are not reviewed by this farming-utility template. No perfect roll requirement, ethereal premium or numerical price. Explicit Enchant MF ring; no main FCR threshold or companion Spirit gate is inherited from Standard or another build. Remaining ring/mana/cast setup stays separate."
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-harlequin",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Magic-find skill helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Harlequin Crest"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uap"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "80:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, damage and defensive readiness across the complete loadout; this magic-find helmet is only one component.",
+        "Verify the cited socket choice separately: Harlequin Crest (Defender's Fire jewel). The unsocketed helmet retains intrinsic skill and magic-find utility; it does not establish the socket contribution."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Harlequin Crest (Defender's Fire jewel)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-25: Reviewed Harlequin Crest magic-find helmet component. Native2allskills and50MF are intrinsic utility; no socket-filled or maximum-defense requirement. Socket payload and full companion setup remain explicit qualifications. Respect source main-loadout versus Weapon-Swap cast-rate distinctions. Nonethereal player-use configuration; other variants remain unreviewed. Guide breadth is not a trade price."
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-magefist",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Fire-skill caster gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Magefist"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tgl"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xtg"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "utg"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "27:0",
+        "126:1"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and the complete skill, resistance, resource and survival setup; gloves are only one component.",
+        "The cited 105% FCR belongs to Weapon-Swap for Teleport. Verify the Demon Machine/Razortail attack setup separately."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Magefist",
+          "This is the Standard Best in Slot (BiS) Enchant Sorceress featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing the most tasks well.",
+          "It also attains 99% Piercing Attack between Razortail and Demon Machine for maximum penetration. Demon Machine is used for its high Attack Speed and Fires Explosive Arrows or Bolts stat (large Area of Effect damage). Flame Rift increases your damage against monsters that are Immune to Fire. This setup reaches the 105% Faster Cast Rate Breakpoint on Weapon-Swap for casting Teleport.",
+          "The Standard Bow Enchant Sorceress uses an Act 2 prayer Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Chains of Honor Archon Plate and Cure maximize this Mercenary's damage and survivability.",
+          "Memory can be used to pre-buff Energy Shield to make the Enchant Sorceress tankier."
+        ],
+        "review": "2026-09-26: Reviewed Magefist glove component: cast rate desirable, mana regeneration supporting; fire-skill bonus desirable only for the reviewed fire use. Native legal upgrade chain accepted for generic Magefist mentions, Fissure Ubers restricted to explicitly cited Crusader Gauntlets. Keep main/swap casting, recovery, full-setup and skill-type distinctions. Prebuff-only and conflicting starter examples remain separate; no price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/tgl"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-vipermagi",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Enchant skill and casting armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "uea"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "Verify the cited fire-facet socket and Demon Machine/Razortail attack setup separately; armor cast rate does not increase crossbow attack speed.",
+        "The Standard 105% cast-rate target belongs to Weapon-Swap for Teleport, not a main-loadout requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Skin of the Vipermagi (Fire Rainbow Facet)",
+          "This is the Standard Best in Slot (BiS) Enchant Sorceress featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing the most tasks well.",
+          "It also attains 99% Piercing Attack between Razortail and Demon Machine for maximum penetration. Demon Machine is used for its high Attack Speed and Fires Explosive Arrows or Bolts stat (large Area of Effect damage). Flame Rift increases your damage against monsters that are Immune to Fire. This setup reaches the 105% Faster Cast Rate Breakpoint on Weapon-Swap for casting Teleport.",
+          "The Standard Bow Enchant Sorceress uses an Act 2 prayer Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Chains of Honor Archon Plate and Cure maximize this Mercenary's damage and survivability.",
+          "Memory can be used to pre-buff Energy Shield to make the Enchant Sorceress tankier."
+        ],
+        "review": "2026-09-26: Reviewed Vipermagi caster armor component. Cast rate and all skills desirable; resistances supporting, poison desirable in the cited Nova Energy Shield setup. Native20-35resistance range is not a minimum35roll gate. Generic identity mentions accept the verified exceptional/elite chain; explicit Serpentskin citations retain original base scope. Socket/full-loadout qualifications retained, no numerical price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-vipermagi",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Enchant skill and casting armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "uea"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "Verify the cited fire-facet socket and Demon Machine/Razortail attack setup separately; armor cast rate does not increase crossbow attack speed.",
+        "This MF variant changes gloves and jewelry; do not inherit an unverified main or swap cast-rate threshold from Standard."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Skin of the Vipermagi (Fire Rainbow Facet)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-26: Reviewed Vipermagi caster armor component. Cast rate and all skills desirable; resistances supporting, poison desirable in the cited Nova Energy Shield setup. Native20-35resistance range is not a minimum35roll gate. Generic identity mentions accept the verified exceptional/elite chain; explicit Serpentskin citations retain original base scope. Socket/full-loadout qualifications retained, no numerical price or upgrade premium inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-merc-chains-honor",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Prayer"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited Prayer setup uses Infinity and Cure; verify Conviction and survival equipment rather than importing an Insight setup."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "This is the Standard Best in Slot (BiS) Enchant Sorceress featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing the most tasks well.",
+          "It also attains 99% Piercing Attack between Razortail and Demon Machine for maximum penetration. Demon Machine is used for its high Attack Speed and Fires Explosive Arrows or Bolts stat (large Area of Effect damage). Flame Rift increases your damage against monsters that are Immune to Fire. This setup reaches the 105% Faster Cast Rate Breakpoint on Weapon-Swap for casting Teleport.",
+          "The Standard Bow Enchant Sorceress uses an Act 2 prayer Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Chains of Honor Archon Plate and Cure maximize this Mercenary's damage and survivability.",
+          "Memory can be used to pre-buff Energy Shield to make the Enchant Sorceress tankier."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-merc-chains-honor",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Prayer"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited Prayer setup uses Infinity and Cure; verify Conviction and survival equipment rather than importing an Insight setup."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-0-merc-treachery-native",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Fade and armor utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Fire"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "201:17103",
+        "99:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
+        "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
+        "Armor properties benefit its wearer; the player does not inherit mercenary IAS or resistances. A shared Fade prebuff requires the player to equip appropriate armor and trigger Fade separately.",
+        "The Fire Rogue receives Enchant and uses Insight; compare the actual bow attack speed and leech rather than transferring player cast-rate targets."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Treachery Mage Plate (ethereal)",
+          "The Budget Enchant Sorceress achieves a solid mid-level Enchant with easy to acquire gear.",
+          "While slower to attack and teleport than the standard setup, you can still begin farming at significantly higher Player Settings than you would think, as long as you're farming in areas of low monster Fire Resistance. Especially places like the Stony Tomb!",
+          "The Act 1 Fire Arrow Mercenary brings two massive benefits. They occasionally cast exploding arrow themselves, which carries your Enchant damage on it. As well as applying that damage to their normal attack and fire arrow. The second benefit is their use of inner sight which applies a flat reduction to the enemy's Defense, making it easier to hit and pierce the targets."
+        ],
+        "review": "2026-09-26: Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Treachery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-0-merc-bulwark-native",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Starter mercenary leech and physical protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "types": [
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 1 Fire"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ci3"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "76:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Life leech requires eligible physical damage and a leechable target; verify the actual weapon, full resistance coverage and mercenary survival.",
+        "The cited base and aura describe this setup, not a universal best base. Verify actual equipment requirements and the full hit-recovery/attack-speed breakpoints; helmet defense and ethereal status do not imply a numerical price premium.",
+        "This review uses the Non-Ladder Bulwark definition; Ladder-only revisions must not replace its native rolls.",
+        "The Fire Rogue receives Enchant and uses Insight; elemental damage and the player cast-rate breakpoint are not physical leech or a mercenary attack-speed target."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Bulwark Diadem (ethereal)",
+          "The Budget Enchant Sorceress achieves a solid mid-level Enchant with easy to acquire gear.",
+          "While slower to attack and teleport than the standard setup, you can still begin farming at significantly higher Player Settings than you would think, as long as you're farming in areas of low monster Fire Resistance. Especially places like the Stony Tomb!",
+          "The Act 1 Fire Arrow Mercenary brings two massive benefits. They occasionally cast exploding arrow themselves, which carries your Enchant damage on it. As well as applying that damage to their normal attack and fire arrow. The second benefit is their use of inner sight which applies a flat reduction to the enemy's Defense, making it easier to hit and pierce the targets."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sorceress Hellfire Torch",
+          "This is the Standard Best in Slot (BiS) Enchant Sorceress featured in the beginning of the guide. It is the balanced 'jack-of-all-trades' version, capable of performing the most tasks well."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "enchant-sorceress-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sorceress Hellfire Torch",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!"
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "enchant-sorceress-3-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Max Enchant",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/3/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sorceress Hellfire Torch",
+          "This setup shows the absolute highest value you can obtain for a prebuff enchant."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-3-annihilus",
+      "template": "unique_inventory_charm",
+      "item": "Annihilus",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Max Enchant",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/3/player/Charms/1",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus",
+          "This setup shows the absolute highest value you can obtain for a prebuff enchant."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/4",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-early-merc-cure",
+      "template": "merc_survival",
+      "item": "Cure",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Helmet/early/6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Cure"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "enchant-sorceress-1-merc-cure",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/1",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure Demonhead (ethereal)",
+          "Act 2 Prayer",
+          "Infinity Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-26: Reviewed exact ethereal Cure helmet and mercenary choice from this guide variant. Native level1 Cleansing shortens curse/poison duration; it does not independently heal. Prayer synergy belongs only to actual Prayer mercenaries. Perfect defense/resistance rolls not required; complete gear and equip requirements remain separate."
+      },
+      "conditions": [
+        "Verify mercenary level, strength and dexterity requirements. Ethereal durability is safe on mercenaries; no automatic price premium is inferred.",
+        "Cleansing reduces curse and poison duration; healing through Prayer requires an actual Prayer mercenary. Cure alone does not establish the Prayer/Insight combination or supply life leech.",
+        "Guide-specific ethereal base; this component does not establish the full loadout.",
+        "Prayer contributes healing through Cleansing; an additional Insight/Meditation interaction requires the actual weapon. Enchant uses Infinity, while Echoing Strike uses Insight."
+      ],
+      "role": "Mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Cure"
+      ],
+      "types": [
+        "helm",
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Cure"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Prayer"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "151:109",
+        "45:0",
+        "110:0",
+        "76:0",
+        "99:0"
+      ]
+    },
+    {
+      "id": "enchant-sorceress-2-merc-cure",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/variants/2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure Demonhead (ethereal)",
+          "Act 2 Prayer",
+          "Infinity Giant Thresher (ethereal)"
+        ],
+        "review": "2026-09-26: Reviewed exact ethereal Cure helmet and mercenary choice from this guide variant. Native level1 Cleansing shortens curse/poison duration; it does not independently heal. Prayer synergy belongs only to actual Prayer mercenaries. Perfect defense/resistance rolls not required; complete gear and equip requirements remain separate."
+      },
+      "conditions": [
+        "Verify mercenary level, strength and dexterity requirements. Ethereal durability is safe on mercenaries; no automatic price premium is inferred.",
+        "Cleansing reduces curse and poison duration; healing through Prayer requires an actual Prayer mercenary. Cure alone does not establish the Prayer/Insight combination or supply life leech.",
+        "Guide-specific ethereal base; this component does not establish the full loadout.",
+        "Prayer contributes healing through Cleansing; an additional Insight/Meditation interaction requires the actual weapon. Enchant uses Infinity, while Echoing Strike uses Insight."
+      ],
+      "role": "Mercenary survival alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Cure"
+      ],
+      "types": [
+        "helm",
+        "circ"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Cure"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Prayer"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "151:109",
+        "45:0",
+        "110:0",
+        "76:0",
+        "99:0"
+      ]
+    },
+    {
+      "id": "enchant-sorceress-aldur-boots-alternative",
+      "template": "player_footwear",
+      "item": "Aldur's Advance",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Boots/1",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Aldur's Advance"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Aldur's Advance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Rings/2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-skullder-body-armor-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Skullder's Ire",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Body Armor/2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skullder's Ire"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/217"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-lore-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Lore",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Helmets/6",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lore"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lore"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-ground-merc-early",
+      "template": "merc_survival",
+      "item": "Ground",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Helmet/early/5",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ground"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-guardian-angel-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Guardian Angel",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Body Armor/mid/5",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-the-gladiator-s-bane-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Gladiator's Bane",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Body Armor/mid/3",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Gladiator's Bane"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/250"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-skin-of-the-flayed-one-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Skin of the Flayed One",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Flayed One"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/211"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-the-face-of-horror-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Face of Horror",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/merc/Helmet/early/2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Face of Horror"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/78"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-guardian-armor-alternative",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Player resistance-cap armor alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Guardian Angel"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xlt"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "ult"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "40:0",
+        "42:0",
+        "44:0",
+        "46:0"
+      ],
+      "conditions": [
+        "Raised caps need actual resistances from the full loadout; this armor does not itself supply those resistances.",
+        "The guide attacks with a bow/crossbow; Paladin skills do not benefit Sorceress and shield-block bonuses do not apply to that attack set."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Body Armor/4",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit Guardian Angel player armor alternative. Resist-cap utility is separate from actual resistance. The Smite shield setup gains Paladin skills/block support; bow/crossbow Enchant does not. Native minimum ED is sufficient; valid upgraded armor retains utility and durable nonethereal use is assessed. No automatic price or full survival setup is inferred. 2026-09-30: Native Guardian Angel has no socket modifier. Zero or one socket is legal; reject extra sockets and preserve an unread count as unknown, for native and upgraded armor.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/enchant-sorceress/slots/Weapon"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/enchant-sorceress/slots/Off-Hand"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-thundergod-s-vigor-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Thundergod's Vigor",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Belts/4",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Thundergod's Vigor"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/246"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-raven-claw-alternative",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Explosive arrow Enchant delivery alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Claw"
+      ],
+      "types": [
+        "bow"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "lbw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8lb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6lb"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "158:0"
+      ],
+      "conditions": [
+        "Requires an active Enchant buff; explosive arrows do not provide Enchant by themselves."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Weapon/1",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Raven Claw"
+        ],
+        "review": "2026-09-26: Explicit Enchant weapon alternative. Gear Options names explosive arrows as a useful weapon property, and native Raven Claw supplies that property. Enchant must be active; physical weapon ED is not the fire damage priority. Native and upgraded bows remain usable; the native Long Bow has level requirement15, upgrades increase requirements. This is not the Standard Demon Machine/Pierce setup and does not imply its99% pierce. No price inferred. 2026-09-30: Native Raven Claw has no socket modifier; accept zero or one socket, reject impossible extra sockets and preserve unknown count as unknown.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/61"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+            "locator": "/sources/pricing~1raw~1mr~1guides__enchant-sorceress.html/sections/31"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-frostburn-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Frostburn",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Gloves/3",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Frostburn"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/106"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-magefist-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Magefist",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Gloves/0",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magefist"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/105"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/glov"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/enchant-sorceress/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-tarnhelm-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Tarnhelm",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/enchant-sorceress/slots/Helmets/5",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tarnhelm"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/72"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Helmet/mid/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-highlord-s-wrath-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Highlord's Wrath",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Amulets/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Highlord's Wrath"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Deadly Strike applies to eligible weapon physical damage, not elemental spell damage or Dragon Talon kicks. Its level-scaled chance is not an independent multiplicative chance on top of Critical Strike. Check actual attack-speed breakpoints. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/276",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-goldskin-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Goldskin",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldskin"
+        ],
+        "review": "2026-09-26: Reviewed exact early mercenary armor alternative. Goldskin provides all resistance and defense; its gold bonus applies to mercenary killing blows, not every player kill. Venom Ward is poison-specific protection: poison resistance, a higher cap and reduced poison length do not supply other resistances. Neither supplies life leech. Native minimum rolls and either ethereal state are useful; verify equipment requirements and complete defenses. No numerical price or universal ethereal premium is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/91",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-venom ward-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Venom Ward",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Body Armor/early/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Venom Ward"
+        ],
+        "review": "2026-09-26: Reviewed exact early mercenary armor alternative. Goldskin provides all resistance and defense; its gold bonus applies to mercenary killing blows, not every player kill. Venom Ward is poison-specific protection: poison resistance, a higher cap and reduced poison length do not supply other resistances. Neither supplies life leech. Native minimum rolls and either ethereal state are useful; verify equipment requirements and complete defenses. No numerical price or universal ethereal premium is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/86",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-lidless-wall-off-hand-swap-shield-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Lidless Wall",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Off-Hand-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lidless Wall"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/230",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-sander-s-riprap-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Sander's Riprap",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Boots/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sander's Riprap"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Attack Rating helps direct weapon hits, not spells or the guaranteed explosion component of an exploding projectile. Strength and Dexterity support equip requirements; no set completion is inferred. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/McAuley's Riprap",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-razortail-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Razortail",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Belts/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Razortail"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Pierce supports eligible projectiles and combines with the skill or weapon contribution up to the applicable cap; an already capped setup gains no extra pierce. Added maximum damage affects weapon damage, not Enchant or Lightning Fury spell damage. Check the whole projectile setup. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/243",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-memory-weapon-swap-main-alternatives-word-utility-alternative",
+      "template": "player_progression_equipment",
+      "item": "Memory",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Weapon-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Memory"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Memory",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-splendor-off-hand-swap-main-alternatives-word-utility-alternative",
+      "template": "player_progression_equipment",
+      "item": "Splendor",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Off-Hand-Swap/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Splendor"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Splendor",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-eschuta-s-temper-caster-survival-alternative",
+      "template": "named_player_utility",
+      "item": "Eschuta's Temper",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Weapon/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Eschuta's Temper"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native casting/survival priorities preserve attack mechanics, skill exclusions and standalone set properties. Prioritize the damage roll for the build element; the other element is not a universal premium. Elemental skill damage adds to applicable mastery bonuses, not an independent final multiplier. Ethereal spell casting does not consume durability; attacking does. No facet or complete casting breakpoint is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/367",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-flickering flame-helmets-main-alternatives-helm-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Flickering Flame",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Helmets/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Flickering Flame"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Flickering Flame",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-wisdom-helmets-main-alternatives-helm-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Wisdom",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Helmets/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wisdom"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Wisdom",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-breath-of-the-dying-end-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Breath of the Dying",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Prayer",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/merc/Weapon/end/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Breath of the Dying"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Weapon damage, IAS and life leech support mercenary attacks; leech still depends on physical damage and target drain effectiveness. Strength and Dexterity support requirements and attacks. Vitality, Energy and mana leech do not supply mercenary resources; Prevent Monster Heal is not credited to the mercenary. This review does not transfer the weapon bonuses to the player. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Breath of the Dying",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/enchant-sorceress.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "5c80368ab184e546d8d7a02119090c3c19ee6f09a0220774169e2963bb0c90e6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-widowmaker-weapon-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Widowmaker",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Weapon/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Widowmaker"
+        ],
+        "review": "2026-09-27: Reviewed exact named weapon guide alternative. Damage delivery, applicable skills, native set effects and ethereal durability are separate. Guided Arrow is an oskill that must be selected and used. Enchant must be supplied separately; the bow does not grant it. Weapon Enhanced Damage and Deadly Strike do not multiply Enchant fire damage. The bow has no IAS; check attack speed and no socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/331",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-enlightenment-body-armor-main-alternatives-support-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Enlightenment",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Body Armor/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enlightenment"
+        ],
+        "review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Enlightenment",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r21",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r12",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-player-leaf-weapon-main-alternatives-caster-word-remainder",
+      "template": "player_progression_equipment",
+      "item": "Leaf",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Weapon/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Leaf"
+        ],
+        "review": "2026-09-27: Reviewed exact caster weapon recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Leaf",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r03",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-demon-machine-main-alternatives-delivery-weapon",
+      "template": "delivery_weapon",
+      "item": "Demon Machine",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Demon Machine Demon Crossbow ( Upgraded )"
+        ],
+        "review": "2026-09-27: Reviewed exact variant and native effects. Demon Machine upgrade does not multiply Enchant fire damage, so both native and upgraded delivery bases remain eligible. Physical Butcher upgrade is explicit preparation. Socket speed requirements model the observed IAS equivalent of the listed Shael setup, not inferred filler identities or a universal breakpoint. Compound support jewel remains one linked child. No numerical price or full loadout is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/199",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-kuko-shakaku-budget-delivery-weapon",
+      "template": "delivery_weapon",
+      "item": "Kuko Shakaku",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Budget",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/0/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Kuko Shakaku (Cedar Bow; Shael Rune)"
+        ],
+        "review": "2026-09-27: Reviewed exact variant and native effects. Demon Machine upgrade does not multiply Enchant fire damage, so both native and upgraded delivery bases remain eligible. Physical Butcher upgrade is explicit preparation. Socket speed requirements model the observed IAS equivalent of the listed Shael setup, not inferred filler identities or a universal breakpoint. Compound support jewel remains one linked child. No numerical price or full loadout is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/190",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-renewed-flame-rift-standard-renewed-sunder",
+      "template": "renewed_sunder",
+      "item": "Renewed Flame Rift",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1/player/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Renewed Flame Rift (Fire sunder)"
+        ],
+        "review": "2026-09-27: Reviewed Renewed identity, native Crafted Sunder base and fixed immunity core. Actual observed pierce and defensive/utility rolls may support this guide use. Native custom affix generator bounds are not available locally; illustrated planner values are not legal roll limits or mandatory minima. No equivalence to original/Latent charms, inherited perfect-roll claim or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/433",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-rainbow-facet-v1-body-armor-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Rainbow Facet",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "host": "Skin of the Vipermagi",
+      "element": "fire",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/1/player/Body Armor/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Vipermagi (Fire Rainbow Facet)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/394",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/398",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-defender-s-fire-v2-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Defender's Fire",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Harlequin Crest",
+      "element": "fire",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harlequin Crest (Defender's Fire jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/423",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-rainbow-facet-v2-body-armor-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Rainbow Facet",
+      "class": "Sorceress",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "host": "Skin of the Vipermagi",
+      "element": "fire",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2/player/Body Armor/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Vipermagi (Fire Rainbow Facet)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/394",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/398",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-merc-resistance-rune-armor",
+      "build": "enchant-sorceress",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "class": "Sorceress",
+      "template": "resistance_rune_armor",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__enchant-sorceress.html/sections/42",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud",
+          "Your Mercenary needs maximum Resistances, Life Leech, a high damage Weapon, and high Defense and/or Damage Reduction to stay alive reliably. Cannot Be Frozen is also a great stat for maintaining Mercenary DPS and leech. Ethereal gear is preferred since it doesn't lose durability. Gear Options at each Gear Level perform equally well in different situations; choose based on Farming Spots and/or personal preference. Slot Early-Game Mid-Game End-Game Weapon Insight Insight Infinity Breath of the Dying Body Armor Smoke Lionheart Skin of the Flayed One Goldskin Rockfleece Gemmed Dusk Shroud Venom Ward Treachery Duress Shaftstop The Gladiator's Bane Duriel's Shell Guardian Angel Fortitude Chains of Honor Treachery Helmet Bulwark Undead Crown The Face of Horror Gemmed Mask Temper Ground Cure Tal Rasha's Horadric Crest Guillaume's Face Vampire Gaze Crown of Thieves Stealskull Kira's Guardian Rockstopper Cure Cure The Mercenary is hard to keep alive until you have the minimum gear recommended in this guide. Remember you can drag Healing Potions onto the portrait, or shift + 1/2/3/4 to directly feed them a Healing Potion from your Belt. The Mercenary also gains bonus Resistances from Thawing Potions and Antidote Potions. If your Mercenary dies in battle, you can revive them from any of the Mercenary NPCs in each Act. This does come with an increasing cost, capping at 50,000 Gold. Keep that in mind and decide if the Mercenary is currently worth the cost."
+        ],
+        "review": "2026-09-28: Explicit early mercenary body-armor alternative. Guide bearer context and exact linked fc01065b item93 establish four-socket Dusk Shroud with Ral/Ort/Thul/Tal. Requires actual linked children and four observed30resistances, legal base qualities and identified item. Ethereal preferred, not required. No Life leech, runeword, player Magic Find or price inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fc01065b.json",
+            "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+            "locator": "/data"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r08"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r09"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r10"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r07"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-vipermagi-fire-facet",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Magic Find Vipermagi with Fire Rainbow Facet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Skin of the Vipermagi"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xea"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "uea"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "name": "Rainbow Facet",
+            "stats": {
+              "329:0": 3,
+              "333:0": 3
+            }
+          },
+          {
+            "not": {
+              "op": "socket_jewel_matches",
+              "name": "Rainbow Facet",
+              "stats": {
+                "329:0": 6
+              }
+            }
+          },
+          {
+            "not": {
+              "op": "socket_jewel_matches",
+              "name": "Rainbow Facet",
+              "stats": {
+                "333:0": 6
+              }
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "329:0",
+        "333:0"
+      ],
+      "conditions": [
+        "Verify requirements for the actual base tier and remaining gear; cast rate and skills describe an armor component, not a complete loadout.",
+        "The actual Fire Rainbow Facet contributes3-5% fire skill damage and3-5% enemy fire resistance reduction. Verify the remaining Demon Machine/Razortail attack setup separately; armor cast rate does not increase crossbow attack speed.",
+        "This MF variant changes gloves and jewelry; do not inherit an unverified main or swap cast-rate threshold from Standard.",
+        "The socket payload must be captured on this armor; equal parent totals do not establish an actual linked rune or jewel. Useful native resistance rolls need not be perfect; no numerical price follows from build suitability."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Skin of the Vipermagi (Fire Rainbow Facet)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-29: Reviewed exact Magic Find armor socket from structured guide. Enchant Fire Rainbow Facet native3-5/3-5, either fire trigger acceptable; retain normal/upgraded armor and no invented FCR threshold. Preserve native armor role separately, actual child identity, nonethereal/class and complete setup qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xea"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/394",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/398",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "enchant-sorceress-2-harlequin-defender-fire",
+      "build": "enchant-sorceress",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Enchant farming helmet with Defender's Fire",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Harlequin Crest"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Sorceress"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uap"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "name": "Defender's Fire",
+            "stats": {
+              "329:0": 5,
+              "333:0": 5
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "80:0",
+        "329:0",
+        "333:0"
+      ],
+      "conditions": [
+        "Verify equip requirements, damage and defensive readiness across the complete loadout; this magic-find helmet is only one component.",
+        "The actual linked Defender's Fire with native minimum 5% fire skill damage and 5% enemy fire resistance reduction is required for this socketed configuration. The unsocketed helmet retains separately reviewed skill and magic-find utility.",
+        "Fire skill damage supports Enchant; enemy fire resistance reduction applies to damage dealt by the wearer, not to an ally or mercenary merely receiving Enchant. This is the documented Demon Machine farming setup, not a maximum-level prebuff certification.",
+        "Attack speed and teleport cast speed are different. The guide\u2019s weapon-swap teleport breakpoint is not a minimum helmet requirement. Full weapon, piercing and defensive setup remains necessary.",
+        "One Colossal Jewel can be equipped per character. Perfect 10% modifiers and higher farming rolls are optional improvements. The when-struck proc is not treated as a permanent buff."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/enchant-sorceress/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/enchant-sorceress",
+        "quotes": [
+          "Harlequin Crest (Defender's Fire jewel)",
+          "The Magic Find variant is the Enchant Sorceress but with more Magic Find!",
+          "This build makes use of Harlequin Crest, Ist Runes socketed into gear, Magic Find Jewelry, and Magic Find Charms to accomplish this. This setup is more efficient than the Standard Build at targeting Elites in Low Player Count.",
+          "This uses the same Mercenary as the Standard variant."
+        ],
+        "review": "2026-09-29: Reviewed Magic Find Enchant socketed Shako against exact equipment entry and native Defender Fire unique423. Require actual named linked jewel with minimum elemental modifiers, retaining native helmet/class/base/noneth guards. Separate wearer resistance reduction from ally Enchant support and do not impose swap teleport FCR on this helmet.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/423",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
     }
   ]
 }

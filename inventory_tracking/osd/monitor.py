@@ -13,20 +13,27 @@ class GameOutput:
         self.checked_at = -float('inf')
         self.output: str | None = None
         self.window_size: tuple[int, int] | None = None
+        # Workspace-view position of the game's visual geometry; niri reports it for floating
+        # windows only (tiled ones have tile_pos_in_workspace_view = null).
+        self.window_position: tuple[float, float] | None = None
 
     def __call__(self):
         now = self.clock()
         if 0 <= now - self.checked_at < 0.5:
             return self.output
         self.checked_at = now
-        self.output = self.window_size = None
+        self.output = self.window_size = self.window_position = None
         try:
             window = self.read('focused-window')
             if not isinstance(window, dict) or window.get('app_id') != INPUT.game_app_id:
                 return None
-            size = (window.get('layout') or {}).get('window_size')
+            layout = window.get('layout') or {}
+            size = layout.get('window_size')
             if isinstance(size, list) and len(size) == 2 and all(type(v) is int and v > 0 for v in size):
                 self.window_size = (size[0], size[1])
+            tile, offset = layout.get('tile_pos_in_workspace_view'), layout.get('window_offset_in_tile') or [0, 0]
+            if isinstance(tile, list) and len(tile) == 2 and isinstance(offset, list) and len(offset) == 2:
+                self.window_position = (float(tile[0]) + float(offset[0]), float(tile[1]) + float(offset[1]))
             workspace_id = window.get('workspace_id')
             workspaces = self.read('workspaces')
             if workspace_id is not None and isinstance(workspaces, list):
@@ -52,17 +59,6 @@ def choose_monitor(monitors, index, output):
             if monitor.get_connector() == output:
                 return monitor
     return None
-
-
-def place_assessment(window, label, monitor, layer_shell, font_size):
-    window.set_visible(False)
-    layer_shell.set_monitor(window, monitor)
-    geometry = monitor.get_geometry()
-    # Natural width follows the longest line; only the cap depends on the output.
-    width = max(200, geometry.width // 2 - 40)
-    label.set_size_request(-1, -1)
-    label.set_max_width_chars(max(20, int(width / (font_size * 0.65))))
-    label.set_lines(max(5, int((geometry.height - 80) / (font_size * 1.5))))
 
 
 def place_mark(window, area, monitor, layer_shell, window_size, mark):

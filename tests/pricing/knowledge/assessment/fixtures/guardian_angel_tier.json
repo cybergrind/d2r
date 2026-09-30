@@ -1,0 +1,341 @@
+{
+  "source_record": "inventory_tracking/runs/alt-d/20260926T102641Z-b5aa4b20/request-1/report.json",
+  "captured_at": "2026-09-26T10:27:03.203508+00:00",
+  "extraction": {
+    "item": {
+      "name": "Guardian Angel",
+      "base_name": "Templar Coat",
+      "base_code": "xlt",
+      "item_type": "tors",
+      "identified": true,
+      "category": "armor",
+      "rarity": "unique",
+      "requirements": {},
+      "affixes": [
+        {
+          "property_id": "446",
+          "value": 20,
+          "label": "{{value}}% Increased Chance of Blocking",
+          "memory_stat": {
+            "layer": 0,
+            "id": 20,
+            "raw": 20
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "594",
+          "value": 15,
+          "label": "+{{value}}% to Maximum Fire Resist",
+          "memory_stat": {
+            "layer": 0,
+            "id": 40,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "658",
+          "value": 15,
+          "label": "+{{value}}% to Maximum Lightning Resist",
+          "memory_stat": {
+            "layer": 0,
+            "id": 42,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "616",
+          "value": 15,
+          "label": "+{{value}}% to Maximum Cold Resist",
+          "memory_stat": {
+            "layer": 0,
+            "id": 44,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "592",
+          "value": 15,
+          "label": "+{{value}}% to Maximum Poison Resist",
+          "memory_stat": {
+            "layer": 0,
+            "id": 46,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "422",
+          "value": 4,
+          "label": "+{{value}} to Light Radius",
+          "memory_stat": {
+            "layer": 0,
+            "id": 89,
+            "raw": 4
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "449",
+          "value": 30,
+          "label": "+{{value}}% Faster Block Rate",
+          "memory_stat": {
+            "layer": 0,
+            "id": 102,
+            "raw": 30
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "425",
+          "value": 187,
+          "label": "+{{value}}% Enhanced Defense",
+          "memory_stat": {
+            "layer": 0,
+            "id": 16,
+            "raw": 187
+          },
+          "origin": "owned_modifier_list",
+          "modifier_head_offset": 208
+        }
+      ],
+      "sockets": 0,
+      "ethereal": false,
+      "socket_contents": "empty",
+      "empty_sockets": 0,
+      "filled_sockets": 0
+    },
+    "source": {
+      "engine": "memory_snapshot",
+      "viewer_context": {
+        "player_id": 2394132314,
+        "level": 92
+      },
+      "item_identity": {
+        "table": "unique",
+        "table_id": 218,
+        "offset": 52
+      },
+      "container": {
+        "page": 4,
+        "name": "Shared stash"
+      },
+      "unit_id": 3694998916,
+      "owner_id": 1507211755,
+      "owner_type": 0,
+      "item_owner_id": 1507211755,
+      "player_id": 2394132314,
+      "position": [
+        6,
+        7
+      ],
+      "run_id": null,
+      "captured_at": "2026-09-26T10:27:01.627515+00:00",
+      "snapshot_only": true,
+      "stat_capture_complete": true,
+      "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+    },
+    "unresolved_stats": [],
+    "decoded_stats": [
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 20,
+          "raw": 20
+        },
+        "status": "decoded",
+        "name": "toblock",
+        "text": "20% Increased Chance of Blocking",
+        "value": 20,
+        "label": "{{value}}% Increased Chance of Blocking"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 31,
+          "raw": 789
+        },
+        "status": "decoded",
+        "name": "armorclass",
+        "text": "Defense: 789",
+        "value": 789
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 40,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "maxfireresist",
+        "text": "+15% to Maximum Fire Resist",
+        "value": 15,
+        "label": "+{{value}}% to Maximum Fire Resist"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 42,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "maxlightresist",
+        "text": "+15% to Maximum Lightning Resist",
+        "value": 15,
+        "label": "+{{value}}% to Maximum Lightning Resist"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 44,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "maxcoldresist",
+        "text": "+15% to Maximum Cold Resist",
+        "value": 15,
+        "label": "+{{value}}% to Maximum Cold Resist"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 46,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "maxpoisonresist",
+        "text": "+15% to Maximum Poison Resist",
+        "value": 15,
+        "label": "+{{value}}% to Maximum Poison Resist"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 67,
+          "raw": -10
+        },
+        "status": "decoded",
+        "name": "velocitypercent",
+        "text": "Armor movement penalty: -10% (inherent base effect)",
+        "value": -10,
+        "presentation": "internal",
+        "origin": "base_type"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 72,
+          "raw": 58
+        },
+        "status": "decoded",
+        "name": "durability",
+        "text": "Durability: 58",
+        "value": 58
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 73,
+          "raw": 60
+        },
+        "status": "decoded",
+        "name": "maxdurability",
+        "text": "Maximum durability: 60",
+        "value": 60
+      },
+      {
+        "memory_stat": {
+          "layer": 3,
+          "id": 83,
+          "raw": 1
+        },
+        "status": "decoded",
+        "name": "item_addclassskills",
+        "text": "+1 to Paladin Skill Levels",
+        "value": 1
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 89,
+          "raw": 4
+        },
+        "status": "decoded",
+        "name": "item_lightradius",
+        "text": "+4 to Light Radius",
+        "value": 4,
+        "label": "+{{value}} to Light Radius"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 102,
+          "raw": 30
+        },
+        "status": "decoded",
+        "name": "item_fasterblockrate",
+        "text": "+30% Faster Block Rate",
+        "value": 30,
+        "label": "+{{value}}% Faster Block Rate"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 245,
+          "raw": 5
+        },
+        "status": "decoded",
+        "name": "item_tohit_demon_perlevel",
+        "text": "+230 to Attack Rating against Demons (Based on Character Level)",
+        "value": 230,
+        "viewer_level": 92,
+        "per_level": {
+          "numerator": 5,
+          "denominator": 2
+        },
+        "origin": "level_formula"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 16,
+          "raw": 187
+        },
+        "status": "decoded",
+        "name": "item_armor_percent",
+        "text": "+187% (180-200%) Enhanced Defense",
+        "value": 187,
+        "label": "+{{value}}% Enhanced Defense",
+        "origin": "owned_modifier_list",
+        "modifier_head_offset": 208,
+        "roll_range": {
+          "stat_id": 16,
+          "min": 180,
+          "max": 200,
+          "property": "ac%",
+          "better": "higher",
+          "source": {
+            "path": "pricing/raw/d2data/uniqueitems.json",
+            "source_date": "2026-09-23"
+          },
+          "scope": "item definition; not proof of contribution split"
+        },
+        "roll_quality": "normal"
+      }
+    ],
+    "issues": [],
+    "review": [
+      "Requirements are unverified; socket contents are labeled by evidence source.",
+      "Ranges describe item definitions; totals can include socket or set contributions.",
+      "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+      "Values are from the captured total stat array; socket/set contributions are not separated.",
+      "Snapshot evidence is historical; it does not establish current inventory state."
+    ],
+    "appraisal_ready": false,
+    "offline": true,
+    "status": "needs_review"
+  }
+}

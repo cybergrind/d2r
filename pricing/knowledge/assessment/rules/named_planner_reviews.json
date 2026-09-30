@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_named_sockets",
+  "inputs": {
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "third-parties/d2data/json/itemstatcost.json": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237",
+    "third-parties/d2data/json/gems.json": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+    "third-parties/d2data/json/properties.json": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34",
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "pricing/raw/mr/planners/f80206a8.json": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "third-parties/d2data/json/uniqueitems.json": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+    "pricing/raw/mr/guides__blessed-hammer-paladin.html": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d",
+    "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "inventory_tracking/items/data/item_metadata.json": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383",
+    "pricing/raw/mr/planners/4p7r70l7.json": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f",
+    "pricing/raw/mr/guides__lightning-fury-amazon-guide.html": "3de47d7ab2d67ebd4b8c1e346c6c3c3ea835fcee67bf3c6d78e76304a11ad533",
+    "pricing/data/wp-a-variants/fire-warlock-guide.json": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+    "pricing/raw/mr/guides__fire-warlock-guide.html": "bace8df5bb9632d39b2d77ee4d1507d686b4b42c1f9576f4259eab9a418511a4",
+    "pricing/raw/mr/planners/vdglw0lu.json": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+  },
+  "rows": [
+    {
+      "id": "hammer-mf-stealskull-merc:planner:495fddf8ee992ce96d0e71c4",
+      "profile_id": "hammer-mf-stealskull-merc",
+      "profile_sha256": "ad8e3f1536d10c5c6ded5c9b64a226d9fa183fa05c85ed14b57308d820e8906f",
+      "use_sha256": "5c6e4e8015c8442d6062d000af915a4ac02b1e8306bef9842bb2fd7b24ed07b5",
+      "parent": {
+        "occurrence_id": "495fddf8ee992ce96d0e71c4",
+        "sha256": "aa97e1cb4d6e40bae87fe50aaecd19c337033bbfbfc0314ec437c466d1a320ca"
+      },
+      "children": [
+        {
+          "occurrence_id": "cfca1b83cf547f417b69d87c",
+          "sha256": "d80f9b2b0a2149b8b5d4f3832271a24dadb4b2cfd893067ae57d86e7242ca516"
+        }
+      ],
+      "planner_endorsement": {
+        "named_socket": "native_unique",
+        "coverage": "merc_rune_socket_component",
+        "slot": "head",
+        "expected_item": {
+          "base": "xlm",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            5,
+            5,
+            10,
+            10,
+            240,
+            50
+          ],
+          "unique": "unique203",
+          "defense": 73,
+          "ethereal": true,
+          "sockets": 1,
+          "socketedItems": [
+            "r24"
+          ],
+          "stats": {
+            "manadrainmindam": 5,
+            "lifedrainmindam": 5,
+            "item_fastergethitrate": 10,
+            "item_fasterattackrate": 10,
+            "item_armor_percent": 240,
+            "item_magicbonus": 50
+          },
+          "description": "240% def 50 mf eth"
+        },
+        "guide_tab": "Magic Find",
+        "quote": "Stealskull (ethereal, Ist Rune)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "locator": "/blessed-hammer-paladin/variants/2/merc/Helmet/0",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "quotes": [
+            "Stealskull (ethereal, Ist Rune)"
+          ],
+          "review": "2026-09-25: explicit variant mercenary helmet and rune. Native definition minima establish functionality; ethereal is the cited preferred variant, not a price multiplier. Full-loadout requirements remain conditional.",
+          "source_date": "May 22, 2026"
+        },
+        "native_sources": {
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          }
+        },
+        "mercenary_id": "10",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 2,
+        "profile_uid": "SOPaTLww",
+        "profile_name": "Magic Find",
+        "player_class_code": "pal",
+        "item_id": "42",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        },
+        "ethereal_scope": "reviewed_native_variant",
+        "mercenary_type": "Act 2 Holy Freeze"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact guide-selected planner and primary equipment cell establish this named item and rune. Native identity, base, functionality minima and wearer/ethereal scope remain checked; maximum rolls are not promoted to requirements. This closes source occurrences only, not pricing, variant, stat or item-bank obligations."
+    },
+    {
+      "id": "lightning-fury-ubers-gaze-merc:planner:971dc7c8aad85e4bd0982f4a",
+      "profile_id": "lightning-fury-ubers-gaze-merc",
+      "profile_sha256": "c6a32955e87efad64903ec77fa053ba98c561bb40bfb60782e6965dc60ad1c00",
+      "use_sha256": "8ca6db0d35de359fafe91c39b1cbabfc58644333e72ecdf0daa33689abd1355d",
+      "parent": {
+        "occurrence_id": "971dc7c8aad85e4bd0982f4a",
+        "sha256": "ca022c9d41e4abda8aaed25963eb87b637e8f7c2cc1e4744288e3143e0ae9ae7"
+      },
+      "children": [
+        {
+          "occurrence_id": "c1e8dd21f6bf504ef29d081f",
+          "sha256": "2947a96be2d40d1e0d46cae8f0b3fdf43257d51ef2bdbf892b14053fdc30bfa1"
+        }
+      ],
+      "planner_endorsement": {
+        "named_socket": "native_unique",
+        "coverage": "merc_rune_socket_component",
+        "slot": "head",
+        "expected_item": {
+          "base": "xh9",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            8,
+            8,
+            15,
+            20,
+            15,
+            100,
+            22
+          ],
+          "unique": "unique208",
+          "defense": 126,
+          "sockets": 1,
+          "socketedItems": [
+            "r22"
+          ],
+          "stats": {
+            "manadrainmindam": 8,
+            "lifedrainmindam": 8,
+            "item_staminadrainpct": 15,
+            "damageresist": 20,
+            "magic_damage_reduction": 15,
+            "item_armor_percent": 100,
+            "coldmindam": 6,
+            "coldmaxdam": 22,
+            "coldlength": 100
+          },
+          "description": "8 ml 8 ll 20% dr 15 mdr"
+        },
+        "guide_tab": "Ubers",
+        "quote": "Vampire Gaze Grim Helm (Um Rune)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "locator": "/lightning-fury-amazon-guide/variants/3/merc/Helmet/0",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "quotes": [
+            "Vampire Gaze Grim Helm (Um Rune)"
+          ],
+          "review": "2026-09-25: explicit variant mercenary helmet. Definition-minimum leech and physical reduction establish functionality; source-specific socket/ethereal and mercenary conditions retained. Build demand does not assign trade tier or price.",
+          "source_date": "May 22, 2026"
+        },
+        "native_sources": {
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          }
+        },
+        "mercenary_id": "38",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+        "variant_alias": "Ubers",
+        "planner": {
+          "path": "pricing/raw/mr/planners/4p7r70l7.json",
+          "sha256": "8fc33ba8d713ccc5fd9742c5449330b97ff406fbc71d1d378b97685523a7af4f"
+        },
+        "profile_index": 3,
+        "profile_uid": "EHil0s3G",
+        "profile_name": "Ubers",
+        "player_class_code": "ama",
+        "item_id": "184",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        },
+        "ethereal_scope": "reviewed_native_variant",
+        "mercenary_type": "Act 5 Frenzy"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact guide-selected planner and primary equipment cell establish this named item and rune. Native identity, base, functionality minima and wearer/ethereal scope remain checked; maximum rolls are not promoted to requirements. This closes source occurrences only, not pricing, variant, stat or item-bank obligations."
+    },
+    {
+      "id": "fire-warlock-standard-ars-diabolos:planner:b11bed922b35345ea619009c",
+      "profile_id": "fire-warlock-standard-ars-diabolos",
+      "profile_sha256": "2913ca0d3ced810e7503c187ba0cc7165a69f535f5ceaec7064254b850e7b1cf",
+      "use_sha256": "c5dacf52e38ade11d96a708d8932d381950dcb13d21023abe4f80c5bfdbedb50",
+      "parent": {
+        "occurrence_id": "b11bed922b35345ea619009c",
+        "sha256": "115d657d3d120b9287568d18605a47a192152d67734bbd7287c081ab1740e68f"
+      },
+      "children": [
+        {
+          "occurrence_id": "b5e141ff6766867ed2712a80",
+          "sha256": "3003ed00989b6ec6e8ed1308f75bb7325a817ab3230f610ceae2ff9f90deb07b"
+        }
+      ],
+      "planner_endorsement": {
+        "named_socket": "native_unique",
+        "coverage": "player_rune_socket_component",
+        "slot": "larm",
+        "expected_item": {
+          "base": "waf",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            2,
+            1,
+            25,
+            200,
+            25,
+            10,
+            10,
+            30,
+            5
+          ],
+          "unique": "unique408",
+          "defense": 149,
+          "sockets": 1,
+          "socketedItems": [
+            "r22"
+          ],
+          "stats": {
+            "item_addskill_tab#23": 2,
+            "item_skillongethit#77#15": 1,
+            "item_fastercastrate": 25,
+            "item_armor_percent": 200,
+            "passive_fire_mastery": 25,
+            "item_lightradius": 10,
+            "item_manaafterkill": 10,
+            "fireresist": 30,
+            "item_singleskill#401": 5
+          },
+          "description": "25% fire dmg 5 apocalypse 200% def 30 fr 10 maek 10 light radius"
+        },
+        "guide_tab": "Standard",
+        "quote": "Ars Al'Diabolos Blasphemous Grimoire (socketed Um Rune)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+          "locator": "/variants/1/player/Off-Hand/0",
+          "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+          "review": "2026-09-24: explicit variant off-hand and rune from reviewed guide extraction. Named-definition minimum Chaos/FCR/fire/Apocalypse bonuses establish captured functionality; maximum fire/Apocalypse rolls are mechanical preferences, not guide-mandated thresholds or prices. Hardcore alternatives are not folded into these Softcore profiles.",
+          "source_date": "May 27, 2026",
+          "url": "https://maxroll.gg/d2/guides/fire-warlock-guide"
+        },
+        "native_sources": {
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          }
+        },
+        "mercenary_id": "11",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "variant_alias": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 1,
+        "profile_uid": "RNwMKmEi",
+        "profile_name": "Standard",
+        "player_class_code": "war",
+        "item_id": "7",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact guide-selected planner and primary equipment cell establish this named item and rune. Native identity, base, functionality minima and wearer/ethereal scope remain checked; maximum rolls are not promoted to requirements. This closes source occurrences only, not pricing, variant, stat or item-bank obligations."
+    },
+    {
+      "id": "fire-warlock-mf-ars-diabolos:planner:9f954b2908bb45cc7e714144",
+      "profile_id": "fire-warlock-mf-ars-diabolos",
+      "profile_sha256": "80f2bfb3a4c4754e0624c2c69a30473a8ac49d6288d4693a9eeecfb09ac8bb4c",
+      "use_sha256": "c5469888d70637757e8135e5d5e5e3a6ec975950c3ac1053d0b24d107ead7d10",
+      "parent": {
+        "occurrence_id": "9f954b2908bb45cc7e714144",
+        "sha256": "73ff4870af9a50608bcda6afea0b2fa9b45ac47e86df1a013d1709c65d17555c"
+      },
+      "children": [
+        {
+          "occurrence_id": "44f29cd643887fe02e405b8d",
+          "sha256": "50ff4aae20d69892199df4c0132fd2c86bb6ce7d689d5c9c4b8cd396f8037103"
+        }
+      ],
+      "planner_endorsement": {
+        "named_socket": "native_unique",
+        "coverage": "player_rune_socket_component",
+        "slot": "larm",
+        "expected_item": {
+          "base": "waf",
+          "quality": 6,
+          "ilvl": 99,
+          "uniqueValues": [
+            2,
+            1,
+            25,
+            200,
+            25,
+            10,
+            10,
+            30,
+            5
+          ],
+          "unique": "unique408",
+          "defense": 149,
+          "sockets": 1,
+          "socketedItems": [
+            "r24"
+          ],
+          "stats": {
+            "item_addskill_tab#23": 2,
+            "item_skillongethit#77#15": 1,
+            "item_fastercastrate": 25,
+            "item_armor_percent": 200,
+            "passive_fire_mastery": 25,
+            "item_lightradius": 10,
+            "item_manaafterkill": 10,
+            "fireresist": 30,
+            "item_singleskill#401": 5
+          },
+          "description": "25% fire dmg 5 apocalypse 200% def 30 fr 10 maek 10 light radius"
+        },
+        "guide_tab": "Magic Find",
+        "quote": "Ars Al'Diabolos Blasphemous Grimoire (socketed Ist Rune)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-variants/fire-warlock-guide.json",
+          "locator": "/variants/2/player/Off-Hand/0",
+          "sha256": "dc1892b36074a222ee12b2c977b07d1a257a7ed84ed7b21d358ee7ddbde9cb1e",
+          "review": "2026-09-24: explicit variant off-hand and rune from reviewed guide extraction. Named-definition minimum Chaos/FCR/fire/Apocalypse bonuses establish captured functionality; maximum fire/Apocalypse rolls are mechanical preferences, not guide-mandated thresholds or prices. Hardcore alternatives are not folded into these Softcore profiles.",
+          "source_date": "May 27, 2026",
+          "url": "https://maxroll.gg/d2/guides/fire-warlock-guide"
+        },
+        "native_sources": {
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          }
+        },
+        "mercenary_id": "11",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__fire-warlock-guide.html",
+        "variant_alias": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/vdglw0lu.json",
+          "sha256": "2e3ca7ceaf9f3651b1d727e75f61a728c34a0f7b3bb445e324e5d99f368f4539"
+        },
+        "profile_index": 2,
+        "profile_uid": "xImjObsu",
+        "profile_name": "Magic Find",
+        "player_class_code": "war",
+        "item_id": "109",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        },
+        "ethereal_scope": "nonethereal_only"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact guide-selected planner and primary equipment cell establish this named item and rune. Native identity, base, functionality minima and wearer/ethereal scope remain checked; maximum rolls are not promoted to requirements. This closes source occurrences only, not pricing, variant, stat or item-bank obligations."
+    }
+  ]
+}

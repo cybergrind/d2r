@@ -7,7 +7,7 @@
       "side": "merc",
       "slot": "Body Armor",
       "role": "shared mercenary armor and player Fade prebuff",
-      "review_status": "reviewed_setup",
+      "review_status": "reviewed_candidate_rule",
       "names": [
         "Treachery"
       ],
@@ -16,10 +16,16 @@
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
           {
             "op": "fact_eq",
             "field": "runeword",
@@ -39,6 +45,11 @@
             "op": "fact_eq",
             "field": "ethereal",
             "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
           }
         ]
       },
@@ -66,8 +77,24 @@
         "path": "pricing/data/wp-a-variants/smite-paladin.json",
         "locator": "/variants/1/merc/Body Armor",
         "sha256": "895f7a32ea3177c2a4689abeee00cb4480c86e9fbf4ca186f119906f2a7c5c6a",
-        "review": "2026-09-24: non-ethereal requirement applies to shared Fade-prebuff armor in this setup; not every mercenary Treachery."
-      }
+        "review": "2026-09-24: non-ethereal requirement applies to shared Fade-prebuff armor in this setup; not every mercenary Treachery. 2026-09-25 stat review: Observed chance to cast Fade supports shared prebuff preparation, not proof of active Fade. IAS is useful while worn by the Might mercenary; recovery and cold resistance support the wearer. These armor modifiers do not transfer to the player after swapping armor. Nonethereal is source-required for sharing; no universal mercenary rule or defense premium.",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+          "Guillaume's Face and Goblin Toe are used for Crushing Blow.",
+          "Dracul's Grasp mainly provides Life Tap and +x% Chance of Open Wounds, in addition to extra survivability and stats.",
+          "Both Might Aura and Decrepify from The Reaper's Toll increase your Smite damage. Vampire Gaze provides increased +x% Life stolen per hit and Damage Reduction.",
+          "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+          "One of your biggest threats is Uber Mephisto and his level 20 Conviction Aura. If you have a level 21 or higher Conviction, it cancels out his Aura leaving you unaffected."
+        ]
+      },
+      "important_stats": [
+        "201:17103",
+        "93:0",
+        "99:0",
+        "43:0"
+      ]
     },
     {
       "id": "smite-high-investment-gloves",
@@ -385,6 +412,2411 @@
         "locator": "/smite-paladin/variants/1/player/Other/0"
       },
       "review_notes": "2026-09-24: reviewed travel function from this exact variant. Named staff bases, incidental resistance rolls and example charge capacities are planner examples, not requirements for Teleport utility. Rare staves with the same charge skill are equivalent utility candidates because the native charged suffix permits rare items. No numeric price is inferred."
+    },
+    {
+      "id": "smite-paladin-1-annihilus",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "smite-paladin-2-annihilus",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "smite-paladin-1-player-chains-honor",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Player skill and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "Smite does not use ordinary life leech; verify the cited Life Tap, crushing-blow, open-wounds and Cannot Be Frozen equipment independently.",
+        "Verify the full boss-specific resistance overstack, damage reduction, life and prebuff setup; do not treat this armor as proof of Uber readiness."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (Dol Um Ber Ist)",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x; Guillaume's Face and Goblin Toe are used for Crushing Blow; Dracul's Grasp provides Life Tap and Open Wounds.",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+          "Guillaume's Face and Goblin Toe are used for Crushing Blow.",
+          "Dracul's Grasp mainly provides Life Tap and +x% Chance of Open Wounds, in addition to extra survivability and stats.",
+          "Both Might Aura and Decrepify from The Reaper's Toll increase your Smite damage. Vampire Gaze provides increased +x% Life stolen per hit and Damage Reduction.",
+          "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+          "One of your biggest threats is Uber Mephisto and his level 20 Conviction Aura. If you have a level 21 or higher Conviction, it cancels out his Aura leaving you unaffected."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-2-player-chains-honor",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Player skill and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "Smite does not use ordinary life leech; verify the cited Life Tap, crushing-blow, open-wounds and Cannot Be Frozen equipment independently.",
+        "Verify the full boss-specific resistance overstack, damage reduction, life and prebuff setup; do not treat this armor as proof of Uber readiness."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish).",
+          "There is 95% Chance of Crushing Blow between the Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider. This build is extra tanky with Crown of Ages and 2 sources of Life Tap coming from Exile Vortex Shield and Last Wish Phase Blade. This setup is powerful for both kill speed and survivability.",
+          "1) Exile can be put into any Paladin Shield base, but it's usually preferred to use an Elite Ethereal base with high All Resistances as it repairs durability. Recommended Base: Vortex Shield",
+          "2) Death's Hand and Death's Guard give 30% Increased Attack Speed, 8% Life stolen per hit, All Resistances +15 and Cannot be Frozen!"
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-1-merc-gaze-native",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary leech and damage reduction",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0"
+      ],
+      "conditions": [
+        "Verify actual mercenary equip requirements, socket jewel and full survival/attack-speed gear; the helmet alone does not establish a breakpoint.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "The cited Might mercenary uses The Reaper's Toll and non-ethereal Treachery, which the player can borrow for Fade. Helmet leech belongs to the mercenary; Smite needs Life Tap rather than ordinary life leech. Reaper's Decrepify and Life Tap can overwrite each other, so compare the actual curse/survival setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Vampire Gaze Grim Helm (ethereal, socketed jewel)",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x; Guillaume's Face and Goblin Toe are used for Crushing Blow; Dracul's Grasp provides Life Tap and Open Wounds.",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+          "Guillaume's Face and Goblin Toe are used for Crushing Blow.",
+          "Dracul's Grasp mainly provides Life Tap and +x% Chance of Open Wounds, in addition to extra survivability and stats.",
+          "Both Might Aura and Decrepify from The Reaper's Toll increase your Smite damage. Vampire Gaze provides increased +x% Life stolen per hit and Damage Reduction.",
+          "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+          "One of your biggest threats is Uber Mephisto and his level 20 Conviction Aura. If you have a level 21 or higher Conviction, it cancels out his Aura leaving you unaffected."
+        ],
+        "review": "2026-09-26: Reviewed native Vampire Gaze survival component: 6\u20138life leech and15\u201320physical reduction desirable,10\u201315magic reduction supporting. No mana-leech utility for mercenary, no implicit jewel IAS or perfect-roll requirement. Explicit Grim Helm base; Smiter cites ethereal, Strafe alternative does not specify ethereal. Source-specific alternatives and physical leech limitations retained; no numerical price claim.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-2-merc-gaze-native",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary leech and damage reduction",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0"
+      ],
+      "conditions": [
+        "Verify actual mercenary equip requirements, socket jewel and full survival/attack-speed gear; the helmet alone does not establish a breakpoint.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "The cited Might mercenary uses The Reaper's Toll and non-ethereal Treachery, which the player can borrow for Fade. Helmet leech belongs to the mercenary; Smite needs Life Tap rather than ordinary life leech. Reaper's Decrepify and Life Tap can overwrite each other, so compare the actual curse/survival setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Vampire Gaze Grim Helm (ethereal)",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish).",
+          "There is 95% Chance of Crushing Blow between the Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider. This build is extra tanky with Crown of Ages and 2 sources of Life Tap coming from Exile Vortex Shield and Last Wish Phase Blade. This setup is powerful for both kill speed and survivability.",
+          "1) Exile can be put into any Paladin Shield base, but it's usually preferred to use an Elite Ethereal base with high All Resistances as it repairs durability. Recommended Base: Vortex Shield",
+          "2) Death's Hand and Death's Guard give 30% Increased Attack Speed, 8% Life stolen per hit, All Resistances +15 and Cannot be Frozen!"
+        ],
+        "review": "2026-09-26: Reviewed native Vampire Gaze survival component: 6\u20138life leech and15\u201320physical reduction desirable,10\u201315magic reduction supporting. No mana-leech utility for mercenary, no implicit jewel IAS or perfect-roll requirement. Explicit Grim Helm base; Smiter cites ethereal, Strafe alternative does not specify ethereal. Source-specific alternatives and physical leech limitations retained; no numerical price claim.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-0-merc-bulwark-native",
+      "build": "smite-paladin",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Starter mercenary leech and physical protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Holy Freeze"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "crn"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "76:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Life leech requires eligible physical damage and a leechable target; verify the actual weapon, full resistance coverage and mercenary survival.",
+        "The cited base and aura describe this setup, not a universal best base. Verify actual equipment requirements and the full hit-recovery/attack-speed breakpoints; helmet defense and ethereal status do not imply a numerical price premium.",
+        "This review uses the Non-Ladder Bulwark definition; Ladder-only revisions must not replace its native rolls.",
+        "This Holy Freeze example is for ordinary farming, not assured Uber survival. The guide also mentions Might for basic farming; native helmet leech does not make ordinary life leech apply to Smite."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Bulwark Crown (Shael Io Sol)",
+          "The Smite Paladin needs specific stats to become successful at fighting Ubers: a source of Life Tap for Life sustain, Cannot Be Frozen, x% Chance of Crushing Blow, x% Chance of Open Wounds, and a large amount of Resistance to counter Uber Mephisto's Conviction Aura.",
+          "Wand of Life Tap, Black Flail, Rhyme Targe, and Blood Crafted Belt are cheap sources for some of these Stats. Alternatively, in the helmet and shield slots you can use the new runeword Hearth and a paladin shield with 4 Perfect Diamonds.",
+          "Note: Prevent Monster Heal doesn't work on Uber Bosses.",
+          "Mercenaries are not worth trying to keep alive in Ubers. However, a Might Aura Mercenary is useful for basic farming. To keep your Mercenary alive outside Ubers, equip him with a Body Armor and Helmet that provides Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-2-crown-ages",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Helmet",
+      "role": "Two-socket defensive Crown of Ages setup",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Crown of Ages"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "urn"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "99:0",
+        "127:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "201:17103"
+      ],
+      "conditions": [
+        "Two sockets are required for this cited setup; a one-socket Crown of Ages may have other uses but cannot hold both listed fillers. Verify actual strength/level requirements and full resistance/physical-reduction gear.",
+        "Native minimum resistance and physical-reduction rolls remain useful; socket fillers contribute separately and do not prove a perfect native roll or a market price.",
+        "The cited sockets contain Ber and Protector's Stone; verify those actual fillers separately. Last Wish, Exile, crafted gloves and Gore Rider supply the setup's Life Tap and Crushing Blow; this helmet alone does not establish those benefits.",
+        "Ber in a helmet supplies8% physical damage reduction. Protector's Stone has1% chance to cast level15Fade when struck; this does not establish an active Fade buff. Require both actual fillers, not matching parent totals."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Crown of Ages (Ber Rune + Protector's Stone Colossal Jewel per planner)",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish).",
+          "There is 95% Chance of Crushing Blow between the Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider. This build is extra tanky with Crown of Ages and 2 sources of Life Tap coming from Exile Vortex Shield and Last Wish Phase Blade. This setup is powerful for both kill speed and survivability.",
+          "1) Exile can be put into any Paladin Shield base, but it's usually preferred to use an Elite Ethereal base with high All Resistances as it repairs durability. Recommended Base: Vortex Shield",
+          "2) Death's Hand and Death's Guard give 30% Increased Attack Speed, 8% Life stolen per hit, All Resistances +15 and Cannot be Frozen!"
+        ],
+        "review": "2026-09-26: Reviewed exact two-socket Crown of Ages setup. Native physical reduction/resistances desirable; recovery supports survival. All skills desirable for Meteor and supporting for Smite. Meteor requires two distinct compound jewels; do not pool child stats or count one child twice. Smiter Ber/Protector payload remains explicit qualification. No perfect native rolls, complete loadout or numerical price inferred. 2026-09-29: Reviewed actual Ber plus Protector's Stone sockets separately from native Crown properties. Ber, one named Colossal Jewel and its native1%level15Fade trigger must be captured. Keep two-socket, class, nonethereal and full-loadout qualifications; no active buff, Crushing Blow, Life Tap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/344"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r30",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "required_rune": "Ber Rune",
+      "depends_on": [
+        {
+          "label": "Socket Protector's Stone with its native chance to cast level 15 Fade",
+          "when": {
+            "all": [
+              {
+                "op": "fact_eq",
+                "field": "socket_contents",
+                "value": "filled"
+              },
+              {
+                "op": "socket_jewel_matches",
+                "name": "Protector's Stone",
+                "count": 1,
+                "stats": {
+                  "201:17103": 1
+                }
+              },
+              {
+                "not": {
+                  "op": "socket_jewel_matches",
+                  "name": "Protector's Stone",
+                  "stats": {
+                    "201:17103": 2
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "smite-paladin-1-raven-frost",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Smite does not use attack rating; this ring does not raise Smite hit chance. Dexterity/block and Cannot Be Frozen remain useful."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Raven Frost",
+          "Wisp Projector",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x; Guillaume's Face and Goblin Toe are used for Crushing Blow; Dracul's Grasp provides Life Tap and Open Wounds.",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+          "Guillaume's Face and Goblin Toe are used for Crushing Blow.",
+          "Dracul's Grasp mainly provides Life Tap and +x% Chance of Open Wounds, in addition to extra survivability and stats.",
+          "Both Might Aura and Decrepify from The Reaper's Toll increase your Smite damage. Vampire Gaze provides increased +x% Life stolen per hit and Damage Reduction.",
+          "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+          "One of your biggest threats is Uber Mephisto and his level 20 Conviction Aura. If you have a level 21 or higher Conviction, it cancels out his Aura leaving you unaffected."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-2-raven-frost",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Smite does not use attack rating; this ring does not raise Smite hit chance. Dexterity/block and Cannot Be Frozen remain useful."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Raven Frost",
+          "Wisp Projector",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish).",
+          "There is 95% Chance of Crushing Blow between the Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider. This build is extra tanky with Crown of Ages and 2 sources of Life Tap coming from Exile Vortex Shield and Last Wish Phase Blade. This setup is powerful for both kill speed and survivability.",
+          "1) Exile can be put into any Paladin Shield base, but it's usually preferred to use an Elite Ethereal base with high All Resistances as it repairs durability. Recommended Base: Vortex Shield",
+          "2) Death's Hand and Death's Guard give 30% Increased Attack Speed, 8% Life stolen per hit, All Resistances +15 and Cannot be Frozen!"
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-0-rhyme",
+      "build": "smite-paladin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Starter utility shield",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Rhyme"
+      ],
+      "types": [
+        "ashd"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "pa1"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Rhyme"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "80:0",
+        "102:0",
+        "20:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Rhyme supplies Cannot Be Frozen, resistance and farming utility; block chance still depends on class, Dexterity and level, not the shield alone.",
+        "The exact listed base and equipment requirements matter; this completed Shael/Eth shield is separate from an empty two-socket preparation base.",
+        "The source uses Rhyme on main and swap sets; one captured shield does not prove a second equipped copy or both active sets.",
+        "The planner illustrates45all-resistance on the Targe base, a better base target rather than minimum usefulness; do not count Rhyme\u2019s25resistance as an inherent base roll. The Hearth/four-diamond shield setup is a separate alternative."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Rhyme Targe (Shael Eth) \u2014 planner note '12 def 45@'",
+          "Rhyme Targe (same shield on swap)",
+          "Alternative from prose: Hearth (helmet) + Paladin shield with 4 Perfect Diamonds instead of Ground/Rhyme",
+          "The Smite Paladin needs specific stats to become successful at fighting Ubers: a source of Life Tap for Life sustain, Cannot Be Frozen, x% Chance of Crushing Blow, x% Chance of Open Wounds, and a large amount of Resistance to counter Uber Mephisto's Conviction Aura.",
+          "Wand of Life Tap, Black Flail, Rhyme Targe, and Blood Crafted Belt are cheap sources for some of these Stats. Alternatively, in the helmet and shield slots you can use the new runeword Hearth and a paladin shield with 4 Perfect Diamonds.",
+          "Note: Prevent Monster Heal doesn't work on Uber Bosses.",
+          "Mercenaries are not worth trying to keep alive in Ubers. However, a Might Aura Mercenary is useful for basic farming. To keep your Mercenary alive outside Ubers, equip him with a Body Armor and Helmet that provides Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control."
+        ],
+        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Rhyme"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Hellfire Torch (Paladin)",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x; Guillaume's Face and Goblin Toe are used for Crushing Blow; Dracul's Grasp provides Life Tap and Open Wounds."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "smite-paladin-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Hellfire Torch (Paladin)",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish)."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "smite-paladin-aldur-boots-alternative",
+      "template": "player_footwear",
+      "item": "Aldur's Advance",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Boots/4",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Aldur's Advance"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Aldur's Advance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-waterwalk-boots-alternative",
+      "template": "player_footwear",
+      "item": "Waterwalk",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Waterwalk"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/238"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Boots/2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Rings/2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-ground-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Ground",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Helmets/9",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ground"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-gnasher-weapon-utility-alternative",
+      "template": "named_player_utility",
+      "item": "The Gnasher",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Weapon/7",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "The Gnasher"
+        ],
+        "review": "2026-09-26: Reviewed explicit specialist alternative. Wormskull supplies Summoner skills/mana/resistance but its wearer attack poison/leech do not transfer to minions. Twitchthroe supplies Strafe IAS/recovery/attributes, not blocking while using a bow. Gnasher supplies Smite Crushing Blow/Open Wounds/strength; weapon ED does not improve Smite. Native minimum rolls and valid upgraded bases retain utility; nonethereal durability required for sustained player use. Numeric prices and full equipment fit remain separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/0"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-guardian-armor-alternative",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Player resistance-cap armor alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Guardian Angel"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xlt"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "ult"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "40:0",
+        "42:0",
+        "44:0",
+        "46:0",
+        "83:3",
+        "20:0",
+        "102:0"
+      ],
+      "conditions": [
+        "Raised caps need actual resistances from the full loadout; this armor does not itself supply those resistances.",
+        "Paladin skills and shield-block support apply to the Smite shield setup; maximum block still depends on shield, level and dexterity."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Body Armor/7",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit Guardian Angel player armor alternative. Resist-cap utility is separate from actual resistance. The Smite shield setup gains Paladin skills/block support; bow/crossbow Enchant does not. Native minimum ED is sufficient; valid upgraded armor retains utility and durable nonethereal use is assessed. No automatic price or full survival setup is inferred. 2026-09-30: Native Guardian Angel has no socket modifier. Zero or one socket is legal; reject extra sockets and preserve an unread count as unknown, for native and upgraded armor.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/smite-paladin/slots/Weapon"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/smite-paladin/slots/Off-Hand"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-dwarf-star-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Dwarf Star",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Rings/3",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Dwarf Star"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/274"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-verdungo-s-hearty-cord-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Verdungo's Hearty Cord",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Belts/3",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Verdungo's Hearty Cord"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/376"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-string-of-ears-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "String of Ears",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Belts/2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "String of Ears"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/242"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-thundergod-s-vigor-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Thundergod's Vigor",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Belts/0",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Thundergod's Vigor"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/246"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-wisp-projector-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Wisp Projector",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/smite-paladin/slots/Rings/0",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Wisp Projector"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/319"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-player-main-alternatives-hustle-armor-alternative",
+      "template": "player_progression_equipment",
+      "item": "Hustle (armor)",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Body Armor/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact armor-slot Hustle alternative; native armor recipe is separate from weapon Hustle. Three filled sockets and a capacity-eligible body armor are required. IAS, movement, recovery and resistance support the stated use; weapon proc/aura and price are not inferred. Mercenary ethereal durability is safe, but player armor must be nonethereal. Evade is prioritized only for the player, not assumed for mercenaries. Existing Non-Ladder item use does not establish recipe creation availability.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (armor)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/29",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-metalgrid-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Metalgrid",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Amulets/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Metalgrid"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Attack Rating helps eligible attacks, not Smite or spells. Iron Golem and Iron Maiden charges require separate charge, summon and survival checks; merely wearing this amulet does not establish an active golem or aura. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/375",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-seraph-s-hymn-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Seraph's Hymn",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Amulets/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Seraph's Hymn"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Defensive Aura skills require the relevant aura to be used. Damage and Attack Rating against demons/undead support eligible weapon attacks, not Blessed Hammer, Fist of the Heavens or Smite. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/302",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-trang-oul-s-girth-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Trang-Oul's Girth",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Belts/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Trang-Oul's Girth"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Cannot Be Frozen addresses ordinary chill, not every slowing effect. The conditional cold resistance bonus needs other set pieces and is not part of this standalone belt assessment. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Trang-Oul's Girth",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-goblin-toe-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Goblin Toe",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Boots/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Goblin Toe"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Crushing Blow requires eligible attacks, including Smite; ranged attacks have reduced effect. These boots provide no Faster Run/Walk. Native or upgraded boots change requirements; no completed attack-speed or survival setup is inferred. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/110",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-gore-rider-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Gore Rider",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Boots/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Gore Rider"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Crushing Blow and Open Wounds require eligible attacks and can support Smite; Deadly Strike does not improve Smite or kicks. Ranged Crushing Blow has reduced effect. Upgrading changes base kick damage and requirements, not the innate proc chances. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/241",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-bloodfist-caster-survival-alternative",
+      "template": "named_player_utility",
+      "item": "Bloodfist",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Gloves/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Bloodfist"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native casting/survival priorities preserve attack mechanics, skill exclusions and standalone set properties. Hit recovery depends on the full setup. Increased Attack Speed helps attacks, not spell casting. Added minimum weapon damage does not improve Smite or spells; it is relevant to direct weapon attacks. Upgrading changes defense and requirements, not these fixed life/recovery bonuses. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/103",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-dracul-s-grasp-dracul-alternative",
+      "template": "named_player_utility",
+      "item": "Dracul's Grasp",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Gloves/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Dracul's Grasp"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native attack proc and sustain priorities preserve attack mechanics, skill exclusions and standalone set properties. Life Tap is a chance-to-cast curse on eligible striking attacks, including Smite and kicks, not a guaranteed active buff; another curse can overwrite it. Smite can heal through Life Tap but cannot use ordinary life leech. Ordinary life leech for other attacks depends on physical damage and target drain. Open Wounds supports eligible hits; Life after each kill requires wearer kill credit. These gloves provide no Increased Attack Speed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/364",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-herald-of-zakarum-caster-shield-alternative",
+      "template": "named_player_utility",
+      "item": "Herald of Zakarum",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Off-Hand/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Herald of Zakarum"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skill and defense priorities preserve attack mechanics, skill exclusions and standalone set properties. Skills and resistances apply only while this shield is active. Attack Rating does not improve Smite, Blessed Hammer or Fist of the Heavens. Upgrading to Zakarum Shield changes Smite damage and equip requirements; Enhanced Defense does not increase Smite damage. Block depends on level and Dexterity. No socket filler or maximum block is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/285",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-grief-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Grief",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Grief Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Flat added Damage supports Smite as well as weapon attacks; Deadly Strike, Ignore Target Defense and target-defense reduction do not improve Smite. Ignore Target Defense does not cover every boss or unique target. Compare IAS against the exact weapon/skill breakpoint. An ethereal repairable base is not a durable player weapon. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Grief",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-death-berserker-axe-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Death",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives / Berserker Axe",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7wa"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Death Berserker Axe"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. This reviewed Smite alternative prioritizes Crushing Blow. Weapon Enhanced Damage, Deadly Strike, Attack Rating and mana leech do not improve Smite. The weapon has no IAS; check the full speed setup. Ethereal use requires the native Indestructible property. Golem charges are not an active summon. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Death",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-last-wish-phase-blade-combat-word-alternative",
+      "template": "player_combat_weapon",
+      "item": "Last Wish",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives / Phase Blade",
+      "side": "player",
+      "slot": "Weapon",
+      "base_codes": [
+        "7cr"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Last Wish Phase Blade"
+        ],
+        "review": "2026-09-26: Reviewed exact named-base completed melee recipe alternative. Crushing Blow, Might and a Life Tap proc support eligible melee attacks, including Smite. Fade requires the when-struck proc; neither proc is a guaranteed active buff. Other curses can replace Life Tap. Weapon Enhanced Damage and Ignore Target Defense do not improve Smite. The weapon has no IAS; verify the full speed setup. This review does not infer rune-cost pricing. Source base and attack mechanics must be preserved; no numerical price or full-loadout ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Last Wish",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-nightsmoke-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Nightsmoke",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Belts/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Nightsmoke"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Damage Taken Goes to Mana returns mana from eligible damage to life; it does not absorb or reduce incoming damage. Upgrading changes belt capacity and equip requirements. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/114",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-player-hearth-helmets-main-alternatives-support-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Hearth",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Helmets/10",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Hearth"
+        ],
+        "review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hearth",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-fleshripper-attack-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Fleshripper",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Fleshripper"
+        ],
+        "review": "2026-09-27: Reviewed exact attack/utility guide alternative. Distinguish Smite, Hammer, Zeal and physical projectile mechanics; no automatic curse activation or incompatible damage multiplier is inferred. Crushing Blow and Open Wounds support Smite. Weapon Enhanced Damage, Deadly Strike and target defense reduction do not improve Smite damage or hit chance. Slows Target has target-specific limits; do not infer an Uber healing counter from Prevent Monster Heal. Ethereal melee use needs observed Indestructible, such as an inserted Zod, using the only socket. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/304",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-exile-off-hand-aura-recipe",
+      "template": "aura_recipe",
+      "item": "Exile",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Exile"
+        ],
+        "review": "2026-09-27: Reviewed exact recipe and slot; active companion equipment, native self-repair and weapon/shield rune effects remain distinct. No proc uptime, full build or price is assumed.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Exile",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r26",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r27",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r24",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r14",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-black-main-alternatives-source-recipe",
+      "template": "source_recipe",
+      "item": "Black",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Black Flail"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Black",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-black-starter-source-recipe",
+      "template": "source_recipe",
+      "item": "Black",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/0/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Black Flail (Thul Io Nef)"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Black",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-kingslayer-main-alternatives-source-recipe",
+      "template": "source_recipe",
+      "item": "Kingslayer",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/slots/Weapon/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Kingslayer Phase Blade"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Kingslayer",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r23",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r22",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r25",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r19",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-protector-s-stone-v1-off-hand-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Off-Hand",
+      "host": "Herald of Zakarum",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1/player/Off-Hand/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Herald of Zakarum (socketed: Protector's Stone Colossal Jewel per planner)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-protector-s-stone-v2-helmet-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Paladin",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "player",
+      "slot": "Helmet",
+      "host": "Crown of Ages",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2/player/Helmet/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "source_date": "July 9, 2026",
+        "quotes": [
+          "Crown of Ages (Ber Rune + Protector's Stone Colossal Jewel per planner)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-1-merc-gaze-max-res",
+      "build": "smite-paladin",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Vampire Gaze with maximum-damage/all-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "22:0": 11,
+              "39:0": 11,
+              "41:0": 11,
+              "43:0": 11,
+              "45:0": 11
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "22:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "The actual Scintillating Jewel of Carnage contributes11-15maximum physical damage and11-15all resistance. The planner selects15/15; lower native rolls remain useful. This jewel supplies no IAS and does not increase the player Smite damage.",
+        "One linked complete jewel must provide both affixes and all four resistances. Missing socket evidence is unknown; item totals alone do not prove the payload. Native defense/leech rolls need not be perfect; base requirements and full survival remain conditional.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "The cited Might mercenary uses The Reaper's Toll and non-ethereal Treachery, which the player can borrow for Fade. Helmet leech belongs to the mercenary; Smite needs Life Tap rather than ordinary life leech. Reaper's Decrepify and Life Tap can overwrite each other, so compare the actual curse/survival setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Vampire Gaze Grim Helm (ethereal, socketed jewel)",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x; Guillaume's Face and Goblin Toe are used for Crushing Blow; Dracul's Grasp provides Life Tap and Open Wounds.",
+          "The Standard Smiter uses Grief Phase Blade for the Damage +x. It applies to Smite even though it does not show on the tooltip.",
+          "Guillaume's Face and Goblin Toe are used for Crushing Blow.",
+          "Dracul's Grasp mainly provides Life Tap and +x% Chance of Open Wounds, in addition to extra survivability and stats.",
+          "Both Might Aura and Decrepify from The Reaper's Toll increase your Smite damage. Vampire Gaze provides increased +x% Life stolen per hit and Damage Reduction.",
+          "At the very least, the Mercenary can hold Treachery until you need to proc Fade on yourself. Note: Be sure to make the Mercenary's Treachery in a non Ethereal base.",
+          "One of your biggest threats is Uber Mephisto and his level 20 Conviction Aura. If you have a level 21 or higher Conviction, it cancels out his Aura leaving you unaffected."
+        ],
+        "review": "2026-09-29: Reviewed exact smite-paladin/Standard socketed mercenary item against primary planner3q1ia0lw. Smite profiles1/2 head138->jewel139 is15maximum damage/15res, not IAS. Scintillating337 and Carnage222 each11-15. Preserve native wearer, ethereal/base guards and source qualifications; actual jewel minimum affix rolls useful but do not establish perfect/full-loadout readiness or price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          },
+          {
+            "path": "pricing/raw/mr/planners/3q1ia0lw.json",
+            "locator": "/data",
+            "sha256": "456aa6c2b90fab151db47ce21f915bbade4481787a54e95f63c831052c56454c"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/337",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/222",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
+    },
+    {
+      "id": "smite-paladin-2-merc-gaze-max-res",
+      "build": "smite-paladin",
+      "variant": "High Investment",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Vampire Gaze with maximum-damage/all-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Paladin"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "22:0": 11,
+              "39:0": 11,
+              "41:0": 11,
+              "43:0": 11,
+              "45:0": 11
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0",
+        "22:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "The actual Scintillating Jewel of Carnage contributes11-15maximum physical damage and11-15all resistance. The planner selects15/15; lower native rolls remain useful. This jewel supplies no IAS and does not increase the player Smite damage.",
+        "One linked complete jewel must provide both affixes and all four resistances. Missing socket evidence is unknown; item totals alone do not prove the payload. Native defense/leech rolls need not be perfect; base requirements and full survival remain conditional.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "The cited Might mercenary uses The Reaper's Toll and non-ethereal Treachery, which the player can borrow for Fade. Helmet leech belongs to the mercenary; Smite needs Life Tap rather than ordinary life leech. Reaper's Decrepify and Life Tap can overwrite each other, so compare the actual curse/survival setup."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Vampire Gaze Grim Helm (ethereal)",
+          "This version of the Smiter has a lot more Quality of Life to it, as you can just hold down Smite and let the gear do the work for you; 95% Chance of Crushing Blow between Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider, plus 2 sources of Life Tap (Exile Vortex Shield and Last Wish).",
+          "There is 95% Chance of Crushing Blow between the Last Wish Phase Blade, Blood Crafted Gloves, and Gore Rider. This build is extra tanky with Crown of Ages and 2 sources of Life Tap coming from Exile Vortex Shield and Last Wish Phase Blade. This setup is powerful for both kill speed and survivability.",
+          "1) Exile can be put into any Paladin Shield base, but it's usually preferred to use an Elite Ethereal base with high All Resistances as it repairs durability. Recommended Base: Vortex Shield",
+          "2) Death's Hand and Death's Guard give 30% Increased Attack Speed, 8% Life stolen per hit, All Resistances +15 and Cannot be Frozen!"
+        ],
+        "review": "2026-09-29: Reviewed exact smite-paladin/High Investment socketed mercenary item against primary planner3q1ia0lw. Smite profiles1/2 head138->jewel139 is15maximum damage/15res, not IAS. Scintillating337 and Carnage222 each11-15. Preserve native wearer, ethereal/base guards and source qualifications; actual jewel minimum affix rolls useful but do not establish perfect/full-loadout readiness or price.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          },
+          {
+            "path": "pricing/raw/mr/planners/3q1ia0lw.json",
+            "locator": "/data",
+            "sha256": "456aa6c2b90fab151db47ce21f915bbade4481787a54e95f63c831052c56454c"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/337",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/222",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
     }
   ]
 }

@@ -103,7 +103,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -170,7 +170,7 @@
         "99:0"
       ],
       "conditions": [
-        "Allocate inventory slots against the cited variant’s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
+        "Allocate inventory slots against the cited variant\u2019s resistance, life, magic-find and hit-recovery needs; this is one charm candidate, not proof of a complete charm setup."
       ],
       "alternatives": [],
       "source": {
@@ -197,12 +197,12 @@
         "Insight"
       ],
       "types": [
-        "pole",
-        "spea"
+        "pole"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -225,6 +225,85 @@
             "op": "stat_at_least",
             "key": "151:120",
             "value": 12
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
           }
         ]
       },
@@ -260,10 +339,10 @@
       ],
       "conditions": [
         "Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.",
-        "Cited armor: Smoke — 'a cheap Body Armor option for Resistances'. Cited helmet: Bulwark (planner: Bulwark Death Mask) — 'the cheapest Helmet that provides Life Leech and Damage Reduction'."
+        "Cited armor: Smoke \u2014 'a cheap Body Armor option for Resistances'. Cited helmet: Bulwark (planner: Bulwark Death Mask) \u2014 'the cheapest Helmet that provides Life Leech and Damage Reduction'."
       ],
       "alternatives": [
-        "Insight (planner: Insight Poleaxe) — 'for Damage and Mana Regeneration'"
+        "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
       ],
       "source": {
         "path": "pricing/data/wp-a-builds.json",
@@ -272,9 +351,16 @@
         "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
         "source_date": "May 22, 2026",
         "quotes": [
-          "Insight (planner: Insight Poleaxe) — 'for Damage and Mana Regeneration'"
+          "Insight (planner: Insight Poleaxe) \u2014 'for Damage and Mana Regeneration'"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage. 2026-09-27: Native Insight permits polearms, staves and bows, not spears. This Act 2 role requires a legal four-socket polearm. Completed low-quality bases remain eligible; base quality does not replace mercenary/loadout checks or change the existing mana-priority review.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Insight",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
       }
     },
     {
@@ -289,12 +375,12 @@
         "Insight"
       ],
       "types": [
-        "pole",
-        "spea"
+        "pole"
       ],
       "qualities": [
         "normal",
-        "superior"
+        "superior",
+        "low_quality"
       ],
       "must": {
         "all": [
@@ -317,6 +403,85 @@
             "op": "stat_at_least",
             "key": "151:120",
             "value": 12
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
           }
         ]
       },
@@ -374,7 +539,14 @@
         "quotes": [
           "Insight Colossus Voulge (ethereal)"
         ],
-        "review": "2026-09-24: reviewed completed Insight role; native Meditation12–17 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage."
+        "review": "2026-09-24: reviewed completed Insight role; native Meditation12\u201317 range verified from definitions. Merc type and remaining equipment conditional; elite/ethereal planner bases are preferences, not a claim that all bases share price or damage. 2026-09-27: Native Insight permits polearms, staves and bows, not spears. This Act 2 role requires a legal four-socket polearm. Completed low-quality bases remain eligible; base quality does not replace mercenary/loadout checks or change the existing mana-priority review.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Insight",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
       }
     },
     {
@@ -991,6 +1163,16 @@
             "skill_id": 54,
             "value": 1
           }
+        },
+        {
+          "label": "This Teleport-charge alternative requires Enigma not to be equipped.",
+          "when": {
+            "not": {
+              "op": "context_contains",
+              "field": "player_items",
+              "value": "Enigma"
+            }
+          }
         }
       ],
       "conditions": [
@@ -1230,6 +1412,3806 @@
         "source_date": "May 22, 2026"
       },
       "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+    },
+    {
+      "id": "poison-nova-necromancer-1-gheeds-inventory",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-gheeds-inventory",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-annihilus",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-annihilus",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-soj",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 125
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "The Stone of Jordan",
+          "Rare Ring (10 FCR, 20 Str, 40 Life, res, 10 MF)",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-soj",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Skills and mana ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "The Stone of Jordan"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 125
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "9:0",
+        "77:0"
+      ],
+      "conditions": [
+        "Compare both ring slots and verify equip requirements, mana sustain and the complete damage/survival setup; one ring does not prove the full loadout."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "The Stone of Jordan",
+          "Rare Ring (10 FCR, 40 Life, 90 Mana, 11@, 25 MF)",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-25: Explicit ring component for skill and mana utility. Observed all-skills desirable, flat/maximum mana supporting; added lightning attack damage does not become spell damage. Fixed native modifiers have no variable-roll target. Class and explicit total main-loadout FCR gates retained; duplicated ring slots count as one build use, not proof of owning two rings. No trade tier or price inferred. Equip/mana/full-build and swap conditions remain separate."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-0-trang-claws",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Caster gloves for Poison Nova",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Trang-Oul's Claws"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xmg"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 75
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "43:0",
+        "188:16",
+        "332:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and complete resistance, resource and defensive setup; this glove component does not establish the whole loadout or any full/partial set bonus.",
+        "Verify Cannot Be Frozen and the separate teleport-staff or Harmony swap mobility choice."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Trang-Oul's Claws",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; prioritize + to Skills, +x% Poison Skill Damage, FCR, Resistances, Cannot Be Frozen and Life/Attributes; achieves the 75% FCR breakpoint.",
+          "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
+          "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-25: Reviewed exact set-glove component: cast rate desirable, cold resistance supporting. Curses supporting only for the reviewed Necromancer uses; observed poison-skill damage desirable only for Poison Nova. No bonus synthesis, automatic full-set fit, universal poison value or price inference. Source cast thresholds are main-loadout gates; unspecified Echoing Ubers cast rate is not invented."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-trang-claws",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Caster gloves for Poison Nova",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Trang-Oul's Claws"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xmg"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 125
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "43:0",
+        "188:16",
+        "332:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and complete resistance, resource and defensive setup; this glove component does not establish the whole loadout or any full/partial set bonus."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Trang-Oul's Claws",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-25: Reviewed exact set-glove component: cast rate desirable, cold resistance supporting. Curses supporting only for the reviewed Necromancer uses; observed poison-skill damage desirable only for Poison Nova. No bonus synthesis, automatic full-set fit, universal poison value or price inference. Source cast thresholds are main-loadout gates; unspecified Echoing Ubers cast rate is not invented."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-trang-claws",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Caster gloves for Poison Nova",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Trang-Oul's Claws"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xmg"
+          },
+          {
+            "op": "context_at_least",
+            "field": "player_total_fcr",
+            "value": 125
+          }
+        ]
+      },
+      "important_stats": [
+        "105:0",
+        "43:0",
+        "188:16",
+        "332:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and complete resistance, resource and defensive setup; this glove component does not establish the whole loadout or any full/partial set bonus."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Trang-Oul's Claws",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-25: Reviewed exact set-glove component: cast rate desirable, cold resistance supporting. Curses supporting only for the reviewed Necromancer uses; observed poison-skill damage desirable only for Poison Nova. No bonus synthesis, automatic full-set fit, universal poison value or price inference. Source cast thresholds are main-loadout gates; unspecified Echoing Ubers cast rate is not invented."
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-merc-fortitude",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uar"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "16:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Armor enhanced damage supports physical attacks, not spell or trap damage; it is an off-weapon contribution, not a standalone multiplier of total damage.",
+        "Verify actual base requirements and complete resistance, recovery, leech and survival gear; defense and damage alone do not establish readiness.",
+        "Armor cast rate is not a physical attack-speed bonus. Verify the cited weapon and helmet, including the actual IAS/resistance jewel if used.",
+        "The mercenary makes the first corpse for Corpse Explosion; Infinity supports the fire portion of Corpse Explosion, while armor ED supports only mercenary physical attacks."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Fortitude (planner: Fortitude Sacred Armor, ethereal)",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-26: Reviewed completed Fortitude armor in exact cited player/mercenary base and ethereal scope. Physical ED desirable, defense/resistances supporting. Native300ED/200defense and25-30resistance mechanics do not imply max-roll gates, universal best bases, extra ebug defense or price. Weapon Fortitude is a separate use. Full gear, aura/skill beneficiary and source-specific weapon qualifications remain conditional.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Fortitude"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-merc-fortitude",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uar"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "16:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Armor enhanced damage supports physical attacks, not spell or trap damage; it is an off-weapon contribution, not a standalone multiplier of total damage.",
+        "Verify actual base requirements and complete resistance, recovery, leech and survival gear; defense and damage alone do not establish readiness.",
+        "Armor cast rate is not a physical attack-speed bonus. Verify the cited weapon and helmet, including the actual IAS/resistance jewel if used.",
+        "The mercenary makes the first corpse for Corpse Explosion; Infinity supports the fire portion of Corpse Explosion, while armor ED supports only mercenary physical attacks."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Fortitude (planner: Fortitude Sacred Armor, ethereal)",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-26: Reviewed completed Fortitude armor in exact cited player/mercenary base and ethereal scope. Physical ED desirable, defense/resistances supporting. Native300ED/200defense and25-30resistance mechanics do not imply max-roll gates, universal best bases, extra ebug defense or price. Weapon Fortitude is a separate use. Full gear, aura/skill beneficiary and source-specific weapon qualifications remain conditional.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Fortitude"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-merc-andariel-native",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Andariel's Visage socketed with a Ruby Jewel of Fervor (ethereal in planner)",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-merc-andariel-native",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Andariel's Visage socketed with a Ruby Jewel of Fervor (ethereal in planner)",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-0-merc-bulwark-native",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Starter mercenary leech and physical protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xsk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "76:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Life leech requires eligible physical damage and a leechable target; verify the actual weapon, full resistance coverage and mercenary survival.",
+        "The cited base and aura describe this setup, not a universal best base. Verify actual equipment requirements and the full hit-recovery/attack-speed breakpoints; helmet defense and ethereal status do not imply a numerical price premium.",
+        "This review uses the Non-Ladder Bulwark definition; Ladder-only revisions must not replace its native rolls.",
+        "Base and aura are the linked planner example; the generic prose does not make that exact base or aura universally mandatory."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Bulwark (planner: Bulwark Death Mask) \u2014 'the cheapest Helmet that provides Life Leech and Damage Reduction'",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; prioritize + to Skills, +x% Poison Skill Damage, FCR, Resistances, Cannot Be Frozen and Life/Attributes; achieves the 75% FCR breakpoint.",
+          "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
+          "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-player-enigma",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-player-enigma",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Teleport and skill armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Enigma"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Enigma"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "97:54",
+        "96:0",
+        "36:0",
+        "76:0",
+        "220:0",
+        "240:0",
+        "31:0"
+      ],
+      "conditions": [
+        "Teleport mobility and all-skills utility do not establish the full cast rate breakpoint; actual equipment requirements and defensive gear remain wearer-dependent.",
+        "The listed base is the cited setup choice, not proof that other legal Enigma bases are worthless. Higher defense is supporting utility; it does not establish a numeric premium."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Enigma Mage Plate",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-26: Reviewed exact completed nonethereal Enigma armor setup and base. Skills and mobility desirable, defense and Strength supporting. Sorceress native Teleport makes the oskill supporting rather than unique access. No perfect defense, full cast-rate breakpoint, Strength self-equip assumption or price premium inferred. Per-level strength/magic-find coefficients remain distinct from current character totals.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Enigma"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-0-rhyme",
+      "build": "poison-nova-necromancer",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Starter skill shield",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Rhyme"
+      ],
+      "types": [
+        "head"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ne7"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Rhyme"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:92",
+            "value": 2,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "80:0",
+        "102:0",
+        "20:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "107:92"
+      ],
+      "conditions": [
+        "Rhyme supplies Cannot Be Frozen, resistance and farming utility; block chance still depends on class, Dexterity and level, not the shield alone.",
+        "The exact listed base and equipment requirements matter; this completed Shael/Eth shield is separate from an empty two-socket preparation base.",
+        "All specified staffmods are required together for this exact cited skill setup; more points remain useful without an assumed price premium."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rhyme (planner: Rhyme Fetish Trophy with +2 Poison Nova staffmod)",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; prioritize + to Skills, +x% Poison Skill Damage, FCR, Resistances, Cannot Be Frozen and Life/Attributes; achieves the 75% FCR breakpoint.",
+          "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
+          "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Rhyme"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Necromancer Hellfire Torch",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "poison-nova-necromancer-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Necromancer Hellfire Torch",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "poison-nova-necromancer-5-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Max Damage (planner-only profile bv7710o1#2)",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/variants/5/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Necromancer Hellfire Torch",
+          "Planner-only maximum-damage setup: Bramble instead of Enigma, 4x Poison Facet Monarch, Venomous Circlet of the Magus with 2 facets, 2x SoJ."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-5-annihilus",
+      "template": "unique_inventory_charm",
+      "item": "Annihilus",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Max Damage (planner-only profile bv7710o1#2)",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/variants/5/player/Charms/1",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Annihilus",
+          "Planner-only maximum-damage setup: Bramble instead of Enigma, 4x Poison Facet Monarch, Venomous Circlet of the Magus with 2 facets, 2x SoJ."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred. Planner-only example retained as example strength, not a prose endorsement."
+      },
+      "conditions": [
+        "This is an inventory example from a linked planner variant, not an explicit gear recommendation in the guide prose."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/5",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-early-merc-cure",
+      "template": "merc_survival",
+      "item": "Cure",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Helmet/early/5",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Cure"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Cure"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-aldur-boots-alternative",
+      "template": "player_footwear",
+      "item": "Aldur's Advance",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Boots/1",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Aldur's Advance"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Aldur's Advance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-waterwalk-boots-alternative",
+      "template": "player_footwear",
+      "item": "Waterwalk",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Boots/2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Waterwalk"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/238"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Rings/6",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-skullder-body-armor-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Skullder's Ire",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Body Armor/3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skullder's Ire"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/217"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-lore-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Lore",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Helmets/10",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lore"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lore"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-stealth-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Stealth",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Body Armor/7",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Stealth"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Stealth"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/tors"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-ancients-pledge-progression-equipment",
+      "template": "player_progression_equipment",
+      "item": "Ancients' Pledge",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/7",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Ancients' Pledge"
+        ],
+        "review": "2026-09-26: Reviewed explicit equipment alternative, preserving player versus early mercenary placement. Native recipe and rune effects contribute skill, movement, recovery or elemental survival utility. Legal bases require both compatible type and socket capacity; class-specific bases require the actual wearer class. Player equipment remains repairable nonethereal; mercenary durability is safe but Vitality is not a mercenary life benefit. Low native rolls suffice. Ground uses the documented Non-Ladder recipe, not changed Ladder-only stats. No complete-loadout breakpoint, ideal base or market price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Ancients' Pledge"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/shld"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-guardian-angel-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Guardian Angel",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/mid/5",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-the-gladiator-s-bane-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Gladiator's Bane",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/mid/3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Gladiator's Bane"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/250"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-skin-of-the-flayed-one-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Skin of the Flayed One",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Skin of the Flayed One"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/211"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-the-face-of-horror-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Face of Horror",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/merc/Helmet/early/2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "The Face of Horror"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/78"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-verdungo-s-hearty-cord-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Verdungo's Hearty Cord",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Belts/4",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Verdungo's Hearty Cord"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/376"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-thundergod-s-vigor-defensive-alternative",
+      "template": "named_player_utility",
+      "item": "Thundergod's Vigor",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Belts/3",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Thundergod's Vigor"
+        ],
+        "review": "2026-09-26: Reviewed explicit player defensive ring/belt alternative. Native minimum rolls and valid upgrades suffice; repairable nonethereal and zero legal sockets are required. Dwarf has percentage fire absorb and flat MDR; Verdungo physical DR and player vitality; String physical DR and flat MDR, with leech only for reviewed physical-attack builds; Thundergod flat lightning absorb and raised cap. Actual resistance and full breakpoints remain separate. Amazon skill bonuses apply only to the named Lightning Fury/Strike use, and Dwarf Gold Find priority is confined to the Gold Find guide. No passive charged summon, complete immunity, market price or perfect-roll requirement is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/246"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-white-alternative",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Poison Nova White staffmod alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "White"
+      ],
+      "types": [
+        "wand"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "White"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7bw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7gw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7yw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9bw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9gw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9yw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "bwn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "gwn"
+              }
+            ]
+          },
+          {
+            "op": "stat_at_least",
+            "key": "107:92",
+            "value": 2
+          }
+        ]
+      },
+      "important_stats": [
+        "107:92",
+        "188:17",
+        "105:0",
+        "9:0",
+        "35:0",
+        "107:68"
+      ],
+      "conditions": [],
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__poison-nova-necromancer.html/sections/33",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "A White Base with +2-3 to Poison Nova is suitable for this build."
+        ],
+        "review": "2026-09-26: Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/poison-nova-necromancer/slots/Weapon/3"
+          },
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/White"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/92"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-wisp-projector-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Wisp Projector",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Rings/9",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Wisp Projector"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/319"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/ring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-peasant-crown-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Peasant Crown",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Helmets/8",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Peasant Crown"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/201"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-tarnhelm-caster-progression-alternative",
+      "template": "named_player_utility",
+      "item": "Tarnhelm",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Helmets/9",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Tarnhelm"
+        ],
+        "review": "2026-09-26: Reviewed explicit player caster/progression alternative. Magefist FCR and mana regen benefit casting; fire skill priority belongs to reviewed fire builds, never its flat attack fire damage. Peasant Crown offers skills, movement, attributes and regeneration; Tarnhelm skills/MF. Suicide Branch caster-only use permits ethereal spell casting but not sustainable melee. Silkweave mana after kill requires wearer kill credit, not leech or minion kills. Goldskin is the explicit Gold Find Barbarian resistance/gold alternative. Native minimum rolls and valid upgrades suffice; zero sockets on gloves/boots, nonethereal armor. No complete loadout breakpoint or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/72"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/helm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-charge-alternative-weapon-swap-2",
+      "template": "charged_utility",
+      "item": "Staff of Teleportation",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Staff of Teleportation"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/532"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/54"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-charge-alternative-amulets-8",
+      "template": "charged_utility",
+      "item": "Amulet of Teleportation",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Amulets/8",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Amulet of Teleportation"
+        ],
+        "review": "2026-09-26: Reviewed exact generic charged-item guide alternative. Native suffix permits magic and rare items with the same charged skill; named base and source slot are preserved. Charge presence accepts a depleted rechargeable candidate, but available charges are a typed dependency before the skill is marked usable. Ethereal weapons can spend remaining charges but cannot recharge. Teleport availability does not establish a full caster setup; Lower Resist does not guarantee an immunity break; Life Tap needs application and eligible attacks. Decorated Gaean/Venomous/Arch-Devil combinations are intentionally separate reviews. No item price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/533"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+            "locator": "/54"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-skill-charge-combination",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "role": "Venomous Amulet of Teleportation skill/charge combination",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "amul"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "amu"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 3,
+            "absent_is_zero": true
+          },
+          {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Charged skill available; recharge non-ethereal copies when empty.",
+          "when": {
+            "op": "charge_skill",
+            "skill_id": 54,
+            "value": 1
+          }
+        }
+      ],
+      "important_stats": [
+        "188:17"
+      ],
+      "conditions": [
+        "Verify equipment requirements and the complete casting setup before using this alternative."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/poison-nova-necromancer/slots/Amulets/6",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Venomous Amulet of Teleportation"
+        ],
+        "review": "2026-09-26: Reviewed exact named prefix plus charged-skill combination. Gaean amulet uses native Gaea's+3 Elemental skill-tab prefix; Venomous+3 Poison and Bone. Both are magic-only. Arch-Devil's Kris requires+2 Warlock class skills and Lower Resist; native prefix715 and suffix594 allow rare equivalents. Preserve both modifiers, source slot and named base; do not flatten into a charge-only use. Positive remaining charges are a dependency; ethereal Kris cannot recharge. No full-build fit, immunity break or numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+            "locator": "/462"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/533"
+          }
+        ]
+      },
+      "base_codes": [
+        "amu"
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-duress-end-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/end/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Helmet/mid/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-merc-early-hustle-armor-alternative",
+      "template": "merc_survival",
+      "item": "Hustle (armor)",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact armor-slot Hustle alternative; native armor recipe is separate from weapon Hustle. Three filled sockets and a capacity-eligible body armor are required. IAS, movement, recovery and resistance support the stated use; weapon proc/aura and price are not inferred. Mercenary ethereal durability is safe, but player armor must be nonethereal. Evade is prioritized only for the player, not assumed for mercenaries. Existing Non-Ladder item use does not establish recipe creation availability.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (armor)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/29",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-merc-mid-hustle-weapon-alternative",
+      "build": "poison-nova-necromancer",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Mercenary attack and aura alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Hustle (weapon)"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Hustle (weapon)"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7br"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7h7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7o7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7p7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7sr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7st"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7tr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "7wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9b7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9br"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9h9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9p9"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9pa"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9sr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9st"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9tr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9vo"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "9wc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "bar"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "brn"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hal"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pax"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "pik"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "scy"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "spr"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "spt"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "tri"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "vou"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "wsc"
+              }
+            ]
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "93:0",
+        "151:122",
+        "198:16513"
+      ],
+      "conditions": [
+        "Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary.",
+        "Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts.",
+        "Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use.",
+        "This reviewed branch is for the cited Act 2 mercenary with an eligible spear/polearm. Other mercenary types and sword alternatives are not inferred. Ethereal durability is safe; verify equip requirements, attack-speed breakpoints and life leech elsewhere."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Weapon/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact weapon-slot Hustle alternative, distinct from armor. Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary. Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts. Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use. This reviewed branch is for the cited Act 2 mercenary with an eligible spear/polearm. Other mercenary types and sword alternatives are not inferred. Ethereal durability is safe; verify equip requirements, attack-speed breakpoints and life leech elsewhere.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (weapon)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/258",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/122",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/poison-nova-necromancer/variants/0",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-goldskin-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Goldskin",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/merc/Body Armor/early/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Goldskin"
+        ],
+        "review": "2026-09-26: Reviewed exact early mercenary armor alternative. Goldskin provides all resistance and defense; its gold bonus applies to mercenary killing blows, not every player kill. Venom Ward is poison-specific protection: poison resistance, a higher cap and reduced poison length do not supply other resistances. Neither supplies life leech. Native minimum rolls and either ethereal state are useful; verify equipment requirements and complete defenses. No numerical price or universal ethereal premium is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/91",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-moser-s-blessed-circle-off-hand-shield-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Moser's Blessed Circle",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Moser's Blessed Circle"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Two native sockets provide customization; no Perfect Diamonds, runes or jewels are assumed present. Socket additions must be checked separately. Increased blocking and faster block rate do not establish maximum block without character level, Dexterity and the full loadout. Upgrading changes requirements and base blocking. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/225",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-lidless-wall-off-hand-swap-shield-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Lidless Wall",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand-Swap/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Lidless Wall"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native shield skill, casting, blocking and resistance priorities preserve build applicability. Shield bonuses apply only while its weapon set is active. All Skills can support Call to Arms buffs only when that weapon is actually present; it does not grant Battle Orders by itself. Faster Cast Rate speeds casting, not attacks or trap placement. Mana after each kill requires credited kills and is not mana leech. Check equipment requirements and do not assume a socket filler. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/230",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-player-harmony-weapon-swap-main-alternatives-word-utility-alternative",
+      "template": "player_progression_equipment",
+      "item": "Harmony",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Weapon-Swap/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Harmony"
+        ],
+        "review": "2026-09-26: Reviewed exact completed-recipe utility alternative. Preserve wearer class, legal base and socket count/contents. Prebuff and active-set bonuses are distinct from permanent stats; player and mercenary Find kill credit differ. Source-listed base variants remain restricted; no staffmods, summons, socket fillers or numerical price are inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Harmony",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-flame-rift-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Flame Rift",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Unique Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Flame Rift"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/402",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-rotting-fissure-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Rotting Fissure",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Unique Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Rotting Fissure"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/404",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-bone-break-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Bone Break",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Unique Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bone Break"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/405",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-trang-oul-s-guise-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Trang-Oul's Guise",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Helmets/7",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Trang-Oul's Guise"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. These are standalone mana and recovery benefits. Full-set transformation and bonuses are not inferred; check the complete recovery and casting setup. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Trang-Oul's Guise",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-trang-oul-s-scales-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Trang-Oul's Scales",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Body Armor/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Trang-Oul's Scales"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Summoning skills support minions, not Poison Nova damage. Lightning resistance and physical damage reduction require companion set pieces; neither is a standalone armor property. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Trang-Oul's Scales",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-homunculus-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Homunculus",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Homunculus"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Necromancer skills support Poison Nova; curse skill levels support curse utility separately. Maximum block requires character level and Dexterity; no socket filler is assumed. Mana after each kill needs wearer kill credit. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/280",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-darkforce-spawn-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Darkforce Spawn",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Darkforce Spawn"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Prioritize the Poison and Bone roll for Poison Nova. Curse and Summoning rolls support their own trees, not equal Poison Nova damage. Check the casting breakpoint and defenses lost versus other shields; no socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/330",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-player-bramble-body-armor-main-alternatives-support-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Bramble",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Body Armor/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bramble"
+        ],
+        "review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Bramble",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r27",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r29",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r05",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-player-bone-body-armor-main-alternatives-support-word-alternative",
+      "template": "player_progression_equipment",
+      "item": "Bone",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Body Armor/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Bone"
+        ],
+        "review": "2026-09-27: Reviewed exact armor/shield recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Bone",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r12",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r22",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-death-s-web-caster-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Death's Web",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Death's Web"
+        ],
+        "review": "2026-09-27: Reviewed exact casting/utility guide alternative. Match damage types and observed skill tabs; exclude incompatible attack modifiers and unproven triggered effects. Poison skills and enemy poison resistance reduction support Poison Nova. Resistance reduction alone does not break immunity. Life and mana after each kill require wearer kill credit; casting does not consume weapon durability. No socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/299",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-player-plague-weapon-main-alternatives-caster-word-remainder",
+      "template": "player_progression_equipment",
+      "item": "Plague",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Plague"
+        ],
+        "review": "2026-09-27: Reviewed exact caster weapon recipe alternative. Preserve wearer class, legal base and filled socket count. Attack-only damage does not boost incompatible spells, procs and charges are not assumed active, and fixed inserted rune bonuses are distinct from variable recipe rolls. No numerical price or Non-Ladder crafting availability is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Plague",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r32",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r22",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-trang-oul-s-wing-named-shield-tail",
+      "template": "named_shield_tail",
+      "item": "Trang-Oul's Wing",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Trang-Oul's Wing (3-Piece Trang-Oul's Set )"
+        ],
+        "review": "2026-09-27: Reviewed exact source use and native effects. Filler identity and distinct partial-set companions are required where specified. Charged skills are not passive bonuses; original magic sunder only breaks matching magic immunity. No numerical price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Trang-Oul's Wing",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-defender-s-bile-v1-weapon-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Defender's Bile",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "host": "Death's Web",
+      "element": "poison",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Death's Web (planner bv7710o1: socketed Defender's Bile Colossal Jewel; older planner 7i9290oy: Rainbow Facet)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/420",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-rainbow-facet-v3-weapon-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Rainbow Facet",
+      "class": "Necromancer",
+      "build": "poison-nova-necromancer",
+      "variant": "Hardcore (Essentials accordion; planner profile 'Hardcore' bv7710o1#5, not a tab)",
+      "side": "player",
+      "slot": "Weapon",
+      "host": "Death's Web",
+      "element": "poison",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/3/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Death's Web (Rainbow Facet)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/395",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/399",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      },
+      "scope": "hardcore"
+    },
+    {
+      "id": "poison-nova-necromancer-merc-resistance-rune-armor",
+      "build": "poison-nova-necromancer",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "class": "Necromancer",
+      "template": "resistance_rune_armor",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__poison-nova-necromancer.html/sections/44",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Gemmed Dusk Shroud",
+          "Your Mercenary needs maximum Resistances, Life Leech, a high damage Weapon, and high Defense and/or Damage Reduction to stay alive reliably. Cannot Be Frozen is also a great stat for maintaining Mercenary DPS and leech. Ethereal gear is preferred since it doesn't lose durability. Gear Options at each Gear Level perform equally well in different situations; choose based on Farming Spots and/or personal preference. Gear Level Early-Game Mid-Game End-Game Weapon Insight Insight Hustle Infinity Body Armor Smoke Lionheart Hustle Skin of the Flayed One Goldskin Rockfleece Gemmed Dusk Shroud Treachery Duress Shaftstop The Gladiator's Bane Duriel's Shell Guardian Angel Fortitude Treachery Chains of Honor Duress Jeweler's Sacred Armor of Stability Helmet Bulwark Undead Crown The Face of Horror Gemmed Mask Temper Cure Tal Rasha's Horadric Crest Guillaume's Face Vampire Gaze Crown of Thieves Stealskull Kira's Guardian Rockstopper Cure Andariel's Visage Andariel's Visage Guillaume's Face Guillaume's Face Cure The Mercenary is hard to keep alive until you have the minimum gear recommended in this guide. Remember you can drag Healing Potions onto the portrait, or shift + 1/2/3/4 to directly feed them a Healing Potion from your Belt. The Mercenary also gains bonus Resistances from Thawing Potions and Antidote Potions. If your Mercenary dies in battle, you can revive them from any of the Mercenary NPCs in each Act. This does come with an increasing cost, capping at 50,000 Gold. Keep that in mind and decide if the Mercenary is currently worth the cost."
+        ],
+        "review": "2026-09-28: Explicit early mercenary body-armor alternative. Guide bearer context and exact linked fc01065b item93 establish four-socket Dusk Shroud with Ral/Ort/Thul/Tal. Requires actual linked children and four observed30resistances, legal base qualities and identified item. Ethereal preferred, not required. No Life leech, runeword, player Magic Find or price inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fc01065b.json",
+            "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+            "locator": "/data"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r08"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r09"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r10"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+            "locator": "/r07"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-main-shield-facet-shield-filled",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Off-Hand",
+      "role": "Completed four-poison-facet Monarch of Deflecting",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "shie"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "uit"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "20:0",
+            "value": 20,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "102:0",
+            "value": 30,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "all": [
+              {
+                "op": "socket_jewel_matches",
+                "name": "Rainbow Facet",
+                "count": 4,
+                "stats": {
+                  "332:0": 5,
+                  "336:0": 5
+                }
+              },
+              {
+                "op": "stat_at_least",
+                "key": "332:0",
+                "value": 20,
+                "absent_is_zero": true
+              },
+              {
+                "op": "stat_at_least",
+                "key": "336:0",
+                "value": 20,
+                "absent_is_zero": true
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "20:0",
+        "102:0",
+        "332:0",
+        "336:0"
+      ],
+      "conditions": [
+        "The shield contributes matching poison skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
+        "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Off-Hand/9",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets )"
+        ],
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/395"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/399"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+            "locator": "/173"
+          }
+        ],
+        "review": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
+      },
+      "review_notes": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "preferences": [
+        {
+          "label": "Four perfect 5/5 facets",
+          "when": {
+            "op": "socket_jewel_matches",
+            "name": "Rainbow Facet",
+            "count": 4,
+            "stats": {
+              "332:0": 5,
+              "336:0": 5
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-1-merc-andariel-ias-fire",
+      "build": "poison-nova-necromancer",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            },
+            "count": 1
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The linked 15% IAS / 30% fire-resistance jewel offsets the native fire penalty and brings helmet IAS to 35%; verify full-loadout resistance caps and attack-speed breakpoints separately.",
+        "Minimum native strength, life leech and enhanced defense rolls remain useful; perfect native rolls are optional. Verify mercenary equipment requirements and physical damage against leechable targets.",
+        "All Skills can improve native mercenary skills, not fixed item-granted aura levels. Venom charges are not a mercenary benefit.",
+        "This reviewed setup requires the fire-resistance Ruby jewel; an IAS/enhanced-damage Ruby jewel or Ral alone does not satisfy it. A lower fire-resistance roll may still be useful but does not fully offset the native penalty."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Andariel's Visage socketed with a Ruby Jewel of Fervor (ethereal in planner)",
+          "This is the Standard Best in Slot (BiS) Poison Nova Necromancer, the balanced 'jack-of-all-trades' version; it balances output, Magic Find and Teleport mobility and achieves the 125% FCR breakpoint.",
+          "Rotting Fissure, Flame Rift, and Bone Break increase your damage against their respective Immunities. The Standard setup achieves the 125% Faster Cast Rate for rapid Skill usage.",
+          "The Standard Poison Nova Necromancer uses an Act 2 Might Mercenary to produce the first body for Corpse Explosion as fast as possible. Equip Infinity on him for -85% to Enemy Fire Resistance (to boost Corpse Explosion). Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability.",
+          "An Insight Iron Golem, while not required, provides this build with incredible quality of life.",
+          "2) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you have not yet acquired Enigma, or if you decide to use Bramble over Enigma for maximum Damage."
+        ],
+        "review": "2026-09-28: Reviewed Standard and Magic Find Poison Nova mercenary helmet configurations against both cached planners. bv7710o1 and 7i9290oy profiles0/2 equip item17 on the Might mercenary; item17 is ethereal Andariel with one linked item18 jewel carrying15IAS/30fire resistance. Preserve exact child evidence and bearer conditions; native rolls need not be perfect. No full-loadout breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "pricing/raw/mr/planners/bv7710o1.json",
+            "locator": "/data",
+            "sha256": "2ba60b0427a33c03072593f4cff1ce1b3e285676f606b367b719993e4dc25acb"
+          },
+          {
+            "path": "pricing/raw/mr/planners/7i9290oy.json",
+            "locator": "/data",
+            "sha256": "0f748201fd966263e92685dba7b1b73b477d9883059cf398ad37cf92cdba7736"
+          }
+        ]
+      }
+    },
+    {
+      "id": "poison-nova-necromancer-2-merc-andariel-ias-fire",
+      "build": "poison-nova-necromancer",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            },
+            "count": 1
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The linked 15% IAS / 30% fire-resistance jewel offsets the native fire penalty and brings helmet IAS to 35%; verify full-loadout resistance caps and attack-speed breakpoints separately.",
+        "Minimum native strength, life leech and enhanced defense rolls remain useful; perfect native rolls are optional. Verify mercenary equipment requirements and physical damage against leechable targets.",
+        "All Skills can improve native mercenary skills, not fixed item-granted aura levels. Venom charges are not a mercenary benefit.",
+        "This reviewed setup requires the fire-resistance Ruby jewel; an IAS/enhanced-damage Ruby jewel or Ral alone does not satisfy it. A lower fire-resistance roll may still be useful but does not fully offset the native penalty."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Andariel's Visage socketed with a Ruby Jewel of Fervor (ethereal in planner)",
+          "Optimized for farming The Pit: sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible \u2014 favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring Magic Find on Jewelry; still 125% FCR.",
+          "Because The Pit only has low Life monster types, you can comfortably sacrifice Damage from the Standard Build and replace it with Magic Find wherever possible. This even applies to a Full Game or /Players7-8 on Single Player. Maximizing the odds of finding the rarest Unique and Set items is the priority on this setup. This includes favoring Magic Find Small Charms over Fungal Grand Charms, socketing Ist Runes into gear, and favoring the Magic Find stat on Jewelry.",
+          "Just as with the Standard Build, the Magic Find Poison Nova Necromancer uses an Act 2 Might Mercenary with Infinity, Fortitude, and Andariel's Visage socketed with a Ruby Jewel of Fervor."
+        ],
+        "review": "2026-09-28: Reviewed Standard and Magic Find Poison Nova mercenary helmet configurations against both cached planners. bv7710o1 and 7i9290oy profiles0/2 equip item17 on the Might mercenary; item17 is ethereal Andariel with one linked item18 jewel carrying15IAS/30fire resistance. Preserve exact child evidence and bearer conditions; native rolls need not be perfect. No full-loadout breakpoint or price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "pricing/raw/mr/planners/bv7710o1.json",
+            "locator": "/data",
+            "sha256": "2ba60b0427a33c03072593f4cff1ce1b3e285676f606b367b719993e4dc25acb"
+          },
+          {
+            "path": "pricing/raw/mr/planners/7i9290oy.json",
+            "locator": "/data",
+            "sha256": "0f748201fd966263e92685dba7b1b73b477d9883059cf398ad37cf92cdba7736"
+          }
+        ]
+      }
     }
   ]
 }

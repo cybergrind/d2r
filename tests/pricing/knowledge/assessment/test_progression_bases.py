@@ -57,6 +57,16 @@ def test_progression_membership_has_cached_recommendations_and_rejects_overlap()
 
     for (recipe, base), template in INDEX.items():
         assert template.source_locators
+        if template.reviewed_sources:
+            import json
+            from pathlib import Path
+
+            path, locator = template.reviewed_sources[0].split('#')
+            value = json.loads(Path(path).read_text())
+            for part in locator.split('/')[1:]:
+                value = value[int(part)] if isinstance(value, list) else value[part]
+            assert any(label.startswith(f'{recipe} {base}') for label in value)
+            continue
         assert any(
             r.get('details', {}).get('runeword') == recipe and r['details'].get('recommended')
             for r in recipe_index().by_base[base]
@@ -65,3 +75,48 @@ def test_progression_membership_has_cached_recommendations_and_rejects_overlap()
         compile_templates((*TEMPLATES, TEMPLATES[0]))
     with pytest.raises(ValueError, match='exception'):
         compile_templates(TEMPLATES[:1])
+
+
+def test_duress_empty_dusk_shroud_has_reviewed_use_without_best_base_claim():
+    facts = normalize(capture('Dusk Shroud', sockets=3, quality='normal', ethereal=False))
+    result = word(assess_runeword_base(facts), 'Duress')
+    assert result is not None
+    assert result['status'] == 'usable alternative'
+    assert any('kicker' in s for s in result['strengths'])
+    assert any('90' in s for s in result['missing'])
+    assert any('dragon-talon-assassin' in s for s in result['sources'] if s)
+    assert result['ethereal_preference']['preference'] == 'avoid'
+    ethereal = word(assess_runeword_base(replace(facts, ethereal=True)), 'Duress')
+    assert any('non-ethereal' in s for s in ethereal['missing'])
+    blank = normalize(capture('Dusk Shroud', sockets=0, quality='normal', ethereal=False))
+    preparation = word(assess_runeword_base(replace(blank, item_level=80)), 'Duress')
+    assert preparation['status'] == 'needs sockets'
+    assert any('16.7%' in s for s in preparation['missing'])
+    wrong = word(assess_runeword_base(replace(facts, sockets=4)), 'Duress')
+    assert wrong['status'] == 'wrong socket count'
+    assert not assess_runeword_base(replace(facts, runeword='Duress'))
+    assert not any(
+        r['runeword'] == 'Duress'
+        for r in assess_runeword_base(normalize(capture('Archon Plate', sockets=3, quality='normal', ethereal=False)))
+    )
+
+
+def test_lionheart_mage_plate_supports_strafe_progression_and_real_socket_outcomes():
+    facts = normalize(capture('Mage Plate', sockets=3, quality='normal', ethereal=False))
+    result = word(assess_runeword_base(facts), 'Lionheart')
+    assert result is not None
+    assert any('Strafe' in s for s in result['strengths'])
+    assert any('strafe-amazon' in s for s in result['sources'] if s)
+    assert result['ethereal_preference']['preference'] == 'avoid'
+    assert result['status'] != 'perfect preferred base'
+    ethereal = word(assess_runeword_base(replace(facts, ethereal=True)), 'Lionheart')
+    assert any('non-ethereal' in s for s in ethereal['missing'])
+    blank = replace(facts, sockets=0, item_level=50)
+    preparation = word(assess_runeword_base(blank), 'Lionheart')
+    assert preparation['status'] == 'needs sockets'
+    assert any('66.7%' in s for s in preparation['missing'])
+    superior = word(assess_runeword_base(replace(blank, rarity='superior')), 'Lionheart')
+    assert superior['status'] == 'needs sockets'  # Larzuk remains possible; cube does not.
+    assert not any('66.7%' in s for s in superior['missing'])
+    for quality in ('magic', 'rare'):
+        assert not assess_runeword_base(replace(facts, rarity=quality))

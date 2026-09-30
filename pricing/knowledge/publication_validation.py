@@ -10,12 +10,27 @@ from pricing.knowledge.assessment import base_use
 from pricing.knowledge.assessment.adapters import market_projection
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.mechanics import base_tiers
-from pricing.knowledge.assessment.policies import generic_leveling, leveling, named_tiers
+from pricing.knowledge.assessment.policies import generic_leveling, leveling, named_baselines, named_tiers
 from pricing.knowledge.assessment.policies.sources import source_error
 from pricing.knowledge.assessment.profile_sources import validate_profile_sources
 from pricing.knowledge.assessment.repository import ProfileRepository
 from pricing.knowledge.assessment.roles.predicates import native_keys
 from pricing.knowledge.named_upgrades import named_upgrade_variants
+
+
+def _identity_definition(row):
+    """Exclude generated upgrade data while comparing every definition variant."""
+    result = {key: value for key, value in row.items() if key != 'upgrade_variants'}
+    if ordinary := result.get('ordinary_definition'):
+        result['ordinary_definition'] = _identity_definition(ordinary)
+    return result
+
+
+def _validate_upgrade_variants(definition, metadata_row, bases):
+    if metadata_row.get('upgrade_variants') != named_upgrade_variants(definition, bases):
+        raise ValueError(f'Compiled upgrade metadata differs from base catalog: {definition["name"]}')
+    if ordinary := definition.get('ordinary_definition'):
+        _validate_upgrade_variants(ordinary, metadata_row['ordinary_definition'], bases)
 
 
 def validate_definition_metadata(definitions, item_metadata, base_catalog):
@@ -29,7 +44,7 @@ def validate_definition_metadata(definitions, item_metadata, base_catalog):
         elif row.get('table_id') is not None:
             expected_identities[row['rarity']][str(row['table_id'])] = row
     actual = {
-        kind: {key: {k: v for k, v in row.items() if k != 'upgrade_variants'} for key, row in entries.items()}
+        kind: {key: _identity_definition(row) for key, row in entries.items()}
         for kind, entries in item_metadata.get('identities', {}).items()
     }
     if actual != expected_identities:
@@ -53,9 +68,7 @@ def validate_definition_metadata(definitions, item_metadata, base_catalog):
         bases[code] = base
     for quality in ('unique', 'set'):
         for identifier, row in expected_identities[quality].items():
-            actual_variants = item_metadata['identities'][quality][identifier].get('upgrade_variants')
-            if actual_variants != named_upgrade_variants(row, bases):
-                raise ValueError(f'Compiled upgrade metadata differs from base catalog: {row["name"]}')
+            _validate_upgrade_variants(row, item_metadata['identities'][quality][identifier], bases)
     if item_metadata.get('affixes') != expected_affixes:
         raise ValueError('Compiled metadata affixes differ from definitions')
     for field in ('affix_pools', 'staffmods', 'rare_names'):
@@ -91,6 +104,10 @@ def validate_runtime_inputs():
 
     validate_stat_bundle(json.loads(read_artifact(OUTPUT)))
     # Publication checks must not inherit an earlier generation's validation cache.
+    baselines = named_baselines.baselines.__wrapped__(read_artifact(named_baselines.RULES))
+    for identity, baseline in baselines.items():
+        if error := source_error(baseline['source'], identity, named_baselines.ROOT):
+            raise ValueError(f'Invalid baseline tier source {identity}: {error}')
     policies = named_tiers._policies.__wrapped__(read_artifact(named_tiers.RULES))
     for identity, policy in policies.items():
         if error := source_error(policy['source'], identity, named_tiers.ROOT):

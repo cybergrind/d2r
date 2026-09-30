@@ -1,0 +1,268 @@
+{
+  "review_date": "2026-09-28",
+  "status": "class_guards_verified",
+  "reproducer": "tests/pricing/knowledge/assessment/item_bank/cases/remaining_word_quality.py: remaining-word-quality/Infinity/normal/native; change player_class to Paladin or None",
+  "observed": {
+    "Sorceress": [
+      "nova-standard-infinity-player-stats"
+    ],
+    "Paladin": [
+      "nova-standard-infinity-player-stats"
+    ],
+    "unknown": [
+      "nova-standard-infinity-player-stats"
+    ]
+  },
+  "expected": "Only the cited beneficiary class should receive this Nova build recommendation; unknown class must not establish Nova setup applicability. Generic Infinity utility is a separate claim.",
+  "profiles": [
+    {
+      "id": "nova-standard-infinity-player",
+      "build": "nova-sorceress-guide",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Infinity / wearer damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Infinity"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Infinity"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:123",
+            "value": 12
+          }
+        ]
+      },
+      "important_stats": [
+        "334:0"
+      ],
+      "conditions": [
+        "Player-held Infinity: lightning pierce applies to the wearer.",
+        "Equip requirements and the complete Nova cast-rate/resource setup remain unverified; low-requirement Scythe is the cited base."
+      ],
+      "alternatives": [
+        "Infinity Scythe"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Scythe (Ber Mal Ber Ist, ethereal in planner)"
+        ]
+      }
+    },
+    {
+      "id": "nova-hybrid-infinity-merc",
+      "build": "nova-sorceress-guide",
+      "variant": "Hydra Hybrid",
+      "side": "merc",
+      "slot": "Weapon",
+      "role": "Infinity / Conviction support / physical weapon damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Infinity"
+      ],
+      "types": [
+        "pole",
+        "spea"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Infinity"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:123",
+            "value": 12
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0"
+      ],
+      "conditions": [
+        "Act 2 mercenary equipment, strength and attack-speed setup remain unverified.",
+        "Conviction supports the player; weapon lightning pierce does not transfer to the player."
+      ],
+      "alternatives": [
+        "Infinity Giant Thresher (ethereal)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/3/merc/Weapon",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "setup_label": [
+          "Infinity Giant Thresher (ethereal) \u2014 merc holds Infinity since player uses Eschuta's"
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Mercenary type: Act 2 Might or Act 2 Holy Freeze",
+          "when": {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              },
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Holy Freeze"
+              }
+            ]
+          }
+        }
+      ],
+      "review_notes": "2026-09-25: exact cached Hydra Hybrid /variants/3/merc/type and quotes specify Might or Holy Freeze. Preserve this as a typed dependency. Conviction supports player damage; wearer lightning pierce is not transferred. ED supports mercenary physical damage, not player spell damage. Equipment and complete loadout remain unverified."
+    },
+    {
+      "id": "lightning-strike-infinity-player",
+      "build": "lightning-strike-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Infinity / wearer damage",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Infinity"
+      ],
+      "types": [
+        "aspe"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Infinity"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "151:123",
+            "value": 12
+          }
+        ]
+      },
+      "important_stats": [
+        "334:0",
+        "17:0",
+        "18:0"
+      ],
+      "conditions": [
+        "Amazon attack requirements, inherent Javelin/Spear skill bonus and Faith mercenary support require review against the full setup."
+      ],
+      "alternatives": [
+        "Infinity Matriarchal Spear (+3 Javelin and Spear Skills)"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-variants/lightning-strike-amazon.json",
+        "locator": "/variants/1/player/Weapon",
+        "sha256": "4f21f9eaf3102c170241dfe07f730660e524ebdd943ab8e7f027b42029668c39",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "setup_label": [
+          "Infinity Matriarchal Spear (+3 Javelin and Spear Skills)"
+        ]
+      }
+    }
+  ],
+  "next_work": [
+    "Continue six Fissure guide-use reviews; all-item completion remains false."
+  ],
+  "guard_classes": {
+    "nova-standard-infinity-player": "Sorceress",
+    "nova-hybrid-infinity-merc": "Sorceress",
+    "lightning-strike-infinity-player": "Amazon"
+  },
+  "fingerprints": {
+    "nova-standard-infinity-player": {
+      "before": "8550d7a649d6a7ec6db0117494bf63ac45776fc0ecbd7ed38e4d45aa5721a71a",
+      "after": "fd7dbe1eec7e31dd2e04cd200ebae17483004ce4cd75ed2f2716133533d741a9"
+    },
+    "nova-hybrid-infinity-merc": {
+      "before": "d8978ee612753c8ce9ff5e39846259f7d779416cf612c810ef405b24a2b7c599",
+      "after": "6ca1c224bd45ab4e660f0fed37519e78a02a48e7c848b1cab055251b9f4e4dda"
+    },
+    "lightning-strike-infinity-player": {
+      "before": "97419462681cd1b7d83f9d6a484e3c78f6eab0544ca3dde0360695b59f552181",
+      "after": "680172ddde8876ce9611914f8adbfcfee84c7317724d81594d79872b06204bab"
+    }
+  },
+  "compiled_diff_audit": "Only source-confirmed player_class guard added; all existing base/type/recipe/aura/mercenary/stat/quality fields and all other profiles unchanged.",
+  "validation": {
+    "generation": "8d57f6ff033bce603e2b8ce34fe13cd17dd6b8c013f0c2f5866ec100038edee6",
+    "native_red": "18 failed, 9 passed",
+    "native_staged": "27 passed",
+    "selected_native_with_existing_quality_cases": "36 passed",
+    "role_and_priority_tests": "5 passed",
+    "saved_replays": "20 matched on text, price_estimate, extraction",
+    "named_gate": "548 named, 35 sets, 2958 renders, all error counts zero",
+    "lint": "four files clean and formatted"
+  }
+}

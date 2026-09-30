@@ -9,12 +9,13 @@ from dataclasses import dataclass
 
 from inventory_tracking.items.effects import (
     decode_magic_pierce,
+    decode_numeric_text_effect,
     decode_quest_difficulty,
     decode_reanimate,
     decode_set_state,
     decode_visual_effect,
 )
-from inventory_tracking.items.poison import FRAMES_PER_SECOND
+from inventory_tracking.items.poison import FRAMES_PER_SECOND, POISON_STATS, decode_poison_component
 from inventory_tracking.items.stat_constants import (
     CHARGE_COUNT_BITS,
     CHARGE_COUNT_MASK,
@@ -133,6 +134,8 @@ def decode_per_level(ctx):
     return {
         'value': value,
         'text': (template % value) + ' (Based on Character Level)',
+        'range_label': template.replace('%+d', '+{{value}}').replace('%d', '{{value}}').replace('%%', '%')
+        + ' (Based on Character Level)',
         'viewer_level': ctx.viewer_level,
         'per_level': {'numerator': ctx.raw, 'denominator': divisor},
         'origin': 'level_formula',
@@ -165,6 +168,23 @@ def decode_armor_movement(ctx):
             'origin': 'base_type',
         }
     return None
+
+
+def decode_blocking(ctx):
+    # D2MOO Items.cpp initializes STAT_TOBLOCK from the armor table's nBlock.
+    # Saved Spirit/normal Paladin shields confirm that the captured total retains
+    # that base value. It is neither the affix bonus nor the wearer's block chance.
+    if ctx.base and ctx.base.get('category') == 'armor' and ctx.base.get('type') in {'shie', 'ashd', 'head', 'grim'}:
+        if ctx.layer != 0:
+            return None
+        label = 'Shield blocking (base + bonuses): {{value}}%'
+        return {
+            'value': ctx.raw,
+            'label': label,
+            'text': label.replace('{{value}}', str(ctx.raw)),
+            'origin': 'shield_block_total',
+        }
+    return decode_scalar(ctx)
 
 
 def decode_scalar(ctx):
@@ -220,7 +240,7 @@ def decode_single_skill(ctx):
             label += f' ({class_name} Only)'
     return {
         'value': ctx.raw,
-        **({'range_label': label} if ctx.stat['id'] in (StatId.SINGLE_SKILL, StatId.AURA) else {}),
+        'range_label': label,
         'text': label.replace('{{value}}', str(ctx.raw)),
     }
 
@@ -267,17 +287,23 @@ def decode_elemental_skills(ctx):
 
 def decode_class_skills(ctx):
     if ctx.spec and 0 <= ctx.layer < len(CLASS_NAMES) and ctx.raw > 0:
-        return {'value': ctx.raw, 'text': f'+{ctx.raw} to {CLASS_NAMES[ctx.layer]} Skill Levels'}
+        label = '+{{value}} to ' + CLASS_NAMES[ctx.layer] + ' Skill Levels'
+        return {'value': ctx.raw, 'range_label': label, 'text': label.replace('{{value}}', str(ctx.raw))}
     return None
 
 
 # Add native-ID families here; metadata-defined encodings are selected below.
 STAT_DECODERS = {
+    20: decode_blocking,
     56: decode_cold_duration,
+    **dict.fromkeys(POISON_STATS, decode_poison_component),
     67: decode_armor_movement,
     98: decode_set_state,
     140: decode_visual_effect,
     155: decode_reanimate,
+    157: decode_numeric_text_effect,
+    158: decode_numeric_text_effect,
+    254: decode_numeric_text_effect,
     159: decode_throw_modifier,
     160: decode_throw_modifier,
     181: decode_visual_effect,
@@ -304,9 +330,7 @@ def decode_stat(ctx):
     # D2MOO D2StatList.cpp op4/5 evaluate on the wielder. Op5 scales a
     # percentage, not flat damage; only display its coefficient-derived bonus.
     level_op = ctx.spec.get('op')
-    if ctx.spec.get('op_base') == 'level' and (
-        level_op == 2 or (ctx.stat['id'] in (214, 218) and level_op == 4) or (ctx.stat['id'] == 219 and level_op == 5)
-    ):
+    if ctx.spec.get('op_base') == 'level' and (level_op in (2, 4, 5)):
         return decode_per_level(ctx)
     decoder = STAT_DECODERS.get(ctx.stat['id'])
     if decoder is None:

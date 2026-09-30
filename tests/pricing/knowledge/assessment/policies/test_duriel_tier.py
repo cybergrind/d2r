@@ -6,7 +6,7 @@ from pricing.knowledge.assessment.policies.named_tiers import assess_tier
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
-@pytest.mark.parametrize('ed', [183, 190, 196, 197])
+@pytest.mark.parametrize('ed', [183, 190, 196, 197, 198, 200])
 def test_original_ethereal_duriel_reviewed_segment(ed):
     item = replace(
         facts('Cuirass', 'unique', "Duriel's Shell"),
@@ -20,7 +20,7 @@ def test_original_ethereal_duriel_reviewed_segment(ed):
     for changed in (
         replace(item, ethereal=False),
         replace(item, stats={'16:0': {'status': 'decoded', 'value': 182}}),
-        replace(item, stats={'16:0': {'status': 'decoded', 'value': 198}}),
+        replace(item, stats={'16:0': {'status': 'decoded', 'value': 201}}),
         replace(item, socket_contents='filled'),
         replace(item, base_code=facts('Great Hauberk').base_code),
     ):

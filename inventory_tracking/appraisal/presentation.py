@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from rich.text import Text
 
 from inventory_tracking.appraisal.intrinsic_rolls import display_stats
+from inventory_tracking.appraisal.owned import owned_lines
 from inventory_tracking.appraisal.sections import (
     assessment_lines,
     base_lines,
@@ -13,13 +14,24 @@ from inventory_tracking.appraisal.sections import (
     price_lines,
     review_lines,
     tier_lines,
+    utility_lines,
     value_watch_lines,
 )
 from inventory_tracking.appraisal.stat_markers import stat_line
 from inventory_tracking.presentation import StyledLine, Tone, render_rich
 
 
+TIER_TONES = {
+    'high': Tone.TIER_HIGH,
+    'med': Tone.TIER_MED,
+    'mid': Tone.TIER_MED,
+    'low': Tone.TIER_LOW,
+    'trash': Tone.TIER_TRASH,
+}
+
+
 ROLL_TONES = {'perfect': Tone.PERFECT, 'low': Tone.LOW}
+OWNED_TONES = {'better': Tone.PERFECT, 'worse': Tone.LOW, 'equal': Tone.LOW, 'same': Tone.LOW}
 RARITY_TONES = {
     'normal': Tone.NORMAL,
     'superior': Tone.NORMAL,
@@ -122,7 +134,11 @@ class ItemAssessment:
         if item.get('name') != item.get('base_name') and item.get('base_name'):
             add(f'Base: {item["base_name"]}')
         if item.get('set_name'):
-            add(f'Set: {item["set_name"]}', Tone.SET)
+            context = result.get('assessment', {}).get('trade_tier', {}).get('set_context', {})
+            set_tier = context.get('tier')
+            label = 'mid' if set_tier == 'med' else set_tier
+            suffix = f' — full-set trade tier: {label}' if label else ''
+            add(f'Set: {item["set_name"]}{suffix}', TIER_TONES.get(set_tier, Tone.SET))
         if type(item.get('ethereal')) is bool:
             add('Ethereal: ' + ('yes' if item['ethereal'] else 'no'), ethereal_tone(result))
         add('Observed stats:', Tone.HEADING)
@@ -136,8 +152,18 @@ class ItemAssessment:
         else:
             for affix in affixes:
                 add('  ' + affix['label'].replace('{{value}}', str(affix['value'])))
-        if not decoded and not affixes:
-            add('  No supported stats decoded.', Tone.WARNING)
+        if not decoded and not affixes and not result.get('assessment', {}).get('utility'):
+            contract = result.get('assessment', {}).get('contract') or {}
+            if contract.get('policy') == 'socket_material':
+                add('  No variable rolls (loose rune/gem).')
+            else:
+                add('  No supported stats decoded.', Tone.WARNING)
+        # The owned header and the best-rolled copy go to the OSD; further copies only to the text report.
+        owned = result.get('owned')
+        for index, line in enumerate(owned_lines(owned)):
+            add(line, OWNED_TONES.get(owned['relation'], Tone.DEFAULT) if index == 0 else Tone.METADATA, osd=index < 2)
+        for line in utility_lines(result):
+            add(line, Tone.HEADING if line.startswith('Consumable use') else Tone.DEFAULT)
         for line in assessment_lines(result):
             add(line, Tone.HEADING if line.startswith('Build use') else Tone.DEFAULT)
         watches = watch_tones(result)
@@ -149,9 +175,9 @@ class ItemAssessment:
             add(line, bases.get(line.strip(), Tone.HEADING if line == 'Runeword base:' else Tone.DEFAULT))
         tier = result.get('assessment', {}).get('trade_tier', {}).get('tier')
         for line in tier_lines(result):
-            add(line, Tone.VALUABLE if tier == 'high' else Tone.DEMAND if tier == 'med' else Tone.DEFAULT)
+            add(line, TIER_TONES.get(tier, Tone.DEFAULT))
         for line in leveling_lines(result):
-            add(line, Tone.LEVELING if line.startswith('Leveling:') else Tone.DEFAULT)
+            add(line, TIER_TONES.get(line.split()[1], Tone.DEFAULT) if line.startswith('Leveling:') else Tone.DEFAULT)
         for line in price_lines(result):
             add(line)
         issues = review_lines(extraction)

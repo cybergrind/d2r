@@ -5,6 +5,7 @@ from types import SimpleNamespace
 
 from inventory_tracking.items.metadata import metadata, metadata_generation
 from pricing.knowledge.assessment.adapters.market_projection import market_properties, project_native
+from pricing.knowledge.assessment.adapters.native_affixes import captured_affixes
 from pricing.knowledge.assessment.domain.facts import FactStatus, ItemFacts
 
 
@@ -42,6 +43,7 @@ def normalize(extraction):
         filled_sockets=item.get('filled_sockets'),
         empty_sockets=item.get('empty_sockets'),
         item_level=item.get('item_level'),
+        native_affixes=captured_affixes(source.get('native_affixes'), item),
         capture_complete=source.get('stat_capture_complete') is True,
         stats={},
         properties={},
@@ -57,6 +59,8 @@ def normalize(extraction):
         facts.gaps.append('Captured item type conflicts with base metadata.')
     if not facts.capture_complete:
         facts.gaps.append('Stat capture completeness is unknown.')
+    if source.get('runeword_identity_unresolved') is True:
+        facts.gaps.append('Runeword identity is unresolved.')
     for key in ('identified', 'ethereal', 'sockets', 'socket_contents'):
         value = getattr(facts, key)
         if value is None or (key == 'identified' and not value):

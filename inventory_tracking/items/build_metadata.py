@@ -18,6 +18,9 @@ from pricing.knowledge.named_upgrades import named_upgrade_variants
 
 
 SCALAR_DESCRIPTION_FUNCTIONS = (19, 29)
+# Sling grants this classless player skill; other nonplayer variants retain their
+# internal identities. Native skilldesc otownportal names skillan219 (Town Portal).
+ITEM_GRANTED_SKILL_DESCRIPTIONS = frozenset({'otownportal'})
 
 
 def stat_label(row, template):
@@ -46,7 +49,7 @@ def build_skills(rows, descriptions, strings):
         if '*Id' not in row or 'skill' not in row:
             continue
         name = row['skill']
-        if row.get('charclass'):
+        if row.get('charclass') or row.get('skilldesc') in ITEM_GRANTED_SKILL_DESCRIPTIONS:
             key = descriptions.get(row.get('skilldesc'), {}).get('str name')
             localized = strings.get(key)
             if isinstance(localized, str) and localized.strip():
@@ -63,11 +66,10 @@ def build_skills(rows, descriptions, strings):
 
 def build(stats_path, skills_path, output):
     root = Path(__file__).resolve().parents[2]
-    strings = {
-        r[0]: r[1]
-        for r in json.loads((root / 'pricing/raw/mr/planners/game-strings.json').read_text())
-        if isinstance(r, list) and len(r) == 2
-    }
+    strings = merge_game_strings(
+        json.loads((root / 'third-parties/d2data/json/allstrings-eng.json').read_text()),
+        json.loads((root / 'pricing/raw/mr/planners/game-strings.json').read_text()),
+    )
     props = json.loads((root / 'pricing/data/appraisal-properties.json').read_text())['properties']
 
     def norm(s):
@@ -120,6 +122,7 @@ def build(stats_path, skills_path, output):
             cid = str(r['classid'])
             assert cid not in bases
             bases[cid] = {'name': r['name'], 'code': code, 'category': category, 'type': r.get('type')}
+            bases[cid]['max_sockets'] = r.get('gemsockets', 0) if category in ('weapons', 'armor') else 0
             if category == 'armor':
                 bases[cid]['movement_penalty'] = r.get('speed')
             if category == 'weapons':
@@ -136,6 +139,7 @@ def build(stats_path, skills_path, output):
     )
     definitions = build_definitions(root)
     identities = {kind: {} for kind in ('set', 'unique', 'runeword')}
+    unmapped_runewords = []
     affixes = {kind: {} for kind in ('prefix', 'suffix', 'auto')}
     for entry in definitions['rows']:
         if entry.get('affix_table'):
@@ -143,7 +147,14 @@ def build(stats_path, skills_path, output):
         elif entry['table_id'] is not None:
             if entry['rarity'] in ('unique', 'set'):
                 entry = {**entry, 'upgrade_variants': named_upgrade_variants(entry, raw_bases)}
+                if ordinary := entry.get('ordinary_definition'):
+                    entry['ordinary_definition'] = {
+                        **ordinary,
+                        'upgrade_variants': named_upgrade_variants(ordinary, raw_bases),
+                    }
             identities[entry['rarity']][str(entry['table_id'])] = entry
+        elif entry['rarity'] == 'runeword':
+            unmapped_runewords.append(entry)
     data = {
         'comparison_socket_effects': compile_fillers(
             json.loads((root / 'third-parties/d2data/json/gems.json').read_text()),
@@ -172,6 +183,7 @@ def build(stats_path, skills_path, output):
         },
         'superior': {r['category']: r for r in definitions['rows'] if r['kind'] == 'quality_definition'},
         'identities': identities,
+        'unmapped_runewords': unmapped_runewords,
         'affixes': affixes,
         'affix_pools': definitions['affix_pools'],
         'staffmods': definitions['staffmods'],

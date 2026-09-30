@@ -1,0 +1,173 @@
+{
+  "review_date": "2026-09-28",
+  "native_source": {
+    "path": "third-parties/d2data/json/runes.json",
+    "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "locator": "/Cure"
+  },
+  "basis": "Completed nonmagical Cure retains native runeword effects across normal, superior and low_quality. Item identity, legal sockets, bearer and setup predicates are unchanged. No new source configuration review or numerical price is inferred.",
+  "changed_profiles": [
+    "berserk-barbarian-early-merc-cure",
+    "blessed-hammer-paladin-early-merc-cure",
+    "blizzard-sorceress-early-merc-cure",
+    "blood-boil-warlock-guide-cure-merc-survival-gear",
+    "double-throw-barbarian-guide-early-merc-cure",
+    "dream-paladin-early-merc-cure",
+    "echoing-strike-warlock-guide-1-merc-cure",
+    "echoing-strike-warlock-guide-2-merc-cure",
+    "enchant-sorceress-1-merc-cure",
+    "enchant-sorceress-2-merc-cure",
+    "enchant-sorceress-early-merc-cure",
+    "fire-blast-assassin-early-merc-cure",
+    "fire-wall-sorceress-guide-cure-merc-survival-gear",
+    "fissure-druid-early-merc-cure",
+    "fist-of-the-heavens-paladin-early-merc-cure",
+    "frozen-orb-meteor-sorceress-cure-merc-survival-gear",
+    "frozen-orb-sorceress-cure-merc-survival-gear",
+    "hydra-sorceress-cure-merc-survival-gear",
+    "lightning-fury-amazon-guide-early-merc-cure",
+    "lightning-sentry-assassin-early-merc-cure",
+    "lightning-sorceress-early-merc-cure",
+    "lightning-strike-amazon-early-merc-cure",
+    "meteor-sorceress-early-merc-cure",
+    "nova-sorceress-guide-1-merc-cure",
+    "nova-sorceress-guide-2-merc-cure",
+    "nova-sorceress-guide-3-merc-cure",
+    "nova-sorceress-guide-early-merc-cure",
+    "poison-nova-necromancer-early-merc-cure",
+    "summoner-necromancer-guide-early-merc-cure",
+    "summoner-warlock-guide-cure-merc-survival-gear",
+    "zeal-paladin-cure-merc-survival-gear"
+  ],
+  "unchanged_behavior_audit": "All compiled fields except qualities byte-equivalent as JSON values; all other profiles unchanged.",
+  "fingerprints": {
+    "berserk-barbarian-early-merc-cure": {
+      "before": "4e01665dd033e0f8ccd675e5c5a1226d8233be4583b34ab5895c7b5fe76f5692",
+      "after": "226bc5c96a30f8cb076030e322fd1deaf705df25499d3a6487f40e9332aa4260"
+    },
+    "blessed-hammer-paladin-early-merc-cure": {
+      "before": "b461660e246bd13e43a15b767929822db79a7808a72721349594b98378f29d51",
+      "after": "b5607df98508ef7a47de88db724b8be81669b6d5ba8ecaf59c19424a07dc3984"
+    },
+    "blizzard-sorceress-early-merc-cure": {
+      "before": "0fc40fd3ae46df874004f3daae34ddfbc97ce0f583b4de282638df271a85c4e1",
+      "after": "516b89edeb668b4b1c579dec27f6223906ab836ee36487434bebf9a4310006c9"
+    },
+    "blood-boil-warlock-guide-cure-merc-survival-gear": {
+      "before": "88d958afa6c2c31c676a7f019e0a0b7d625aab64d5281b2d49de9aecf998d964",
+      "after": "2a86014ba7fe0d05866c9eb2351aced38414299db245dded8a11c1e8e9494528"
+    },
+    "double-throw-barbarian-guide-early-merc-cure": {
+      "before": "830049f16ce160cf5e01c74c312e43f5b6d87e9927a936abb75bd91ce1e549eb",
+      "after": "6071bf83c1087d19bf5b06f8ec5c8ea8bb43ffcd60a2bf94972b360ab3ca88aa"
+    },
+    "dream-paladin-early-merc-cure": {
+      "before": "373202dc37c07cb492f5f15bddf76dd9761251a7fa562da11f3e671901a8b689",
+      "after": "96ea381045e7479697db114aaecede6cd01e8c880c631db256554fa9ad443c0b"
+    },
+    "echoing-strike-warlock-guide-1-merc-cure": {
+      "before": "11d440e454f8073f941f8405fc08a0be281d6dd263206b51ba4d4bf7cfd0a393",
+      "after": "1dfbb673f00ebb24640e6ab6977024f04f13ee6b62aa4aa2d241558210ff2f10"
+    },
+    "echoing-strike-warlock-guide-2-merc-cure": {
+      "before": "a90929a8b56e486c9799f5950634ecd1bc800c51ca53dbc542feeeff4b413a2d",
+      "after": "f45578848618c5c199172e60eed067aed8a5f8ef87bdd1d3146bc1f9ed8ebf8a"
+    },
+    "enchant-sorceress-1-merc-cure": {
+      "before": "b52e1bb457902f112032dab8e948b27af4e3a1bf7e20234bc24b2d9283fec52e",
+      "after": "2eb7257c5e4aeef865a651c799da34f8b440786208a677be869a1c26b0bfc91a"
+    },
+    "enchant-sorceress-2-merc-cure": {
+      "before": "69c7f750bc8137d74f079c136d0210709682d02504e7bf1e331b8ee5526c83f8",
+      "after": "f665466b57f44dc1e0b75c16e6e83ea237ffb84ea80fdc9bbb52a9915e6eb09d"
+    },
+    "enchant-sorceress-early-merc-cure": {
+      "before": "c2cf2a312c652929b8671d81ff0b93ded7d446c8d424c06d1189b08d0a41681f",
+      "after": "68dffeda3922eba61b39cf63c726b86e2207ba9a0688163b55b853332b40e0ac"
+    },
+    "fire-blast-assassin-early-merc-cure": {
+      "before": "bf847c53c3e7f5eea53add3e486d122848fad261296c0d84bdaa10feb4e226ee",
+      "after": "d45653b9a3c4c13653782c459958de201f0473de63e95a3cc3961586b8767a82"
+    },
+    "fire-wall-sorceress-guide-cure-merc-survival-gear": {
+      "before": "642ffb9104e583effb5dab06c04b90ef7d43176fb8148a557196b2779a3d4fe4",
+      "after": "4310e5c2878c4235d6a50bfe137cc25d86c080a8cdc44900412154e519086dfd"
+    },
+    "fissure-druid-early-merc-cure": {
+      "before": "5548bc6324814250e8bc1c8e9104df767388e3dbbb4bc4a0397b164195a91b16",
+      "after": "990c1da70089b4fb6b1ed288d22a541daaf4fd730373faa55d6697a4769f96d2"
+    },
+    "fist-of-the-heavens-paladin-early-merc-cure": {
+      "before": "bf36b4b5d63867074f5021e31601943e68eb43a8534f224ac7455e8564909e9e",
+      "after": "50625ed606901f879b34c5f2bfd1e155dec2087f28dcb9a829c952c9be624f43"
+    },
+    "frozen-orb-meteor-sorceress-cure-merc-survival-gear": {
+      "before": "b513a31b1baab4393de1dc68f16977c26e57963dd86e710e7b1415e00bc75947",
+      "after": "eaac22fd9d053ac914ff9dd3c17a543696354007c1a0c8efcaf7ccaa6195d01d"
+    },
+    "frozen-orb-sorceress-cure-merc-survival-gear": {
+      "before": "688c87705f2a35ec7aff50fee53025baaad6309a35c63ad95edec814e06730ab",
+      "after": "5dd5a3facba31f568325beae4bb69de0d63fc0d412b1f7ddda5fdffbad3ca6c7"
+    },
+    "hydra-sorceress-cure-merc-survival-gear": {
+      "before": "83253f17a994a6cdd3bc2dd52705fb2e7cec5781928d5ae7caf259eecd7ff66f",
+      "after": "4c3eaf3ef19baaa4db15ffe826d0f07fa3b799fe11654ff6b74ee951b786e9dc"
+    },
+    "lightning-fury-amazon-guide-early-merc-cure": {
+      "before": "51551401f5ff395518f82e7818d3ef38b82eee1842594dc75ed8d1a2e4214f53",
+      "after": "ef3e36300e1378620c92258bfac9addda91f384a66eb2ae06f0caa6833c0b90c"
+    },
+    "lightning-sentry-assassin-early-merc-cure": {
+      "before": "b6d0e0f043e2902d9c53ed8a810ce4d880edf439c85732c5698b50b888251b93",
+      "after": "f3e89d783196c68d9cbc5810ead9468188826920fcd3058ed95e051ef4051bdd"
+    },
+    "lightning-sorceress-early-merc-cure": {
+      "before": "50d757114e97314d0a3d8aa1a4b30e5aaaf55018f529a77f8e8a90036481b354",
+      "after": "756a3f4f8d1148b0aed2801025417114cf6182bef5e2c79f94737184a1374009"
+    },
+    "lightning-strike-amazon-early-merc-cure": {
+      "before": "972d1f846e80b3dc534efa342517c3eeb4f52d32bb228390ff0b9ccec5217d43",
+      "after": "ae39b1dd89a9baf1752774e64a1a92ac78c7f4bc9fe7ba033573b32558447dbe"
+    },
+    "meteor-sorceress-early-merc-cure": {
+      "before": "4e750125b28addae3e9e83b405bd6247f8922beeaecf73d1689ad55325cb2cb6",
+      "after": "0fbc8addbe4dd7c79d0e4c0c12036593311c6170e3269c56885c61001e4c2e2a"
+    },
+    "nova-sorceress-guide-1-merc-cure": {
+      "before": "2c139f5b25560d45d3091748efa9ba1f4d8cf34833342eea5e1045b24405d0a2",
+      "after": "619e913e6f408ea8e408b3c45c5c67e18b1a45e5526bb67d54791b8640105a5c"
+    },
+    "nova-sorceress-guide-2-merc-cure": {
+      "before": "40ee4550e25aa6785bbd178a896f47bd4562ba741f79f3d6709478245674baff",
+      "after": "ff5a4c07b3735c5adf3436b9a435880831ea3f2651c851da839fdd8a6a005d3b"
+    },
+    "nova-sorceress-guide-3-merc-cure": {
+      "before": "c60bed5e49a75efa492ea16b255229d338a34897c2ae37c0d99e1079c05d3312",
+      "after": "4773e427138f00a823c5abd198999f5eee4e171e81fb23b55658851512598ac2"
+    },
+    "nova-sorceress-guide-early-merc-cure": {
+      "before": "d0cb474185df6f020c5d0b1f1bd2a666da2cdb0541289f9f5c562a3c8c7a70ef",
+      "after": "5a3194575027fb99b87e13dd1344fe29f6a1525179ec8ab08835bf1f0b982025"
+    },
+    "poison-nova-necromancer-early-merc-cure": {
+      "before": "08f4414b6a04e300438ec9a154fe576f082e223b85b6980e69da1ba09bd8a367",
+      "after": "b313a8493d9b2adedf39f752aad3826b89a5356400e2c044d3e5f5893942d44c"
+    },
+    "summoner-necromancer-guide-early-merc-cure": {
+      "before": "169c3799488c7c2456e7a22a50db2c247845d95ee39a1f5e834de119b2d4470c",
+      "after": "46dcb2e533a10b87d85b1e557dc1bad323579b94b210c3344c6b08daa3091f0e"
+    },
+    "summoner-warlock-guide-cure-merc-survival-gear": {
+      "before": "e41d480701d41af1df252d0d0df8c8f0efeaf4287bd96c9216333f6e9718211c",
+      "after": "2ef04b11bde8594f415a33e87df5e8325ba0906f85e996b3421efee2d35730f6"
+    },
+    "zeal-paladin-cure-merc-survival-gear": {
+      "before": "b763803a1bb247c4c2eeef41a8a77e5ef752a85c1bd6680d953da48f10804677",
+      "after": "e7fa71896f30929b07766241bf3a2c02f6eb94939c4e0848d2227d1d3155a910"
+    }
+  },
+  "source_context_review_pins_updated": [
+    "zeal-early-merc-equipment-span-234",
+    "zeal-mid-merc-cure-span-241"
+  ]
+}

@@ -14,10 +14,17 @@ from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
+from inventory_tracking.items.stat_constants import CLASS_NAMES
 from pricing.knowledge.localization import merge_game_strings
+from pricing.knowledge.negative_mentions import recommendation
+from pricing.knowledge.socket_setup_labels import socket_context
 
 
 ROOT = Path(__file__).resolve().parents[2]
+_NAMED_TYPOGRAPHY = re.compile(r"[\s'\u2019\u2018-]+")
+# Cached Zeal/Fissure mercenary labels. Identity only: the original setup text
+# retains multiplicity; this does not prove two weapons are owned or equipped.
+_SETUP_IDENTITY_ALIASES = {'lawbringers': 'lawbringer', 'lawbringer(s)': 'lawbringer'}
 
 
 def decode_planner(document):
@@ -112,16 +119,46 @@ def resolve_named_label(label, catalog):
     # Variant qualifier is retained in original_label; it is not part of identity.
     if text.startswith('ethereal '):
         text = text[len('ethereal ') :]
+    # A class prefix selects Torch's rolled class, not another item identity.
+    # Keep that selector in original_label; do not generalize to arbitrary prose.
+    for class_name in CLASS_NAMES:
+        prefix = class_name.casefold() + ' '
+        if text.startswith(prefix):
+            remainder = text[len(prefix) :]
+            if remainder == 'hellfire torch' or remainder.startswith(('hellfire torch (', 'hellfire torch [')):
+                text = remainder
+            break
     if text in names:
         return names[text]
-    bases = {r['name'].casefold() for r in catalog.values() if r.get('category') in ('armor', 'weapon', 'misc')}
+    canonical = _SETUP_IDENTITY_ALIASES.get(text)
+    if canonical and (row := names.get(canonical)) and row.get('category') == 'runeword':
+        return row
+    # Exact named aliases only: spacing/apostrophes are not item modifiers.
+    # Keep operators and composite prose intact, and reject ambiguous identities.
+    compact = _NAMED_TYPOGRAPHY.sub('', text)
+    equivalents = {
+        (row['category'], row['name']): row
+        for name, row in names.items()
+        if row.get('category') in ('unique', 'set', 'runeword') and _NAMED_TYPOGRAPHY.sub('', name) == compact
+    }
+    if len(equivalents) == 1:
+        return next(iter(equivalents.values()))
+    bases = {
+        r['name'].casefold(): r['category']
+        for r in catalog.values()
+        if r.get('category') in ('armor', 'weapon', 'misc')
+    }
     for name in sorted(names, key=len, reverse=True):
         row = names[name]
         if row.get('category') not in ('unique', 'set', 'runeword') or not text.startswith(name + ' '):
             continue
         suffix = text[len(name) :].strip()
-        if suffix.startswith(('(', '[')) or any(
-            suffix == base or suffix.startswith((base + ' (', base + ' [')) for base in bases
+        if socket_context(row, suffix, catalog) or suffix.startswith(('(', '[')) or any(
+            (suffix == base or suffix.startswith((base + ' (', base + ' [')))
+            for base, category in bases.items()
+            # Charms/jewels can have affixes named like recipes (e.g. Steel).
+            # Runewords can only decorate weapons or armor, never misc bases.
+            if row['category'] != 'runeword' or category != 'misc'
         ):
             return row
     return None
@@ -245,7 +282,7 @@ def _source(root, path, url=None, fetched_at=None):
         'url': url,
         'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
         'fetched_at': fetched_at,
-        'parser_version': 'builds-1',
+        'parser_version': 'builds-2',
     }
 
 
@@ -298,6 +335,7 @@ class _Mentions(HTMLParser):
             self.in_heading = False
         if tag == 'tr':
             self.in_row = False
+            self.slot = ''
         if tag == 'span' and self.active:
             self.depth -= 1
             if not self.depth:
@@ -328,7 +366,8 @@ def build_dataset(root=ROOT):
     name_catalog = {name.casefold(): v for v in catalog.values() for name in [v['name'], *v.get('aliases', [])]}
     for slug in inventory['mandatory_top_builds']:
         path = root / f'pricing/raw/mr/guides__{slug}.html'
-        html = unescape(path.read_text())
+        raw_html = path.read_text()
+        html = unescape(raw_html)
         sid = str(path.relative_to(root))
         sources[sid] = _source(
             root, path, f'https://maxroll.gg/d2/guides/{slug}', '2026-09-18' if slug in ledger else '2026-09-23'
@@ -347,7 +386,11 @@ def build_dataset(root=ROOT):
         before = len(rows)
         for i, mention in enumerate(guide_mentions(html)):
             item_id, label = mention['item_id'], mention['label']
-            found = catalog.get(item_id.split('-')[0]) or name_catalog.get(label.casefold())
+            found = (
+                catalog.get(item_id.split('-')[0])
+                or name_catalog.get(label.casefold())
+                or resolve_named_label(label, catalog)
+            )
             if not found and not label:
                 continue
             name = found['name'] if found else label
@@ -362,13 +405,14 @@ def build_dataset(root=ROOT):
                     mention['side'],
                     mention['slot'],
                     category=(found or {}).get('category'),
+                    original_label=label,
                     details={
                         'role': 'guide_mention',
                         'raw_item_id': item_id,
                         'original_label': label,
                         'profile_id': mention['profile_id'],
                         'resolution_status': 'resolved' if found else 'pattern_or_unresolved',
-                        'recommended': True,
+                        'recommended': recommendation(sid, i, mention, raw_html),
                     },
                 )
             )

@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "id": "zeal-farming-reward-span-199",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Terror is a drop from The Countess, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "397dc406ab53d0a383ee359b",
+      "expected_occurrence": {
+        "name": "Key of Terror",
+        "original_label": "Key of Terror",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "The Countess",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/199",
+        "id": "397dc406ab53d0a383ee359b",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/199",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Terror",
+          "slot": "The Countess",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/34/text",
+        "quote": "Area Starter Rewards The Countess ✔ Runes Key of Terror The Pit ✔ All Item Types Max Area Level Leveling Andariel ✔ Uniques Sets Jewelry"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-200",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Hate is a drop from Summoner, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "fbf614ca2a8a758c00e6292c",
+      "expected_occurrence": {
+        "name": "Key of Hate",
+        "original_label": "Key of Hate",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Summoner",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/200",
+        "id": "fbf614ca2a8a758c00e6292c",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/200",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Hate",
+          "slot": "Summoner",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/35/text",
+        "quote": "Area Starter Rewards Stony Tomb ✔ All Item Types Max Area Level Leveling Ancient Tunnels - All Item Types Max Area Level Leveling Summoner - Key of Hate"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-201",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Destruction is a drop from Nihlathak, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "96dc8706d3e220c0b365642c",
+      "expected_occurrence": {
+        "name": "Key of Destruction",
+        "original_label": "Key of Destruction",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Nihlathak",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/201",
+        "id": "96dc8706d3e220c0b365642c",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/201",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Destruction",
+          "slot": "Nihlathak",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/38/text",
+        "quote": "Area Starter Rewards Eldritch the Rectifier ✔ Gearing Gold Leveling Shenk the Overseer ✔ Gearing Gold Leveling Pindleskin ✔ Gearing Gold Leveling Drifter Cavern - All Item Types Max Area Level Leveling Nihlathak - Key of Destruction Leveling Worldstone Keep / Throne of Destruction - All Item Types Max Area Level Leveling Baal / Waves - Uniques Sets Max Area Level Leveling"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-202",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Diablo's Horn is a drop from Lilith, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "4ea0f8e9b91d6ab2ddbe9146",
+      "expected_occurrence": {
+        "name": "Diablo's Horn",
+        "original_label": "Diablo's Horn",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Lilith",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/202",
+        "id": "4ea0f8e9b91d6ab2ddbe9146",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/202",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Diablo's Horn",
+          "slot": "Lilith",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/39/text",
+        "quote": "This build is capable of farming Uber Tristram and the Mini Ubers before (See the \"Ubers\" Build Variant): Area Rewards Lilith Diablo's Horn Duriel Baal's Eye Izual Mephisto's Brain Mephisto, Diablo, Baal Hellfire Torch"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-203",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Baal's Eye is a drop from Duriel, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "44f70cfecacd596d6f36c0ea",
+      "expected_occurrence": {
+        "name": "Baal's Eye",
+        "original_label": "Baal's Eye",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Duriel",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/203",
+        "id": "44f70cfecacd596d6f36c0ea",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/203",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Baal's Eye",
+          "slot": "Duriel",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/39/text",
+        "quote": "This build is capable of farming Uber Tristram and the Mini Ubers before (See the \"Ubers\" Build Variant): Area Rewards Lilith Diablo's Horn Duriel Baal's Eye Izual Mephisto's Brain Mephisto, Diablo, Baal Hellfire Torch"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-204",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Mephisto's Brain is a drop from Izual, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "33cc5a318586ceb4a93621c1",
+      "expected_occurrence": {
+        "name": "Mephisto's Brain",
+        "original_label": "Mephisto's Brain",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Izual",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/204",
+        "id": "33cc5a318586ceb4a93621c1",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/204",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Mephisto's Brain",
+          "slot": "Izual",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/39/text",
+        "quote": "This build is capable of farming Uber Tristram and the Mini Ubers before (See the \"Ubers\" Build Variant): Area Rewards Lilith Diablo's Horn Duriel Baal's Eye Izual Mephisto's Brain Mephisto, Diablo, Baal Hellfire Torch"
+      }
+    },
+    {
+      "id": "zeal-farming-reward-span-205",
+      "kind": "farming_reward",
+      "review_date": "2026-09-27",
+      "reason": "Reviewed the exact Area/Rewards table: Hellfire Torch is a drop from Mephisto, Diablo, Baal, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "7a7fb53fe09cbd1bc0f3cc5d",
+      "expected_occurrence": {
+        "name": "Hellfire Torch",
+        "original_label": "Hellfire Torch",
+        "category": "unique",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Mephisto, Diablo, Baal",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/205",
+        "id": "7a7fb53fe09cbd1bc0f3cc5d",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/205",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Hellfire Torch",
+          "slot": "Mephisto, Diablo, Baal",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/39/text",
+        "quote": "This build is capable of farming Uber Tristram and the Mini Ubers before (See the \"Ubers\" Build Variant): Area Rewards Lilith Diablo's Horn Duriel Baal's Eye Izual Mephisto's Brain Mephisto, Diablo, Baal Hellfire Torch"
+      }
+    },
+    {
+      "id": "zeal-summary-torch-farming-span-275",
+      "kind": "farming_target",
+      "review_date": "2026-09-27",
+      "reason": "Summary explicitly says to farm Hellfire Torches with the build. This source occurrence is a farming target, not an equipment configuration. All Torch identities, rolls, prices and separate inventory-use recommendations remain in scope. Exact raw span position in the quoted Summary section is validated.",
+      "occurrence_id": "c7586c7abbce1717c18ac333",
+      "expected_occurrence": {
+        "name": "Hellfire Torch",
+        "original_label": "Hellfire Torch",
+        "category": "unique",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "unspecified",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/275",
+        "id": "c7586c7abbce1717c18ac333",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/275",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Hellfire Torch",
+          "slot": "unspecified",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/53/text",
+        "quote": "Farm Hellfire Torches with this build to use it to its full potential!"
+      }
+    },
+    {
+      "id": "zeal-paladin-boss-farming-target-37",
+      "kind": "farming_target",
+      "review_date": "2026-09-27",
+      "reason": "2026-09-27: Reviewed boss farming paragraph. Uber Bosses are farmed to acquire Hellfire Torch; the charm is the resulting loot, not equipment required by this mention. Exclude only this exact source occurrence from equipment-demand work. Identity, trade/utility, rolls and separate equipped/inventory uses remain in scope. Full section, unique name occurrence and raw HTML location are verified.",
+      "occurrence_id": "72a525345092a8de2e9a39c3",
+      "expected_occurrence": {
+        "name": "Hellfire Torch",
+        "original_label": "Hellfire Torch",
+        "category": "unique",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "unspecified",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/37",
+        "id": "72a525345092a8de2e9a39c3",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/37",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Hellfire Torch",
+          "slot": "unspecified",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/30/text",
+        "quote": "Ubers - The Zeal Paladin is one of the best builds for defeating the Uber Bosses and acquiring a Hellfire Torch. Easily stacking Crushing Blow and other helpful offensive and defensive stats, this build makes short work of these ultra powerful monsters with the proper setup and approach (see the \"Ubers\" Build Variant). Travincal with 3 Players in the Game - Council Members are quickly decimated by Zeal. They have great loot odds for Runes, Charms, Jewels, Jewelry, Gems, and basic gear with 3 Players in the game or /Players3 on Single Player. Chaos Sanctuary - Jumping into Elite Packs in this Max Area Level Farming Spot feels natural for the Zealer, especially while using the \"Attack Speed\" Build Variant. This build makes short work of this otherwise dangerous area. Worldstone Keep/Baal - The Zeal Paladin does an excellent job of destroying nearly every Elite spawn in Worldstone, Waves in the Throne of Destruction, and Baal himself. Having insane Physical Damage, % Life stolen per hit, maximum Chance to Block, and the Resist Lightning Aura for Black Souls, this build usually stays fairly safe in this dangerous Max Level Area. Nihlathak - Because the Zealer exclusively deals Physical Damage, he has zero Immunity issues when farming this Boss for the Key of Destruction. Also, having Redemption Aura from Phoenix allows this build to redeem corpses before \"Nilly\" can use Corpse Explosion on them. These unique advantages make this Boss a relatively easy target for this build."
+      }
+    },
+    {
+      "id": "zeal-paladin-boss-farming-target-38",
+      "kind": "farming_target",
+      "review_date": "2026-09-27",
+      "reason": "2026-09-27: Reviewed boss farming paragraph. Nihlathak is farmed for Key of Destruction; the key is the resulting loot, not player equipment. Exclude only this exact source occurrence from equipment-demand work. Identity, trade/utility, rolls and separate equipped/inventory uses remain in scope. Full section, unique name occurrence and raw HTML location are verified.",
+      "occurrence_id": "607d70424f0722dba38e4b72",
+      "expected_occurrence": {
+        "name": "Key of Destruction",
+        "original_label": "Key of Destruction",
+        "category": "misc",
+        "build": "zeal-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "unspecified",
+        "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+        "source_locator": "/item-spans/38",
+        "id": "607d70424f0722dba38e4b72",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/38",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Destruction",
+          "slot": "unspecified",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/30/text",
+        "quote": "Ubers - The Zeal Paladin is one of the best builds for defeating the Uber Bosses and acquiring a Hellfire Torch. Easily stacking Crushing Blow and other helpful offensive and defensive stats, this build makes short work of these ultra powerful monsters with the proper setup and approach (see the \"Ubers\" Build Variant). Travincal with 3 Players in the Game - Council Members are quickly decimated by Zeal. They have great loot odds for Runes, Charms, Jewels, Jewelry, Gems, and basic gear with 3 Players in the game or /Players3 on Single Player. Chaos Sanctuary - Jumping into Elite Packs in this Max Area Level Farming Spot feels natural for the Zealer, especially while using the \"Attack Speed\" Build Variant. This build makes short work of this otherwise dangerous area. Worldstone Keep/Baal - The Zeal Paladin does an excellent job of destroying nearly every Elite spawn in Worldstone, Waves in the Throne of Destruction, and Baal himself. Having insane Physical Damage, % Life stolen per hit, maximum Chance to Block, and the Resist Lightning Aura for Black Souls, this build usually stays fairly safe in this dangerous Max Level Area. Nihlathak - Because the Zealer exclusively deals Physical Damage, he has zero Immunity issues when farming this Boss for the Key of Destruction. Also, having Redemption Aura from Phoenix allows this build to redeem corpses before \"Nilly\" can use Corpse Explosion on them. These unique advantages make this Boss a relatively easy target for this build."
+      }
+    },
+    {
+      "id": "dream-paladin-boss-farming-target-44",
+      "kind": "farming_target",
+      "review_date": "2026-09-27",
+      "reason": "2026-09-27: Reviewed boss farming paragraph. Uber Bosses are farmed to acquire Hellfire Torch; the charm is the resulting loot, not equipment required by this mention. Exclude only this exact source occurrence from equipment-demand work. Identity, trade/utility, rolls and separate equipped/inventory uses remain in scope. Full section, unique name occurrence and raw HTML location are verified.",
+      "occurrence_id": "7afb1f8418bb603d3c4d29e0",
+      "expected_occurrence": {
+        "name": "Hellfire Torch",
+        "original_label": "Hellfire Torch",
+        "category": "unique",
+        "build": "dream-paladin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "unspecified",
+        "source_id": "pricing/raw/mr/guides__dream-paladin.html",
+        "source_locator": "/item-spans/44",
+        "id": "7afb1f8418bb603d3c4d29e0",
+        "kind": "demand",
+        "class": "Paladin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__dream-paladin.html/item_spans/44",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Hellfire Torch",
+          "slot": "unspecified",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__dream-paladin.html/sections/29/text",
+        "quote": "Max Level Areas - Having good mobility, high Magic Find, and insane hybrid Damage, the Dream Paladin efficiently farms nearly all Max Level Areas with any number of Players in the game, or on any Player Setting on Single Player. Worldstone Keep, Chaos Sanctuary, and The Pit are especially good Farming Spots for this build. Make sure to target Elite Packs. Ubers - The Dream Paladin is among the best builds for defeating the Uber Bosses and acquiring a Hellfire Torch. Dealing incredibly high single target DPS and negating Uber Mephisto's Conviction Aura, this build has unique advantages with a proper setup (see the \"Ubers\" Build Variant)."
+      }
+    },
+    {
+      "id": "abyss-farming-reward-span-91",
+      "kind": "farming_reward",
+      "review_date": "2026-09-28",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Terror is a drop from The Countess, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "7346f9fb267e4505ac92af29",
+      "expected_occurrence": {
+        "name": "Key of Terror",
+        "original_label": "Key of Terror",
+        "category": "misc",
+        "build": "abyss-warlock-build-guide",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "The Countess",
+        "source_id": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "source_locator": "/item-spans/91",
+        "id": "7346f9fb267e4505ac92af29",
+        "kind": "demand",
+        "class": "Warlock"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/91",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Terror",
+          "slot": "The Countess",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/sections/31/text",
+        "quote": "Area Starter Rewards The Countess ✔ Runes Key of Terror The Pit ✔ All Item Types Max Area Level Leveling Andariel ✔ Uniques Sets Jewelry The Secret Cow Level ✔ Runes Runeword Bases Charms / Gems / Jewels"
+      }
+    },
+    {
+      "id": "abyss-farming-reward-span-92",
+      "kind": "farming_reward",
+      "review_date": "2026-09-28",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Hate is a drop from Summoner, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "9551080e168aed7ef96852ca",
+      "expected_occurrence": {
+        "name": "Key of Hate",
+        "original_label": "Key of Hate",
+        "category": "misc",
+        "build": "abyss-warlock-build-guide",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Summoner",
+        "source_id": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "source_locator": "/item-spans/92",
+        "id": "9551080e168aed7ef96852ca",
+        "kind": "demand",
+        "class": "Warlock"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/92",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Hate",
+          "slot": "Summoner",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/sections/32/text",
+        "quote": "Area Starter Rewards Arcane Sanctuary (Specters/Super Chests) - Runes Charms / Gems / Jewels Jewelry Summoner - Key of Hate"
+      }
+    },
+    {
+      "id": "abyss-farming-reward-span-93",
+      "kind": "farming_reward",
+      "review_date": "2026-09-28",
+      "reason": "Reviewed the exact Area/Rewards table: Key of Destruction is a drop from Nihlathak, not an equipment recommendation in this occurrence. Item identity, trading, recipe/utility and other equipment occurrences remain fully in appraisal scope.",
+      "occurrence_id": "a2d7979c3e3000f6880804d3",
+      "expected_occurrence": {
+        "name": "Key of Destruction",
+        "original_label": "Key of Destruction",
+        "category": "misc",
+        "build": "abyss-warlock-build-guide",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "Nihlathak",
+        "source_id": "pricing/raw/mr/guides__abyss-warlock-build-guide.html",
+        "source_locator": "/item-spans/93",
+        "id": "a2d7979c3e3000f6880804d3",
+        "kind": "demand",
+        "class": "Warlock"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/item_spans/93",
+        "expected": {
+          "item_id": "",
+          "profile_id": null,
+          "label": "Key of Destruction",
+          "slot": "Nihlathak",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__abyss-warlock-build-guide.html/sections/35/text",
+        "quote": "Area Starter Rewards Eldritch the Rectifier ✔ Gearing Gold Leveling Shenk the Overseer ✔ Gearing Gold Leveling Drifter Cavern - All Item Types Nihlathak - Key of Destruction Leveling Worldstone Keep / Throne of Destruction - All Item Types Max Area Level Leveling"
+      }
+    }
+  ]
+}

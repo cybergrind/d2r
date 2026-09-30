@@ -1,5 +1,36 @@
 # Offline item assessment implementation
 
+## Named tier runtime (2026-09-26)
+
+Reports use `policies/named_baselines.py`: a verified identity baseline is composed
+with the stricter specimen rules in `policies/named_tiers.py`. Failed or unknown
+premium conditions keep the baseline. Exact comparable pricing remains independent;
+a market band spanning tiers keeps the baseline plus a JSON market adjustment.
+`rules/named_baselines.json` contains548 reviewed identities. Source evidence is
+fingerprinted and included in the runtime publication.
+
+`policies/complete_sets.py` keeps35 parent-set reviews and exact membership separate
+from component tiers and ownership. `policies/named_leveling.py` adds reviewed
+leveling alternatives/combination uses; negative review dispositions never print.
+The existing recommendation corpus remains intact. Trade and leveling display use
+high/mid/low/trash colors, without source/date suffixes; JSON retains provenance.
+
+Recheck coverage with `uv run --offline python -m
+pricing.knowledge.assessment.maintenance.named_gate` (run the command on one line).
+This tests actual rendered variants, eligibility exclusions and leveling review;
+policy-row counts alone cannot satisfy the gate. The generated artifact is
+`pricing/data/appraisal-named-gate.json`. `maintenance.tier_inventory` folds these
+gates into the inventory. Rebuild and publish after updating sources/reviews; never
+refresh fingerprints without reviewing the changed evidence.
+
+
+Current status (2026-09-27): the named-tier gate passes for all548 eligible
+identities and35 complete sets, including2958 rendered cases. This closes the
+universal baseline gate, not all-item assessment. Continue source/configuration
+review and item-bank coverage under [the completion contract](planning/COMPLETION_CONTRACT.md).
+See [the active checkpoint](planning/STATUS.md) for current gaps and validation.
+
+
 Implemented 2026-09-24. Typed runtime entry: `engine.assess_result(extraction)`,
 used by `pricing.knowledge.pipeline.retrieve_draft`. The compatibility entry
 `engine.assess(extraction)` and report output use the same version-1 projection.
@@ -21,7 +52,7 @@ Prices are finalized through `assessment.pricing.finalize_assessment`; the unuse
   ambiguous registry matches fail explicitly, unsupported types remain unsupported.
 - `profiles.py`, `build_profiles.py`: reviewed, source-backed build-role predicates.
   The portable artifact preserves source locator/hash/date and explicit conditions.
-- `handlers/`: base, affixed, named and runeword comparison contracts, composing
+- `handlers/`: base, affixed, named, runeword, potion and loose rune/gem comparison contracts, composing
   verified family mechanics. Remaining contribution/variant gaps stay explicit;
   family classification alone does not establish price coverage.
 - `comparables.py`: strict SC/NL/PC/RotW, exact identity/quality/ethereal/socket/contents
@@ -190,7 +221,31 @@ requirements are only shown for an unchanged non-ethereal unsocketed base. Missi
 research is not a none/trash verdict. Unreviewed candidates and non-named leveling
 policies still need expansion.
 
-## Conditional named trade tiers — 2026-09-24
+## Broad named tier table — 2026-09-26
+
+548 explicit baseline policies cover 140 set pieces and 408 unique identities.
+Seventeen additional native entries have explicit quest, placeholder or disabled
+dispositions rather than invented tiers. See `planning/NAMED_TIERS.md` and
+`planning/NAMED_TIER_ROLLOUT.md`. This closes the baseline identity review, not
+all variable-affix/collector premiums or numerical price coverage.
+
+The new records reference `rules/named_tier_reviews.json`, with pinned native facts,
+historical guide rows, build occurrence IDs and independent leveling recommendations.
+`basis_kind: qualitative` distinguishes these keep/trade priorities from cached ask
+segments. Verified exact current-item market evidence can refine qualitative tiers;
+thin, stale or mismatched evidence leaves the baseline intact. Existing ask-segment
+policies retain their precedence. No guide tier produces a numerical price.
+
+Optional `variant_rules` partition a named identity by native `table_ids`, with
+per-variant `valid_if`, `default_tier` and `overrides`. Validation requires every
+native record exactly once and rejects foreign IDs. Rainbow Facet uses this to keep
+element/trigger variants distinct. Variant rules cannot mix intrinsic socket-stat
+adjustment policies. Unknown captured identity/required rolls remain unresolved.
+
+The review source participates in appraisal snapshots/publications. Restart an old
+worker once for the Python changes; later data-only publications remain automatic.
+
+## Earlier conditional named trade tiers — 2026-09-24
 
 `rules/named_tiers.json` contains reviewed dated qualitative ask-segment policies;
 `policies/named_tiers.py` evaluates them independently of numerical price evidence.
@@ -566,9 +621,24 @@ These counts do not claim full KB absence or complete numeric price coverage.
 `domain/context.py` provides the immutable AssessmentContext boundary for optional
 player/mercenary class, level and equipment facts. Predicate evaluation and legacy
 companion checks normalize through it. Missing or malformed facts remain unknown;
-an explicit empty equipment collection proves absence. Collections are copied,
-deduplicated and sorted, so caller mutation cannot change an ongoing assessment.
+an explicit empty equipment collection proves absence. Collections are copied;
+sequences preserve item counts, while sets establish membership only. Caller
+mutation cannot change an ongoing assessment.
 Invalid mixed lists cannot crash membership traces or masquerade as valid equipment.
+
+`player_swap_items` identifies equipment on the alternate weapon set. It has the
+same membership/count semantics as `player_items` and `mercenary_items`, but those
+collections cannot substitute for it. A missing swap snapshot stays unknown;
+an explicit empty swap list proves absence. Call to Arms configurations use this
+field when the guide pairs the weapon with Spirit on swap. The weapon's native
+shout rolls establish prebuff availability, not an active buff or full buff level.
+
+`player_total_fcr` and `player_total_fhr` are optional nonnegative integer percentages
+for the assessed loadout. Missing values, booleans, strings and floats remain unknown;
+hovered item modifiers never supply either total. Blizzard's full-Tal-Rasha Spirit
+configuration requires all five pieces on the player, 105% total FCR and 86% total
+FHR. The cached planner's 5% FHR charm does not prove the prose's additional 6% FHR
+target. These are loadout gates, not minimum rolls on Spirit or proof of swap readiness.
 
 ### Leveling requirement checks
 
@@ -3528,9 +3598,37 @@ The matrix's `type_capacity_eligibility` dimension independently compares cached
 edges with completed native `runes.json` recipes: both type parents, excluded
 types, socket capacity, rune order and count. It records missing/unexpected edges
 and blocks conclusions from absent native catalogs or incomplete type ancestry.
-An excluded base has no fitting completed native recipe; this says nothing about
-other uses or value. Non-Ladder availability and quality-specific preparation
-remain in the separate pending `recipe_eligibility` dimension.
+An excluded base has no fitting completed native recipe; this also closes its
+`recipe_eligibility` check as excluded, without deciding other socket uses or value.
+For potentially eligible bases, Non-Ladder availability and quality-specific
+preparation remain pending in that dimension.
+
+The all-item coverage matrix also applies the reviewed
+`rules/recipe_applicability.json` exclusion for magic, rare, crafted, unique and set
+qualities. Its pinned native quality enum and runeword lookup reject those qualities
+before considering socket contents. Here `recipe_eligibility` means runeword
+creation; it does not claim coverage of cube upgrades or other recipes. Unknown
+qualities, unresolved identities, evidence-only rows and completed words do not
+inherit the exclusion. Completion validates the review's native input hashes and
+fingerprints the relevant maintenance policy implementations.
+
+The completion ledger distinguishes a runeword identity from the underlying normal,
+superior or low-quality item. A source occurrence can receive recipe-review credit
+only when the matched rule requires that exact completed word on every successful
+predicate path. A compatible empty base does not satisfy this check. Exact source,
+variant, wearer and slot matching still apply.
+
+`rules/source_context_reviews.json` handles explicitly reviewed mercenary narrative
+spans whose extractor context is `Guide mention / unspecified`. It preserves that
+original occurrence and binds it to specific configuration variants and slots.
+Each review pins the exact span, a same-guide quote, profile fingerprints and every
+required mercenary branch. The validator checks identity, wearer, guide, quality
+and mandatory mercenary predicates. A changed source or rule invalidates the review.
+Nonempty `remaining_branches` keeps the occurrence pending, even if an older generic
+rule would otherwise receive credit. These maintenance reviews neither change
+runtime matching nor close neighboring spans, prices or item-wide coverage.
+Completion fingerprints these reviews and their validation code, and records their
+dispositions separately from scope exclusions.
 
 ### Prepared stat evaluation
 
@@ -3631,3 +3729,245 @@ Base coverage includes separate runtime base-use routes and build-role profile
 assignments. The CLI supplies the base-use evaluator; callers omitting it get a
 pending audit dimension. Full route evidence is retained in the unified matrix,
 while item-specific suitability and market pricing remain independent.
+
+Maintenance review queues are available in `pricing/data/appraisal-review-dossiers.json`
+after running `python -m pricing.knowledge.assessment.maintenance.review_dossiers`.
+`review_queues` partitions the full identity census into new named identities,
+named-use expansion, bases/patterns, unresolved identities and identities without
+verified guide leads. Each queue sorts by distinct candidate build labels, then
+stable identity/name order. `review_leads` retains the contributing occurrence IDs;
+these are review candidates, not recommendations, coverage or price evidence.
+Duplicate occurrences from one build count once. Historical, discovery-only,
+shared-planner, Hardcore and unverified-source occurrences remain in the dossier
+but do not increase candidate breadth. Reviewed `demand` remains independent.
+Use new-identity and family queues alongside expansion, and retain the planned
+specialist/leveling cadence; queue order does not estimate review cost or decide use.
+
+Named leveling recommendations may come from reviewed guide essentials even when
+an item has no transcript-derived recommendation. `GUIDE_BENEFITS` in
+`pricing/knowledge/recommendations.py` supplies explicit class/item benefits and
+conditions; the exact `GUIDE_REVIEW` locator and an unambiguous item-facts identity
+must also match. Guide-only advice never creates a transcript recommendation or
+an all-class endorsement. Twitchthroe is the first such case, from Amazon leveling;
+its qualitative leveling priority does not set a trade tier or price.
+
+Reviewed leveling guide advice is bound to `GUIDE_SOURCE_SHA256`. A locator/name
+match is insufficient if the source metadata is missing, duplicated or no longer
+matches the reviewed snapshot. Such rows remain gaps in `coverage.guide_reviews`.
+When refreshing a guide, review its exact selected excerpts before updating the
+pinned hash; do not update hashes merely to clear the validation gate.
+
+### Equipped companion facts (2026-09-25)
+
+`AssessmentContext` accepts `player_equipment`, `mercenary_equipment` and
+`player_swap_equipment` maps separately from name-only item collections. Canonical
+slots are `head`, `body`, `weapon`, `off_hand`, `gloves`, `belt`, `boots`, `amulet`,
+`ring_left`, `ring_right`. Values are `ItemFacts` or `ItemFacts.to_dict()` JSON.
+A missing slot means unknown; explicit `null` means the slot is empty. Malformed
+facts remain unknown. Snapshots copy/freeze nested facts, including on context
+replacement; callers cannot mutate a completed assessment through the input map.
+
+`equipped_item_matches` selects one field/slot and evaluates `when` against that
+single item's facts. `when` supports `fact_eq`, `stat_at_least` and their logical
+groups; it cannot recurse into other equipment/context or pool modifiers across
+items. Nested native stat keys receive the existing publication/catalog validation.
+A character total, item-name list or hover does not populate companion facts.
+
+The first reviewed consumer is Fire Blast's Phoenix branch: identified Stone of
+Jordan, Assassin, total102FCR, equipped crafted amulet12+FCR and Phoenix Monarch.
+The source's illustrated20FCR/+2skills amulet is not the minimum. Spirit changes
+ring alternatives and is assessed separately. Missing companion evidence remains
+conditional; it cannot be promoted by marking the dependency as advisory.
+
+This is an optional loadout API, not automatic live equipment collection. A host
+must supply facts from an explicitly verified equipped loadout. Restart running
+workers after loading the Python predicate changes. Item facts supplied here do
+not themselves establish an item's market price or complete-build suitability.
+
+Equipped-item dependencies may also use `socket_jewel_stat_at_least` inside `when`.
+This evaluates a linked jewel in that one equipped item; aggregate item stats and
+other slots cannot supply the socket requirement. Malformed socket-child stats
+make the supplied slot unknown. Runtime equipment snapshots still require explicit
+loadout facts; a hover does not populate them automatically.
+
+### Reviewed family templates (2026-09-26)
+
+Per-build source records may select a template through `maintenance.profile_templates`.
+The explicit registry expands compact memberships during maintenance; the published
+runtime still consumes the ordinary predicate/profile schema. Guide and stat reviews
+fingerprint the expanded profile, so changing template semantics reopens every affected
+review rather than silently changing an existing recommendation.
+
+Current families cover unique inventory charms, selected mercenary survival alternatives,
+standalone player footwear, named player utility and progression equipment. Recipe
+profiles use the capacity-verified utility index; native type compatibility alone
+does not establish sufficient sockets. Named utility preserves valid upgrades and
+use-specific stat exclusions (summon leech, bow blocking, Smite weapon ED).
+Membership remains explicit and source-pinned. Templates
+retain class, side and slot distinctions, unknown facts, durability/socket conditions and
+native minimum-roll utility. Planner-only examples do not become guide endorsements.
+Specialist Cure variants use explicit predicates for their cited base and mercenary type.
+These use rules never establish prices or global guide coverage.
+
+### Stat-qualified magic trade watches (2026-09-27)
+
+The offline watchlist now supports `affixed_value_watch` evidence separately from
+unconditional named-item `value_watch` entries. Retrieval queries the indexed base
+and rarity, then matches decoded native stat conditions before producing a colored
+`VALUABLE CANDIDATE` report. Missing stats, unidentified items and mismatched rarity
+cannot satisfy a watch. This is qualitative trade interest, independent of the
+player's current build; it neither relaxes comparisons nor creates an Ist estimate.
+
+The first reviewed rule is the cached valuable-magic-items guide's Trainer's Grand
+Charm: exactly +1 Druid Summoning and 30–45 Life. Other skill trees and higher RotW
+life ranges need their own source review. The saved +37-Life capture is replayed as
+`trainers_grand_charm_life37`; boundary/unknown cases live in the appraisal item bank.
+Older workers ignore the separate evidence kind until restarted with the matcher,
+avoiding an unconditional trade flag on every Grand Charm during rollout.
+
+Rebuilding the watchlist changes evidence hashes and possibly row positions.
+Named baselines citing it must be checked against their previous reviewed rows
+before updating locators/hashes. Do not silently repin changed evidence. The six
+existing cited rows were byte-equivalent as JSON records during this update;
+the universal named-tier gate was rerun after repairing their references.
+
+### Native rolls beneath socket bonuses
+
+`innate_stat_at_least` evaluates a reviewed additive native roll on an identified
+unique item. It currently supports magic pierce (`358:0`) only. It verifies socket
+occupancy, distinct child unit IDs and contiguous positions, the captured contribution from each
+child, and the remainder against the named item's native range before comparing.
+Unknown or inconsistent evidence returns unknown. This is used for Hellwarden's
+8% helmet-roll preference: a 5% helmet plus a 10% jewel is not a perfect helmet.
+Do not apply it to defense percentages, damage calculations, set bonuses or
+runeword recipes without separate mechanical review.
+
+
+### Loose rune and gem comparisons (2026-09-28)
+
+All 33 native runes and 35 gem/skull grades use the `socket_material` policy.
+The native misc definitions establish exact identity, normal quality, non-ethereal
+status and no sockets. A complete capture must have no rolled modifiers or socket
+contents. Unknown or contradictory captures remain unpriced. Bonuses granted when
+socketed in equipment are not modifiers on a loose rune or gem.
+
+Market normalization derives fixed facets only from the exact native catalog name
+and matching rune/gem category. Explicit contradictory properties remain rejection
+reasons. Comparison accepts a lot containing exactly one item; a normalized
+`stack_total` with amount one is valid, while a multi-item lot's per-unit division
+is not a single-item ask. Scope, dates, independent sellers and freshness still
+apply. The shared report recognizes these fixed items without an unreadable-stats
+warning. No generic rune ladder value is substituted for a matched ask cohort.
+
+The item bank has positive, unexpected-modifier and incomplete-capture cases for
+every material. Run `uv run --offline pytest tests/pricing/knowledge/assessment/item_bank/test_appraisal.py -q -k socket-material`
+against the selected publication; `test_socket_material_prices.py` additionally
+exercises exact comparisons, malformed quantities and the full indexed report.
+
+The 2026-09-28 offline review found 1,171 rune and 350 gem observations. For the
+single-item contracts, 51 identities had no eligible matching asks, 13 had only
+undated matches, and four had fewer than three independent sellers. None justified
+an aggregate price. This does not close item-use, bulk-market or source-review work.
+
+
+### Material pricing evidence review
+
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.material_market_review`
+re-evaluates the normalized offline observations for every native loose rune/gem.
+Use `--as-of YYYY-MM-DD` for a reproducible historical review. It writes
+`pricing/data/appraisal-material-market-review.json`, with exact contracts, cached
+and accepted observation counts, rejection counts, price dispositions and input
+fingerprints, including the original cache files checked against the import manifest. A missing comparison implementation raises an error; it never becomes
+an evidence-unavailable disposition.
+
+Rebuild `maintenance.coverage_matrix` afterward. Its adapter verifies the pinned
+inputs and recomputes the audit before linking an exact native catalog identity to
+its market review. This closes only single-item market review, not bulk-market,
+recipe, leveling, build-use, report or source-occurrence work. Completion rechecks
+the transitive review inputs. Other dimensions remain pending until separately
+supported. A dated review is not a claim of current numerical-price availability.
+
+The 2026-09-28 high-rune date review found no collection-date field in the raw
+`*-rune-p0.json` documents or the `rune-<Name>.json` listing arrays. The ladder
+builder derives its output date from listing updates; that does not establish an
+observation date. Those cached matches remain undated. Do not repair this by using
+file modification times, listing updates or the conversion snapshot date.
+
+### Ordinary potion pricing review
+
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.potion_market_review`
+uses the same fixed-item audit engine for the 15 ordinary native potions. Its output
+is `pricing/data/appraisal-potion-market-review.json`. Regenerate both reviews before
+`maintenance.coverage_matrix` when shared import or comparison code changes.
+
+Potion imports establish fixed native facets only for exact ordinary-potion
+catalog identities. Explicit conflicting facets remain rejection reasons. Quest
+potions, throwing weapons and other miscellaneous items do not inherit these rules.
+A single-item label cannot override a missing, boolean, negative or bulk quantity.
+The 2026-09-28 offline cache has no potion observations; the review records this
+absence without assigning zero value or closing other coverage dimensions.
+
+Incomplete potion and loose-material captures retain their specific capture gaps
+and `capture_incomplete` price reason. This is distinct from comparing a complete
+item and finding no eligible market listings.
+
+### Ordinary supplies
+
+The `supply` family reviews seven exact native identities: Identify and Town Portal
+scrolls/tomes, ordinary keys, arrows and bolts. It reports practical use and native
+stack contents/capacity. Quantity must be captured; a complete stat array does not
+imply a full stack. Empty tomes remain refillable. Quest/unused identities sharing
+these item types are not covered by the ordinary-supply rules.
+
+Individual scrolls have exact single-unit comparisons and native listing-facet
+normalization. `maintenance.scroll_market_review` records their source-pinned
+pricing dispositions; regenerate it before `maintenance.coverage_matrix` alongside
+the potion and material reviews. The 2026-09-28 cache contains no supply offers.
+
+Stack pricing is still an implementation gap: the number of stacks offered cannot
+stand in for the quantity inside a tome, quiver or key stack. The handler reports
+that gap explicitly and does not label it an examined market miss. No stack-market
+coverage is closed by the individual-scroll review. Native gold costs are not Ist
+prices. Seven authored positive/negative/unknown item-bank triplets cover supplies;
+build-specific ammunition uses remain subject to the broader source-review ledger.
+
+### Fixed unique jewelry market review — 2026-09-29
+
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.fixed_jewelry_market_review`
+audits The Stone of Jordan, The Cat's Eye and The Mahim-Oak Curio against the
+cached scoped observations. It verifies their fixed native stat definitions,
+builds full named comparison contracts, and records supported dated asks or the
+specific evidence-unavailable outcome. It does not fetch listings.
+
+Regenerate this audit before `maintenance.coverage_matrix` after appraisal code,
+rule JSON, definitions, properties or market inputs change. The matrix recomputes
+the review and rejects altered outcomes or incomplete/stale provenance. Only the
+three exact unique catalog identities receive a market disposition; generic
+bases, ambiguous variants and build-role rows retain their separate review gates.
+
+### Mara's Kaleidoscope resistance-roll market review — 2026-09-29
+
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.variable_jewelry_market_review`
+audits every integer all-resistance roll from 20 through 30. All four native
+resistances must match the same roll; the fixed skills and attributes retain the
+named-item comparison policy. Each roll has its own seller cohort and price or
+evidence-unavailable outcome. No roll borrows listings from another.
+
+Regenerate both jewelry reviews before `maintenance.coverage_matrix` when their
+pinned inputs change. Mara's identity receives a reviewed roll partition only
+when all eleven outcomes and their provenance recompute exactly. This is not one
+identity-wide price and does not close separate build-role assessment gates.
+
+The variable jewelry audit also covers Dwarf Star's four magic-damage-reduction
+rolls (12–15). Its fixed fire absorption remains a separate property; listings
+without the MDR roll do not establish a comparable. Each identity receives its
+own reviewed roll partition, never a combined jewelry price. All outcomes must
+recompute before either identity's market review is accepted.
+
+Nagelring adds two independent roll axes: attack rating 50–75 and magic find
+15–30. The audit enumerates all 416 combinations, preserving each exact seller
+cohort. A perfect magic-find roll alone does not establish a perfect attack-rating
+comparison, and checking only the corners cannot close the pricing review.
+Manald Heal remains outside this audit: the current local definition includes a
+season-specific faster-cast-rate modifier, requiring a separate variant review
+before applying it to Non-Ladder listings.

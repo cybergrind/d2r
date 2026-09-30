@@ -1,0 +1,749 @@
+{
+  "review_date": "2026-09-28",
+  "identity_id": "1d84e00137af6dcb90340851879d5d7295c95080675999552a8fa00c4c13c849",
+  "scope": "All25 occurrences sharing Gemmed Dusk Shroud label; source-specific configurations must remain distinct. Native planner witness proves payload, not build endorsement or ethereal status.",
+  "occurrences": [
+    {
+      "id": "14f7592c9b302c4ff3d4e824",
+      "build": "lightning-fury-amazon-guide",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__lightning-fury-amazon-guide.html",
+      "source_locator": "/item-spans/106",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "lightning-fury-amazon-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-fury-amazon-guide.html/sections/48",
+      "verified_table_cell": [
+        7,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "23a0d0eaba9fc96f21d89433",
+      "build": "poison-nova-necromancer",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/poison-nova-necromancer/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "poison-nova-necromancer-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__poison-nova-necromancer.html/sections/44"
+    },
+    {
+      "id": "25793e9630f227d167ae2468",
+      "build": "enchant-sorceress",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/enchant-sorceress/merc/Body Armor/early/5",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "enchant-sorceress-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__enchant-sorceress.html/sections/42"
+    },
+    {
+      "id": "2ea27d5ac55f102a085c04cf",
+      "build": "lightning-strike-amazon",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+      "source_locator": "/item-spans/191",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "lightning-strike-amazon-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-strike-amazon.html/sections/44",
+      "verified_table_cell": [
+        7,
+        3,
+        1
+      ]
+    },
+    {
+      "id": "315d2c747c5e41662637cded",
+      "build": "double-throw-barbarian-guide",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/231",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "double-throw-barbarian-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__double-throw-barbarian-guide.html/sections/40",
+      "verified_table_cell": [
+        6,
+        3,
+        1
+      ]
+    },
+    {
+      "id": "36ba6a0ab2adb07dff27a3e9",
+      "build": "poison-nova-necromancer",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+      "source_locator": "/item-spans/155",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "poison-nova-necromancer-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__poison-nova-necromancer.html/sections/44",
+      "verified_table_cell": [
+        6,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "3863dc65ed53476e967a4527",
+      "build": "zeal-paladin",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__zeal-paladin.html",
+      "source_locator": "/item-spans/217",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "zeal-paladin-early-merc-resistance-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "existing_reviewed_pattern_source",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/217",
+      "verified_table_cell": [
+        7,
+        3,
+        1
+      ],
+      "note": "Existing exact span217 reviewed pattern already owns this source. Removed duplicate new merc-resistance-rune-armor role rather than double-counting or relaxing completion conflicts."
+    },
+    {
+      "id": "3d4741d3255f146827aa4f18",
+      "build": "summoner-necromancer-guide",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__summoner-necromancer-guide.html",
+      "source_locator": "/item-spans/105",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "summoner-necromancer-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__summoner-necromancer-guide.html/sections/45",
+      "verified_table_cell": [
+        7,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "48cdfc50af49554b9f559281",
+      "build": "dream-paladin",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/dream-paladin/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "dream-paladin-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__dream-paladin.html/sections/43"
+    },
+    {
+      "id": "652f2af219b7bc1b39ad5599",
+      "build": "summoner-necromancer-guide",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/summoner-necromancer-guide/merc/Body Armor/early/5",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "summoner-necromancer-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__summoner-necromancer-guide.html/sections/45"
+    },
+    {
+      "id": "66ebd1735cd92a19d037256f",
+      "build": "berserk-barbarian",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/173",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "berserk-barbarian-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__berserk-barbarian.html/sections/38",
+      "verified_table_cell": [
+        6,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "6e3b8475ca2b59447d7d7715",
+      "build": "berserk-barbarian",
+      "side": "player",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__berserk-barbarian.html",
+      "source_locator": "/item-spans/87",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/rk0106ln.json",
+        "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f",
+        "item_id": "92",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud (4x Perfect Topaz )",
+      "in_table": true,
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "profile_id": "berserk-barbarian-perfect-topaz-general-armor",
+      "source_link_state": "validated_table_equivalence"
+    },
+    {
+      "id": "81428467f1d88b3be8f3a0ef",
+      "build": "double-throw-barbarian-guide",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/double-throw-barbarian-guide/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "double-throw-barbarian-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__double-throw-barbarian-guide.html/sections/40"
+    },
+    {
+      "id": "85497de4cb41914f5ffa18e2",
+      "build": "fissure-druid",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/187",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "fissure-druid-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__fissure-druid.html/sections/46",
+      "verified_table_cell": [
+        6,
+        3,
+        1
+      ]
+    },
+    {
+      "id": "859d42d09186b6de64b3a343",
+      "build": "lightning-fury-amazon-guide",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/lightning-fury-amazon-guide/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "lightning-fury-amazon-guide-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-fury-amazon-guide.html/sections/48"
+    },
+    {
+      "id": "88aa87aaff47910b0f9bcc6b",
+      "build": "lightning-sorceress",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/lightning-sorceress/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "lightning-sorceress-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-sorceress.html/sections/50"
+    },
+    {
+      "id": "9bb979ca12cd38add76025ff",
+      "build": "enchant-sorceress",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__enchant-sorceress.html",
+      "source_locator": "/item-spans/116",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "enchant-sorceress-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__enchant-sorceress.html/sections/42",
+      "verified_table_cell": [
+        6,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "9eb2390203a1d134305af3b1",
+      "build": "double-throw-barbarian-guide",
+      "side": "player",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+      "source_locator": "/item-spans/143",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8",
+        "item_id": "92",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud (4x Perfect Topaz es )",
+      "in_table": true,
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "profile_id": "double-throw-barbarian-guide-perfect-topaz-general-armor",
+      "source_link_state": "validated_table_equivalence"
+    },
+    {
+      "id": "a2ebdb33538659e221cb0722",
+      "build": "lightning-strike-amazon",
+      "side": "player",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+      "source_locator": "/item-spans/107",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/vc0106wm.json",
+        "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38",
+        "item_id": "94",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud (4x Perfect Topaz es )",
+      "in_table": true,
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "profile_id": "lightning-strike-amazon-perfect-topaz-general-armor",
+      "source_link_state": "validated_table_equivalence"
+    },
+    {
+      "id": "a32c01447887560b40b2ff3e",
+      "build": "fissure-druid",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/fissure-druid/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "fissure-druid-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__fissure-druid.html/sections/46"
+    },
+    {
+      "id": "a79784279808aee11e14218a",
+      "build": "lightning-strike-amazon",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/lightning-strike-amazon/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "lightning-strike-amazon-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-strike-amazon.html/sections/44"
+    },
+    {
+      "id": "d9c20355a71a090b0d8ceb5e",
+      "build": "lightning-sorceress",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__lightning-sorceress.html",
+      "source_locator": "/item-spans/185",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "lightning-sorceress-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__lightning-sorceress.html/sections/50",
+      "verified_table_cell": [
+        7,
+        2,
+        1
+      ]
+    },
+    {
+      "id": "ee4737fc39641c54a19681b0",
+      "build": "fissure-druid",
+      "side": "player",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__fissure-druid.html",
+      "source_locator": "/item-spans/107",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/vf0106vk.json",
+        "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7",
+        "item_id": "82",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz",
+          "Perfect Topaz"
+        ]
+      },
+      "profile_id": "fissure-druid-perfect-topaz-general-armor",
+      "note": "Already validated by socketed_table_pattern and table_equivalence reviews; other occurrences still require separate review.",
+      "full_table_entry": "Gemmed Dusk Shroud (4x Perfect Topaz es )",
+      "in_table": true
+    },
+    {
+      "id": "f197f14864a2cfeb17f855d3",
+      "build": "berserk-barbarian",
+      "side": "merc",
+      "variant": "early",
+      "slot": "Body Armor",
+      "source_id": "pricing/data/wp-a-builds.json",
+      "source_locator": "/berserk-barbarian/merc/Body Armor/early/6",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "profile_id": "berserk-barbarian-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__berserk-barbarian.html/sections/38"
+    },
+    {
+      "id": "f1ec1c2545812475344d30cc",
+      "build": "dream-paladin",
+      "side": "merc",
+      "variant": "Guide mention",
+      "slot": "Body Armor",
+      "source_id": "pricing/raw/mr/guides__dream-paladin.html",
+      "source_locator": "/item-spans/157",
+      "state": "source_link_validated",
+      "label": "Gemmed Dusk Shroud",
+      "native_witness": {
+        "path": "pricing/raw/mr/planners/fc01065b.json",
+        "sha256": "6cbab64183de358cb82907c14683a9143cd8a2339e34f71e2447fd40b348ced4",
+        "item_id": "93",
+        "base": "Dusk Shroud",
+        "quality": 1,
+        "sockets": 4,
+        "payload": [
+          "Ral Rune",
+          "Ort Rune",
+          "Thul Rune",
+          "Tal Rune"
+        ]
+      },
+      "full_table_entry": "Gemmed Dusk Shroud",
+      "in_table": true,
+      "profile_id": "dream-paladin-merc-resistance-rune-armor",
+      "assessment_state": "implemented_staged_and_selected_bank_passed",
+      "source_link_state": "validated_table_equivalence",
+      "primary_source": "/sources/pricing~1raw~1mr~1guides__dream-paladin.html/sections/43",
+      "verified_table_cell": [
+        7,
+        3,
+        1
+      ]
+    }
+  ],
+  "mercenary_native_payload": [
+    {
+      "name": "Ral Rune",
+      "armor_effect": {
+        "helmMod1Code": "res-fire",
+        "helmMod1Min": 30,
+        "helmMod1Max": 30
+      }
+    },
+    {
+      "name": "Ort Rune",
+      "armor_effect": {
+        "helmMod1Code": "res-ltng",
+        "helmMod1Min": 30,
+        "helmMod1Max": 30
+      }
+    },
+    {
+      "name": "Thul Rune",
+      "armor_effect": {
+        "helmMod1Code": "res-cold",
+        "helmMod1Min": 30,
+        "helmMod1Max": 30
+      }
+    },
+    {
+      "name": "Tal Rune",
+      "armor_effect": {
+        "helmMod1Code": "res-pois",
+        "helmMod1Min": 30,
+        "helmMod1Max": 30
+      }
+    }
+  ],
+  "next_implementation": "Berserk Starter armor/helmet implemented and published; validate wp-a-variants mirror links and exact-label discovery. See BERSERK_STARTER_TOPAZ_REVIEW.json. Missing r2Hsc2Mk planner remains unverified.",
+  "resistance_family": {
+    "generation": "b960ef15e555829009a214157415b921e0db4b730f7d335c46ae05e8093ce3c5",
+    "profiles": 10,
+    "staged_bank_cases": 381,
+    "selected_bank_status": "36Zeal redirected cases passed selected; all other345cases passed prior generation and their profiles are unchanged.",
+    "source_links_required": 0,
+    "next_proof_requirements": [
+      "Raw spans: bind exact guide/cache hashes, enclosing Mercenary Gear Options section, Body Armor row and Early-Game column, native fc01065b item93 four-rune payload and per-rune armor effects.",
+      "Require the explicit build/class/bearer membership and unchanged profile/use fingerprints; reject player/late-column/unrelated-source/wrong-payload cases.",
+      "Structured entries: match each exact WP build/merc/Body Armor/early index to the validated raw-table context, preserving all source occurrences.",
+      "Do not resolve the global Gemmed Dusk Shroud identity until remaining distinct player contexts are reviewed."
+    ],
+    "table_cell_validation": "All11rawmerc references verified in exact Early-Game/Body Armor cell; helper tested against wrong row/column/outside-table/other-table/spanning-layout. Completion source-link integration still pending.",
+    "existing_zeal_profiles": 1,
+    "source_links_validated": 21,
+    "new_table_links": 20,
+    "source_test_count": 84
+  },
+  "player_family": {
+    "generation": "9dde192ebd2918190fcccf970b5eb7e99c22b27a433037d942075ec4b51bd6a6",
+    "new_profiles": 3,
+    "staged_bank_passed": 81,
+    "selected_bank_passed": 81,
+    "saved_replays_matched": 20,
+    "maintenance_tests_passed": 66,
+    "all_25_source_contexts_reviewed": true
+  },
+  "collection_discovery": {
+    "status": "validated",
+    "review_file": "pricing/knowledge/assessment/rules/pattern_collection_reviews.json",
+    "identities": [
+      "Gemmed Dusk Shroud",
+      "Gemmed Dusk Shroud (4x Perfect Topaz )",
+      "Gemmed Dusk Shroud (4x Perfect Topaz es )"
+    ],
+    "occurrences": 29,
+    "validation_tests": 58,
+    "scope": "af0f8f3285de84396d8de961b6d33ad173684527b3b3b8d055e565049eb3a01e",
+    "generation": "9dde192ebd2918190fcccf970b5eb7e99c22b27a433037d942075ec4b51bd6a6",
+    "runtime_changed": false
+  }
+}

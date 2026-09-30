@@ -11,6 +11,7 @@ def summarize_demand(uses, *, complete):
         for r in uses
         if r.get('review_state') == 'reviewed'
         and r.get('scope') == 'softcore'
+        and r.get('season', 'non_ladder') == 'non_ladder'
         and not r.get('historical')
         and r.get('build')
         and r['build'] != 'shared-planner'

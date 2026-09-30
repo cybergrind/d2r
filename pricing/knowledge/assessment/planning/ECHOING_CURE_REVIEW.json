@@ -1,0 +1,229 @@
+{
+  "review_date": "2026-09-28",
+  "guide": {
+    "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+    "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c"
+  },
+  "planner": {
+    "path": "pricing/raw/mr/planners/ucgz20le.json",
+    "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+  },
+  "rows": [
+    {
+      "context": {
+        "span_index": 5,
+        "label": "",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "39",
+          "position": [
+            76,
+            365
+          ],
+          "section_locator": "/sections/17"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "39",
+        "position": [
+          76,
+          365
+        ],
+        "section_locator": "/sections/17"
+      },
+      "item": {
+        "base": "xrn",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          5,
+          100,
+          30,
+          50,
+          1
+        ],
+        "unique": "runeword203",
+        "defense": 113,
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r13",
+          "r16",
+          "r07"
+        ],
+        "stats": {
+          "item_maxhp_percent": 5,
+          "item_armor_percent": 100,
+          "poisonresist": 30,
+          "item_poisonlengthresist": 50,
+          "item_aura#109": 1
+        },
+        "description": "338 def 100% def 30 pr eth"
+      },
+      "section": {
+        "locator": "/sections/17",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          76,
+          32
+        ],
+        "review_state": "pending",
+        "text": "Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime."
+      },
+      "status": "reviewed",
+      "review_basis": "Validated exact native Cure recipe and Prayer mercenary component against pinned guide/planner; independently tested all three completed nonmagical qualities. Cleansing usefulness does not require Insight; full-loadout healing is not inferred."
+    },
+    {
+      "context": {
+        "span_index": 7,
+        "label": "",
+        "side": "merc",
+        "slot": "unspecified",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "39",
+          "position": [
+            84,
+            365
+          ],
+          "section_locator": "/sections/21"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "39",
+        "position": [
+          84,
+          365
+        ],
+        "section_locator": "/sections/21"
+      },
+      "item": {
+        "base": "xrn",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          5,
+          100,
+          30,
+          50,
+          1
+        ],
+        "unique": "runeword203",
+        "defense": 113,
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r13",
+          "r16",
+          "r07"
+        ],
+        "stats": {
+          "item_maxhp_percent": 5,
+          "item_armor_percent": 100,
+          "poisonresist": 30,
+          "item_poisonlengthresist": 50,
+          "item_aura#109": 1
+        },
+        "description": "338 def 100% def 30 pr eth"
+      },
+      "section": {
+        "locator": "/sections/21",
+        "heading": "Mercenary",
+        "anchor": "mercenary-header",
+        "position": [
+          84,
+          32
+        ],
+        "review_state": "pending",
+        "text": "Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime."
+      },
+      "status": "reviewed",
+      "review_basis": "Validated exact native Cure recipe and Prayer mercenary component against pinned guide/planner; independently tested all three completed nonmagical qualities. Cleansing usefulness does not require Insight; full-loadout healing is not inferred."
+    },
+    {
+      "context": {
+        "span_index": 155,
+        "label": "Cure Grand Crown",
+        "side": "player",
+        "slot": "Helmet",
+        "reference": {
+          "profile_id": "ucgz20le",
+          "set_id": "LmIammQ8",
+          "item_id": "39",
+          "position": [
+            114,
+            3989
+          ],
+          "section_locator": "/sections/43"
+        }
+      },
+      "reference": {
+        "profile_id": "ucgz20le",
+        "set_id": "LmIammQ8",
+        "item_id": "39",
+        "position": [
+          114,
+          3989
+        ],
+        "section_locator": "/sections/43"
+      },
+      "item": {
+        "base": "xrn",
+        "quality": 7,
+        "ilvl": 99,
+        "superior": {},
+        "uniqueValues": [
+          5,
+          100,
+          30,
+          50,
+          1
+        ],
+        "unique": "runeword203",
+        "defense": 113,
+        "ethereal": true,
+        "sockets": 3,
+        "socketedItems": [
+          "r13",
+          "r16",
+          "r07"
+        ],
+        "stats": {
+          "item_maxhp_percent": 5,
+          "item_armor_percent": 100,
+          "poisonresist": 30,
+          "item_poisonlengthresist": 50,
+          "item_aura#109": 1
+        },
+        "description": "338 def 100% def 30 pr eth"
+      },
+      "section": {
+        "locator": "/sections/43",
+        "heading": "Gear Progression",
+        "anchor": "gear-progression-header",
+        "position": [
+          114,
+          11
+        ],
+        "review_state": "pending",
+        "text": "Slot Early-Game Mid-Game End-Game Weapon Insight Insight Giant Thresher Body Armor Smoke Lionheart Skin of the Flayed One Rockfleece Treachery Duress Shaftstop Duriel's Shell Guardian Angel Chains of Honor Fortitude Treachery Helmet Bulwark Undead Crown The Face of Horror Gemmed Mask Temper Tal Rasha's Horadric Crest Guillaume's Face Vampire Gaze Crown of Thieves Stealskull Kira's Guardian Rockstopper Cure Grand Crown The Mercenary is hard to keep alive until you have the minimum gear recommended in this guide. Remember you can drag Healing Potions onto the portrait, or shift + 1/2/3/4 to directly feed them a Healing Potion from your Belt. The Mercenary also gains bonus Resistances from Thawing Potions and Antidote Potions. If your Mercenary dies in battle, you can revive them from any of the Mercenary NPCs in each Act. This does come with an increasing cost, capping at 50,000 Gold. Keep that in mind and decide if the Mercenary is currently worth the cost."
+      },
+      "status": "reviewed",
+      "profile_id": "echoing-progression-cure-merc",
+      "review_basis": "Separate progression role, exact Prayer parent and Mercenary table validated; native legal helm Cleansing support independent of ethereal status/Insight. 36 native full-appraisal cases pass staged and selected."
+    }
+  ],
+  "pending_questions": [],
+  "scope_note": "Only these three exact Cure references are closed; whole-guide and all-item completion remain unfinished."
+}

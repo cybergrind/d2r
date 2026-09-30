@@ -16,7 +16,10 @@ def test_spirit_rejects_impossible_variable_rolls(stat, valid, invalid):
         runeword='Spirit',
         sockets=4,
         socket_contents='filled',
-        stats={f'{s}:0': {'status': 'decoded', 'value': v} for s, v in [(105, 35), (9, 112), (147, 8), (31, 148)]},
+        properties={'446': 22},
+        stats={
+            f'{s}:0': {'status': 'decoded', 'value': v} for s, v in [(105, 35), (9, 112), (147, 8), (31, 148), (20, 22)]
+        },
     )
     key = f'{stat}:0'
     assert RunewordHandler().contract(

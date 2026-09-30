@@ -32,6 +32,8 @@ def reject_reasons(contract, row):
         reasons.append('Unverified or incompatible SC/NL/PC/RotW scope.')
     if normalize_name(row.get('name')) != normalize_name(contract['name']):
         reasons.append('Different base identity.')
+    if contract.get('catalog_id') and row.get('catalog_id') != contract['catalog_id']:
+        reasons.append('Different or unknown market catalog variant.')
     if contract.get('base_code') and row.get('base_code') != contract['base_code']:
         reasons.append('Different or unknown runeword base.')
     for key in ('rarity', 'ethereal', 'sockets', 'socket_contents'):
@@ -95,7 +97,16 @@ def reject_reasons(contract, row):
         reasons.append(str(error))
     if row.get('evidence_kind') != 'ask':
         reasons.append('Observation is not a normalized ask.')
-    if row.get('unit_policy') != 'single_item' or not row.get('seller_id') or not valid_positive(row.get('ask_ist')):
+    single_unit = row.get('unit_policy') == 'single_item'
+    if contract['policy'] == 'socket_material':
+        single_unit = (
+            row.get('unit_policy') in ('single_item', 'stack_total')
+            and type(row.get('amount')) is int
+            and row['amount'] == 1
+        )
+    if contract['policy'] in ('consumable', 'supply'):
+        single_unit = single_unit and type(row.get('amount')) is int and row['amount'] == 1
+    if not single_unit or not row.get('seller_id') or not valid_positive(row.get('ask_ist')):
         reasons.append('Ambiguous unit, missing seller or invalid price.')
     return reasons
 

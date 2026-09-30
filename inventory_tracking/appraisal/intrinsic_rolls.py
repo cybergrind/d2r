@@ -1,6 +1,9 @@
 """Render captured totals with separately verified intrinsic roll evidence."""
 
 from inventory_tracking.appraisal.damage import display_damage
+from inventory_tracking.appraisal.flat_defense import display_flat_defense
+from inventory_tracking.appraisal.inherent_skills import display_inherent_skills
+from inventory_tracking.appraisal.runeword_rolls import display_runeword_rolls
 from inventory_tracking.items.ranges import annotate_roll_ranges
 from inventory_tracking.items.stat_constants import TOTAL_LABELS
 from pricing.knowledge.assessment.domain.facts import FactStatus
@@ -14,8 +17,10 @@ def display_stats(result):
     extraction = result.get('extraction', {})
     item = extraction.get('item', {})
     rows = extraction.get('decoded_stats', [])
+    if item.get('runeword'):
+        return display_damage(display_inherent_skills(extraction, display_runeword_rolls(extraction)), item)
     if item.get('rarity') not in ('unique', 'set'):
-        return display_damage(rows, item)
+        return display_damage(display_inherent_skills(extraction, rows), item)
     state = socket_state(
         item.get('sockets'),
         item.get('socket_contents'),
@@ -31,7 +36,7 @@ def display_stats(result):
     if state.total.status == FactStatus.KNOWN and (
         state.total.value == 0 or (occupancy_verified and state.occupied.value == 0)
     ):
-        return display_damage(rows, item)
+        return display_damage(display_flat_defense(extraction, rows), item)
     tier = result.get('assessment', {}).get('trade_tier', {})
     intrinsic = tier.get('intrinsic_rolls', {}) if occupancy_verified else {}
     ranges = tier.get('intrinsic_roll_ranges', {})
@@ -40,6 +45,11 @@ def display_stats(result):
         row = dict(original)
         native = row.get('memory_stat') or next(iter(row.get('memory_stats', [])), {})
         key = f'{native.get("id")}:{native.get("layer")}'
+        if key == '194:0':
+            # Fillers cannot change capacity. Keep captured names/empty-slot
+            # evidence and its native capacity range when adjusting other rolls.
+            displayed.append(row)
+            continue
         if key == '31:0' and row.get('roll_range', {}).get('scope') == 'unmodified non-ethereal base defense':
             # defense_range_context already compared the owned and total arrays.
             displayed.append(row)
@@ -88,4 +98,4 @@ def display_stats(result):
             if type(low) in (int, float) and type(high) in (int, float) and low < high:
                 row['text'] += f' — item range: {low:g}-{high:g}'
         displayed.append(row)
-    return display_damage(displayed, item)
+    return display_damage(display_flat_defense(extraction, displayed), item)

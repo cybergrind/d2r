@@ -59,12 +59,21 @@ class ProfileRepository:
             from pricing.knowledge.assessment.stat_bundle import validate_stat_bundle
 
             validate_stat_bundle(document)
+            active = [
+                p
+                for p in document['profiles']
+                if p.get('scope', 'softcore') == 'softcore' and p.get('season', 'non_ladder') == 'non_ladder'
+            ]
+            active_ids = {p['id'] for p in active}
+            stats = [
+                r for r in document.get('stat_evaluation', {}).get('configurations', []) if r['role_id'] in active_ids
+            ]
             bundle = ProfileBundle(
                 generation,
                 freeze(document['profiles']),
                 document['coverage']['scope'],
-                CandidateIndex(document['profiles']),
-                CandidateIndex(document.get('stat_evaluation', {}).get('configurations', [])),
+                CandidateIndex(active),
+                CandidateIndex(stats),
             )
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
             return BundleLoad(self._current, (f'Reviewed profile update unavailable: {error}',))

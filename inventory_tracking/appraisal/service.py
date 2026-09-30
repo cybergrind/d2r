@@ -1,16 +1,28 @@
-"""Host Alt+D/Win+S/Win+D worker. Start `serve`, then use the compositor's `request` bindings.
+"""Host Alt+D/Win+S/Win+D/Win+C worker. Start `serve`, then use the compositor's `request` bindings.
 
 Datagrams: a bare monotonic timestamp requests an Alt+D appraisal; `collect <timestamp>`
-requests a Win+S inventory collection (`request --collect`).
-`shop <timestamp>` requests a Win+D shop check (`request --shop`). With `--shop-auto`
-(default) the worker also watches loaded vendor stock and scans it by itself when its
-first gear item changes; see inventory_tracking/shop/README.md.
+requests a Win+S inventory collection (`request --collect`: every container, mercenary
+equipment and the character sheet); `equipped <timestamp>` (`request --equipped`, no
+binding) records only what the character and the mercenary wear. `shop <timestamp>` requests
+a Win+D shop check (`request --shop`). `level <timestamp>` (`request --level`, Win+C) shows
+the level map card again (fresh position, any level; a double press pins or unpins it) and
+dumps the current level's room/unit structures for research (runs/level/). The level card is
+drawn on the HUD canvas (inventory_tracking/hud, started with the overlay), so it can show
+next to an Alt+D assessment. With `--shop-auto` (default) the worker also watches loaded
+vendor stock and scans it by itself when its first gear item changes; see
+inventory_tracking/shop/README.md. With `--stash-auto` (default) it also runs a Win+S
+collection by itself every time the stash panel is closed, and with `--identify-auto`
+(default) it assesses every inventory or cube item the moment it becomes identified (Cain's
+identify all, or a scroll) and shows the summary on the OSD. With `--level-guide` (default)
+entering a guided level (levels/handlers/) shows an arrow to its target.
 """
 
 import argparse
 import fcntl
 import os
+import shutil
 import socket
+import sqlite3
 import subprocess
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -21,20 +33,40 @@ from typing import Any
 
 from inventory_tracking.appraisal.cache import database_revision
 from inventory_tracking.appraisal.capture import AppraisalCapture, game_focused
-from inventory_tracking.appraisal.overlay import overlay_process, publish_display
+from inventory_tracking.appraisal.owned import owned_copies
 from inventory_tracking.appraisal.presentation import ItemAssessment
 from inventory_tracking.appraisal.published_backend import PublishedAppraisal
 from inventory_tracking.appraisal.text import value_watch_lines
 from inventory_tracking.appraisal.worker import AppraisalWorker
 from inventory_tracking.collection.export import DEFAULT_HTML as COLLECTION_HTML
-from inventory_tracking.collection.service import DEFAULT_OUTPUT as COLLECTION_OUTPUT, REQUEST_PREFIX, Collector
+from inventory_tracking.collection.service import (
+    DEFAULT_OUTPUT as COLLECTION_OUTPUT,
+    EQUIPMENT_PREFIX,
+    REQUEST_PREFIX,
+    Collector,
+)
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
+from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL
-from inventory_tracking.native.session import GameProcessUnavailable
+from inventory_tracking.hud.process import card_widgets, guide_widgets, hud_process, loot_widgets
+from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
+from inventory_tracking.identify.service import IdentifyWorker
+from inventory_tracking.levels.dump import (
+    DEFAULT_OUTPUT as LEVEL_OUTPUT,
+    REQUEST_PREFIX as LEVEL_PREFIX,
+    LevelDumper,
+)
+from inventory_tracking.levels.evidence import DEFAULT_EVIDENCE, EvidenceLog
+from inventory_tracking.levels.guide import LevelGuide
+from inventory_tracking.levels.memory import observe_walkable
+from inventory_tracking.levels.walls import WallLibrary
+from inventory_tracking.loot.watch import RuneWatcher
+from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker
+from inventory_tracking.tracking.panels import observe_panels
 from inventory_tracking.tracking.reader import LiveReader
 from pricing.knowledge.pipeline import retrieve_draft
 from pricing.knowledge.publication import DEFAULT_STORE
@@ -47,6 +79,33 @@ def memory_evidence(observation, database):
         next_step='Review observed stats and unresolved fields against the local appraisal evidence.',
     )
     return result
+
+
+def owned_evidence(database):
+    """Owned copies of an observed item from the collection; None when the database is unreadable."""
+
+    def lookup(observation):
+        try:
+            return owned_copies(observation, database)
+        except sqlite3.Error as exc:
+            LOG.warning('Owned-copy lookup failed: %s', exc)
+            return None
+
+    return lookup
+
+
+def with_owned(retrieve, owned):
+    def retrieve_owned(observation):
+        return {**retrieve(observation), 'owned': owned(observation)}
+
+    return retrieve_owned
+
+
+def collection_revision(database):
+    """Part of the Alt+D cache key: a new Win+S capture invalidates cached owned-copy comparisons."""
+    with suppress(OSError):
+        return database.stat().st_mtime_ns
+    return None
 
 
 def notify(title, body):
@@ -97,17 +156,34 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
         notify('Appraisal unavailable', detail)
 
 
-def dispatch(data: bytes, now: float, worker, collector, shop=None) -> bool:
-    """Route `shop <t>`, `collect <t>` and bare Alt+D timestamps to their workers."""
+def dispatch(data: bytes, now: float, worker, collector, shop=None, identify=None, level=None, guide=None) -> bool:
+    """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
+
+    An accepted Alt+D takes the OSD: a shop result or an identify summary still showing
+    is dismissed at once, so the hotkey doubles as "close that" even over an empty cell.
+    """
     try:
         text = data.decode('ascii').strip()
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
+        if text.startswith(LEVEL_PREFIX):
+            # Win+C: show the level map again (double press: pin/unpin it), then dump quietly.
+            requested = float(text[len(LEVEL_PREFIX) :])
+            if not 0 <= now - requested <= 1:
+                return False
+            shown = guide is not None and guide.press(requested)  # a double press toggles the pinned map
+            dumped = level is not None and level.request(requested, now, announce=not shown)
+            return shown or dumped
         if text.startswith(REQUEST_PREFIX):
             return collector.request(float(text[len(REQUEST_PREFIX) :]), now)
+        if text.startswith(EQUIPMENT_PREFIX):
+            return collector.request(float(text[len(EQUIPMENT_PREFIX) :]), now, scope='equipment')
         accepted = worker.request(float(text), now)
         if accepted and shop is not None:
             shop.dismiss()
+        if accepted and identify is not None and identify.visible is not None:
+            identify.dismiss()
+            identify.display([])
         return accepted
     except ValueError, UnicodeError:
         return False
@@ -130,18 +206,19 @@ def serve(args):
 
 
 def wait_for_game(connect, directory, report):
-    """Attach once D2R.exe exists; other attach failures still abort the service."""
-    waiting = False
+    """Attach once D2R.exe exists and a character is in a game; other attach failures abort."""
+    waiting = None
     while True:
         try:
             return connect()
-        except GameProcessUnavailable as exc:
-            if not waiting:
+        except (GameProcessUnavailable, GameNotReady) as exc:
+            message = 'Waiting for a character in game' if isinstance(exc, GameNotReady) else 'Waiting for D2R.exe'
+            if message != waiting:
                 report.update(state='waiting', reason=str(exc))
                 publish(directory / 'report.json', report)
-                print(f'Waiting for D2R.exe. Reports: {directory}', flush=True)
-                LOG.info('Waiting for game process: %s', exc)
-                waiting = True
+                print(f'{message}. Reports: {directory}', flush=True)
+                LOG.info('%s: %s', message, exc)
+                waiting = message
             time.sleep(APPRAISAL.reconnect_delay)
 
 
@@ -166,7 +243,12 @@ def run_service(args, directory, report):
 
                 def connect():
                     attachment = Path(mkdtemp(prefix='attachment-', dir=directory))
-                    connection = reader.connect(attachment)
+                    try:
+                        connection = reader.connect(attachment)
+                    except GameNotReady:
+                        # Menu-time retries would otherwise leave one full image capture every few seconds.
+                        shutil.rmtree(attachment, ignore_errors=True)
+                        raise
                     report.pop('reason', None)
                     report.update(
                         state='ready',
@@ -190,26 +272,35 @@ def run_service(args, directory, report):
                 source = AppraisalCapture(pid, images, capture, reconnect=connect)
 
                 with (
-                    overlay_process(directory, args.osd) as display_path,
+                    hud_process(args.hud_scene, args.osd, directory / 'hud.log'),
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='appraisal-kb') as pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='collection') as collection_pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='shop') as shop_pool,
+                    ThreadPoolExecutor(max_workers=1, thread_name_prefix='identify') as identify_pool,
                 ):
                     shop = None
+                    identify = None
+                    guide = None
 
                     def display_appraisal(record):
-                        if display_path and (shop is None or shop.visible is None):
-                            publish_display(display_path, record)
+                        # Shop/identify results share the 'assessment' slot and take precedence; the
+                        # level guide has its own slot, so it never hides an assessment.
+                        if all(w is None or w.visible is None for w in (shop, identify)):
+                            lines = ItemAssessment.from_record(record).to_osd() if record is not None else []
+                            publish_layer(args.hud_scene, 'appraisal', card_widgets(lines))
 
+                    retrieve = backend.retrieve if backend else lambda o: memory_evidence(o, args.database)
+                    owned = owned_evidence(args.collection_database)
+                    kb_revision = backend.cache_context if backend else lambda: database_revision(args.database)
                     worker = AppraisalWorker(
                         source,
-                        backend.retrieve if backend else lambda o: memory_evidence(o, args.database),
+                        with_owned(retrieve, owned),
                         lambda record: publish_request(directory, record, notifications=not args.osd),
                         pool,
-                        display=display_appraisal if display_path else None,
+                        display=display_appraisal if args.osd else None,
                         display_seconds=args.osd_seconds,
                         cache_seconds=args.cache_seconds,
-                        cache_context=backend.cache_context if backend else lambda: database_revision(args.database),
+                        cache_context=lambda: (kb_revision(), collection_revision(args.collection_database)),
                         request_scope=backend.request_scope if backend else nullcontext,
                     )
                     collector = Collector(
@@ -229,11 +320,8 @@ def run_service(args, directory, report):
                             worker.hide()
 
                     def display_shop(lines):
-                        if display_path:
-                            publish(
-                                display_path,
-                                {'checked_at': time.monotonic(), 'lines': [line.to_payload() for line in lines]},
-                            )
+                        if args.osd:
+                            publish_layer(args.hud_scene, 'cards', card_widgets(lines))
 
                     shop = ShopWorker(
                         source,
@@ -247,9 +335,58 @@ def run_service(args, directory, report):
                         poll_interval=args.shop_poll_seconds,
                         appraisal_active=lambda: worker.visible is not None or worker.pending(),
                     )
+                    identify = IdentifyWorker(
+                        source,
+                        identify_pool,
+                        capture_lock=worker.capture_lock,
+                        focused=game_focused,
+                        display=display_shop,
+                        output=directory,
+                        retrieve=retrieve,
+                        owned=owned,
+                        request_scope=backend.request_scope if backend else nullcontext,
+                        notify=notify,
+                        auto=args.identify_auto,
+                        poll_interval=args.identify_poll_seconds,
+                        appraisal_active=lambda: worker.visible is not None or worker.pending(),
+                    )
+                    level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
+                    if args.level_guide:
+                        guide = LevelGuide(
+                            source,
+                            capture_lock=worker.capture_lock,
+                            focused=game_focused,
+                            display=lambda lines: publish_layer(args.hud_scene, 'levels', guide_widgets(lines)),
+                            seconds=APPRAISAL.level_guide_seconds,
+                            poll_interval=APPRAISAL.level_guide_poll_interval,
+                            evidence=EvidenceLog(args.level_evidence).save,
+                            observe_walls=observe_walkable if APPRAISAL.level_walls else None,
+                            library=WallLibrary() if APPRAISAL.level_walls else None,
+                        )
+                    runes = None
+                    if args.rune_marks and args.osd:
+                        runes = RuneWatcher(
+                            source,
+                            capture_lock=worker.capture_lock,
+                            focused=game_focused,
+                            display=lambda lines: publish_layer(args.hud_scene, 'loot', loot_widgets(lines)),
+                            poll_interval=APPRAISAL.rune_poll_interval,
+                            minimum=APPRAISAL.rune_minimum,
+                            shrine_types=frozenset(APPRAISAL.shrine_marks),
+                            super_chests=APPRAISAL.super_chest_marks,
+                        )
+                    stash = None
+                    if args.stash_auto:
+                        stash = StashWatcher(
+                            lambda: observe_panels(source.pid, source.images),
+                            lambda now: collector.request(now, now, trigger='stash-closed'),
+                            poll_interval=args.stash_poll_seconds,
+                        )
                     watching = 'watching vendor stock' if args.shop_auto else 'no automatic shop watch'
+                    stash_note = 'collecting on stash close' if stash else 'no stash watch'
+                    identify_note = 'assessing on identify' if args.identify_auto else 'no identify watch'
                     print(
-                        f'Ready for Alt+D, Win+S and Win+D ({watching}). '
+                        f'Ready for Alt+D, Win+S, Win+D and Win+C ({watching}; {stash_note}; {identify_note}). '
                         f'Collection database: {args.collection_database}',
                         flush=True,
                     )
@@ -257,16 +394,32 @@ def run_service(args, directory, report):
                         while True:
                             worker.tick()
                             shop.tick()
+                            identify.tick()
                             shop.poll(time.monotonic())
+                            identify.poll(time.monotonic())
+                            if stash is not None:
+                                stash.poll(time.monotonic())
+                            if guide is not None:
+                                guide.tick()
+                                guide.poll(time.monotonic())
+                            if runes is not None:
+                                runes.tick()
+                                runes.poll(time.monotonic())
                             try:
                                 data = server.recv(256)
                             except TimeoutError:
                                 continue
-                            dispatch(data, time.monotonic(), worker, collector, shop)
+                            dispatch(data, time.monotonic(), worker, collector, shop, identify, level, guide)
                     finally:
                         shop.dismiss()
-                        if shop.future:
-                            shop.future.cancel()
+                        identify.dismiss()
+                        if guide is not None:
+                            guide.dismiss()
+                        for producer in ('appraisal', 'cards', 'levels', 'loot'):
+                            publish_layer(args.hud_scene, producer, [])
+                        for pending in (shop.future, identify.future):
+                            if pending:
+                                pending.cancel()
                         with worker.lock:
                             worker.generation += 1
                             worker.hide()
@@ -298,10 +451,31 @@ def main(argv=None):
     parser.add_argument('--pid', type=int)
     parser.add_argument('--osd', action=argparse.BooleanOptionalAction, default=APPRAISAL.osd)
     parser.add_argument('--osd-seconds', type=positive_float, default=APPRAISAL.display_seconds)
+    parser.add_argument(
+        '--rune-marks',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.rune_marks,
+        help='serve: HUD arrows to valuable runes on the ground (APPRAISAL.rune_minimum and up)',
+    )
+    parser.add_argument(
+        '--hud-scene', type=Path, default=DEFAULT_SCENE, help='HUD scene directory (inventory_tracking/hud)'
+    )
     parser.add_argument('--cache-seconds', type=positive_float, default=APPRAISAL.cache_seconds)
     requests = parser.add_mutually_exclusive_group()
     requests.add_argument('--collect', action='store_true', help='request: send a Win+S collection instead')
+    requests.add_argument(
+        '--equipped', action='store_true', help='request: record only worn character/mercenary items instead'
+    )
     requests.add_argument('--shop', action='store_true', help='request: send a Win+D shop check instead')
+    requests.add_argument(
+        '--level',
+        action='store_true',
+        help='request: send Win+C instead (show the level map again and dump level memory)',
+    )
+    parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
+    parser.add_argument(
+        '--level-evidence', type=Path, default=DEFAULT_EVIDENCE, help='evidence saved on each guided level entry'
+    )
     parser.add_argument('--collection-database', type=Path, default=COLLECTION_DATABASE)
     parser.add_argument('--collection-output', type=Path, default=COLLECTION_OUTPUT)
     parser.add_argument('--collection-html', type=Path, default=COLLECTION_HTML, help='page regenerated after Win+S')
@@ -312,6 +486,26 @@ def main(argv=None):
         help='serve: scan loaded vendor stock automatically when its first gear item changes',
     )
     parser.add_argument('--shop-poll-seconds', type=positive_float, default=APPRAISAL.shop_poll_interval)
+    parser.add_argument(
+        '--stash-auto',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.stash_auto,
+        help='serve: run a Win+S collection automatically every time the stash panel is closed',
+    )
+    parser.add_argument('--stash-poll-seconds', type=positive_float, default=APPRAISAL.stash_poll_interval)
+    parser.add_argument(
+        '--identify-auto',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.identify_auto,
+        help='serve: assess inventory and cube items the moment they become identified (Cain, scrolls)',
+    )
+    parser.add_argument(
+        '--level-guide',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.level_guide,
+        help='serve: on entering a guided level (levels/handlers/), show an arrow to its target for a few seconds',
+    )
+    parser.add_argument('--identify-poll-seconds', type=positive_float, default=APPRAISAL.identify_poll_interval)
     args = parser.parse_args(argv)
     if args.database is None and args.publication_store is None:
         args.publication_store = DEFAULT_STORE
@@ -321,7 +515,17 @@ def main(argv=None):
     try:
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.settimeout(0.25)
-            prefix = SHOP_PREFIX if args.shop else REQUEST_PREFIX if args.collect else ''
+            prefix = (
+                SHOP_PREFIX
+                if args.shop
+                else LEVEL_PREFIX
+                if args.level
+                else EQUIPMENT_PREFIX
+                if args.equipped
+                else REQUEST_PREFIX
+                if args.collect
+                else ''
+            )
             message = f'{prefix}{time.monotonic()}'
             client.sendto(message.encode('ascii'), str(args.socket))
     except OSError:

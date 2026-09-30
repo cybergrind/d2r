@@ -71,21 +71,24 @@ def test_reviewed_teleport_amulets_require_class_and_available_charges_in_report
     for quality in ('magic', 'rare'):
         item = replace(facts('Amulet', quality), stats={'204:3457': charged(1)})
         for klass in ('Barbarian', 'Necromancer', 'Sorceress', None):
-            context = {'player_class': klass} if klass else {}
-            result = StatsEvaluator().evaluate(
-                item, configs, context=context, role_outcomes=assess_role_results(item, profiles, context)
-            )
-            if klass in ('Barbarian', 'Necromancer'):
-                assert set(result.annotations) == {'204:3457'}
-                assert len(result.annotations['204:3457']['configuration_ids']) == 1
-                line = stat_line(
-                    {
-                        'status': 'decoded',
-                        'text': 'Level 1 Teleport (1/20 Charges)',
-                        'memory_stat': {'id': 204, 'layer': 3457},
-                    },
-                    result.annotations,
+            for equipment in ([], ['Enigma'], None):
+                context = {'player_class': klass} if klass else {}
+                if equipment is not None:
+                    context['player_items'] = equipment
+                result = StatsEvaluator().evaluate(
+                    item, configs, context=context, role_outcomes=assess_role_results(item, profiles, context)
                 )
-                assert '[desirable]' in line.text
-            else:
-                assert not result.annotations
+                if klass in ('Barbarian', 'Necromancer') and equipment == []:
+                    assert set(result.annotations) == {'204:3457'}
+                    assert len(result.annotations['204:3457']['configuration_ids']) == 1
+                    line = stat_line(
+                        {
+                            'status': 'decoded',
+                            'text': 'Level 1 Teleport (1/20 Charges)',
+                            'memory_stat': {'id': 204, 'layer': 3457},
+                        },
+                        result.annotations,
+                    )
+                    assert '[desirable]' in line.text
+                else:
+                    assert not result.annotations

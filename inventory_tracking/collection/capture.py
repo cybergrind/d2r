@@ -10,13 +10,14 @@ turns that record into decoded observations and collection sightings, one
 import os
 import struct
 import time
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict
 
 from inventory_tracking.collection.models import (
     SHARED_OWNER,
     Character,
+    CharacterStats,
     ContainerKey,
     ContainerSpace,
     ItemRecord,
@@ -24,6 +25,7 @@ from inventory_tracking.collection.models import (
     Sighting,
 )
 from inventory_tracking.items.decode import decode_items
+from inventory_tracking.items.metadata import decode_stats, metadata
 from inventory_tracking.items.modifiers import owned_damage_modifiers, owned_defense_modifiers
 from inventory_tracking.native.item_diagnostics import capture_stat_candidates
 from inventory_tracking.native.layout import HIRELING_CLASS_ID, SUPPORTED_SHA256
@@ -36,6 +38,9 @@ from inventory_tracking.tracking.state import select_player
 
 
 NO_OWNER = 0xFFFFFFFF
+# Win+S reads every owned container ('all'); Win+D only what the character and the
+# mercenary wear ('equipment'): no stash metadata, grids or free-space bookkeeping.
+Scope = Literal['all', 'equipment']
 STASH_PAGE = 4
 CUBE_PAGE = 3
 EQUIPMENT_PAGE = 255
@@ -65,6 +70,31 @@ CLASS_NAMES = {
 }
 LEVEL_STAT = 12
 LIFE_STATS = frozenset((6, 7))
+# Character-sheet stats read straight from the player's full stat list (itemstatcost ids);
+# life/mana/stamina carry 8 fractional bits (ValShift), applied through the metadata catalog.
+SHEET_STATS = {
+    'strength': 0,
+    'energy': 1,
+    'dexterity': 2,
+    'vitality': 3,
+    'life': 6,
+    'life_max': 7,
+    'mana': 8,
+    'mana_max': 9,
+    'stamina': 10,
+    'stamina_max': 11,
+    'level': LEVEL_STAT,
+    'experience': 13,
+    'gold': 14,
+    'gold_bank': 15,
+    'attack_rating': 19,
+    'defense': 31,
+    'fire_resist': 39,
+    'lightning_resist': 41,
+    'cold_resist': 43,
+    'poison_resist': 45,
+}
+SHEET_ONLY_LINES = frozenset((6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
 EQUIPMENT_SLOTS = 13
 # Grid index = inventory page + 2 (hover/selection.py); host-verified dimensions.
 GRID_CONTAINERS = {2: ('inventory', 10, 4), 5: ('cube', 3, 4), 6: ('stash', 10, 10)}
@@ -249,11 +279,13 @@ def read_item_record(read, unit, candidates, *, stack: bool = False) -> dict[str
     return {key: unit[key] for key in ('unit_id', 'txt_id', 'mode', 'details')} | {'resource_stats': arrays}
 
 
-def candidate_kind(unit, player_id, shared_ids, merc_addresses) -> str | None:
+def candidate_kind(unit, player_id, shared_ids, merc_addresses, scope: Scope = 'all') -> str | None:
     details = unit.get('details', {})
     if 'quality' not in details:
         return None
     owner, page, mode = details.get('owner_id'), details.get('inventory_page'), unit.get('mode')
+    if scope == 'equipment' and page != EQUIPMENT_PAGE:
+        return None
     if mode == 0 and owner == player_id and page in PLAYER_PAGES:
         return 'player'
     if mode == 0 and page == STASH_PAGE and owner in shared_ids:
@@ -269,9 +301,13 @@ def candidate_kind(unit, player_id, shared_ids, merc_addresses) -> str | None:
     return None
 
 
-def collect_inventory(pid, images, capture) -> dict[str, Any]:
-    """One bounded pass over every owned item; raises when the snapshot cannot be trusted."""
+def collect_inventory(pid, images, capture, *, scope: Scope = 'all') -> dict[str, Any]:
+    """One bounded pass over every owned item; raises when the snapshot cannot be trusted.
+
+    `scope='equipment'` reads only the worn items of the character and the mercenary.
+    """
     started = time.monotonic()
+    equipment_only = scope == 'equipment'
     snapshot = sample_units(pid, images, capture, merc=True)
     if snapshot.get('status') != 'research' or not snapshot.get('mappings_stable'):
         raise ValueError(snapshot.get('error', 'Unit snapshot unavailable'))
@@ -289,7 +325,7 @@ def collect_inventory(pid, images, capture) -> dict[str, Any]:
         reader = ResearchReader(fd, mappings)
         read = reader.read
         stash_units = []
-        for unit in players:
+        for unit in [] if equipment_only else players:
             try:
                 meta = read_stash_meta(read, unit)
             except (OSError, ValueError, struct.error) as exc:
@@ -311,10 +347,12 @@ def collect_inventory(pid, images, capture) -> dict[str, Any]:
                 mercenary = {'unit_id': merc['unit_id'], 'item_addresses': sorted(merc_addresses)}
             except (OSError, ValueError, struct.error) as exc:
                 issues.append(f'Mercenary: {exc}')
+        elif equipment_only:
+            issues.append('Mercenary: not in memory; its equipment was not recorded')
         spaces: list[dict[str, Any]] = []
         sizes: dict[int, tuple[int, int]] = {}
         grid_owners = [(main, None)] + [(u, u['unit_id']) for u in players if u['unit_id'] in shared_ids]
-        for unit, shared_id in grid_owners:
+        for unit, shared_id in [] if equipment_only else grid_owners:
             try:
                 grids = read_owner_grids(read, unit)
             except (OSError, ValueError, struct.error) as exc:
@@ -338,7 +376,7 @@ def collect_inventory(pid, images, capture) -> dict[str, Any]:
         rows = []
         kinds: dict[str, str] = {}  # keyed by str(unit_id) so capture.json round-trips
         for unit in items:
-            kind = candidate_kind(unit, player_id, shared_ids, merc_addresses)
+            kind = candidate_kind(unit, player_id, shared_ids, merc_addresses, scope)
             if kind is None:
                 continue
             try:
@@ -372,6 +410,7 @@ def collect_inventory(pid, images, capture) -> dict[str, Any]:
         'location': location,
         'issues': issues,
         'timing': {'ms': round((time.monotonic() - started) * 1000, 1), 'bytes_requested': bytes_requested},
+        'scope': scope,
     }
 
 
@@ -379,11 +418,13 @@ class CollectionBuild(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     character: Character
+    character_stats: CharacterStats | None = None
     sightings: list[Sighting]
     containers: list[ContainerKey]
     tabs: dict[int, int]  # shared owner unit id → tab number
     spaces: list[ContainerSpace] = []
     issues: list[str]
+    scope: Scope = 'all'
 
 
 def character_from(unit) -> Character:
@@ -399,6 +440,58 @@ def character_from(unit) -> Character:
     )
 
 
+def sheet_lines(sheet: dict[str, int | None]) -> list[str]:
+    """Readable rows for the sheet stats the item decoders leave unresolved (level, life, gold…)."""
+    pairs = (
+        ('Level', 'level'),
+        ('Life', ('life', 'life_max')),
+        ('Mana', ('mana', 'mana_max')),
+        ('Stamina', ('stamina', 'stamina_max')),
+        ('Experience', 'experience'),
+        ('Gold', 'gold'),
+        ('Gold in stash', 'gold_bank'),
+    )
+    lines = []
+    for label, key in pairs:
+        if isinstance(key, tuple):
+            current, maximum = (sheet.get(k) for k in key)
+            if current is not None or maximum is not None:
+                lines.append(f'{label}: {current}/{maximum}')
+        elif sheet.get(key) is not None:
+            lines.append(f'{label}: {sheet[key]}')
+    return lines
+
+
+def character_stats_from(unit) -> CharacterStats | None:
+    """The sheet of one player unit from its full (+0xE8) and base (+0x30) stat lists."""
+    details = unit['details']
+    stats = details.get('full_stats')
+    if not isinstance(stats, list):
+        return None
+    catalog = metadata()['stats']
+    values: dict[str, int | None] = {}
+    for name, stat_id in SHEET_STATS.items():
+        raw = next((s['raw'] for s in stats if s.get('id') == stat_id and s.get('layer') == 0), None)
+        shift = catalog.get(str(stat_id), {}).get('shift', 0)
+        values[name] = None if raw is None else raw >> shift
+    decoded, _, _ = decode_stats(stats)
+    lines = sheet_lines(values)
+    for row in decoded:
+        # Level, life, mana, stamina, experience and gold are rendered by sheet_lines; the
+        # item decoders either leave them unresolved or label them as item bonuses.
+        if (row.get('memory_stat') or {}).get('id') not in SHEET_ONLY_LINES:
+            lines.append(row['text'])
+    base = details.get('base_stats')
+    return CharacterStats(
+        **values,
+        lines=lines,
+        stats=[{'id': s['id'], 'layer': s['layer'], 'raw': s['raw']} for s in stats],
+        base_stats=[{'id': s['id'], 'layer': s['layer'], 'raw': s['raw']} for s in base]
+        if isinstance(base, list)
+        else [],
+    )
+
+
 def shared_tabs(record) -> dict[int, int]:
     shared = [u for u in record['stash_units'] if u['shared_state'] and u['unit_id'] != record['player_id']]
     return {u['unit_id']: index + 1 for index, u in enumerate(sorted(shared, key=lambda u: u['order']))}
@@ -409,6 +502,7 @@ def build_sightings(record, *, run_id=None, captured_at=None) -> CollectionBuild
     player_id = record['player_id']
     main = next(u for u in snapshot['groups']['players']['units'] if u['unit_id'] == player_id)
     character = character_from(main)
+    character_stats = character_stats_from(main)
     tabs = shared_tabs(record)
     merc = record.get('mercenary') or {}
     report = {
@@ -417,9 +511,14 @@ def build_sightings(record, *, run_id=None, captured_at=None) -> CollectionBuild
         'finished_at': captured_at,
         'game': {'identity': snapshot['identity'], 'executable_fingerprint': {'sha256': SUPPORTED_SHA256}},
     }
-    containers: list[ContainerKey] = [(character.name, c, None) for c in ('inventory', 'cube', 'equipped', 'stash')]
-    containers += [(SHARED_OWNER, 'shared_stash', tab) for tab in sorted(tabs.values())]
-    containers.append((SHARED_OWNER, 'materials', None))
+    scope: Scope = record.get('scope', 'all')
+    containers: list[ContainerKey]
+    if scope == 'equipment':
+        containers = [(character.name, 'equipped', None)]
+    else:
+        containers = [(character.name, c, None) for c in ('inventory', 'cube', 'equipped', 'stash')]
+        containers += [(SHARED_OWNER, 'shared_stash', tab) for tab in sorted(tabs.values())]
+        containers.append((SHARED_OWNER, 'materials', None))
     if merc:
         containers.append((character.name, 'mercenary', None))
     sightings: list[Sighting] = []
@@ -479,5 +578,12 @@ def build_sightings(record, *, run_id=None, captured_at=None) -> CollectionBuild
             continue
         sightings.append(Sighting(item=item, location=location))
     return CollectionBuild(
-        character=character, sightings=sightings, containers=containers, tabs=tabs, spaces=spaces, issues=issues
+        character=character,
+        character_stats=character_stats,
+        sightings=sightings,
+        containers=containers,
+        tabs=tabs,
+        spaces=spaces,
+        issues=issues,
+        scope=scope,
     )

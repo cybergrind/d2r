@@ -11,16 +11,28 @@ from pricing.knowledge.assessment.domain.facts import freeze
 class RecipeIndex:
     by_base: Mapping
     mercenary_alternatives: Mapping
+    by_code: Mapping
 
 
 def compile_recipe_index(rows, base_types):
     by_base = defaultdict(list)
+    by_code = defaultdict(list)
     alternatives = defaultdict(set)
+    codes_by_name = defaultdict(set)
+    for row in rows:
+        if row.get('kind') == 'base_rule' and row.get('base_code'):
+            codes_by_name[row['name']].add(row['base_code'])
     for row in rows:
         if row.get('kind') != 'base_rule':
             continue
         name = row['name']
         by_base[name].append(row)
+        code = row.get('base_code')
+        # Recommendations use the KB name; join only an unambiguous native identity.
+        if not code and len(codes_by_name[name]) == 1:
+            code = next(iter(codes_by_name[name]))
+        if code:
+            by_code[code].append(row)
         details = row.get('details', {})
         word = details.get('runeword')
         if (
@@ -30,4 +42,8 @@ def compile_recipe_index(rows, base_types):
             and base_types.get(name) in ('pole', 'spea')
         ):
             alternatives[word].add(name)
-    return RecipeIndex(freeze(dict(by_base)), freeze({word: sorted(names) for word, names in alternatives.items()}))
+    return RecipeIndex(
+        freeze(dict(by_base)),
+        freeze({word: sorted(names) for word, names in alternatives.items()}),
+        freeze(dict(by_code)),
+    )

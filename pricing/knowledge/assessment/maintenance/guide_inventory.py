@@ -136,9 +136,10 @@ def inspect_source(root, source):
 def main():
     from pricing.knowledge.assessment.build_profiles import build
     from pricing.knowledge.assessment.maintenance.embedded_items import resolve_embedded_item
-    from pricing.knowledge.assessment.maintenance.guide_sections import section_inventory
+    from pricing.knowledge.assessment.maintenance.guide_sections import legacy_item_references, section_inventory
     from pricing.knowledge.assessment.maintenance.guide_spans import audit_spans
     from pricing.knowledge.assessment.maintenance.planner_slots import audit_planner_slots
+    from pricing.knowledge.assessment.maintenance.reviewed_source_issues import reviewed_source_issues
     from pricing.knowledge.assessment.maintenance.set_relationships import set_relationships
     from pricing.knowledge.assessment.maintenance.source_conflicts import source_conflicts
     from pricing.knowledge.assessment.maintenance.source_slots import audit_build_slots, audit_variant_slots
@@ -153,6 +154,17 @@ def main():
     if definitions.get('schema_version') != 1:
         raise ValueError('Unsupported item definition schema')
     inputs[definition_path] = hashlib.sha256(definition_bytes).hexdigest()
+    misc_path = 'third-parties/d2data/json/misc.json'
+    misc_bytes = (ROOT / misc_path).read_bytes()
+    inputs[misc_path] = hashlib.sha256(misc_bytes).hexdigest()
+    native_items = {
+        code: {
+            'definition': row,
+            'source': {'path': misc_path, 'sha256': inputs[misc_path], 'locator': '/' + code},
+        }
+        for code, row in json.loads(misc_bytes).items()
+        if row.get('name') in ('Arrows', 'Bolts')
+    }
     profiles = build()
     result = compile_inventory(occurrences, profiles['profiles'], catalog)
     demand = json.loads((ROOT / 'pricing/data/appraisal-demand.json').read_text())
@@ -223,7 +235,7 @@ def main():
     embedded_items = []
     planner_cache = {}
     for source, record in section_sources.items():
-        for reference in record['embedded_item_refs']:
+        for reference in (*record['embedded_item_refs'], *legacy_item_references((ROOT / source).read_text())):
             planner_path = f'pricing/raw/mr/planners/{reference["profile_id"]}.json'
             if planner_path not in planner_cache:
                 path = ROOT / planner_path
@@ -241,11 +253,19 @@ def main():
                 }
             else:
                 resolved = resolve_embedded_item(
-                    reference, planner, [r for r in occurrences if r['source_id'] == planner_path]
+                    reference,
+                    planner,
+                    [r for r in occurrences if r['source_id'] == planner_path],
+                    native_items=native_items,
                 )
             embedded_items.append({'source_id': source, 'planner_source_id': planner_path, **resolved})
     result['embedded_item_links'] = embedded_items
     result['source_conflicts'] = source_conflicts(embedded_items, planner_cache)
+    issue_path = ROOT / 'pricing/knowledge/assessment/rules/reviewed_source_issues.json'
+    result['reviewed_source_issues'] = reviewed_source_issues(json.loads(issue_path.read_text())['reviews'], ROOT)
+    result['counts']['reviewed_source_issue_states'] = dict(
+        sorted(Counter(row['status'] for row in result['reviewed_source_issues']).items())
+    )
     result['counts']['distinct_source_conflicts'] = len(result['source_conflicts'])
     result['counts']['embedded_item_states'] = dict(sorted(Counter(row['status'] for row in embedded_items).items()))
     result['counts']['cached_guide_pages'] = len(section_sources)

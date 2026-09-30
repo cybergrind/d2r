@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "inputs": {
+    "pricing/knowledge/assessment/rules/table_equivalence_reviews.json": "2ee42b1eab732edf50b0ad474fca75e83e1a1560d93e74e5a23e9f3354d030b4",
+    "pricing/raw/mr/planners/rb1d60lu.json": "ed95475cc9485abdd29322d602760646384c84ca29180d0e1a3e1e6151eef5e5",
+    "pricing/raw/mr/planners/s10106pr.json": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072"
+  },
+  "rows": [
+    {
+      "endorsement_occurrence_id": "3db1f4eb689b273071b6d59f",
+      "endorsement_sha256": "98eb5e4a06cb4ec7926ac449887e1aec042026de0714483d869d52562b2ca6e8",
+      "parent": {
+        "occurrence_id": "c8c7c1fcf79540ce1814720c",
+        "sha256": "d3001f54761b1b3c61d27d727d618aa605a309451a2f6e1c924016f61ea9f9b2"
+      },
+      "children": [
+        {
+          "occurrence_id": "ae4bee5b86c89d75ebd77545",
+          "sha256": "3fc056af8a1a07e8d8d12f48ce3be05e3e4639740eea398dadbdca7875214598"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact planner equipment and complete rune payload bound to the existing source-validated build review. Identity-level stat, variant, market, report and item-bank obligations remain independent."
+    },
+    {
+      "endorsement_occurrence_id": "4ef89fd25e4ada45d6e7dd3e",
+      "endorsement_sha256": "45bf7a6994ab91db94fcacdc6c9471f0e7991595839a0afcdd85ce904a5a62d0",
+      "parent": {
+        "occurrence_id": "9b997dd8ea56d9175946ad2e",
+        "sha256": "b2770016ffe2376ed2b1f2dc9c3d5bba07a11063966f650a36fbac73f7278702"
+      },
+      "children": [
+        {
+          "occurrence_id": "9707768ad469481bc49af797",
+          "sha256": "0b59e172d117e4fb76d54338edeef47fd387f5b2866de42fddff096ea0f16911"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact planner equipment and complete rune payload bound to the existing source-validated build review. Identity-level stat, variant, market, report and item-bank obligations remain independent."
+    },
+    {
+      "endorsement_occurrence_id": "a168afadcbbd203086fefb0f",
+      "endorsement_sha256": "64ee472729033d14a91cf1c77c9f38a30d3d5050367da788c68a93ad7eadf67a",
+      "parent": {
+        "occurrence_id": "2af6f7759df3d14d4671bf87",
+        "sha256": "57c32418cf8789a7d0b1f97f61190768a5f37eefb1bc2b79252c86c6abb4fa94"
+      },
+      "children": [
+        {
+          "occurrence_id": "9d2b206e1e53a51459c470b6",
+          "sha256": "a483bae51c472cc74135a8bef25b2b9a8b3467afa8a3bbe30846799523ede8ed"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact planner equipment and complete rune payload bound to the existing source-validated build review. Identity-level stat, variant, market, report and item-bank obligations remain independent."
+    },
+    {
+      "endorsement_occurrence_id": "b9ef4cdcef149b5f9128e9a9",
+      "endorsement_sha256": "40f3a68897fa6f2ce3de99c4a5c31ee6b3c101b5b30e76409c2d6b77984c71d1",
+      "parent": {
+        "occurrence_id": "477943e59f62ccfe5a380daf",
+        "sha256": "585333cd5a0340b0cbc39470b0ffa2fe86a03b83eaa81320d81dc1e64b3200a6"
+      },
+      "children": [
+        {
+          "occurrence_id": "ff7f050759659de88951bc52",
+          "sha256": "36ac9793018335497692faea3c8530bd75cf15398bb857c96dcfd542d698592d"
+        },
+        {
+          "occurrence_id": "d3b51b6fdb6305f8743891e9",
+          "sha256": "582af1c8d1d358d7f9a160b52db1c9d40340642206a2bc38de9fde8e0a03a177"
+        },
+        {
+          "occurrence_id": "05b158d329be09bfdaf8b983",
+          "sha256": "df98a6b0c041181fb706c4cf7cb6c211b615bfe7f7b22be21f44aa11f3a9c139"
+        },
+        {
+          "occurrence_id": "aa86422d66fc6029d47080b5",
+          "sha256": "7c554983b88347952a3c2cf0502b22e9870bac71c0623df94a1e04432d9cb108"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact planner equipment and complete rune payload bound to the existing source-validated build review. Identity-level stat, variant, market, report and item-bank obligations remain independent."
+    },
+    {
+      "endorsement_occurrence_id": "844e7d3daba32cb50dd8de91",
+      "endorsement_sha256": "62dce449cc974203ed5d2c9a549e89a54ebf651d2ce92d2c1ea2b7e584abb6e8",
+      "parent": {
+        "occurrence_id": "ecbf5441208f91e2d2ce76fa",
+        "sha256": "1028939e650fecc3d19d48e0426907a0d4aaf0f750176e98f6e1ae97a0696594"
+      },
+      "children": [
+        {
+          "occurrence_id": "b4fac1e531393fc69e84f860",
+          "sha256": "ec843c81f46b19360df46cd49f314a5c284756d49537aee7adf5ab6583ec4820"
+        },
+        {
+          "occurrence_id": "4274b1f04f5d1f6932642c29",
+          "sha256": "1799a5ab88838671aa18375759e0fd67686e3b6bdc92eeae012484709283bae8"
+        },
+        {
+          "occurrence_id": "0f894f5f48685c5ded11e2ce",
+          "sha256": "9ec6d58b01d8d82c38ba12ca553dc5e891d5f0d72fa482b80901402cff9cf76b"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact planner equipment and complete rune payload bound to the existing source-validated build review. Identity-level stat, variant, market, report and item-bank obligations remain independent."
+    }
+  ]
+}

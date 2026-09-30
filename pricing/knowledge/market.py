@@ -8,7 +8,7 @@ from collections import Counter
 from pathlib import Path
 
 from pricing.knowledge.assessment.observations import superseded_rows
-from pricing.knowledge.cache_dates import collection_day
+from pricing.knowledge.cache_dates import collection_day_evidence
 from pricing.knowledge.market_mechanics import apply_mechanics
 from pricing.knowledge.market_named_aliases import canonicalize_named_catalog
 
@@ -176,6 +176,7 @@ def summarize(rows, predicates=None):
         and matches(r, predicates)
     ]
     votes = {}
+    representatives = {}
     observations = 0
     for row in selected:
         if row.get('unit_policy') == 'ambiguous' or not row.get('seller_id') or not valid_positive(row.get('ask_ist')):
@@ -183,6 +184,14 @@ def summarize(rows, predicates=None):
         observations += 1
         seller = row['seller_id']
         votes[seller] = min(votes.get(seller, float('inf')), row['ask_ist'])
+        key = (
+            row['ask_ist'],
+            str(row.get('listing_id', '')),
+            str(row.get('observed_at', '')),
+            str(row.get('source', '')),
+        )
+        if seller not in representatives or key < representatives[seller][0]:
+            representatives[seller] = (key, row)
     values = sorted(votes.values())
     return {
         'band_kind': 'facet_matched' if predicates else 'name_level_watch',
@@ -210,11 +219,7 @@ def summarize(rows, predicates=None):
                     'conversion',
                 )
             }
-            for r in [
-                r
-                for r in selected
-                if r.get('unit_policy') != 'ambiguous' and r.get('seller_id') and valid_positive(r.get('ask_ist'))
-            ][:3]
+            for _, r in sorted(representatives.values(), key=lambda pair: (pair[0], str(pair[1]['seller_id'])))[:3]
         ],
     }
 
@@ -246,7 +251,7 @@ def import_cache(root, catalog=None):
             manifest['files'].append({'path': str(path.relative_to(root)), 'error': str(error)})
             continue
         listings = data if isinstance(data, list) else data.get('listings', [])
-        observed_at, date_error = collection_day(data)
+        observed_at, date_error, date_field = collection_day_evidence(data)
         file_info = {
             'path': str(path.relative_to(root)),
             'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
@@ -279,7 +284,7 @@ def import_cache(root, catalog=None):
                 row['observation_date_source'] = {
                     'path': file_info['path'],
                     'sha256': file_info['sha256'],
-                    'field': '/pulled',
+                    'field': date_field,
                 }
             row['conversion'].update(
                 snapshot_id=manifest['currency_snapshot'], snapshot_date=manifest['currency_snapshot_date']

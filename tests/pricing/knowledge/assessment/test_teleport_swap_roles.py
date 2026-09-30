@@ -5,8 +5,9 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 def test_naj_swap_roles_exclude_unendorsed_fal_example():
     profiles = [p for p in build()['profiles'] if p['role'] == 'Teleport-charge weapon swap']
-    assert len(profiles) == 13
-    assert len({p['build'] for p in profiles}) == 13
+    # Includes the reviewed Zeal footnote and separate Abyss table configuration.
+    assert len(profiles) == 15
+    assert len({p['build'] for p in profiles}) == 14
     assert all(p['side'] == 'player' and p['slot'] == 'Weapon-Swap' for p in profiles)
     item = facts('Elder Staff', 'set', "Naj's Puzzler")
     results = assess_roles(item, profiles, {'player_class': 'Necromancer', 'player_items': []})
@@ -89,7 +90,7 @@ def test_magic_rare_teleport_alternatives_require_the_actual_charged_skill():
     from pricing.knowledge.assessment.adapters.capture import normalize
 
     profiles = [p for p in build()['profiles'] if p['role'] == 'Affixed Teleport-charge alternative']
-    assert len(profiles) == 4
+    assert len(profiles) == 6  # Includes the reviewed Zeal staff/amulet footnotes.
     for base in ('Long Staff', 'Amulet'):
         for rarity in ('magic', 'rare'):
             for skill, remaining, wanted in ((54, 0, 'partial'), (54, 1, 'partial'), (48, 1, 'failed')):

@@ -1,4 +1,4 @@
-"""Build an offline unique/set keep-and-review watchlist from cached research.
+"""Build an offline named and stat-qualified keep-and-review watchlist from cached research.
 
 Guide tiers describe demand, not this economy's prices. Conditions and source
 ages stay attached; build mentions alone are not high resale value.
@@ -117,6 +117,47 @@ def build_watchlist(root):
                 },
             }
         )
+    magic_source = 'pricing/raw/mr/items__valuable-magic-items.html'
+    magic = GuideTable()
+    magic.feed(read(magic_source))
+    trainer = next((r for r in magic.rows if r[0] == "Trainer's Grand Charm of Vita"), None)
+    if not trainer or trainer[1] != 'Medium' or '30-45 Life can have solid value' not in trainer[2]:
+        raise ValueError('Reviewed Trainer life-skiller source changed')
+    rows.append(
+        {
+            'name': 'Grand Charm',
+            'kind': 'affixed_value_watch',
+            'rarity': 'magic',
+            'date': '2026-09-27',
+            'source': {
+                'path': magic_source,
+                'source_date': '2024-03-06',
+                'sha256': inputs[magic_source],
+                'locator': "table row: Trainer's Grand Charm of Vita",
+            },
+            'details': {
+                'watch_id': 'druid-summoning-life-skiller',
+                'priority': 'valuable_candidate',
+                'local_tier': None,
+                'guide_tier': 'Medium',
+                'build_count': 0,
+                'builds': [],
+                'build_contexts': [],
+                'native_conditions': {'188:40': {'min': 1, 'max': 1}, '7:0': {'min': 30, 'max': 45}},
+                'roll_bucket': 'Druid Summoning skiller with 30-45 Life',
+                'guide_conditions': None,
+                'stat_priority': None,
+                'guide_source': {
+                    'url': 'https://maxroll.gg/d2/items/valuable-magic-items',
+                    'source_date': '2024-03-06',
+                },
+                'source_quote': trainer[2],
+                'nonladder_ask_reference': {'priced_sellers': 0, 'median_ist': None},
+                'market_priority': False,
+                'caveat': 'Cached guide trade candidate; not a Non-Ladder price or guaranteed sale.',
+            },
+        }
+    )
     rows.sort(
         key=lambda r: (
             r['details']['priority'] != 'valuable_candidate',
@@ -146,7 +187,7 @@ def main():
     result = build_watchlist(root)
     (root / 'pricing/data/appraisal-value-watch.json').write_text(json.dumps(result, indent=2) + '\n')
     lines = [
-        '# Unique/set items to review first',
+        '# Items to review first',
         '',
         'Generated from cached research, 2026-09-24. This is a keep/review priority list, not a price ranking.',
         'Numerical report estimates use verified Softcore / Non-Ladder / PC / RotW asks only.',

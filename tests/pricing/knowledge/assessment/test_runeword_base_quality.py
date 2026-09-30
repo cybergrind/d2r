@@ -14,7 +14,10 @@ def spirit(quality='normal'):
         runeword='Spirit',
         sockets=4,
         socket_contents='filled',
-        stats={f'{k}:0': {'status': 'decoded', 'value': v} for k, v in [(105, 35), (9, 112), (147, 8), (31, 148)]},
+        properties={'446': 22},
+        stats={
+            f'{k}:0': {'status': 'decoded', 'value': v} for k, v in [(105, 35), (9, 112), (147, 8), (31, 148), (20, 22)]
+        },
     )
     contract, gaps = RunewordHandler().contract(item, 'shield')
     assert not gaps
@@ -58,7 +61,10 @@ def test_unknown_capture_base_quality_blocks_contract_instead_of_becoming_normal
         runeword='Spirit',
         sockets=4,
         socket_contents='filled',
-        stats={f'{k}:0': {'status': 'decoded', 'value': v} for k, v in [(105, 35), (9, 112), (147, 8), (31, 148)]},
+        properties={'446': 22},
+        stats={
+            f'{k}:0': {'status': 'decoded', 'value': v} for k, v in [(105, 35), (9, 112), (147, 8), (31, 148), (20, 22)]
+        },
     )
     contract, gaps = RunewordHandler().contract(item, 'shield')
     assert contract is None

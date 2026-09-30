@@ -1,4 +1,4 @@
-"""Render a single captured poison source; retain mixed-source cases for review."""
+"""Decode poison rates/durations; combine only a verified single-source tooltip."""
 
 from typing import Any
 
@@ -6,6 +6,32 @@ from typing import Any
 POISON_STATS = frozenset((57, 58, 59, 326))
 FRAMES_PER_SECOND = 25
 DAMAGE_SCALE = 256
+
+
+def decode_poison_component(ctx):
+    """Keep exact native quantities even when a combined tooltip cannot be inferred.
+
+    D2MOO ItemMods.cpp adds rates and durations independently; Items.cpp save/load
+    resets source counts. Summed item duration is not automatically an attack's
+    effective duration (SUnitDmg.cpp divides by attacker source count).
+    """
+    if ctx.layer != 0 or ctx.raw < 0:
+        return None
+    stat = ctx.stat['id']
+    if stat in (57, 58):
+        endpoint = 'Minimum' if stat == 57 else 'Maximum'
+        value = ctx.raw / DAMAGE_SCALE
+        return {
+            'value': value,
+            'unit': 'damage_per_frame',
+            'text': f'{endpoint} Poison Damage: {value * FRAMES_PER_SECOND:g} per second',
+        }
+    if stat == 59:
+        value = ctx.raw / FRAMES_PER_SECOND
+        return {'value': value, 'unit': 'seconds', 'text': f'Poison duration total: {value:g} seconds'}
+    if stat == 326 and ctx.raw > 0:
+        return {'value': ctx.raw, 'unit': 'count', 'presentation': 'internal', 'text': f'Poison sources: {ctx.raw}'}
+    return None
 
 
 def combine_poison(decoded) -> list[dict[str, Any]]:

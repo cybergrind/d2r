@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_sazabi_mercenary",
+  "inputs": {
+    "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "third-parties/d2data/json/setitems.json": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "pricing/raw/mr/guides__echoing-strike-warlock-guide.html": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+    "pricing/raw/mr/planners/ucgz20le.json": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91",
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "third-parties/d2data/json/gems.json": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+    "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp": "3355722a346046252d30bda74c413c6e5b8d67004a606437d60c1cb22a0ca7c4",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+  },
+  "rows": [
+    {
+      "id": "echoing-ubers-sazabi-helm:planner:424778975c7393126ac67e8c",
+      "profile_id": "echoing-ubers-sazabi-helm",
+      "profile_sha256": "f3ea01b98c77da7dde5021a9479cdc97095d6ae80cda88ee79f824ca1b6febd2",
+      "use_sha256": "e58a00a622fad2de3bafe90868366f8cf3c6fe7dd0a5e0fc88f7719751f0e2bc",
+      "parent": {
+        "occurrence_id": "424778975c7393126ac67e8c",
+        "sha256": "4dbf402f08052b34508c0940ffa3b92543e61bf974935c93bb5126ec90edc7dd"
+      },
+      "children": [
+        {
+          "occurrence_id": "a20856bb63c1f94c524cfc19",
+          "sha256": "16d59dba8c4ebba287b2c4309ce610e67d7f74cf8e76857b9062dbc8a3324954"
+        }
+      ],
+      "planner_endorsement": {
+        "set_loadout": "sazabi_frenzy",
+        "coverage": "merc_set_component",
+        "ethereal_scope": "legal_nonethereal_set",
+        "slot": "head",
+        "profile_index": 3,
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "set_sources": {
+          "profiles": {
+            "path": "pricing/data/appraisal-build-profiles.json",
+            "sha256": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "sets": {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        },
+        "ethereal_mechanics": {
+          "path": "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp",
+          "sha256": "3355722a346046252d30bda74c413c6e5b8d67004a606437d60c1cb22a0ca7c4"
+        },
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "quote": "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+        "section_index": 25,
+        "variant_alias": "Ubers",
+        "guide_tab": "Ubers",
+        "profile_uid": "Khw26jKQ",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "item_id": "55",
+        "expected_item": {
+          "base": "xhl",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            100,
+            1,
+            20,
+            20
+          ],
+          "unique": "set114",
+          "defense": 84,
+          "sockets": 1,
+          "socketedItems": [
+            "r32"
+          ],
+          "stats": {
+            "armorclass": 100,
+            "item_allskills": 1,
+            "fireresist": 20,
+            "lightresist": 20
+          },
+          "description": "184 def 20 lr 20 fr"
+        },
+        "mercenary_id": "36",
+        "mercenary_type": "Act 5 Frenzy",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Selected Ubers guide and native Frenzy mercenary prove all three Sazabi pieces with required Cham or Ber payloads. Each piece retains its companions and original runtime guards. Missing ethereal flags remain unobserved, with legal nonethereal set scope supported by the pinned quality exclusion reference. Source occurrences only; prebuff, roll, market and item-bank obligations remain separate."
+    },
+    {
+      "id": "echoing-ubers-sazabi-armor:planner:6c32f45b2b4bc2bf53ef5c03",
+      "profile_id": "echoing-ubers-sazabi-armor",
+      "profile_sha256": "f6fd913bac8b94b5a139e604333fc89895e40fb0165578065eb1667b4dd799ec",
+      "use_sha256": "a6684bb7376a518ef1ed5f296aa7d8b5a904fbd856da0e69e1df4ef55d76b2c1",
+      "parent": {
+        "occurrence_id": "6c32f45b2b4bc2bf53ef5c03",
+        "sha256": "aa76db6d1d6ea1a7e0b674057296d0e7f116913af86e2f513c89b3f4613a2c96"
+      },
+      "children": [
+        {
+          "occurrence_id": "645b72e3a2abef0d45c5912a",
+          "sha256": "b9693bca0d1c341d146d1b16f7d54675313852ef6c22493e5be35c48fc877bde"
+        }
+      ],
+      "planner_endorsement": {
+        "set_loadout": "sazabi_frenzy",
+        "coverage": "merc_set_component",
+        "ethereal_scope": "legal_nonethereal_set",
+        "slot": "tors",
+        "profile_index": 3,
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "set_sources": {
+          "profiles": {
+            "path": "pricing/data/appraisal-build-profiles.json",
+            "sha256": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "sets": {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        },
+        "ethereal_mechanics": {
+          "path": "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp",
+          "sha256": "3355722a346046252d30bda74c413c6e5b8d67004a606437d60c1cb22a0ca7c4"
+        },
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "quote": "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+        "section_index": 25,
+        "variant_alias": "Ubers",
+        "guide_tab": "Ubers",
+        "profile_uid": "Khw26jKQ",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "item_id": "63",
+        "expected_item": {
+          "base": "upl",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            400,
+            30,
+            25,
+            300,
+            75
+          ],
+          "unique": "set113",
+          "defense": 517,
+          "sockets": 1,
+          "socketedItems": [
+            "r30"
+          ],
+          "stats": {
+            "armorclass": 400,
+            "item_fastergethitrate": 30,
+            "strength": 25,
+            "item_demon_tohit": 300,
+            "maxhp": 75
+          },
+          "description": "917 def 75 life"
+        },
+        "mercenary_id": "36",
+        "mercenary_type": "Act 5 Frenzy",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Selected Ubers guide and native Frenzy mercenary prove all three Sazabi pieces with required Cham or Ber payloads. Each piece retains its companions and original runtime guards. Missing ethereal flags remain unobserved, with legal nonethereal set scope supported by the pinned quality exclusion reference. Source occurrences only; prebuff, roll, market and item-bank obligations remain separate."
+    },
+    {
+      "id": "echoing-ubers-sazabi-sword:planner:e0beaae1f23ffdc4f9b11055",
+      "profile_id": "echoing-ubers-sazabi-sword",
+      "profile_sha256": "7fe07f9845e173fa580c8f9c7d5bba84e77b1ae2c1fa752603174114254f3d7d",
+      "use_sha256": "0cfddeebff402f2698c1209a0f6f435100d0a3281f67c4e559dcb53325b9e039",
+      "parent": {
+        "occurrence_id": "e0beaae1f23ffdc4f9b11055",
+        "sha256": "f84097768a58a07d008dccad72f935c24e1b0cfecc46a3991d81f11180cc0779"
+      },
+      "children": [
+        {
+          "occurrence_id": "a6d4e3d2f772a68f9e83e755",
+          "sha256": "6de023fe0255b56ad8c158ff3b02abd24ddedd2f7fe5fab644f4e78a52a71e98"
+        }
+      ],
+      "planner_endorsement": {
+        "set_loadout": "sazabi_frenzy",
+        "coverage": "merc_set_component",
+        "ethereal_scope": "legal_nonethereal_set",
+        "slot": "rarm",
+        "profile_index": 3,
+        "planner": {
+          "path": "pricing/raw/mr/planners/ucgz20le.json",
+          "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+        },
+        "set_sources": {
+          "profiles": {
+            "path": "pricing/data/appraisal-build-profiles.json",
+            "sha256": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c"
+          },
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "sets": {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        },
+        "ethereal_mechanics": {
+          "path": "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp",
+          "sha256": "3355722a346046252d30bda74c413c6e5b8d67004a606437d60c1cb22a0ca7c4"
+        },
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+        "quote": "Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help. Shift Clicking your Potion number auto feeds them that potion. His main purpose is to apply Open Wounds with Malice Mythical Sword or Crushing Blow with more expensive runeword options. Make sure to prebuff him with Demon Limb and Treachery Breast Plate.",
+        "section_index": 25,
+        "variant_alias": "Ubers",
+        "guide_tab": "Ubers",
+        "profile_uid": "Khw26jKQ",
+        "profile_name": "Ubers",
+        "player_class_code": "war",
+        "item_id": "62",
+        "expected_item": {
+          "base": "7ls",
+          "quality": 5,
+          "ilvl": 99,
+          "uniqueValues": [
+            150,
+            35,
+            40,
+            318,
+            1,
+            15,
+            5
+          ],
+          "unique": "set112",
+          "sockets": 1,
+          "socketedItems": [
+            "r30"
+          ],
+          "stats": {
+            "item_mindamage_percent": 150,
+            "item_maxdamage_percent": 150,
+            "coldmindam": 25,
+            "coldmaxdam": 35,
+            "coldlength": 50,
+            "item_fasterattackrate": 40,
+            "item_demondamage_percent": 318,
+            "item_indesctructible": 1,
+            "dexterity": 15,
+            "strength": 5
+          },
+          "ethereal": false,
+          "description": ""
+        },
+        "mercenary_id": "36",
+        "mercenary_type": "Act 5 Frenzy",
+        "rune_definitions": {
+          "path": "third-parties/d2data/json/gems.json",
+          "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Selected Ubers guide and native Frenzy mercenary prove all three Sazabi pieces with required Cham or Ber payloads. Each piece retains its companions and original runtime guards. Missing ethereal flags remain unobserved, with legal nonethereal set scope supported by the pinned quality exclusion reference. Source occurrences only; prebuff, roll, market and item-bank obligations remain separate."
+    }
+  ]
+}

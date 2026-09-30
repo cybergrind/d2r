@@ -1,0 +1,442 @@
+{
+  "source_record": "inventory_tracking/runs/alt-d/20260926T102641Z-b5aa4b20/request-8/report.json",
+  "captured_at": "2026-09-26T10:31:53.971212+00:00",
+  "extraction": {
+    "item": {
+      "name": "Harlequin Crest",
+      "base_name": "Shako",
+      "base_code": "uap",
+      "item_type": "helm",
+      "identified": true,
+      "category": "armor",
+      "rarity": "unique",
+      "requirements": {},
+      "affixes": [
+        {
+          "property_id": "437",
+          "value": 2,
+          "label": "+{{value}} to Strength",
+          "memory_stat": {
+            "layer": 0,
+            "id": 0,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "421",
+          "value": 2,
+          "label": "+{{value}} to Energy",
+          "memory_stat": {
+            "layer": 0,
+            "id": 1,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "429",
+          "value": 2,
+          "label": "+{{value}} to Dexterity",
+          "memory_stat": {
+            "layer": 0,
+            "id": 2,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "582",
+          "value": 2,
+          "label": "+{{value}} to Vitality",
+          "memory_stat": {
+            "layer": 0,
+            "id": 3,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "1865",
+          "value": 10,
+          "label": "Physical Damage Received Reduced by {{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 36,
+            "raw": 10
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "427",
+          "value": 15,
+          "label": "Fire Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 39,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "428",
+          "value": 15,
+          "label": "Lightning Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 41,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "426",
+          "value": 15,
+          "label": "Cold Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 43,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "401",
+          "value": 15,
+          "label": "Poison Resist +{{value}}%",
+          "memory_stat": {
+            "layer": 0,
+            "id": 45,
+            "raw": 15
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "461",
+          "value": 50,
+          "label": "{{value}}% Better Chance of Getting Magic Items",
+          "memory_stat": {
+            "layer": 0,
+            "id": 80,
+            "raw": 50
+          },
+          "descriptor_offset": 232
+        },
+        {
+          "property_id": "587",
+          "value": 2,
+          "label": "+{{value}} to All Skills",
+          "memory_stat": {
+            "layer": 0,
+            "id": 127,
+            "raw": 2
+          },
+          "descriptor_offset": 232
+        }
+      ],
+      "sockets": 1,
+      "ethereal": false,
+      "socket_contents": "filled",
+      "socket_items": [
+        {
+          "name": "Um Rune",
+          "base_code": "r22",
+          "unit_id": 2857611540,
+          "position": 0,
+          "item_type": "rune",
+          "stats": {
+            "39:0": {
+              "status": "decoded",
+              "value": 15,
+              "raw": 15
+            },
+            "41:0": {
+              "status": "decoded",
+              "value": 15,
+              "raw": 15
+            },
+            "43:0": {
+              "status": "decoded",
+              "value": 15,
+              "raw": 15
+            },
+            "45:0": {
+              "status": "decoded",
+              "value": 15,
+              "raw": 15
+            }
+          },
+          "stats_complete": true
+        }
+      ],
+      "empty_sockets": 0,
+      "filled_sockets": 1
+    },
+    "source": {
+      "engine": "memory_snapshot",
+      "viewer_context": {
+        "player_id": 2394132314,
+        "level": 92
+      },
+      "item_identity": {
+        "table": "unique",
+        "table_id": 248,
+        "offset": 52
+      },
+      "container": {
+        "page": 255,
+        "name": "Equipped items"
+      },
+      "unit_id": 1957143081,
+      "owner_id": 2394132314,
+      "owner_type": 0,
+      "item_owner_id": 2394132314,
+      "player_id": 2394132314,
+      "position": [
+        1,
+        0
+      ],
+      "run_id": null,
+      "captured_at": "2026-09-26T10:31:53.693521+00:00",
+      "snapshot_only": true,
+      "stat_capture_complete": true,
+      "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+    },
+    "unresolved_stats": [],
+    "decoded_stats": [
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 0,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "strength",
+        "text": "+2 to Strength",
+        "value": 2,
+        "label": "+{{value}} to Strength"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 1,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "energy",
+        "text": "+2 to Energy",
+        "value": 2,
+        "label": "+{{value}} to Energy"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 2,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "dexterity",
+        "text": "+2 to Dexterity",
+        "value": 2,
+        "label": "+{{value}} to Dexterity"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 3,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "vitality",
+        "text": "+2 to Vitality",
+        "value": 2,
+        "label": "+{{value}} to Vitality"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 31,
+          "raw": 99
+        },
+        "status": "decoded",
+        "name": "armorclass",
+        "text": "Defense: 99 (98-141)",
+        "value": 99,
+        "roll_range": {
+          "min": 98,
+          "max": 141,
+          "source": {
+            "path": "pricing/raw/d2data/armor.json",
+            "source_date": "2026-09-23"
+          },
+          "better": "higher",
+          "scope": "unmodified non-ethereal base defense"
+        },
+        "roll_quality": "low"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 36,
+          "raw": 10
+        },
+        "status": "decoded",
+        "name": "damageresist",
+        "text": "Physical Damage Received Reduced by 10%",
+        "value": 10,
+        "label": "Physical Damage Received Reduced by {{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 39,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "fireresist",
+        "text": "Fire Resist +15%",
+        "value": 15,
+        "label": "Fire Resist +{{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 41,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "lightresist",
+        "text": "Lightning Resist +15%",
+        "value": 15,
+        "label": "Lightning Resist +{{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 43,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "coldresist",
+        "text": "Cold Resist +15%",
+        "value": 15,
+        "label": "Cold Resist +{{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 45,
+          "raw": 15
+        },
+        "status": "decoded",
+        "name": "poisonresist",
+        "text": "Poison Resist +15%",
+        "value": 15,
+        "label": "Poison Resist +{{value}}%"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 72,
+          "raw": 12
+        },
+        "status": "decoded",
+        "name": "durability",
+        "text": "Durability: 12",
+        "value": 12
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 73,
+          "raw": 12
+        },
+        "status": "decoded",
+        "name": "maxdurability",
+        "text": "Maximum durability: 12",
+        "value": 12
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 80,
+          "raw": 50
+        },
+        "status": "decoded",
+        "name": "item_magicbonus",
+        "text": "50% Better Chance of Getting Magic Items",
+        "value": 50,
+        "label": "{{value}}% Better Chance of Getting Magic Items"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 127,
+          "raw": 2
+        },
+        "status": "decoded",
+        "name": "item_allskills",
+        "text": "+2 to All Skills",
+        "value": 2,
+        "label": "+{{value}} to All Skills"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 194,
+          "raw": 1
+        },
+        "status": "decoded",
+        "name": "item_numsockets",
+        "text": "Sockets: 1 \u2014 Um",
+        "value": 1,
+        "socket_source": "captured_children"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 216,
+          "raw": 3072
+        },
+        "status": "decoded",
+        "name": "item_hp_perlevel",
+        "text": "+138 to Life (Based on Character Level)",
+        "value": 138,
+        "viewer_level": 92,
+        "per_level": {
+          "numerator": 3072,
+          "denominator": 2048
+        },
+        "origin": "level_formula"
+      },
+      {
+        "memory_stat": {
+          "layer": 0,
+          "id": 217,
+          "raw": 3072
+        },
+        "status": "decoded",
+        "name": "item_mana_perlevel",
+        "text": "+138 to Mana (Based on Character Level)",
+        "value": 138,
+        "viewer_level": 92,
+        "per_level": {
+          "numerator": 3072,
+          "denominator": 2048
+        },
+        "origin": "level_formula"
+      }
+    ],
+    "issues": [],
+    "review": [
+      "Requirements are unverified; socket contents are labeled by evidence source.",
+      "Ranges describe item definitions; totals can include socket or set contributions.",
+      "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+      "Values are from the captured total stat array; socket/set contributions are not separated.",
+      "Snapshot evidence is historical; it does not establish current inventory state."
+    ],
+    "appraisal_ready": false,
+    "offline": true,
+    "status": "needs_review"
+  }
+}

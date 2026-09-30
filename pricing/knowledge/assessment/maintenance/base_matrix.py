@@ -72,7 +72,11 @@ def audit_bases(bases, types, utility_rows, profiles, market, *, recipes=None, b
                         ),
                         'type_capacity_eligibility': state(membership['state'], membership['reason']),
                         'recipe_eligibility': state(
-                            'pending', 'Type/capacity links do not verify every recipe, mode or quality route.'
+                            'excluded' if membership['state'] == 'excluded' else 'pending',
+                            'No completed native runeword fits this base type/capacity in any mode. '
+                            'Other socket uses, cube recipes and value remain separate.'
+                            if membership['state'] == 'excluded'
+                            else 'Type/capacity links do not verify every recipe, mode or quality route.',
                         ),
                         'base_use_routing': state(
                             'reviewed' if base_use_evaluator else 'pending',

@@ -4,10 +4,17 @@ import math
 from dataclasses import asdict, dataclass
 from enum import StrEnum
 
-from pricing.knowledge.assessment.domain.context import CONTEXT_FIELDS, NUMERIC_CONTEXT_FIELDS, AssessmentContext
+from pricing.knowledge.assessment.domain.context import (
+    COLLECTION_CONTEXT_FIELDS,
+    CONTEXT_FIELDS,
+    NUMERIC_CONTEXT_FIELDS,
+    AssessmentContext,
+)
+from pricing.knowledge.assessment.domain.equipment import EQUIPMENT_CONTEXT_FIELDS, EQUIPMENT_SLOTS
 from pricing.knowledge.assessment.domain.facts import Fact, FactStatus, StatKey
 from pricing.knowledge.assessment.roles.charges import charge_availability
-from pricing.knowledge.assessment.roles.socket_payload import jewel_matches, jewel_stat, runes_equal
+from pricing.knowledge.assessment.roles.innate import ADDITIVE_KEYS, innate_stat
+from pricing.knowledge.assessment.roles.socket_payload import fillers_equal, jewel_matches, jewel_stat
 
 
 class Truth(StrEnum):
@@ -49,29 +56,55 @@ def validate(rule):
                 validate(child)
             return
     op = rule.get('op')
-    if op == 'socket_runes_equal':
+    if op == 'equipped_item_matches':
+        if (
+            set(rule) != {'op', 'field', 'slot', 'when'}
+            or type(rule['field']) is not str
+            or rule['field'] not in EQUIPMENT_CONTEXT_FIELDS
+            or type(rule['slot']) is not str
+            or rule['slot'] not in EQUIPMENT_SLOTS
+        ):
+            raise ValueError('Invalid equipped item predicate')
+        validate_item_condition(rule['when'])
+    elif op in ('socket_runes_equal', 'socket_gems_equal'):
         from inventory_tracking.items.metadata import metadata
 
         names = rule.get('value')
-        known = {b['name'] for b in metadata()['bases'].values() if b['type'] == 'rune'}
+        kind = 'rune' if op == 'socket_runes_equal' else 'gem'
+        types = {'rune'} if kind == 'rune' else {'gema', 'gemd', 'geme', 'gemr', 'gems', 'gemt', 'gemz'}
+        known = {b['name'] for b in metadata()['bases'].values() if b['type'] in types}
         if (
             set(rule) != {'op', 'value'}
             or not isinstance(names, list)
             or not 1 <= len(names) <= 6
             or any(not isinstance(name, str) or name not in known for name in names)
         ):
-            raise ValueError('Invalid exact rune payload predicate')
+            raise ValueError(f'Invalid exact {kind} payload predicate')
     elif op == 'socket_jewel_matches':
-        if set(rule) - {'name'} != {'op', 'stats'} or not isinstance(rule['stats'], dict) or not rule['stats']:
+        if set(rule) - {'name', 'count'} != {'op', 'stats'} or not isinstance(rule['stats'], dict) or not rule['stats']:
             raise ValueError('Invalid compound socket jewel predicate')
+        if 'count' in rule and (type(rule['count']) is not int or not 1 <= rule['count'] <= 6):
+            raise ValueError('Socket jewel count must be an integer from 1 to 6')
         if 'name' in rule and (not isinstance(rule['name'], str) or not rule['name'].strip()):
             raise ValueError('Socket jewel name must be nonempty')
         for key, value in rule['stats'].items():
             validate({'op': 'stat_at_least', 'key': key, 'value': value})
+    elif op == 'innate_stat_at_least':
+        if set(rule) != {'op', 'key', 'value'} or rule.get('key') not in ADDITIVE_KEYS:
+            raise ValueError('Invalid innate stat predicate')
+        validate({**rule, 'op': 'stat_at_least'})
     elif op == 'socket_jewel_stat_at_least':
         if set(rule) != {'op', 'key', 'value'}:
             raise ValueError('Invalid socket jewel predicate')
         validate({**rule, 'op': 'stat_at_least'})
+    elif op == 'affix_present':
+        if (
+            set(rule) != {'op', 'table', 'value'}
+            or rule['table'] not in ('prefix', 'suffix', 'auto')
+            or type(rule['value']) is not int
+            or rule['value'] <= 0
+        ):
+            raise ValueError('Invalid native affix predicate')
     elif op == 'stat_at_least':
         if (
             set(rule) - {'absent_is_zero', 'unit'} != {'op', 'key', 'value'}
@@ -100,7 +133,7 @@ def validate(rule):
     elif op == 'context_count_at_least':
         if (
             set(rule) != {'op', 'field', 'value', 'count'}
-            or rule['field'] not in ('player_items', 'mercenary_items')
+            or rule['field'] not in COLLECTION_CONTEXT_FIELDS
             or type(rule['value']) is not str
             or not rule['value'].strip()
             or type(rule['count']) is not int
@@ -121,10 +154,12 @@ def validate(rule):
             raise ValueError('Invalid fact/context predicate')
         field = rule['field']
         if op == 'context_contains':
-            if field not in ('player_items', 'mercenary_items'):
+            if field not in COLLECTION_CONTEXT_FIELDS:
                 raise ValueError('Membership requires a collection context field')
             expected_type = str
-        elif field in ('player_items', 'mercenary_items'):
+        elif field in EQUIPMENT_CONTEXT_FIELDS:
+            raise ValueError('Use equipped_item_matches for equipment snapshots')
+        elif field in COLLECTION_CONTEXT_FIELDS:
             raise ValueError('Use membership for collection context fields')
         else:
             expected_type = (
@@ -140,6 +175,22 @@ def validate(rule):
             raise ValueError('Predicate integer type requires nonnegative value')
     else:
         raise ValueError(f'Unknown predicate operation: {op}')
+
+
+def validate_item_condition(rule):
+    """An equipment dependency evaluates one item's facts, never another context."""
+    validate(rule)
+    for group in ('all', 'any', 'not'):
+        if group in rule:
+            for child in [rule[group]] if group == 'not' else rule[group]:
+                validate_item_condition(child)
+            return
+    if rule.get('op') not in {
+        'fact_eq',
+        'stat_at_least',
+        'socket_jewel_stat_at_least',
+    }:
+        raise ValueError('Equipment condition requires item facts or stats')
 
 
 def combine(group, children):
@@ -166,19 +217,48 @@ def _evaluate(rule, facts, context):
             children = tuple(_evaluate(node, facts, context) for node in nodes)
             return PredicateResult(combine(group, children), group, children=children)
     op = rule['op']
-    if op == 'socket_runes_equal':
-        truth, observed = runes_equal(facts, rule['value'])
-        return PredicateResult(Truth(truth), 'Exact linked socket rune contents', observed, rule['value'])
+    if op == 'equipped_item_matches':
+        snapshot = context.fact(rule['field'])
+        label = f'{rule["field"]}/{rule["slot"]} matches one item'
+        if snapshot.status != FactStatus.KNOWN:
+            return PredicateResult(Truth.UNKNOWN, label)
+        item = snapshot.value.get(rule['slot'])
+        if item is None or item.status != FactStatus.KNOWN:
+            return PredicateResult(Truth.UNKNOWN, label)
+        if item.value is None:
+            return PredicateResult(Truth.FALSE, label, observed='empty')
+        child = _evaluate(rule['when'], item.value, context)
+        return PredicateResult(child.truth, label, children=(child,))
+    if op in ('socket_runes_equal', 'socket_gems_equal'):
+        truth, observed = fillers_equal(facts, rule['value'])
+        kind = 'rune' if op == 'socket_runes_equal' else 'gem'
+        return PredicateResult(Truth(truth), f'Exact linked socket {kind} contents', observed, rule['value'])
     if op == 'socket_jewel_matches':
-        truth, observed = jewel_matches(facts, rule['stats'], name=rule.get('name'))
-        return PredicateResult(Truth(truth), 'One socket jewel matches all required stats', observed, rule['stats'])
+        truth, observed = jewel_matches(facts, rule['stats'], name=rule.get('name'), count=rule.get('count'))
+        label = f'{rule.get("count", 1)} socket jewel(s) match all required stats'
+        return PredicateResult(Truth(truth), label, observed, rule['stats'])
     expected = rule['value']
+    if op == 'affix_present':
+        identity = facts.fact('native_affixes')
+        label = f'Captured {rule["table"]} affix {expected}'
+        if identity.status != FactStatus.KNOWN:
+            return PredicateResult(Truth.UNKNOWN, label, expected=expected)
+        observed = identity.value[rule['table']]
+        return PredicateResult(Truth.TRUE if expected in observed else Truth.FALSE, label, observed, expected)
     if op == 'context_at_least':
         fact = context.fact(rule['field'])
         label = f'{rule["field"]} >= {expected}'
         if fact.status != FactStatus.KNOWN:
             return PredicateResult(Truth.UNKNOWN, label, expected=expected)
         return PredicateResult(Truth.TRUE if fact.value >= expected else Truth.FALSE, label, fact.value, expected)
+    if op == 'innate_stat_at_least':
+        observed = innate_stat(facts, rule['key'])
+        label = f'Innate {rule["key"]} >= {expected}'
+        if observed.status != FactStatus.KNOWN:
+            return PredicateResult(Truth.UNKNOWN, label, expected=expected)
+        return PredicateResult(
+            Truth.TRUE if observed.value >= expected else Truth.FALSE, label, observed.value, expected
+        )
     if op == 'socket_jewel_stat_at_least':
         truth, observed = jewel_stat(facts, rule['key'], expected)
         return PredicateResult(Truth(truth), f'Socket jewel {rule["key"]} >= {expected}', observed, expected)
@@ -235,9 +315,11 @@ def _evaluate(rule, facts, context):
 
 def native_keys(rule):
     """Native keys needing catalog validation during rule publication."""
+    if rule.get('op') == 'equipped_item_matches':
+        yield from native_keys(rule['when'])
     if rule.get('op') == 'socket_jewel_matches':
         yield from rule['stats']
-    if rule.get('op') in ('stat_at_least', 'socket_jewel_stat_at_least'):
+    if rule.get('op') in ('stat_at_least', 'socket_jewel_stat_at_least', 'innate_stat_at_least'):
         yield rule['key']
     if rule.get('op') == 'charge_skill':
         yield f'204:{rule["skill_id"] * 64 + 1}'

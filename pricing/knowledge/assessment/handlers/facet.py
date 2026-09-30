@@ -13,7 +13,13 @@ TRIGGERS = {
     396: (199, 48, '785', 'Nova'),
     397: (199, 44, '786', 'Frost Nova'),
     398: (199, 46, '787', 'Blaze'),
+    399: (199, 278, None, 'Venom'),
 }
+
+# appraisal-traderie-catalog.json: Rainbow Facet: Poison Level-up. Cached
+# wph-facet-poison-levelup listings have no trigger field; their catalog ID
+# distinguishes this variant. Never synthesize a nonexistent market property.
+CATALOG_VARIANTS = {399: '2188191106'}
 
 
 def facet_trigger(facts, definition):
@@ -44,7 +50,7 @@ def facet_trigger(facts, definition):
         or row['value'] != chance
     ):
         return {}, set(), ['Facet death/level-up trigger does not match the selected skill, level and chance.']
-    return {market: chance}, {key}, []
+    return ({market: chance} if market is not None else {}), {key}, []
 
 
 def facet_fixed_damage(facts, definition):

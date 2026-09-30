@@ -21,6 +21,7 @@ from pricing.knowledge.named_effects import fixed_elemental_effects, fixed_poiso
 from pricing.knowledge.named_triggers import fixed_triggers
 from pricing.knowledge.native_socket_counts import native_socket_range
 from pricing.knowledge.per_level_effects import fixed_per_level_effects, variable_per_level_effects
+from pricing.knowledge.property_groups import SOURCE as GROUP_SOURCE, compile_groups
 from pricing.knowledge.rune_effects import socket_compound_effects
 
 
@@ -29,7 +30,7 @@ SOURCE_DATE = '2026-09-23'
 HOST_VERIFIED_RUNEWORD_IDS = {'Authority': 20509}
 
 
-def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=None):
+def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=None, affix_flat_damage=False):
     ranges = []
     for i in range(1, 13):
         code = record.get(f'T1Code{i}' if runeword else f'prop{i}')
@@ -39,6 +40,13 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
         if not code or type(low) is not int or type(high) is not int or low > high:
             continue
         spec = properties.get(code, {})
+        if spec.get('func1') == 21 and spec.get('stat1') == 'item_addclassskills':
+            layer = spec.get('val1')
+            if type(layer) is int and 0 <= layer < 8 and stat_ids.get('item_addclassskills') == 83:
+                ranges.append(
+                    {'stat_id': 83, 'layer': layer, 'min': low, 'max': high, 'property': code, 'better': 'higher'}
+                )
+            continue
         if code == 'fireskill' and spec.get('func1') == 21:
             if (
                 spec.get('stat1') == 'item_elemskill'
@@ -67,7 +75,11 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
             continue
         if param not in (None, '', 0):
             continue
-        if code == 'dmg%' and spec.get('func1') == 7:
+        if affix_flat_damage and (code, spec.get('func1')) == ('dmg-min', 5):
+            ids = [21, 23, 159]
+        elif affix_flat_damage and (code, spec.get('func1')) == ('dmg-max', 6):
+            ids = [22, 24, 160]
+        elif code == 'dmg%' and spec.get('func1') == 7:
             ids = [17, 18]
         elif spec.get('func1') in (1, 2, 8, 14):
             ids = []
@@ -206,6 +218,7 @@ def build_definitions(root):
 
     raw = 'pricing/raw/d2data/'
     properties = read('third-parties/d2data/json/properties.json')
+    property_groups = read(GROUP_SOURCE)
     stats = read('third-parties/d2data/json/itemstatcost.json')
     stat_ids = {key: row['*ID'] for key, row in stats.items()}
     skill_ids = {
@@ -236,46 +249,89 @@ def build_definitions(root):
 
     sets = read('third-parties/d2data/json/sets.json')
     rows: list[dict[str, Any]] = []
-    for quality, filename, code_key in (('set', 'setitems', 'item'), ('unique', 'uniqueitems', 'code')):
-        for record in read(raw + filename + '.json').values():
-            code = record.get(code_key)
-            base_defense = bases.get(code, {})
-            plain_defense = type(base_defense.get('minac')) is int and not any(
-                str(record.get(f'prop{i}', '')).startswith('ac') for i in range(1, 13)
-            )
-            rows.append(
+
+    def compile_named(record, quality, code_key, source_path, set_definitions=None):
+        code = record.get(code_key)
+        base_defense = bases.get(code, {})
+        plain_defense = type(base_defense.get('minac')) is int and not any(
+            str(record.get(f'prop{i}', '')).startswith('ac') for i in range(1, 13)
+        )
+        return {
+            'base_defense_range': (
                 {
-                    'base_defense_range': (
-                        {
-                            'min': base_defense['minac'],
-                            'max': base_defense['maxac'],
-                            'source': {'path': raw + 'armor.json', 'source_date': SOURCE_DATE},
-                        }
-                        if plain_defense
-                        else None
-                    ),
-                    'kind': 'item_definition',
-                    'name': strings.get(record['index'], record['index']),
-                    'rarity': quality,
-                    'table_id': record['*ID'],
-                    'set_definition': sets.get(record.get('set')),
-                    'game_definition': dict(record),
-                    'base_definition': dict(bases.get(code, {})),
-                    'native_socket_range': native_socket_range(record, bases.get(code, {}), types),
-                    'base_code': code,
-                    'base_codes': [code] if code in bases else [],
-                    'base_name': bases.get(code, {}).get('name'),
-                    'set_name': strings.get(record.get('set'), record.get('set')),
-                    'roll_ranges': scalar_ranges(record, properties, stat_ids, skill_ids=skill_ids),
-                    'fixed_elemental_effects': fixed_elemental_effects(record, properties),
-                    'fixed_poison_effect': fixed_poison_effect(record, properties),
-                    'fixed_triggers': fixed_triggers(record, properties, stat_ids, skill_ids),
-                    'fixed_per_level_effects': fixed_per_level_effects(record, properties, stats),
-                    'variable_per_level_effects': variable_per_level_effects(record, properties, stats),
-                    'enhanced_damage_expected': any(record.get(f'prop{i}') == 'dmg%' for i in range(1, 13)),
-                    'source': {'path': raw + filename + '.json', 'source_date': SOURCE_DATE},
+                    'min': base_defense['minac'],
+                    'max': base_defense['maxac'],
+                    'source': {'path': raw + 'armor.json', 'source_date': SOURCE_DATE},
                 }
-            )
+                if plain_defense
+                else None
+            ),
+            'kind': 'item_definition',
+            'name': strings.get(record['index'], record['index']),
+            'rarity': quality,
+            'table_id': record['*ID'],
+            'set_definition': (sets if set_definitions is None else set_definitions).get(record.get('set')),
+            'game_definition': dict(record),
+            'base_definition': dict(bases.get(code, {})),
+            'native_socket_range': native_socket_range(record, bases.get(code, {}), types),
+            'base_code': code,
+            'base_codes': [code] if code in bases else [],
+            'base_name': bases.get(code, {}).get('name'),
+            'set_name': strings.get(record.get('set'), record.get('set')),
+            'roll_ranges': scalar_ranges(record, properties, stat_ids, skill_ids=skill_ids),
+            'property_groups': compile_groups(
+                record,
+                property_groups,
+                lambda row: scalar_ranges(row, properties, stat_ids, skill_ids=skill_ids),
+                inputs[GROUP_SOURCE],
+            ),
+            'fixed_elemental_effects': fixed_elemental_effects(record, properties),
+            'fixed_poison_effect': fixed_poison_effect(record, properties),
+            'fixed_triggers': fixed_triggers(record, properties, stat_ids, skill_ids),
+            'fixed_per_level_effects': fixed_per_level_effects(record, properties, stats),
+            'variable_per_level_effects': variable_per_level_effects(record, properties, stats),
+            'enhanced_damage_expected': any(record.get(f'prop{i}') == 'dmg%' for i in range(1, 13)),
+            'source': {'path': source_path, 'source_date': SOURCE_DATE},
+        }
+
+    ordinary_path = 'third-parties/d2data/json/base/uniqueitems.json'
+    from pricing.knowledge.non_ladder_named import ITEMS, NAMES, UNIQUE_IDS, ordinary_angelic, ordinary_unique_records
+
+    ordinary_set_items, ordinary_sets, set_mode_review = ordinary_angelic(root, read, inputs)
+    ordinary_unique_items, unique_mode_review = ordinary_unique_records(root, read, inputs)
+    for quality, filename, code_key in (('set', 'setitems', 'item'), ('unique', 'uniqueitems', 'code')):
+        source_path = raw + filename + '.json'
+        records = read(source_path)
+        ordinary = None
+        for key, record in records.items():
+            row = compile_named(record, quality, code_key, source_path)
+            if quality == 'set' and record['index'] in NAMES:
+                original = ordinary_set_items.get(key)
+                if original is None or any(original.get(k) != record.get(k) for k in ('*ID', 'index', 'item', 'set')):
+                    raise ValueError(f'Conflicting ordinary Angelic definition: {key}')
+                ladder = row
+                row = compile_named(original, quality, code_key, ITEMS, ordinary_sets)
+                row['ladder_definition'] = ladder
+                row['mode_review'] = set_mode_review
+            if quality == 'unique' and record.get('firstLadderSeason') == record.get('lastLadderSeason') == 15:
+                # A season overlay can reuse the ordinary table ID. Preserve the
+                # old definition inside the indexed identity, with its own source.
+                if ordinary is None:
+                    ordinary = read(ordinary_path)
+                original = ordinary.get(key)
+                if original is None or any(original.get(k) != record.get(k) for k in ('*ID', 'index', 'code')):
+                    raise ValueError(f'Conflicting ordinary seasonal definition: {key}')
+                if original != record:
+                    ordinary_row = compile_named(original, quality, code_key, ordinary_path)
+                    if record['*ID'] in UNIQUE_IDS:
+                        if original != ordinary_unique_items[key]:
+                            raise ValueError('Ordinary unique source disagreement')
+                        ordinary_row['ladder_definition'] = row
+                        ordinary_row['mode_review'] = unique_mode_review
+                        row = ordinary_row
+                    else:
+                        row['ordinary_definition'] = ordinary_row
+            rows.append(row)
     # The client stores a runeword string ID in the first prefix slot. Use the
     # checked-in reader's explicit mapping, not guessed table row arithmetic.
     mapping_path = 'third-parties/d2go/pkg/data/item/runeword.go'
@@ -385,7 +441,9 @@ def build_definitions(root):
                     'rare': record.get('rare') == 1,
                     'table_id': offset + ordinal,
                     'base_codes': codes,
-                    'roll_ranges': scalar_ranges(normalized, properties, stat_ids, skill_ids=skill_ids),
+                    'roll_ranges': scalar_ranges(
+                        normalized, properties, stat_ids, skill_ids=skill_ids, affix_flat_damage=True
+                    ),
                     'source': {
                         'path': (
                             'third-parties/d2data/json/automagic.json'

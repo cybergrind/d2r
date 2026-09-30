@@ -717,7 +717,7 @@
         "source_date": "July 18, 2026",
         "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
         "quotes": [
-          "Death's Guard Demonhide Sash — 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
+          "Death's Guard Demonhide Sash \u2014 'offers Cannot be Frozen. Upgrade it for more Potion slots.'"
         ]
       },
       "types": [
@@ -777,13 +777,3713 @@
         "url": "https://maxroll.gg/d2/guides/strafe-amazon",
         "source_date": "July 18, 2026",
         "quotes": [
-          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube — cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
+          "Demon Limb (Tyrant Club, Hel Rune) kept in Horadric Cube \u2014 cast Enchant: 'If not using Lava Gout swap to Demon Limb and cast Enchant on yourself'"
         ],
         "review": "2026-09-24: reviewed explicit player prebuff placement and Enchant utility. Strafe preserves the stated Lava Gout alternative. No combat-roll threshold or numerical price is inferred. Double Throw planner-only cube mentions are excluded from this review."
       },
       "types": [
         "club"
       ]
+    },
+    {
+      "id": "strafe-amazon-2-gheeds-inventory",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Farming inventory utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Gheed's Fortune"
+      ],
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm3"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0",
+        "79:0",
+        "87:0"
+      ],
+      "conditions": [
+        "Keep in active inventory, meet the charm level requirement and compare inventory space with damage/resistance needs. This is farming utility, not proof of combat fit or a need to carry duplicate charms."
+      ],
+      "preferences": [
+        {
+          "label": "40% magic find",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 40,
+            "absent_is_zero": true
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Gheed's Fortune"
+        ],
+        "review": "2026-09-25: Explicit player charm entry in a non-hardcore, non-planner-only guide variant. One shared intrinsic utility rule: native MF, gold and vendor discount remain useful at minimum rolls. Gold-find variants prioritize gold. Planner examples are not minima; negative replace/remove prose and shared planner discovery are not endorsements. No active inventory state, combat benefit, gambling profit or market price inferred."
+      }
+    },
+    {
+      "id": "strafe-amazon-1-annihilus",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "strafe-amazon-2-annihilus",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "role": "Inventory skill, attributes and resistance support",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Annihilus"
+      ],
+      "types": [
+        "scha"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "cm1"
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "0:0",
+        "1:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "85:0"
+      ],
+      "conditions": [
+        "Keep in active inventory to gain charm bonuses; verify the character meets the charm level requirement."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2/player/Charms",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Annihilus"
+        ],
+        "review": "2026-09-25: Explicit player inventory charm. Native all skills, attributes and resistances support the wearer; experience gain supports progression independently of damage. Planner maximum rolls are not required minima. No completed loadout, active inventory location, duplicate-charm stacking or market price inferred. Reused inventory support template for this explicit guide variant and class; other gear dependencies are not needed to obtain the charm bonuses. No complete build fit inferred."
+      }
+    },
+    {
+      "id": "strafe-mf-stealskull-nagelring",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Dual-leech-enabled magic-find ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Nagelring"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          }
+        ]
+      },
+      "important_stats": [
+        "80:0"
+      ],
+      "conditions": [
+        "Verify the complete attack-speed breakpoint, damage, sustain and defensive setup; this component does not prove the full loadout.",
+        "The reviewed prose uses Stealskull and Chance Guards for low-player-count farming without Demons; the conflicting planner helmet/gloves do not establish the same ring substitution.",
+        "Ethereal player helmets have limited durability; verify the actual equip requirements and intended use."
+      ],
+      "preferences": [
+        {
+          "label": "30% magic find (maximum native roll)",
+          "when": {
+            "op": "stat_at_least",
+            "key": "80:0",
+            "value": 30
+          }
+        }
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Raven Frost",
+          "Nagelring \u2014 'swap out your Rare Ring for a Nagelring Ring or better'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-25: Reviewed prose-specific MF ring substitution enabled by Stealskull dual leech and a linked15IAS jewel. Native Stealskull supplies5life/5mana leech; Fervor jewel15IAS is fixed. Do not infer a jewel from aggregate helmet IAS or use the conflicting Harlequin Crest planner as equivalent. Whole-loadout breakpoint and glove changes remain qualified. Only observed MF receives priority; no price or complete-loadout claim."
+      },
+      "depends_on": [
+        {
+          "label": "Equipped Stealskull supplies dual leech; linked IAS jewel preserves the cited helmet contribution",
+          "when": {
+            "op": "equipped_item_matches",
+            "field": "player_equipment",
+            "slot": "head",
+            "when": {
+              "all": [
+                {
+                  "op": "fact_eq",
+                  "field": "name",
+                  "value": "Stealskull"
+                },
+                {
+                  "op": "fact_eq",
+                  "field": "rarity",
+                  "value": "unique"
+                },
+                {
+                  "op": "fact_eq",
+                  "field": "item_type",
+                  "value": "helm"
+                },
+                {
+                  "op": "fact_eq",
+                  "field": "identified",
+                  "value": true
+                },
+                {
+                  "op": "socket_jewel_stat_at_least",
+                  "key": "93:0",
+                  "value": 15
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "strafe-amazon-1-laying-hands",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Gloves",
+      "role": "Attack-speed and demon-damage gloves",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Laying of Hands"
+      ],
+      "types": [
+        "glov"
+      ],
+      "qualities": [
+        "set"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "ulg"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "121:0",
+        "39:0"
+      ],
+      "conditions": [
+        "Damage bonus applies to weapon damage against demons; it is not general damage against every monster or a bonus to elemental aura damage.",
+        "Verify equip requirements, weapon/aura attack-speed setup and complete survival requirements; these gloves do not establish an attack breakpoint or any set-completion bonus.",
+        "Verify Level12Fanaticism, active Hustle Burst of Speed buff and the weapon/helmet setup for the cited4/2/6 attack frames;20glove IAS alone does not establish them."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Laying of Hands",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-25: Reviewed exact Laying of Hands set-glove component. Native20IAS and350weapon damage against demons are desirable for the reviewed attacking use,50fire resistance supporting. Do not relabel demon damage as generic Enhanced Damage, apply it to elemental auras, synthesize set bonuses or infer a price. Keep complete weapon/aura/buff and source-specific role qualifications. Dream Ubers armor source conflict remains outside this batch."
+      }
+    },
+    {
+      "id": "strafe-amazon-1-merc-chains-honor",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited Pride mercenary can struggle to leech because of low physical damage; Vampire Gaze and possibly Shaftstop are survival alternatives, not proof this armor guarantees sustain."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal) \u2014 'If you find he dies too often, swap to ... possibly even a Shaftstop Mesh Armor'",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-merc-chains-honor",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary leech and resistance armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Chains of Honor"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Chains of Honor"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "context_eq",
+                "field": "mercenary_type",
+                "value": "Act 2 Might"
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "127:0",
+        "36:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "60:0"
+      ],
+      "conditions": [
+        "Verify equip requirements and the complete resistance, recovery and survival setup; this armor component does not prove full-loadout readiness.",
+        "The cited ethereal armor is for the mercenary; leech requires physical attack damage against a leechable target, not spell damage or guaranteed healing.",
+        "All skills can improve the mercenary's native skills; they do not raise the fixed level of an item-granted aura.",
+        "The cited Pride mercenary can struggle to leech because of low physical damage; Vampire Gaze and possibly Shaftstop are survival alternatives, not proof this armor guarantees sustain."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal) \u2014 'If you find he dies too often, swap to ... possibly even a Shaftstop Mesh Armor'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-26: Reviewed completed Chains of Honor in the exact cited base/beneficiary. Four filled sockets, normal/superior identified armor; nonethereal player versus ethereal mercenary scope. Skills/resistances/physical reduction support the role; ordinary leech annotated only for the physical mercenary use, not Smite/spells. Complete companions, equip requirements and encounter constraints remain qualifications. No new price, universal base or ethereal premium.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Chains of Honor"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-merc-shaftstop",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor.",
+        "Survival alternative to Chains of Honor for the Pride Might mercenary: consider Vampire Gaze alongside it when low physical damage makes life leech unreliable; compare the skills, resistances and leech lost from the previous armor."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal) \u2014 'If you find he dies too often, swap to ... possibly even a Shaftstop Mesh Armor'",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed Shaftstop physical survival armor: native30%physical reduction desirable,60life supporting. Helmet leech and socket-jewel IAS are separate. Explicit Mesh Armor uses retain original base; generic identity uses accept verified Mesh/Boneweave upgrade chain subject to equip fit. Dream/Lightning Strike cite ethereal; Strafe alternative does not inherit primary Chains of Honor ethereal status. No perfect enhanced-defense requirement, best-base claim or price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-merc-shaftstop",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary physical-damage protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Shaftstop"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "xhn"
+              }
+            ]
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "36:0",
+        "7:0"
+      ],
+      "conditions": [
+        "Verify the mercenary can meet the actual base requirements and compare full survival gear; an upgraded base is not automatically best.",
+        "Shaftstop provides 30% physical damage reduction and life; it does not supply the helmet's life leech. Verify the actual combined reduction rather than assuming 50% from this armor.",
+        "Survival alternative to Chains of Honor for the Pride Might mercenary: consider Vampire Gaze alongside it when low physical damage makes life leech unreliable; compare the skills, resistances and leech lost from the previous armor."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Chains of Honor Archon Plate (ethereal) \u2014 'If you find he dies too often, swap to ... possibly even a Shaftstop Mesh Armor'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed Shaftstop physical survival armor: native30%physical reduction desirable,60life supporting. Helmet leech and socket-jewel IAS are separate. Explicit Mesh Armor uses retain original base; generic identity uses accept verified Mesh/Boneweave upgrade chain subject to equip fit. Dream/Lightning Strike cite ethereal; Strafe alternative does not inherit primary Chains of Honor ethereal status. No perfect enhanced-defense requirement, best-base claim or price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+            "locator": "/xhn"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/strafe-amazon/variants/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-player-fortitude",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Physical ranged-attack armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "16:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Armor enhanced damage supports physical attacks, not spell or trap damage; it is an off-weapon contribution, not a standalone multiplier of total damage.",
+        "Verify actual base requirements and complete resistance, recovery, leech and survival gear; defense and damage alone do not establish readiness.",
+        "Verify physical bow damage and the full Faith/Fanaticism, Hustle prebuff and IAS setup; armor alone does not establish the attack breakpoint."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Fortitude Archon Plate",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed completed Fortitude armor in exact cited player/mercenary base and ethereal scope. Physical ED desirable, defense/resistances supporting. Native300ED/200defense and25-30resistance mechanics do not imply max-roll gates, universal best bases, extra ebug defense or price. Weapon Fortitude is a separate use. Full gear, aura/skill beneficiary and source-specific weapon qualifications remain conditional.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Fortitude"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-player-fortitude",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Physical ranged-attack armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Fortitude"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "utp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Fortitude"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 4
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "16:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Armor enhanced damage supports physical attacks, not spell or trap damage; it is an off-weapon contribution, not a standalone multiplier of total damage.",
+        "Verify actual base requirements and complete resistance, recovery, leech and survival gear; defense and damage alone do not establish readiness.",
+        "Verify physical bow damage and the full Faith/Fanaticism, Hustle prebuff and IAS setup; armor alone does not establish the attack breakpoint."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Fortitude Archon Plate",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-26: Reviewed completed Fortitude armor in exact cited player/mercenary base and ethereal scope. Physical ED desirable, defense/resistances supporting. Native300ED/200defense and25-30resistance mechanics do not imply max-roll gates, universal best bases, extra ebug defense or price. Weapon Fortitude is a separate use. Full gear, aura/skill beneficiary and source-specific weapon qualifications remain conditional.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Fortitude"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-merc-andariel-native",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "Pride may provide too little physical damage for reliable leech; Vampire Gaze is the cited survival alternative if the mercenary dies often."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-merc-andariel-native",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary attack-speed and leech helmet",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0"
+      ],
+      "conditions": [
+        "Cover the helmet's 30% fire-resistance penalty in the actual mercenary loadout; a jewel or other gear must supply the needed protection.",
+        "Verify the cited socket jewel separately; native 20% IAS does not prove an IAS/ED or IAS/fire-resistance jewel is present, nor that a full attack-speed breakpoint is reached.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "Pride may provide too little physical damage for reliable leech; Vampire Gaze is the cited survival alternative if the mercenary dies often."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-26: Reviewed intrinsic Andariel helmet component in cited ethereal Demonhead mercenary context. Native IAS and physical leech desirable; strength/all skills supporting. Minimum25strength/8leech useful, no perfect-roll gate. Negative fire resistance is a material qualification, not a positive resistance annotation. Socket effects and full IAS/aura/equip/survival configuration remain separate; no price inference.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-merc-gaze-native",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary leech and damage reduction",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0"
+      ],
+      "conditions": [
+        "Verify actual mercenary equip requirements, socket jewel and full survival/attack-speed gear; the helmet alone does not establish a breakpoint.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "Survival alternative to Andariel's Visage for the Pride Might mercenary, possibly alongside Shaftstop; Pride's low physical damage limits leech. Compare the IAS and strength lost from the previous helmet and the full loadout rather than assuming the old breakpoint remains."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed native Vampire Gaze survival component: 6\u20138life leech and15\u201320physical reduction desirable,10\u201315magic reduction supporting. No mana-leech utility for mercenary, no implicit jewel IAS or perfect-roll requirement. Explicit Grim Helm base; Smiter cites ethereal, Strafe alternative does not specify ethereal. Source-specific alternatives and physical leech limitations retained; no numerical price claim.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-merc-gaze-native",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary leech and damage reduction",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Vampire Gaze"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xh9"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "35:0"
+      ],
+      "conditions": [
+        "Verify actual mercenary equip requirements, socket jewel and full survival/attack-speed gear; the helmet alone does not establish a breakpoint.",
+        "Life leech depends on physical damage and a leechable target; native physical damage reduction and magic damage reduction support survival. Mana leech is not a mercenary resource benefit.",
+        "Survival alternative to Andariel's Visage for the Pride Might mercenary, possibly alongside Shaftstop; Pride's low physical damage limits leech. Compare the IAS and strength lost from the previous helmet and the full loadout rather than assuming the old breakpoint remains."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed native Vampire Gaze survival component: 6\u20138life leech and15\u201320physical reduction desirable,10\u201315magic reduction supporting. No mana-leech utility for mercenary, no implicit jewel IAS or perfect-roll requirement. Explicit Grim Helm base; Smiter cites ethereal, Strafe alternative does not specify ethereal. Source-specific alternatives and physical leech limitations retained; no numerical price claim.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/208"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/strafe-amazon/variants/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-0-merc-treachery-native",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Body Armor",
+      "role": "Mercenary Fade and armor utility",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Treachery"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Treachery"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "201:17103",
+        "99:0",
+        "43:0"
+      ],
+      "conditions": [
+        "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
+        "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
+        "Armor properties benefit its wearer; the player does not inherit mercenary IAS or resistances. A shared Fade prebuff requires the player to equip appropriate armor and trigger Fade separately."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Treachery Mage Plate (ethereal)",
+          "Meets the minimum gear requirements for the Starter-tagged farming areas and looks for specific stats to transition into the endgame: 100% Pierce Chance, >80% IAS, >80% Chance to Hit Act 5 Hell Super Uniques, Cannot be Frozen, Movement Speed.",
+          "Buriza-Do Kyanon does a lot of the heavy lifting here and is nearly irreplaceable in the early game. Upgrade it for even more damage when your gear gets good enough. Death's Guard Demonhide Sash offers Cannot be Frozen. Upgrade it for more Potion slots. 3-Piece Sigon's and 2-Piece Angelic's offer tons of Attack Rating. The charms represent good stats to have at this progression point.",
+          "Act 2 Might with Insight Partizan for easy Mana management and a good base for him to deal damage. Bulwark Crown + Treachery Mage Plate give enough survivability for him to stand on his own two feet."
+        ],
+        "review": "2026-09-26: Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Treachery"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-0-merc-bulwark-native",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Starter mercenary leech and physical protection",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Bulwark"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "crn"
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Bulwark"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": true
+              },
+              {
+                "op": "fact_eq",
+                "field": "ethereal",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "important_stats": [
+        "60:0",
+        "36:0",
+        "76:0",
+        "99:0"
+      ],
+      "conditions": [
+        "Life leech requires eligible physical damage and a leechable target; verify the actual weapon, full resistance coverage and mercenary survival.",
+        "The cited base and aura describe this setup, not a universal best base. Verify actual equipment requirements and the full hit-recovery/attack-speed breakpoints; helmet defense and ethereal status do not imply a numerical price premium.",
+        "This review uses the Non-Ladder Bulwark definition; Ladder-only revisions must not replace its native rolls."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Bulwark Crown",
+          "Meets the minimum gear requirements for the Starter-tagged farming areas and looks for specific stats to transition into the endgame: 100% Pierce Chance, >80% IAS, >80% Chance to Hit Act 5 Hell Super Uniques, Cannot be Frozen, Movement Speed.",
+          "Buriza-Do Kyanon does a lot of the heavy lifting here and is nearly irreplaceable in the early game. Upgrade it for even more damage when your gear gets good enough. Death's Guard Demonhide Sash offers Cannot be Frozen. Upgrade it for more Potion slots. 3-Piece Sigon's and 2-Piece Angelic's offer tons of Attack Rating. The charms represent good stats to have at this progression point.",
+          "Act 2 Might with Insight Partizan for easy Mana management and a good base for him to deal damage. Bulwark Crown + Treachery Mage Plate give enough survivability for him to stand on his own two feet."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-raven-frost",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Raven Frost",
+          "Rare Ring (min dmg, 120 AR, 8% Life Leech, resists, Telekinesis charges)",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-raven-frost",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Rings",
+      "role": "Cannot Be Frozen and Dexterity ring",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Raven Frost"
+      ],
+      "types": [
+        "ring"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "rin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "153:0",
+        "148:0",
+        "9:0",
+        "2:0",
+        "19:0"
+      ],
+      "conditions": [
+        "Cannot Be Frozen and Dexterity are useful at the native minimum roll; cold absorb and mana support survival/resource needs. Actual block chance, attack hit chance and required cast rate depend on the wearer and complete gear.",
+        "Attack rating only helps attack checks; it does not improve spell hit chance or guarantee physical hits."
+      ],
+      "preferences": [],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Raven Frost",
+          "Nagelring \u2014 'swap out your Rare Ring for a Nagelring Ring or better'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-26: Reviewed named Raven Frost role at native minimum Dexterity/attack rating, without perfect-roll requirements. Cannot Be Frozen and Dexterity desirable; cold absorb/mana supporting. Attack rating is attack-only and omitted for dedicated Smite uses; exact full gear and cold-corpse tradeoffs remain explicit. No numeric price or best-in-slot assertion for all variants.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/275"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-1-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/variants/1/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Hellfire Torch (Amazon)",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "strafe-amazon-2-torch",
+      "template": "unique_inventory_charm",
+      "item": "Hellfire Torch",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/variants/2/player/Charms/0",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Hellfire Torch (Amazon)",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints."
+        ],
+        "review": "2026-09-26: Reviewed player inventory charm for this class and setup. Native minimum attribute/resistance rolls retain utility; planner perfect rolls are examples, not entry requirements. Torch requires exactly the wearer class bonus; no duplicate stacking, active inventory, complete loadout or price inferred."
+      },
+      "conditions": []
+    },
+    {
+      "id": "strafe-amazon-early-merc-rockfleece",
+      "template": "merc_survival",
+      "item": "Rockfleece",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Body Armor/early/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Rockfleece"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/89"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "strafe-amazon-early-merc-lionheart",
+      "template": "merc_survival",
+      "item": "Lionheart",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Body Armor/early/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Lionheart"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "strafe-amazon-early-merc-temper",
+      "template": "merc_survival",
+      "item": "Temper",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Helmet/early/4",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the cached guide equipment table. Native identity utility does not require perfect defense, ethereal or maximum resistance rolls. Actual equip requirements and complete survival setup stay conditional; item vitality/energy do not give mercenaries the player benefit. No resistance, aura, life leech or attack speed is invented, and no price follows from guide presence.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Temper"
+          }
+        ]
+      },
+      "conditions": [
+        "Early progression alternative, not a claim that this is the best endgame mercenary item."
+      ]
+    },
+    {
+      "id": "strafe-amazon-0-player-lionheart",
+      "build": "strafe-amazon",
+      "variant": "Starter",
+      "side": "player",
+      "slot": "Body Armor",
+      "role": "Physical bow progression armor",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Lionheart"
+      ],
+      "types": [
+        "tors"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "xtp"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Lionheart"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "7:0",
+        "0:0",
+        "2:0",
+        "3:0",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0"
+      ],
+      "conditions": [
+        "Starter armor: check wearer requirements and the rest of the bow setup. Lionheart provides no attack speed or life leech."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/variants/0/player/Body Armor/0",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Lionheart Mage Plate (Hel Lum Fal)"
+        ],
+        "review": "2026-09-26: Reviewed Starter Strafe Amazon Lionheart Mage Plate. Nonethereal player armor needs repairability. Native life, resistances and off-weapon enhanced damage support progression, with strength/dexterity/vitality support distinct from mercenary stat effects. No IAS, leech, endgame best-base claim or market premium inferred."
+      }
+    },
+    {
+      "id": "strafe-amazon-aldur-boots-alternative",
+      "template": "player_footwear",
+      "item": "Aldur's Advance",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Boots/3",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Aldur's Advance"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
+            "locator": "/Aldur's Advance"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-trek-boots-alternative",
+      "template": "player_footwear",
+      "item": "Sandstorm Trek",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Boots/1",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Sandstorm Trek"
+        ],
+        "review": "2026-09-26: Reviewed explicit player boot alternative in this guide table. Native minimum rolls preserve movement/defensive utility; no perfect roll, finished resistance/block/recovery breakpoint or market value inferred. Individual Aldur bonuses stay separate from set companions. Waterwalk raises the fire cap without supplying fire resistance. Ethereal Trek requires observed self-repair; ordinary durable player boots remain nonethereal.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/369"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-bk-ring-rings-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Bul-Kathos' Wedding Band",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Rings/3",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Bul-Kathos' Wedding Band"
+        ],
+        "review": "2026-09-26: Reviewed explicit named alternative in this guide slot. BK ring supplies skill/life utility; life leech is not applied to spell/Smite damage. Skullder supplies level-scaled Magic Find and requires observed repair for ethereal use; original/upgraded armor remain valid. Wizardspike supplies casting, mana and resistance, not attack/trap speed; explicit swap slots stay distinct. Native minimum rolls suffice, and perfect defense or a market price are not inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/268"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-twitchthroe-body-armor-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Twitchthroe",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Body Armor/8",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Twitchthroe"
+        ],
+        "review": "2026-09-26: Reviewed explicit specialist alternative. Wormskull supplies Summoner skills/mana/resistance but its wearer attack poison/leech do not transfer to minions. Twitchthroe supplies Strafe IAS/recovery/attributes, not blocking while using a bow. Gnasher supplies Smite Crushing Blow/Open Wounds/strength; weapon ED does not improve Smite. Native minimum rolls and valid upgraded bases retain utility; nonethereal durability required for sustained player use. Numeric prices and full equipment fit remain separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/82"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-guardian-angel-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "Guardian Angel",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Body Armor/mid/5",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Guardian Angel"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/218"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-the-gladiator-s-bane-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Gladiator's Bane",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Body Armor/mid/3",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "The Gladiator's Bane"
+        ],
+        "review": "2026-09-26: Reviewed explicit mid mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/250"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-the-face-of-horror-merc-native-alternative",
+      "template": "merc_survival",
+      "item": "The Face of Horror",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/merc/Helmet/early/2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "The Face of Horror"
+        ],
+        "review": "2026-09-26: Reviewed explicit early mercenary alternative in the guide table. Native identity and valid upgrades required; ethereal and minimum rolls remain usable. Guardian raises resistance caps but supplies no actual resistance or mercenary Paladin/block benefits. Gladiator flat DR/MDR, CBF and recovery require level85; flat reduction is not percent reduction. Flayed supplies physical-hit leech and regeneration; repair is not a mercenary need. Face supplies strength/resistance, while flee may scatter packs and is not a universal advantage. Numeric market price and finished survival setup are separate.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/78"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-goldwrap-find-absorb-alternative",
+      "template": "named_player_utility",
+      "item": "Goldwrap",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/strafe-amazon/slots/Belts/3",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Goldwrap"
+        ],
+        "review": "2026-09-26: Reviewed explicit player ring/glove/belt alternatives. Wisp supplies percentage lightning absorb and MF; native charges are not passive summon bonuses and no charged-summon build endorsement is inferred. Frostburn mana supports caster resources; physical ED and cold attack damage are not spell bonuses. Chance Guards/Goldwrap MF is prioritized; Gold Find priority is explicit for Gold Find Barbarian. Goldwrap IAS supports reviewed attacks or trap laying, never spell casting. Native minimum rolls suffice; native and upgraded bases accepted, nonethereal and zero sockets required. Goldwrap upgrade increases potion rows and requirements; no automatic best setup, breakpoints or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/115"
+          },
+          {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+            "locator": "/belt"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/strafe-amazon/slots/Weapon"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-smoke-early-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Smoke",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Body Armor/early/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-duress-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Duress",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Body Armor/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Duress"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Duress",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-rockstopper-mid-merc-resistance-alternative",
+      "template": "merc_survival",
+      "item": "Rockstopper",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Helmet",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Helmet/mid/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Rockstopper"
+        ],
+        "review": "2026-09-26: Reviewed explicit mercenary alternative at this exact guide stage. Smoke requires a completed two-socket body armor and supplies resistance/recovery, not mercenary Energy or usable Weaken charges. Duress requires three filled sockets; Crushing Blow/Open Wounds/off-weapon ED require eligible attacks, and cold damage can destroy corpses needed by Find Item or corpse skills. Rockstopper supplies percent DR, recovery and fire/lightning/cold resistance; its Vitality is not mercenary life. All three need life leech elsewhere. Native minimum rolls and either ethereal state remain useful; no price or complete survival setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/202",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-player-main-alternatives-hustle-weapon-alternative",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "role": "Burst of Speed swap prebuff",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Hustle (weapon)"
+      ],
+      "types": [
+        "bow",
+        "abow"
+      ],
+      "qualities": [
+        "normal",
+        "superior",
+        "low_quality"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "runeword",
+            "value": "Hustle (weapon)"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 3
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6cb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6hb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6l7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6lb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6lw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6s7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6sb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "6sw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8cb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8hb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8l8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8lb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8lw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8s8"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8sb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "8sw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "am1"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "am2"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "am6"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "am7"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "amb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "amc"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "cbw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "hbw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "lbb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "lbw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "lwb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "sbb"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "sbw"
+              },
+              {
+                "op": "fact_eq",
+                "field": "base_code",
+                "value": "swb"
+              }
+            ]
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "198:16513"
+      ],
+      "conditions": [
+        "Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary.",
+        "Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts.",
+        "Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use.",
+        "Use the swap weapon to trigger Burst of Speed, then return to the damage weapon. Enhanced damage is not required for this prebuff purpose; meet actual equip and attack requirements."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon-Swap/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Hustle"
+        ],
+        "review": "2026-09-26: Reviewed exact weapon-slot Hustle alternative, distinct from armor. Burst of Speed requires a successful on-striking proc and lasts temporarily; it is not permanent item IAS. The proc buffs the wielder, not the player through a mercenary. Fanaticism is supplied only while this weapon is active and recipients are in range; swapping away removes its aura even while a proc buff lasts. Assess an existing completed Non-Ladder item; recipe creation availability is separate. No numerical price follows from a build use. Use the swap weapon to trigger Burst of Speed, then return to the damage weapon. Enhanced damage is not required for this prebuff purpose; meet actual equip and attack requirements.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Hustle (weapon)",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/258",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "third-parties/d2data/json/skills.json",
+            "locator": "/122",
+            "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "locator": "/strafe-amazon/variants/1",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-highlord-s-wrath-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Highlord's Wrath",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Amulets/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Highlord's Wrath"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Deadly Strike applies to eligible weapon physical damage, not elemental spell damage or Dragon Talon kicks. Its level-scaled chance is not an independent multiplicative chance on top of Critical Strike. Check actual attack-speed breakpoints. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/276",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-the-cat-s-eye-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "The Cat's Eye",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Amulets/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "The Cat's Eye"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Dexterity can support equipment, attack rating and shield block; it does not imply a universal spell or kick damage bonus. Verify complete-loadout attack speed and block. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/269",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-metalgrid-jewelry-casting-alternative",
+      "template": "named_player_utility",
+      "item": "Metalgrid",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Amulets/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Metalgrid"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native skills, movement, casting/attack speed, resistance and defense priorities preserve build applicability. Attack Rating helps eligible attacks, not Smite or spells. Iron Golem and Iron Maiden charges require separate charge, summon and survival checks; merely wearing this amulet does not establish an active golem or aura. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/375",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-nosferatu-s-coil-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Nosferatu's Coil",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Belts/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Nosferatu's Coil"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Life leech needs eligible physical damage and a drainable target; it does not leech elemental spell damage. Slows Target applies through eligible attacks and is subject to target limits. Check the complete attack-speed breakpoint. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/374",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-razortail-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Razortail",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Belts/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Razortail"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Pierce supports eligible projectiles and combines with the skill or weapon contribution up to the applicable cap; an already capped setup gains no extra pierce. Added maximum damage affects weapon damage, not Enchant or Lightning Fury spell damage. Check the whole projectile setup. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/243",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-gore-rider-boots-belts-alternative",
+      "template": "named_player_utility",
+      "item": "Gore Rider",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Boots",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Boots/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Gore Rider"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native boots/belt priorities preserve attack mechanics, skill exclusions and standalone set properties. Crushing Blow and Open Wounds require eligible attacks and can support Smite; Deadly Strike does not improve Smite or kicks. Ranged Crushing Blow has reduced effect. Upgrading changes base kick damage and requirements, not the innate proc chances. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/241",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-bone-break-original-sunder-alternative",
+      "template": "original_sunder_charm",
+      "item": "Bone Break",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Unique Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Unique Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Bone Break"
+        ],
+        "review": "2026-09-26: Reviewed original Sunder inventory alternative from exact guide slot. Native immunity effect and the less-negative wearer penalty are separate from additional resistance reduction, active damage type and survival. No original/Latent/Renewed equivalence, generated affixes or numerical price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/405",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-obedience-mid-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Obedience",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "mid",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Weapon/mid/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Obedience"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Enhanced Damage and Crushing Blow affect the mercenary. Enchant requires a kill-triggered proc and buffs the wielder, not the player. Enemy fire resistance reduction is local to mercenary damage. The weapon supplies no life leech or IAS; check both elsewhere in the loadout. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Obedience",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+            "locator": "/variants/0/merc/type",
+            "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-pride-end-merc-weapon-alternative",
+      "template": "mercenary_weapon",
+      "item": "Pride",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Weapon/end/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Pride"
+        ],
+        "review": "2026-09-26: Reviewed exact mercenary table alternative, with compatible bearer branch corroborated by cached variant type. Concentration supports eligible allied damage while the mercenary is alive and recipients are within aura range. This weapon has no native weapon Enhanced Damage, IAS or life leech; mercenary damage and sustain can suffer. Freeze Target may destroy corpses needed for corpse skills; blind can interfere with curses on eligible targets. Do not infer complete aura uptime. No full mercenary loadout, price or permanent aura/proc uptime is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Pride",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-giant-skull-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Giant Skull",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Helmets/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Giant Skull"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Prefer two native sockets for customization; no IAS or damage jewels are assumed. Knockback supplies spacing for eligible attacks and Crushing Blow has reduced effect on ranged attacks. Check the complete speed setup. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/379",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-m-avina-s-true-sight-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "M'avina's True Sight",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Helmets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Helmets/7",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "M'avina's True Sight"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Native IAS supports Strafe. All Skills, bonus Attack Rating and all resistance are conditional set bonuses; do not infer them or a socket jewel from this helmet alone. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/M'avina's True Sight",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-m-avina-s-embrace-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "M'avina's Embrace",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Body Armor/5",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "M'avina's Embrace"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Passive and Magic skills support Amazon passives. Faster Hit Recovery requires companion set pieces; the when-struck Glacial Spike is not a permanent effect. Magic Damage Reduced is flat. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/M'avina's Embrace",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-m-avina-s-icy-clutch-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "M'avina's Icy Clutch",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Gloves/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "M'avina's Icy Clutch"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Standalone cold attack damage and attributes are separate from the much larger conditional cold damage and cold skill damage bonuses. Those require companion pieces. Half Freeze Duration is not Cannot Be Frozen. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/M'avina's Icy Clutch",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-m-avina-s-tenet-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "M'avina's Tenet",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Belts",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Belts/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "M'avina's Tenet"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Mana leech needs eligible physical attack damage and target drain. All resistance is a conditional set bonus, not an innate property of this belt. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/M'avina's Tenet",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-lava-gout-equipment-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Lava Gout",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Gloves",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Gloves/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Lava Gout"
+        ],
+        "review": "2026-09-26: Reviewed exact standalone guide alternative. Native equipment priorities preserve attack mechanics, skill exclusions and standalone set properties. Enchant requires a successful on-striking proc; it is not a guaranteed permanent buff. IAS supports the full Strafe attack-speed setup. Half Freeze Duration is not Cannot Be Frozen. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/235",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-windforce-weapon-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Windforce",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Windforce"
+        ],
+        "review": "2026-09-27: Reviewed exact named weapon guide alternative. Damage delivery, applicable skills, native set effects and ethereal durability are separate. Maximum weapon damage scales with character level. Mana leech needs physical damage and target drain; Knockback provides spacing on eligible hits. Compare the full Strafe speed setup and do not assume a socket jewel. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/266",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-eaglehorn-weapon-tail-alternative",
+      "template": "named_player_utility",
+      "item": "Eaglehorn",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Eaglehorn"
+        ],
+        "review": "2026-09-27: Reviewed exact named weapon guide alternative. Damage delivery, applicable skills, native set effects and ethereal durability are separate. Maximum damage and Attack Rating scale with level. Ignore Target Defense does not cover every boss or unique target. This bow has no native IAS; check the complete attack-speed setup. No socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/265",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-m-avina-s-caster-weapon-tail-alternative",
+      "template": "named_player_utility",
+      "item": "M'avina's Caster",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "M'avina's Caster"
+        ],
+        "review": "2026-09-27: Reviewed exact named weapon guide alternative. Damage delivery, applicable skills, native set effects and ethereal durability are separate. Native weapon damage and IAS support Strafe. Fires Magic Arrows applies to the normal attack, not as an automatic replacement for Strafe. Extra magic damage, Nova proc and Bow skills require companion set pieces and are not inferred from this bow alone. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/M'avina's Caster",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-atma-s-scarab-attack-utility-alternative",
+      "template": "named_player_utility",
+      "item": "Atma's Scarab",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Amulets/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Atma's Scarab"
+        ],
+        "review": "2026-09-27: Reviewed exact attack/utility guide alternative. Distinguish Smite, Hammer, Zeal and physical projectile mechanics; no automatic curse activation or incompatible damage multiplier is inferred. Amplify Damage requires an eligible on-striking proc and can be overwritten by other curses. It supports physical attack damage; it is not automatically active and does not boost unrelated elemental damage. Attack Rating remains target-dependent. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/273",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-tyrael-s-might-specialist-equipment-alternative",
+      "template": "named_player_utility",
+      "item": "Tyrael's Might",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Body Armor",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Body Armor/9",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Tyrael's Might"
+        ],
+        "review": "2026-09-27: Reviewed exact low-frequency guide alternative. Shadow Dancer source Boots 4 is the parser repeated boots row and names the native Myrmidon Greaves base; canonical slot is Boots. Echoing uses cast speed, not IAS; native kick base, repairability and damage type remain separate. Damage to Demons applies against demon targets; it is not a universal damage multiplier. Cannot Be Frozen does not prevent every slow. Requirements -100% does not remove the level requirement. Rest in Peace changes corpse availability. The native indestructible unique does not have a normal ethereal drop variant; no socket filler is assumed. No numeric price, full loadout or set ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/311",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-angelic-halo-qualified-equipment",
+      "template": "qualified_equipment",
+      "item": "Angelic Halo",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Rings",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Rings/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Angelic Halo (2-Piece Set)"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Angelic Halo (2-Piece Set). Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Angelic Halo",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-angelic-wings-qualified-equipment",
+      "template": "qualified_equipment",
+      "item": "Angelic Wings",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Amulets",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Amulets/6",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Angelic Wings (2-Piece Set)"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Angelic Wings (2-Piece Set). Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/setitems.json",
+            "locator": "/Angelic Wings",
+            "sha256": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-buriza-do-kyanon-zeal-ranged-tail",
+      "template": "named_player_utility",
+      "item": "Buriza-Do Kyanon",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Gear alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Buriza-Do Kyanon (Or Upgraded)"
+        ],
+        "review": "2026-09-27: Reviewed exact gear alternative from the cached guide, not an unreferenced planner. Native Ballista or upgraded Colossus Crossbow are permitted. Piercing does not exceed its useful chance cap; Strafe speed depends on crossbow breakpoints. Cold damage and freeze can change corpse availability; bows/crossbows do not have normal ethereal variants. No socket filler is assumed. No numeric price or complete setup is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/198",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-spellsteel-qualified-equipment",
+      "template": "qualified_equipment",
+      "item": "Spellsteel",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon-Swap",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon-Swap/4",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Spellsteel"
+        ],
+        "review": "2026-09-27: Reviewed exact guide setup: Spellsteel. Conditional fillers, active charges and companion set pieces are never inferred from item identity.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/135",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-reaper-end-act-2-might-named-merc-weapon",
+      "template": "named_mercenary_weapon",
+      "item": "The Reaper's Toll",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "end",
+      "side": "merc",
+      "slot": "Weapon",
+      "mercenary_type": "Act 2 Might",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Weapon/end/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "The Reaper's Toll"
+        ],
+        "review": "2026-09-27: Exact mercenary table alternative; compatible Act 2 bearer from the same stage or Strafe Standard mercenary source. Decrepify affects eligible physical damage, not elemental resistance. No socket filler, permanent curse uptime or numeric price is inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/326",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+            "locator": "/variants/1/merc/type",
+            "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-mist-main-alternatives-source-recipe",
+      "template": "source_recipe",
+      "item": "Mist",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/slots/Weapon/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Mist Matriarchal Bow"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Mist",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r32",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r25",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r10",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r06",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-strength-early-source-recipe",
+      "template": "source_recipe",
+      "item": "Strength",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "early",
+      "side": "merc",
+      "slot": "Weapon",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/merc/Weapon/early/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Strength"
+        ],
+        "review": "2026-09-27: Reviewed exact source base and slot, native recipe and rune properties. Attack mode determines applicable stats; mercenary properties are not player bonuses. Mentioned loadouts, procs and auras are not inferred active. No numerical pricing inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Strength",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r11",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r03",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+            "locator": "/variants/0/merc/type",
+            "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6"
+          }
+        ]
+      },
+      "mercenary_type": "Act 2 Might"
+    },
+    {
+      "id": "strafe-amazon-protector-s-stone-v1-weapon-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "player",
+      "slot": "Weapon",
+      "host": "Windforce",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Windforce (planner: Windforce Hydra Bow socketed with Protector's Stone Colossal Jewel)"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-protector-s-stone-v2-weapon-0-named-socket-jewel",
+      "template": "named_socket_jewel",
+      "item": "Protector's Stone",
+      "class": "Amazon",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Weapon",
+      "host": "Witchwild String",
+      "element": "physical",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Witchwild String (planner: Diamond Bow, Protector's Stone Colossal Jewel + jewel) \u2014 prose does not name a bow change"
+        ],
+        "review": "2026-09-27: Reviewed named socket component only, quoted in the referenced variant recipient. This does not endorse the recipient affixes, assume ownership or complete the loadout. Element, wearer, native modifiers and recipient dependency are retained. Old planner alternatives are not silently substituted. One Colossal Jewel per character; illustrated rolls are preferences, not invented affix limits or numeric prices.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-witchwild-string-magic-find",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Weapon",
+      "role": "Upgraded Witchwild String Magic Find planner alternative",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Witchwild String"
+      ],
+      "types": [
+        "bow"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2/player/Weapon/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "quotes": [
+          "Witchwild String (planner: Diamond Bow, Protector's Stone Colossal Jewel + jewel) \u2014 prose does not name a bow change"
+        ],
+        "review": "2026-09-27: Reviewed the explicitly labeled Magic Find planner bow configuration, not a prose recommendation to replace every Strafe bow. Upgrade and both linked jewels are checked. The unspecified second jewel carries no invented roll minimum. Magic Arrow normal-attack conversion does not convert Strafe. Socket component ownership elsewhere does not satisfy filled bow sockets. No price or completed loadout inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/192",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "locator": "/424",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          {
+            "path": "pricing/data/colossal-jewel-guide-evidence.json",
+            "locator": "/text",
+            "sha256": "3491e1886b2e789089c4d42938e9a8a13adac3c691ef80d9f2ba9040f355e084"
+          }
+        ]
+      },
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "6s7"
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 2
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          }
+        ]
+      },
+      "depends_on": [
+        {
+          "label": "Two distinct linked jewels, including Protector's Stone; only one Colossal Jewel can be equipped on the character.",
+          "when": {
+            "all": [
+              {
+                "op": "socket_jewel_matches",
+                "count": 2,
+                "stats": {
+                  "80:0": 0
+                }
+              },
+              {
+                "op": "socket_jewel_matches",
+                "count": 1,
+                "name": "Protector's Stone",
+                "stats": {
+                  "80:0": 15
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "important_stats": [
+        "17:0",
+        "18:0",
+        "250:0",
+        "198:4229",
+        "39:0",
+        "41:0",
+        "43:0",
+        "45:0",
+        "80:0",
+        "366:0"
+      ],
+      "conditions": [
+        "The cited planner uses an upgraded Diamond Bow, Protector's Stone and another jewel. Meet upgraded requirements; do not assume the unspecified jewel has particular rolls.",
+        "Amplify Damage is a 2% on-striking level 5 proc, not permanent uptime; competing curses can replace it. Deadly Strike scales with character level and does not independently stack with Critical Strike for quadruple damage.",
+        "The normal-attack Magic Arrow property does not turn Strafe into Magic Arrow. Weapon ED and physical pierce concern physical bow damage; Find and resistance utility remain separate.",
+        "Only one Colossal Jewel can be equipped per character; verify other equipped recipients before using this bow. This narrow planner alternative does not endorse every Magic Find loadout."
+      ]
+    },
+    {
+      "id": "strafe-amazon-1-merc-andariel-ias-fire",
+      "build": "strafe-amazon",
+      "variant": "Standard",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The actual linked jewel must supply 15% IAS and 30% fire resistance. It offsets the native -30% fire penalty and brings helmet IAS to 35%; complete mercenary resistance caps and weapon breakpoints remain separate.",
+        "An IAS/enhanced-damage Ruby jewel or Ral rune alone does not satisfy this reviewed setup. Lower fire-resistance rolls may be useful, but do not fully offset the native penalty.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "Pride may provide too little physical damage for reliable leech; Vampire Gaze is the cited survival alternative if the mercenary dies often."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "The epitome of an auto-turret playstyle: 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, max Attack Speed breakpoints even with plain 15% IAS Jewels in a plain 3 Socket Helmet; swap to Hustle Grand Matron Bow every other pack to maintain the Burst of Speed buff.",
+          "The epitome of an auto-turret playstyle! 100% Chance to Pierce, 95% Chance to Hit everything other than Baal, Max Attack Speed Breakpoints even with plain 15% Increased Attack Speed Jewels in a plain 3 Socket Helmet. Swap back to Hustle Grand Matron Bow every other pack or so to maintain your Burst of Speed buff.",
+          "Act 2 Might with Pride provides a huge amount of off-weapon Enhanced Damage. This Mercenary is squishy due to a lack of his own damage for Leeching life. If you find he dies too often, swap to a Vampire Gaze Grim Helm, possibly even a Shaftstop Mesh Armor to help him out.",
+          "Pre-Buff: Either cast Enchant from Demon Limb or proc Burst of Speed with Hustle Hunter's Bow whenever your buffs run out.",
+          "Bone Break isn't a real requirement on the build since Atma's Scarab breaks 99% of Physical Immunities you run into.",
+          "This build reaches the max frame breakpoint of 4/2/6 with Level 12 Fanaticism Aura, Hustle buff and 19% off weapon Increased Attack Speed."
+        ],
+        "review": "2026-09-28: Reviewed exact strafe-amazon / Standard source helmet specifying socketed jewel, resolved against primary planner zx87z0ly head43/child44 with15IAS/30fire resistance. Require actual linked jewel, one filled socket, native bearer and ethereal/base guards. Native Ruby fire prefix376 is16-30, Fervor171 fixed15IAS; this source selects30 to offset the helmet penalty, not a generic minimum valuable jewel. Keep full-loadout/source conflicts qualified; no price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "pricing/raw/mr/planners/zx87z0ly.json",
+            "locator": "/data",
+            "sha256": "2a56bd88f3cbab5550963d8a287621f71ca7aa35650a9bdfa360b63cf680e720"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/376",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
+    },
+    {
+      "id": "strafe-amazon-2-merc-andariel-ias-fire",
+      "build": "strafe-amazon",
+      "variant": "Magic Find",
+      "side": "merc",
+      "slot": "Helmet",
+      "role": "Mercenary Andariel helmet with IAS/fire-resistance jewel",
+      "review_status": "reviewed_candidate_rule",
+      "names": [
+        "Andariel's Visage"
+      ],
+      "types": [
+        "helm"
+      ],
+      "qualities": [
+        "unique"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Amazon"
+          },
+          {
+            "op": "context_eq",
+            "field": "mercenary_type",
+            "value": "Act 2 Might"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "base_code",
+            "value": "usk"
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 1
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "filled"
+          },
+          {
+            "op": "socket_jewel_matches",
+            "count": 1,
+            "stats": {
+              "93:0": 15,
+              "39:0": 30
+            }
+          }
+        ]
+      },
+      "important_stats": [
+        "93:0",
+        "60:0",
+        "0:0",
+        "127:0",
+        "39:0"
+      ],
+      "conditions": [
+        "The actual linked jewel must supply 15% IAS and 30% fire resistance. It offsets the native -30% fire penalty and brings helmet IAS to 35%; complete mercenary resistance caps and weapon breakpoints remain separate.",
+        "An IAS/enhanced-damage Ruby jewel or Ral rune alone does not satisfy this reviewed setup. Lower fire-resistance rolls may be useful, but do not fully offset the native penalty.",
+        "Verify actual equipment requirements and physical damage against leechable targets; all skills can improve native mercenary skills, not fixed item-granted aura levels.",
+        "Pride may provide too little physical damage for reliable leech; Vampire Gaze is the cited survival alternative if the mercenary dies often."
+      ],
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Andariel's Visage (ethereal, socketed jewel) \u2014 'If you find he dies too often, swap to a Vampire Gaze Grim Helm'",
+          "This setup swaps three items to get even more magic find without sacrificing too much damage; better for farming spots without Demons and P1-P2 play: Stealskull (MF + Dual Leech, freeing the Rare Ring for a Nagelring), Chance Guards, and an IAS Jewel in the helmet to keep breakpoints.",
+          "This setup swaps three items to get even more magic find on the build without sacrificing too much damage. This is better for farming spots that don't have Demons and possibly playing on P1-P2 instead of P3+. Stealskull has a lot of Magic Find and its Dual Leech allows you to swap out your Rare Ring for a Nagelring Ring or better. Chance Guards similarly offer a lot of Magic Find. You do need an Increased Attack Speed Jewel in your helmet to maintain your IAS breakpoints."
+        ],
+        "review": "2026-09-28: Reviewed exact strafe-amazon / Magic Find source helmet specifying socketed jewel, resolved against primary planner zx87z0ly head43/child44 with15IAS/30fire resistance. Require actual linked jewel, one filled socket, native bearer and ethereal/base guards. Native Ruby fire prefix376 is16-30, Fervor171 fixed15IAS; this source selects30 to offset the helmet penalty, not a generic minimum valuable jewel. Keep full-loadout/source conflicts qualified; no price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+            "locator": "/345"
+          },
+          {
+            "path": "pricing/raw/mr/planners/zx87z0ly.json",
+            "locator": "/data",
+            "sha256": "2a56bd88f3cbab5550963d8a287621f71ca7aa35650a9bdfa360b63cf680e720"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/376",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/171",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      }
     }
   ]
 }

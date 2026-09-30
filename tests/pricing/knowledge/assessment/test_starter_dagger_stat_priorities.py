@@ -10,8 +10,8 @@ from pricing.knowledge.assessment.stat_evaluation import StatsEvaluator
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
 
-@pytest.mark.parametrize('quality', ['magic', 'rare', 'crafted'])
-def test_abyss_starter_skill_alternatives_and_optional_fcr(quality):
+@pytest.mark.parametrize('quality', ['magic', 'rare'])
+def test_abyss_starter_skill_alternatives_do_not_recommend_unavailable_fcr(quality):
     profiles = build()['profiles']
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
     configs = [
@@ -34,8 +34,7 @@ def test_abyss_starter_skill_alternatives_and_optional_fcr(quality):
         assert result.annotations[key]['desirability'] == 'desirable'
         assert result.configurations[0]['role']['status'] == 'partial'
         result = evaluate({key: 1, '105:0': 10, '17:0': 100, '19:0': 200})
-        assert set(result.annotations) == {key, '105:0'}
-        assert result.annotations['105:0']['desirability'] == 'supporting'
+        assert set(result.annotations) == {key}
         assert all(v['roll_quality'] == 'unassessed' for v in result.annotations.values())
         assert not evaluate({key: 0, '105:0': 20}).annotations
         assert not evaluate({key: None}, capture_complete=False).annotations
@@ -47,6 +46,15 @@ def test_abyss_starter_skill_alternatives_and_optional_fcr(quality):
         {'identified': False},
         {'item_type': 'swor'},
         {'rarity': 'unique'},
+        {'rarity': 'crafted'},
         {'gaps': ['Duplicate native stat 107:402.']},
     ):
         assert not evaluate({'107:402': 1}, **changes).annotations
+
+
+def test_starter_dagger_scope_matches_native_weapon_crafting_and_affixes():
+    profile = next(p for p in build()['profiles'] if p['id'] == 'abyss-starter-dagger')
+    assert profile['qualities'] == ['magic', 'rare']
+    assert '105:0' not in profile['important_stats']
+    assert 'cubemain' in profile['review_notes']
+    assert 'magicsuffix' in profile['review_notes']

@@ -33,9 +33,10 @@ def test_runeword_contract_requires_base_and_all_variable_rolls():
     assert any('defense' in g for g in gaps)
     facts = replace(
         facts,
+        properties={'446': 22},
         stats={
             f'{stat}:0': {'id': stat, 'value': value, 'status': 'decoded'}
-            for stat, value in [(105, 35), (9, 112), (147, 8), (31, 148)]
+            for stat, value in [(105, 35), (9, 112), (147, 8), (31, 148), (20, 22)]
         },
     )
     contract, gaps = handler.contract(facts, 'shield')

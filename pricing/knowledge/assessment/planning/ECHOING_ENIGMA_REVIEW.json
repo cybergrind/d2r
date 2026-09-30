@@ -1,0 +1,75 @@
+{
+  "review_date": "2026-09-28",
+  "guide": {
+    "path": "pricing/raw/mr/guides__echoing-strike-warlock-guide.html",
+    "sha256": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c"
+  },
+  "planner": {
+    "path": "pricing/raw/mr/planners/ucgz20le.json",
+    "sha256": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91"
+  },
+  "context": {
+    "span_index": 18,
+    "label": "Enigma Mage Plate",
+    "side": "player",
+    "slot": "unspecified",
+    "reference": {
+      "profile_id": "ucgz20le",
+      "set_id": "LmIammQ8",
+      "item_id": "321",
+      "position": [
+        100,
+        3768
+      ],
+      "section_locator": "/sections/30"
+    }
+  },
+  "item": {
+    "base": "xtp",
+    "quality": 7,
+    "ilvl": 99,
+    "superior": {},
+    "uniqueValues": [
+      775,
+      14,
+      45,
+      0,
+      2,
+      0,
+      1
+    ],
+    "unique": "runeword059",
+    "defense": 261,
+    "sockets": 3,
+    "socketedItems": [
+      "r31",
+      "r06",
+      "r30"
+    ],
+    "stats": {
+      "armorclass": 775,
+      "item_healafterkill": 14,
+      "item_fastermovevelocity": 45,
+      "item_strength_perlevel": 6,
+      "item_allskills": 2,
+      "item_find_magic_perlevel": 8,
+      "item_nonclassskill#54": 1
+    },
+    "description": "1036 def +775 def"
+  },
+  "section": {
+    "locator": "/sections/30",
+    "heading": "Late-Game",
+    "anchor": "late-game-header",
+    "position": [
+      100,
+      3065
+    ],
+    "review_state": "pending",
+    "text": "Start runs by buffing yourself with Battle Command 2 times and afterwards with Battle Orders from Call to Arms. This is important for keeping your Mercenary alive in high Player Settings content. Then cast three Defilers, reapply Battle Command and Battle Orders to boost their level, and Consume one of them. Once you acquire Enigma Mage Plate, replace Blade Warp with Teleport."
+  },
+  "status": "reviewed",
+  "questions": [],
+  "profile_id": "echoing-late-game-enigma-player",
+  "review_basis": "Exact Late-Game mobility prose and native recipe validated; independent 24-case bank covers all three qualities, Mage Plate/Dusk Shroud, ethereal/unknown and class/identity negatives. Exact embedded reference and visible label linked. Full-guide and Enigma-family quality review remain unfinished."
+}

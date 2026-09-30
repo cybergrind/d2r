@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-27",
+  "inputs": {
+    "third-parties/D2MOO/source/D2Common/src/Items/Items.cpp": "e494cec39b71240e81a473df30b1a4069b0ad7e3962886475457b8e28ec0ee57",
+    "third-parties/D2MOO/source/D2Common/include/D2Items.h": "a6fac64ce9aa998c93a9af8fd9e3349c86cd7317ab1f1bcea55adbef7df33f94"
+  },
+  "rules": [
+    {
+      "id": "special-quality-not-runeword-base",
+      "dimension": "recipe_eligibility",
+      "scope": "runeword_creation",
+      "qualities": [
+        "magic",
+        "set",
+        "rare",
+        "unique",
+        "crafted"
+      ],
+      "disposition": "excluded",
+      "reason": "This quality cannot form a runeword. This excludes runeword creation only; sockets, cube upgrades and item value require separate review.",
+      "evidence": [
+        {
+          "path": "third-parties/D2MOO/source/D2Common/src/Items/Items.cpp",
+          "symbol": "ITEMS_GetRunesTxtRecordFromItem",
+          "lines": [
+            3251,
+            3265
+          ],
+          "finding": "Returns nullptr for qualities ITEMQUAL_MAGIC through ITEMQUAL_TEMPERED before inspecting socket payloads."
+        },
+        {
+          "path": "third-parties/D2MOO/source/D2Common/include/D2Items.h",
+          "symbol": "D2C_ItemQualities",
+          "lines": [
+            12,
+            23
+          ],
+          "finding": "Magic=4, set=5, rare=6, unique=7 and crafted=8 are inside the rejected range."
+        }
+      ],
+      "limitations": [
+        "D2MOO is the pinned legacy engine reference, consistent with the existing nonmagical-only base assessment; it does not establish new RotW recipes.",
+        "Unknown qualities and completed runewords are not covered.",
+        "No conclusion about other cube recipes, socket quests, upgrade recipes, trade demand or value."
+      ]
+    }
+  ]
+}

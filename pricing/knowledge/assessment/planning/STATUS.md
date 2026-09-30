@@ -1,8 +1,3355 @@
-# Implementation status — 2026-09-25
+## 2026-09-28 — seven Abyss named mercenary socket configurations published
 
-The requested all-item rollout is incomplete. Family dispatch, reviewed roles and
-valid comparison contracts are separate from usable market prices. No missing
-named tier defaults to trash, and no missing market facet defaults to zero/false.
+Added exact Abyss Act2Might rules and source links:
+104 Shaftstop/Um (fc01065b79 upgraded Boneweave),105 Duriel/Um (80 GreatHauberk),
+114 TalCrest/PerfectAmethyst (62),115 Guillaume/15IASjewel (63),116 Gaze/15IAS (65),
+118 Stealskull/15IAS (110),119 Kira/Ral (72). Jewel child53 is verified pure15IAS.
+Reviewed predicates/physical-bearer semantics reused from established Zeal named
+configurations, but separately pinned to Abyss source and Warlock class. Native low
+rolls and legal upgrades supported; actual socket content required, unknown fillers
+remain unknown, set ethereal rejected. Mana/mana-leech not mercenary priorities.
+
+New `cases/abyss_merc_named.py` uses existing independent native item fixtures with
+Abyss-specific expectations: seven scenarios each =49cases. Red49failed; staged49
+passed18.29s; selected49passed23.38s. Statbundle2passed9.53s; Ruffclean.
+Full dependent+SQLite rebuild, staged20saved replays, publication, selected20replays
+completed. All20 report texts and prices match exactly. New selected generation:
+`95877b3bba7f895a081804f232397c5c84c070110c951cf1aac79cbffba5567b`
+2467profiles/2459statconfigs; bank1923cases/3767targets/3395missingcases.
+Completion reviewed1598/excluded4811/rows8066/remaining111873, complete=false.
+New rule coverage dimensions still need review; no final-fullsuite/hostdelivery claim.
+Logs `tmp/abyss-merc-named-*`; completion67334 exited0; all handles terminal.
+
+Successful one-shots NEVER rerun: `tmp/add_abyss_merc_named.py`,
+`tmp/link_abyss_merc_named.py`. Seven table references use guarded
+mercenary_table_correction; source reviews now123rows.
+
+Next remaining Abyss table gaps: Chains of Honor108, Undead Crown110, GemmedMask112,
+CrownOfThieves117; existing-role source links98–103/106–107/109/111/113/120–121 also
+need exact configurations reconciled. Existing roles are often sourced from WP-A
+rather than HTML and may constrain a different base/ethereal/socket state:
+Treachery existing requires eth MagePlate, table55 is noneth/missingeth; Fortitude
+requires eth SacredArmor and table2 is eth superior15def; Andariel table66 includes
+jewel67 and existing native-only role does not establish filler coverage. Do not
+blindly close them by name. Generic existing-role templates may allow several merc
+contexts and need reviewed subset/source association. Missing Meteor planner and
+all other item/market/bank/final gates remain open. Goal stays active.
+
+## 2026-09-28 — player-held Insight caster alternative implemented/published
+
+New `abyss-warlock-player-insight-staff`, separate from mercenary role. Exact guide
+span13 links x2cpo0l5/item10 Insight Archon Staff; staff has no staffmods. Native
+weapons table supplies the nine legal4s staff bases, recipe/runes individually pinned.
+Player priorities: Meditation,35FCR,+5attributes,2mana-after-kill,23MF. ED/AR/Critical
+Strike are not credited as Abyss spell damage. Native-low rolls, normal/superior/
+low-quality supported. Ethereal considered for casting-only use with durability
+condition; no universal premium/best-base/equipment-breakpoint claim.
+
+New bank file `cases/abyss_player_insight.py`: nine independently specified native
+cases (lowroll,normalBattleStaff,superior,lowquality,ethereal,illegalShortStaff,
+unknownclass,wrongclass,empty). Red9failed before implementation; staged17passed
+23.53s and selected17passed28.92s including existing eight mercenary cases.
+Statbundle2passed; Ruffclean. Source span13 linked via player_equipment review.
+
+Full dependent rebuild + SQLite + staged20replays + publication + selected20replays
+completed. All20 report texts/prices identical staged vs selected. New generation:
+`33ec0ef27be5457d803e2ce2a1e6e06b015ed18f5677f9c60e561336da4a9fc8`
+2460profiles/2452statconfigs; bank1874cases/3760targets/3395missingcases.
+Completion: reviewed1591, excluded4811, rows8059, remaining111845, complete=false.
+New role has coverage dimensions still needing review; no false all-item closure.
+No host restart/fullfinalsuite claim. All handles terminal (completion48389 exited0).
+Logs `tmp/abyss-player-insight-*`.
+
+Successful one-shots NEVER rerun: `tmp/add_abyss_player_insight.py`,
+`tmp/add_abyss_player_insight_binding.py`. First rebuild failed before publishing
+because corroborating weapons/gems references had empty locators. Corrected to
+specific base/rune records with refreshed role/use/stat fingerprints, then reran the
+repeatable rebuild successfully. Initial script still contains those old locators;
+do not use it to recreate the role.
+
+Next: continue remaining source links/configurations (Abyss mercenary table has
+other original-player attributions now reviewable with adjacent Might-table guard),
+then all-item coverage/pricing/bank obligations. Missing Meteor planner remains
+explicit. Reachability audit regenerated and planner note role dependency valid.
+
+## 2026-09-28 — Abyss planner resource notes fully reviewed
+
+Second row in `rules/planner_context_reviews.json`: `abyss-resource-planner-notes`.
+Pinned exact gsg0p0l0 notes and four reviewed parts: Bind/Consume demon gameplay
+instructions (native Warlock skills381/382), conditional Insight mana alternative
+linked to `abyss-warlock-insight-act-2-might`, unspecific potion reminder linked to
+implemented ordinary recovery policy, and author signature. No potion tier/quantity
+or additional item recommendation is invented. Item definitions/configurations and
+market coverage remain independently in scope.
+
+`planner_resource_notes.py` requires exact note text/parts, native skill names/class,
+pinned consumables/native evidence, and the exact semantic role fingerprint. It
+adds the current role-file hash to audit dependencies without invalidating review
+for unrelated roles added to that file; completion detects stale audit snapshots.
+New helper included in completion-policy fingerprint. Five new tests plus existing
+Valkyrie/audit/completion suites: **84 passed**, Ruff clean. Existing Valkyrie test
+fixture now selects its own row instead of assuming all reviews belong to it.
+
+Audit and completion regenerated: no remaining unreviewed notes/nested-equipment
+contexts in available planners; missing `1r010653` still blocks source closure and
+all unreachable-definition exclusion candidates remain unapproved. Completion
+**111828 remaining**, complete=false. No runtime change/publication; selected
+008b7a0ed7c3242e15d913ecf5a97639789476c73b26c73865ba0613dfcdf85e unchanged.
+Logs `tmp/abyss-resource-notes-{red,tests,audit,completion}.log`.
+Completion65812 exited0. Review-row appender succeeded; do not recreate/append twice.
+
+Next independent work: Abyss player Insight alternative span13 (x2cpo0l5/item10)
+is distinct from the mercenary role and still needs assessment; also broader pending
+source/configuration coverage. Missing Meteor planner remains explicit, not a reason
+to stop independent work. No full-final-gate or delivery completion claimed.
+
+## 2026-09-28 — Abyss Insight source references linked
+
+Closed exact guide spans94/95/96 against `abyss-warlock-insight-act-2-might`:
+-94: explicit Desert Might mercenary + Insight Giant Thresher narrative, using
+existing mercenary_prose_correction; preserve original player/unspecified fields.
+-95: early-game table linked fc01065b/item30 = Insight Poleaxe, Ral/Tir/Tal/Sol.
+-96: mid-game fc01065b/item88 = eth superior15ED Insight Thresher, total275ED.
+Captured perfect rolls are not minimum requirements. Player weapon span13 remains
+separate and open, as do planner notes.
+
+New `mercenary_table_correction` kind requires original player/merc-equipment slot,
+Warlock/player-class predicate, exact Act2Might predicate and same role slot. Raw
+span must be inside the quoted table section. Adjacent previous section must have
+exact full wearer quote with explicit Desert Mercenary with Might Aura / Equip him
+with grammar, followed by Gear Progression and the exact Early/Mid/End table header.
+Helper `mercenary_table_context.py` is in completion-policy fingerprint. No source
+attribution rewritten; unrelated/nonadjacent/player-table contexts rejected.
+
+74 affected source-context/policy tests passed in `tmp/abyss-insight-source-tests.log`;
+Ruff clean. Completion regenerated: reviewed_occurrences1590, excluded4811,
+remaining111829, complete=false. Selected runtime unchanged
+008b7a0ed7c3242e15d913ecf5a97639789476c73b26c73865ba0613dfcdf85e.
+Completion92559 exited0, log `tmp/abyss-insight-source-completion.log`.
+
+Successful one-shots NEVER rerun:
+`tmp/add_abyss_insight_prose_binding.py` (initial index206 error occurred before write,
+then corrected94 and succeeded), `tmp/add_abyss_insight_table_binding.py`,
+`tmp/add_abyss_insight_mid_table_binding.py`. Source reviews now115rows.
+Continue note/configuration links and remaining all-item work; no completion claim.
+
+## 2026-09-28 — Abyss Insight mercenary rule implemented and published
+
+New `abyss-warlock-insight-act-2-might` role + stat review/guide use, sourced to
+Abyss section39 (Desert Might mercenary, Insight Giant Thresher for Meditation)
+and section40 Insight equipment choices; also pins planner gsg0p0l0 containing mana
+notes. Role primary source span95 exact Insight; source date verified from raw HTML
+May22,2026. This is a generic legal Act2 polearm alternative, not exact endorsement
+of every linked base/roll or a universal best-base assertion. Requires Warlock,
+Act2Might, identified completed word, filled4s and legal polearm code. Native low
+rolls and normal/superior/low-quality, eth/noneth accepted; Meditation plus physical
+mercenary stats highlighted; FCR/Energy/Vitality excluded as merc priorities.
+
+Eight independently specified native item-bank cases in `cases/abyss_insight.py`:
+low Partizan, eth GiantThresher, superior, low-quality, illegal-capacity Bardiche,
+wrongmerc, unknownmerc, empty sockets. Red8failed before rule; staged8passed14.41s,
+selected8passed19.98s. Statbundle2passed; lint clean. Logs `tmp/abyss-insight-*`.
+One-shot `tmp/add_abyss_insight_role.py` succeeded: NEVER rerun. Source date was
+corrected afterward to verified May22,2026 with role/stat/use fingerprints updated.
+
+Full dependent artifact + SQLite rebuild, staged20saved replays, publication and
+selected20replays succeeded. All20 report texts and price estimates exactly match.
+New selected generation:
+`008b7a0ed7c3242e15d913ecf5a97639789476c73b26c73865ba0613dfcdf85e`
+2459profiles/2451statconfigs; bank1865cases/3757targets/3393missingcases.
+Retain previous generations. No host restart or finalfullsuite claim.
+Sourceaudit and completion regenerated; 111832remaining, complete=false. Increased
+queue includes the new role's still-unreviewed coverage dimensions; no false closure.
+All tool handles terminal (last completion36323 exit0).
+
+Next: bind exact Abyss Insight occurrences and planner notes to this reviewed role;
+notes also mention Bind Cursed Conviction Hephasto/Consume Defiler (skill context)
+and potions. Do NOT close notes wholesale from Insight implementation alone. Existing
+potion policy is implemented but exact source-note association needs review. Then
+continue all other scoped items/source configurations. Missing Meteor planner
+remains unresolved; final contract and runtime-delivery gates remain open.
+
+## 2026-09-28 — generated Valkyrie gear context reviewed
+
+Pinned `rules/planner_context_reviews.json` (one row) and added validator
+`maintenance/planner_context_reviews.py`. Planner `0w0106ph` /summons/valkyrie
+contains inline generated gear, not player/mercenary acquisition recommendations.
+Native skills32 calc2 ln56 gives itemLevel109 at skillLevel29; native monequip
+rows2–8 exactly match its seven rare equipment slots/bases. Legacy D2MOO SkillAma
+summoning → SkillNec passive stats → SkillAss sub_6FCF9580 corroborates generation
+on the pet inventory. Legacy code is supporting evidence, native tables and exact
+cached summon snapshot are pinned. No broad exclusion of summon/player items.
+
+The audit records the reviewed context and pins review/mechanics hashes in its
+source hashes; completion revalidates these. Changed summon, source or mechanics,
+unknown kinds, wrong slot/base/quality/itemlevel fail. Reachable definitions remain
+retained; no occurrence/identity/market dispositions were removed. Root audit still
+has the missing Meteor planner and Abyss meaningful notes. All candidate source
+exclusions remain unapproved.
+
+Audit + completion regenerated. Remaining tasks **111,814**, complete=false.
+Selected runtime unchanged. Nine new tests; 79 affected tests pass in
+`tmp/valkyrie-context-final-tests.log`; Ruff check/format pass. Red log
+`tmp/valkyrie-context-red.log`; completion log `tmp/valkyrie-context-completion.log`.
+Process83789 exited0. The review JSON creator was successful: do not rerun its
+assert-not-exists creation; maintain the existing row normally.
+
+Next: review Abyss planner notes against actual guide roles/configuration and
+continue semantic source/item coverage. Missing Meteor exact planner remains a
+source gap, not proof that all independent work is blocked. Goal stays active.
+
+## 2026-09-27 — reachability is now a completion prerequisite
+
+`completion.py` consumes `appraisal-planner-reachability.json`, verifies its canonical
+inventory fingerprint and on-disk source hashes, and retains all audit issues in the
+source-review queue. A real planner inventory without an audit, or an audit omitting
+a scoped planner, cannot pass. Audit and graph implementation files are included in
+the completion-policy fingerprint; final attestations cannot survive changes.
+
+Latest completion regenerated successfully: **111,815 remaining tasks**, complete=false.
+The four additional entries preserve the missing/unsupported `1r010653` source and
+the previously untracked Abyss notes and generated Valkyrie gear. No source rows
+were excluded. Selected runtime generation unchanged. Audit must be rerun after
+any guide inventory rebuild, before completion:
+`uv run --offline python -m pricing.knowledge.assessment.maintenance.planner_source_audit`
+then `uv run --offline python -m pricing.knowledge.assessment.maintenance.completion`.
+
+Meteor investigation: existing planner `8101064z` item13 is +1 Fire Skills/+45 Life
+Grand Charm (ms339/mp442), used by Standard/Ubers/Set/Hardcore profiles. It does NOT
+prove the contents of missing planner `1r010653` item13 referenced at guide spans10
+and23. General guide prose and exact missing rolls must stay separate; no automatic
+replacement performed. Existing planner_source_gaps already retains its 404.
+
+Validation: 70 completion/evidence/policy/reachability tests pass in
+`tmp/planner-completion-final-tests.log`; Ruff passes. Red evidence:
+`tmp/planner-completion-red.log`, `tmp/planner-audit-omission-red.log`.
+Completion log `tmp/planner-audit-completion.log`; process51984 exited0.
+Continue reviewing substantive planner notes/extra equipment and semantic source
+closure, then the full all-item contract. No goal completion or runtime deployment.
+
+## 2026-09-27 — persistent reachability audit; remaining source gaps retained
+
+Added repeatable `uv run --offline python -m
+pricing.knowledge.assessment.maintenance.planner_source_audit`, writing
+`pricing/data/appraisal-planner-reachability.json`. It checks inventory-pinned
+source hashes and records guide-to-planner item references. Missing/drifted sources,
+unresolved guide links and unsupported planner responses suppress all exclusion
+candidates. It never approves exclusions or changes item/market coverage.
+
+Resolved the two `crf088#amu` links using cached game-data `crafted.crf088` (Caster
+Amulet), independently of numeric planner references. Three exact empty rich-text
+editor shells no longer require note review. Regression discovery: planner
+`0w0106ph` has generated Valkyrie gear under `/summons/valkyrie/items`; nested
+metadata equipment now retains referenced definitions and requires explicit review.
+Abyss `gsg0p0l0` still has meaningful Insight/potion notes, retained for review.
+
+Remaining missing planner `1r010653.json` is the cached `Profile not found` response.
+Meteor Sorceress guide links item 13, Burning Grand Charm of Vita, in the Flame Rift
+replacement paragraph. No existing reviewed_source_issues entry resolves it. Seek
+local pinned replacement/source reconciliation; do not assume an unrelated skiller
+has the same exact configuration. No exclusions approved; the earlier 4,062/8,008
+counts are preliminary diagnostics, not current approved candidates.
+
+Red/green: `tmp/planner-nested-equipment-red.log`,
+`tmp/planner-source-audit-red.log`, `tmp/planner-gap-locator-red.log`.
+Affected suite: 30 passed (`tmp/planner-source-audit-final-tests.log`), Ruff clean.
+Runtime/selected generation unchanged, completion still unfinished. Continue source
+closure and all-item contract; do not mark goal complete.
+
+## 2026-09-27 — planner reachability diagnostic (not exclusion approval)
+
+Added `maintenance/planner_reachability.py` and 11 focused tests. Reads all profiles,
+player/merc/inventory/cube roots, guide references on any HTML element, and recursive
+socket children. Unknown structure, missing numeric definitions, cycles and planner
+notes prevent candidate output for that planner. Catalog-only tooltip references
+are separated from planner item references. No completion dispositions changed.
+
+`uv run --offline python -m tmp.audit_planner_reachability` produced
+`tmp/planner-reachability-audit.json` pinned to inventory/source hashes. Across 114
+parsed planners: 4,062 definition candidates. Of 9,907 “Unreferenced definitions”
+occurrences, 1,629 actually have reachable roots and MUST stay in review; 8,008 are
+candidate-only and 270 remain uncertain. These are diagnostic counts, not approved
+source exclusions, and never imply item/market worthlessness.
+
+Outstanding audit questions: `1r010653.json` contains `Profile not found`; two
+`crf088#amu` catalog links in Fire Blast guide remain unresolved; four planners have
+notes (three empty rich-text shells, Abyss notes include Insight advice). Resolve
+these with pinned source review before implementing any source-only exclusions.
+Also review root metadata semantics and unknown item-reference forms before treating
+this graph as exhaustive. Existing completion ledger remains 111,811 pending,
+complete=false; selected generation unchanged. No runtime publication/restart.
+
+Validation: red/green logs `tmp/planner-reachability-red.log`,
+`tmp/planner-catalog-links-red.log`; affected build/slot/reachability suite 24 passed
+in `tmp/planner-reachability-final-tests.log`; Ruff check/format pass. Continue audit,
+then the remaining all-item completion contract; do not mark goal complete.
+
+## Active continuation — Zeal HTML item-reference closure, 2026-09-27
+
+Goal active, complete=false. Closed4 remaining Zeal HTML occurrences: BoneBreak0/27/32,
+Butcher2. Current completion ledger has ZERO pending occurrences for source_id
+pricing/raw/mr/guides__zeal-paladin.html. This is marked HTML reference closure only,
+NOT all Zeal planner configurations or all-item assessment completion.
+Source-context review document112rows; rewards11rows. Runtime artifacts unchanged,
+selected generation4ffcfe435dcba03980346379deea696bc6c352fe6057f794e323e40756c78738
+77artifacts,2458profiles/2450statconfigs. No publication needed for maintenance-only.
+
+New qualified_named_prose validator uses explicit reviewed BoneBreak physical-use
+or upgradedButcher instructions, exact unique identity, hard class, role slot and
+same rawHTMLsection position. BoneBreak may correct a merc-tagged occurrence only
+with explicit Uber paragraph clause; resulting role remains player inventory charm.
+Never substitutes Renewed/Latent charm. Butcher requires primary source quote
+“Butcher's Pupil (Upgraded)” and exact reviewed upgrade dependency; SmallCrescent
+code resolved frommetadata in appender. Primary evidence must support nameduse.
+Original occurrence labels/side remain unchanged. Helper named_prose_context.py
+added to completion fingerprint/invalidation tests.
+
+10new tests initially red; negative renamedcharm originally hit earlier guide-use
+endorsement guard, fixture corrected to reach namedidentity check without relaxing
+production validation.69affected source tests pass0.42s;6deliveryweapon runtime tests
+pass17.82s. Ruff clean. Logs tmp/named-prose-{red,green,final-tests}.log (earlygreen
+log superseded by finaltests), tmp/zeal-final-prose-runtime-tests.log.
+Successful ONE-SHOT tmp/add_zeal_remaining_named_prose.py NEVER rerun.
+All jobs terminal:18928appender,28954completion,61199runtime tests.
+Finalledger tmp/zeal-final-prose-completion.log.
+Scope d494da4cfdc08a53f9efbf47fe2d1b476cdfaa7979bd20765f883b0b0eb4f186
+Counts {"coverage_rows": 8053, "excluded_occurrences": 4811, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111811, "reviewed_occurrences": 1587}.
+Bank1857cases/3754targets/3391missing unchanged. Finalwholebank/fullsuite, pricing
+reviews and runtime restart/delivery remain incomplete. No livecollection/hostprobe/
+restart/staging/commit. Goal staysactive.
+
+NEXT broaden source/configuration closure beyondZeal. Actual pending source variants:
+Unreferenceddefinitions9907, Standard5931, Starter4939, Guidemention4796,
+MagicFind3540, Ubers2271, Damage2124, SkillTree1689, SunderCharm1519,
+Budget1416, WhiteSkills1232, Mainalternatives1228.
+Do NOT blindly exclude Unreferenceddefinitions: audit full planner reference graph,
+all profiles/variants, guide inline data-d2planner links (including references from
+other guides), and recursive socket children first. Label is extractor output,
+not proof of no use. Examples: k4x70lwx/items/87/socketedItems/1 PerfectTopaz;
+3q1ia0lw/items/25/socketedItems/2 TalRune. Item identities and other occurrence/
+market obligations stay in scope even after a justified source-only exclusion.
+CodeGraph explored pricing/knowledge/builds.py: planner_rows tracks used references
+through add(), ancestors guards cyclic socket refs; inspect complete profile roots
+and unreferenced-definition emission next. Source audit is pending, not a decision.
+
+## Active continuation — rare Zeal axe implemented and published, 2026-09-27
+
+Goal active, complete=false. Implemented previously missing Ethereal Rare Weapon
+span59 as zeal-paladin-ethereal-rare-axe. Selected new generation
+4ffcfe435dcba03980346379deea696bc6c352fe6057f794e323e40756c78738
+77artifacts,2458profiles/2450statconfigs. Retain all older generations.
+
+Reviewed n8010616/item108 and native affixes/weapons/gems: ethereal rareBerserkerAxe,
+Mechanist2sockets, Cruel201–300ED, per-leveldamage/AR prefix526(current native name
+Trump; planner shorthand fools), SelfRepair402, fixed40IASQuickness169, Slaughter
+15–20maxdamage, actual2Lo filled payload. Minimum native rolls accepted;300ED/20max
+are preferences. Requires all6captured nativeaffixIDs to avoid mixing superficially
+similar stats, plus identified/base/quality/class/eth/socket/actualchild requirements.
+Important stats17/18/93/22/218/224/252/141; repair supportive rather than ranking
+larger seconds as better. Selfrepair notindestructible; perlevelstats notflat and
+full attack/survival/equip setup remains conditional. No numeric price invented.
+
+Initial red missingprofile; first implementation exposed prefix source-row vs native
+memory-ID mismatch. Corrected via decoder metadata record-key lookup: prefixIDs
+1205/1454/1311 rather than420/669/526. Suffix IDs402/169/201 unchanged. Fixtures
+independently specify source rows through native byte builder. Unit test now checks
+required predicate truth=true and unmet perfectroll preference, rather than demanding
+unconditional matched status despite runtime advisory checks.
+
+12new item-bank cases: native-low/perfectED, missingrepairaffix, unknownaffixes,
+noneth/unknowneth, wrong/unknownclass, empty/wrong/unknownfillers, onesocket.
+All12passstaged6.46s andselected12.74s;3focused profile/statbundle tests pass13.84s.
+Ruff clean. Saved20 reports and prices EXACTLY match staged vs selected (overall
+assessment metadata differs by generation as expected). Native/published tier gate
+rebuild succeeded; no finalfullsuite/currentwholebank claim.
+
+Successful ONE-SHOT tmp/add_zeal_rare_axe.py NEVER rerun.
+Repeatable correction tmp/refine_zeal_rare_axe_affix_ids.py resolves capturedprefixIDs
+and updates role fingerprints; no need to rerun now. Existing all previous one-shots
+retain prohibition. Addedcasesmodule zeal_rare_weapon.py registered in bankcases.
+Statbundle expectedcount2450. Full dependent rebuild via final-charge-routing-
+rebuild.py completed (51402), followedbySQLite rebuild(57529), staged tests/replay,
+publication(40118), selectedtests(27946)/replay(21981), coverage, completion(39400).
+All processes terminal. Source-context reviews108/rewardreviews11 unchanged.
+
+Logs tmp/zeal-rare-axe-{red,green,unit,staged-bank,selected-bank,rebuild,index,
+publication,coverage,completion}.log; staged/selected-replay.json. Green earlylog
+contains a superseded status-assertion failure; final unit.log is passing evidence.
+Bank1857cases/3754targets/3391missing. No livecollection, hostprobe/restart, staging
+or commit. Prior Pythonhostrestart/delivery remains unverified; this newrole is data.
+Scope 70651b868fd168b9194b259ff736095c1345a5f9fe463fcdb58ae25ef4a15afc
+Counts {"coverage_rows": 8053, "excluded_occurrences": 4811, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111815, "reviewed_occurrences": 1583}.
+
+NEXT4Zeal source references: BoneBreak0/27/32 (0/32no plannerID,27wrong mercside),
+Butcher2(section32primary upgradedSmallCrescent). Remaining rare/base/price/etc scope
+still substantial; completion ledger is authoritative and goal remainsactive.
+
+## Active continuation — socket component source references, 2026-09-27
+
+Goal active, complete=false. Closed11Zeal socket filler references:74/76/78/89/91/
+93/95/108/110/111/112. Source-context reviews now108. Runtime artifacts unchanged;
+no publication needed. Selected generation remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc.
+
+New maintenance socket_component_reference kind binds a filler to the reviewed
+parent assembly quote instead of treating a rune/jewel as independently worn gear.
+Helper socket_component_context.py checks role endorsement/fingerprint via shared
+compiler, hard player class/slot, parent named identity or reviewed typed pattern,
+exact assembly quote in role source, source cache/raw HTML hash/section position.
+It independently parses raw span positions, requires the parent to be first item
+inside same br/td/li/p-delimited HTML entry and exact normalized entry text. Adjacent
+entries, wrongparent/index/count/class/role/review rejected. Preserves raw filler
+occurrence. Helper included in completion policy fingerprint/invalidation test.
+
+Linked reviewed completed 4Ruby/4Ist magic shields, 3IstGriswold, Cham/Ruby/Um/Ber
+Guillaume, 3PerfectTopazMask and RalOrtThulMask. Empty preparation roles not used.
+Runtime stat configurations already require actual child payloads, not parentstats.
+Rechecked tests for missing/wrong/duplicate child payload, ED/IAS Ruby threshold,
+wrongwearer/ethereal and wrongbase. No new price or roll assumptions.
+
+8new source-link tests red→green;61affected tests pass37.49s, including runtime
+sockethelm/specialistshield tests. Ruff clean. Logs tmp/socket-component-{red,green}.log,
+tmp/zeal-socket-component-tests.log. Actual11data links compiled against rawHTML.
+Successful ONE-SHOT tmp/add_zeal_socket_component_reviews.py NEVER rerun.
+All jobs terminal:52153appender,75957tests,43634completion.
+Completion log tmp/zeal-socket-component-completion.log.
+Scope c5c7bd15aaa3218a80622af26714ca3a3cbf5011af0da283956e4d17526f4be5
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4811, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111811, "reviewed_occurrences": 1582}.
+Bank1845cases/3753targets/3391missing unchanged. Finalwholebank/fullsuite, market
+reviews and hostrestart/delivery remain unfinished. No livecollection/probe/restart/
+staging/commit. Keep goal active.
+
+NEXT5Zeal references: BoneBreak0/27/32 (0/32no plannerID,27wrong mercside),
+Butcher2(section32primary upgradedSmallCrescent), EthRareWeapon59. Then continue
+all other builds/families and completion-contract dimensions. Existing source-only
+review counts do not establish completed runtime/market/item-bank coverage.
+
+## Active continuation — boss farming targets, 2026-09-27
+
+Goal active, complete=false. Closed3source-only farming-target occurrences:
+Zeal37 HellfireTorch and38KeyofDestruction(section30); DreamPaladin44HellfireTorch
+(section29). Reward review document now11rows. Source-context reviews97unchanged.
+No runtime artifact/publication change; selected remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc.
+
+reward_mentions farming_target grammar now also permits explicit “defeating the
+Uber Bosses and acquiring a Hellfire Torch” and Nihlathak “farming this Boss for
+the Key of Destruction”. Context still exact uniqueTorch/miscKey, original name,
+player/unspecified demand/GuideMention; raw HTML source position and hashes verified.
+New guard requires only one occurrence of the item label in the evidence section,
+so a mixed equip+farm paragraph cannot exclude an equipment mention by nearbytext.
+Item identities, pricing and other equipment/inventory uses remain in scope.
+
+Red-green tests add2positive and5negative scenarios: equip instruction, wrongitem
+farming language, wrongcategory, repeatedequip/farmTorch and wrongboss.67affected
+reward/completion/dependency tests pass0.25s; Ruff clean. Logs tmp/farming-prose-
+{red,green}.log and tmp/boss-farming-final-tests.log. No new runtime or market claim.
+
+Successful ONE-SHOT tmp/add_reviewed_boss_farming_targets.py NEVER rerun.
+All jobs terminal:45950appender,57768completion. Final completion log
+ tmp/boss-farming-completion.log.
+Scope 8999eb163de32cb237f3b0e7c08c199c9201f94c9adfd7743208394d1565920f
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4811, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111822, "reviewed_occurrences": 1571}.
+Bank1845cases/3753targets/3391missing unchanged. Finalwholebank/fullsuite, market
+reviews and hostrestart/delivery remain unfinished. No livecollection/probe/restart/
+staging/commit. Goal remains active, not complete.
+
+NEXT16Zeal references: BoneBreak0/27/32 (0/32no plannerID,27wrong mercside);
+Butcher2(section32primary upgradedSmallCrescent); EthRareWeapon59;
+socketfillers74/76/78/89/91/93/95/108/110/111/112. Existing literal farming patterns
+were scanned acrossall cachedguides; onlyDream29 andZeal30 new matches. Do not
+exclude other farming prose without review. Continue source closure and all other
+completion-contract dimensions afterZeal.
+
+## Active continuation — mercenary support and two player repeats, 2026-09-27
+
+Goal active, complete=false. Closed8Zeal references: mercenary support28/29/30/31/33/34,
+Enigma1 and StandardBoneBreak10. Source-context reviews now97. No runtime artifacts
+changed/publication needed; selected generation remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc.
+
+Added mercenary_support_reference review kind and narrow explicit grammar in
+mercenary_source_context.py: “Mercenary to apply Decrepify from his The Reaper’s Toll
+or Lawbringers” or “Use a Mercenary with ... for Decrepify”. Preserves original
+player/unspecified labels; binds only reviewed merc Weapon configurations with
+hard class/mercenary constraints, exact identity/quality/fingerprint and actual
+raw-HTML section position. Names alone, wrong wearer/slot/class/merc or optional
+mercenary condition rejected. Existing correction grammar unchanged. Helper already
+part of completion policy fingerprint.11new tests red→green;75affected tests pass
+6.46s (tmp/zeal-merc-support-tests.log). Ruff clean.
+
+Source review: n8010616 Reaper21 repeats ruby role; independently inspected
+dc01061x Reaper1 socketchild2: magic15IAS/40ED jewel, ethereal Reaper, same reviewed
+filled configuration. Lawbringers n8010616/item174 PhaseBlade and dc01061x/item119
+ethereal superiorCrypticSword both legal1H; preserve per-weapon and actual dual
+mercenary-equipment requirements via existing two roles. No second weapon assumed
+from one capture, no persistent proc or guaranteed immunity-removal claim.
+Player exact-planner links preserve Enigma as alternative to Charge/Vigor and
+BoneBreak original charm penalty/level/active-inventory context.
+
+Successful ONE-SHOT appenders NEVER rerun:
+- tmp/add_zeal_mobility_charm_repeats.py
+- tmp/add_zeal_merc_support_references.py
+Jobs all terminal:92931/9604appenders,69850tests,50086completion.
+Final ledger log tmp/zeal-merc-support-completion.log.
+Scope 1bdc5d2d5cc382fda5f1e9ec0c006aac07a5642eb3be7a6f7d70b7c18dd09ecb
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4808, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111825, "reviewed_occurrences": 1571}.
+Bank1845cases/3753targets/3391missing unchanged. Final wholebank/fullsuite, pricing
+reviews and runtime delivery remain pending. No live collection/hostprobe/restart/
+staging/commit. Do not mark goal complete.
+
+NEXT18Zeal references:
+BoneBreak0/27/32 (0/32no planner ID,27 wrongly merc-tagged; original role is exact
+item195 n8010616/item175); Butcher2; EthRareWeapon59; socket fillers74/76/78/89/91/
+93/95/108/110/111/112; farmingTorch37 andDestructionKey38.
+Section30 exact farming evidence read: Ubers paragraph “defeating the Uber Bosses
+and acquiring a Hellfire Torch”; Nihlathak paragraph “farming this Boss for the
+Key of Destruction”. These are farming-target occurrences, not equipped-item uses;
+reward_mentions existing farming_target grammar currently covers only Summary275.
+Any extension must preserve identity/source position and not exclude actual
+inventory/equipment demand or item pricing review. Continue beyondZeal through all
+remaining completion-contract scope.
+
+## Active continuation — validated player prebuff/swap references, 2026-09-27
+
+Goal active, complete=false. Added12 Zeal source links: DemonLimb20/45/47/86,
+Treachery21/44/46/121, Wizardspike48/82, Naj50/83. Source-context reviews now89.
+No runtime artifacts changed/publication needed. Selected generation remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc.
+
+New maintenance player_utility_reference kind validates a finite explicit-use grammar
+in player_utility_context.py: Enchant prebuff, Fade prebuff, conditional Wizardspike
+casting swap, or Naj Teleport only without Enigma. Requires exact original occurrence,
+class, supported original slot, named identity/quality, player role slot, nonempty
+review, same-guide/cache source, actual raw HTML section position, endorsed role and
+fingerprint. Both occurrence evidence and primary role section quotes must support
+that specific use. Existing exact-planner repeat rules remain unchanged. Prebuff
+not added to ordinary PLAYER_SLOTS. No promotion of shared mercTreachery item29 to
+player combat armor. Primary source could be section32 rather than an item span.
+
+Red-green test: initially four positive utility-link cases failed unsupported kind;
+implementation passed except Treachery fixture initially lacked runeword predicate.
+Fixture corrected to represent an actual completed recipe, preserving quality guard.
+12utility tests cover4uses and8rejections (combat slot, merc, purpose, class, missing
+review, name only, wrong section, wrong primary). Helper included in completion
+policy fingerprint with invalidation test.
+
+Added15 independent full-pipeline item-bank cases for previously unbanked Wizardspike
+casting swap and Treachery Fade prebuff. Positive, wrong/unknownclass, ethereal/
+unknownethereal, missingstat, and Treachery empty/wrongsockets/unknownrecipe. Treachery
+IAS/FHR/coldres not credited to prebuff stat configuration. All15 passed selected
+(17.43s), log tmp/zeal-utility-new-bank.log.63affected tests pass4.25s,
+tmp/zeal-utility-references-tests.log. Ruff clean. Full final suite/bank remain pending.
+Bank1845cases/3753targets/3391targets missing; regenerated coverage.
+
+Successful one-shot tmp/add_zeal_utility_role_references.py NEVER rerun.
+All jobs terminal:53785 appender,7187 bank,57406 affectedtests,47101 completion.
+Final completion log tmp/zeal-utility-final-completion.log.
+Scope 355622a9179bc25dfdc3106d4453e6982b920a66d83faf5b316f41a14adc923b
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4808, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111833, "reviewed_occurrences": 1563}.
+No live market activity/host probe/restart/staging/commit. Runtime delivery unverified.
+
+NEXT26Zeal occurrences:
+BoneBreak0/10/27/32 (27wrong merc side); Enigma1 inverse mobility advice; Butcher2
+upgraded weapon with section32 primary; Reaper28/30/33 and Lawbringers29/31/34
+misattributed player prose about merc support; Torch37/DestructionKey38 farming;
+EthRareWeapon59; socket fillers74/76/78/89/91/93/95/108/110/111/112. Review exact
+source meanings and preserve unknown/conditional facets. Continue beyond Zeal through
+all remaining completion-contract families, dimensions and pricing dispositions.
+
+## Active continuation — Standard/Ubers mercenary source links, 2026-09-27
+
+Goal active, complete=false. Closed six exact Zeal guide occurrences:11/13/24/26
+Reaper/Guillaume and12/25 Fortitude. Source-context reviews now77 rows. No runtime
+artifact changes or publication; selected generation remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc.
+
+Reaper and Guillaume reference identical reviewed planner items (ED/IAS jewel and
+Cham respectively). Preserved conditional proc/support and unreliable Uber merc
+survival. Fortitude n8010616/item57 versus sj01061l/item21 explicitly compared:
+same ethereal Sacred Armor/recipe/socket contents/word rolls, normal versus15%
+superior defense. Existing role accepts both; superior and perfect rolls remain
+preferences. No new price assertion. Appenders validate actual raw HTML section
+positions; exact source cache and profile fingerprints validated by compiler.
+
+Successful one-shot appenders NEVER rerun:
+- tmp/add_zeal_standard_uber_merc_repeats.py
+- tmp/add_zeal_standard_uber_fortitude_repeats.py
+
+36 source-context regression tests pass;14 selected-generation Fortitude bank
+cases pass (16.92s), covering low/superior, wrong/unknown wearer, sockets, ethereal,
+and different base. Log tmp/zeal-standard-uber-fortitude-bank.log.
+Final completion rebuild exited0: tmp/zeal-standard-uber-final-completion.log.
+Counts: {"coverage_rows": 8052, "excluded_occurrences": 4808, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111845, "reviewed_occurrences": 1551}.
+All jobs terminal (40488/13928 appenders,21463 bank,60148 completion).
+No live collection, host restart/probe, staging or commit. Overall final full suite,
+whole final bank, pricing evidence dispositions and runtime delivery remain pending.
+
+NEXT38 Zeal occurrences remain. Prebuffs20/21/44–47/86/121 and swaps48/50/82/83
+need source-context handling: existing Demon Limb, Treachery prebuff, Wizardspike,
+Naj roles use section32 as primary source, so strict player_prose_repeat (requires
+primary planner span) cannot be used unchanged. Prebuff is also intentionally not
+in PLAYER_SLOTS. Add narrow tested semantic binding preserving temporary buff use,
+charges/recharge/remaining buffs versus combat items; do not reuse mercTreachery
+because planner item29 is shared. Butcher span2 also has section32 primary role.
+BoneBreak0/10/27/32, corrected merc prose28–34, farming37/38 and fillers remain.
+
+## Active continuation — early player and charged-pattern prose, 2026-09-27
+
+Goal active, complete=false. Previous turn made source-review progress; this turn
+adds21 exact source links. Selected generation remains
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc
+77artifacts,2457profiles/2449statconfigs. No runtime changes/publication/live activity,
+staging or commit. Worker restart/delivery remains unverified. All jobs terminal:
+60532namedappender,31467chargeappender,52560finaltests/completion. No known live process.
+
+Fifteen named player prose repeats reviewed through the existing strict exact-planner
+binding: spans3,15,16,17,18,22,23,35,36,39,41,42,43,49,53. Review reasons distinguish
+Starter UnbendingWill, Uber Fortitude/CoH mobility tradeoff, conditional LifeTap,
+Thundergod full lightning setup, LastWish proc/IAS limits, CTA buff swap versus FCR,
+Enigma Teleport versus casting swap, Phoenix conditional corpse redemption, and
+footnote alternatives. Same referenced planner item, source section and class are
+verified; no new runtime threshold or price claim introduced.
+
+New player_pattern_prose_repeat kind supports source labels differing from an
+endorsed pattern label, but only for the SAME nonempty planner profile+item IDs.
+Requires unresolved pattern occurrence, unnamed typed/quality-scoped role, exact
+source_label, endorsed pattern_label, qualities, class, fingerprint and raw HTML
+position inside the quoted section. Existing named/pattern validators unchanged
+outside this additional kind. Rejected wrong alias, endorsement, qualities, class
+or named role. An initial negative test saw the earlier guide-use rejection; its
+fixture was corrected to reach the source-context guard without weakening checks.
+
+Six charge prose links:4TeleportChargeStaff,14TeleportChargesAmulet,
+19LifeTapChargesWand,40LifeTapChargeWand,51StaffofTeleportation,52TeleportChargeAmulet.
+Existing rules preserve remaining charges, ethereal recharge limits, no-Enigma
+context, and missing alternative LifeTap sources. Span14 is specifically the same
+caster-crafted planner amulet; does not generalize craft bonuses to all amulets.
+Source-context review document now71rows. No existing item configuration changed.
+
+109 affected tests pass(0.33s), lint/format clean. Logs tmp/pattern-prose-repeat-
+{red,green}.log and tmp/zeal-early-prose-final-{tests,completion}.log.
+Successful ONE-SHOT scripts NEVER rerun:
+tmp/add_zeal_early_player_repeats.py
+tmp/add_zeal_charge_prose_reviews.py
+All preceding successful one-shots retain the same restriction.
+
+Completion scope 13d5c26907eebd0a6162a93ffedcee976ecb839a4d9467d8cb0ccce77fa9b880
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4808, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111851, "reviewed_occurrences": 1545}.
+Bank1830cases/3753targets/3393missing unchanged; whole final suite/current entire bank,
+actual market evidence dispositions and runtime delivery remain unfinished.
+
+NEXT44 Zeal guide occurrences remain. Important groups:
+- BoneBreak0/10/27/32: player inventory charm;27misattributed merc by section heading.
+  Existingrole zeal-paladin-bone-break-gear-inventory-charm; original versusLatent/
+  Renewed identity and player level75/physical resistance penalty remain important.
+- Standard/Uber merc11–13/24–26, plus misattributed Reaper/Lawbringer prose28–34.
+- Treachery/DemonLimb prebuffs20/21/44–47 and table121/86. Existing
+  zeal-paladin-treachery-fade-prebuff correctly requires triggering Fade and changing
+  back; armor IAS/FHR/coldres do not persist. Do not bind to mercTreachery just because
+  the planner item is reused. DemonLimb charge availability/recharge needs review.
+- Named swaps48/50/82/83, genericEthRareWeapon59, filler references and farming37/38.
+Continue these and all other completion-contract scope, including consumable identity
+and offline market reviews; source closure alone is not all-item assessment completion.
+
+## Active continuation — repeated player prose and Torch farming, 2026-09-27
+
+All-item goal active, incomplete. Previous132utility source bindings were progress;
+this turn closes3 exact player prose repetitions and1 farming-target occurrence.
+Selected generation unchanged b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc,
+77artifacts,2457profiles/2449statconfigs. No runtime changes/publication/live probes/
+collection/staging/commit. Host Python restart/delivery remains unverified.
+All tasks terminal (playerappender45398, Torch4955, finalchain57879); no live job.
+
+source_context_reviews.py newkind player_prose_repeat requires original player /
+unspecified slot, explicit class requirement and real equipment slot on endorsed
+role, exact profile fingerprint, same source/hash and SAME nonempty planner profile
+and item IDs as the reviewed primary span. Same-name alone is rejected. Raw HTML
+position must place the repeated span inside its quoted section. Original records
+remain unchanged. Closed Zeal249Enigma(section46),273Oath and274Shaftstop(section53).
+Enigma48FCR is a complete casting-swap target, not an armor stat. Oath is the same
+planner ethereal CrypticSword, not an inference that all Oath bases are optimal.
+Shaftstop is player armor, not the separate mercenary Um setup. No runtime rule
+or stat-priority changes were needed; existing rules preserve these distinctions.
+
+Shared position validation moved to maintenance/guide_positions.py, including
+PositionedMentions. Utility and Hardcore validators reuse it; completion fingerprints
+it. Initial import-cycle during extraction was fixed by moving the parser out of
+hardcore_mentions, so guide_positions depends only on builds._Mentions. All tests green.
+
+reward_mentions.py now has narrowly reviewed farming_target kind for the explicit
+Farm Hellfire Torches summary instruction. Requires uniqueTorch, player/unspecified,
+exact instruction and raw span within quoted section. Closes Zeal275 only; identity,
+market and all equipped Torch use remain scoped. Equipment or ambiguous prose rejects.
+Source-context rows50; reward rows8; utility rows132 unchanged.
+
+154 affected regression tests passed(0.38s); lint/format clean.
+Logs tmp/player-prose-repeat-{red,green}.log, tmp/farming-target-{red,green}.log,
+tmp/zeal-prose-final-{tests,completion}.log. No full final suite claim.
+Successful one-shot appenders NEVER rerun:
+tmp/add_zeal_player_prose_reviews.py
+tmp/add_zeal_torch_farming_review.py
+All previous successful one-shots retain that rule.
+
+Completion scope 6c4e0f44dcec4485494245caaded447b3a2ef419469964f44e723b3f1113ce03; counts {"coverage_rows": 8052, "excluded_occurrences": 4808, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111872, "reviewed_occurrences": 1524}.
+Bank1830cases/3753targets/3393missing remains unchanged. Complete=false.
+
+NEXT actual queue audit:65 Zeal guide occurrences still pending, including early
+prose0–53, staff-charge/prebuff/swaps, filler references, genericEthRareWeapon59,
+Treachery121 and named swap82/83/86. The new repeated-planner guard can safely reuse
+reviewed rules only where source contexts/configurations truly agree; mercenary,
+prebuff, negative/proc-conflict and farming advice still require separate reviews.
+Beyond Zeal, source_review56571 tasks remain (before any later edits), including
+9907 demand occurrences marked Unreferenced definitions. Audit their actual source
+reference graphs before considering source-only exclusions; the label alone is NOT
+proof and identities/other uses remain scoped. Do not hide missing source parsing.
+Other large queues include market8052, report8052, stat_annotations8052, leveling7351.
+Continue reusable family rules and exact source links, preserving every final gate.
+
+## Active continuation — shared potion-use source closure, 2026-09-27
+
+Goal active and incomplete. Previous potion expansion was progress. This turn closes
+132 exact source uses across33 guides without marking their item/market work complete.
+Selected generation unchanged: b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc
+77 artifacts,2457profiles/2449statconfigs. No runtime code/artifacts changed here;
+no new publication, host restart/probe, live market collection, staging or commit.
+No known live processes; final completion chain28842 finished successfully.
+
+New maintenance/utility_source_reviews.py and rules/utility_reviews.json:
+- Exact expected occurrence, cache hash/span, same-guide quote, native definition
+  hash/code/name, reviewed recipient and item-bank target checked.
+- Utility bindings are distinct from equipped roles and preserve raw evidence.
+- First4 Zeal spans245–248 individually linked to healing/thawing/antidote policy.
+- The identical mercenary-care paragraph occurs in27 guides (108 occurrences).
+  Its104 additional exact links reuse the reviewed policy but retain all provenance.
+- Six more guides (Strafe,DragonTalon,and4Warlock) were extracted player/unspecified.
+  Their24 bindings require explicit recipient_correction and exact feed-mercenary
+  or mercenary-resistance wording. Strafe's small prose variant was reviewed.
+- Crucially, raw HTML hash and original span position must place each occurrence
+  inside the quoted section. Same-name mentions elsewhere cannot borrow its quote.
+  PositionedMentions reuses the inventory extractor; raw/cached span sequences agree.
+  This stronger check passed all132 actual rows, not just synthetic fixtures.
+
+Completion now reads/pins utility_reviews and records utility_dispositions. Its scope
+fingerprint includes the review document, validator and consumable policy code.
+Conflicting reviewed/excluded source dispositions fail. Item market dimensions,
+other source uses and final bank/delivery checks stay independent.
+Red/green tests cover identity/recipient/native/cache/source/position conflicts,
+changed raw HTML, preserved original attribution and narrow closure semantics.
+113 final affected tests pass(0.24s), lint/format clean. Logs:
+tmp/utility-context-final-tests.log, tmp/utility-position-completion.log,
+tmp/utility-{context,attribution,position}-{red,green}.log.
+
+Successful one-shot appenders, NEVER rerun:
+tmp/add_zeal_utility_reviews.py
+tmp/add_shared_mercenary_potion_reviews.py
+tmp/add_corrected_mercenary_potion_reviews.py
+All preceding successful one-shot appenders also remain NEVER-rerun.
+
+Completion scope 4ea6ed0e15743ce14c104a7c9e7bb849aaba5a4df08e1677cde65fa44125e62f
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4807, "identities": 2570, "occurrences": 62891, "remaining_tasks": 111876, "reviewed_occurrences": 1521}; complete=false.
+Bank remains1830cases/3753targets/3393missing. Whole final suite/current entire bank
+and runtime delivery remain unverified. Do not claim completion or new price coverage.
+
+Read-only offline Full Rejuvenation lookup retained in
+ tmp/full-rejuvenation-market-lookup.json: known native/trade catalog identity,
+zero normalized market observations. This is NOT a completed raw-cache/evidence
+review or a zero-value verdict; no pricing disposition was forged from the miss.
+NEXT: Zeal249 Enigma FCR-swap prose and273Oath/274Shaftstop summary advice remain
+scoped;275Torch farming-summary prose needs precise disposition. Continue all-item
+identity/variant/stat/pricing closure, including consumable identity dimensions and
+actual offline market-evidence review, then all remaining contract gates.
+
+## Active continuation — all ordinary potion types, 2026-09-27
+
+Goal remains active and incomplete. Prior turn was progress (new consumable policy,
+rendering and selected tests); this turn extends it to all15 reviewed ordinary
+potions: five healing, five mana, two rejuvenation, Thawing, Antidote and Stamina.
+Selected generation remains b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc
+(77 artifacts); required native misc artifact unchanged, so no redundant publication.
+Python worker restart/delivery remains unverified. No known live processes remain.
+
+policies/consumables.py now exports REVIEWED_CODES and separates recipient effects.
+Mana restores over time for player use; do not suggest mercenary mana recovery.
+Rejuvenation instantly restores35% or100% of max life/mana, useful for player or
+mercenary emergency healing. Stamina restores stamina and increases recovery for
+30seconds, useful for player travel/early leveling; repeated doses extend duration.
+Super Healing/Mana text explicitly identifies the highest ordinary grade.
+Existing invalid-facet, exact-unit, mode and identity comparison guards apply.
+
+Evidence: pinned native misc codes mp1–mp5, rvs/rvl, vps were verified locally.
+Native itemtypes rpot Equiv1=hpot/Equiv2=mpot establishes mercenary healing eligibility.
+D2MOO SkillItem.cpp pSpell03/pSpell05/pSpell09 and PlrMsg.cpp cursor potion branch
+were inspected; these are legacy implementation corroboration, not new live probes.
+The native frozen RotW data remains authoritative. No reference checkout modified.
+
+Red8missingutility tests -> green.69 focused policy+staged bank tests passed;
+45 selected potion bank cases passed (22.19s). After highest-grade wording refinement,
+6 selected Super Healing/Mana cases passed again. Lint/format clean for5touchedfiles.
+Bank1830cases/3753targets/3393missing. Existing20saved replay equivalence from prior
+turn remains valid for unchanged non-potion behavior; not claimed as a new replay.
+Logs tmp/potion-tail-{red,green,selected,coverage,completion}.log and
+ tmp/potion-super-grade-selected.log. No market data or numerical prices invented.
+Completion scope 50aaf62eb66bef124e86f94dc32ca49fc21fd775682cdd00fa1efb7230e8483b; counts {"coverage_rows": 8052, "excluded_occurrences": 4807, "identities": 2570, "occurrences": 62891, "remaining_tasks": 112008, "reviewed_occurrences": 1389}.
+Complete=false; no source or pricing disposition was silently marked reviewed.
+
+NEXT remains explicit utility-source binding for Zeal spans245/246HealingPotion,
+247ThawingPotion,248AntidotePotion. They need a utility review mechanism distinct
+from equipped build profiles, with exact source/occurrence/hash and applicable
+policy identity checks plus positive/near-miss/unknown bank evidence. Then review
+offline market evidence/dispositions and other utility families, preserving scope.
+Zeal249 Enigma,273Oath/274Shaftstop,275Torch prose and the full contract remain queued.
+All earlier successful one-shot appenders remain NEVER-rerun.
+
+## Active continuation — first consumable family published, 2026-09-27
+
+Goal active, completion false. Prior source-review turn made progress. This turn
+adds executable potion assessment, comparison policy, rendered utility and native
+item-bank cases. Selected generation:
+b86ed99afc44c040a10b459f53a2502d8144df3cb09107a0f1681226d90a29fc
+77 artifacts; unchanged 2457 profiles / 2449 stat configurations. Publication82269
+and selected verification/completion chain50044 are finished; no known live job.
+
+New policies/consumables.py uses the hash-pinned native misc.json from the published
+artifact snapshot. Seven reviewed identities: all five healing grades, Thawing and
+Antidote. Healing is life over time, recipient-dependent, not instant rejuvenation.
+Thawing/Antidote: +50 resistance / +10 maximum resistance for30 seconds, remove
+cold/freeze or poison. Player/mercenary use and fixed-roll/no socket premium advice
+is shown in a new Consumable use section. Typed AssessmentResult.utility is frozen
+and projected only when applicable, so other item reports remain unchanged.
+Native spell implementation checked locally in D2MOO SkillItem.cpp (pSpell03 and
+pSpell09_AntidoteThawingPotion); live reference checkouts were not changed/executed.
+
+Registry routes hpot/apot/wpot to a separate consumable contract. Reviewed ordinary
+potions require normal, noneth,0s/empty, complete identified capture and no modifiers,
+runeword or socket children. Invalid/unknown input retains review status and no
+contract. Exact comparisons require grade/base identity, mode, unit and properties;
+no bulk or NPC-gold-to-Ist estimates. Synthetic tests establish matching behavior,
+not actual potion market prices. Other consumables remain unreviewed, not worthless.
+
+Tests: 158 affected regression tests pass; 27 staged bank/coverage tests pass,
+including21 new independent positive/negative/unknown cases. All21 pass selected.
+Bank1806 cases /3745 targets /3393 targets still missing cases. Native potion
+identity targets are now tracked explicitly. All20 saved report texts and prices
+match staging AND prior selected output. Lint/format clean for all15 touched files.
+Logs tmp/consumables-{red,green,regression,bank-staged,bank-selected,publication,
+staged-replay,selected-replay,completion}.*. No staging/commit/live collection/probe.
+Host worker restart needed for these Python changes and remains unverified.
+
+Completion scope e670f2e3ef614f3654e526ca88fd234b9a042f3f491f8a00ec26ca9f562888e9
+Counts {"coverage_rows": 8052, "excluded_occurrences": 4807, "identities": 2570, "occurrences": 62891, "remaining_tasks": 112008, "reviewed_occurrences": 1389}.
+Source occurrences245/246/247/248 remain pending: implementing utility does NOT
+silently mark source/context or price-evidence review complete. No new source
+appender ran this turn. Prior successful one-shot appenders remain NEVER-rerun.
+
+NEXT: explicitly link/review Zeal healing/thawing/antidote mercenary prose against
+this utility policy and bank cases; preserve the distinction from equipped roles.
+Then extend to native mana/rejuvenation/stamina (not yet supported), review actual
+offline potion market evidence/dispositions, and continue Zeal249 Enigma casting
+prose/273 Oath/274 Shaftstop summary and275 farming Torch. Broad all-item scope,
+full final suite/current whole bank and runtime delivery remain unfinished.
+
+## Active continuation — mercenary context and Hardcore prose, 2026-09-27
+
+The all-item goal remains active and incomplete. Previous turn was progress:
+selected Sacred Rondache replay and four tests verified its Spirit/resistance/socket
+advice; host Python restart/delivery remains unverified.
+
+Current selected generation remains
+45a7746e47b4b3682194aa8bd682ee6c6540f4afc68ac357f211b8dedff2e1d3
+(76 artifacts; 2457 profiles / 2449 stat configurations). No runtime artifact
+changes in this continuation; no publication, live collection, host probes,
+restart, staging or commit. No known running process remains.
+
+Source-context reviews now contain 47 rows:
+- Cure span241 explicitly selects Act2Might from the existing role allowing
+  Act2Might/Act5Frenzy. A source binding can narrow that set only by declaring the
+  exact full role set separately; unsupported or stale sets fail validation.
+- Reaper span206 is bound to zeal-paladin-reapers-general using section43's
+  explicit Desert Mercenary/Might and Equip him wording. Original extracted
+  player/unspecified evidence is preserved. New mercenary_prose_correction kind
+  requires exact class, Might context, Weapon slot and configuration review.
+- Insight span208 is bound to zeal-paladin-insight-act-2-might. The early table's
+  Act5 alternative cannot equip this polearm. Existing legal-base/native-low-roll
+  rule is reused, with no perfect planner thresholds added.
+
+New maintenance/hardcore_mentions.py and rules/hardcore_reviews.json record 23
+reviewed Zeal Hardcore Gear Changes occurrences, spans250–272. Raw HTML hash,
+cache hash, exact span and occurrence, original HTML position and explicit
+Hardcore-to-Summary bounds are validated. The inventory extractor is reused with
+positions; raw and unescaped mention sequences must agree, while positions come
+from original HTML to handle entities correctly. Summary cannot be swallowed by
+widened bounds. This excludes source occurrences only, never their item identities,
+prices or separate Softcore uses. Spans249 and273–275 explicitly remain in scope.
+Completion reads/pins this document and fingerprints its validation helper. Tests
+prove item market work and adjacent same-name Softcore mentions remain pending.
+
+Red/green checks: 136 final affected tests passed (0.26s), lint clean.
+Logs: tmp/zeal-context-final-tests.log, tmp/zeal-context-final-completion.log,
+tmp/hardcore-{mentions,completion,position}-*.log.
+Completion scope: 8dfa93b1d7247fae89de5b17bf536a79bfde7299d2e2c532fc994fdea58e7a97
+2570 identities, 62891 occurrences, 1389 reviewed, 4807 excluded, 8052 coverage rows,
+112008 remaining tasks. Complete=false. These are source-review gains, not new
+numerical-price coverage. Final full suite/current whole bank/runtime delivery
+still required by COMPLETION_CONTRACT.md.
+
+Successful ONE-SHOT appenders, NEVER rerun:
+tmp/add_zeal_cure_mid_binding.py
+tmp/add_zeal_reapers_prose_binding.py
+tmp/add_zeal_insight_table_binding.py
+tmp/add_zeal_hardcore_prose_reviews.py
+The Hardcore appender initially failed before writing because entity unescaping
+changes offsets; after the tested original-position fix it succeeded.
+
+NEXT: Zeal spans245/246 Healing Potion,247 Thawing Potion,248 Antidote Potion are
+real mercenary utility advice, not reward exclusions. Implement/review this family
+and its item-bank cases. Span249 Enigma FCR-swap prose and273 Oath/274 Shaftstop
+summary advice remain scoped;275 Torch is farming-summary prose, requiring its
+own evidence-backed disposition. Then continue all remaining contract work.
+
+## Active continuation — completed armor words and reward reviews, 2026-09-27
+
+Selectedgeneration45a7746e47b4b3682194aa8bd682ee6c6540f4afc68ac357f211b8dedff2e1d3,
+76artifacts,2457profiles/2449statconfigs. Chain59070 FINISHED; finalbankchain26318
+FINISHED; rewardcompletion4801 FINISHED. No live workers. All-item goalACTIVE/FALSE.
+
+Five new source-specific completed armor examples in maintenance/zeal_merc_words.py:
+zeal-paladin-merc-word-{treachery-mid,treachery-end,duress-mid,duress-end,fortitude-end}.
+Exact linked bases: GreatHauberk/ArchonPlate/GreatHauberk/GreatHauberk/SacredArmor;
+allAct2Might/Paladin, normal/superior, actual completedrecipe/filledcount/legalarmor.
+Endexamplesrequireethereal; superior/perfectED is preference, not minimum. Other
+legalbases are not declared worthless; existing generic utility/profile rules remain.
+Top-levelbase_codes prevent irrelevant example recommendations on other legalbases.
+NativeTreacheryVenom/Fade,DuressShaelFHR+cold,FortChillingArmor/life-per-level/SolDR/
+Dolreplenish/LoMaxLR included. Assassin skills,FCR,damage-to-mana notmercbenefits.
+
+Initial60bankcases:55RED+5already-correct base rejection ->60GREEN50.43sec;
+selected60PASS57.88sec. Audit then exposed5 superior targets lacking negative/unknown
+scenarios. Added10meaningful superior-context cases; selected70PASS63.92sec.
+Bank now1785cases/3738targets/3393missing.20saved reports/prices unchanged and
+staged=selected.7statbundle/bankchecks passed;Ruff/formatclean. Namedbaselinecomplete.
+ONE-SHOT tmp/add_zeal_merc_words.py SUCCEEDED; NEVER rerun. Initial compilerfailed
+because rootempty gems locator was invalid; repeatable tmp/fix_zeal_merc_word_sources.py
+replaced only those5refs with actual individual native rune pointers and updated
+use/stat fingerprints. Terminalfailed82977 notlive; retry56691 greencompleted.
+
+Implemented source-only farming reward exclusions:
+maintenance/reward_mentions.py, rules/reward_reviews.json; wired into completion.py.
+Source/hash/span/wholeexpectedoccurrencefields/same-guidequote/Area+Rewards+boss+item
+validated; equipment/unspecified slots cannot masquerade as rewards. Duplicate and
+conflicting context dispositions rejected. Item identity/market/other occurrences
+remain scoped. Policyfingerprint includeshelper; scopefingerprint includesdocument;
+main reads/pins newrulesdoc.13reward/integration tests; combinedcompletion/dependency
+suite56PASS0.13sec. Testsprove original itemmarket and equipment occurrence remain
+pending and changingreview invalidatesfinalscope. No runtime appraisal-code change.
+
+ONE-SHOT tmp/add_zeal_reward_reviews.py SUCCEEDED after fixing an initial prewrite
+KeyError on kind-less inventoryrows; NEVER rerun. Seven reviewedsourceonly rows:
+spans199(section34),200(35),201(38),202-205(39), keys/organs/Torch listed as bossdrops.
+Completioncount1386reviewed,4784excluded(+7),8052rows,112034pending;scope
+41842f8a3896547f8b5491caeb4415918dde817fc64ff37c28f3380c064758f2.
+Latestlogs tmp/zeal-reward-completion-final.log and tmp/zeal-merc-word-bank-final.log.
+Finalfullsuite/currentwholebank/hostPythonrestart-delivery STILLpending.
+
+NEXT source closure findings from actual inventory/sections:
+1. Reaper prose span206 is incorrectly labeled player/unspecified. Section43 explicitly
+says equip the DesertMercenary with Might and Reaper. ExistinggeneralReaperrole is
+merc; current mercenary_narrative reviewer requiresoriginalside merc. Need explicit,
+source-bound wearer correction (or extractor fix with full pin audit), preserving
+original evidence and rejecting unsupported player-to-merc reassignment.
+2. Insight earlytable208/fc01065b item30 stillpending. Linked4s noneth Poleaxe (verified
+sourcecodepax; resolve name via metadata ratherthanmemory), perfectplanner17aura/
+260ED/250AR/6Critical. Existingzeal Insight Act2Might rule/source must be compared;
+lowrolls shouldretainutility. Do not assume Act5 can wield the polearm merely because
+header earlycolumnlists Act5Frenzy ORAct2Might.
+3. Cure midtable241 stillpending; earlyrule supportsAct2Might ORAct5Frenzy. Source
+midcolumn supportsAct2Might only. Existing source-context declaredtypes==roletypes
+prevents narrowing a broad validatedrole to a specific supportedbranch; consider
+explicit safe subset-link semantics/tests rather than duplicate unrelated logic.
+4. Potion spans245/246Healing,247Thawing,248Antidote are actual mercenaryutility advice,
+NOT farmingreward exclusions. Read exacttexts before implementing utility roles.
+5. Many remaining unspecified spans are Hardcore prose. Section50 introducesHardcore;
+section51 GearChanges discusses Crown/Cham/Ber/Enigma/HoZ/etc. Likelyspans250-272;
+verify exactquote/source placement before source-mode exclusions. DO NOTexclude249
+Enigma (section46FCR48 weapon-swap discussion), nor273Oath/274Shaftstop/275Torch in
+section53Summary (SCadvice). Existing softcore_exclusions only catches explicit
+Hardcore variants, so GuideMention prose is stillpending. Scope-source exclusions
+must preserve itemidentity and allSCuses, as with rewardreviews.
+All previous successfulone-shotadders remain NEVERrerun;retain generations.
+
+## Active continuation — nine later mercenary configurations published, 2026-09-27
+
+Selectedgeneration2cf5a2e792ea5f545f99f29f30696549908861d9495130d8ed6f7792567c8f04,
+75artifacts,2452profiles/2444statconfigs. Chain45634 FINISHEDsuccess; no live workers.
+97new item-bank cases in zeal_merc_named.py:97RED ->94PASS/3FAIL ->97GREEN33.94sec.
+The3failures were a synthetic Duriel raw216 fixture mistake: native ValShift8 requires
+8*256, not8; existing Shako capture tests and local D2MOO serialization confirm.
+No production decoder weakening. Newpositive cases also require renderedTrade tier:
+28selected staged checksPASS11.57sec. All97selected-generation casesPASS39.18sec.
+Ruff/formatclean;7statbundle/bankchecksPASS11.11sec.20saved reports/prices unchanged,
+and staged=selected. Namedbaseline gate remains complete (548/35sets/2958renders).
+
+New maintenance/zeal_merc_named.py contains nine reviewed named socket templates:
+zeal-paladin-later-merc-{shaftstop-um,duriel-um,tal-amethyst,guillaume-ias,gaze-ias,
+stealskull-ias,kira-ral,guillaume-cham,gaze-scintillating}.
+Source spans221,223,236,237,238,239,240,242,244; allZeal/Paladin/Act2Might.
+Native/legalupgraded bases, native lowroll utility, actual1filledsocket checked.
+Setitems require noneth; uniqueethallowed except endGaze explicitlyrequireseth.
+TalPerfectAmethyst adds10Strength;Um15allres;Ral30fireres;ChamCBF. IASjewelsrequire
+15IAS on actualchild. EndGaze requires15IAS+11allres on SAMEjewel (Scint11-15 from
+nativeprefix337;15preferred), not pureIAS or lowerallres tiers. Mana/mana-leech
+excluded;mercMFkill attribution,leech restrictions and no whole-loadout cap claims.
+Duriel per-level bonuses note actualmercenary level; no player-level assumption.
+
+ONE-SHOT tmp/add_zeal_merc_named.py SUCCEEDED; NEVER rerun.
+Repeatable tmp/refine_zeal_merc_named.py updated existing9labels/conditions only,
+and pinned secondaryfc planner for GuillaumeCham; no appendedrows/countchanges.
+ONE-SHOT tmp/add_zeal_guillaume_repeat_binding.py SUCCEEDED; NEVER rerun.
+Secondaryspan243/fc01065b item83 linked to primary242/n8010616 item2 Cham rule,
+with bothplanner sourcepins. Exact duplicate context retained, not duplicatedrule.
+Sourcecontext now44dispositions;completion1381reviewedoccurrences(+10),4777excluded,
+8042coveragerows,111986pendingtasks. Newconfigs introduce dimensionwork; goalFALSE.
+Bank1715cases/3728targets/3393missing. Finalcurrentfullsuite/combinedbank/hostPython
+restart/delivery stillpending. Keep goalactive; allprior successfuladdersNEVERrerun.
+
+NEXT: remaining Zeal merc completedwords. Exactsource cache tmp/zeal-later-merc-
+planner-audit.json and earlier mid-merc audit. Treachery mid219(n8010616/item29,
+nonethGreatHauberk example) vs end226(fc01065b/item54,ethsuperiorArchonPlate).
+Duress mid220(fc/item77) vs end227(fc/item59,ethsuperiorGreatHauberk).
+Fortitude end225(sj01061l/item21,ethsuperiorSacredArmor). Do not infer universalbest
+base or require perfectplannerrolls; actualrequirements/fullsurvivalloadout matter.
+Existing zeal-paladin-duress-merc-survival-gear can support the midgeneral recipe,
+but endeth/superior distinction stillneeds explicitreview/config. Existing shared
+armor templates elsewhere use fixed examplebases; reuse only justified predicates.
+
+Verified localnative runes.json BYNAME; cachedplannerRunewordNNN identifiers DIFFER
+from currentnative IDs! NativeTreachery Runeword148 (cached173), Fortitude41(cached67),
+Duress30(cached56). Never map oldIDs directly. Rune sequences stillmatch.
+NativeTreachery:25%lvl15Venom onhit,5%lvl15Fade whenstruck,45IAS,+2Assassin(nonbenefit);
+Shaeladds20FHR,Thul30coldres,Lem50goldfind(killcredit). Fade201:17103,Venom198:17807.
+NativeFortitude:200EDef,300offweaponED,25FCR(nonIAS),20%lvl15ChillingArmor,
+life/lvl8-12 fixedpointcoefficient (raw8*256 to12*256),25-30allres. Runecontributions
+must be readnative:El/Sol/Dol/Lo (avoid forgetting flatDR/replenish/maxlightres).
+NativeDuress:10-20ED,150-200EDef,20nativeFHR+20Shael=40total,15CB,33OW,
+37-133cold;Um15allres+Thul30cold =>45cold/15others. Nativeprocs not reversedplanner
+chance/level fields. Core recipes in sourcecachecarry correctnames/rune sequences.
+
+## Active continuation — Um mercenary variants published, 2026-09-27
+
+Selected generation b53be10165a2c5cb18f559c88c88424cdb367f055fdf124209936493008f0afb,
+75artifacts,2443profiles/2435statconfigs. Publication chain92097 FINISHEDsuccess;
+policy follow-up51022 FINISHEDsuccess. No live processes to resume.
+
+NEW35 independently authored item-bank cases zeal_merc_um.py: 35RED ->35GREEN
+18.86sec(staged),35PASS26.04sec(selected). Registered total1618cases;3719targets,
+3393missing. Native low rolls, both ethereal states/unknowneth, legal upgrades,
+wrong/unknownmerc,wrongclass,unknownsockets,wrong/unreadfiller,empty/unsocketed.
+Explicit beneficial stats and exclusion of GuardianPaladin/blocking and RockVitality.
+
+Added expand_zeal_um_survival to EXISTING merc_survival_templates.py. Three profiles:
+zeal-paladin-merc-um-{guardian-angel,gladiators-bane,rockstopper}. Exact1filledUm,
+Act2Might/Paladin, native bases/legalupgrades; actual filler required. Um adds15allres
+in armor/helmet (nativegems/r22), not shield22. General unsocketed rules unchanged.
+Source spans224/222/235; nativeunique218/250/202. Rockstopper new advice distinguishes
+unsocketed poison gap from Um-addedpoison. No perfect native roll/ethereal minimum.
+ONE-SHOT tmp/add_zeal_merc_um.py SUCCEEDED: NEVER rerun.
+
+Broader regression initially9FAILED25PASS:8obsolete tests still rejected Zeal's
+previously reviewed Act5Frenzy early alternatives; one loose ID filter included
+new unnamed/GuideMention patterns in the old early-family source-link test.
+Corrected explicit eight-name Zeal exception and exact early variant selection.
+Rerun34PASS72.31sec(tmp/zeal-merc-um-regression-green.log); Ruff/formatgreen.
+7statbundle/bankchecks also pass during finishchain.
+
+20saved captures/prices unchanged. Sole expected report text difference:
+GuardianAngel Details22uses/1moregroups ->23uses/2moregroups. Reviewed new
+Um-specific use accounts for increment. All20selected reports match staged.
+Namedgate548eligible/35sets/2958rendercases complete. Latestcompletion stillFALSE:
+1371reviewedoccurrences(+3),4777excluded,8033coveragerows,111951pendingtasks.
+The extra three configurations add dimension work; do not conceal those gaps.
+
+Also fixed completion-policy dependency hole: context_values.py and
+mercenary_source_context.py now included in policy_fingerprint. TwoREDtests showed
+editing either helper incorrectly preserved final attestation fingerprint;55GREEN
+completion/context tests0.14sec afterfix; RuffPASS. Completion rerun after publication
+at tmp/zeal-merc-um-completion-policy.log, scope
+2fef33063f38ac0c9c78537360586b959bb83b983bfd75b1de228e495d798f6b.
+This is maintenance attestation code, no runtime-rule change or extra publication.
+
+NEXT source cache audit tmp/zeal-later-merc-planner-audit.json (alreadyread):
+- Shaftstop span221/fc01065b item79, DurielShell span223/item80: upgraded,1Um.
+- TalCrest span236/fc item62:1PerfectAmethyst (gpv; verify native mapping beforecode).
+- Guillaume span237/item63, VampireGaze span238/item65, Stealskull span239/item110:
+ 1jewel child53 =15IAS only, not assumed ED/resistance.
+- Kira span240/item72:1Ral.
+- Guillaume end spans242/n8010616 item2 and243/fc item83: upgraded,1Cham.
+- VampireGaze end span244/fc item69: ethupgraded,1jewel child70=15IAS+15allres;
+  lower native jewel tiers need review, do not auto-require15allres or borrow pureIAS.
+- Treachery mid219/n8010616 item29 vs end226/fc item54 eth/superior.
+- Fortitude end225/sj01061l item21 eth/superiorSacredArmor example; not universalbestbase.
+- Duress mid220/fc77 vs end227/fc59 eth/superior (priorauditfile).
+All mid/end merc table branchesAct2Might, not Act5. Native proc semantics takeprecedence
+over reversed oldplanner chance/skill-levelfields. Existing generic profiles can be
+reused for general use, but exact sockets/eth/socketjewel properties need own checks.
+All-item goalACTIVE/UNFINISHED; finalfullsuite/currentcombinedbank/runtimePython
+restart/delivery stillpending. Preserve generations and all successfulone-shotadders.
+
+## Active continuation — exact mercenary source reviews published, 2026-09-27
+
+Selected generation: 5cd30c1f4149a0e7fca5efe008ab4962a37240541c2cc3839fd1507962abf650
+(75 artifacts; 2440 profiles / 2432 stat configurations). Session40564 FINISHED
+successfully; no live publication/test process remains. Previous44275 also finished,
+publishing a266189d251cae594876826b49984c4658d0fb454c9c661d6fc68399f32cf861;
+its selected45 merc-tail cases passed28.17sec. Do not restart either process.
+
+Added additive mercenary_equipment source-review kind, using finite context_values
+rather than weakening requires_eq or existing narrative/player guards. Explicit
+row/branch mercenary_types, exact source/hash/class/slot/profile checks, union of
+reviewed mercenary branches, and explicit pending alternatives prevent false
+closure. New helper maintenance/mercenary_source_context.py; tests reject optional
+context, wrong wearer/class/slot, duplicate/missing alternatives and incomplete
+quotes. Separate existing Act2/Act5 rules may jointly satisfy the declared set.
+65 context/regression tests PASS; Ruff PASS; 7 stat-bundle/bank coverage checks PASS.
+
+ONE-SHOT tmp/add_zeal_merc_equipment_bindings.py SUCCEEDED: NEVER rerun.
+10 exact early table bindings at spans215,218,216,214,231,212,233,234,211,228.
+Last two reuse separate existing Smoke and Crown of Thieves Act2/Act5 profiles.
+Actual full compiler validates all43 context dispositions; new10 are reviewed.
+No profiles or stat configurations added in this batch.
+Repeatable chain tmp/finish-zeal-merc-binding.sh completed rebuild/index/publication,
+20 saved report/price comparisons unchanged, staged=selected, coverage and completion.
+Logs tmp/zeal-merc-binding-*. Completion reviewed occurrences1358 ->1368, excluded
+unchanged4777, remaining111949 ->111939. Bank1583cases/3716targets/3393missing.
+All-item goal remains ACTIVE/UNFINISHED; no final full-suite/current combined-bank
+or host Python restart/delivery evidence.
+
+Sacred Rondache user report is covered by selected saved replay: +27 allres versus
+preferred+45, Spirit Paladin caster use, nonethereal player suitability, needs4s,
+unknown-ilvl Larzuk3/4, cube0%/50% for respective caps. Two targeted Paladin-shield
+regressions PASS3.28sec. Matching market evidence still unknown, not zero value.
+
+Concrete NEXT: later Zeal merc table uses Act2Might only. Inspected cached planner
+payloads in tmp/zeal-mid-merc-source-audit.json. GuardianAngel span224/fc01065b item76,
+GladiatorBane span222/fc01065b item81 and Rockstopper span235/n8010616 item98 each
+have1 socket filledUm. Existing general roles do NOT check fillers; add separate
+socket-specific variants with RED/GREEN item-bank cases, preserve general roles,
+verify native stats and upgraded bases. Do not claim source occurrence fully closed
+by the generic rule. Duress span220/fc item77 is noneth; span227/item59 is ethereal
+superior endgame example, distinct from generic recipe. Mid/end table/source socket
+review still pending. Reward-only spans199–205 and Reaper prose206 also pending.
+All previous successful one-shot adders remain NEVER rerun; retain generations.
+
+## Active continuation — cross-base report regression fixed, 2026-09-27
+
+Merc-tail publication attempt92312 STOPPED before publishing: saved Authority
+MagePlate report gained failed GemmedDuskShroud use. Selectedgeneration remains
+339f8c83a8422fd3e79ba62888d4c5d6cc58a19483ffe280198a271cfdc77b28 until retry succeeds.
+RCA: exact-base checks existed inside must but patterns lacked top-level base_codes
+selectors; unrelated normal armor entered candidates and polluted independent-demand
+reports. No need to weaken report comparison or hide all failures globally.
+
+Added2 meaningful bank cases for other LEGAL bases (ArchonPlate vs DuskShroud,
+DeathMask vs Mask), asserting ~Contains(the specific role) and no stat contribution.
+2RED -> added base_codes selectors via verified metadata to zeal_merc_equipment
+factory, regenerated ONLY its2existing pattern role rows and corresponding use/stat
+fingerprints (counts unchanged2440profiles/2432configs). No one-shot adders rerun.
+All45merc-tail cases GREEN24.74sec, tmp/zeal-merc-tail-green.log. Ruff/formatgreen.
+Current bank total1583 (1538previous+45new), not yet final combined run.
+
+CURRENT LIVE session44275: retry bash tmp/finish-zeal-merc-tail.sh. Poll this same
+handle/logs; do not duplicate. It repeats7checks/rebuild/index, requires20replays
+unchanged vs publishedearlymerc, thenpublication/selected45/replay/audits/completion.
+Old92312 terminalfailed;25851 green-test session terminalsuccess. No other live work.
+
+Independent concrete progress toward source bindings: NEW isolated module
+pricing/knowledge/assessment/maintenance/context_values.py and tests/..../
+maintenance/test_context_values.py. 11RED(missingmodule) ->11GREEN0.04sec.
+context_values(predicate,field) derives finite equality alternatives: all intersects,
+any unions; unbounded/optional OR ->None, contradictions ->empty set, negation of
+that context field ->None. Other item/context predicates do not prove satisfiability;
+positive item tests remain required. Not imported/wired into source validator yet.
+This helper does NOT broaden existing requires_eq or change runtime behavior.
+
+Next integration plan: additive source-context kind mercenary_equipment (side merc,
+slotsWeapon/BodyArmor/Helmet, knownplayerclass), preserving old mercenary_narrative
+and player guards. Explicit row mercenary_types declaration and per-branch types;
+branch's finite role mercenary restriction must equal its declared set, all types
+must appear in same-guide evidence quote, player class must remain required and
+slot/build/identity/source hashes exact. Union of reviewed branches must cover all
+row-declared types before complete; incomplete cases need explicit remainingbranches.
+Reject optional unconstrained roles, extra types, duplicate lists, wrongclass/wearer,
+wrongslot/stale evidence. Then bind8broadened early roles to exacttable spans, and
+Smoke/Crown separate existing Act2/Act5 roles where appropriate. Do not silently
+credit flattened-table stage assumptions. Tests/integration still required.
+
+All-item goal remains active/unfinished. Final full repository suite, final combined
+bank proof and host Python restart/delivery remain pending. Successful previous
+one-shot adders remain NEVER-rerun; see notes below.
+
+## Active continuation — early mercenary remainder green, publication running, 2026-09-27
+
+Early-merc chain26643 FINISHED. Selectedgeneration339f8c83a8422fd3e79ba62888d4c5d6cc58a19483ffe280198a271cfdc77b28,
+74artifacts,2435profiles/2427configs;selected54PASS33.17sec,20saved reports/prices
+unchanged and staged=selected. Bank1538cases/3703targets/3385missing. All-item goal
+unfinished; final full suite/combined final bank/host restart still pending.
+
+New43registered cases zeal_merc_tail.py initially43RED against selectedruntime.
+Implemented5source-specific early mercenary profiles in new maintenance helper
+pricing/knowledge/assessment/maintenance/zeal_merc_equipment.py, compiled to role
+JSON by successful ONE-SHOT tmp/add_zeal_merc_tail.py. NEVER rerun that adder.
+Staged2440profiles/2432statconfigs; test_stat_bundle count updated accordingly.
+
+Profiles zeal-paladin-early-merc-{hustle,bulwark,undead-crown,resistance-armor,
+resistance-mask}. All Paladin + (Act2Might OR Act5Frenzy), early table branch.
+Hustle armor source span213/n8010616item183: armor IAS40,movement65,FHR20,Dex10,
+allres10; no mercEvade/weaponFanaticism/Burst proc. Bulwark span229/item182:
+leech/flat+percentphysicalDR/FHR/replenish/EDef/maxlife%, not itemVitality.
+UndeadCrown span230/fc01065bitem61/nativeunique77: Crown/legalupgrades, leech,
+poisonres/half-freeze/undead-specificdmg+AR, not SkeletonMastery;0/1s.
+
+GemmedDuskShroud span217/fcitem93 is EXACT4filled Ral/Ort/Thul/Tal runes, NOTgems:
+30fire/lightning/cold/poison. Mask span232/fcitem71 is3filledRal/Ort/Tal; no coldres.
+Native rune names verified from metadata (iterate values; keys are txtIDs notcodes).
+Restrict these patterns to cited DuskShroud/Mask bases,normal/superior/low_quality,
+exactsocketcount/fillers and observedres30. Empty/wrong/unread fillers distinct.
+Completed recipes assess existingitems, not currentNonLaddercreation availability.
+
+New43cases GREEN24.14sec, tmp/zeal-merc-tail-green.log. Includes both mercs,
+ethereal, wrongmerc/class, unknownsockets, exactfillers/unknown/empty, wrongrecipe
+socketcount. Explicit absent_stat_configurations verifies ignored skill/vitality
+stats are not marked useful by these roles. Ruff/formatgreen. All source/profile
+compiles and index build succeeded, no fixture errors in greenrun.
+
+CURRENT LIVE session92312: bash tmp/finish-zeal-merc-tail.sh (repeatable chain).
+7statbundle/coverage checks,full dependent rebuild/index,20saved replays vs
+published early-merc,publication,selected43,replay/audits/completion. Poll SAME
+handle/logs, do not duplicate. Until it publishes selected339f8c83 remains.
+
+Remaining source work: exact earlymerc table bindings for broader8existingroles;
+source_context validator lacks multi-merc table branch kind (do not weaken guards).
+CrownThieves/Smoke already have source-specificStarterroles; link appropriate table
+occurrences without duplicating semanticroles. Mid/end merc gear still queued:
+Treachery,Duress,Shaftstop,Gladiator,Duriels,GuardianAngel,Fortitude; helmetsRockstopper,
+Tal,Guillaume,VampireGaze,Stealskull,Kiras,Cure. Review existing roles and exact
+planner socket variants before adding. Reaper prose206 wearer-context issue and
+reward-only199–205 source dispositions remain. No final completion claim.
+
+## Active continuation — early mercenary branches green, publication running, 2026-09-27
+
+Reaper chain47189 FINISHED. Selectedgeneration8f8af97eb01f3842430eb7ab6e2ab3250eddd3a82aba519aaedaaac8bb9e9b99,
+74artifacts,2435profiles/2427configs. Selected33PASS16.95sec,20saved captures/reports/
+prices unchanged and selected=staged. Bank1484cases/3703targets/3394missing.
+Completionfalse:1353reviewed/4777excluded occurrences,8017coverage rows,
+111877remaining tasks. Final full suite/combined bank/host restart remain pending.
+
+Reviewed original cached HTML table under mercenary-gear-options-header, not its
+flattened text. Columns Early-Game/Mid-Game/End-Game; mercs early Act5Frenzy OR
+Act2Might, later Act2Might only. Early armor:Smoke,Lionheart,Hustle,SkinFlayed,
+Goldskin,Rockfleece,GemmedDuskShroud,VenomWard. Earlyhelm:CrownThieves,Bulwark,
+UndeadCrown,FaceHorror,GemmedMask,Temper,Cure. Do not assign later-stage rows toFrenzy.
+
+New registered bank cases zeal_early_merc.py:54 across9existing items. Initial
+18red/36pass included false Smoke coverage assumption. Smoke ALREADY has separate
+zeal-paladin-smoke-act-5-frenzy role, with correct useful stats; reused it in tests
+instead of broadening Act2generic role and invalidating existing zeal-starter-smoke
+source-context binding. Corrected red16failed/38pass. Eight REAL missing branches:
+Goldskin,VenomWard,Rockfleece,SkinFlayed,FaceHorror,Lionheart,Temper,Cure.
+
+Successfully broadened those8existing must-contexts to explicit any(Act2Might,
+Act5Frenzy), preserving Paladin, identification, named/base/recipe/socket rules.
+Updated source review/corroborating exact early span, conditions, guide-use/stat
+fingerprints. Profile/config counts unchanged2435/2427. Native stat usefulness
+unchanged (no vitality/energy/class skill benefits invented). Existing mid/end
+roles remain untouched. Smoke generic Act2role unchanged.
+
+One-shot tmp/expand_zeal_early_merc.py SUCCEEDED for8; NEVER rerun. First attempted
+9row version failed pre-write on Smoke context-binding safety assertion; no partial
+writes. Only after reusing existing Smoke rule did corrected8version run. New bank
+54GREEN in28.28sec, tmp/zeal-early-merc-green.log; lint/formatgreen.
+
+CURRENT LIVE session26643 runs bash tmp/finish-zeal-early-merc.sh:7statbundle/coverage
+checks,dependent rebuild,index,20saved reports vs publishedReapers,publication,
+selected54,replay,audits,completion. Poll same handle/logs; do not duplicate. Selected
+8f8af97... until new publication succeeds. No other active process from this turn.
+
+Next: exact mercenary-equipment source bindings must retain BOTH early-game branches;
+existing source_context validator supports player equipment or merc narrative with
+single required merc type, not multi-type merc table entries. Do not relax matching
+or silently credit these source occurrences. Other early items need their own roles
+or existing-role links (Hustle armor, Bulwark, Undead Crown, gemmed armor/helm), then
+mid/end mercenary gear. Reaper prose span206 and reward-only spans199–205 remain
+source-disposition tasks from earlier notes. Goal remains active and unfinished.
+
+## Active continuation — Reaper configurations green, publication running, 2026-09-27
+
+Unique-charm chain93466 FINISHED. Selected generation8a63045b9f19b3cd0c792b91681793c70c3cf20879369bc282f52bf1684bb2ff,
+74artifacts,2432profiles/2424statconfigs; selected27pass20.08sec,20saved outputs
+unchanged and staged=selected. Additional pattern-source-context9pass. Bank1451,
+targets3700,missing3394;completionfalse with1350reviewed occurrences/4777excluded,
+8014coverage rows,111865remaining tasks. Final full suite/host restart still pending.
+
+Added ONE further exact BoneBreak source-context binding for span195 (its role
+Gear alternatives variant differs from source Guide mention, so direct source
+credit alone did not close it). tmp/add_zeal_bone_break_binding.py succeeded once;
+NEVER rerun. This binding is staged for the Reaper publication, not in8a63045b.
+
+New bank zeal_reapers.py registered33cases. Initial33RED proved missing Zeal roles.
+Three profiles now implemented: zeal-paladin-reapers-general, -shael, -ruby.
+General uses existing named-merc template with Paladin/Act2Might, valid Thresher,
+identified,0/1s;eth preferred not mandatory. Section43 is source. Shael span209/
+planner26 requires exact filled Shael and20IAS, both eth statuses useful. Ruby
+span210/planner21 requires ethereal and one captured jewel ED31..40/IAS15;40 is
+preference not minimum. Wrong Ruby fire-resist jewel fails; weapon totals alone
+never prove filler. Native unique326 ED190..240/leech11..15, Decrepify33%level1.
+Planner reverses proc fields; native tables govern. Stat priorities distinguish
+mercenary weapon properties from conditional enemy Decrepify support.
+
+One-shot tmp/add_zeal_reapers.py SUCCEEDED, NEVER rerun. Staged2435profiles/2427
+statconfigs. First green run30pass/3fixture errors: impossible Reaper/GiantThresher
+identity rejected by bank factory. Replaced with actual Stormspire/GiantThresher
+(nativecode checked locally), asserting ~Contains(Reaper role), not merely lack
+of annotations. Corrected33PASS in12.11sec, tmp/zeal-reapers-green.log. Ruffgreen.
+
+CURRENT LIVE session47189: bash tmp/finish-zeal-reapers.sh. Repeatable publication
+chain:7statbundle/coverage checks, full dependent rebuild,index,20saved reports
+vs unique-charms published replay,publication,selected33,replay/audits/completion.
+Poll same handle/logs; do not duplicate. Until it publishes selected8a63045b remains.
+
+Next source review: remaining Zeal mercenary gear spans211–244. Several section44
+merc-survival roles already exist; exact table contexts and socket variants still
+need review/bindings/cases. Generic Reaper source section43 is implemented, but
+prose span206 is mis-attributed player/unspecified by extraction and still needs
+explicit wearer-context disposition; do not silently rewrite source or claim closure.
+Farming reward spans199–205 are NOT equipment recommendations (keys/organs/Torch
+rewards, sections34/35/38/39); source-only non-use review mechanism is still needed.
+Do not exclude their item identities, prices or real inventory uses. Existing
+source_context validator requires a role; current exclusion logic only handles
+Hardcore. No automatic reward exclusions were added in this continuation.
+
+## Active continuation — Zeal unique charms green, publication running, 2026-09-27
+
+Whole-bank session4981 finished:1424passed in739.86seconds against generation
+2a387dbf0afa21263dc2d572d3a0c8e717ce3eae4224c2a0147203a4c312624c.
+Do not restart it. Log tmp/native-charms-whole-bank.log. Final full repository
+suite and final same-generation expanded bank verification still remain pending.
+
+New registered bank cases zeal_unique_charms.py:27 total. Initial9failed/18passed
+reproduced missing BoneBreak role. BoneBreak now added using existing reviewed
+original-sunder template: physical piercing300, wearer penalty-20..-10.
+Three exact span196–198 bindings link existing Gheed/Torch/Anni roles, no duplicates.
+Staged counts2432profiles/2424statconfigs. Both one-shot adders now SUCCEEDED:
+tmp/add_zeal_bone_break.py and tmp/add_zeal_unique_charm_bindings.py. NEVER rerun.
+Bone adder initially used pattern demand incorrectly for a named item; corrected
+only its guide-use row to item='Bone Break' before successful profile compile.
+
+Source-context validator needed explicit charm inventory support: PLAYER_SLOTS
+adds Charms/Unique Charms; canonical slot Unique Charms->Charms. New6focused tests
+4red/2pass ->green; all source/player/context regression32passed. Class/wearer and
+noninventory slots remain checked. Binding script failed pre-write until this fix,
+then succeeded once. No duplicate binding rows.
+
+New bank staged27PASS (15.83sec), tmp/zeal-unique-charms-green.log. Malformed sunder
+299/301 correctly decode UNRESOLVED, not known false; cases require unknown,
+no stat contribution, estimateNone and Unreadable report. Other near-misses remain
+negative. Complete native charmcaptures include Torch5%lvl10Firestorm/Hydra, rather
+than copying the old planner reversed proc values. Ruff/formatgreen.
+
+CURRENT LIVE: session93466 runs bash tmp/finish-zeal-unique-charms.sh. Poll same
+handle/logs, do not duplicate. This repeatable chain validates statbundle/bank
+coverage, rebuilds dependent artifacts/index, compares20 saved reports with
+native-charms published replay, publishes, selected27/replay/audits/completion.
+Until publication succeeds selectedgeneration remains2a387dbf... . After chain,
+check tests/pricing/knowledge/assessment/maintenance/test_pattern_source_context.py
+because charm slot support also affects explicit player_pattern context admission.
+Update actual generation/counts and continue next unreviewed Zeal source, then
+all remaining queues. Goal remains unfinished; no final full suite/host restart.
+
+## Active continuation — unique charm tests prepared, 2026-09-27
+
+Whole-bank session4981 remains LIVE: pytestPID250266 (uv250263), 7m20s elapsed,
+99.4%CPU, past55% with no failures reported. Same selected generation2a387dbf...;
+do not restart/duplicate or mutate its runtime/metadata/factory while running.
+Log tmp/native-charms-whole-bank.log. Prior turn made progress (publication and
+selected tests); this turn verified the live wait and prepared independent cases.
+
+NEW unregistered file:
+tests/pricing/knowledge/assessment/item_bank/cases/zeal_unique_charms.py
+27 independently authored cases across Bone Break/Gheed/PaladinTorch/Annihilus:
+native low rolls, wrong/unknown class, unidentified, unknown ethereal; missing vs
+unread core stats for BoneBreak/Torch; sunder299/301 rejected; other-class Torch.
+Positive cases require stat configuration contribution and rendered Trade tier.
+Ruff/format pass. Not registered and NOT RUN RED YET. After current fullbank
+terminal, import/expand CASES in cases/__init__.py and run its filtered selected
+pipeline before implementing rules. BoneBreak should reproduce missing-role red;
+repair any invalid fixtures independently, not expected semantic behavior.
+
+Native Torch evidence: uniqueitems400 +properties hit-skill specify5% level10
+Firestorm; old planner n8010616 item16 reverses chance/level. Test uses native
+stats198 layer197*64+10 raw5. Hydra stat204 layer62*64+30 raw10*256+10;
+light stat89 raw8. Complete Torch capture includes these so absence of other class
+bonuses is proven. Unknown-core case sets completeFalse. Verified IDs locally.
+
+Prepared but NEVER EXECUTED:
+- tmp/add_zeal_bone_break.py: adds one Zeal original BoneBreak profile/statreview/use,
+  source span195/planner175/native unique405. Physical piercing300; wearer penalty
+  -20..-10, not a positive damage bonus. Counts2431/2423 ->2432/2424.
+- tmp/add_zeal_unique_charm_bindings.py: binds exact spans196–198 to the three
+  EXISTING section32 semantic roles via source_context_reviews. No duplicate roles.
+  Must run after compiled profiles reflect BoneBreak; validates before writing.
+Both are one-shot adders: run only after red, NEVER rerun after success.
+No production roles/artifacts/publication changed in this continuation.
+
+Next after red/implementation: build_profiles, new27 staged pipeline +source binding
+checks/stat bundle/coverage, full artifact refresh, saved20 replay comparison,
+publication, selected27 validation and audits. Preserve whole-bank terminal result;
+adding27 afterward means final combined bank proof still needs a later fresh run.
+All-item goal remains unfinished; no final full suite or host restart verified.
+
+## Published native charm fixes — whole-bank verification running, 2026-09-27
+
+Selected generation: 2a387dbf0afa21263dc2d572d3a0c8e717ce3eae4224c2a0147203a4c312624c
+(74 artifacts, 2431 profiles / 2423 stat configurations). Publication chain48959
+finished successfully. Selected159 charm cases passed in87.81seconds;20 saved
+reports/prices unchanged and selected matches staged. Guardian Angel retains Trade
+tier low and Enhanced Defense180–200. Universal tier gate:548items/35sets,
+2958rendered cases, complete. Bank1424cases/3699targets/3397missing cases;
+observed20captures/77gaps. Completionfalse:2570identities,62891occurrences,
+1347reviewed/4777excluded,8013coverage rows,111863remaining tasks.
+
+CURRENT LIVE RUN: session4981 runs all1424 constructed-item cases against selected
+runtime, log tmp/native-charms-whole-bank.log. Poll the same handle/process; do
+not restart or duplicate. No rule/metadata/factory mutations until it completes.
+New Item.capture nested item.affixes affects every family; fix any real regression
+without weakening expectations. This is not the final full repository suite.
+Code restart on host and final delivery remain unverified.
+
+Next reviewed sources: Zeal exact guide spans195–198, planner n8010616 items
+175/18/16/17. Bone Break175 is original unique405, physical immunity stat300 and
+wearer physical resistance-10; template already exists but no Zeal semantic role.
+Gheed/Torch/Anni already have section32 profiles: bind spans to existing roles,
+do not duplicate. Planner Torch is Paladin class3,20attributes/20res; these are
+perfect examples, not minima. Existing role IDs end gear-inventory-charm.
+Add meaningful positive/negative/unknown item-bank scenarios after current run.
+
+## Active continuation — native charm identities and price facets, 2026-09-27
+
+Goal remains active and unfinished. This entry supersedes the older live-process
+notes below. The 386-test regression completed successfully (1226.69 seconds);
+do not restart session44193. Native affix identity now travels through decoding,
+normalization and the item bank. Sharp/Maiming requires both captured affixes;
+its combined damage range is 10–14. Five existing charm configurations now accept
+the lower native tiers of the same named affixes.
+
+Staged profiles/configurations: 2431/2423. Native charm range tests:31 passed;
+identity/definition integration:31 passed; corrected pricing/identity checks:26
+passed; broader pricing contracts:21 passed. The 159 affected full-pipeline bank
+cases passed after correcting Item.capture to use production item.affixes nesting.
+Physical damage on non-weapons now contributes to exact price comparisons;
+mirrored native rows are validated, never summed. Weapons retain separate handling.
+Six baseline source pins were refreshed only after confirming every value-watch
+row was unchanged, preserving Guardian Angel’s reviewed tier.
+
+Publication chain currently runs as session48959, bash tmp/finish-native-charms.sh.
+Poll this handle/logs; do not duplicate it. Until its publication succeeds the
+selected generation is c1157002ddbeab8c1526ce2fd6028c889c4bcf385fb4e1750e07a1d97711bdf6.
+The chain rebuilds artifacts, checks 20 saved reports, publishes, checks selected
+159 cases, and refreshes coverage/completion. A whole-bank run remains necessary
+because the factory facet-envelope correction affects every constructed item.
+Final full suite and host Python restart/delivery remain pending.
+
+Logs: tmp/native-charms-pricing-regression.log, native-charms-bank-corrected.log,
+native-charms-broader-pricing.log; chain outputs use tmp/native-charms-*.
+One-shot adders apply-native-charm-integration.py and add_zeal_maiming.py succeeded;
+NEVER rerun. Existing successful earlier adders must also not be rerun.
+Next source review after this validation: Zeal guide spans195–198 (Bone Break,
+Gheed’s Fortune, Paladin Hellfire Torch, Annihilus) lack exact guide-span bindings;
+check existing semantic profiles before adding rules. All-item completion remains
+false; the selected-generation audit still has over111k required tasks.
+
+## Active continuation — lower named charm tiers reproduced, 2026-09-27
+
+GoalACTIVE. Nativeaffix regression STILL LIVE session44193,pytestPID242838/uv242823.
+Latestverified elapsed15:43 CPU99.3%,235+passingdots/386 (past55%),no failures reported.
+Poll samehandle/actualprocess/log, DO NOTrestart. Currentgenerationc1157002...unchanged.
+No existing runtime/profile/metadata source usedbyrunningregression changed thisturn.
+
+Newconcreteprogress: tests/pricing/knowledge/assessment/test_charm_lower_tiers.py
+5RED tests, log tmp/charm-lower-tiers-red.log;2.34sec,ruff/formatgreen. These callnative
+Item.capture ->assessmentengine anddirty-equals roletruth assertions. NotyetItemBank
+coverage credit; fold equivalentcases intofullpipelinebank beforefinaldelivery.
+Cases expectingknownuse withlower SAME-NAMED nativeaffixtier:
+- zeal-paladin-charm-grand-steel: AR88 insteadcurrent118 threshold.
+- grand-steel-vita: AR88,life36 instead118/41.
+- grand-steel-balance: AR88,FHR12 instead118/12.
+- grand-sharp-vita: AR49,max7,life36 instead41.
+- sharp-large-vita: AR21,max4,life26 instead31.
+These are sameguide namedaffixfamilies, nototheraffixnames or trade-premiumclaims.
+
+Freshnative eligible can_generate metadata audit:
+GrandSteel prefixrecords224(native1009) AR88–102,225(1010)103–117,226(1011)118–132.
+GrandVita suffix338 life36–40,339life41–45,340life46–50.
+LargeVita suffix345life26–30,346life31–35.
+SmallSteelprefix237AR25–36;SmallVita349life16–20 (noadditionaltiers).
+Existingpredicates >=41alreadyacceptnew46–50;missinglower36 remainsfalse.
+
+After running386regression terminal, implementthe5thresholdbroadenings alongside
+Maiming/nativeidentity/rangework queuedbelow. Refreshonlyaffectedexistingprofiles,
+sourcecorroboration/rationale,guide-use/stat-use fingerprints; DON'Trerunone-shotadders.
+Add lower native source locators, retainhigherplannercases. Countsunchanged forthese5;
+Maimingnewprofile/statconfig increments2430/2422 ->2431/2423.
+Then runexistingcharms+lowercases+Maiming fullpipeline tests, metadata/indexdependent
+rebuilds, savedreplays/publication/audits. No narrowgreencompletionclaim.
+
+## Active continuation — combined charm damage component, 2026-09-27
+
+GoalACTIVE. Existing native-affix regression stillLIVE session44193,pytestPID242838
+(uv242823). Last verified elapsed11:45 CPU99.3%,>=144passingdots/386,no failures.
+Poll samehandle/actualprocess/log, DO NOTrestart. Selectedgeneration unchangedc1157002...
+No existingruntime/profile/metadata files readbythatregression were edited thisturn.
+
+Concreteprogress: NEW isolated inventory_tracking/items/combined_charm_damage.py
+with combined_damage_ranges(entries,base,quality,pool). NOTimported/wired yet.
+Works only magic4 +native charmtype +exactlyoneprefix/onesuffix contributor for each
+flatdamage stat21/22/23/24/159/160. Requires distinctpositiveaffixgroups, matching
+property/statIDs, validatednativebounds andpoolranges/tiers. Addsactualaffixbounds,
+computeslegalcartesian tierbounds andglobalpoolbounds; preservesbothsourceIDs/names.
+Rejects rares/weapons/thirdcontributors/sametable/samegroup/unverifiedproperties/no pools.
+Tests NEW tests/inventory_tracking/items/test_combined_charm_damage.py:
+9red(missingmodule) ->9green; Ruff/formatgreen. Logs tmp/combined-charm-damage-*.
+The component doesn'tyetchangeapplication behavior orresolve4integrationredtests.
+
+IMPORTANT correction to priorhand-off: combinedSharpMaiming total10 is NORMAL under
+user-requestedglobaltierquality ranking, notbottom20%. Nativeeligiblegrandprefixdmgmax:
+Fine1–3,Fine4–6,Sharp7–10(group111),Jagged1/Forked2/Serrated3(group104).
+SuffixCraftsmanship1,Quality2,Maiming3–4(group14). Combinedglobalrange2–14,
+currentSharpMaimingrange10–14. Globalfractionfor10=(10–2)/(14–2), so normal.
+Corrected only test_charm_damage_ranges.py's expectedquality low->normal accordingly.
+All4integration/compiler tests remainRED untilwireup/regenerate. SingleSharp10perfect,
+combined14perfect. Native affixpools already separateprefix/suffix andbasecompatibility.
+
+NEXT after current386regression terminal (fullpreviousnotesbelow):
+- Inspectresults; adddraftnativeaffix integrationtest; ItemBank affix_records/helper;
+ addSharpMaimingprofile withnativeprefix253/suffix678 gate andstats49AR/10max.
+- scalar_ranges optinaffix_flat_damage mapsimplicitfunc5/6 onlyaffixdefinitions.
+ wirecombined_damage_ranges intoaffixes.resolve_affix_ranges, skip genericduplicate
+ warning onlyforhandledstats. Guard noncharmweapon primary/secondary/throw totalranges.
+ May importCHARM_TYPES fromnewcomponent ratherthanduplicateconstant.
+- Regenerate definitions/metadata/dependentKBindex andartifacts, run4rangeintegration
+ tests plus relevantregressions, staged/selectedreplays, publication/audits.
+- Existingbroadregression isn't finalfullsuite/wholebank/delivery. No completedgoalclaim.
+
+## Active continuation — charm damage range RCA, 2026-09-27
+
+Prior turnprogress confirmed; current native-affix regression stillLIVE session44193,
+pytestPID242838 (uv242823). Last poll ~7minutes,114+passingdots of386,no failure output.
+Do NOTrestart. No runtime/profile/metadata mutations made while it reads those files.
+Selectedgeneration still c1157002ddbeab8c1526ce2fd6028c889c4bcf385fb4e1750e07a1d97711bdf6.
+All uncompleted native-affix implementation steps in checkpoint below stillapply.
+
+Concrete additionalprogress: new tests/inventory_tracking/items/test_charm_damage_ranges.py
+has4RED tests, log tmp/charm-damage-ranges-red.log. Notpartof runningregression's already
+collected386tests. Redtests use proposed scalar_ranges(...,affix_flat_damage=True), and
+actual pinnedmetadata/nativebytes for plainSharp10 and Sharp+Maiming total10 or14.
+Expect native range7–10 single,10–14 combined,highest-tier ceiling10/14respectively;
+lowcombined10 islow,14perfect. Lint/formatgreen. No implementationyet.
+
+RCA/evidence:
+- definitions.scalar_ranges skips properties func5/6. Native properties dmg-min func5,
+ dmg-max func6 haveimplicit statIDs (not stat1 fields).
+- Local D2MOO/source/D2Common/src/Items/ItemMods.cpp funcs05 line3078 /06 line3200:
+ chooses randommin..max, appliesprimary,secondary,throw damage according tobase.
+ Fornonweapons thefunctions apply allthree. Currentmetadata statnames verified:
+ 21mindamage,22maxdamage,23secondary_mindamage,24secondary_maxdamage,
+ 159item_throw_mindamage,160item_throw_maxdamage.
+- Plan explicitaffix-only compileroptin(defaultFalse preserves named/word handling)
+ mapsdmg-min->21/23/159 anddmg-max->22/24/160. Passoptin at affixcompilationonly,
+ definitions.py near388. Affixresolver alreadyexcludes primarydamage onnoncharms;
+ ensurethrowIDs aren't accidentallytreated asrange ofweaponbase totals.
+- definitions.add_charm_quality_ranges pools by(base,affix_table,stat,range_family).
+ Thusprefix/suffix pools are correctlyseparate. For magiccharms withoneprefix+one
+ suffix contributing sameflatdamagestat, combineactualbounds andcombinelegalpool
+ tierpairs additively. PreservebothsourceIDs. DoNOTgenericallysumstatcontributions
+ onrares/weapons/set/sockettotals. Existingresolve_affix_ranges suppresses ALL
+ multiplecontributionranges (counts[stat]>1); needsreviewedcharm-onlyexception.
+- Preserve qualityranking: loneSharp bound7–10, combinedSharpMaiming10–14. PoolT1
+ derivespinnedeligibledefinitions, notcopyobservedroll. Testtitlevaluesindependent.
+- Regenerated definitions+metadata anddependentindex/artifactpublication needed after
+ compilerchange; keepdefinition/index fingerprints consistent. No generatededitsyet.
+
+Next after386regression finishes: inspectresults, applynativeaffixintegrationtest+
+ItemBankhelperdrafts, addMaimingprofile redgreen, thenfixrange4redtests; targeted
+regression/rebuild/replay/publish/audits. Currentgoalremainsunfinished.
+
+## Active work — native affix identity, regression RUNNING, 2026-09-27
+
+Goal ACTIVE; unfinished. Previous turn was progress. Selected generation remains
+`c1157002ddbeab8c1526ce2fd6028c889c4bcf385fb4e1750e07a1d97711bdf6`.
+Current Python changes are NOT published; no metadata/profile additions this turn.
+
+LIVE regression: tools exec session44193; shell uv PID242823, pytest PID242838.
+Command: uv run --offline pytest tests/pricing/knowledge/assessment/roles
+ tests/pricing/knowledge/assessment/adapters tests/inventory_tracking/items/test_affix_ranges.py
+ tests/inventory_tracking/items/test_charm_ranges.py tests/inventory_tracking/items/test_decode.py
+ -q --tb=short > tmp/native-affixes-regression.log
+386 tests collected (tmp/native-affixes-regression-collection.log). Last verified CPU99%,
+~4minutes,45+passingdots,no failures reported. DO NOT restart on timeout. Poll handle/
+actualprocess/log. Keep runtime/profile/test mutations sequential after run terminates.
+The broad role tests repeatedly rebuild profiles and are slow. Don't claim386passed yet.
+
+Implemented so far:
+- Existing affixes.resolve_affix_ranges already validates nativeIDs, bases, quality,
+ identified flag, duplicates, extra magic affixes. Its result now includes
+ native_affixes={prefix:[IDs],suffix:[IDs],auto:[IDs]}.
+- decode_items carries that into source.native_affixes when available.
+- New assessment/adapters/native_affixes.py validates source shape, positiveint IDs,
+ base eligibility, magic/rare countlimits and rare eligibility. Empty/invalid/unidentified
+ records remainunknown; this does NOT replace other stat/identity guards.
+- ItemFacts has immutable optionalnative_affixes, omittedfromto_dict whenNone.
+- capture.normalize populates it. New predicate affix_present(table,value) has explicit
+ TRUE/FALSE/UNKNOWN. Capturedabsencefalse; missingidentityunknown. No title/statguessing.
+- tests/.../roles/test_native_affixes.py:7red7existingpass ->14green; ruff/formatgreen.
+ Uses native source record IDs to derive bundled combined IDs, nothardcodedoffsets.
+
+Crucial finding: itemmetadata affixes ALREADY uses nativecombinedIDs. PrefixSharp
+record253 is key1038; prefixJade403 key1188; suffix678Maiming key678. Do not regenerate
+metadata merelyforoffset. Currentcanonical prefixoffset785 alreadyhandledbydefinitions.
+Existing range resolver is reusable; no need duplicate rawbyteparser.
+
+Prepared drafts ONLY in tmp (not applied/registered):
+- tmp/zeal_maiming_bank.py seven fullpipeline cases using proposed Item.affix_records:
+ lowAR49/max10 +nativeSharp253/Maiming678 positive; plainSharp same10negative;
+ unreadidentity same10unknown; max9negative; unreaddamageunknown; wrong/unknownclass.
+- tmp/native-affix-bank-helper.py helper to append to item_bank/ranges.py. Builds native
+ ItemData from independently specified (table,source_record_id) usingpinnedmetadata,
+ then calls productionresolve_affix_ranges/annotate_roll_ranges. Needsformat.
+- tmp/native-affix-integration-test.py test to append after current regression finishes:
+ fullsavedreplay decode ->source ->normalize ->immutablefacts. Verifyfixturepath exists
+ and add match='...' for pytest.raises(TypeError) lint ifrequired.
+
+NEXT after currentregression terminal:
+1. Inspect/fix actualfailures, preserving scope. Add andrun integrationtest.
+2. ItemBank Item optionalaffix_records tuple; usehelper in capture, addsource native_affixes.
+ Register draftmaimingcases, redbeforeprofile. Publish nohalfverifiedgeneration.
+3. Add SharpGrandCharmofMaiming span189/planner1w0106kl item138 toZeal template:
+ native prefixrecord253 AND suffix678 viaaffix_present; AR>=49,totalmax>=10.
+ Cannot substitute>=11 asuniversalMaiminggate or infer suffixfromtotal10.
+ Source reviews/statconfig/manifest/fingerprints/count2422->2423. New one-shot needed;
+ prior adders NEVER rerun. Conditions note prefix7–10+suffix3–4,total10–14.
+4. Focusedbank/templatechecks, rebuild, staged/published20replays. Sourceextraction will
+ legitimatelyaddnative_affixes for capturedmagic/rare items; inspect exactdeltas and
+ preserve text/prices unless separately reviewed. Commit/staging/liveprobe notrequested.
+5. Coverage/audit/handoff after publication. Broadfullsuite/wholebank/restart pending.
+
+NEW explicit rangegap: metadata prefixSharp1038 roll_ranges ONLYstat19; suffix678
+roll_ranges EMPTY. Physical maxdamage ranges aren't compiled for charms. Identity
+fixalone doesNOT satisfy maxdamageintervalrequirement; inspect definitions.scalar_ranges
+and base-sensitive physical modifier mapping beforeclosing this gap. Other native
+Maiming sourcevariants/lowernamedaffixtiers and allotherbuilds stillpending.
+
+## Latest active checkpoint — Zeal elemental resistance charms, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`c1157002ddbeab8c1526ce2fd6028c889c4bcf385fb4e1750e07a1d97711bdf6`,74artifacts,
+2430profiles/2422statconfigs. No hostrestart/livecollection/staging/commit.
+Added ResistanceSmallCharm/span183 and ResistanceGrandCharm/span194 in existing
+zeal_charm_templates. AnyONE of fire/lightning/cold/poison at10small/26grand qualifies,
+never sumdifferent elements or requireallfour. Specific observedstat priorities.
+Guide section32 says XResist x%; cachedplanners fire-small/lightning-grand examples.
+Nativeprefix IDs small349/369/388/408 each10–11,grand341/361/380/400 each26–30.
+Single-res conditions distinguish them fromShimmering. Existingmember semanticsunchanged.
+One-shot tmp/add_zeal_resistance_charms.py SUCCEEDED; NEVER rerun.
+Bank cases/zeal_resistance_charms.py28cases: each4elementminimum andbelow,
+wrong/unknownclass,missing/unreadstats,wrongsize,and4subthresholdresists notsummed.
+26red2pass(typeexclusions) ->28stagedpass ->28selectedpass;7statbundle/coveragepass.
+Ruff/checkformat/diffcheckpass;rebuildcompleted.20savedreports unchangedvsprior;
+20selectedmatchstaged extraction/text/price. Allprocessesterminal.
+Bank1407cases/3698targets/3397missingcases;observed20/77gaps.
+Completionfalse:2570identities,62891occurrences,1346reviewed,4777excluded,
+8012coveragerows,111859remainingtasks. Fullsuite/wholebank/hostdeliverypending.
+Logs tmp/zeal-resistance-charms-*;finishscript tmp/finish-zeal-resistance-charms.sh.
+
+NEXT SharpGrandCharmofMaiming span189 needs actualmagic-affix identity, nottotal10
+which overlapsplainSharp. Newoffline evidence gathered (noimplementation yet):
+- inventory_tracking/items/identity.py resolve_identity handlesrare6 andset/unique/
+  runeword, notmagic4. RawItemData is96bytes and quality/identifiedguard alreadyexists.
+- third-parties/d2go/pkg/memory/item.go lines139–145 reads3prefixUSHORTs at0x48,
+  3suffixUSHORTs at0x4e; magicname handling lines208on. Differentgameversion reference.
+- Savedfixtures large_charm_life20.json rawprefix1188,suffix343. Currentnative
+  magicsuffix table has785rows;1188–785=403(Jade largepoison11–12), suffix343 life16–20.
+  Exactly matches observed12poison/20life.
+- large_charm_life35.json prefix1147,suffix346;1147–785=362(Crimson largeFR4–7),
+  suffix346 life31–35. Matchesobserved6FR/35life.
+- D2MOO/source/D2Common/src/DataTbls/ItemsTbls.cpp lines544–558 concatenates suffix,
+  prefix,automagic tables; prefixoffset=nSuffixRecords. Derive pinnedtableoffset,
+  don't hardcode785. Check tableID indexing/Expansion separator and currentnativebytes.
+- Locald2go prefixdescriptionIDs useoldercombinedoffset: doNOTcopynameIDs blindly.
+- Assessment ItemFacts/DSL currentlyhasno affixidentity field/predicate. Plan native
+  identity provenance throughcapture/adapter/facts and tests, avoiding title/stat guesses.
+  Need synthetic Sharp253+Maiming678 atlowestsum10 vsplainSharp10 and savedmagicreplays.
+  Do not pretend highroll-only>=11 gate covers allMaiming.
+Then loweraffixtiervariants and allotherbuild/family/contract work remain. Goalnotcomplete.
+
+## Latest active checkpoint — eight Zeal grand-charm configurations, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`bb7f2f4b5a4406f103220649726841aace80fb13c822b40ab944124f54f937b6`,74artifacts,
+2428profiles/2420statconfigs. No hostrestart/livecollection/staging/commit.
+Expanded maintenance/zeal_charm_templates.py with grand Sharp/Steel +Vita/+Balance,
+plainSharp/Steel, Shimmering+Balance/plainShimmering. Exactguide spans185–188,190–193.
+Nativeprefix253 AR49–76/max7–10,226 AR118–132,319 allres13–15;
+suffix339 life41–45,265 FHR12. Planner lower native rolls qualify. GrandFHR condition
+says Twelve; smallFHR stillFive preserving previous generated source.
+One-shot tmp/add_zeal_grand_charms.py SUCCEEDED; NEVER rerun.
+48newbankscenarios; initial40failed8passed(wrongsize exclusion alreadyworks).
+Then114allcharmstagedpass and114selectedpass;7statbundle/evidencecoveragepass.
+Ruff/checkformat/diffcheckpass. Rebuild completed. All20savedreports unchanged vsprior;
+20selectedmatchstaged extraction/text/price. Allprocessesterminal.
+Bank1379cases/3696targets/3397missingcases;observed20/77gaps.
+Completionfalse:2570identities,62891occurrences,1344reviewed,4777excluded,
+8010coveragerows,111851remainingtasks. Fullsuite/wholebank/hostdeliverypending.
+Logs tmp/zeal-grand-charms-*;repeatablefinish tmp/finish-zeal-grand-charms.sh.
+
+NEXT: ResistanceSmallCharm span183 and ResistanceGrandCharm span194.
+Read exactguide section32: Charms desirable properties include "X Resist x%";
+thus native fourelement alternatives supported, not just planner FRsmall/LRgrand.
+Verified nativeprefix IDs: small Cold349/Fire369/Lightning388/Poison408 each10–11;
+grand Cold341/Fire361/Lightning380/Poison400 each26–30. Type scha/lcha respectively.
+Implement any-one-resistance candidate plus specificstat priorities; do not require
+allfour likeShimmering or sumdifferent elements. Positiveeach,belowthreshold,
+missing/unread,wrongsize/class tests. Existingtemplate conditions assumeShimmering
+when anyres key present; use dedicatedmember handling to avoid misleading labels.
+
+SharpGrandCharmofMaiming span189 stillrequires ambiguity review: prefix253+suffix678
+(max3–4) totals10–14, whereas plainSharp reaches10. ItemFacts does not yet expose
+affixidentity; predicateDSL has fact_eq(name),stat_at_least etc, no affixpredicate.
+Do not infer Maiming from total10. Lower namedVita/Steel tiers also remain variants
+to review; rules addedsofar are source-planner-tier configurations, notuniversaluse.
+Continue all other builds/families/contracts after these. No completionclaim.
+
+## Latest active checkpoint — eleven Zeal charm combinations, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`a89b90cec4d9982968b90841d4abf7b01d531f03e2f76e9c51252afc5cadb6c0`,74artifacts,
+2420profiles/2412statconfigs. No hostrestart/livecollection/staging/commit.
+
+Added maintenance/zeal_charm_templates.py: exactguide spans173–182 and184.
+Fine/Steel/Shimmering small combinations with MF/life/FHR, starter single-affix
+small charms, Sharp Large Charm of Vita. Native low rolls, all required modifiers,
+Paladin context, magic quality and exact charm size. Native prefixes256/237/322/255,
+suffixes291/349/267/346. No perfect-planner requirement. One-shot
+`tmp/add_zeal_charms.py` SUCCEEDED; NEVER rerun.
+New item-bank cases/zeal_charms.py66cases: lowroll,wrong/unknownclass,missing/unread
+modifier,wrongsize. 66red ->55pass11fail(test expected false trace for type-routed-out
+roles) ->66stagedpass ->66selectedpass. Wrongsize now checks charm routing and absence
+of the target stat configuration.7statbundle/evidencecoverage tests passed.
+
+Replay exposed five useless all-failed-build lines on unrelated large charms.
+Fixed build_use_summary: when ALL candidate roles fail and no independent guide demand,
+compact lines empty; full details/clusters retain failures. Mixed/unknown/demand stays.
+New red/green test;11summarytests and26presentation/text/role/overlaytests passed.
+This also removes failed-only sections from Dread Edge, Greater Claws and Trainer
+GrandCharm. Reviewed these exact3textdifferences vs prior; other17reports unchanged;
+all20extraction/price outputs unchanged.20selected reports match staged.
+Pythonreporting workerrestart remainsUNVERIFIED alongside prior socket-child/base fixes.
+Ruff/checkformat/diffcheckpass. All processes terminal.
+Bank1331cases/3688targets/3397missingcases.Observed20captures/77gaps.
+Completionfalse:2570identities,62891occurrences,1336reviewed,4777excluded,
+8002coveragerows,111819remainingtasks. Fullsuite/wholebank/hostdeliverypending.
+Logs tmp/zeal-charms-*; repeatable finishing script tmp/finish-zeal-charms.sh.
+
+NEXT Zeal grandcharms spans185–194 inspected (not implemented):
+185SharpVita planner rk0106ln item72: prefix253 AR49–76/max7–10 +suffix339 life41–45.
+186SteelVita n8010616 item123: prefix226 AR118–132 +339.
+187SharpBalance rk0106ln item51:253 +suffix265 FHR12.
+188SteelBalance rk0106ln item49:226 +265.
+189SharpMaiming1w0106kl item138:253 +suffix678 max3–4; totalmax10–14 overlaps
+plainSharp10, so do NOT infer both affixes from total10 alone; review ambiguity.
+190Sharp1w0106kl item140:253;191Steel n8010616 item130:226.
+192ShimmeringBalance1w0106kl item135:prefix319 allres13–15 +265.
+193Shimmering n8010616 item122:319.
+194ResistanceGC n8010616 item134:prefix380 LR26–30; genericlabel alternatives need review.
+Also ResistanceSmallCharm span183 rk0106ln item67 prefix369 FR10–11 stillpending.
+Native earlier Vitae/Steel tiers sharing names may need separate branches; current
+source-specific rules match reviewed planner tiers only, not universal viability.
+Continue other builds/families and every completion-contract gate after this queue.
+
+## Latest active checkpoint — Zeal Blood crafted ring, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`a7b69596668743846c007594e3a145a1858455c0bb9a2d5cc4da7bfed5dcc6cd`, 73 artifacts,
+2409 profiles / 2401 stat configurations. No host restart, live collection, staging or commit.
+Sacred Rondache, Trainer charm and socket-child decoder host delivery remains unverified.
+
+Added Blood Crafted Ring to maintenance/zeal_affixed_accessory_templates.py.
+Exact Zeal source span168 uses planner1w0106kl item120 (not main planner n8010616).
+Blood recipe cube80 plus native suffix357/331/230 and prefix243 establish minimum
+LL8, life41, Strength1, min damage6, AR101. Planner maximum rolls are not required.
+One-shot tmp/add_zeal_blood_ring.py SUCCEEDED; NEVER rerun.
+Six new item-bank cases: positive low rolls, wrong/unknown class, absent/unread leech,
+and recipe-only leech rejection. Six red -> six staged green -> six selected green.
+Two stat-bundle tests passed; five coverage tests passed after correcting evidence
+locator to /data because planner JSON stores its payload as an encoded string.
+The first selected pytest selector matched no cases; corrected selector zeal/blood-ring
+ran all six successfully. Ruff/format and diff checks passed.
+Artifact rebuild completed; 20 prior reports unchanged; 20 selected reports match staged.
+Bank:1265 cases /3677 required targets /3397 targets missing cases.
+Observed replay:20 captures /79 gaps. Completion false:2570 identities,62891 occurrences,
+1325 reviewed,4777 excluded,7991 coverage rows,111775 remaining tasks.
+Full-suite / whole-bank / host-delivery checks remain pending. All processes terminal.
+Logs tmp/zeal-blood-ring-*.
+
+Next: Zeal charm configurations, source spans173–184 inspected, no changes yet.
+Main planner n8010616:173 item19 Fine+GoodLuck(prefix256/suffix291);
+174 item110 Steel+GoodLuck(prefix237/suffix291);175 item70 Fine+Vita(256/349);
+176 item24 Fine+Balance(256/267);177 item20 Shimmering+GoodLuck(322/291);
+178 item64 Shimmering+Vita(322/349).
+Starter planner rk0106ln:179 item71 Fine256;180 item31 GoodLuck291;
+181 item69 Vita349;182 item68 Shimmering322;183 item67 FireResistance369.
+Planner1w0106kl:184 item134 Sharp Large Charm of Vita(prefix255/suffix346).
+Native ranges and broad Resistance-label alternatives still require review before gates.
+Continue other builds/families and all completion-contract requirements after these.
+
+## Latest active checkpoint — three Zeal caster amulet branches, 2026-09-27
+
+Goal ACTIVE,unfinished. Selected generation
+`e9e51659976f7af3b141a51814283034ba08b414ce4aa63d9c12d6a2c8dea601`,72artifacts,
+2408profiles/2400statconfigs. No livecollection/commit/staging/hostrestart. Prior
+socket-child decoder/SacredRondache Pythonhostrestart remainsunverified.
+
+Added maintenance/zeal_caster_amulet_templates.py with3distinct exactsource rules:
+zeal-paladin-caster-amulet-teleport span154; resistance-mf155;fast-mf156.
+Allcraftedamulet/noneth/zerosockets/Paladin,2Palskills,recipeFCR5/mana10/regen4 minima.
+Teleport usescharge_skill54 nativepresence anddependsremainingcharge>=1 plusknown
+player_items withoutEnigma. Life/leech supportingobservedaffixes, notcraftguarantees.
+ResistanceMF needsnativePrismatic16allres andcombinedMF21minimum. FastMF accepts
+15FCR(craft5+suffix10),prefers20,MF21. Maxplannerrolls notmandatory. FCR≠ZealIAS.
+No genericnumericprice disclaimer addedtoreportconditions;equipmentrequirements noted.
+One-shot tmp/add_zeal_caster_amulets.py SUCCEEDED; NEVER rerun. Initialbuild validation
+rejectedcharge:54 inprofile important_stats(whichacceptsnativekeys only). Fixedtemplate
+filtercharge markerfromimportant_stats butretainedsemanticchargepriority instatreview;
+re-expandedonly3roles andrefreshedfingerprints/conditions; do notrerunadder.
+
+Bank cases/zeal_caster_amulets.py18red ->18stagedpass ->18selectedpass.
+Positive lowroll,wrong/unknownclass,completeabsent vsincompleteunreadFCR;Teleport
+Enigma/unknownarmor/emptycharges allblockthatconfiguration. Skill54layer=(54<<6)|3,
+rawcurrent1/max27. Regenstat27 verifiednative.18statbundle/charges/bankcoverage
+regressionspass;ruff/checkformat/diffcheckpass. Repeatableartifactrebuildcompleted.
+20savedreports unchangedvspriorgeneration and20selectedmatchstaged extraction/text/price.
+Bank:{'cases': 1259, 'required_targets': 3676, 'targets_missing_cases': 3397}. Observed20/79gaps. Completioncounts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1324, 'excluded_occurrences': 4777, 'coverage_rows': 7990, 'remaining_tasks': 111771};completefalse.
+Allprocesses terminal. Logs tmp/zeal-caster-amulets-*.
+Fullsuite/wholebank/hostdelivery stillpending.
+
+NEXT BloodCraftedRing Zealspan168 hasNOcraftedRingrole(compiledinspected).
+IMPORTANT source profile_id is1w0106kl,NOTmainn8010616. Initiallycheckedwrongplanner
+andreportedapparentconflict; correctedusercommentary afterreadingactualspan. There
+isNOsourceconflict. pricing/raw/mr/planners/1w0106kl.json cacheditem120 iscrafted:
+cube080[LL3,life20,Str5], suffix357LL8,prefix243AR120,suffix331life40,suffix230min9;
+totals11LL/120AR/60life/9mindmg/5Str. Nativecube/affixlegality needreviewbeforegate.
+Mainplanner n8010616 item120 isNagelring(span169); IDsareplanner-local, nevercrossjoin.
+Afterring, Zealcharmpatterns173.. onward remainpending(Fine/Steel/Shimmering combinations,
+Vita/Balance/MF etc); inspectexistingrules/bankcoverage beforeadding. Continueall
+otherbuild/family/contractdimensions afterZeal. No intermediatebatchfinishclaim.
+
+## Latest active checkpoint — Zeal Blood gloves and rare belt, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`bfc3e79e394f892a8d2c0ed2492f46c36d8f0196c333933ed13ceed215bb74e6`,72artifacts,
+2405profiles/2397statconfigs. No livecollection/commit/staging/hostrestart. Previous
+socket-child Pythonfix/SacredRondache report restart stillunverified.
+
+Added maintenance/zeal_affixed_accessory_templates.py andtwoexactsource rules:
+zeal-paladin-blood-gloves-alternative(span127/planner95): craftedHeavyGloves/
+Sharkskin/Vampirebone family nativecube75,20IAS andrecipe minimum1LL/5CB/10life.
+AdditionalStrength/lightningres/MF prioritizedwhenobserved, notguaranteedcraft.
+zeal-paladin-rare-belt-alternative(span144/planner105): rarebelt branchcovering
+Stability24FHR,AtlasStr21..30,Colossuslife41..60 andfire/lightning/cold21..30.
+Allsixaffixes' lowerrolls qualify; plannerperfect30Str60life30res notminimum.
+Doesnotclaimallotherbeltsworthless; source-specific branch, comparepotionrows,
+fullres/FHRloadout andequipmentrequirements. Bothnoneth,zerosockets,Paladin.
+Nativecube75,suffix170/287/386/264/377/318,prefix392/372/353 inspected.
+One-shot tmp/add_zeal_affixed_accessories.py SUCCEEDED; NEVER rerun. Roles,
+manifest,patternguideuses,statreviews,counttest2397updated. Adderadaptedhelm
+script butnewtemplate separate; sourceusespattern_label exactspan label.
+
+New bank cases/zeal_affixed_accessories.py10red ->10stagedpass ->10selectedpass.
+Lowrollpositive,wrongclass,unknownclass,completeabsentcore vsincompleteunreadcore.
+7statbundle/bankcoverage regressionspass;ruff/checkformat/diffcheckpass.
+Repeatableartifactrebuildcompleted,20savedreports unchangedvspriorselected,
+20newselected matchstaged extraction/text/price. Bank1241cases/3673targets/
+3397missing;observed20/79gaps. Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1321, 'excluded_occurrences': 4777, 'coverage_rows': 7987, 'remaining_tasks': 111759};completefalse.
+Allprocesses terminal. Logs tmp/zeal-affixed-accessories-*.
+No wholebank/freshfullsuite/hostdelivery claim.
+
+NEXT implementthree Zeal casteramuletbranches154/155/156 (planner39/172/84),
+perpreviouscheckpointexamples. Freshnativefacts: cube88regen4..10,mana10..20,
+FCR5..10; suffix174adds10FCR. Teleportation suffix533 skill54,level48 affix,
+parammin-20/max-3; sourceplanner39 level3Teleport27charges,6LL,Lamprey744fixed6,
+60lifeColossus318,2Palprefix565. DoNOTtreatcharges aspassiveoskill; footnote4
+onlywhen noEnigma. MFprefix281Felicitous5..10 plusFortune28716..25 yields21..35;
+Prismatic331allres16..20. Planner172has2Pal10FCR20allres35MF;84has2Pal20FCR35MF.
+Use existing charged/prebuff predicates/context forsourceconstraints. No source
+variant collapsing justbecauseallthree labels areCasterCraftedAmulet. Thencontinue
+allremainingZeal andallotherbuild/family/contractwork.
+
+## Latest active checkpoint — Zeal named accessories linked, 2026-09-27
+
+Goal ACTIVE,unfinished. Runtime unchanged:selected83be3e1c6e1994ec221cfee7da9ab2ad4022f92406a4a35dc9510c8634855f1c,
+2403profiles/2395configs. No publication/livecollection/commit/staging/hostrestart.
+Prior socketchild Pythonfix stillrequires unverifiedhostrestart.
+
+Reviewed and linked8existingrules to exactsection32 spans:133Steelrend,
+136MagnusSkin,138StringofEars,139NosferatuCoil,140Verdungo,148WarTraveler,
+149GoreRider,150GoblinToe. Native/upgradedbase,noneth,non-socketability,
+playerclass andstatrecipient restrictions unchanged. OffweaponED/IAS,
+CrushingBlow/DS/OW,physicalvsflatmagicreduction,wearerkillcredit andMF separated.
+One-shot tmp/add_zeal_accessory_bindings.py SUCCEEDED; NEVER rerun.
+Allsource_context_reviews validated beforewrite; no productionrule changes.
+
+Six accessories alreadyhad dynamicbankcases inzeal_melee.py; didnotduplicate.
+Added cases/zeal_named_gloves.py6cases forSteelrend andMagnus usingverifiednative
+unique391/set106. LowSteelrend30ED/10CB/15Str;Magnus20IAS/100AR/15FR/50EDef.
+PositivePaladin/wrongclass/unknownclass statconfig checks.24new+existingaccessory
+casespass (1207deselected). Ruff/checkformat/diffcheckpass.
+Bank1231cases/3671targets/3397missing scenarios. Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1319, 'excluded_occurrences': 4777, 'coverage_rows': 7985, 'remaining_tasks': 111751};
+completefalse. Allprocesses terminal. Logs tmp/zeal-accessories-*.
+No wholebank/fullsuite orhostdelivery claim.
+
+NEXT genuine missing Zeal rules (compiledprofiles inspected):127BloodCraftedGloves,
+144RareBelt,154/155/156CasterCraftedAmulet. Only existingamuletrole is magic/rare
+TeleportChargeAmulet footnote, notcrafted. Freshlyinspectedn8010616 planner examples:
+95(VampireboneGloves):cube075 blood3LL20life10CB +20IAS25MF15Str30LR.
+105(VampirefangBelt rare):24FHR30Str60life30fire/lightning/coldres;native6affixes.
+39(amulet crafted):cube08810FCR20mana10regen +2Pal,level3Teleport27charges,
+6LL60life. Teleportfootnote4 applies onlywithoutEnigma; charge-use notpassiveoskill.
+172(amulet crafted):10FCR20mana10regen +2Pal,35MF(prefix10+suffix25),20allres.
+84(amulet crafted):20FCR(craft10+suffix10),20mana10regen,+2Pal35MF.
+Preserve distinctsourcebranches; guide values areperfectexamples, notuniversally
+requiredminimums. Readnativecube/affixdefinitions andrecipientsemantics before
+thresholds; keep sourcevalues separatefromwholeloadoutbreakpoints. Source spans
+pointtoitems95/105/39/172/84 respectively. Implement redgreen independentbankcases,
+rebuild/publish/replay, thenremainingZeal andallothercontractwork.
+
+## Latest active checkpoint — explicit player-pattern source bindings, 2026-09-27
+
+Goal ACTIVE; unfinished. Runtime unchanged:selected83be3e1c6e1994ec221cfee7da9ab2ad4022f92406a4a35dc9510c8634855f1c,
+2403profiles/2395configs/72artifacts. Maintenanceonly,no republication/commit/staging/
+livecollection/hostrestart. Socket-child Pythonfix restart stillunverified.
+
+Extended source_context_reviews with player_pattern for unresolvable short generic
+source labels (categoryNone,identity_statusunresolved), retainingall existingnamed
+rules. Requiresnativeplayerclass/explicitmatching slot, pinned exactspan/hash,
+fullsameguidequote andoriginal label, reviewedendorsedpattern role/fingerprint,
+nonemptytypes, supportednormal/superior/low_quality/magic/rare/crafted qualities
+matchingexplicitbranch list, no namedidentity role, pattern_label matchesendorseduse.
+Exactquotedlabels accepted. Explicit 'Empty preparation base for ' / 'Completed '
+prefixes accepted onlywhen socket_contents empty/filled mandatoryoneverypath;
+no arbitraryprefix stripping. Named/mixedquality orwrongpattern/class rejected.
+
+New tests maintenance/test_pattern_source_context.py:initial1meaningfulred/6pass
+(afterfixingfixturehelper'sdefaultitem);9patternchecks includingpendingbranches and
+bothpreparationprefixguards. Combined70pattern/player/merc/completionchecks pass.
+Ruff/checkformat/diffcheckpass. No runtime reportchanges.
+
+Persisted4reviews forZeal73Rubyshield (both empty+filledbranches),75Istshield(both),
+107TopazMask,109ResistanceMask. Fullquote distinguishes samebarelabels. Existing
+payload/nativeaffix/core gates retained; no sourceorvariant rewriting.
+One-shot tmp/add_zeal_pattern_bindings.py SUCCEEDED; NEVER rerun. Firstattempt failed
+beforewrite because existing shieldpattern labels includepreparationprefixes;
+handledstructurally above, thenvalidatedallreviews beforewrite.
+Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1311, 'excluded_occurrences': 4777, 'coverage_rows': 7985, 'remaining_tasks': 111759};completefalse. Allprocesses terminal.
+Bank remains1225cases/3671targets/3399missing;20observed/79gaps. Fullsuite/wholebank
+andhostdelivery remainpending. Logs tmp/pattern-source-*.
+
+NEXT authoritativeZeal queue section32 spans125..165 stillpending:
+127BloodCraftedGloves,133Steelrend,136MagnusSkin,138StringofEars,139NosferatuCoil,
+140Verdungo,144RareBelt,148WarTraveler,149GoreRider,150GoblinToe,
+154/155/156CasterCraftedAmulet. Determine existing reviewedrules versus genuine
+missingconfigurations beforeadding. Named items mayneed exactplayerbinding like
+previousbatches; craftedamulets have distinctplannerpayloads andmustnot collapse
+samebarelabel. Inspect nativeitems/planners andensure independentbankcoverage.
+Thencontinue allremainingbuilds/families/contractdimensions. Never stopatbatchgate.
+
+## Latest active checkpoint — specialist shield bank and pattern-binding audit, 2026-09-27
+
+Goal ACTIVE, unfinished. Same selected83be3e1c6e1994ec221cfee7da9ab2ad4022f92406a4a35dc9510c8634855f1c,
+2403profiles/2395statconfigs. No runtime changes/republication/livecollection/commit/
+staging/hostrestart. Previous socket-child Pythonfix stillrequires unverifiedrestart.
+
+Added cases/zeal_specialist_shields.py20 independentpipeline cases for existing
+ruby-empty/ruby-filled/ist-empty/ist-filled specialistshield roles. SacredTarge
+magic4s20block30FBR with27allres (45 ispreference, notminimum). Rubyfilled4 actual
+31ED15IAS jewels, parent124ED60IAS; Istfilled4Ist+100MF. Perrole positive,wrongclass,
+unknownclass; filledwrongfourthEl andunreadchildren; empty3snear-miss/unknownsockets.
+All20selectedpass (1205deselected). No earlier bankcovers foundprogrammatically.
+Ruff/checkformat/diffcheckpass. Bank:{'cases': 1225, 'required_targets': 3671, 'targets_missing_cases': 3399}.
+Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1307, 'excluded_occurrences': 4777, 'coverage_rows': 7985, 'remaining_tasks': 111763};completefalse. Allprocesses terminal.
+Logs tmp/zeal-specialist-shields-*. No fullsuite/wholebank claim.
+
+AUDIT exactpending patternsource IDs:
+73Ruby: b28f81ac73c3983570d3e3ed;75Ist:86dc102fd64c21470eae9be7;
+107MaskTopaz:f13b435a5aba420eba2a74e3;109MaskRes:fb16209a5eb2fcf8315ec7af.
+AllcategoryNone/identity_statusunresolved,variantGuide mention,sourceRuleIds[];
+original_labels omitparenthesizedfillers. Existingroles variantGear alternatives,
+sourcewhole section32; usepattern_labels includefullparentheses. Thus deliberately
+notmatched by review_dossiers._pattern_bindings(exactlabel/source/variant/slot).
+Do NOTstripfillerlabels globally orcreditbothsame-name variants blindly.
+
+Planner n8010616 freshly inspected:146SacredTarge Jeweler422/Deflecting173,4s45allres,
+children3,3,3,132 each40ED15IAS;144samebase/affixes4Ist;147Mask3PTopaz;
+138MaskRalOrtThul. Sourcespans73/75/107/109 pointexactly tothoseitemIDs.
+NEXT: extend source_context_reviews with explicit player_pattern kind orsimilarly
+strict binder. Existingonly namedresolved unique/set/word eligibility; namedbinding
+muststayunchanged. Patternbinding needs exactspan/hash/class/slot, fullsameguide
+quotedconfiguration, endorsedpatternrole/fingerprint, branchpattern_label matching
+thatquote, no names onrole, requiredplayerclass onEVERYsuccessfulpath; explicitall
+branches (shieldempty+filled) andremainingbranches. Preserve separate sourcecontext
+androlevariant. Current namedsourcecontext compiler/tests are suitable scaffold.
+Test wrongfillerbranch/name-only/changedspanhash/missingbranch unknown cases redgreen.
+Persist onlythese4reviewedsourceoccurrences onceverified, thenfollowrestofqueue.
+
+## Latest active checkpoint — socket-child grouped stats and Zeal payload bank, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected runtime remains
+`83be3e1c6e1994ec221cfee7da9ab2ad4022f92406a4a35dc9510c8634855f1c`,2403profiles/
+2395statconfigs/72artifacts. Python decoder fixed; runtime artifacts unchanged so no
+new publication. Hostworker restart REQUIRED and stillunverified. No hostaction,
+livecollection,commit orstaging.
+
+Added item_bank/cases/zeal_socketed.py27cases for7existing socketconfigurations:
+GuillaumeCham/Um/Ber/RubyED31IAS15,Griswold3Ist,Mask3PTopaz andRalOrtThul
+(normal+superior). Actualchildpositive,wrongElchildren withsameaggregatesnegative,
+unknownchildren withsameaggregatesunknown. No previous bankcovers for theseids.
+Initial26pass1fail exposed realdecoderbug: socket_payload.decode_payload processed
+only memory_stat, dropping groupedED memory_stats while claimingstats_complete.
+Rubyjewel child ED wasthus incorrectly treatedas0 evenwhen parentED31/IAS15matched.
+Added lowlevel test includinggroupedED andpoison(native rates/duration/sourcecount):
+redthenfixediterate allmemory_stats anduse native_values perkey withunits. Never
+copy combinedpoison damage into individualcomponents. 29bank+decodertestspass.
+67socketannotation/compoundjewel/counting/Zealhelm/sourcecontext regressionspass.
+Ruffcheck/format/diffcheckpass.20savedcapture extraction/text/pricesunchanged.
+
+Explicitplayer sourcebindings5 appended for77Griswold,88Cham,90Ruby,92Um,94Ber;
+wholequotedconfig, exactsource fingerprint/class/slot and existingdependencies kept.
+One-shot tmp/add_zeal_socket_bindings.py SUCCEEDED; NEVER rerun. Compiledallreviews
+beforewrite. Sourcecontexts maintenanceonly. Maskgeneric bindingsstillneedaudit.
+Bank1205cases/3671targets/3403missing fullscenarios (9fewer);observed20/79gaps.
+Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1307, 'excluded_occurrences': 4777, 'coverage_rows': 7985, 'remaining_tasks': 111763};completefalse. Allprocesses terminal.
+Logs tmp/socket-grouped-*,tmp/zeal-socketed-bank.log(initialred).
+Wholebank/freshfullsuite andhostdelivery remainpending.
+
+NEXT sourceclosure: inspect actualcompletionqueue for exactZeal GemmedMask source
+spans107/109 versus existingpattern_labels fullparentheses; do notinventnewprofiles.
+Afterhelmet/socketbinds, continueotherZeal remainingguideuses thenallbuilds/families.
+Potentialremaining JewelerSacredTarge spans73/75 (EDIAS vsIstpayloads) deserve same
+fullpipeline bankcoverage; groupedEDfix now makes actualchildED available. Check
+existingrules anddynamicallyconstructed bankcovers beforeadding. No intermediate
+batchconstitutes completion.
+
+## Latest active checkpoint — Zeal affixed helmet alternatives, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`83be3e1c6e1994ec221cfee7da9ab2ad4022f92406a4a35dc9510c8634855f1c`,72artifacts,
+2403profiles/2395stat configs. No livecollection/commit/staging/hostrestart.
+
+Reviewed section32 span98RareCirclet/planner99 and99BloodCraftedArmet/planner107.
+Planner99:Diadem rare2Pal20FCR Visionary2,2s,40life25MF; prefix565/539/420,
+suffix175/331/287 verified native legal3prefix3suffix. Planner107:Armet Blood craft,
+cube73 nativeleech1..3/life10..20/DS5..10 plus2s,life40,Visionary2,EDef200;
+prefix668Godly101..200. Both examples haveCham/Ber (native misc r32/r30verified).
+No source's exact perfect roll or example filler treated as universal requirement.
+
+Added maintenance/zeal_affixed_helm_templates.py two roles:
+zeal-paladin-rare-circlet-alternative:rare circ type,2Pal20FCR core,Visionary/life/MF
+andobservedsocketstat priorities; FCR is castingnotZealIAS.
+zeal-paladin-blood-helm-alternative:crafted nativeHelm/Casque/Armet family frommetadata,
+Visionary positive + nativeleech1/DS5/life10 core. BothPaladin/noneth/identified,0..2s,
+2s preference for linkedpayload. No complete breakpoint, guaranteedUbersleech or
+priceinferred. No seteffects. Bodydetails explain actualsocket bonuses.
+One-shot tmp/add_zeal_affixed_helms.py SUCCEEDED; NEVER rerun. Initial guide-use item
+binding rejected because affixed profiles have no names. Corrected newuses to
+pattern/profileid + pattern_label + pattern_source_slot; no namedidentityfiction.
+Initialrules omitted absent_is_zero: complete missingcore stayedunknown. Meaningful
+red-green fixed muststatpredicates absent_is_zerotrue (stillunknown incomplete/gapped).
+Re-expanded onlynewroles and updatedsource/stat fingerprints, notsuccessfuladder.
+
+Itembank cases/zeal_affixed_helms.py10red ->8pass2fail ->10stagedpass ->10selectedpass.
+Examplepositive,wrongclass,unknownclass,completeabsentcore,incompleteunreadcore forboth.
+25statbundle/sourcecontext/bankcoverage checks pass; ruff/format/diffcheckpass.
+Repeatable fullartifactrebuild completed.20saved reports unchangedvsTal generation,
+20selected matchstaged extraction/text/price. Publishedgeneration above.
+Bank1178cases/3671targets/3412missing;observed20captures/79gaps.
+Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1302, 'excluded_occurrences': 4777, 'coverage_rows': 7985, 'remaining_tasks': 111768};completefalse. All launchedprocesses terminal.
+Logs tmp/zeal-affixed-helms-*. No wholebank/freshfullsuite claim. HostPythonrestart
+stillunverified for priorSacredRondache/compactSocketreportchanges.
+
+NEXT continue remainingZeal exactsource configuration closure: socketedGuillaume,
+GriswoldHonor and gemmedMask profiles exist but their source occurrences may need
+explicitpattern/source-context bindings and independently authored fullpayloadtests.
+Inspect existing rules/bankcases beforeadding; no duplicateprofile creation based
+on a failedliteralIDsearch. Follow actualcompletionqueue to source/unreviewedfamily
+work afterward; all other contract dimensions still required.
+
+## Latest active checkpoint — Tal helm Zeal alternative, 2026-09-27
+
+Goal ACTIVE, unfinished. Published selected generation
+`966b512f53b35d18a074454c5eb79d19a74840298ea1407218d413bbb40d8fca` (72artifacts),
+2401profiles/2393stat configurations. No livecollection/commit/staging/hostrestart.
+
+Added zeal-paladin-tal-rashas-horadric-crest-named-alternative from exactsection32
+span105. Native setitems Tal Rasha's Horadric Crest row80: mana30/life60/flatdef45/
+allres15/dual leech10. Linked n8010616 item141 nativeDeathMask andsocket28 jewel15IAS.
+Template zeal_named_templates now accepts explicit member quality(defaultunique),
+uses named_base_condition qualityset; originalDeathMask/upgradedDemonhead,noneth,
+0/1socket,Paladin retained. No companions/complete set,IAS withoutobservation or
+LifeTap healing assumed. Includes8native utilitystats plusobservedIAS annotation.
+One-shot tmp/add_zeal_tal_helm.py SUCCEEDED; NEVER rerun. Roles,reviewedmanifest,
+guide_use_reviews,stat_use_reviews and expectedstatbundle count updated.
+
+Bank cases/zeal_tal_helm.py:6red then6stagedgreen and6publishedgreen. Native/upgraded,
+actual15IASjewel,wrongclass,missingclass,unknownsockets. No Paladin skill/fullset bonus
+asserted; native health/mana usefixedpoint256. Added lowerlevel downgradedMask
+rejection;7template/statbundle tests,10upgrade/ethereal/bankcoverage regressionspass.
+Ruff/format/diffcheckpass. Fullbank/fullsuite stillpending.
+Rebuilt via tmp/final-charge-routing-rebuild.py (repeatable).20saved replays unchanged
+vs previousselected for extraction/text/price;20newselected matchstaged. Bank1168cases,
+3669targets,3412missing scenarios;observed20/79gaps. Completion initially correctly
+rejected staleobserved-review hash incoveragematrix; regeneratedmatrix thencompletion
+passed. Counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1300, 'excluded_occurrences': 4777, 'coverage_rows': 7983, 'remaining_tasks': 111760};completefalse. All launchedprocesses terminal.
+Logs tmp/zeal-tal-*. SacredRondache/compactsocket Python hostrestart stillunverified.
+
+NEXT actual unimplementedZeal helmet uses:section32 spans98RareCirclet/planner99,
+99BloodCraftedArmet/planner107. CompiledZeal profiles have no magic/rare/crafted
+Helmets role. Inspect exactplanner rolls, source text/native affix/craft legality,
+review stat priorities and fullsetup thresholds; implement independent scenarios.
+Guillaume socket variants/Griswoldshield sourcebinding audits remain; avoid duplicate
+rules. Fiveunique helmet alternatives already sourcebound andbanktested in previous
+checkpoint. Continue allremaining completioncontract work, notjustZeal.
+
+## Latest active checkpoint — Zeal helmet verification, 2026-09-27
+
+Goal ACTIVE, unfinished. Same selected runtime723bb142aefbf15cee3cf7a3f058904d634c8915b79718887eb483417525c328;
+no production artifact changes or republication this turn. Previous turn was progress.
+
+Added16 complementary item-bank cases in cases/zeal_helmets.py: Crown of Ages,
+Vampire Gaze, Rockstopper, Crown of Thieves, Harlequin Crest. Independently native
+low rolls verify every reviewed relevant stat, wrong player class and missing class;
+Crown of Ages also verifies second socket. Existing zeal_melee.py dynamically builds
+these role names, so plain full-id search missed its3cases/item. Removed overlapping
+newethereal tests; kept complementary fullstats/class checks. Existing15 plus new16
+pass (31passed,1131deselected). Initial Shako fixture failure was incorrect fixedpoint
+raw hp/mana perlevel: nativeparam12 must become12*256 in memory. Decoder denominator
+2048 confirmed; corrected fixture gives120life/mana atviewer80. No production bug.
+Ruff/checkformat/diffcheck pass. Logs tmp/zeal-helmets-bank-final.log,
+tmp/zeal-helmets-bank-coverage-final.log,tmp/zeal-helmets-completion-final.log.
+Bank counts:{'cases': 1162, 'required_targets': 3668, 'targets_missing_cases': 3412}. Missing targets unchanged because these roles already had minimal
+scenarios; new cases deepen verification, not new assessed identities.
+Completion counts:{'identities': 2570, 'occurrences': 62891, 'reviewed_occurrences': 1299, 'excluded_occurrences': 4777, 'coverage_rows': 7982, 'remaining_tasks': 111756}; completefalse. All launched processes terminal.
+
+NEXT actual source/configuration gap: Zeal section32 span105 Tal Rasha's Horadric
+Crest has NO exact-name role in compiled profiles (checked allZeal roles). Inspect
+native set definition, linked planner n8010616 item141, conditions and build wearer,
+then implement with independent bankcases. Do not assume helm set effects beyond
+native standalone bonuses. Existing helmets96/97/100/101/104 already sourcebound;
+Griswold77,Guillaume88/90/92/94 and magic/gemmed remain audit leads from previous
+checkpoint. Continue fullcontract; wholebank/freshfullsuite and hostrestart pending.
+
+## Latest active checkpoint — explicit player source reviews and bank, 2026-09-27
+
+Goal ACTIVE, unfinished. Runtime unchanged: selected generation
+`723bb142aefbf15cee3cf7a3f058904d634c8915b79718887eb483417525c328`,
+2400 profiles/2392 stat configurations. No live collection, host restart, staging or commit.
+
+Extended maintenance/source_context_reviews.py with explicit player_equipment reviews.
+Pins source span/hash, original context including class, same-guide quotation and role
+fingerprint; requires matching native identity, rarity, build, side and explicit slot,
+plus mandatory player_class on every successful predicate path. Only Body Armors/Body
+Armor and Off-Hand Swap/Off-Hand-Swap aliases accepted. Nonempty configuration review
+required; remaining branches remain pending. Existing mercenary behavior preserved.
+Initial red1/pass7; then79 player/merc/completion/Hustle checks pass.
+
+Added seven reviewed Zeal source bindings: Death Cleaver57, Razor's Edge65, upgraded
+Butcher's Pupil66, Honor Naga67, Alma Negra72, Leviathan118, Stone119. Upgrade, exactbase,
+Zod, durability and filled recipe constraints retained; no same-name blanket credit.
+One-shot tmp/add_zeal_player_source_bindings.py SUCCEEDED; NEVER rerun.
+
+New item_bank/cases/zeal_existing_alternatives.py supplies33 positive/negative/unknown
+cases (including normal/superior/low_quality runewords). All33 pass against selected
+runtime;1113 deselected, not wholebank. Native observed stats and specific configuration
+annotations asserted. Bank now1146cases/3668targets/3412missing scenario sets (11 fewer).
+Ruff check/format and git diff --check pass. Maintenance-only changes did not republish.
+Completion refreshed:2570identities,62891occurrences,1299reviewed,4777excluded,
+7982coverage rows,111756remaining tasks; completefalse. All processes terminal.
+Logs tmp/player-source-context-*, tmp/player-source-bank-coverage.log,
+tmp/zeal-existing-bank.log. Wholebank/freshfullsuite remain pending.
+
+NEXT: continue exact Zeal source review. Spans73/75 magic Jeweler's Sacred Targe,
+77Griswold's Honor,88/90/92/94Guillaume's Face socket variants,96Crown of Ages,
+97Vampire Gaze,98rareCirclet,99craftedArmet,100Harlequin,101Rockstopper,
+104Crown of Thieves,105TalRasha,106Sigon,107/109gemmedMask need inspected source
+configuration/role matching; never infer filler from neighboring names alone. These
+are candidate audit leads, not newly reviewed facts. Continue remaining contract
+work; neither this batch nor universal named-tier baseline completes the goal.
+Sacred Rondache base advice already published; active worker Python restart remains
+unverified, as does compact socket-requirement reporting on host.
+
+## Latest active checkpoint — Zeal named remainder and actionable sockets, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation `723bb142aefbf15cee3cf7a3f058904d634c8915b79718887eb483417525c328` (72 artifacts),
+2400profiles /2392stat configurations. No live collection, commit, staging or host restart.
+
+Closed Hustle audit alias gap first. source_matching.occurrence_name_matches accepts
+bare Hustle only for reviewed armor/weapon names, exact source/role slot, explicit types
+(armor tors; existing weapon abow/bow/pole/spea/swor), and a recipe equality mandatory
+on every successful path. completion uses it alongside all existing exactsource/build/
+variant/side checks; quality matching preserves exact-name behavior.6red/12negativepass
+then71completion/context/alias tests pass. This closed24existing reviewed Hustle source
+references (including Zeal64/122). No source rewriting or general parenthesis stripping.
+Completion occurrence_dispositions excludes ordinary reviewed entries; use queue IDs
+for pending checks, not absence from that list. Previous nine-role/eight-review mystery
+was Hustle armor variant naming, not Temper's empty item_id.
+
+Added source spans60ethRuneMaster,69HeraldZakarum,71Stormshield,116SkulldersIre via
+maintenance/zeal_named_templates.py. Nativeunique rows313/285/253/217 verified; raw JSON
+keys numeric and RuneMaster native index text Runemaster. catalog maps correct bases:
+EttinAxe,GildedShield,Monarch,RussetArmor. Native upgrade chains preserved. Linked planner
+n8010616 data/items115/52/89/148 reviewed: RuneMaster5s[Lo,Lo,Zod,jewel3,jewel3], jewel3
+40ED/15IAS; Herald upgradedZakarumShield+jewel3; Stormshield+jewel3; Skullder+Um.
+These are examples, not minimum roll gates. RuneMaster candidate requireseth+3..5s,
+required_socket_itemZod, preference5s. HoZ eth needs observed152Indestructible; Skullder
+eth needs observed252repair; Stormshield nonethnative. Player skills, block vs IAS,
+level-scaled stats and observed socket effects separate. No price invented.
+One-shot tmp/add_zeal_named_remainder.py SUCCEEDED; NEVER rerun.
+
+Bank initially29red. Added3/4socket boundaries, moved4 impossible unique/base mismatches
+to lower-level tests because native item-bank identity validation correctly rejects
+constructing them. MissingZod correctly suppresses ready-use stat configs, remains
+partial with explicit socket preparation. Final27staged/27selectedpass;4invalidbase
+checks pass (wrongtype may be excluded before role trace).24related named/ethereal/
+statbundle/coverage regressions pass. Additional preparation/presentation run28passed,
+1invalidbase fixture expectation fixed;4template checks thenpassed. Socket summary
+red-green separatelyverified. No wholebank/fullsuite claim.
+
+Reporting fix: RoleAssessment now has optional structured socket_requirement with
+item,confirmed,applicable. profiles supplies it using existing verified socket detection
+and can_prepare. build_use_summary shows deduplicated applicable unconfirmed requirements,
+strips Rune suffix, hides confirmed/unrelated cases. Example 'Socket requirement: Zod
+(not confirmed)'. SavedSazabi now shows missingCham line; all20saved decodedstats/prices
+unchanged and othertextunchanged.20selected matchesstaged. Python worker restart needed
+for this change too; hostrestart unverified. Ruff/format/diffcheck pass.
+Bank1113cases/3668targets/3423missing scenario sets; observed20captures/79gaps.
+Completion counts:{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1292, "excluded_occurrences": 4777, "coverage_rows": 7982, "remaining_tasks": 111763}; completefalse.
+
+NEXT: audit exact source bindings for already-existing section32 Zeal rules, rather than
+duplicate them. Compiled bundle (not only roles/zeal-paladin.json) contains DeathCleaver57,
+RazorEdge65,ButchersPupil66,HonorNaga67,AlmaNegra72,Leviathan118,Stone119. Many socket/
+set/affixed source configurations stillpending. source_context_reviews currently only
+handles merc narrative bindings; a rigorously tested explicit player-binding extension
+could close reviewed equivalent occurrences while retaining exactspan fingerprints,
+sameguide quoted evidence, nativeidentity/quality, wearer and full branch review.
+Do not blindly credit same-name mentions or incompatible sockets/upgrades. Continue
+all remaining contract dimensions afterward; no intermediate batch completes the goal.
+Logs tmp/hustle-source-* and tmp/zeal-named-*. All launched processes terminal.
+
+## Latest active checkpoint — Zeal armor/helmet words, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation `91370f46e4e0a5ba78bebe3e666e98f184b7eee30245888c0c0b9412816c5682` (72 artifacts),
+2396profiles /2388stat configurations. No live collection, commit, staging or host restart.
+
+Added nine player alternatives from section32 exact spans: Enigma113,Fortitude114,
+Chains of Honor115,Duress120,Hustle(armor)122,Lionheart124,Smoke125,Bulwark102,Temper103.
+New maintenance/zeal_equipment_templates.py: native recipe/socket legality and noneth
+sustained player durability; player attributes, offweapon physical damage, level scaling,
+conditional procs, targets, casting vs IAS vs recovery, and armor vs weapon rune effects.
+Smoke usable Weaken highlights only with remaining charges; losing charges does not
+remove its armor utility, and applying Weaken can replace Life Tap. Treachery prebuff
+remains separate. No price or current NL creation availability inferred.
+One-shot tmp/add_zeal_armor_words.py SUCCEEDED; NEVER rerun. Initial build rejected
+synthetic charge:72 in role important_stats. Corrected template+Smoke role to native
+204:4614 and repinned that role's source/stat fingerprints; stat priority correctly
+retains charge:72 with charge_skill activation. Rebuild then passed.
+
+Bank195cases:168red/27already-correct routing exclusions; firstgreen192pass/3Fortitude
+fixturefail. Fixed captured hp-per-level raw8->8*256 (nativeValShift8), then195staged
+and195selected pass. Lowquality Enigma defense fixture870 vs regular1000, consistent
+with lower base defense. Covers3qualities, lowrolls, wrongfamily/socketcount, empty,
+eth/unknowneth/unknownclass; Smoke depleted/unknown charges remain armor-positive but
+have no usable-charge annotation.64related regressions passed, 1Fortitude demand count
+updated15->16 and recheckedgreen; 65combined.20saved extraction/text/prices unchanged;
+selected matchesstaged. Ruff/format/diffcheck pass. No fullsuite/wholebank claim.
+Bank1086cases/3664targets/3423missing scenario sets; observed20captures/79gaps.
+Completion counts:{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1264, "excluded_occurrences": 4777, "coverage_rows": 7978, "remaining_tasks": 111771}; completefalse.
+
+NEXT: compiled bundle confirms NO Zeal roles for Rune Master(span60 ethereal), Herald
+of Zakarum69,Stormshield71,Skullder's Ire116. Review these named alternatives, including
+repair/Indestructible and socket dependencies. Do not assume names match uniqueitems
+JSON top-level keys (simple lookup printed no records; inspect schema).
+Other missing exactspan bindings already have compiled Zeal roles with section32 sources:
+DeathCleaver57, Razor'sEdge65, Butcher'sPupil66, HonorNaga67, AlmaNegra72, Leviathan118,
+Stone119. Audit exact source linkage instead of duplicating rules. More broad bindings
+include sockets/companions and require semantic review, not automatic name credit.
+Completion direct named matching currently requires exact occurrence_source plus same
+build/variant/side/slot; source_context_reviews currently ONLY supports merc narrative
+bindings. A rigorously tested player-binding extension may help existing named uses,
+but never relax exactspan/sourcefingerprint/context/branch review gates.
+Then all other contract scope. Runtime Python restart for SacredRondache/Trainer remains
+unverified. Logs tmp/zeal-armor-words-*. All launched processes terminal at checkpoint.
+
+Follow-up audit: nine new roles increased reviewed occurrence count by eight. Check which exact source remains uncredited (likely variant naming; not yet established). Temper span103 is resolved runeword with exact source_rule_id; do not assume its empty item_id is the cause. Completion occurrence_dispositions is not necessarily a full ID map (direct indexing raised KeyError); inspect semantics before interpreting absence.
+
+## Latest active checkpoint — Zeal CTA and Spirit swaps, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation `b7cc293c29bccba9ea6e282a8be34d4c6d5dacabab9b1f464409becaa07449a2` (72 artifacts),
+2387 profiles /2379 stat configurations. No live collection, commit, staging or host restart.
+
+Added exact Zeal section32 spans81 Call to Arms Weapon-Swap and87 Spirit Off-Hand Swap,
+with section29 corroborating prebuff/Teleport instructions. Reused core_caster_word_templates:
+Zeal limited to these two recipe/slot pairs; normalized local slot for processing while
+retaining source slot spelling. Spirit supports ordinary and Paladin shields; +fire resist
+is inherent, not Spirit rune effect. CTA native minimums BC2/BO1, no attack-stat priority;
+ethereal/twohanded prebuff accepted, no shield companion or active buff invented. Sustained
+Spirit shield use noneth. Conditional CTA/Spirit/Enigma interplay and FCR vs IAS explicit.
+One-shot tmp/add_zeal_swaps.py SUCCEEDED; NEVER rerun.
+
+Bank60cases:57red/3already-correct sword exclusions ->60stagedgreen ->60selectedgreen.
+Cases include3qualities, lowrolls, wrong/unknown class, empty/wrong sockets, eth/unknowneth,
+CTA twohanded, unknown/knownabsentBO, below-nativeBC; Spirit sword exclusion and ordinary
+shield (native35 res, no fabricated inherent27fire).16existing corecaster/Zealswap/statbundle/
+coverage checks pass.20saved replay extraction/prices unchanged. SpiritMonarch text alone
+adds one conditional Zeal build: at least13->14builds,10->11conditional,18->19uses/7->8groups.
+Selected20replays match staged. Initial all-text-unchanged assertion caught this reviewed
+expected change; publication shell proceeded, then explicit diff review/allowlist comparison
+and selected verification passed. Use set-e before future comparison/publication sequences.
+Ruff/format/diffcheck pass. No wholebank/fullsuite claim. Bank891cases/3637targets/
+3423missing scenario sets. Observed20captures/79gaps. Completion counts:
+{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1256, "excluded_occurrences": 4777, "coverage_rows": 7951, "remaining_tasks": 111617}; completefalse.
+
+NEXT: Zeal armor spans113Enigma,114Fortitude,115CoH,120Duress,122Hustle(armor),124Lionheart,
+125Smoke; helms102Bulwark/103Temper. Span121Treachery has already-reviewed Fade-prebuff role
+(section32); do not blindly convert prebuff to sustained-bodywear. Existing Smoke/Duress/
+Lionheart roles in zeal-paladin.json are mercenary-only, not these player alternatives.
+Armor spans slot label Body Armors; preserve source spelling/semantic matching. Native
+recipe/rune stats and player-specific recipients must be reviewed, not copied from mercenary.
+Then all other contract scope. Worker Python restart for SacredRondache/Trainer still
+unverified. Logs tmp/zeal-swaps-*. All launched processes terminal at checkpoint.
+
+## Latest active checkpoint — Zeal shield alternatives, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation `cd94952f1853210059a82acf1e3010c71b773dcfbf79dcefdb2f76d7f898647f` (72 artifacts),
+2385 profiles /2377 stat configurations. No live collection, commit, staging or host restart.
+
+Added exact Zeal section32 Off-Hand spans68 Phoenix,70 Exile,79 Sanctuary,80 Rhyme.
+New maintenance/zeal_shield_templates.py separates physical off-weapon Phoenix ED from
+caster-only roles; Exile Offensive Auras supports Fanaticism, not Combat Skills, and
+ethereal requires observed repair. Sanctuary/Rhyme preserve native automods versus
+recipe resistance, blocking/full-loadout requirements, FBR versus IAS, and conditional
+charges/procs. No base is mandated by these guide spans. Legal recipe and filled
+sockets are checked. Other player shields require nonethereal durability.
+One-shot tmp/add_zeal_shields.py SUCCEEDED; NEVER rerun.
+
+Item bank zeal_shields.py93cases initially red. First green78pass/15fail revealed
+wrong-family candidates are excluded before role traces; corrected negative tests
+assert family and absent stat configurations. Then93staged and93selected passed.
+Covers all3 qualities, low rolls, wrong base/socket count, empty sockets, unknownclass/
+ethereal; Exile adds noneth, unknown/knownabsent repair and nonPaladinshield exclusions.
+32existing aura/Rhyme/specialist shield/statbundle/coverage regressions pass.
+20saved extraction/text/price replays unchanged and selected matchesstaged. Ruff,
+format and diffcheck pass. No fullsuite/wholebank claim. Bank831cases/3631targets/
+3423missing scenario sets. Observed20captures/79gaps. Completion counts:
+{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1254, "excluded_occurrences": 4777, "coverage_rows": 7945, "remaining_tasks": 111583}; completefalse.
+
+NEXT: Zeal swap CTA span81 and Spirit span87. Source section29 explicitly describes
+BattleCommand twice thenBO, Teleport on FCR swap, then mainweaponZeal. Exact native
+CTA: BC2–6, BO1–6, BattleCry1–4, +1allskills (verified runes.json); do not infer active
+buffs. Existing core_caster_word_templates supports other caster builds but lacks
+Paladin shield type and uses Off-Hand-Swap while source span says Off-Hand Swap;
+preserve exact source slot mapping. CTA eth casting does not consume durability;
+Spirit shield blocking and twohanded companion compatibility need explicit care.
+Then armor/helm alternatives and all other contract work. Runtime Python restart
+for SacredRondache/Trainer still unverified. Logs tmp/zeal-shields-*; all processes
+terminal. No intermediate batch completes the goal.
+
+## Latest active checkpoint — Zeal Unbending Will and Hustle, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation `9c20e64de42036a723bc195fad10692cbccfb7d80b737a306a463529d23c980b` (72 artifacts),
+2381 profiles / 2373 stat configurations. No live collection, commit, staging or host restart.
+
+Added exact Zeal Gear Options section32 spans63/64: Unbending Will Phase Blade and
+Hustle (weapon) Phase Blade. BUILD_MEMBERS provides source-specific Paladin priorities.
+Unbending Will excludes Barbarian Combat ranks; Hustle excludes additive credit for
+level1 Fanaticism alongside stronger player Fanaticism. Temporary Burst of Speed,
+full attack-speed context, leech and proc restrictions remain explicit. Weapon/armor
+recipes are separate; completed Non-Ladder items do not prove creation availability.
+One-shot tmp/add_zeal_budget_words.py SUCCEEDED; NEVER rerun.
+
+Bank33 cases: initial30 failed/3 armor exclusions already passed; then33 staged and
+33 selected passed. Covers3 qualities, low rolls, wrong base, ethereal, empty sockets,
+unknown class and armor variant exclusions. Captured-total Unbending maximum damage
+fixture corrected from bonus9 to149 (native Phase Blade35 *4 +Ith9).15 related
+Hustle/combat/stat-bundle/coverage checks pass.20 saved extraction/text/price replays
+unchanged; selected matches staged. Ruff/format/diff checks pass. No full suite or
+whole-bank pass claimed. Bank738 cases /3619 targets /3423 missing scenario sets;
+observed20 captures /79 gaps. Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1250, "excluded_occurrences": 4777, "coverage_rows": 7933, "remaining_tasks": 111515}.
+
+Sacred Rondache screenshot fix remains published: Spirit potential,27 allres carryover,
+45 preferred,4 sockets needed, item-level-dependent Larzuk/cube outcomes; no matched
+price invented. Running worker still needs Python restart; host restart unverified.
+
+NEXT: Zeal shield words Phoenix68/Exile70/Sanctuary79/Rhyme80; swap CTA81/Spirit87;
+armor Enigma113/Fortitude114/CoH115/Duress120/Treachery121/Hustle122/Lionheart124/Smoke125;
+helms Bulwark102/Temper103. Verify exact source/wearer context before crediting each.
+Continue all other completion-contract work; no intermediate batch completes the goal.
+Logs tmp/zeal-budget-words-*. All launched processes terminal at checkpoint.
+
+## Latest active checkpoint — Zeal Death/BotD/Doom, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`fe7d9a7d2094c5bd074be865633bf223b750f35f095a7df6834608f16bb4825c`,72artifacts,
+2379profiles/2371stat configurations. No live collection, commit, staging or hostrestart.
+
+Added Zeal player Weapon alternatives, exact section32 spans56/58/61:
+ethereal Death Berserker Axe,ethereal Breath of the Dying Berserker Axe,noneth Doom
+Berserker Axe. Native recipe+rune+weapon hashes retained. Source-specific predicates
+require exact base/ethereal,Paladin,legal filledrecipe; eth words need observed152
+Indestructible. combat_weapon_templates.BUILD_MEMBERS isolates Zeal attack semantics
+from existing Smite Death. Class guards support explicit Paladin modes; legacy
+experimental Warlock modes retain their restriction. Old templates/profiles unchanged.
+Death now prioritizes physicalED,CB,level-scaledDS,AR/mana leech and supportingGlacial
+Spike proc. BotD player Str/Dex/Vit,ED/IAS/leech,targetdef/undead/PMH; Energy excluded.
+Doom physicalED/IAS/skills/DS/OW,HolyFreeze with wielder-only coldpierce; no ethereal
+repair inferred. Procs,leech,boss restrictions,fullspeed remain conditional.
+One-shot tmp/add_zeal_axes.py SUCCEEDED; NEVER rerun.
+
+Bank zeal_axes.py57cases red ->57stagedgreen ->57selectedgreen, across3qualities,
+lowrolls,wrongbase/wrongeth/emptysockets/unknownclass and unknown/knownabsent
+Indestructible onDeath/BotD.4newtemplate tests pass (initial fixture omittedvariant/
+source,corrected; production untouched).13other combat/statbundle/coverage checks
+pass, including existingSmite exclusions.20saved replay extraction/text/prices
+unchanged vsprior and selected matchesstaged. Ruff/format/diffcheck pass.
+Namedgate stillzero. Bank705cases/3613targets/3423missing scenario sets. Observed20/
+79gaps. No freshwholebank/fullrepo pass claimed. Logs tmp/zeal-axes-*; ledger refreshed.
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1249, "excluded_occurrences": 4777, "coverage_rows": 7927, "remaining_tasks": 111480}; completefalse.
+
+NEXT: remaining explicit Zeal weapons UnbendingWillPhaseBlade(span63) and Hustle
+PhaseBlade(span64), then shield/swap/armor/helmet words. UnbendingWill native recipe
+read:6s sword,FalIoIthEldElHel,ED300–350,IAS20–30,BarbarianCombat+3,Taunt18%lvl18,
+DR8,PMH,LL8–10 plusrunes. Existing template is Barbarian-specific: do not mark its
+188:32 ranks as Zeal priority. Hustle exact native key is NOT simple "Hustle" in
+runes.json; resolve weapon/armor variants from local definitions, never guess.
+A low-level weapon Fanaticism aura must not be credited as additive with Zeal's
+stronger active Fanaticism. Distinguish completed-item assessment from Non-Ladder
+recipe creation availability; retain missing availability evidence where needed.
+Then Phoenix68/Exile70/Sanctuary79/Rhyme80 and SpiritSwap87/CTA81, etc., plus all
+other queued scope. Workerrestart for SacredRondache/Trainer remains unverified.
+All processes terminal at checkpoint; no intermediate milestone is completion.
+
+## Latest active checkpoint — Zeal Grief/Oath/Last Wish, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`e9fee25aafb33febe11ebc2b7f8c6eed483f5904c59f24b5d3b3011674ecfa86`,72artifacts,
+2376profiles/2368stat configurations. No live collection, commit, staging or hostrestart.
+
+Added zeal-paladin-{grief,oath,last-wish}-weapon-alternative. Exact Gear Options
+section32 spans54/62/55: Grief Phase Blade, Ethereal Oath Cryptic Sword, Last Wish
+Phase Blade. Reviewed local native recipe/rune/weapon evidence, exact base/ethereal,
+classPaladin,3qualities,filledrecipe count/legalbase. Reused expand_combat_weapon but
+explicitly wrote Zeal-specific conditions/priorities. Grief243demon/lvl and86lifeafterkill
+included alongside111flatdamage/93IAS/attack effects. Oath ED/IAS desirable,absorb/
+demon effects supporting; ethereal requires observed152Indestructible. LastWish ED,
+CB,Might,LifeTap/Fade important but procs never assumed active. No numeric prices
+invented. All source/rule fingerprints reviewed. One-shot tmp/add_zeal_combat_words.py
+SUCCEEDED; NEVER rerun.
+
+Bank zeal_combat_words.py adds48cases:3words/3qualities,lowrolls,wrongbutrecipelegal
+BerserkerAxe,emptysockets,unknownclass; Oath extra noneth,missingIndestructible,
+malformedzero flag,complete capture withoutIndestructible. Initial39red ->39staged
+green; extra zero-flag test initially expectedfalse but raw0 flags are intentionally
+UNRESOLVED in inventory_tracking/items/stats.py. Corrected that case to unknown and
+added complete-absence case false. All48selected tests pass, including no unwanted
+stat configurations. Production decoder not changed. First39 cases validated before
+publication; boundary fixture expectations resolved afterward, then all48 verified
+against that same selected generation.
+
+60maintenance/statbundle/bankcoverage tests pass; ruff/format/diffcheck pass.
+20savedreplay extraction/text/prices unchanged vsprior and selected matchesstaged.
+Named tiergate stillzero. Bank648cases/3604targets/3423missing scenario sets.
+Observed20captures/79gaps; matrices/completion refreshed. No freshwholebank/fullrepo
+pass claimed. Logs tmp/zeal-combat-words-*.
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1246, "excluded_occurrences": 4777, "coverage_rows": 7918, "remaining_tasks": 111429}; completefalse.
+
+NEXT: Zeal remaining explicit Weapon alternatives Death(span56,ethBerserkerAxe),
+Breath of the Dying(span58,ethBerserkerAxe),Doom(span61,BerserkerAxe). Native recipes
+read locally: Death sword/axe5s,ED300–385,CB50,deadly/lvl,param4,GlacialSpike proc,
+Indestructible,NOIAS; existing combat_weapon_templates Death is SMITE-SPECIFIC and
+only prioritizesCB, so do not reuse unmodified for Zeal. BotD weapon6s,ED350–400,
+IAS60,leech12–15,attributes30,ZodIndestructible; existing merc_weapon template cannot
+blindly transfer bearer priorities to player. Doom axe/pole/hammer5s,ED280–320,IAS45,
+HolyFreeze12,coldpierce40–60,allskills2,Volcano proc; no durability repair. Sourcegear
+section32 explicitly lists those variants; pin native IDs via metadata, not memory.
+Then UnbendingWill/Hustle availability distinctions, shield/swap/armor/helmet words
+and all remaining scope. Sacred Rondache/Trainer workerrestart remains unverified.
+All processes terminal at checkpoint. Do not treat this milestone as completion.
+
+## Latest active checkpoint — Dual Lawbringer starter, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`20553bbb2e3f979809cc52130d9d24bfcc8db011a5fb84caab5ace0a49b2c93a`,72artifacts,
+2373profiles/2365stat configurations. No live collection, commit, staging or hostrestart.
+
+Added zeal-paladin-dual-lawbringer-starter, independently source-reviewed to Zeal
+section13/item_spans5 (2x1H Lawbringers). Both explicit mercenary_equipment weapon
+and off_hand must satisfy identified,eligiblequality,Lawbringer,3filledsockets,
+native legalbase and1H predicates. Context retainsPaladin/Act5Frenzy. Missing slots
+unknown,explicitnullfalse; duplicate mercenary_items names never prove equipment.
+Single-sword profile remains unchanged and useful independently. Bearer stat priorities
+preserved; no summed aura/proc uptime/fullloadout/price inferred. Source-context fifth
+row binds exact canonicalized occurrence7761f452b12dd8aae0b56c19 to this configuration.
+
+One-shot tmp/add_zeal_dual_lawbringer.py SUCCEEDED; NEVER rerun. Initial attempt
+failed before any writes on contexts key (reviews vs rows); corrected successful
+attempt wrote all data. The first rebuild before success was unchanged; final rebuild
+and all listed validation below followed the successful mutation.
+
+Bank zeal_dual_lawbringer.py adds15cases (3qualities x two,one/empty,unknownslot,
+twohandedother,unknownloadout); everycase includes duplicate name-list decoy.
+15red ->25stagedgreen including10existingstandalone;25selectedgreen;75maintenance/
+equipment/statbundle checks.20savedreplay extraction/text/prices unchanged versus
+prior generation and selected matchesstaged. Named tiergate remains548/35/2958,zero.
+Ruff/format/diffcheck pass. No freshwhole600bank/fullrepo claim.
+Bank600cases/3595targets/3423missing scenario sets. Observed20captures/79gaps.
+Logs tmp/dual-lawbringer-*. Source/context/coverage dependencies rebuilt, ledger refreshed.
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1243, "excluded_occurrences": 4777, "coverage_rows": 7909, "remaining_tasks": 111378}; completefalse.
+
+NEXT: remaining Zeal player runewords and other source/configuration closure.
+Authoritative inventory shows explicit gear Weapon Oath span62 with no named player
+profile; also Death56,LastWish55,BreathoftheDying58,Doom61,Grief54,UnbendingWill63,
+Hustle64; Spirit Off-HandSwap87/CTA Weapon-Swap81; shield Phoenix68/Exile70/
+Sanctuary79/Rhyme80; armor/helmet alternatives. Review source context and existing
+profiles/templates before adding rules; mode availability must preserve Non-Ladder.
+Narrative mentions may be replacement/prebuff/other-wearer, never blindly endorse.
+Use cache source appraisal-guide-sections.json Zeal itemspans/sections for provenance.
+Scope inventory and bank/final gates remain incomplete. Sacred Rondache fix and
+Trainer charm worker restart remain unverified. All processes terminal at checkpoint.
+
+## Latest active checkpoint — Observation replay coverage, 2026-09-27
+
+Goal ACTIVE; all-item work unfinished. Runtime generation unchanged:
+`e809d80c446678f3bbe081e01b9181867cdacac841279d7f193cadf9f2f65e3b`.
+Maintenance replay now registers sacred_rondache_res27 alongside19 raw snapshots.
+OBSERVATION_STEMS is explicit; this capture reuses the actual decoded observation,
+not a fabricated snapshot. Extracted decode_snapshot helper preserves existing native
+modifier handling. Replay output records input_format; observed_review retains it.
+New regressions check exact captured-fact preservation, Spirit advice, unchanged
+fixture bytes and continued raw snapshot decoding. Initial2red ->8affected green;
+final6replay/ledger tests pass, ruff/check-format/diff-check pass.
+
+Selected-generation replay20captures passes; previous19 extraction/text/prices unchanged.
+New replay tmp/observation-replay-published.json. Imported durable observed ledger:
+20captures/79open gaps (Sacred Rondache coverage/market deficiencies remain pending).
+Rebuilt coverage matrix and completion. No runtime artifact changes/publication needed.
+Bank remains585cases; no new wholebank/fullrepo run. No hostrestart/live research,
+commit or staging. Sacred Rondache Python fix still requires verified workerrestart.
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1242, "excluded_occurrences": 4777, "coverage_rows": 7906, "remaining_tasks": 111361}; completefalse.
+
+NEXT: Zeal source item_spans/5 (canonical Lawbringer, original Lawbringers) requires
+2x1H on Act5Frenzy. Existing standalone role remains a useful single-sword candidate;
+do not pretend it proves the pair. Existing equipped_item_matches supports explicit
+mercenary_equipment weapon/off_hand snapshots, with omitted=unknown and null=empty.
+Use those to validate both complete legal1H words; name-list multiplicity is not an
+equipped configuration. Shared item-only conditions must exclude context predicates
+(the equipment condition validator rejects those). Preserve original standalone role,
+add separate source-reviewed Starter paired configuration and bank cases for two,
+one/empty,unknown/wrongslot/twohanded. Bind exact section13/span5 through reviewed
+source_context_reviews only after semantics and tests are complete. Existing source
+profile is zeal-paladin-lawbringer-act-5-frenzy in rules/roles/zeal-paladin.json,
+source gear span207; prior one-shot tmp/add_zeal_lawbringer.py MUST NOT rerun.
+Then remaining player words/starter gear and all scope obligations. All processes
+terminal at checkpoint. Goal remains active across this checkpoint.
+
+## Latest active checkpoint — Sacred Rondache and Insight legality, 2026-09-27
+
+Goal ACTIVE; unfinished. Selected generation
+`e809d80c446678f3bbe081e01b9181867cdacac841279d7f193cadf9f2f65e3b`,72artifacts,
+2372profiles/2364stat configurations. No live collection, commit, staging or hostrestart.
+
+Latest user screenshot: Normal Sacred Rondache, noneth,0s,def160,27allres, no base advice.
+Actual source inventory_tracking/runs/alt-d/20260927T114325Z-152b131a/request-2/frozen.json.
+Saved observation tests/inventory_tracking/fixtures/sacred_rondache_res27.json.
+Offline lookup first: tmp/sacred-rondache-lookup.json. RCA: base_use Spirit explicitly
+limited Paladin shields to Sacred Targe. Extended to all15 native ashd shields,
+subject to native recipe legality and existing socket preparation. Report shows27
+allres carryover,45target,noneth suitability,needs4s,Larzuk3/4 conditional on missing
+ilvl,cube probabilities. Price remains unknown from no matching comparisons.
+Family test exposed decoder Ancient Shield/nativepad versus KB Kurast Shield. Added
+RecipeIndex.by_code, used by base assessment. Recommendation-only rows join only
+unambiguous KB-name native codes. No display-name fallback that could confuse shields.
+40base/socket/report regressions plus5targeted index/capture tests pass; ruff passes.
+Exact published Sacred Rondache report matches staging (tmp/sacred-rondache-published.json,
+tmp/sacred-rondache-fixed.txt). WORKER RESTART REQUIRED for Python changes, not verified.
+The new fixture is an observation, not legacy snapshot format: standalone pipeline
+regression covers it; still needs inclusion in common replay/observed-review ledger.
+
+Fixed12 older caster Insight merc roles: only native legal4s polearms, not spears or
+Bardiche; accepts completed low_quality word. Merc contexts, existing priorities and
+source variants preserved. Source corroborates native Insight recipe. Explicitly
+reviewed changed fingerprints in guide/stat reviews; no other review resets.
+One-shot tmp/fix_old_insight.py SUCCEEDED; never rerun.12red ->37role/stat green.
+New insight_merc.py bank108cases:12variants x3qualities xpositive/negative/unknown.
+108staged and108published cases pass. Initial stale-bundle bank run was deliberately
+interrupted after54fail/44pass; superseded by rebuilt green, log preserved.
+Bank585cases/3592targets/3423missing scenario sets.60maintenance tests pass.
+
+19saved replays match staging in extraction/text/prices. Compared with prior generation,
+all extraction/prices unchanged; two charm texts lose generic leveling lines due to
+pre-existing separate worktree change in generic_leveling.py/sections.py. Preserved
+that change; its18tests pass. No changes to its policy made here. Sacred Rondache
+also verified separately. Named gate stillzero. No freshwhole-bank/fullrepo claim.
+Reimported observed19captures/76gaps; rebuilt base matrix after code changes (first
+matrix refresh correctly rejected stale base_use hash),then coverage/completion.
+Logs tmp/old-insight-* and tmp/sacred-rondache-*.
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1242, "excluded_occurrences": 4777, "coverage_rows": 7905, "remaining_tasks": 111352}; completefalse.
+
+NEXT: include Sacred Rondache observation in common replay/observed-review coverage
+without fabricating a raw snapshot. Preserve regression of native-name alias and
+price independence. Then Zeal plural Lawbringers source span5 still needs dual1H
+weapon semantics; one captured sword is not proof of owning two. Its canonical alias
+is resolved but source configuration remains pending. Continue remaining player
+words/starter gear and all scoped work; final full-suite/delivery still required.
+All tool sessions terminal at checkpoint. No intermediate checkpoint is completion.
+
+## Latest active checkpoint — Zeal Insight and Lawbringer aliases, 2026-09-27
+
+Goal ACTIVE; all-item work unfinished. Selected generation:
+`f7e337ae563ba14c358ca46ac615f3745dffd4bbb29aab6da49e619d4f9268f3`
+2372 profiles /2364 stat configurations /72 artifacts.
+
+Exact setup labels Lawbringers and Lawbringer(s) now resolve to native Lawbringer;
+original labels remain intact, without inferring ownership or equipment count.
+11 demand occurrences normalized; IDs unchanged. Demand/watch/index rebuilt offline.
+Six named baseline source pins refreshed only after verifying full cited watch rows
+unchanged. Completion policy fingerprint now includes builds.py. Alias tests14pass.
+
+New zeal-paladin-insight-act-2-might role and15 pipeline bank cases: native legal
+polearms, filled4s recipe, three qualities, ethereal, wrong/unknown merc, impossible
+Bardiche capacity; bearer priorities distinguish Meditation from merc weapon stats.
+Zeal section13/span9 explicitly bound through source_context_reviews (now4 rows).
+One-shot tmp/add_zeal_insight.py and source-context append SUCCEEDED; never rerun.
+Backups tmp/lawbringer-alias-before-* exist; do not overwrite/recreate them.
+
+Red/green15 new cases;41 staged checks,76 maintenance tests,33 selected-runtime
+cases (24Insight/Lawbringer plus9Trainer),14alias tests pass. Ruff check/format pass.
+19 selected replays match staged extraction/text/prices. Relative to prior generation,
+only Insight report adds one conditional Zeal build; extraction/prices unchanged.
+Named gate remains548eligible/35sets/2958renderedcases,zero failures.
+Logs tmp/lawbringer-insight-*, tmp/lawbringer-alias-*.
+
+Bank477pipelinecases,3580targets,3447missing complete scenario sets. Observed review
+19captures/76open gaps. Completion:2570identities,62891occurrences,1242reviewed,
+4777HCexcluded,7893matrixrows,111280remaining tasks; completefalse.
+No fresh whole-bank/full-repo pass claimed. No live collection, staging, commit or
+host restart. Trainer charm worker restart still unverified.
+
+NEXT: fix12 older Insight roles (rules/roles files, IDs in
+roles/test_insight_mercenaries.py). They allow spea despite native Insight recipe
+allowing pole/staf/miss, and lack native legal-base/capacity guards. Preserve existing
+merc context, source variants and mana-priority decisions; test red/green illegal
+spear/capacity/unknown bases and legal polearms. Evaluate low_quality deliberately.
+After role edits refresh guide/stat fingerprints only with reviewed semantic changes.
+Then Zeal plural Lawbringers span5 requires explicit dual-weapon meaning; singular
+Frenzy sword candidate does not prove both owned. Alias normalization alone does not
+close that source branch. Continue remaining player words, starter gear and all
+scope obligations; final whole-suite/publication/delivery gates remain pending.
+
+## Latest active checkpoint — Explicit source contexts, 2026-09-27
+
+Goal ACTIVE; all-item work unfinished. Selected runtime generation:
+`c83a53deb15498eab8b26f59b6682aafaefd913733ae3398142352f2a71bc4a3`
+2371profiles /2363stat configurations /72artifacts.
+
+Implemented maintenance/source_context_reviews.py and rules/source_context_reviews.json.
+The validator binds exact, verified, resolved named/runeword narrative merc spans
+(Guide mention /unspecified) to reviewed variants/slots without rewriting sources
+or relaxing existing source_rule_ids gates. Pins span snapshot, same-guide passage,
+profile fingerprints and explicit required mercenary predicates on all successful
+paths. Stale evidence/profile/context, other wearer/item/slot/source, duplicates and
+unreviewed branches fail closed. remaining_branches keeps source pending and can
+reopen an older generic credit. Completion scope fingerprints review data and
+relevant policy dependencies; output includes source_context_dispositions. Shared
+predicate proof moved from completion.py to source_matching.py.
+
+Three concrete bindings: Zeal raw narrative spans6/7/8, section13. Singular Bash
+Lawbringer is separate from unresolved plural span5. Smoke binds both Act5 branches
+plus existing Act2Might. Crown initially retained missing Act2Might, then we implemented
+that role and its five bank cases, completing all three explicit source reviews.
+New role zeal-paladin-crown-of-thieves-act-2-might preserves low leech, native/upgraded,
+eth/noneth, merc kill-owner gold find and excludes mana. One-shot
+`tmp/add_zeal_crown_might.py` SUCCEEDED; NEVER rerun. Earlier successful appenders
+remain one-shot. Source-context JSON creation was also one-shot (file now exists).
+
+Red-green:15missing binding-validator cases,2integration cases,5missing Crown cases
+reproduced then fixed.144affected staged checks passed (59bank/stat/coverage,
+85maintenance).52selected-runtime pipeline cases passed.19saved replays equal
+staged extraction/text/prices and unchanged from previous generation. Named gate
+stillzero:548eligible/35sets/2958rendercases. Ruff and diffchecks pass. No freshwhole
+bank/fullrepo claim. Logs tmp/source-context-*, tmp/zeal-crown-might-red.log.
+Bank462pipelinecases;3577targets;3447lackcomplete case sets.
+
+Imported current published replay results with maintenance.observed_review: now19
+observed captures including Trainer charm (previous ledger only18);76open captured
+review gaps. Existing history retained.6observed/matrix tests passed. Rebuilt coverage
+matrix and completion after import. Latest:2572identities,62891occurrences,
+1237reviewed,4777HCexcluded,7892matrixrows,111287outstanding obligations,
+56889source-review tasks; completefalse. All shell sessions terminal. No live
+collection, staging, commit or hostrestart. Charm-worker restart still unverified.
+
+NEXT concrete starter gaps found from authoritative inventory:
+- Zeal /item-spans/5: id7761f452b12dd8aae0b56c19, name/original_label Lawbringers,
+  categoryNone, unresolved, Guide mention/merc/unspecified. Existing Frenzy role
+  zeal-paladin-lawbringer-act-5-frenzy is sourced to gear span207. Need reviewed
+  plural identity normalization preserving original label and two-weapon meaning;
+  do not infer ownership of two words from one captured sword. v1context bindings
+  deliberately reject unresolved identities, so resolve provenance first.
+- Zeal /item-spans/9: iddffa9dcf13e00e61157492a3, Insight, resolved runeword,
+  Guide mention/merc/unspecified. No current Zeal profile names Insight. Section13
+  endorses Act2Might Insight starter alternative. Reuse reviewed native merc-weapon
+  mechanics, keep legal Act2 base types and mercenary stat recipients, add bank
+  cases and explicit narrative context binding.
+Then remaining Zeal player words/Act5 early table and all other scoped work. Known
+source conflicts, market/stat/report coverage and final fullregression/delivery
+remain pending. No checkpoint is completion or a reason to stop.
+
+## Latest active checkpoint — Zeal Act 5 starter, 2026-09-27
+
+Goal ACTIVE; not complete. Published generation:
+`2997ba85a165a79a9e96b3d88f7efe126934fd6754696d2bbd14d2f0f33da2f5`
+2370 profiles /2362 stat configurations /72 artifacts.
+
+Added five independently source-reviewed Zeal starter roles: Smoke and Crown of
+Thieves for each Act5 Frenzy/Bash, plus two-handed Lawbringer for Bash. Source
+appraisal-guide-sections.json, Zeal section13 and exact narrative spans7/8/6.
+Preserve explicit merc type and Paladin context. Crown allows native/upgraded,
+eth/noneth and legal sockets; mana is not a merc priority, gold find is kill-owner
+only, leech needs drainable physical hits. Smoke supports completed normal,
+superior and low_quality words, filled2s, legal armor; energy/Weaken charges are
+not merc benefits. Smoke missile defense captured280=word250+Nef30. Bash Lawbringer
+intersects the existing legal recipe sword list with native2handed=1; Phase Blade
+fails this specific source setup. Existing Frenzy one-hand behavior unchanged.
+No new prices or whole-loadout guarantees.
+
+One-shot `tmp/add_zeal_starter_merc.py` SUCCEEDED; NEVER rerun. Subsequent fixes:
+replace invalid empty weapons.json locator with exact native sword locators;
+new Smoke roles include low_quality (original inherited Act2 template omitted it).
+All associated review fingerprints repaired; no shared-template broadening.
+
+New bank module cases/zeal_starter_merc.py:37pipelinecases, positive/negative/unknown
+for every new quality plus upgraded/noneth Crown, missing leech and excluded mana.
+31initialcases red;48initialaffected green;6lowquality cases red; final54affected
+staged checks green (47pipeline incl10existing Frenzy,5coverage,2statbundle).
+47selected-runtime cases green. All19saved replays match staged extraction/text/
+prices and prior runtime. Universal named gate stays zero across548eligible,
+35complete sets,2958rendercases. Ruff/diffcheck pass. Logs tmp/zeal-starter-merc-*.
+Bank now457pipelinecases;3576targets,3447still missing complete scenario sets.
+Previous generation whole bank432passed; no whole457bank/fullrepo run claimed.
+
+Also repaired completion.py quality comparison: occurrence category runeword is
+not an ItemData quality. Credit normal/superior/low_quality only if exact recipe
+identity is mandatory on every successful predicate path. Empty bases, a different
+word, illegal quality and optional-word alternatives do not get credit. Existing
+source/context gates retained.3red regression cases ->green;56affected maintenance
+tests pass. This now recognizes268previously completed word-source occurrences.
+No new runtime publication required for this later maintenance-only fix.
+
+Latest completion:2572identities,62891occurrences,1234reviewed,4777HCexcluded,
+7890matrixrows,111276outstanding obligations,56892source reviews, complete=false.
+Persisted appraisal-completion.json and tmp/zeal-starter-merc-completion.json.
+All processes terminal. No livecollection, staging, commit or hostrestart.
+Trainer charm's worker restart remains unverified; selected generation includes fix.
+
+NEXT: source-context linkage needs an explicit reviewed mapping. New roles use
+variant Starter and actual Helmet/BodyArmor/Weapon slots, while raw narrative
+occurrences are variant Guide mention /slot unspecified; therefore audit_occurrences
+source_rule_ids are empty and completion correctly leaves them pending. Do NOT
+rename or broadly relax variant/slot gates just to count them. Plan a pinned,
+reviewed source-context binding that proves narrative setup/slot derivation while
+preserving differing variant/wearer/slot restrictions, with near-miss tests. Existing
+pattern_source_slot handles a narrower pattern case. Relevant modules inventory.py
+(audit_occurrences indexes exact SCOPE), guide_spans.occurrence_source,
+completion.py exact named source checks, guide_demand.compile_demand. Update policy
+fingerprints for new semantics. Then finish other Zeal early Act5 gear /player words
+and the full remaining scope. Source section44 table and prior handoff below retain
+remaining names. No intermediate checkpoint is a stopping/completion condition.
+
+## Latest active checkpoint — Runeword applicability ledger, 2026-09-27
+
+Goal ACTIVE; all-item work remains unfinished. Runtime generation unchanged:
+`acf60e184e6b1b48cac9ef7edb770aa358dc8f4dc57c3ad6ac173105c77a6512`
+(2365 profiles / 2357 stat configurations / 72 artifacts).
+
+Closed 2633 genuinely inapplicable runeword-creation checks without changing
+pricing or desirability: 565 resolved named identities, 1777 named/affixed use
+qualities, and 291 base-quality rows with no fitting completed native recipe.
+`recipe_applicability.py` consumes reviewed `rules/recipe_applicability.json`,
+pinning D2MOO Items.cpp:3251-3265 and D2Items.h:12-23. Magic/set/rare/unique/crafted
+cannot form runewords. Missing review, unknown quality, unresolved identity and
+completed words remain pending. Other cube recipes and socketing are not covered
+by this exclusion. Existing base_matrix native type/capacity audit now closes only
+its proven impossible recipe memberships; absent catalogs or absent cache links
+cannot establish exclusion. Added policy modules to completion fingerprint and
+transitive input validation for matrix source documents (list artifacts permitted).
+README documents the precise dimension scope.
+
+Red-green: 13 missing quality-rule failures, then green; two base applicability
+failures, then green. 64 affected maintenance tests passed; Ruff/diff checks pass.
+Fresh selected-generation whole item bank: **432 passed in 176.84s**, including
+420 constructed pipeline cases, five coverage checks, seven range checks.
+Log: `tmp/recipe-checkpoint-item-bank.log`. No fresh full-repository run claimed.
+No runtime publication needed for maintenance-only changes. Previous 19 saved
+replays remain validated against this unchanged runtime generation.
+
+Rebuilt base matrix, coverage matrix and completion ledger. Latest completion:
+2572 identities, 62891 occurrences, 966 reviewed, 4777 Hardcore exclusions,
+7879 coverage rows, **111480 outstanding obligations**, recipe eligibility5246.
+These are obligations, not item counts. Complete=false; item bank still lacks
+complete scenario sets for3447/3565required targets. See
+`tmp/recipe-applicability-completion.json` and persistent appraisal-completion.json.
+All shell sessions terminal. No live collection, staging, commit or host restart.
+Latest observed host request remains8 (Aldur's Advance); Trainer charm's worker
+restart is unverified. The published fix flags Druid Summoning+30–45Life and its
+saved capture is covered. User already told restart is needed.
+
+NEXT: resume remaining Zeal words/Act5 early mercenary gear and full scope closure.
+Source reviewed in this turn: appraisal-guide-sections.json key
+pricing/raw/mr/guides__zeal-paladin.html, section13 explicitly supports Act5Frenzy
+(two1H Lawbringers) or Act5Bash (one2H Lawbringer), Smoke+CrownofThieves; Act2Might
+Insight is alternative. Section44 early table: Smoke/Lionheart/Hustle/Skin of the
+Flayed One/Goldskin/Rockfleece/Gemmed Dusk Shroud/Venom Ward, CrownofThieves/Bulwark/
+UndeadCrown/TheFaceofHorror/GemmedMask/Temper/Cure. Existing named/word survival
+profiles intentionally restrict to Act2Might; add separately reviewed Act5 roles,
+not broaden all stages blindly. Current Zeal Lawbringer only covers Act5Frenzy.
+Source section32 retains remaining player words. Continue source conflict review,
+pricing/stat/report dimensions and bank coverage; do not stop at this checkpoint.
+Never rerun successful one-shot appenders listed below.
+
+## Latest active checkpoint — Angelic pair and watch coverage, 2026-09-27
+
+Goal ACTIVE. Added/published Zeal Angelic ring/amulet pair and 51 bank cases covering
+that pair plus five existing builds (Berserk, Double Throw, Dragon Talon, Echoing
+Strike, Strafe). Existing two-ring requirements retained; missing second ring,
+unknown companions, wrong wearer, uncaptured AR/life and two rings not being three
+distinct set pieces are tested. Ring owns native224 AR/level; Wings gets own
+114 damage-taken-to-mana and observed75 life. No partner/full-set bonus invented.
+Pinned native catalog has one eligible Halo/Wings variant each (table52/53); seasonal
+spawn fields do not remove owned Non-Ladder specimens or prove another variant.
+Exact Zeal source spans160/172, section32 and native set definitions pinned.
+
+Selected generation acf60e184e6b1b48cac9ef7edb770aa358dc8f4dc57c3ad6ac173105c77a6512
+2365 profiles /2357 stat configurations /72 artifacts. One-shot
+`tmp/add_zeal_angelic.py` SUCCEEDED; NEVER rerun. Prior successful appenders remain
+one-shot. Repeatable dependency rebuild completed; existing SQLite remains valid.
+
+Bank coverage now includes valuable `affixed_value_watch` targets with required
+positive/negative/unknown cases per rarity. Watch artifact hash is included in its
+inputs. Trainer charm's nine cases registered; invalid-rarity case deliberately
+cannot claim another quality's coverage. Red missing watches keyword -> green
+coverage test. README documents watch:<watch_id> declarations.
+
+Tests: seven Zeal cases initially red (missing rules);39existing Angelic cases green.
+After rules and extra boundaries,58affected staged checks passed (51Angelic,
+5coverage,2statbundle).60selected-runtime cases passed (51Angelic+9Trainer).
+All19saved replays match staged extraction/text/prices, unchanged from prior runtime.
+Ruff/diffcheck pass. No fresh whole-bank/full-repo run claimed this checkpoint.
+Bank420pipelinecases,3447/3565requiredtargets still lack complete case sets.
+Completion:2572identities,62891occurrences,966reviewed,4777Hardcoreexcluded,
+7879coverage rows,114113outstanding obligations (not item count), completefalse.
+Logs tmp/angelic-*; all sessions terminal. No live collection, staging, commit or
+worker restart. Latest hostrequest observed was8 Aldur's Advance at09:55UTC using
+previous generation23e79..., so charm-worker restart remains unverified.
+
+NEXT: continue remaining Zeal words/Act5 early gear and full-source coverage. Also
+inspect completion-matrix applicability: all7879rows are still pending for recipe
+eligibility, report and market by default; most lack socket/stat annotation review.
+coverage_matrix.py initializes every dimension pending and currently never resolves
+recipe_eligibility. Known named/affixed qualities cannot be runeword bases; review
+production/native mechanics and add source-bound, tested applicability dispositions
+without removing identities or inferring prices. This is real remaining ledger
+work, not evidence that every such item needs another item-specific recipe handler.
+Source review remains57160+occurrences; retain unresolved planner conflicts and
+future full-regression/delivery gates. Do not relax the completion contract.
+
+## Latest active checkpoint — Trainer life skiller and Zeal sets, 2026-09-27
+
+Goal ACTIVE. User interrupted the seven-piece Zeal set batch with a missed trade
+highlight on Trainer's Grand Charm (+1 Druid Summoning, +37 Life). Completed both.
+Selected generation: dde6c16d9197076082094307f2ba4de9f09afe832c4a446114679e83eb0b8d2c
+(2363 profiles /2355 stat configurations /72 artifacts; rebuilt offline SQLite).
+
+CHARM: actual saved scan is alt-d/20260927T092902Z-c4f4f20b/request-7/frozen.json.
+Both stats decoded correctly. Trade watchlist only handled named items. Cached
+items__valuable-magic-items.html explicitly says Trainer's +30–45 Life has solid
+value (Medium qualitative guide tier). Added stat-qualified `affixed_value_watch`
+row through pricing.knowledge.valuable, and policies/value_watch.py matcher via
+pipeline.py. Exact native188:40=1 and life30–45, identified magic Grand Charm,
+known nonethereal/zero sockets required. No current build dependency. Report gets
+colored VALUABLE CANDIDATE and 'Druid Summoning skiller with 30-45 Life'. No matching
+SC/NL/PC/RotW price exists; do not invent or quote historical bucket asks as estimate.
+Older workers ignore the separate evidence kind safely (tested); **Alt+D worker
+needs user restart for Python changes**. Not restarted by agent, fresh live request
+not yet verified. User was told restart is needed. This delivery step remains pending.
+Higher RotW life46–50 and other skill trees require separate reviewed watch rules;
+current generic magic-watch item bank cases are not yet explicit coverage targets.
+
+Saved capture added to replay STEMS as trainers_grand_charm_life37, built from actual
+frozen sample/selected item/arrays and captured source.build_sha256. New fixture under
+assessment/fixtures/replays. Report: tmp/trainers-grand-charm-report.txt.
+Nine boundary/unknown magic-watch bank cases; saved-scan/color/legacy-worker tests in
+tests/pricing/knowledge/test_magic_value_watch.py. Current KB watchlist228rows,
+99valuable candidates. `valuable` regeneration changed six named-baseline source
+hashes/row positions. Compared each cited old published row with new row; all six
+exactly equal, then repaired only source locators/hashes in named_baselines.json.
+Guardian Angel and other tiers restored. Never blindly repin changed evidence.
+
+ZEAL: seven new roles <slug>-zeal-combination for Sigon's Visor/Gage/Wrap/Sabot and
+Immortal King's Forge/Detail/Pillar. Exact spans106/137/147/152/130/145/151 andnative
+set definitions. Group-limited distinct equipped player companions, Paladin, legal
+native/upgraded nonethereal pieces. Sigon two-to-four pieces; boots MF needs3.
+IK gloves/belt two or3; boots guide role needs3. Belt FHR needs3, glove IAS needs2.
+Captured total defense supporting without claiming a distinct partial-defense roll.
+Exclude Barbarian-only skills. Bank has39cases, including duplicate companions and
+uncaptured bonuses. Corrected IKboots raw skill-tree layer from property-tableparam12
+to native32 after decoder verification (+2 Combat Skills Barbarian); six cases pass.
+One-shot tmp/add_zeal_sigon_ik.py SUCCEEDED: NEVER rerun. Earlier one-shot prohibition
+continues. temp final-charge-routing-rebuild.py is repeatable dependency rebuild.
+
+VERIFIED: 388combined staged checks passed in tmp/charm-and-sets-staged-fixed.log;
+then six corrected native-layer IKcases passed (tmp/zeal-ik-native-layer.log).
+48new cases passed against selected runtime. Eight pipeline/publication tests pass.
+Named gate548eligible identities/35sets/2958renderedcases, all gateszero.
+19selected replays match staged extraction/text/prices; prior18reports unchanged;
+new charm is highlighted with unknown numeric price. Ruff/format/diff checks pass.
+Bank369pipeline scenarios;3457/3562requiredtargets still missing complete cases.
+Completion refreshed:2572identities,62891occurrences,964reviewed,4777Hardcoreexcluded,
+7877coverage rows,114103rawobligations (not item count), completefalse. No full-repo
+regression claimed. Logs prefixed tmp/charm-and-sets-*; all sessions terminal.
+
+NEXT: verify live restarted worker when user scans again, while continuing all-item
+work. Remaining Zeal companion target Angelic Wings/Halo (2pieces), then remaining
+words and early Act5 gear. Angelic catalog default displayed legacy season15–16;
+inspect all native variants/current identity before assumptions. Continue source,
+pricing, report, leveling and bank gaps across full scope. No live collection,
+git staging/commit or worker restart performed in this checkpoint.
+
+## Latest active checkpoint — Zeal Death pair, 2026-09-27
+
+Goal ACTIVE. Added and published two source-reviewed Zeal glove/belt pair roles:
+`death-s-hand-zeal-pair` and `death-s-guard-zeal-pair`. Exact gear-table spans131/146
+plus section32 and native set definitions. Require Paladin and opposite equipped
+piece; native or legal upgraded bases, nonethereal, nonsocketable. Glove IAS30 and
+belt all-res15 require both captured values and companion. Intrinsic survival
+stats remain distinct. Guard upgrade is a preference (potion capacity), not a
+minimum roll. Conditions distinguish the shared 8% set life-leech bonus from each
+item and do not infer full-set benefits. No price invented.
+
+Red: ten pipeline cases lacked roles. Implemented roles and exact stat reviews;
+build validation caught/fixed preference base_name -> verified base_code and native
+set JSON pointers (setitems uses names, uniqueitems uses numeric keys).
+Then upgraded Guard cases exposed a bank factory provenance omission: native table
+identity was resolved for ranges but discarded. Factory now returns that identity
+in source.item_identity, matching real capture; production identity checks unchanged.
+Earlier Tal bank native citations corrected to named keys. New coverage test resolves
+all precise JSON citations (46 before this batch's generic Death references).
+
+Validation: **332 staged bank checks passed** (`tmp/zeal-death-staged-full.log`),
+10 selected-runtime Death cases passed (`tmp/zeal-death-published-bank.log`), four
+coverage checks and two stat-bundle tests passed in the earlier targeted run.
+18 selected/staged saved item extractions, reports and prices match and are unchanged
+from the previous generation. Ruff and diff checks passed. Bank has321 pipeline
+scenarios; 3457/3555 required targets still lack complete cases. Full repository
+regression remains pending; this checkpoint does not establish all-item completion.
+
+Selected generation: 23e79cb88c120b38da761ab13d5861575b03033bd863e6f6cc98d70dacf68adf
+2356 profiles /2348 stat configurations /72 artifacts. Rebuilt full dependency chain
+with tmp/final-charge-routing-rebuild.py; publication verified. Refreshed coverage
+and completion: tmp/zeal-death-bank-coverage.json, tmp/zeal-death-completion.json.
+One-shot tmp/add_zeal_death_pair.py SUCCEEDED; NEVER rerun it. Later corrections were
+applied separately to JSON rules/fingerprints. No runtime Python change, restart,
+live collection, staging or commit. No running processes remain.
+
+Next continue Zeal companion sets: Sigon's Visor/Gage/Wrap/Sabot (2–4 pieces),
+Immortal King's Forge/Detail (2 or3) and Pillar(3), Angelic Wings/Halo(2).
+Native definitions were inspected. Sigon helm AR/lvl and belt defense/lvl use
+parameter16; boots AR50 at2 and MF50 at3, gloves IAS30 at2. IK glove IAS25at2,
+belt FHR25at3, boots MF25at2; Barbarian-only skill bonuses must not benefit Zeal.
+Angelic catalog default displayed legacy firstLadderSeason15/last16 entries;
+inspect all native variants/current table identity before new rules or fixtures.
+Do not copy ambiguous default catalog entries into current-version expectations.
+Remaining words, early Act5 gear, pricing/source closure and all other scoped items
+remain pending. Continue until the completion contract is satisfied.
+
+## Latest active checkpoint — Tal mercenary bank, 2026-09-27
+
+Goal remains active. Full item bank: **321 passed in 120.64s**, including 311
+pipeline scenarios and 10 coverage/range checks (`tmp/tal-bank-full.log`). Added
+nine Tal Rasha mercenary cases after the 68 caster cases below. Gold-find Budget
+and Summoner Starter roles verify Act 2 Might, life-leech utility, no mercenary
+mana-leech priority, and unknown/wrong mercenary rejection. Gold-find requires
+a decoded socket jewel: aggregate-only parent gold, non-gold jewel and incomplete
+child capture cannot activate the role's stat contributions.
+
+New `models.SocketItem` uses production `decode_payload` and explicit child
+completeness, canonical metadata base identity, deterministic fixture IDs/positions.
+Parent completeness stays independent. This bank still does not test native pointer
+linkage. Red collection failure for absent SocketItem followed by nine green cases;
+full-bank green after the shared factory extension. Ruff passed. README updated.
+Runtime generation and production rules unchanged. Completion and bank coverage
+refreshed (`tmp/tal-merc-bank-completion.json`, `tmp/tal-merc-bank-coverage.json`).
+
+Next resume outstanding Zeal companion sets before broader bank expansion. Cached
+Zeal gear table, appraisal-guide-sections.json source
+pricing/raw/mr/guides__zeal-paladin.html section32, explicitly lists:
+Sigon's Visor/Gage/Wrap/Sabot (2–4 pieces), Immortal King's Forge/Detail (2 or3)
+and Pillar (3), Death's Hand/Guard upgraded DemonhideSash (2), Angelic Wings/Halo(2).
+These are not present as Zeal profiles yet. Native partial bonuses and exact
+companion/observed-stat gating need independent review; don't treat whole-set
+ownership or parent totals as proof. Existing source text was inspected this turn.
+Continue remaining words, early Act5 gear and all other scoped items afterward.
+Do not rerun successful appenders. No running test session; maintenance completion
+may need polling if interrupted. No stage/commit, live collection or host restart.
+
+## Latest active checkpoint — Tal Rasha item bank, 2026-09-27
+
+Goal remains active. Added 68 full-pipeline cases for 18 existing Tal Rasha caster
+roles across six builds: armor, belt, helmet and orb alternatives. Tests distinguish
+intrinsic stats from partial set bonuses; count distinct compatible companions;
+exclude the Sorceress orb as a Warlock companion; withhold uncaptured bonuses;
+and assign fire/cold mastery and resistance modifiers only to relevant builds.
+Caster helmet cases do not credit life/mana leech as spell recovery.
+
+Validation: 54 ordinary cases passed (`tmp/tal-caster-bank.log`), 14 missing-bonus
+cases passed (`tmp/tal-caster-uncaptured-bank.log`), and coverage audit tests passed
+(`tmp/tal-bank-audit.log`). Ruff and diff checks passed. No production rule change
+was needed. Existing 244 checks passed before this batch; a fresh full-bank run
+has not been claimed. Bank now contains 302 pipeline scenarios, with 3459 of 3553
+required targets still lacking complete case sets. Coverage artifact refreshed.
+
+Selected runtime remains 2f4fdfb04b5987e69dc7c10c3d07699deeb6ce32fa57f09444c8ffbe837fc65e
+(2354 profiles / 2346 stat configurations). Completion refreshed in
+`tmp/tal-bank-completion.json`: 2572 identities, 62891 occurrences, 955 reviewed
+occurrences, 4777 excluded Hardcore occurrences, 114048 outstanding obligations.
+Those obligations are not an item count. Final gates remain incomplete.
+
+Next: mercenary item-bank cases, including Tal Rasha helmet leech and independently
+verified socket fillers. Current Item factory has socket status but no socket-item
+payload. Gold-find Tal mercenary role needs a decoded gold-find jewel; do not fake
+that proof with aggregate stats. Existing targeted test is
+`tests/pricing/knowledge/assessment/test_tal_merc_priorities.py`. Continue remaining
+all-item review and bank work afterward. No publication, host restart, live collection,
+staging or commit in this checkpoint; do not rerun successful one-shot appenders.
+
+## Latest active checkpoint — source scope review, 2026-09-27
+
+Goal ACTIVE; verified progress. Runtime stillselected2f4fdfb04b5987e69dc7c10c3d07699deeb6ce32fa57f09444c8ffbe837fc65e
+(2354profiles/2346statconfigs). Bankunchanged234pipelinecases/244checks,lastfullpass.
+New maintenance occurrence_scope.py supplies narrow Softcore scope dispositions:
+476exact structured Hardcore variant occurrences +4301explicit Hardcore planner
+profile occurrences =4777excluded configurations. Every2572itemidentity remains in
+scope. No nameditem value, base, pricing, stat or report obligation was removed.
+Matching requires verified occurrence source, exact source/path boundary and exact
+variant title; structured variants additionally bind build and evidence.name with
+excluded_hardcore eligibility. Planner bindings use exact /profiles/N locator and
+native profile name beginningHardcore. Ambiguousduplicatecontexts never close work.
+Unreferenced/shared/historical non-Hardcore planners still pending; no blanketclosure.
+
+completion.py persists occurrence_dispositions and excluded_occurrences separately
+from955reviewed occurrences. CLI summaries omit full disposition list. Scope hash now
+includes hashes of completion.py/completion_evidence.py/occurrence_scope.py/
+coverage_matrix.py/named_matrix.py, so changed reviewlogic invalidates old final
+attestation. Red->green scope andpolicytests;38affectedtests pass; Ruff/diffcheckpass.
+Artifact refreshed tmp/planner-hardcore-completion.json and persistent
+pricing/data/appraisal-completion.json:114048rawtasks,notitemcount; completefalse.
+No running sessions, publication, hostrestart, livecollection, gitstage/commit.
+
+Next continue all-item work, including Zealcompanion sets/remainingwords/Act5early
+armor/helm cases plus existingimportant item bank expansion. Sourceclosure backlog
+stillneeds source-specific endorsed/planner/discovery review; preserve allnative
+identities and unresolvedreferences.11plannerconflicts+1missingplanner remain.
+No successful appenders rerun. Fullgoal/finalfullsuite still unfinished.
+
+## Latest active checkpoint — Raven Frost bank, 2026-09-27
+
+Goal ACTIVE; previous turn made verified progress, not completion. Runtime unchanged:
+selected2f4fdfb04b5987e69dc7c10c3d07699deeb6ce32fa57f09444c8ffbe837fc65e,
+2354profiles/2346statconfigs. Added57RavenFrost scenarios for19existing build/variant
+uses; exactsource wp-a-builds variant membership checked. Native15Dex150AR20coldabsorb
+40manaCBF partialfixture, full native property set not claimed. Low roll ranges and
+midtier assertions. Correctclass, wrongclassDruid, unknownclass checked. Smite1/2
+andHammerUbers3 forbid AR contribution for that configuration while preserving CBF
+andDex. FoH3TriBrid attack phase retainsAR; other legitimatePaladin uses may still
+annotate the same stat. New Case.absent_stat_configurations mapsstatkey to forbidden
+configuration IDs. Shared runner implements it; README explains distinction.
+
+Selected bank244passed78.52s (tmp/raven-bank-full.log), subset60passed (57new+3Zeal).
+234pipeline scenarios+10coverage/rangechecks. Ruff anddiffcheckpass. No runtime
+publication or hostrestart needed for test-onlychanges. Bankcoverage regenerated:
+3553targets,3477missingcases. Completion regenerated tmp/raven-completion.json.
+No running shellsessions. No staging/commits/livecollection. Fullgoalunfinished.
+
+Next continue assessment queue and bankcoverage. Sourceclosure needs explicit
+provenance review: inspected guideinventory shared-planner14009occurrences, among
+62891total. _review_leads excludes discovery_only/historical/recommendedFalse/
+shared-planner/hardcore from endorsed candidate leads, but completion retains them
+for explicitdisposition. Example historical sharedplanneruf0106rb Andarielmerc
+profile1 relatedFissure/Lightning, recommendedFalse; association is not endorsement.
+Do NOT blanketexclude these or infer no-use/worthlessness. Need sourcebinding audit
+against completecachedguide/variant refs before reviewing exclusion or reconciliation.
+No source dispositions changed thisturn. Otherqueue: Zealcompanion sets, words,
+Act5earlyarmor/helms; allotheridentities/pricing, sourceconflicts11+missingplanner1,
+finalfullsuite. Do not rerun any successful adders listed below.
+
+## Latest active checkpoint — 2026-09-27
+
+Persistent all-item goal ACTIVE/unfinished; continue autonomously. Selected generation
+`2f4fdfb04b5987e69dc7c10c3d07699deeb6ce32fa57f09444c8ffbe837fc65e`:
+2354profiles/2346stat configurations/72artifacts. Zeal utility belts3 and Act5Frenzy
+Lawbringer1 published; all18 staged/selected text/extraction/prices match and are
+unchanged vs previous checkpoint. Item bank selected run187passed63.40s:
+177pipeline scenarios+3coverage+7range-proof. Added45Mara cases across15existing
+build variants; tests exact FCR, one below, unknown; generic guide paragraph differs
+from variant prose, which is authoritative for these setups. Source/variant review
+confirmed EchoingStandard/MF125, TrapsStandard65, Lightning117, SummonerDamage75.
+Mara full native item20allres2skills5attrs; range20–30 and midtier assertions pass.
+Lawbringer10bankcases cover normal/superior/low_quality, wronghandedness, unknown
+mercenary and etherealCrypticSword. Role uses exactZeal gear span207/section44 and
+existing reviewed native merc-sword predicates/stat semantics. No shared-template
+code change. One sword never establishes dual wield/full setup or player Sanctuary
+immunity bypass. Focusedmerc/stat5passed; sourcechecks passed. Beltsfocused5passed.
+
+NEVER rerun successful one-shot adders: tmp/add_zeal_utility_belts.py and
+ tmp/add_zeal_lawbringer.py (plus all previous successful adders below).
+No live collection, host restart, git stage/commit. No shell tasks remain running.
+Coverage pricing/data/appraisal-item-bank-coverage.json:3553targets;3496missingcases.
+Latest completion tmp/zeal-lawbringer-maras-completion.json; source references and
+universal baseline linkage are regenerated. Still false; rawtaskcounts are not items.
+
+Next: keep expanding bank across important existing builds as assessment queue drains.
+Prepared research for RavenFrost bank (NOT written yet):19existing '-N-raven-frost'
+roles acrossBerserk1,Hammer3,DragonTalon0/1,Dream0/1/2,FoH3,LightningFury1/2/3,
+LightningStrike1/2,MirroredBlades1/2,Smite1/2,Strafe1/2; Zeal already covered.
+Native lowroll15Dex150AR,20coldabsorb40manaCBF; native cold15–45duration100frames.
+Use explicit source variant locators in wp-a-builds.json; wrongclass and unknown
+class conditions, exact role stat contributions. Smite1/2 andHammer3 excludeAR;
+FoH3TriBrid includes attack-phaseAR but not FoH/Smite hit chance. To test per-stat
+absence while otherPaladinroles legitimately annotateAR, extendCase assertions to
+forbid a given configuration at a given stat (current absent_configurations forbids
+it globally; absent_annotations forbids the entire stat acrossallroles). Do not make
+globalARabsence assertions. Important further work: Zeal companion sets, remaining
+words, Act5earlyarmor/helm alternatives, all other queuedidentities/sourceclosure,
+pricing dispositions, finalfullsuite.11planner conflicts+1missingplanner remain;
+absence cannot be excluded as no-demand. Do not stop at this checkpoint.
+
+## Active checkpoint — item bank and completion evidence, 2026-09-27
+
+Goal remains ACTIVE. Latest selected generation
+`dbbb37a6e315268fbc2abd58d4ebafab54c0b3133058080f71beef1d55b334e2`:
+2350 profiles,2342stat configurations,72artifacts. Jewelry7 and standalone gloves6
+for Zeal published. Low native rolls and correct skill recipients; jewelry cannot
+be ethereal/socketed, glove procs require percent-chance units. Native/set sources
+verified. No inferred complete loadout, passive charged skills or numeric premium.
+One-shot adders add_zeal_jewelry.py and add_zeal_gloves.py EXECUTED; NEVER rerun.
+
+Item bank now113pipeline scenarios +3coverage +7range-proof tests =123passed
+selected42.42s and staged37.14s. All18 saved staged/selected outputs identical
+(text/extraction/prices), unchanged from87f44c checkpoint.15focused rules/stat
+checks pass;48source/completion checks pass. New jewelry expectations corrected:
+role is partial due advisory full-loadout uncertainty, but rule_trace must be true
+and exact configuration contribution present. Wrong/unknown class stays strict.
+Coverage3547targets,3511missing cases; sample success is NOT all-build coverage.
+
+Completion now rejects unresolved reviewed-dimension artifact/JSON-pointer or
+configuration-version citations. Test24+5pass. named_matrix links universal named
+baseline/leveling reviews and excludes only known non-named qualities from named
+tiers; no market/desirability/roll gaps closed by that linkage.40relatedchecks pass.
+Latest completion tmp/named-baseline-completion.json:118792rawtasks (not items),
+952reviewed exact occurrences;2572identities/62891occurrences. Scope still incomplete.
+Further applicability/source closure and final full-suite/evidence gates remain.
+
+Zeal utility belts3 adder tmp/add_zeal_utility_belts.py EXECUTED ONCE; NEVER rerun.
+Red3 confirmed. Bank9 installed/registered;122pipelinecases plus10audit/rangechecks.
+Initial chained run stopped at import-order lint after applying; fixed. Session50686
+now focusedgreen, rebuild dependencies, staged bank/replay. Logs tmp/zeal-utility-belts-*.
+Expected2353profiles/2345statconfigs. After green compare to selecteddbbb37,
+publish, selected replay/bank, coverage then completion. Preserve all generations.
+Continue remaining Zeal companions, completed words, Act5merc and full queue.
+No runtime Python changes from these maintenance/test additions; no host restart,
+live collection, staging or commits requested/performed. Continue full queue.
+
+## Latest checkpoint — 2026-09-27
+
+Selected87f44c282bc5d35a7f25654717777f79d7efc36ad223e17d27b040d545eed277;
+2337profiles/2329stat configurations/72artifacts. Zeal melee/survival13 additions
+published,18saved replay outputs match staged. Item bank uses dirty-equals,
+74pipeline scenarios+3coverage tests pass;7range-proof checks also pass. Required
+bank inventory3534targets;3511need cases. Full all-item goal remains ACTIVE.
+Previous entries below are historical; do not rerun successful adders. See handoff.
+
+## Current active goal — 2026-09-27
+
+Persistent all-item goal is ACTIVE, not complete. Continue through all work; never
+stop at batch publication. Latest selected generation:
+`133f127b14d105c257cce388df25a5bf04b6ccaa89987d4d42d216e822682876`.
+2324profiles/2316stat configurations/71artifacts. Published Zeal charge patterns3
+and Naj Enigma context guard. All18 staged/published text/extraction/prices match;
+all unchanged vs previous752fd998. Tier gate complete.17affected tests pass,
+lint/diff clean. Full-suite final gate still pending. No processes remain at this
+checkpoint. Completion ledger regenerated against current artifacts (not published
+as runtime data): tmp/completion-after-zeal-charges.json summary and persistent
+pricing/data/appraisal-completion.json queue. Exact occurrence links are conservative;
+remaining raw task counts are NOT distinct item counts or trustworthy final closure.
+
+Next prepared research: six Zeal melee boots/belts. NOT EXECUTED:
+ tmp/add_zeal_melee_accessories.py. Draft tests (not yet copied/run):
+ tmp/zeal_melee_accessory_tests.py. Copy into tests/pricing/knowledge/assessment/
+ test_zeal_melee_accessories.py, run red, review adder and native stat recipients,
+apply once, green, rebuild/publish/replay, continue queue. Names and native stats
+verified; boot/belt base names in draft resolved via facts. Native dmg-norm maps to
+mindamage/maxdamage (War Traveler); native IDs in earlier entry. Adder counts
+expect2316stat configs, raises to2322. Avoid conflating Goblin Toe (CB only) with
+Gore Rider's CB/OW/DS: draft shared prose says where applicable, better specialize.
+
+Successful adders DO NOT RERUN: add_zeal_footnote_swaps.py, add_zeal_fade_prebuff.py,
+add_zeal_charge_patterns.py. Naj native locator repair and Enigma guard are already
+applied with fingerprints refreshed. Earlier publication/batch status entries below
+are historical. Need full source/applicability/final-gate integration and all remaining
+item assessment; current work is nowhere near final closure.
+
+<!-- completion-contract-2026-09-27 -->
+**Authoritative end goal and stopping rule:** [Completion contract](COMPLETION_CONTRACT.md).
+The task is unfinished until all final gates pass for one scope manifest and
+selected generation, with zero pending or blocked required work. Batches,
+publications and milestones never stop execution. Next implementation priority:
+make the completion ledger/gate trustworthy, then drain the entire remaining queue.
+This planning update changes no runtime artifacts or published coverage claims.
+
+## 2026-09-27 — All-item assessment continuation
+
+User requests coverage of every item and known useful setup. Phase 1 is complete;
+Phase 2 remains incomplete. Follow assessment/planning/GUIDE_FIRST.md. Offline only;
+no staging, commits, host probes or worker restart in this continuation.
+
+Latest publication: `519baede215d35e06dda726c80e1af3ef4187ea233dadc343373d0f2b6eaa0a0`.
+2,317 profiles /2,309 stat configurations /71 artifacts. Tier gate complete.
+All18 saved reports/extraction/prices unchanged from selected Zeal-ring generation;
+all18 selected outputs match staged. Logs tmp/caster-armor-complete-{publication,
+staged-replay,published-replay}.json. Phase1 complete; Phase2 NOT complete.
+
+Published batches:
+- Zeal rare-ring combinations6 and exact-span provenance linking: eight ring tests,
+ 34 source-link related tests, all6 source occurrences bind in inventory/dossiers.
+- Enigma3/CoH6 caster armor uses: red2/green4.
+- FOH Gheed farming use1 from explicit guide section34: red1, green in92.
+- Caster armor remainder8: Que-Hegan2, Ormus4, Bone1, SpiritShroud1: red4/green6.
+ Repairable player armor; legal native/upgraded bases. Ormus native random skills
+ use IDs36–60: FireWall51/Meteor56 optional, Hydra/FrozenOrb impossible. Meteorb
+ section9 supports both cold and fire damage. No15% native-roll preference inferred
+ from socket-inflated totals; decoder owns ranges. Summoner Warlock excludes MAEK;
+ Bone proc is not assumed active or credited as minion damage.
+
+Full regression:4296 passed,76 failed,3 skipped in5311.71s. All76 failure tracebacks
+were obsolete live-bundle demand totals/build lists or expanded selectors. Preserve
+prior breadth plus unique-build counting; isolated-fixture exact tests unchanged.
+Ground early test scopes its15 early profiles; Torch tests all classes/new profiles;
+ring test allows new configurations; Trang lower-bound grade is nowHigh; Vipermagi
+keeps Blizzard as an alternative without excluding the newly reviewed alternatives.
+All source exclusions, matching/stat/companion/wearer constraints retained.
+All76 failures plus new charm/armor/stat/source checks passed:92 tests in
+ tmp/assessment-corrections-green.log. Later armor8 passed6 separately. Full log:
+ tmp/all-assessment-regression.log. No fresh all-green full-suite run claimed.
+Ruff and git diff --check passed. No active processes remain from this checkpoint.
+
+EXECUTED ONCE: add_caster_armor_words.py, add_foh_gheeds.py,
+add_remaining_caster_armor.py, fix_expanded_build_demand_tests.py and all prior
+successful adders. Never rerun. Obsolete fix_breadth_regression_assertions.py was
+NOT executed; do not use it. Armor research notes have now been implemented.
+
+Next bounded batch: Zeal player gear in guide section32. Read its footnotes before
+adding rules: Treachery/DemonLimb primarily prebuff Fade/Enchant; Wizardspike swap
+before CTA or with party Barbarian BO; teleport-charge items only without Enigma.
+Guillaume filled-socket variants and rare-ring six combinations already reviewed.
+Remaining named standalone gear and set-dependent alternatives need explicit roles;
+do not flatten prebuffs, swaps, companion sets or Act5 merc roles into generic fits.
+Other section-sourced pattern bindings still need exact-occurrence review.
+
+No host restart or live collection. Prior runtime socket predicate changes still
+need host restart if its worker predates them; these maintenance/data additions
+reload through publication generations. No git staging or commits performed.
+
+Coverage: tmp/named-build-breadth-gaps.json lists142 named identities (850 item/build
+pairs) with at least
+one missing build lead. This is only breadth, not configuration/variant closure.
+Dossier review_state is deliberately hardcoded pending; its283/153/1108/1028 queues
+are discovery partitions, not counts that shrink after every reviewed use. Do not
+claim completion from first-use named queue zero or reviewed role totals.
+Next substantial gaps: remaining caster named armor/staves, Zeal player/Act5 merc
+configurations, remaining Necromancer gear aliases, exact-source binding of older
+section-sourced patterns, specialist/rare/base patterns and no-guide identities.
+Source closure additionally has11 planner-reference conflicts and1 planner gap;
+these must remain explicit until resolved, not be counted as complete coverage.
+
+Previous selected491eb419754c82af967e573e4a27b765e6e5ab7f38cea00401d05cacd27e2d72:
+1896/1888 Renewed Sunder27. All18 selected/staged exact matches verified.
+Renewed uses cover Black9/Bone3/Cold2/Lightning11/Fire2; generated custom-affix
+bounds remain unavailable. No original GrandCharm/unique CraftedSunder confusion.
+
+Jewel54: Rainbow15, ProtectorStone12, GuardianThunder12, GuardianLight8,
+DefenderFire4, ProtectorFrost2, DefenderBile1. Exact named recipient dependency,
+matching native elemental keys and one-Colossal limit. Does not endorse host item
+or assume full loadout. Berserk excludes unverified mastery357; SummonerStone
+credits only Find/XP (physical-pierce CorpseExplosion remains unverified).
+Source validator requires JSON locators: cached Colossal guide limit exported to
+pricing/data/colossal-jewel-guide-evidence.json, exact sentence with raw SHA and
+correct page date2026-02-19; source URL /d2/meta/colossal-ancients. Native definitions
+supply jewel mechanics. Initial HTML-only corroboration failed validation; fixed.
+Witchwild narrow MF planner source: upgraded DiamondBow, two distinct linkedjewels,
+one named ProtectorStone with native MF minimum15. No unspecified secondjewel roll
+requirement. Strafe excludes normal-attack MagicArrow effect; Amp procunit checked.
+
+All adders through add_named_jewels.py and add_witchwild.py EXECUTED ONCE.
+Also add_renewed_sunders.py EXECUTED. Never rerun. Jewel source repair and trim
+scripts executed. No runtime engine changes. Data reload at request boundaries.
+All adders through add_caster_core_guide.py EXECUTED ONCE, including
+add_topaz_armor.py, add_inventory_charm_expansion.py, add_caster_guide_utility.py.
+Tal adder and caster weapon adder EXECUTED ONCE; do not rerun. Live Tal module
+includes a later source-footnote correction: Lidless Eye requires another compatible
+Tal piece for all four Sorceress guides. Armor/helm/belt innate properties remain
+independent; 2/3/5-piece partials require distinct compatible companions. Warlock
+cannot count Sorceress-only orb. 4 guide source quotes and fingerprints updated.
+Caster weapons18: Wizard6, SuicideBranch2, SpectralShard2, Oculus4, Eschuta2,
+Fathom2. Relevant fire/cold properties only; casting-only ethereal allowed except
+native nonethereal Wizardspike; no attack-only damage or minion MAEK assumptions.
+Summoner Torch table correction remains pinned to Warlock planner evidence.
+ Then remaining
+named variants/base/affix/source gaps. No invented prices or guide recommendations.
+
+Historical Steel Grand Charm fix: exactly4 of60491 demand rows changed (falseSteel
+runewords); other demand rows and all tier/value-watch decisions unchanged. Source
+fingerprints repaired, all tier gates and saved replays verified. Do not blindly repin.
+
+Phase1:408 uniques +140 set pieces,35 complete sets;2958 rendered cases, all tier
+counters zero. Leveling158 recommended/29 conditional/361 no-specific. Colors
+high green/mid yellow/low blue/trash red. Numerical prices remain a separate gap.
+Base audit431 unresearched/48 cached-only/44 historical. No invented estimates.
+Dossier denominator2572 identities/62891 occurrences. Named-use expansions,
+153 base/pattern leads,1106 unresolved identities and1027 without verified guide
+leads remain. Missing guide evidence is not no demand or worthless.
+
+Regression: full run at1706 profiles had4126 passed/3 skipped/1 stale glove-test
+selector; corrected to rare/magic scope and29 affected tests passed. No full rerun
+claimed. Subsequent batches use focused tests, Ruff, rebuild/publication validation
+and all18 saved-item replays. Sources stayed stable during the full run.
+
+Commands: uv run --offline python tmp/final-charge-routing-rebuild.py;
+uv run --offline python -m pricing.knowledge.assessment.maintenance.replay;
+uv run --offline python -m pricing.knowledge.publication; then replay with
+--publication-store pricing/data/generations. Compare text/extraction/price_estimate.
+Preserve generations. Runtime reloads data at request boundaries.
 
 ## Next planned work — offline guides first
 
@@ -10,8 +3357,8 @@ named tier defaults to trash, and no missing market facet defaults to zero/false
 build/variant/player/mercenary item → deduplicated per-item demand → reviewed guide
 configurations → compact grouped Build use → offline regression/publication.
 Reviewed demand batches and compact reports are implemented as recorded below;
-this does not establish full guide or item coverage. Full unique/set/piece tiers and stat
-combination indicators remain required, including items absent from guides.
+this does not establish full guide or item coverage. Universal unique/set/piece tiers are complete as recorded above; remaining stat
+combination coverage includes items absent from guides.
 
 ## G1 inventory checkpoint — 2026-09-25
 
@@ -2386,3 +5733,3810 @@ Data-only; no new restart.34named roles still need stat review/disposition.
 Next: three Sazabi roles with piece-specific priorities and full mercenary/socket
 conditions; then reserve the specialist tail. All-item guide/tier/base/roll/report/
 market coverage remains incomplete.
+
+## Sazabi piece and socket priorities — 2026-09-25
+
+Second demand batch: three Echoing Uber mercenary roles. Corrected their previously
+identical important-stat lists to piece-owned properties: sword IAS/CB, armor
+life/FHR/physical reduction, helm skills/fire/lightning resistance/CBF. Source
+survival and OW/CB delivery rationale plus native pieces and verified Ber/Cham
+effects support these reviewed inferences. IAS/skills are supporting; the remaining
+selected stats desirable. Capture must contain the stat; no set/socket effect is
+invented. Exact rune, companion set pieces on mercenary and Act5Frenzy remain
+mandatory. Prebuff/other-weapon advice stays conditional; no survival guarantee,
+perfect-roll or price inferred. Added explicit identity/type prerequisites and
+renewed source review fingerprints.
+
+Red: three missing configs. Green:348affected checks. Full suite:3055passed,
+3skipped,2older fixture-selection failures (rare rings/boots counted new set configs).
+Narrowed those fixtures to their intended magic/rare/crafted quality scope, then
+all7rechecks passed including both failures and Sazabi/stat bundle. Ruff/format/diff
+pass. No production fix was needed for the two test assumptions. Evidence
+ tmp/sazabi-stats-*. All18staged/published saved report texts and prices unchanged,
+including the real Sazabi helm with unconfirmed full setup; positive socket/setup
+cases use domain fixtures. No new live evidence or market collection.
+Generation 97a1665c71c239fceb024369f24231b5c82559d29e0daf6835b3ffc912b94448.256configs/295roles;
+stat-use315reviewed/8excluded/41pending. Guide/base/coverage refreshed offline.
+Data-only; no new restart.
+
+Next scheduled specialist tail: Hydra fire Rainbow Facet, preserving recipient,
+3/3 acceptance versus5/5 preference and whole-loadout conditions.31named/runeword
+roles still need stat review/disposition. Broader guide/tier/base/roll/report/market
+gates remain incomplete; finite role coverage is not all-item completion.
+
+## Hydra fire Facet priorities — 2026-09-25
+
+Scheduled specialist tail adds one source-bound configuration for the existing
+Hydra Standard role. Cached prose explicitly accepts3/3fire facets; both captured
+fire damage and pierce are desirable within native3–5bounds.5/5 remains a preference,
+not a minimum or an automatically assigned perfect-roll marker. Full105FCR context
+remains mandatory; eligible recipient/survivability stays conditional. No proc-event
+preference, equipped socket fit or price inferred. Existing role/source unchanged.
+
+Red: four missing-config parameter cases. Green:98affected checks; Ruff/format/diff
+pass. Tests cover3/3,3/5,5/3,5/5, both below/above bounds, missing/duplicate modifier,
+wrong element/identity/type/quality/class and unknown/below105FCR. Recipient advice
+and exact preference status remain asserted. No saved Facet capture; domain
+fixtures verify new behavior. All18staged/published saved report texts/prices
+unchanged. Evidence tmp/facet-stats-*.
+Generation 312f15341ce9d9c68a11e38618e722e0bfdc02ab1eb443de0fba2e6171263f77.257configs/295roles;
+stat-use316reviewed/8excluded/40pending. Guide/base/coverage refreshed offline.
+Data-only; no new restart. Tail complete; demand scheduling restarts at zero.
+
+Next demand batch: Fire Warlock Ars Al'Diabolos Standard/MF roles, preserving
+separate Um/Ist sockets and native skill identities. Then review Fissure repeated
+player gear; reserve the next specialist tail after two demand batches.30named
+roles remain without stat review/disposition. Global guide semantics, named tiers,
+base/roll/report coverage and exact scoped market evidence remain incomplete.
+
+## Ars Al'Diabolos variant priorities — 2026-09-25
+
+First demand batch after Facet tail: Standard/MF Fire Warlock off-hand. Cached
+May27,2026source dates/URL added to role/guide-use records with renewed fingerprints.
+Two configs require complete native Chaos/FCR/fire/Apocalypse functionality, correct
+Warlock/non-ethereal identity and exact Um/Ist socket. Core stats desirable; captured
+mana after kill/fire resistance supporting. Only MF/Ist marks captured MF. Minimum
+native rolls remain accepted and maximum fire/Apocalypse rolls preferences; no
+substitute skill tab, fabricated optional/socket effect, full-loadout readiness,
+perfect-roll judgement or numerical price. Advisory equipment/breakpoint/resistance
+conditions retained. Native definitions verified; no fresh research.
+
+Red: two missing configurations. Green:96affected checks; Ruff/format/diff pass.
+Tests cover each required modifier missing/below minimum, optional lines absent,
+wrong skill tab/class/type/quality/identity, unknown/true ethereal and wrong/empty/
+unknown rune state, duplicate Apocalypse and minimum versus maximum preferences.
+No saved Ars capture; domain fixtures validate new behavior. All18staged/published
+saved report texts/prices unchanged. Evidence tmp/ars-stats-*.
+Generation f014ae5a4bd3d7199efe9531d93a58f8c9e8ec36fcbd220e7d45e94b01a24988.259configs/295roles;
+stat-use318reviewed/8excluded/38pending. Guide/base/coverage refreshed offline.
+Data-only; no new restart.28named roles remain without stat review/disposition.
+Next demand batch: repeated Fissure player gear (Magefist/War Traveler and helmet
+alternatives), then scheduled specialist tail. Broader guide/tier/base/roll/report/
+market coverage is still incomplete.
+
+## Fissure Magefist/War Traveler priorities — 2026-09-25
+
+Second demand batch after Facet tail: five repeated named player uses. Reviewed
+cached source/native definitions; Magefist fire skills/FCR desirable and mana regen
+supporting, War Traveler MF desirable and movement/attributes supporting. Captured
+lines independent; missing lines not fabricated and added weapon damage not treated
+as spell damage. No defense premium or50MF minimum. Existing legal upgrade bases,
+nonethereal Druid gates and explicit Ubers Crusader Gauntlets dependency preserved.
+Equipment/full-loadout advice remains conditional; no complete breakpoint or price
+claim. Role/source predicates unchanged.
+
+Red: five missing configs. Green:350affected checks; Ruff/format/diff pass.
+Tests cover all supported base upgrades, unupgraded Ubers mismatch,30and50MF,
+correct native fire skill parameter, missing lines, identity/class/type/quality/
+ethereal uncertainty. No saved accessory capture; new behavior verified with domain
+fixtures. All18staged/published saved report texts/prices unchanged. Evidence
+ tmp/fissure-accessory-stats-*. Generation 0ba10e15e638ae8b8c27f23b5202cbcb3ab50393c43cdccbca04cca127d9fe0c.
+264configs/295roles; stat-use323reviewed/8excluded/33pending. Guide/base/coverage
+refreshed offline; data-only, no new restart.23named roles still need review.
+
+Next scheduled specialist tail: completed Mirrored Blades Rhyme Grimoire, preserving
+recipe versus empty preparation and all three required staffmods. Fissure Ravenlore/
+Flickering Flame and mercenary families remain next demand candidates, not covered
+by these accessory reviews. Global guide/tier/base/roll/report/market gates remain
+unfinished.
+
+## Completed Rhyme Grimoire priorities — 2026-09-25
+
+Scheduled starter tail adds one configuration for completed Mirrored Blades Rhyme.
+Cached source explicitly lists the three staffmods. Exact Rhyme name/recipe, two
+filled sockets, native Grimoire, normal/superior, nonethereal Warlock and all three
+positive native skill rows remain mandatory. Mark only captured staffmods; Hex
+Purge389 cannot be replaced by explosion404. Empty two-socket preparation retains
+its distinct configuration; no completed/preparation contribution pooling. Other
+recipe bonuses are not invented; equipment/full-starter advice remains conditional.
+
+Red: two missing-config cases. Green:96affected checks; Ruff/format/diff pass.
+Both qualities test native skill loss/misidentity, wrong recipe/name/socket state,
+ethereal/class/type uncertainty, and exact role attribution when switching to
+empty preparation. No saved Rhyme capture; domain fixtures verify new behavior.
+All18staged/published report texts and prices unchanged. Evidence tmp/rhyme-stats-*.
+Generation 1a525fbddb818215501542617f48714fc07c8cd1db814ab759ab7bcf2a847408.265configs/295roles;
+stat-use325reviewed/8excluded/31pending (two quality rows newly reviewed).
+Guide/base/coverage refreshed offline; data-only, no new restart. Tail complete.
+22named roles remain without stat review/disposition.
+
+Next demand batch: Fissure Ravenlore/Flickering Flame player alternatives; then
+remaining Fissure mercenary cases before another specialist tail. Global guide
+semantics, named tiers, base/roll/report coverage and exact scoped market evidence
+remain incomplete. Existing finite role coverage does not satisfy all-item scope.
+
+## Fissure player helmet priorities — 2026-09-25
+
+First demand batch after Rhyme tail: three Flickering Flame/Ravenlore roles.
+Corrected important stats to include native fire skills126:1 / Elemental skills188:42
+and removed unsupported automatic defense priority. Fire skills/pierce desirable;
+aura/resistances/resources supporting. Optional captured Fissure gets a priority
+only on pelt Flickering Flame; no ideal-base threshold. Ubers Ravenlore adds captured
+fire damage only under its existing verified fire Facet gate, while Standard does
+not inherit that requirement. Existing recipe/class/quality/nonethereal gates remain;
+no missing stat, full-build readiness, perfect roll or price invented.
+
+Red: five missing-config fixture cases. Green:116affected checks; Ruff/format/diff
+pass. Tests cover helmet/pelt/circlet bases, no required Fissure, missing optional
+stats, wrong identity/type/class/quality/ethereal/recipe, and Ubers wrong-element/
+missing/contradictory socket payload. No saved helmet captures in this replay set;
+domain fixtures validate new behavior. All18staged/published saved report texts/
+prices unchanged. Evidence tmp/fissure-helmet-stats-*.
+Generation 68b06d9ac03df73379971fdd46d3c2ffd0a3f55be943ee0c4448a03fd8d8ba70.268configs/295roles;
+stat-use329reviewed/8excluded/27pending (four use-quality rows). Guide/base/coverage
+refreshed offline; data-only, no new restart.19named roles remain without stat review.
+Next demand batch: remaining Fissure mercenary armor/helmet cases, then specialist
+tail. All-item guide/tier/base/roll/report/market coverage remains incomplete.
+
+## Fissure mercenary runeword priorities — 2026-09-25
+
+Second demand batch: two Fortitude variants, Uber Chains of Honor and mercenary
+Flickering Flame. Cached prose distinguishes physical damage/survival, life leech,
+and Resist Fire aura. Fortitude paired captured ED desirable with defense/resists
+supporting; CoH captured leech desirable/resists supporting; FF only captured aura
+for this role. Wearer fire skills/pierce do not transfer to Druid. Exact recipe,
+class, sockets, mercenary alternatives and companion dependencies retained.
+Ethereal remains a preference including unknown/nonethereal cases; no price premium,
+missing stat, full survival/readiness or roll-quality judgement invented.
+
+Red: four missing configs. Green:349affected checks; Ruff/format/diff pass after
+list-construction lint cleanup. Both qualities/all ethereal states tested, both
+Fortitude aura alternatives, paired ED component loss, other modifiers absent,
+wrong context/recipe/type/identity/socket, player-only or missing companions.
+No saved examples of these exact setups; domain fixtures validate new behavior.
+All18staged/published report texts/prices unchanged. Evidence tmp/fissure-merc-stats-*.
+Generation 81b746d2587e3bca8cbc6cb8d2612b715804efea5336d48a149dead252ff3be7.272configs/295roles;
+stat-use337reviewed/8excluded/19pending (eight use-quality rows added).
+Guide/base/coverage refreshed offline; data-only, no new restart.
+
+Next scheduled specialist tail: two Andariel helmet/jewel configurations, reviewing
+Standard planner40ED target versus required minimum and Magic Find Ruby prefix
+ambiguity before assigning priorities. Starter six mercenary alternatives remain
+separate pending rules.15named roles still need stat review/disposition; global
+source/tier/base/roll/report/market coverage remains incomplete.
+
+## Andariel jewel target and priorities — 2026-09-25
+
+Scheduled specialist tail reviewed both Fissure Andariel variants. Standard40ED
+was a planner target, without prose numeric minimum. Accepting the same native
+31–40damage Ruby family is explicitly a reviewed inference;40remains preferred.
+MF still requires the damage Ruby family rather than fire-resistance Ruby. Both
+require IAS15and both ED components on one actual jewel; no pooling children or
+parent-total substitution. Existing Infinity/Fortitude, Act2Might/HolyFreeze and
+player-class dependencies retained. Ethereal remains preferred only.
+
+Two configs mark captured leech/IAS/pairedED desirable, strength supporting; removed
+automatic defense priority. Missing parent effects are not invented. Fire penalty,
+equipment/breakpoints and full survival remain conditional. Source review and guide
+fingerprints renewed. No perfect-roll or price judgement added.
+Red: missing configs and planner preference/minimum behavior. Green:105affected
+checks; Ruff/format/diff pass. Tests include31/40rolls, invalid affix bounds, split
+jewels, missing payload, incomplete modifiers, wrong class/type/quality/mercenary,
+missing or player-only companions and all ethereal states. No saved Andariel capture;
+domain fixtures verify new behavior. All18saved staged/published texts/prices
+unchanged. Evidence tmp/andariel-stats-*.
+Generation 5d2d422e363e997d25613d0660961fe096d89aea0dff79069df72fce994fa467.274configs/295roles;
+stat-use339reviewed/8excluded/17pending. Guide/base/coverage refreshed offline;
+data-only, no new restart. Tail complete.
+
+Next demand batch: six Fissure starter mercenary alternatives, keeping their native
+use and recipe/owner distinctions.13named roles remain without stat review. Global
+guide/tier/base/roll/report/market gates are still incomplete; do not equate current
+role queue closure with all-item completion.
+
+## GUIDE_FIRST full-inventory review dossiers — 2026-09-25
+
+Added maintenance.review_dossiers to reuse the existing census and semantic
+configuration groups. The index retains all 2,739 identity buckets, 62,891
+occurrences and 273 distinct existing configurations. Exact-name expansion includes
+original occurrence details/locators and configuration source excerpts/dates.
+Source links remain review leads, distinct from reviewed named endorsements;
+pattern reviews never become blanket named-item demand. Category/quality separation
+prevents same-name identities inheriting each other's endorsements. Review effort
+is explicitly unestimated; this index is not an automatic batch scheduler.
+
+The command rejects changed/missing/conflicting source hashes, stale configuration
+snapshots and stale guide-use fingerprints. It retains source blockers, unmentioned
+catalog entries and unresolved identities without adding requirements, tiers,
+prices or no-use dispositions. No raw extraction or network collection occurs.
+
+Red: missing dossier module. Green: seven new behavioral tests; all 97 maintenance
+tests pass, Ruff/format and git diff --check pass. Actual corpus index and expanded
+Insight/Spirit dossiers generated offline. Evidence: tmp/dossier-red.txt,
+tmp/dossier-maintenance-tests.txt, tmp/dossier-generation.txt,
+tmp/insight-review-dossier.json and tmp/spirit-review-dossier.json. This is a
+maintenance-only addition; runtime generation and report/price behavior unchanged.
+
+Current index diagnostics: 808 identity buckets have no occurrences; 2,558 have no
+source-linked configuration; 1,384 buckets remain unresolved. These are different
+dimensions, not sums or assertions of no demand. Only 20 identities have explicit
+named guide-use review records. Spirit has 1,027 cached occurrences but no named
+review or source-linked configuration. Occurrence count is not endorsement breadth.
+
+Next: inspect Spirit dossiers across player/mercenary, sword/shield, progression
+and build contexts; review reusable complete-use requirements before publishing
+new guide-demand votes. Use existing extraction and native legality. Do not merely
+resume the 13-role stat-priority tail as though it covers the full guide corpus.
+The tail remains required, as do all-item tiers, leveling, base/roll/report and
+scoped market gates. GUIDE_FIRST G1 semantic completeness remains unproven.
+
+## Spirit Starter demand and separate sword/shield rules — 2026-09-25
+
+First full-census-led demand batch after the dossier checkpoint: four reviewed
+Starter uses from cached wp-a-builds variants. Blizzard, Lightning and Fissure
+Crystal Swords remain distinct from Lightning's Monarch. Exact named completed
+recipe, four filled sockets, base, quality and player class are required. Lightning
+retains its source-backed117% total-loadout FCR dependency;25% item FCR is accepted
+when that loadout condition is satisfied. No planner maximum becomes a minimum,
+and no other sword/shield base inherits reviewed fit. Ethereal is not a universal
+caster exclusion; equipment/repairability remain explicit conditions.
+
+Captured all-skills/FCR receive desirable markers; FHR/mana/vitality supporting.
+Only the shield configuration annotates captured cold/lightning/poison resistance.
+No missing bonus, spell benefit from weapon damage/leech, perfect-roll judgement or
+price is inferred. Four uses produce three distinct recommending builds, Pending
+with Med lower-bound breadth. The saved Monarch has one conditional Lightning use,
+not confirmed fit for all three identity-level builds.
+
+Red: four missing role configurations and missing Spirit demand. Green: focused
+cases pass. Broader assessment run:1,758passed and one old magic-jewel selector
+failure (it selected the unique Facet configuration added earlier). Restricted that
+fixture to magic quality;10targeted jewel/Facet/Spirit tests pass. Ruff and diff checks
+pass. All18saved price estimates unchanged; only Spirit report text changes.
+Published18texts/prices match staging. Generation
+c6676007479c3fe6cf961d57d06894cff35b95f14619f9442af54f0eca37b1ec.
+299roles/278stat configurations; use-quality stat states347reviewed/8excluded/17pending.
+Census, base matrix, independent coverage matrix and dossier index refreshed offline.
+Evidence tmp/spirit-starter-*, tmp/spirit-assessment-tests.txt, tmp/spirit-before.json,
+tmp/spirit-staged.json and tmp/spirit-published.json. Data-only runtime update.
+
+Next demand batch: Paladin Spirit shield configurations, separating Starter Targe,
+endgame Sacred Targe, native resistance alternatives and swap companions. Then
+reserve the scheduled specialist/leveling tail. Blizzard full-Tal's Spirit remains
+set-dependent; Double Throw dual-Spirit swap has prose/planner conflict and must not
+be promoted from planner counts. Other Spirit variants,13previous named stat cases,
+all-item tiers/leveling and scoped price gaps remain pending. No completion claim.
+
+## Paladin Spirit main-loadout configurations — 2026-09-25
+
+Second census-led demand batch: six source-reviewed uses. Hammerdin Starter sword
+and Targe; FoH/Holy Bolt Starter Targes; Hammerdin Standard/MF Sacred Targes.
+Native base codes/types verified. Standard keeps Sling/Hellwarden's Will; MF keeps
+Void/Sling/Arachnid Mesh on the player, with125%totalFCR required in both. Missing
+context remains conditional. No swap use, other shield base, perfect resistance
+minimum or perfect FCR minimum is inferred. Ethereal/equip/repair constraints remain
+conditional rather than a universal exclusion. Starter variants need no invented
+endgame breakpoint. Captured fire resistance joins the supporting shield stats;
+no absent stat or perfect inherent roll is inferred from a captured total.
+
+Six uses add two distinct builds: Spirit now Pending with High lower-bound breadth
+from five builds. Holy Bolt/FoH and Hammerdin hands/variants do not inflate counts.
+Saved Monarch keeps its single conditional Lightning fit; Paladin base rules do not
+apply to it. All18prices unchanged; only the Spirit identity-demand heading changes.
+
+Red: six missing roles and missing demand votes (after correcting a test import typo).
+Green:366affected role/maintenance/stat-bundle/publication tests pass. Ruff/format and
+diff checks pass. Native/domain fixtures verify Paladin bases; no Paladin shield
+capture is claimed. All18published report texts/prices match staging. Generation
+ab4ec7062ac346c304ca38d28e9fa4eaef744825aed28882cdf18cbc11f3c34d.
+305roles/284stat configurations; use-quality states359reviewed/8excluded/17pending.
+Census, base/coverage matrices and dossiers refreshed offline. Evidence
+ tmp/spirit-paladin-red.txt, tmp/spirit-paladin-green.txt and tmp/paladin-spirit-*.
+Data-only runtime update; no new market prices.
+
+Two demand batches complete. Next scheduled leveling/specialist tail: six Fissure
+Starter mercenary armor/helmet alternatives. Keep native leech/resistance/proc
+semantics distinct and avoid claiming active Fade or a full surviving loadout.
+Remaining Spirit swaps, full-set uses and planner conflicts stay pending alongside
+all-item tier/leveling/source/base/roll/report/market closure.
+
+## Scheduled Starter mercenary survival tail — 2026-09-25
+
+Six Fissure Starter alternatives now have explicit stat reviews and named guide
+alternative endorsements: Rockstopper, Undead Crown, Duriel's Shell, Bulwark, Smoke
+and Treachery. Native modifiers distinguish leech, resistances, physical reduction,
+CBF, life-per-level and recovery. Treachery IAS and the exact skill267/level15 struck
+Fade trigger are desirable; Venom is not a substitute and active Fade is never
+asserted. Native decoder confirms key201:17103 as5%level15Fade when struck. Captured
+rune recovery/resistance bonuses remain supporting, not synthesized. No automatic
+EDef premium or player skill transfer from mercenary equipment.
+
+Added explicit mercenary-compatible types and identified status. Runeword recipe/
+filled sockets remain mandatory; normal/superior and ethereal/nonethereal/unknown
+cases retain existing policy. Only Bulwark/Treachery preserve planner ethereal
+preferences. Complete mercenary equip/survival remains conditional, without a
+fabricated mercenary subtype or mandatory companion setup. Lower native rolls
+remain candidates. Six source-backed alternatives add demand without claiming
+universal tier/price coverage.
+
+Red: six missing configurations. Green:370affected role/maintenance/stat tests;
+Ruff/format/diff pass. Domain fixtures verify new items (none in saved capture set).
+All18saved report texts and prices unchanged, and published output matches staging.
+Generation9cdc430a9ac9a074ad2669352cc7c805f5764c2e2a960534ad37834a2752995e.
+305roles/290stat configurations;368reviewed/8excluded/8pending use-quality stat rows.
+Census, base/coverage matrices and dossiers refreshed offline. Evidence
+ tmp/starter-merc-*. Data-only runtime update. Scheduled tail complete.
+
+Next demand work: Blizzard full-set Spirit with actual Tal Rasha piece dependencies
+and source-backed total breakpoints. Other Spirit swaps/planner conflicts remain
+pending. Seven existing named stat cases remain: smite-shared-treachery,
+echoing-ubers-hellwarden, dragon-talon-budget-guillaume/goblin-toe/hexfire-merc/
+ormus-merc/lidless-merc. This finite list is not the full guide/all-item denominator;
+all required source, tier, leveling, base/roll/report and market gates remain open.
+
+## Blizzard full-set Spirit and explicit FHR context — 2026-09-25
+
+First demand batch after the Starter mercenary tail: active full-Tal-Rasha Spirit
+Monarch. All five named pieces must be on the player;105%totalFCR and86%totalFHR
+are explicit dependencies. Added optional player_total_fhr to AssessmentContext,
+using the same strict nonnegative integer validation as FCR. Missing/malformed
+values remain unknown. Hovered item recovery cannot supply the total. Kept Spirit
+caster/stat priorities behind the full combination without adding perfect-roll
+minimums. Swap use and farming every monster remain separate.
+
+Source discrepancy retained: prose requests additional6FHR, whereas the cached
+planner lists one5FHR charm. Neither planner text nor inferred gear sums establishes
+the stated86total; the actual total must be supplied. Blizzard Starter/Set variants
+remain one demand vote. Saved Monarch now has separate conditional Lightning
+Starter and Blizzard full-set uses; identity breadth stays at five builds.
+
+Red: missing FHR context support and missing full-set role. Green:22focused checks;
+full suite3,109passed/3skipped in212.12s. Ruff/format/diff checks pass. All18prices
+unchanged; only Spirit report text changes. Published18texts/prices match staging.
+Generation7c6d26428b7de09c901cfdc6c405e0c770386986fd2a3c9d63d4f678e1760125.
+306roles/291stat configurations;370reviewed/8excluded/8pending use-quality stat rows.
+Coverage/census/dossiers refreshed offline. Evidence tmp/blizzard-set-*.
+Restart the worker for the Python context change; no live market collection.
+
+Next demand batch: remaining source-backed active Spirit shield variants across
+caster builds, retaining loadout/variant differences and separating swaps. Then
+schedule a specialist/leveling tail. Seven old named stat cases, full named tiers,
+all-item guide semantics and scoped market/report/base/roll coverage remain open.
+
+## Meteor Spirit variants and accurate preference heading — 2026-09-25
+
+Second demand batch after the Starter mercenary tail: three Meteor active Monarch
+uses. Standard accepts 63% FCR and 60% FHR with Oculus OR Eschuta; exposing 105% FCR
+as an optional higher target is a reviewed presentation choice. MF preserves
+Oculus plus the three Tal armor/belt/amulet pieces and 105% FCR / 60% FHR. Full-set
+preserves all five pieces and 105% FCR / 86% FHR. All totals are actual loadout facts;
+no perfect item minimum or swap fit inferred. Captured native skill/cast/recovery/
+resource/resistance priorities remain conditional on these combinations.
+
+All three variants add one recommending build: Spirit has six reviewed builds,
+still Pending/High lower-bound demand. The maintenance configuration grouper reuses
+the identical Blizzard/Meteor full-set rule while retaining both source records.
+The saved Monarch has three conditional builds over five uses, within the compact
+report budget. A known 63% Standard context exposed the inaccurate "Better rolls"
+heading for a loadout target; compact presentation now says "Targets". Matching
+and price semantics are unchanged. Detailed preferences retain their labels/status.
+
+Red: three missing configurations; separately, loadout target heading regression.
+Green: 368 role/maintenance/stat checks and 123 appraisal/report checks pass.
+Ruff/format/diff pass. All 18 saved prices unchanged. Spirit report gains Meteor
+uses; Insight changes only the heading (verified exact replacement). Published
+texts/prices match staging for all 18 captures. Generation
+ d651ca248a933a2e419bb970db47bd595b0ae20c9914b770e26df1a74e66593e.
+309 roles / 294 stat configs; use-quality states 376 reviewed / 8 excluded / 8 pending.
+Census, base/coverage matrices and dossiers refreshed offline. Evidence
+ tmp/meteor-spirit-*, tmp/meteor-target-heading-red.txt, tmp/meteor-report-tests.txt.
+Restart worker for the compact-heading Python change (and prior FHR support if not
+already restarted). No new market collection or numerical estimates.
+
+Two demand batches complete. Next scheduled specialist tail: five Dragon Talon
+Budget player/mercenary cases, preserving wearer, socket payload and skill semantics.
+Remaining active Spirit variants and swap provenance, two other old named stat
+cases, all named tiers/leveling and broad all-item evidence gates remain pending.
+
+## Dragon Talon Budget specialist stat reviews — 2026-09-25
+
+Scheduled tail adds five native stat configurations and source-bound named-use
+reviews. Guillaume's Face prioritizes Crushing Blow and its same-jewel IAS/lightning
+resistance, with recovery/strength supporting. Goblin Toe marks Crushing Blow only
+under the existing elite-upgrade/nonethereal setup gate. Fire Iron Wolf Hexfire
+marks fire skills; Lidless marks all skills; Ormus marks fire skill damage. Captured
+socket fire damage supports the Enchant damage component; wearer fire pierce, weapon
+physical damage, Deadly Strike and mana properties do not acquire these priorities.
+No claim that the mercenary survives Ubers or that a prebuff is active.
+
+Added explicit types/identified facts required by the stat compiler. All existing
+same-child jewel, Fire Facet, mercenary type, upgrade and wearer restrictions remain.
+Parent totals cannot substitute for socket evidence, and missing observed modifiers
+are not synthesized. Other uncertain/native skill variants remain unreviewed rather
+than receiving an automatic positive score. No trade price or defense premium added.
+
+Red: five missing configurations. Green: 11 initial focused checks; broader run had
+372 passes and one outdated "Better rolls" assertion from the previous heading
+change. Updated that assertion to "Targets" while preserving its concrete Lightning
+Sentry target and lower-candidate test; 16 targeted checks pass. Ruff/format/diff pass.
+All 18 saved texts/prices unchanged; published output matches staging. New named
+items use domain fixtures, not new live captures. Generation
+77111bf336761475719c3a87eeff15194d442561d2d10c7e757d03fca17b8c85.
+309 roles / 299 stat configs; 381 reviewed / 8 excluded / 3 pending stat-use rows.
+Coverage/census/dossiers refreshed offline. Evidence tmp/dragon-talon-stats-*.
+This update changes runtime data only; earlier report/context Python changes still
+require a worker restart if not already done. Scheduled tail complete.
+
+Next demand candidate: Call to Arms prebuff uses, reusing cached source and existing
+base-policy evidence to broaden identity coverage beyond Spirit. Preserve native
+skill rolls, actual base/equip and swap conditions; planner mentions alone cannot
+vote. Remaining active Spirit variants/swaps stay pending. The old named stat tail
+now has smite-shared-treachery and echoing-ubers-hellwarden (three quality rows).
+Full inventory/source, named tiers, leveling, base/roll/report and market coverage
+remain separate unfinished gates; this finite role queue is not all-item closure.
+
+## Call to Arms prebuff and separate swap-equipment context — 2026-09-25
+
+First demand batch after Dragon Talon tail: seven explicit Sorceress Crystal Sword
+prebuff uses across Blizzard MF/Set, Meteor Standard/MF/Set and Lightning Standard/MF.
+Both native shouts are required (Battle Orders >=1, Battle Command >=2), with BO6
+as a useful maximum-roll target, not an entry requirement. Observed shout/all-skill
+bonuses are annotated; damage, IAS and Battle Cry receive no prebuff priority.
+Normal/superior and all ethereal states remain candidates; no price premium inferred.
+Seven uses reduce to four semantic configurations, retaining every source. Three
+recommending builds produce Pending/Med lower-bound identity demand.
+
+Added player_swap_items to typed context and one shared collection-field registry
+for normalization, membership, counts and equality rejection. Main-set and mercenary
+Spirit possession cannot prove the source-specific swap pairing. Missing/malformed
+swap evidence remains unknown; explicit empty lists prove absence; copied sequences
+preserve counts, sets establish membership only. Five roles require Spirit on swap.
+The two MF roles assess the weapon's prebuff function; their four-Ist loot shield
+is separate evidence, not a dependency enabling the shouts. Exact Crystal Sword,
+completed five-socket recipe and Sorceress context remain mandatory. Equipment and
+cast sequence remain conditional; no active buff/full buff level asserted.
+
+Red: missing roles and unsupported swap field, including the predicate validator's
+old collection allowlist. Green: 19 focused tests; full suite 3,125 passed / 3 skipped
+in 202.50s. Ruff/format/diff checks pass. No saved CTA capture: new behavior uses
+fixtures. All 18 existing report texts/prices unchanged; published output matches
+staging. Generation
+2fab2778e70f6a17c1f53920309fc139ebbcbbceb3a62e9b76db612b6d494cfa.
+316 roles / 306 stat configs; use-quality states 395 reviewed / 8 excluded / 3 pending.
+Census, base/coverage matrices and dossiers refreshed offline. Evidence tmp/cta-prebuff-*.
+Restart worker for context/predicate Python changes. No live collection or new prices.
+
+Next demand work: review other class-specific CTA uses, especially Warlock and
+Paladin bases/staffmods, preserving actual swap partners and native skill identities.
+Do not copy Sorceress rules to Barbarian oskill semantics. Then schedule a specialist
+or leveling tail. Existing two named stat gaps and broad source/tier/leveling/base/
+roll/report/market coverage remain unfinished; current role coverage is not closure.
+
+## Warlock Call to Arms reusable prebuff batch — 2026-09-25
+
+Nine explicit cached uses: Echoing Strike Standard/MF/Ubers, Abyss Standard/MF,
+Mirrored Blades Standard/Ubers and Fire Standard/MF. Reused the reviewed CTA template
+with Warlock context, exact Crystal Sword, five filled sockets, both native shouts
+and actual Spirit swap membership. Main-set/mercenary Spirit is insufficient.
+Minimum native rolls qualify; BO6 remains a target. Ethereal examples do not become
+universal requirements or price premiums. Other prebuffs retained in source excerpts
+are not weapon requirements. No new runtime engine or raw extraction.
+
+Four newly reviewed recommending builds bring CTA to seven (Pending/High lower
+bound). Nine source uses share mechanics; all dates/locators/quotes remain linked.
+325 roles / 315 stat configs. Stat-use rows: 413 reviewed / 8 excluded / 3 pending.
+Red: 16 failures (nine missing rules and updated breadth expectations). Green:
+384 affected role/maintenance/stat tests in 81.14s, Ruff/format/diff checks passed.
+All 18 saved texts and prices unchanged; published/staged parity verified. New CTA
+behavior uses domain fixtures; there is no saved live CTA capture. Publication:
+e192f5286e451cc1d28d84c16a813a55c3a2c1d7248098f930bc92a7fbf54d41.
+Census, dossiers and coverage matrices refreshed; evidence tmp/warlock-cta-*.
+No new market estimates or collection. This batch changes runtime data only;
+previous Python changes still require worker restart if not already performed.
+
+Two demand batches complete: next reserve the specialist/leveling tail. Existing
+named stat gaps: smite-shared-treachery and echoing-ubers-hellwarden (three quality
+rows); inspect cached evidence before selecting their reviewed semantics. Remaining
+CTA classes/bases, Spirit variants, full named tiers/leveling, base desirability and
+market coverage remain pending. This finite role queue is not all-item completion.
+
+## Specialist tail: shared Treachery and Uber Hellwarden — 2026-09-25
+
+Reviewed two existing source-backed roles using cached variant excerpts. Shared
+nonethereal Treachery marks Fade proc and wearer IAS, with recovery/cold resistance
+supporting. It retains the Act 2 Might dependency and player equip caveat; wearing
+or owning it never proves active Fade, and armor modifiers do not transfer after
+swapping. Hellwarden marks native magic pierce/skills and speed contribution under
+Warlock + Sling + Renewed Black Cleft + Guardian's Light socket requirements.
+Defense receives no inferred roll premium. Full breakpoint, survival and bound-demon
+state remain outside item proof. Added identified guards and explicit stat reviews;
+no new evaluator or online research. Existing source dates and hashes preserved.
+
+Two missing configurations reproduced red; six focused tests then 388 affected
+role/maintenance/stat tests pass (53.22s). Ruff/format/diff pass. All 18 saved reports
+and prices unchanged, with published/staged parity. These two items use domain
+fixtures rather than new live captures. Publication:
+6eb2a31acb70a9835b9770990350f218e73b81d8326ba54693053a1219edc65f.
+325 roles / 317 stat configs. Current use-quality stat queue: 416 reviewed / 8
+excluded / zero pending. This closes only the existing role stat queue, NOT the
+full-inventory denominator. Census, dossiers, base/coverage matrices refreshed.
+Evidence: tmp/specialist-tail-*. Runtime data only; earlier Python changes still
+need worker restart if not already done. No market estimates added.
+
+Scheduled specialist tail complete. Next use the full review dossiers to choose
+reusable demand configurations, considering new identity coverage and review effort
+alongside build count. Remaining CTA classes/bases, active Spirit variants,
+base desirability, named tiers and leveling, unresolved identities and scoped market
+coverage remain separate unfinished gates. Do not interpret the closed stat queue
+as completion of guide or all-item assessment coverage.
+
+## Annihilus inventory support template — 2026-09-25
+
+First demand batch after the specialist tail. Full-census inspection found
+Annihilus across 33 build labels outside discovery-only occurrences, with zero
+reviewed named-use profiles. That discovery count is not endorsed demand. Reviewed
+ten explicit softcore gear-list uses: Blizzard Standard/MF/Set, Meteor
+Standard/MF/Set/Ubers, Lightning Standard/MF/Ubers. Reused one predicate pattern:
+identified unique Small Charm, exact Annihilus identity and Sorceress context.
+Native all skills is desirable; observed attributes, resistances and experience
+support the wearer/progression. No planner maximum is a required minimum. No
+missing stat synthesis, MF priority, duplicate stacking, active inventory location,
+full-loadout success or numerical price is inferred. Active inventory/level
+requirements remain explicit conditions. No raw extraction or new runtime code.
+
+Adds one previously unreviewed named identity, ten source uses, three distinct
+recommending builds (Pending/Med lower bound). Chosen for broad discovery and low
+predicate novelty versus further same-identity CTA expansion; review effort was
+not prospectively timed, so no speedup claim. Source dates/hashes/locators retained.
+Native ranges verified in bundled metadata: attributes/resists 10–20, experience
+5–10, all skills1. Tests use minimum rolls and missing/wrong-identity/context cases.
+
+Red: ten missing roles. Green: 12 focused checks, then 394 affected tests in55.64s.
+Ruff/format/diff pass. All18 saved reports/prices unchanged; published/staged parity
+verified. Annihilus uses synthetic domain fixtures, not a saved live capture.
+Publication2530e5416404caa75a35b86761218ae2e44358b91c689454c8ce3eef8b3dac6c.
+335roles /327stat configs;426reviewed /8excluded stat-use rows. Census, dossiers,
+base/coverage matrices refreshed. Evidence tmp/annihilus-*. Runtime data only;
+prior Python changes still require restart if not yet done. No market collection.
+
+Next demand batch should broaden another unreviewed named identity or affixed
+family from the full census, then reserve a specialist/leveling batch. Remaining
+Annihilus builds, all named tiers/leveling, base rules and scoped market evidence
+remain independent unfinished gates. Discovery/build-label counts never substitute
+for reviewed endorsement or exact pricing.
+
+## Full-census review queues — 2026-09-25
+
+Found a planning bias: dossiers sorted by already-reviewed demand, favoring repeated
+expansion over new identities. Added independent review_leads (verified candidate
+build labels plus exact occurrence IDs) and five disjoint queues. New named items
+are separate from existing-use expansion; bases/patterns, unresolved identities
+and no-verified-guide-lead cases stay visible. Duplicate source occurrences from
+one build count once. Historical/discovery-only/shared-planner/Hardcore/unverified
+records remain retained but cannot increase candidate breadth. No new endorsement,
+trade tier, price or runtime rule follows from this ordering.
+
+Red: two missing review-lead/queue behavior tests. Green: 9 dossier tests and all99
+maintenance tests (2.07s), Ruff/format/diff. Rebuilt the offline dossier index and
+verified every one of2739 identities appears exactly once:247 new named candidates,
+32 named expansion,44 bases/patterns,1384 unresolved,1032 no verified guide leads.
+Leading new candidates include Duress, Tal Rasha's Horadric Crest, Arachnid Mesh,
+Temper, Chains of Honor, Goldwrap, Shaftstop and War Traveler. Their review-lead
+counts are NOT reviewed demand. Full occurrences and source blockers remain intact.
+Evidence tmp/review-queues-*. Maintenance-only code; no runtime publication or
+worker restart needed. Existing published assessment/price behavior remains unchanged.
+
+Annihilus was the first demand batch after the tail. The next actual demand batch
+should choose one of the new-identity/family candidates by source complexity and
+coverage gained, then schedule specialist/leveling work. This maintenance change
+does not consume a demand batch. All-item tiers, leveling, unresolved identities,
+base desirability and scoped market evidence remain unfinished.
+
+## Arachnid Mesh Standard caster uses — 2026-09-25
+
+Second demand batch after the specialist tail. Selected a new named identity from
+the full-census queue, with three explicit Standard gear-list uses and three known
+breakpoint configurations: Blizzard105 total FCR, Meteor63 FCR/60FHR (105FCR optional),
+Lightning117FCR. Exact unique Spiderweb Sash identity and identified Sorceress use
+required. Captured skills/cast rate are desirable; maximum mana supporting. Defense
+and slows-target receive no caster priority; no ethereal premium or numerical price.
+Character totals require typed context; the belt's own FCR cannot prove them.
+Equip/full setup remain advisory. Native fixed stats and base verified in metadata.
+
+Adds one named identity and three reviewed recommending builds (Pending/Med lower
+bound). Existing interpreter reused, no raw extraction or new runtime code.
+Lightning Ubers remains pending: Arachnid/Thundergod belt swapping is encounter
+specific and cannot inherit Standard fit. Other classes/variants stay unreviewed.
+Red:3 missing roles. Green:5 focused checks and389 affected checks in54.64s;
+Ruff/format/diff pass. All18 saved reports/prices unchanged, published/staged parity.
+New belt behavior uses domain fixtures, not live captures. Publication:
+e08131c348792f2cd91b984c0dc4a0a850d8f06d5c026929fc1411d800e604b6.
+338roles /330stat configs;429 reviewed /8excluded stat-use rows. Census/dossiers and
+base/coverage matrices refreshed. Evidence tmp/arachnid-*. Runtime data only;
+previous Python changes still need restart if not already done. No live collection.
+
+Two demand batches complete (Annihilus, Arachnid): reserve specialist/leveling work
+next. Choose a new leveling/specialist identity from the full denominator, not only
+existing role gaps. Remaining named tiers/leveling, base desirability, unresolved
+patterns and scoped market prices remain separate incomplete requirements.
+
+## Amazon leveling essentials and guide-only recommendations — 2026-09-25
+
+Scheduled leveling tail adds five reviewed optional Amazon uses from exact cached
+Essentials locators: Death's Hand/Guard (paired), Hsarus' Iron Heel, Sander's Riprap,
+and Twitchthroe. Sources remain dated to the cached guide; review dated today.
+Twitchthroe exposed an adapter gap: guide advice previously required a preexisting
+transcript recommendation. Added explicit GUIDE_ONLY_BENEFITS keyed by class/item,
+still requiring the exact reviewed locator and unambiguous item-facts identity.
+No transcript/all-class endorsement is synthesized. Twitchthroe receives qualitative
+high leveling priority for IAS, recovery and shield blocking, with equip and full
+setup conditions. This is not a trade tier or numerical estimate.
+
+Red: missing five explicit guide rows; intermediate test exposed Twitchthroe's
+missing transcript seed. Index validation rejected an unsupported 'attack' archetype;
+corrected to existing 'general' while retaining attack-specific benefit text.
+Interrupted the affected regression run, rebuilt recommendations and SQLite, then
+reran. Green:277 initial policy/adapter tests, final2349 passed/2 skipped in211.32s.
+New runtime fixture confirms Twitchthroe remains useful when level requirements are
+unmet and retains shield condition. Ruff/format/diff pass. All18 saved report texts
+and prices unchanged; published output matches staging. No saved Twitchthroe live
+capture. Generation 9b5158f376c96a9c84feb48ac2c8669ec8948632fa80785b6130de976e2dbb11.
+Census, review dossiers and coverage matrix refreshed. Evidence tmp/amazon-leveling-*.
+Maintenance adapter change only; new runtime data loads at request boundaries, no
+additional worker restart required beyond earlier pending Python changes.
+
+Leveling tail complete. Next choose demand/family work from the full review queues.
+Other Amazon essentials (Titan's Revenge requirements/IAS tradeoff, Cow King set,
+runewords, jewels and amulets), other class leveling guides, full named tiers,
+base desirability and scoped prices remain incomplete. Current reviewed rows do
+not close the all-item denominator. No live collection or new market estimates.
+
+## War Traveler and Chance Guards farming components — 2026-09-25
+
+First demand batch after Amazon leveling tail. Two new named identities, six explicit
+MF variant uses across Blizzard/Meteor/Lightning. Each identity has three reviewed
+builds (Pending/Med lower bound). Preserve player three-piece Tal Rasha membership,
+105FCR for Blizzard/Meteor,117FCR for Lightning and60FHR for Meteor. Unknown character
+totals or mercenary possession cannot satisfy these dependencies. Native minimum MF
+qualifies (War Traveler30, Chance Guards25);50/40 maxima remain optional targets.
+Boot movement/strength/vitality supporting; physical attack, defense and gold rolls
+receive no spell-farming priority. Upgraded Chance Guards remain valid subject to
+equip requirements; the planner Vambraces example is not an upgrade requirement.
+No universal ethereal premium, whole-loadout success or numerical price inferred.
+
+Red:6 missing rules. Green:8 focused checks then392 affected checks in56.74s.
+Ruff/format/diff pass. All18 saved report texts/prices unchanged; published/staged
+parity verified. New items use domain fixtures, not saved live captures. Generation
+235d4b92d5a3dd7340239acf8c6c0d363071355889b3ba7f32c5da231af467d8.
+344roles /336stat configs;435reviewed /8excluded stat-use rows. Census, dossiers,
+base/coverage matrices refreshed. Evidence tmp/farming-gear-*. Runtime data only.
+No network collection or new market estimate. Earlier Python restart requirement
+remains if not already handled.
+
+Next demand batch can cover another full-queue family/identity, then reserve the
+specialist/leveling tail. Remaining classes/variants, trade tiers, leveling, base
+rules and scoped market evidence remain incomplete; new guide votes do not close
+these independent dimensions or imply prices.
+
+## Quality-specific farming ring combinations — 2026-09-25
+
+Second demand batch after Amazon leveling tail. Meteor MF rare ring requires10FCR
+and positive MF together on this item, with observed life/resistances supporting.
+Lightning MF magic ring requires positive MF; the source40MF is a target rather
+than a minimum. This is a reviewed functional candidate threshold, not a claim of
+exact Fortuitous/of Fortune affix identity. Lightning ring FCR is not required when
+117 character FCR is independently established; Meteor retains105FCR/60FHR.
+Both retain player three-piece Tal Rasha dependencies. Missing affixes cannot be
+borrowed across items, rarity is exact, and planner maxima remain preferences.
+No complete two-ring loadout or exact price inferred. Pattern guide-use reviews
+remain distinct from named-identity breadth; existing ring combinations unchanged.
+
+Red:2 missing configurations. Green:5 focused checks then389 affected tests in59.42s.
+Ruff/format/diff pass. All18 saved reports/prices unchanged; published/staged parity.
+New combinations use domain fixtures rather than live captures. Generation
+d1163ecb36fdd4b226422de91135c5d144b0ef91f8fb3e4236ba2f7b7bb01bf4.
+346roles /338stat configs;437reviewed /8excluded stat-use rows. Census/dossiers and
+base/coverage matrices refreshed. Evidence tmp/farming-rings-*. Runtime data only;
+no new market collection or numerical estimate.
+
+Two demand batches complete: reserve specialist/leveling work next. Existing role
+queue coverage does not resolve all bases, rare/magic combinations, named tiers,
+leveling or scoped market evidence. Full identity/configuration denominator remains
+the completion criterion.
+
+## Leveling guide source binding — 2026-09-25
+
+Maintenance correctness audit during the scheduled specialist/leveling turn found
+that exact guide locators could produce explicit recommendations despite missing
+or changed source metadata. Bound all four reviewed leveling guides (Amazon,
+Sorceress, Necromancer, Warlock) to pinned cached SHA256 snapshots. Missing, ambiguous
+or changed source records now yield a reasoned guide-review gap, not advice. This
+applies to both transcript-backed and guide-only recommendations. Unreviewed guide
+mentions remain ineligible. Updating a source hash requires a new excerpt review.
+
+Red: missing/changed source cases incorrectly accepted Twitchthroe. Added duplicate
+source case and updated positive source fixtures to carry reviewed hashes. Green:
+380 recommendation/policy/maintenance checks pass in3.88s; Ruff/format/diff pass.
+Independently verified all four actual cached guide files against their pinned
+hashes. Offline recommendation rebuild is byte-identical to the prior artifact,
+so no index rebuild or runtime publication is needed; existing reports/prices and
+selected generation remain unchanged. Evidence tmp/leveling-source-*.
+No worker restart for this maintenance-only change.
+
+This is source-integrity work, not new leveling coverage. The scheduled specialist/
+leveling expansion still remains next; do not count this as a completed tail batch.
+Full named tiers/leveling, base desirability, affixed combinations and scoped market
+coverage remain unfinished. Do not claim all-item completion from existing role
+or stat-configuration counts.
+
+## Titan's Revenge source-specific leveling tradeoffs — 2026-09-25
+
+Scheduled leveling tail adds explicit Amazon Essentials recommendation for Titan's
+Revenge at exact locator item106@(78,2053), retaining the pinned source snapshot.
+High qualitative leveling value preserves early dexterity-versus-vitality cost
+and replacing attack speed lost from the prior weapon. Runtime fixture checks
+level42/dexterity109 from verified ordinary-base facts, unmet level41, and unknown
+variant requirements for ethereal. No trade tier or numerical price is inferred.
+
+Integration test exposed an adapter inheritance bug: the existing transcript row
+was copied ahead of explicit guide-specific benefits, dropping conditions. Renamed
+GUIDE_ONLY_BENEFITS to GUIDE_BENEFITS and made explicit class/item reviews override
+transcript defaults. Both recommendations retain their own source/reason/conditions;
+no synthetic transcript advice or changed transcript scope. Missing/ambiguous
+identity and source snapshot guards remain. Existing transcript utility still exists.
+
+Red: missing guide-only fixture; runtime fixture then caught copied defaults and
+source deduplication. Green:382 recommendation/policy/maintenance tests in4.05s,
+Ruff/diff pass. All18 saved report texts/prices unchanged; published/staged parity.
+Titan's uses domain fixtures, not a saved live capture. Rebuilt recommendations and
+SQLite before publication; census/dossiers/coverage matrix refreshed. Evidence
+rows316→317; role/stat counts unchanged. Generation
+2c9879f08f5528ad27df7e7030f98faf661018e2807a85fd12413f1fc35d2fd6.
+Evidence tmp/titan-leveling-*. Maintenance adapter change and runtime data only;
+no new worker restart required, no live collection or market estimate added.
+
+Scheduled leveling tail complete. Next resume demand/family work from the full
+queues. Other class-specific leveling, named tiers, base desirability, unresolved
+magic/rare combinations and scoped pricing remain incomplete. This update does
+not make all Titan's variants priced or fully assessed.
+
+## Gheed's Fortune inventory utility across cached builds — 2026-09-25
+
+First demand batch after Titan leveling tail. Reviewed all43 explicit positive
+player Charms labels beginning Gheed's Fortune in non-hardcore, non-planner-only
+cached variants (23distinct builds). Shared applicability: identified unique Grand
+Charm with exact identity; active inventory/level/space remain advisory. Native MF,
+gold and vendor discount are useful at minimum rolls; gold-find variants prioritize
+gold, other variants mark it supporting.40MF/160gold optional targets, not minima.
+No class-specific combat or loadout claim; this is intrinsic farming utility only.
+Summoner Damage/Ubers retains its explicit inventory entry but gains no boss-damage
+claim. Echoing Ubers replacement prose cannot create a positive Gheed's use.
+
+Two priority variants reuse one applicability predicate; source membership retained
+in43 role/review IDs and tmp/gheeds-membership.json. Native ranges verified in bundled
+metadata:20–40MF,80–160gold,10–15vendor discount. Demand Pending/High lower bound23.
+No duplicate-build inflation, active inventory state, duplicate stacking, gambling
+profit or market price inferred. No raw re-extraction or new runtime evaluator.
+Red:2 representative missing-branch tests. Green:4 focused then388 affected tests
+in64.43s; Ruff/format/diff pass. Full compiled membership and source fingerprints
+validated. All18 saved texts/prices unchanged, published/staged parity. Gheed's
+itself uses domain fixtures, not a saved live capture. Publication:
+02bd71fcab70033615da7fbae2e2a22b32740d3fa3e50f20495c311cad9ed41a.
+389roles /381stat configs;480reviewed /8excluded stat-use rows. Census/dossiers and
+base/coverage matrices refreshed. Evidence tmp/gheeds-*. Runtime data only; no live
+collection or price estimates added. No new worker restart requirement.
+
+One demand batch complete. Next choose another reusable family/identity from the
+full queues, then reserve specialist/leveling work. Full named tiers, other guide
+uses, base desirability, affix configurations and scoped market evidence remain
+independent unfinished requirements; reviewed role queue is not all-item closure.
+
+## Annihilus shared template across remaining explicit uses — 2026-09-25
+
+Second demand batch after Titan leveling tail. Reviewed remaining48 exact positive
+Annihilus player Charms entries in non-hardcore/non-planner-only cached variants,
+reusing10 prior Sorceress uses.58 total uses across26 builds, all eight classes.
+Class context, identified unique Small Charm and native-stat priorities preserved;
+no planner maximum minima. Source dates/locators and exact membership retained.
+Inventory activation/level caveat remains; role is charm support, not full build fit
+or duplicate stacking. No new runtime interpreter, raw extraction or price inference.
+Demand is Pending/High lower bound26, not completion of the full source denominator.
+
+Red: updated breadth plus missing class-specific roles. Green:19 focused tests,
+403 affected tests in76.98s. Every class has positive/wrong-class and missing-stat
+fixtures; full compiled58-use membership and exclusion of Hardcore validated.
+Ruff/format/diff pass. All18 saved report texts/prices unchanged; published/staged
+parity. Annihilus uses domain fixtures, not saved live captures. Generation:
+67d3e8366a4fdac4a1ac61a6d0a27916b1928e85f22501b651999cb6b6769876.
+437roles /429stat configs;528reviewed /8excluded stat-use rows. Census/dossiers and
+base/coverage matrices refreshed. Evidence tmp/annihilus-expansion-*, including
+explicit new membership. Runtime data only; no new worker restart requirement.
+No market collection or numerical estimate added.
+
+Two demand batches complete (Gheed's, Annihilus). Reserve specialist/leveling work
+next. Named trade tiers, remaining guide configurations, base desirability,
+unresolved affix combinations and scoped market evidence remain separate unfinished
+requirements. Do not infer all-item closure from the now-expanded stat queue.
+
+## Cow King set combination in Amazon leveling — 2026-09-25
+
+Scheduled specialist/leveling tail adds three explicit optional guide recommendations
+at Amazon Essentials locators112/113/114: Cow King's Hooves, Hide and Horns. Shared
+benefit template preserves all three pieces, Death's Hand/Guard and Ancient's Pledge.
+Combined attack-speed/resistance benefits are not assigned to a single piece.
+Qualitative priority3/med is an optional-combination design choice, not a trade tier.
+Existing standalone Hooves transcript utility remains separate. Hide/Horns now gain
+reviewed guide-specific use without changing the transcript's earlier review gaps.
+
+GUIDE_PRIORITY provides explicit per-guide overrides rather than automatically
+assigning high priority to every guide-specific benefit. All advice remains
+conditional; each piece's own requirements are not full-combination equip proof.
+Runtime fixtures verify native levels13/18/25, conditional status, identified facts
+and rejection of ethereal set items. Source hashes, exact locators and identity
+validation retained. No set-bonus stat synthesis or automatic complete-loadout claim.
+
+Red: missing three guide recommendations. Green:384 recommendation/policy/maintenance
+checks in4.42s, Ruff/format/diff pass. All18 saved reports/prices unchanged, published
+output matches staging. New cases use domain fixtures rather than live captures.
+Rebuilt recommendations/SQLite and refreshed census/dossiers/coverage. Evidence
+rows317→320, role/stat counts unchanged. Generation:
+ce9eff5e573da9e8331c52789722f91584bcf2f0b45e2c78a525a414bd506b7a.
+Evidence tmp/cow-leveling-*. Maintenance adapter/data only; no additional worker
+restart. No market collection or numerical price added.
+
+Scheduled tail complete. Next resume demand/family work from full queues. Remaining
+named tiers, class leveling, base desirability, affix combinations and scoped market
+evidence remain independent unfinished requirements; partial-set recommendation
+coverage does not close all item assessment or pricing.
+
+## Tal Rasha helm mercenary configurations — 2026-09-25
+
+First demand batch after Cow King leveling tail. Added Gold Find Budget and Summoner
+Starter uses of Tal Rasha's Horadric Crest. Life leech desirable; observed life and
+resistances supporting. Mana/mana leech/defense receive no mercenary priority.
+Nonethereal set identity and cited Act2 Might context retained; other aura setups
+are pending, not asserted impossible. Summoner source prose names Tal while planner
+shows ethereal Bulwark Mask; preserve this alternative/conflict rather than silently
+substituting. Gold Budget requires positive gold on a socket jewel; source30gold is
+an optional target, not a minimum. Parent totals alone cannot prove that socket.
+Mercenary kill attribution, leech target effectiveness and full survival remain
+independent conditions. No automatic gold income, defense premium or market price.
+
+Red:2 missing configurations. Green:4 focused checks then388 affected tests in74.92s;
+Ruff/format/diff pass. Tests reject caster/unknown mercenary, impossible ethereal set,
+missing socket evidence and fabricated observed properties. All18 saved reports and
+prices unchanged; published/staged parity. Tal helm uses domain fixtures, not a new
+live capture. Generation:
+100ffba79d6ea678df0e2a0e978ce4eb15b9317eb391e70ac53dad9c8654dd84.
+439roles /431stat configs;530reviewed /8excluded stat-use rows. Census/dossiers and
+base/coverage matrices refreshed. Demand two reviewed builds, Pending/Med lower bound.
+Evidence tmp/tal-merc-*. Runtime data only; no new worker restart requirement.
+
+One demand batch complete. Next pick another family/identity from the full queues,
+then reserve specialist/leveling work. Remaining Tal aura variants, broader named
+trade tiers/leveling, base desirability, affixed combinations and scoped prices
+remain unfinished. No live collection or numerical estimate added.
+
+## Offline market prerequisite audit by policy — 2026-09-25
+
+Audited the pricing side rather than inferring price readiness from guide coverage.
+Added per-policy blocked_observations and blocker_counts to market_readiness.
+Overlapping gaps never inflate the blocked-row denominator; duplicate/superseded
+snapshots and foreign scope remain excluded. Ready does not mean priced: exact
+modifiers, seller independence, socket contributions and dispersion still apply.
+Red: missing per-policy blocker fields. Green:100 maintenance checks in2.32s,
+Ruff/format/diff pass. Real-corpus arithmetic validated for every policy route.
+
+24,178 scoped rows:1,324 structurally ready,22,854 blocked. Affixed558/8728 ready,
+base20/3209, named616/7089, runeword130/4391, unclassified0/761. Dates dominate
+many affixed/named gaps; bases need explicit sockets/contents; runewords largely
+lack base rarity. These are evidence prerequisites, not proof every modifier policy
+is implemented or that all remaining gaps require network collection. No missing
+facets/date guesses were introduced, no numerical price or runtime publication changed.
+
+Durable report: planning/MARKET_READINESS.md with input SHA256 and reproduce command.
+Evidence tmp/market-blockers-* and tmp/current-pricing-coverage.txt. No worker restart.
+This maintenance audit does not consume a demand batch; Tal helm was the first
+since Cow King tail. Next inspect explicit cached evidence for a bounded repair or
+continue the second demand/family batch. Full tiers, guide configurations, bases,
+leveling and scoped exact price evidence remain unfinished.
+
+## Goldwrap farming belt template — 2026-09-25
+
+Second demand batch after Cow King tail: five explicit player-belt uses across
+Berserk, Fire Warlock and Gold Find Barbarian. Three reviewed builds, Pending/Med
+lower bound; variants are not extra votes. MF/gold priority differs by farming role;
+IAS supports attacks only. War Cry needs typed total player FCR105. Native80gold is
+an optional target; low50gold qualifies. Legal upgrades retain utility but do not
+prove requirements, capacity, full setup or value. Ethereal durability remains a
+player-use qualification; no ethereal/defense/upgrade premium or numeric price.
+
+Explicit membership, source hash and exceptions: planning/GOLDWRAP_BATCH.md.
+Reused cached extraction; one newly reviewed named identity/five uses. Rules439→444,
+stat configs431→436, stat-use rows535reviewed/8excluded. Full62891 occurrences and
+2739identity denominator unchanged; 1384 unresolved identities remain. Base1569 and
+evidence320 unchanged. Census/dossiers/base/coverage matrices refreshed.
+
+Red: five missing rules. Green: seven focused checks. Broad assessment/report suite:
+1851 passed and one old glove-test selector failed in233.88s; it included the prior
+Lightning Sorceress Chance Guards rule in a javelin-only test. Narrowed selection to
+Lightning Fury/Strike; all12 affected glove/farming/Goldwrap checks pass in3.16s.
+No runtime fix or blanket count increase. Ruff/format/diff pass. All18 saved reports
+and prices unchanged; published output matches staging. New cases use domain
+fixtures rather than live captures. Evidence tmp/goldwrap-*.
+
+Published generation:
+a6de96fdfa14820542708401fb03fcf076b57fbdbec69e61fa0bca331ae8f5d9.
+Runtime data only, no additional worker restart. Next batch must cover specialist,
+leveling or unresolved cases. Broad named tiers, class leveling, base desirability,
+affixed combinations and scoped exact pricing remain unfinished. No live collection.
+
+## Movement boots leveling template — 2026-09-25
+
+Scheduled specialist/leveling tail after Tal helm and Goldwrap demand batches.
+Reviewed Hsarus Iron Heel and Sander Riprap movement advice across all eight cached
+class guides: eight added guide recommendations and eight existing entries given
+explicit standalone movement benefits. Guide Hsarus advice no longer inherits the
+transcript two-piece attack-rating gate; that separate transcript advice remains
+conditional. Barbarian after-level31-respec and Paladin after-level18-respec source
+contexts preserved independently of native equip levels3/20. Qualitative priority
+unchanged (Hsarus3/med, Sander1/high); no trade tier or numerical price inferred.
+
+Added four reviewed source hashes/exact locator pairs; all eight guide hashes match
+cached files. Reused source extraction, no online collection. Reviewed dates use
+2026-09-25; original guide dates preserved (May22, WarlockJuly14). Explicit membership
+and exceptions: planning/MOVEMENT_BOOTS_BATCH.md. Recommendations84→92; coverage
+evidence320→328. Roles444/stat configs436 and535reviewed/8excluded stat-use rows
+unchanged. Full2739identities/62891occurrences and base1569 denominator retained.
+
+Red: eight adapter and one runtime case. Green:394 recommendation/policy/maintenance
+checks in5.57s; Ruff/format/diff pass. Native requirements, impossible ethereal set,
+unidentified facts and changed source gates verified. All18 saved report texts and
+prices unchanged; published/staged parity. Domain fixtures, no new live capture.
+Generation2930567b42fd66d0ac51a2d182e6844d448812719f3458d3dd84ca9614a5b7fa.
+Rebuilt recommendations/index, census/dossiers/base/coverage matrices. Evidence
+ tmp/boots-leveling-*. Maintenance adapter/data only, no additional worker restart.
+
+Tail complete; resume demand/family review. Additional class-specific leveling,
+named tiers, unresolved guide identities, base desirability, rare/magic combinations
+and scoped exact price evidence remain unfinished. This batch closes movement-boot
+guide membership, not all-item assessment or pricing coverage.
+
+## Stone of Jordan skills/mana template — 2026-09-25
+
+First demand batch after movement-boots leveling tail. Added14 reviewed variant
+uses across8 distinct builds. Shared unique-ring applicability; observed skills
+are desirable and mana/maximum mana supporting. Added lightning attack damage does
+not become spell damage. Fixed modifiers have no roll target. Explicit per-variant
+main-loadout FCR retained; unknown thresholds are not inherited from other variants.
+Enchant swap105FCR and Nova life-based Hydra/mana-management qualifications retained.
+Duplicate ring slots do not inflate demand or prove ownership of a second ring.
+
+Source membership/conditions and pending companion cases: planning/SOJ_BATCH.md.
+Fire Blast requires crafted amulet12+FCR plus total102 and Phoenix/Spirit alternatives;
+Tri-Brid requires75main/125swapFCR,48FHR and encounter-dependent Cannot Be Frozen.
+These two exact uses remain unreviewed by this template. Decorated/prose/planner
+leads remain in the full census. Demand Pending/High lower bound8 is not a trade tier.
+
+Red:14 missing-role cases. Green:16 focused checks;413 affected stat/ring/context,
+policy/maintenance/report checks in8.66s. Initial test expected9builds; actual member
+IDs verified8 and the expectation corrected. Ruff/format/diff pass. All18 saved
+report texts and numerical prices unchanged; published/staged parity. Domain
+fixtures, no new live captures or market collection.
+
+Published8a53839ca5f3db8ccf828d16dea1a4c381383f8725e2d120b26eaf462f5b13b1.
+Roles444→458; stat configs436→450;549reviewed/8excluded stat-use rows. Semantic
+configurations350→362. Full2739identities/62891occurrences, evidence328 and base1569
+retained. Census/dossiers/base/coverage matrices refreshed. Evidence tmp/soj-*.
+Runtime data only, no additional worker restart. No numeric price/tier changed.
+
+One demand batch complete. Next address another family/companion configuration, then
+reserve the specialist/leveling tail. Named trade tiers, full guide-use closure,
+base desirability, affixed combinations and scoped exact prices remain unfinished.
+
+## Equipped companion predicates / Fire Blast SoJ — 2026-09-25
+
+Second demand batch after movement-boots tail. Added reusable equipped_item_matches:
+explicit player/mercenary/swap slot maps, ItemFacts or serialized facts, immutable
+snapshots. Missing slot/malformed input unknown; explicit null empty. One item's
+facts/stats satisfy a complete combination; no pooling, no inferred equipment from
+hover/name-list/character-total. Nested predicates limited to fact/stat logical
+combinations; native keys remain covered by publication validation. Context copy
+retains facts. API documented in assessment/README.md; automatic live equipment
+collection remains unimplemented, so callers must supply verified loadout facts.
+
+New fire-blast-standard-soj-phoenix: Assassin/identified nonethereal SoJ, total102FCR,
+actual equipped crafted identified nonethereal amulet12+FCR and identified Phoenix
+Monarch. Source20FCR/+2skills are illustrative, not minima. Skills/mana priorities
+activate only after mandatory companions pass. Spirit/Nagelring branch remains
+pending, as does Tri-Brid encounter/CBF/swap logic. Membership/source/exceptions:
+planning/FIRE_BLAST_COMPANION_BATCH.md. SoJ breadth8→9builds,15uses, Pending/High lower
+bound; no numerical price or trade tier claim.
+
+Red: missing operation, context-copy loss, missing Fire Blast profile reproduced.
+Green:29 initial focused checks, then1992 assessment/report checks in246.99s. Final
+11 equipment tests pass after lint-only raw-regex correction. Ruff/format/diff pass.
+All18 saved reports and prices unchanged; published/staged parity. Domain fixtures,
+no live probes or market collection. Evidence tmp/equipment-* and
+ tmp/fire-blast-companion-*.
+
+Published614736b2d028dbc3f4f4add8bbd7382d4efe654bb96f7b3dfb6cc20f0631cea0.
+Roles458→459/stat configs450→451;550reviewed/8excluded stat-use rows. Full2739identity,
+62891occurrence,1569base-quality and328evidence denominators retained. Census/dossiers
+and base/coverage matrices refreshed. Restart Alt+D worker for Python context and
+predicate changes. Next scheduled batch is specialist/leveling/unresolved work;
+all-item tiers, base desirability, affixed combinations, source closure and exact
+scoped prices remain unfinished.
+
+## Druid/Paladin caster leveling package — 2026-09-25
+
+Scheduled tail after SoJ family and Fire Blast companion batches. Eight explicit
+recommendations: Spectral Shard, Suicide Branch, Vipermagi and Magefist for Druid
+and Paladin. Reviewed caster archetypes now explicit for these guide benefits;
+weapon alternatives retain priority3/med, armor/gloves1/high. Spirit remains an
+alternative comparison, not an inferior item by default. Paladin post-level18
+respec context does not override native item levels25/33/29/23. Spectral dexterity
+investment, whole-loadout cast breakpoints and Magefist fire-skill exceptions kept:
+Fissure benefits; Tornado/Blessed Hammer do not gain that fire-skill level.
+
+Exact membership/hash/conditions: planning/CASTER_LEVELING_BATCH.md. Cached source
+hashes verified; May22 guide dates retained. No extraction or online collection.
+The Spirit Shroud/incidental source gaps remain pending rather than becoming no-use.
+Recommendations92→100; coverage evidence328→336. Roles459/stat configs451 and
+550reviewed/8excluded stat-use rows unchanged. Full2739identity/62891occurrence and
+1569base-quality denominator retained. Rebuilt recommendations/index, refreshed
+census/dossiers and base/coverage matrices.
+
+Red:8 adapter and1 runtime case. Green:403 recommendation/policy/maintenance tests
+in6.91s; Ruff/format/diff pass. Native equip requirements, source locator changes,
+caster scope, fire-skill exceptions and ethereal variant uncertainty verified.
+All18 saved report texts and prices unchanged; published/staged parity. Domain
+fixtures, no new live probes or numerical market prices. Evidence tmp/caster-leveling-*.
+Published805bdb16ce58608a25d727069b805bb830870dff7f88d8dfbb209dd79346d078.
+Maintenance adapter/data only; no additional worker restart beyond prior companion
+predicate Python update.
+
+Tail complete; resume demand/family work. Other class/item leveling, all named trade
+tiers, base desirability, affixed combinations, source identity closure and exact
+scoped price coverage remain unfinished.
+
+## Fire Blast affixed jewelry — 2026-09-25
+
+First demand batch after caster-leveling tail. Added crafted amulet and rare ring
+patterns for the Phoenix branch. Captured jewelry must have source12+FCR (crafted
+amulet) or10FCR (rare ring), with Assassin/102totalFCR/actual Phoenix Monarch context.
+Illustrated2skills/20FCR/20allres/25MF amulet and20str/40life ring values are targets,
+not minima. All-resistance support on the amulet requires all four observed stats;
+ring resistance properties independently support the role. No fabricated observed
+stats or blanket affix weights. Source-only pattern demand stays separate from
+named-item votes; no numerical price or market tier inferred.
+
+Native tables clarify the functional12+amulet threshold: caster recipe5–10FCR plus
+optional10FCR affix yields5–10 or15–20. Positive item fixture uses15;12-boundary
+predicate fixtures are not proof of a naturally spawned12FCR craft. Existing role
+threshold remains the guide requirement; full affix legality remains a separate
+mechanics/range responsibility. Verified table hashes and membership documented in
+planning/FIRE_BLAST_JEWELRY_BATCH.md. Spirit/Nagelring remains separate/pending.
+
+Red:2 missing rules. Green:5 initial focused checks. Broad679-test run:678passed and
+one stale amulet-count assertion; updated18→19 for the new pattern, then6 affected
+jewelry/compiler/companion tests pass in1.80s. Ring-count8→9 reflects the new rare
+configuration; old behavior assertions unchanged. Ruff/format/diff pass. All18 saved
+reports/prices unchanged, published/staged parity. Domain fixtures, no live probes
+or market collection. Evidence tmp/fire-jewelry-*.
+
+Publishedcfc9e67b5a16d2e081e00379deee39c7a4877a48f9e59442358da01923cf2c77.
+Roles459→461/stat configs451→453;552reviewed/8excluded stat-use rows. Full2739identity,
+62891occurrence,1569base-quality and336evidence denominators retained. Refreshed
+census/dossiers/base/coverage matrices. Runtime data only; no additional worker
+restart beyond previous equipped-companion Python update.
+
+One demand batch complete. Next another family/companion batch, then reserve tail
+work. Broad base desirability, magic/rare/crafted combinations, all named tiers,
+source closure, leveling and exact scoped prices remain unfinished.
+
+## Nagelring MF / Spirit alternative — 2026-09-25
+
+Second demand batch after caster-leveling tail. Added Fire Blast Standard Spirit
+alternative and Enchant MF Nagelring uses. Native15MF qualifies;30MF optional target.
+Observed MF desirable; other native properties are outside this farming-utility
+review, not declared useless. Fire Blast requires actual equipped identified
+normal/superior Spirit Monarch and102totalFCR; Phoenix, Spirit sword, missing facts,
+name-only or mercenary evidence cannot satisfy it. No Phoenix crafted-amulet gate
+is imported. Enchant keeps its separate source conditions without inventing a main
+FCR threshold or Spirit requirement. Two builds, Pending/Med lower bound: Enchant
+preferred, Fire Blast alternative. No ring-count or complete-loadout claim.
+
+Source membership/exceptions: planning/NAGELRING_BATCH.md. Follow-up notes added to
+prior Fire Blast documents: explicit Nagelring alternative now covered, other Spirit
+jewelry permutations pending. Berserk, Lightning Strike and Strafe uses remain in
+full queues; Strafe requires its companion/leech/IAS-jewel review. Prior Fire Blast
+SoJ item fixture now uses legal15FCR amulet; numeric predicate boundary tests are
+not assertions of naturally spawned12FCR crafts.
+
+Red:2 missing roles. Green:5 focused then390 affected tests in7.27s; Ruff/format/diff
+pass. All18 saved reports and numerical prices unchanged; published/staged parity.
+Domain fixtures, no live capture/market collection. Evidence tmp/nagelring-*.
+Publisheddd033510938f92a804c4f4ca004e3bc8c62e4595bae81f02191ad5b7590e7219.
+Roles461→463/stat configs453→455;554reviewed/8excluded stat-use rows. Full2739identity,
+62891occurrence,1569base-quality and336evidence denominators retained. Refreshed
+census/dossiers/base/coverage matrices. Runtime data only; no additional restart
+beyond earlier equipped-item predicate code.
+
+Two demand batches complete; next scheduled batch must cover specialist, leveling
+or unresolved cases. All named tiers, broad base desirability, affixed configurations,
+source closure and exact scoped prices remain unfinished.
+
+## Assassin leveling pair/armor — 2026-09-25
+
+Scheduled tail completed after Fire Blast affixed jewelry and Nagelring. Added three
+explicit Assassin recommendations: Death's Hand, Death's Guard and Twitchthroe.
+Pair IAS/all-resistances remain conditional; Cannot Be Frozen belongs to the belt
+itself. Ancient's Pledge remains companion advice. Twitchthroe blocking requires a
+shield. High leveling priority does not establish a market tier or price.
+Source date/hash, exact locators and native definitions documented in
+planning/ASSASSIN_LEVELING_BATCH.md. No source re-extraction or market collection.
+
+Red: three missing recommendations. Green: 50 affected adapter/runtime/coverage
+checks in4.21s, then three post-lint focused checks in1.36s. Ruff/format/diff pass.
+All18 saved report texts and numerical prices unchanged; published/staged parity.
+Published4856a57aa35ce1b231bb566ae5f2856fbda4542d4caf34d5ff01118f48c0a0a4.
+Recommendations100→103, evidence336→339; 2739identity and1569base-quality denominator
+retained. Roles463/stat configurations455 unchanged;554reviewed/8excluded stat-use
+rows. Census/dossiers/base/coverage matrices refreshed. Evidence tmp/assassin-leveling-*.
+Maintenance Python change only: runtime consumes prepared recommendation data at
+request boundaries. Earlier equipped-context runtime update still needs restart if
+not already applied.
+
+Next: resume demand/family review from the full dossiers, prioritizing newly covered
+identities and reusable configurations. Berserk/Lightning Strike Nagelring uses and
+Strafe's leech/IAS-jewel companion branch remain queued. Other leveling, universal
+named tiers, base desirability, affixed combinations, unresolved identities and
+exact scoped prices remain incomplete. Do not infer closure from this tail batch.
+
+## Nagelring attack-build expansion — 2026-09-25
+
+First demand batch after Assassin leveling tail. Added Berserk Starter/Standard
+and Lightning Strike Starter magic-find ring components. Source-specific Angelic
+pair,105swapFCR and50minimum/95targetIAS qualifications stay partial. No main FCR
+inferred from swap, no captured stats synthesized, no complete-loadout claim.
+MF15 useful/30optional target. Four distinct builds/five reviewed uses; Berserk's
+two variants count once. Pending/Med lower bound, not a price or named trade tier.
+Membership/exclusions: planning/NAGELRING_EXPANSION_BATCH.md.
+
+Red: three missing configurations. Green:381 tests6.35s plus five post-lint checks
+1.51s; lint/format/diff pass. All18 saved reports/prices unchanged, published parity.
+Published3d779445f8b432272375ef9644e79a64a82509162209dd56ec70200ee65ee5cf.
+Roles463→466/stat configs455→458;557reviewed/8excluded stat-use rows. Census/dossiers
+and matrices refreshed. Coverage refresh first rejected the old base-matrix source
+snapshot; installed rebuilt base matrix then successfully rebuilt coverage. Retains
+2739identities,1569base-quality rows,339evidence and103recommendations.
+Evidence tmp/nagelring-expansion-*. No live collection; runtime data-only update.
+
+Next demand batch should address a new identity/family or the unresolved Strafe
+Stealskull/dual-leech/helmet-IAS companion rule, then schedule another tail batch.
+Planner-only and Hardcore Nagelring uses were not promoted. Broad base desirability,
+all named tiers, affixed combinations, source closure and scoped prices unfinished.
+
+## Strafe MF Nagelring companion — 2026-09-25
+
+Second demand batch after Assassin leveling tail. Added prose-specific Strafe MF
+Nagelring rule: actual equipped identified unique Stealskull with linked15IAS jewel.
+Native dual leech supports the substitution; planner Harlequin Crest/glove conflict
+retained explicitly. Complete breakpoint/glove/sustain setup stays conditional.
+No aggregate IAS, other slot, mercenary, inventory name or missing identity bypass.
+ObservedMF15useful/30optional target; no price inferred. Nagelring5builds/6uses,
+Pending/High lower bound. See planning/STRAFE_NAGELRING_BATCH.md.
+
+Runtime equipped_item_matches now accepts socket_jewel_stat_at_least in item-local
+conditions. Existing socket evaluator and key traversal reused. Malformed equipped
+socket stats previously could crash; snapshot validation now returns unknown.
+Python worker restart required. No automatic loadout collection was added.
+
+Red: unsupported socket dependency, missing role, malformed child crash. Green:
+683affected tests90.31s,31focused after snapshot fix2.02s; lint/format/diff pass.
+All18 saved reports/prices unchanged; published/staged parity.
+Publishedba59e0120d5bcbb0909f2bcc41697834771e72253f08524cbb8a11b3261b79ae.
+Roles466→467/stat configs458→459;558reviewed/8excluded stat-use rows.
+Evidence tmp/strafe-nagelring-* and tmp/equipment-sockets-*.
+
+Next must be a specialist/leveling/unresolved tail batch. Other class leveling,
+all named tiers, broad base desirability, affixed combinations, source closure and
+exact scoped prices remain unfinished. This companion check does not complete
+Stealskull's own item assessment or solve conflicting planner setups.
+
+Census/dossiers/base/coverage matrices refreshed successfully; denominator remains
+2739identities,1569base-quality rows,339evidence and103recommendations.
+
+## Assassin skill leveling — 2026-09-25
+
+Scheduled tail complete after Nagelring expansion and Strafe companion. Added
+SoJ, Eye of Etlich, Vipermagi and Magefist Assassin guide recommendations. General
+skill/resistance utility remains distinct from caster advice; Magefist follows the
+guide's Fire Traps/Death Sentry recommendation, not Lightning Sentry. Trap-placement
+attack speed remains qualified. Native equip levels29/15/29/23 verified in runtime.
+Source/locators/remaining aliases: planning/ASSASSIN_SKILLS_LEVELING_BATCH.md.
+
+Red: four missing recommendations. Green:55 affected tests4.76s; lint/format/diff
+pass. All18 saved reports/prices unchanged, published/staged parity. No live probes
+or market requests. Published86933b34dfdc2826e0605ef7f60f1a3de097466620de291381c514a3b293f633.
+Recommendations103→107/evidence339→343. Roles467/stat configs459 unchanged;
+558reviewed/8excluded stat-use rows. Census/dossiers/base/coverage matrices refreshed;
+2739identities/1569base-quality denominator retained. Evidence tmp/assassin-skills-*.
+Maintenance adapter changes only; no additional runtime restart beyond equipped
+socket-predicate update from the previous batch.
+
+Next demand/family review should cover new identities or reusable configurations
+from full dossiers. Alias-specific Ravenfrost/Maras leveling, runeword alternatives,
+all named trade tiers, broad bases/affixed patterns and exact prices remain pending.
+
+## Mara's Kaleidoscope shared skill/resistance template — 2026-09-25
+
+First demand batch after Assassin skill-leveling tail. Selected a new named identity
+from full dossiers. Added11variant rules across8builds, preserving explicit main
+FCR thresholds125/117/105/75/65 and unspecified Ubers thresholds. Minimum20res useful;
+30allres optional. Skills desirable, complete observed all-res group supporting.
+Attributes outside narrow template are not worthless. Whole-loadout resistance,
+Ubers preparation and equip qualifications retain partial fit. Eight builds count
+once each despite repeated variants; Pending/High lower bound, no price inference.
+Exact membership/source exceptions: planning/MARAS_BATCH.md.
+
+Red:11missing rules and missing demand summary. Green:12focused then389affected
+checks8.71s; lint/format/diff pass. All18 saved reports/prices unchanged and published
+parity. No market collection or live capture. Runtime data only, no new restart.
+Publishededa2f49d30e29b3dc22bd481834166fd3c7873cee1761eb2b9eecb959d95ec30.
+Roles467→478/stat configs459→470;569reviewed/8excluded stat-use rows.
+Evidence tmp/maras-*. Existing runtime socket-predicate restart remains required
+if not already done.
+
+Next another demand/family batch, preferably another new identity or reusable
+base/affixed configuration, then scheduled tail. Remaining Mara uses, all named
+trade tiers, broad base desirability, affixed combinations and exact scoped prices
+remain unfinished; guide utility is not price coverage.
+
+Census/dossiers/base/coverage matrices refreshed; retained2739identities,1569base-quality
+rows,343evidence and107recommendations.
+
+## Duress budget kicker armor — 2026-09-25
+
+Second demand batch after Assassin skill-leveling tail. New named identity with
+Dragon Talon Budget Duress Dusk Shroud configuration. Completed3filled sockets,
+identified normal/superior nonethereal player armor; observed Crushing Blow desirable
+and resistances supporting. Level90, boots, AR, CBF and complete setup remain
+qualified. Other bases and Dream Paladin's planner/prose conflict do not inherit fit
+or demand. No best-base or price claim. See planning/DURESS_BATCH.md.
+
+Red: missing rule. First positive test used base title instead of captured runeword
+title; corrected to match existing runeword fixture convention. Green:378affected
+checks6.19s; lint/format/diff pass. All18 saved reports/prices unchanged, publication
+parity. Published1ca6f155586c8f948e5964421e028829dac3d30390aa2b884a24628926c2b273.
+Roles478→479/stat configs470→471;571reviewed/8excluded stat-use rows (normal and superior).
+Evidence tmp/duress-*. Runtime data-only change; no new restart, probes or collection.
+
+Next must be specialist/leveling/unresolved tail. Dream Duress/Chains of Honor conflict,
+remaining aliases, named trade tiers, broad base desirability, affixed combinations
+and exact scoped prices remain incomplete. Guide use remains separate from pricing.
+
+Census/dossiers/base/coverage matrices refreshed;2739identities,1569base-quality rows,
+343evidence and107recommendations retained.
+
+## Exact leveling source aliases — 2026-09-25
+
+Scheduled unresolved tail complete after Mara and Duress. Added canonical Raven Frost
+and Mara's Kaleidoscope Assassin recommendations from reviewed Ravenfrost/Maras
+Kaleidoscope occurrences. GUIDE_SOURCE_NAMES binds each mapping to class, canonical
+name and exact locator; source_label preserves original wording. No fuzzy global
+normalization or source mutation. Ambiguous canonical facts, changed label/locator
+or unverified snapshot cannot produce a recommendation. Native levels45/67 and
+alternative/late-leveling qualifications retained; no price synthesis.
+See planning/LEVELING_SOURCE_ALIASES_BATCH.md.
+
+Red: two missing recommendations. Green:58affected checks5.29s; lint/format/diff
+pass. All18 saved reports/prices unchanged, published parity.
+Publishedf524c6a4ac8b58dcb22b28e097549e0002acb205a15d8e2858ebbc05d31961aa.
+Recommendations107→109/evidence343→345. Roles479/stat configs471 unchanged;
+571reviewed/8excluded stat-use rows. Evidence tmp/leveling-alias-*.
+No live probes/collection. Maintenance adapter only; no new runtime restart beyond
+previous equipment/socket changes if still unapplied.
+
+Next resume demand/family work, prioritizing new identities or reusable base/affixed
+configurations. Runeword leveling alternatives, other aliases, universal named tiers,
+base desirability, affixed combinations and exact prices remain unfinished. This
+bounded alias review does not establish global identity closure.
+
+Census/dossiers/base/coverage matrices refreshed;2739identities and1569base-quality
+rows retained alongside345evidence and109recommendations.
+
+## Starter magic skill/FCR amulet family — 2026-09-25
+
+First demand batch after exact leveling aliases. Added Fire Warlock, Fissure Druid
+and FoH/Holy Bolt Starter configurations: one observed skill plus10FCR on the same
+identified nonethereal magic Amulet. Class/tree exact, no pooled gear or total-FCR
+substitution. Fissure illustrated+2target does not reject useful+1. Historical Fire
+Warlock craft and Holy Bolt activity exceptions stay explicit. Rare/crafted siblings
+remain separate review. No price or blanket affix weights.
+Membership: planning/STARTER_SKILL_AMULETS_BATCH.md.
+
+Red:four missing configurations. Broad run380passed/two stale count assertions;
+updated magic-applicable13→17 and all-affixed-amulet19→23, then all8affected tests pass
+4.10s. Behavior assertions unchanged. Ruff/format/diff pass. All18 saved reports and
+prices unchanged; published parity. No live collection/probes or runtime Python edit.
+Published78d39b5aaac6f849602087a31ff0aa9ecfb452848d0ce4956ea017ac64d3c496.
+Roles479→483/stat configs471→475;575reviewed/8excluded stat-use rows.
+Evidence tmp/starter-amulet-*.
+
+Next another demand/family batch, then scheduled tail. Rare/crafted siblings, other
+skills/combination patterns, broad base desirability, named tiers and exact scoped
+prices remain incomplete. Earlier runtime equipped-socket restart still required
+if not already applied.
+
+Census/dossiers/base/coverage matrices refreshed;2739identities,1569base-quality rows,
+345evidence and109recommendations retained.
+
+## Rare starter amulet combinations — 2026-09-25
+
+Second demand batch after exact leveling aliases. Added Hammer/Summoner rare
+skill/FCR core patterns: identified nonethereal rare Amulet, exact class/tree,
+positive skills plus10FCR on same item. Secondary mana/life/resistances optional;
+Summoner all-res group requires all four observed stats. Summoner75totalFCR explicit;
++4total skills/overcap and separate swap staff qualified. Hammer core utility neither
+requires nor claims example teleport-charge function. Other qualities excluded from
+these specific configurations. No numerical prices or arbitrary affix weights.
+Membership: planning/STARTER_RARE_AMULETS_BATCH.md.
+
+Red:two missing roles. Broad379passed/one stale count; affixed amulet23→25, then all
+six affected checks pass3.37s, including partial-resistance behavior. Ruff/format/diff
+pass. All18 saved reports/prices unchanged and published parity. No live collection.
+Published5b0f05b68f401857043406a92622edea5246e61ffa1c11a14a40c6ffd092db2c.
+Roles483→485/stat configs475→477;577reviewed/8excluded stat-use rows.
+Evidence tmp/rare-starter-amulet-*. Data-only update, no new worker restart.
+
+Next scheduled batch must cover specialist/leveling/unresolved cases. Broader rare
+and crafted configurations, base desirability, universal named tiers, source closure
+and exact scoped market estimates remain unfinished. Earlier equipped-socket Python
+restart is still needed if not already done.
+
+Census/dossiers/base/coverage matrices refreshed;2739identities,1569base-quality rows,
+345evidence and109recommendations retained.
+
+## Reviewed source-conflict tracking — 2026-09-25
+
+Scheduled unresolved tail complete after magic/rare starter amulet batches. Audited
+Fire Blast Starter magic Amulet +1Traps/+20allres/25MF: Traps and allres both require
+prefixes, so the quoted normal magic combination is impossible. Do not relabel rare
+or discard properties automatically. Added pinned issue with exact source pointer,
+original value, wp-a-builds and native prefix/suffix hashes; reconcile planner quality
+before promoting a configuration. See planning/MAGIC_AMULET_SOURCE_ISSUE.md.
+
+New maintenance reviewed_source_issues evaluator returns reviewed_conflict only for
+matching source/value/mechanics snapshots; stale/missing evidence stays stale_review.
+Inventory and dossiers retain the issue separately from missing planner links. This
+is a review aid, not a global compiler ban for parent-build references. No runtime
+assessment rule or price change; no worker restart/publication needed for this batch.
+
+Red:missing evaluator. Green:19 inventory/dossier/issue checks plus focused exact
+pointer/value checks; lint/format/diff pass. Generated inventory/dossiers verified
+one reviewed conflict. Coverage matrix refreshed. All18 saved report texts/prices
+unchanged against last published replay. Runtime generation remains
+5b0f05b68f401857043406a92622edea5246e61ffa1c11a14a40c6ffd092db2c.
+Roles485/stat configs477;577reviewed/8excluded stat-use rows unchanged.
+2739identities,1569base-quality rows,345evidence and109recommendations retained.
+Evidence tmp/source-issues-*. No live collection or probes.
+
+Next resume demand/family work. Keep the Fire Blast source conflict in its dossier;
+remaining source closure, broad base/rare/crafted configurations, named trade tiers
+and exact scoped prices remain unfinished.
+
+## Duress Dusk Shroud base preparation — 2026-09-25
+
+First demand/base batch after source-conflict tail. Base matrix already retains
+partial uses; pending dimensions were conservative, not absent links. Actual gap:
+completed Dragon Talon Duress reviewed but no empty-base use. Added explicit Dusk
+Shroud/Duress progression template with cached guide locator, propagated into base
+report sources. Three empty sockets = usable alternative, not best/priced base.
+Unsocketed high-ilvl normal armor retains16.7% cube odds for3; four sockets rejected.
+Player ethereal/equip/Ubers conditions remain. See planning/DURESS_BASE_BATCH.md.
+
+Red:missing base use. Green:33base/routing/matrix tests2.50s, then14progression tests
+1.41s including preparation/ethereal boundaries. Source locator resolves to actual
+cached equipment value; lint/format/diff pass. All18 saved reports/prices unchanged
+against pre-change replay and published/staged parity. Runtime Python changed:
+worker restart required. No new runtime artifacts/prices or market collection;
+published data generation remains5b0f05b68f401857043406a92622edea5246e61ffa1c11a14a40c6ffd092db2c.
+
+Base matrix still234rows with uses;507→510use entries (three quality states), not
+three confirmed item matches. Full1569base-quality and2739identity denominator
+unchanged. Roles485/stat configs477 and named-price coverage unchanged. Evidence
+ tmp/duress-base-*. Initial matrix read raced unfinished generation; no invalid file
+installed. Refreshed base matrix after completion before rerunning dependent coverage.
+
+Next another demand/family batch, then tail. Other bases, named trade tiers,
+rare/crafted combinations and exact scoped prices remain unfinished. Legal eligibility
+and a reviewed base candidate still do not prove maximum quality or market premium.
+
+## Nested cache collection date recovery — 2026-09-25
+
+Offline market maintenance after Duress base batch; does not consume demand/tail
+slots. Found200Razortail rows with explicit _meta.pulled2026-09-20; listing update
+range validates that day. Importer now accepts exact top-level/nested collection
+dates, retains actual field provenance and rejects invalid/conflicting metadata.
+No filename/mtime/listing-date fallback. Four red failures;22initial then46market/
+refresh/comparison/publication tests pass8.11s; lint/format/diff pass.
+
+Offline refresh/runewords/valuable/index/base rebuild retained41135observations;
+dated19776→19976. All200rows preserve identical seller,scope,item facets and prices.
+Scope unchanged:54verified,139rejected,7unknown. Named-readiness audit now reports
+2structurally-ready Razortail observations,52stillblocked (ethereal52,base36; gaps
+overlap). Not enough for three independent comparable sellers; no price inferred.
+Durable audit pricing/data/market-date-recovery-2026-09-25.json; source/evidence notes
+planning/NESTED_CACHE_DATE_BATCH.md. Most undated caches lack any collection evidence.
+
+Published6a28e579ff28ffb0b03de2c8e4607cc4e94a4bc30715b494a21c7900aa64c937.
+All18saved report texts/prices unchanged; published/staged parity. Base/coverage
+matrices refreshed against new market/index inputs. No live requests. Maintenance
+importer change needs no extra runtime restart; prior base-template restart still
+needed if unapplied. Roles485/stat configs477 and109recommendations unchanged.
+
+Next resume the second demand/family batch after Duress base, then tail. All named
+tiers, broader base/affixed configurations and exact market cohorts remain unfinished.
+
+## Meteor Volcanic/Luck magic amulet — 2026-09-25
+
+Second demand batch after source-conflict tail. Added exact3FireSkills/26–35MF magic
+amulet alternative; native26Luckminimum useful,35optional target. Required main
+63FCR/60FHR totals;105FCR higher option. Fire skills desirable, MF supporting. Full
+setup partial; other suffix tiers/qualities remain separate, not worthless.
+Source membership: planning/METEOR_MAGIC_AMULET_BATCH.md.
+
+Red:missing rule. Green:380affected tests6.69s; lint/format/diff pass. All18saved
+reports/prices unchanged; published parity. No probes or online collection.
+Published50599b8ea66face195d921e26191a073b4211e723e41d610af4934664acb6af0.
+Roles485→486/statconfigs477→478;578reviewed/8excluded stat-use rows. One new magic
+configuration:18magic-applicable and26all-affixed amuletconfigs. Data-only update;
+no additional runtime restart beyond prior Duress base/template change if unapplied.
+Evidence tmp/meteor-magic-amulet-*.
+
+Next scheduled batch must be specialist/leveling/unresolved. Date-recovery maintenance
+did not consume a demand slot. Other source conflicts, broad bases/rare/crafted
+families, named trade tiers and exact scoped market comparisons remain unfinished.
+
+Census/dossiers/base/coverage matrices refreshed;2739identities,1569base-quality rows,
+345evidence and109recommendations retained.
+
+## Fire Blast starter amulet source reconciliation — 2026-09-25
+
+Scheduled unresolved tail after Duress base and Meteor magic amulet batches.
+Original cached planner pricing/raw/mr/planners/e113x0l4.json, dated
+2026-02-17 23:58:03, resolves Starter profile kNG46Gvn neck to item34 Wraith Collar.
+It has planner quality4=rare (quality3=magic), with the same +1Traps/20allres/25MF
+modifiers. The extraction's Magic label is wrong; the original evidence is retained.
+The registry now pins the full item, profile UID/name and neck link to the raw hash.
+A separately reviewed rare configuration may use this correction; planner rolls
+remain examples, not guide-required minima. No runtime role, tier or price changed.
+
+Red: reconciliation was returned as reviewed_conflict. Green:27 issue/dossier/census/
+build extraction tests; lint and diff checks pass. Missing or changed planner evidence,
+wrong equipment link and empty reconciliation evidence reopen stale_review.
+Inventory and dossiers regenerated with reconciled_source status. Review does not
+close executable-rule coverage. Evidence tmp/fire-blast-source-reconciliation-*.
+
+Tail complete. Next demand batches should use reusable combinations and include
+this corrected rare amulet only after reviewing guide minima/preferences. Broad base
+policies, named tiers, leveling and exact scoped market cohorts remain incomplete.
+Runtime generation remains50599b8ea66face195d921e26191a073b4211e723e41d610af4934664acb6af0;
+maintenance-only code needs no worker restart or runtime publication.
+
+## Fire Blast rare starter amulet — 2026-09-25
+
+First demand batch after planner reconciliation tail. Added
+fire-blast-starter-rare-amulet: identified nonethereal rare Amulet, Assassin,
+positive Traps (native188:48) and all four resistances on the same item. Skills are
+desirable, resistance/MF supporting; MF optional. Illustrated20res/25MF are not
+minimums. Other combinations are unreviewed, not worthless. Full equip/speed/
+survival readiness remains qualified. Source WP-A Starter plus corroborating cached
+planner e113x0l4, item34 Wraith Collar, resolves the incorrect Magic label.
+
+Source validation/publication now includes source.corroborating path/hash/JSON
+pointer references. A missing or changed planner cannot silently retain its role.
+Sources are bundled with the runtime generation. Primary source remains the guide;
+planner quality encoding is distinct from game native quality encoding.
+
+Red: missing role and missing planner publication dependency. Green:31 affected
+role/stat/source/publication tests36.44s; lint/format/diff pass. Native Traps mapping
+verified against stat_constants and existing Lightning Sentry rule; wrong Martial
+Arts188:50 explicitly rejected. All18 saved texts/prices unchanged, staged/published
+parity. No online requests. Evidence tmp/fire-blast-rare-*.
+
+Published c7b5ee38512890ad0519d516b62d6d6e19f3b9ad2bfb84990bd55164e68959fa.
+487roles/479stat configurations;27affixed amulet configurations. Next one demand
+batch then specialist/leveling/unresolved tail. Broad named tiers, base preference
+policies, affixed configurations and exact scoped prices remain incomplete.
+Source validator Python changes require a worker restart to enforce the new
+corroborating-source validation in running processes; the compiled rule data is
+selected at request boundaries by an already published worker.
+
+Coverage matrices refreshed:579reviewed/8excluded stat-use quality rows;
+2739identities,1569base-quality rows,345evidence records retained.
+
+## Harlequin Crest shared farming family — 2026-09-25
+
+Second demand batch after source reconciliation tail. Added10explicit build/variant
+helmet configurations, native2allskills/50MF utility; source-specific mainFCR/FHR,
+Weapon-Swap distinctions, socket and full-loadout qualifications preserved.
+Reviewed breadth10builds, Pending with High lower bound; not a market price.
+Membership/source decisions: planning/HARLEQUIN_BATCH.md.
+
+Red11missing role/demand tests. Green313role/stat/demand/publication regression
+checks104.61s; lint/format/diff pass. Only saved Harlequin report text changes:
+seven logical Build-use lines with10conditional uses and full detail references.
+All18saved prices and17other texts unchanged; defense ranges unchanged.
+Published 39fe11a840d09903c00d4c680031e90058194583e2a5a5f25a7ef69472264044.
+497roles/489stat configurations. This is data-only, no additional worker restart
+beyond prior corroborating-source validator code if unapplied. No online collection.
+Evidence tmp/harlequin-*.
+
+Next batch must be specialist/leveling/unresolved. Remaining named tiers, broader
+base/affixed rules, guide identity closure and exact scoped prices remain incomplete.
+
+Published replay parity verified. Census/dossiers/base/coverage refreshed:
+589reviewed/8excluded stat-use quality rows;2739identities,1569base-quality rows,
+345evidence records retained.
+
+## Fire Blast ring/diadem quality audit — 2026-09-25
+
+Scheduled unresolved tail after rare starter amulet and Harlequin farming batches.
+Original cached e113x0l4 planner: Starter right ring44 Stone Finger is quality4 rare,
+with30coldres/15MF/1manaafterkill; left ring43 Cobalt is quality3 magic and remains
+unchanged. Standard head61 Eagle Visage is quality4 rare, with three prefixes/three
+suffixes and two filled sockets. The WP-A Magic labels are extraction errors.
+Starter gloves, boots, belt and teleport staff checked as quality3 magic too.
+
+Added two pinned reviewed_source_issues records, including exact item, profile UID/
+name, equipment reference and native rare-eligible affix rows. Registry now has
+three reconciled source issues including the earlier Wraith Collar amulet.
+Changed sources/mechanics reopen review. No global quality relabeling and no rewrite
+of the shared WP-A file. Original labels preserved for audit.
+
+Eagle Visage's conflict with prose/table Flickering Flame or Harlequin Crest is NOT
+resolved by correcting rarity. No guide endorsement, required planner roll, executable
+role, trade tier or price is inferred for either new correction. These remain
+source-reviewed inputs for a subsequent configuration review.
+
+Red: ring correction absent. Green:27 source-review/dossier/census/build checks;
+all three actual registry records validate against source snapshots. No runtime
+changes/publication or worker restart. Current generation remains
+39fe11a840d09903c00d4c680031e90058194583e2a5a5f25a7ef69472264044.
+Evidence tmp/fire-blast-quality-tail-*. Inventory/dossiers refreshed separately.
+
+Tail complete. Resume two demand/family batches before the next tail. Remaining
+named tiers, bases, affixed rules, leveling and exact scoped market cohorts remain
+incomplete. Keep the diadem prose/planner conflict explicit.
+
+## Trang-Oul's Claws caster family — 2026-09-25
+
+First demand batch after the ring/diadem quality tail. Nine source-specific uses
+across four builds: Blizzard Standard; Echoing Standard/MF/Ubers; Summoner
+Standard/Damage-Ubers; Poison Nova Starter/Standard/MF. Explicit membership in
+ test_trang_glove_priorities.MEMBERS. Review estimate ten minutes; reuse existing
+identity/predicate/stat evaluator rather than introducing a glove-specific evaluator.
+
+Identified nonethereal set Heavy Bracers. Cast rate desirable; cold resistance
+supporting. Curses native188:16 supporting only for the Necromancer uses. Observed
+poison skill damage332:0 desirable only for Poison Nova. No full/partial set bonus
+synthesized; other properties/combinations unreviewed, not useless. Source125/105/
+75FCR gates retained, Echoing Ubers unspecifiedFCR not invented. Whole-loadout
+survival, resistances, sustain and Uber preparations remain qualifications. Summoner
+Uber Life Tap and120res-overcap Standard needs kept distinct.
+
+Native setitems/properties/itemstatcost and skill-tab encoding checked locally.
+WP-A exact source locators/hashes/quotes retained. Reviewed demand4distinctbuilds,
+Pending with Med lower bound. Guide utility is separate from trade tier or price.
+No new market collection. Broader gloves, other variants and whole-set configurations
+remain pending.
+
+Red10missing role/demand cases. Green21affected glove/stat/demand/publication checks
+5.39s; lint/format/diff pass. All18saved texts and numerical estimates unchanged.
+Published c31e0a8658fd44446a6bcc0b6c1f8d0e6a772927b5e07e2358c73296c484103b.
+506roles/498stat configurations. Data-only change; no additional worker restart.
+Evidence tmp/trang-glove-*; final published replay and coverage checkpoint follows.
+
+Next one demand/family batch, then specialist/leveling/unresolved tail. Required
+named trade tiers, preferred bases, more affixed rules, leveling and exact scoped
+price cohorts remain incomplete.
+
+Published parity verified. Census/dossiers/base/coverage refreshed:
+598reviewed/8excluded stat-use quality rows;2739identities,1569base-quality rows,
+345evidence records retained.
+
+## Laying of Hands attacking-glove family — 2026-09-25
+
+Second demand batch after the quality-correction tail. Six uses/four builds:
+Berserk Chaos Prep, Dream Standard/Hybrid, Mirrored Blades Standard/Ubers, Strafe
+Standard. Membership in test_laying_hands_priorities.MEMBERS. Review estimate ten
+minutes; existing identity, predicate and stat evaluator reused. Dream Ubers remains
+outside this batch because of the unresolved armor prose/planner conflict.
+
+Exact identified nonethereal set Bramble Mitts. Native20IAS and350damage against
+demons desirable,50fire resistance supporting. Demon damage121:0 remains separate
+from generic Enhanced Damage17:0; do not treat it as elemental aura damage. No
+set-completion bonus or numerical price inferred. Native setitems/itemstatcost
+checked locally. WP-A exact variant sources/hashes/quotes retained.
+
+Full weapon/aura attack-speed qualifications kept: Strafe Level12Fanaticism/active
+Hustle/setup for4/2/6 frames; Dream48FCR is Weapon-Swap and75IAS belongs to mercenary;
+Hybrid Faith support remains separate. Mirrored Uber OW/CB/CBF/resistance preparation
+and Standard3000life target not established by gloves. Chaos Prep prose reference
+retained despite absent tab. Four reviewed builds gives Pending/Med lower bound.
+
+Red7missing rule/demand cases. Green28glove/stat/demand/publication checks7.44s;
+lint/format/diff pass. All18saved texts/prices unchanged. Published
+9043ea4828481b458140401c0d6d7aa3061a38c4ad4a6bd29256daa1ea2a6088.
+512roles/504stat configurations. Data-only, no additional worker restart.
+Evidence tmp/laying-hands-*; final publication parity and coverage checkpoint follows.
+
+Next batch must be specialist/leveling/unresolved. Required named tiers, bases,
+remaining affixed configurations, leveling and exact scoped prices remain incomplete.
+
+Final checkpoint2026-09-26: published parity verified; census/dossiers/base/coverage
+refreshed.604reviewed/8excluded stat-use quality rows;2739identities,1569base-quality
+rows,345evidence records retained.
+
+## Before-respec melee and Bloodfist leveling — 2026-09-26
+
+Scheduled leveling tail after Trang gloves and Laying of Hands demand batches.
+Added six explicit source recommendations: Death's Hand/Guard and Bloodfist for
+Barbarian and Paladin. Their pair advice belongs before level31/18 respec
+respectively and is tagged melee.30IAS/15allres require both pieces; CBF belongs
+to the belt itself. Bloodfist is explicitly recommended for the entire leveling
+process; life/recovery remain useful after respec, while IAS is for attacks rather
+than casting. Preserve this exception despite the before-respec section heading.
+
+Exact cached leveling source locators and existing source hashes validated;
+unchanged utility extraction reused. Review estimate ten minutes. Added per-item
+review-date overrides so new rows say2026-09-26 without redating older reviews.
+Native equip requirements6for both Death pieces and9for Bloodfist preserved.
+
+Red6missing recommendations and1missing runtime artifact test. Green61recommendation/
+leveling runtime checks7.35s; lint/format/diff pass after readability fixes.
+Rebuilt recommendations and index offline.115recommendations(previous109);
+no new executable role/stat configurations or numerical prices. All18saved reports
+and prices unchanged. Published c34dc67561bb4328890e7b2192bde74feb524729c14f1c3e7c7fc727fe317dcc.
+Maintenance adapter changes need no runtime worker restart. Evidence
+ tmp/early-melee-leveling-*. Source pages retain their original dates.
+
+Tail complete; resume two demand/family batches before next specialist/leveling/
+unresolved batch. Named tiers, more bases/affixed rules, guide closure and exact
+scoped prices remain incomplete. Final publication parity/matrices checkpoint follows.
+
+Published replay parity verified. Census/dossiers/base/coverage refreshed:
+351evidence records(previous345),115recommendations;512roles/504stat configurations
+and604reviewed/8excluded stat-use quality rows unchanged.2739identities and
+1569base-quality rows retained.
+
+## Magefist shared caster family — 2026-09-26
+
+First demand batch after early-melee leveling tail. Sixteen explicit variants
+across nine builds; membership in test_magefist_priorities.MEMBERS. Review estimate
+fifteen minutes; shared predicate/stat evaluator reused. Cast rate desirable,
+mana regeneration supporting. Fire126:1 desirable only in the reviewed fire uses,
+not FoH/Lightning Sentry/pure Nova. No attack-fire-damage or all-class-skill inference.
+
+Generic Magefist mentions accept the native Light/Battle/Crusader Gauntlets chain;
+Fissure Ubers is restricted to explicitly cited Crusader Gauntlets. Pinned native
+armor row is corroborating evidence, validated and bundled during publication.
+Actual base-tier equip requirements remain qualified; no automatic upgrade premium.
+Native uniqueitems/itemstatcost checked for20FCR/25mana-regeneration/1fire skill.
+
+Main/swap cast thresholds preserved, including Enchant's105swap and FoH Tri-Brid's
+75main/125swap plus48FHR. Meteor63or105/60FHR Standard,105/86 Set and Ubers are
+separate. Fire Blast/Wake102, Lightning Sentry65, Fissure99Standard and Nova105
+Standard retained. Unspecified thresholds not inherited. Fire traps use attack
+speed for placement, not FCR. Tal set completion, Hydra life-based versus Nova ES,
+full companion setup and Uber preparations remain qualifications. Prebuff-only
+Enchant and conflicting starter examples remain outside this batch.
+
+Red17missing role/demand cases. Green35role/stat/source/demand/publication checks
+10.83s; lint/format/diff pass. All18saved texts/prices unchanged. Published
+f9f96a6bf6002925677314b6663054720a9611705ab23dbd69f32169b8766d73.
+528roles/520stat configurations. Reviewed demand9builds, Pending/High lower bound.
+Data-only, no additional worker restart; no online research. Evidence tmp/magefist-*.
+
+Next one demand/family batch then specialist/leveling/unresolved tail. Required
+named tiers, preferred bases, remaining affixed and leveling uses, guide identity
+closure and exact scoped market comparisons remain incomplete. Final parity and
+coverage checkpoint follows.
+
+Published parity verified. Census/dossiers/base/coverage refreshed:
+620reviewed/8excluded stat-use quality rows;2739identities,1569base-quality rows,
+351evidence records and115leveling recommendations retained.
+
+## Offline jewelry cohort audit and seller examples — 2026-09-26
+
+Maintenance batch, not a demand/tail scheduling slot. Audited existing scoped
+jewelry evidence and eleven reference Mara's Kaleidoscope resistance contracts,
+20 through30, without network collection or treating references as captured items.
+Durable audit: pricing/data/appraisal-jewelry-price-audit-2026-09-26.json, with input
+hashes, contracts, listing/seller IDs, publication gates and exact price results.
+
+30res: six matching listings from three sellers,9.32Ist ask estimate based on
+2026-09-18 observations/conversion, low confidence.26/27/28/29res have1/5/17/22matched
+listings but only1/1/2/1sellers respectively, so remain thin.20-25have no eligible
+matches.232scoped Atma observations are undated; no date recovered. Appearance1265
+remains an exact-comparison facet, not discarded to manufacture a larger cohort.
+These are cache/reference results, not a new item appraisal or current sale price.
+
+Found/fixed example selection bug: summary counted independent sellers correctly
+but selected its first three examples from arbitrary listing order, allowing two
+examples from one seller. Representatives now use each seller's actual minimum
+eligible ask, with deterministic ordering. Numeric votes, matching, dates, scope,
+unit and seller-count gates are unchanged. Full accepted listings remain diagnostics.
+
+Red: repeated seller in published price examples. Green28market/valuable/refresh/
+comparison tests7.96s; lint/format/diff pass. All11reference numeric estimates/seller
+counts unchanged; examples now distinct. All18saved reports/prices unchanged from
+the prior Magefist generation. Rebuilt valuable/index offline and published
+b4fe1a9e6186750c5e98f3a9fd0fa110623b9969157f974d8c161c100f78716c.
+Runtime market.py changed: restart worker to load this fix. No new role/stat/tier
+coverage;528roles/520stat configurations,115leveling recommendations retained.
+Evidence tmp/jewelry-examples-*; final parity/coverage checkpoint follows.
+
+Scheduling unchanged: one more demand/family batch after Magefist, then tail.
+Missing dates/appearance and independent sellers remain specific research gaps;
+broader base, named-tier and affixed coverage is still incomplete.
+
+Published parity verified; census/dossiers/base/coverage refreshed.620reviewed/
+8excluded stat-use quality rows,2739identities,1569base-quality rows and351evidence
+records retained. No new price cohort was manufactured or market evidence fetched.
+
+## Fire Blast starter rings — 2026-09-26
+
+Second demand batch after Magefist; the jewelry market audit was maintenance and
+used no scheduling slot. Added two reviewed configurations: a magic cold-resistance
+ring and a rare cold-resistance/mana-after-kill ring with optional magic find.
+The original planner identifies left item 43 as magic Cobalt and right item 44 as
+rare Stone Finger. Both share the pinned planner evidence with the source correction.
+
+The guide's instruction to fill remaining gear with resistances supports positive
+cold resistance; the example's 30 is not a required minimum. The rare configuration
+requires cold resistance and mana after kill on the same item. Mana regeneration
+and a different equipped ring cannot substitute. The example's 15 MF is optional.
+These are supporting Starter properties, not a numerical trade valuation. Actual
+kill credit, complete resource/resistance coverage and equip requirements remain
+qualifications. Other qualities and combinations remain separate reviews.
+
+Red: two missing configurations. Green: 21 ring/stat/source/demand/publication
+checks in 5.76 seconds; lint, format and diff checks pass. Updated the affixed-ring
+configuration count from 9 to 11; the existing magic-amulet count remains 18.
+All 18 saved report texts and price results are unchanged.
+Published generation: 375f2c48135dae5754ec52f7d256c7762f6db24c68a585e3883a4573384641c3.
+530 roles and 522 stat configurations. Data-only update; no additional restart.
+Source correction now links both profile IDs. Evidence: tmp/starter-rings-*.
+
+Next batch must cover specialist, leveling or unresolved cases. Required named
+tiers, preferred bases, more affixed configurations, leveling uses and exact scoped
+market comparisons remain incomplete. Final parity and coverage checkpoint follows.
+
+Published parity verified. Census, dossiers and coverage matrices refreshed:
+622 reviewed / 8 excluded stat-use quality rows; 2,739 identities, 1,569 base-quality
+rows, 351 evidence records and 115 leveling recommendations retained.
+
+## Caster leveling tail — 2026-09-26
+
+Added eleven reviewed leveling uses across seven unique identities: Barbarian
+Vipermagi, Magefist, Etlich, SoJ and Arreat’s; Paladin Etlich/SoJ; Druid Etlich/SoJ,
+Lidless and Jalal’s. Exact cached locators and source hashes retained. Respec stage
+is advice, not a replacement equip level. Magefist fire skills and Arreat’s attack
+rating do not improve War Cry. Jalal’s native bonus is Druid skills, correcting the
+guide’s all-skills wording. Lidless retains external-resistance coverage conditions.
+No guide-based price was invented.
+
+Red: three missing class recommendation groups and missing runtime test. Green:
+65 recommendation/leveling-policy tests in 7.27s, lint/format/diff pass. Rebuilt
+recommendations and index offline; 126 leveling recommendations (previously 115).
+All 18 saved report texts and price results unchanged before/staged/published.
+Published 01012c886719ec11380a6a6ed040bcc68941b5010f1318226511fe129855f103.
+Maintenance adapter/data only; no new worker restart. No live collection.
+
+Census, dossiers and matrices refreshed: 62,891 occurrences / 2,739 identities,
+1,569 base-quality rows, 530 roles / 522 stat configurations, 622 reviewed / 8
+excluded stat-use quality rows. Batch detail: planning/CASTER_LEVELING_BATCH.md.
+Commands: uv run --offline pytest tests/pricing/knowledge/test_recommendations.py
+ tests/pricing/knowledge/assessment/policies/test_leveling.py -q (one command).
+Artifacts and replay comparisons: tmp/caster-leveling-*.
+
+Tail completed. Next demand-family candidate: Skin of the Vipermagi, identity
+73d0a4a687cc4efbb8285593dac0c4d9053c5f02beec9454b7b2a12806204d3b.
+Current dossier has 20 distinct-build review leads but zero reviewed build-use
+votes; this is a source review opportunity, not confirmed fit for twenty builds.
+Review shared 30 FCR/skills/resistance configuration with explicit variant/full-gear
+qualifications and upgrade/socket exceptions. Resume two demand batches before
+next specialist/leveling/unresolved tail. Named tiers, preferred bases, remaining
+known affixed combinations, leveling/source closure and exact price cohorts remain
+incomplete; the overall goal remains active.
+
+## Vipermagi build-use family — 2026-09-26
+
+First demand batch after caster-leveling tail. Seven reviewed roles across five
+builds: Blizzard Standard alternative, Enchant Standard/MF, Holy Bolt Support,
+Meteor Ubers and Nova Standard/MF. Minimum resistance rolls remain useful. Cast
+rate/all skills desirable, resistances supporting, poison desirable for Nova ES.
+Blizzard requires actual Nightwing's Veil equipment; no pooling with Glacial/Ormus.
+Enchant main/swap distinction preserved; Meteor105FCR/86FHR and Nova105FCR total
+setup gates retained. Exact Serpentskin citations retain original base scope;
+generic names allow verified Serpentskin/Wyrmhide upgrade chain. Socket choices
+remain full-setup qualifications rather than inferred contents. Hardcore and stale
+Poison Nova Budget remain outside these reviewed uses.
+
+Red8missing-role/demand tests. Green24family/stat/source/demand/publication checks
+(18in6.84s +6in0.07s), lint/format/diff passed. All18saved reports and prices
+unchanged before/staged/published. Published f457b593a0fd23c990d0da7191350d7cd7a93b86479262bd067945d1bcf9d048.
+537roles /529stat configurations;126leveling recommendations retained. Data-only;
+no additional worker restart or live collection. Details: planning/VIPERMAGI_BATCH.md.
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_vipermagi_priorities.py
+ tests/pricing/knowledge/assessment/test_stat_bundle.py
+ tests/pricing/knowledge/assessment/test_profile_sources.py
+ tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py
+ tests/pricing/knowledge/assessment/test_profile_publication.py -q (one command).
+Evidence tmp/vipermagi-*. Census/dossiers updated; final matrix counts follow.
+
+Next candidate: Chains of Honor completed-runeword family, identity
+9a55b2bd8647dbf1060a5ac211c28138f83fdee58260dde1a2d5962c5aef28b0.
+Current dossier has30distinct-build review leads but zero reviewed guide votes.
+Review reusable player versus mercenary use separately, especially ethereal/base,
+leech/skills/resistances and actual companion/setup dependencies. This does not
+establish all30uses or prices. One more demand batch then scheduled specialist/
+leveling/unresolved tail. All-item tier/desirability and exact-price coverage remain
+incomplete; goal active.
+
+Published parity and matrix refresh complete:629reviewed /8excluded stat-use quality
+rows;2739identities,1569base-quality rows,362evidence records retained.
+
+## Chains of Honor role family — 2026-09-26
+
+Second demand batch after the caster-leveling tail (first: Vipermagi). Added 21
+reviewed uses across 13 builds, separating player and mercenary beneficiaries.
+Completed recipe, exact base, four filled sockets and known ethereal/identification
+status required. Player armor is nonethereal; cited mercenary armor is ethereal.
+Mercenary types and player casting/recovery totals are source-specific gates.
+Ordinary leech is annotated only for physical mercenary use, not Smite or spells.
+Native-skill benefits do not raise fixed item-granted aura levels. Full companion,
+prebuff, equipment and encounter dependencies remain qualifications.
+
+Source conflicts remain explicit: Hammer MF Archon/Sacred Armor, Double Throw
+CoH/Shaftstop, Dream Ubers CoH/Duress, Mirrored Ubers CoH/Fortitude. Hardcore-only
+references and gear-table discovery mentions do not add reviewed Softcore demand.
+Detailed membership and locators: planning/CHAINS_HONOR_BATCH.md.
+
+Red: 22 missing-role/demand failures. Green: 32 family/stat/source checks in 11.14s,
+plus six demand/publication checks in 0.07s. Lint, format and diff checks passed.
+All 18 saved report texts and price results unchanged before/staged/published.
+Published generation: 1ca3fa379934d025f154ea584fab7c0a0303ad22265b8ab05f2dfb11308d3c9c.
+558 roles / 550 stat configurations; 126 leveling recommendations retained.
+Data-only update; no new worker restart, market collection or live capture.
+Evidence: tmp/chains-honor-*.
+
+Reproduce with one command:
+uv run --offline pytest tests/pricing/knowledge/assessment/test_chains_honor_priorities.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Next must be a specialist/leveling/unresolved tail. Candidate: reconcile
+/blessed-hammer-paladin/variants/2 mercenary Chains of Honor Archon Plate (planner)
+versus Sacred Armor (prose), using the pinned original planner and guide context.
+Determine whether these are legitimate base alternatives or contradictory evidence;
+do not silently label one wrong or universalize all armor bases. Keep originals,
+exact source locators/hashes and a durable disposition. Other conflicts are listed
+in the batch document. Full named tiers, base desirability, affixed configurations,
+leveling/source closure and exact scoped prices remain incomplete. Goal active.
+
+Published parity and coverage refresh complete: 671 reviewed / 8 excluded stat-use
+quality rows (21 new configurations each cover normal and superior quality);
+2,739 identities, 1,569 base-quality rows and 362 evidence records retained.
+No changed/missing census source hashes.
+
+## Hammerdin MF armor reconciliation — 2026-09-26
+
+Scheduled unresolved-source tail after Vipermagi and Chains of Honor demand batches.
+Original planner f80206a8 / profile2 SOPaTLww / mercItems.tors24 confirms ethereal
+Archon Plate CoH. Original guide MF prose explicitly names Sacred Armor. Retained
+both as source-backed examples; no transcription-error claim or universal best base.
+Sacred prose has no ethereal condition, so accepts both known statuses; unknown
+remains unresolved. Exact requirements and mercenary kill credit remain qualifications.
+
+Added blessed-hammer-paladin-2-merc-chains-honor with native MF priority and completed
+recipe/base/mercenary predicates. Source registry now pins original item/profile link,
+prose and mechanics as hammer-mf-chains-honor-base-examples. Changed planner link
+reopens review. Runtime pins structured WP-A/planner/armor; original HTML hash stays
+in maintenance registry. Chains of Honor still has 13 reviewed builds (no inflation).
+
+Red: two missing rule/reconciliation failures. Green: 36 role/stat/source/registry
+checks in 12.07s plus six demand/publication checks in 0.07s; lint/format/diff pass.
+All 18 saved reports/prices unchanged before/staged/published. Published:
+2bc73f6e41a8c4e06f021e2237c10ad4517247af9c8a1c75633fcd915bbaffb6.
+559 roles / 551 stat configurations; 126 leveling recommendations retained.
+Data-only update; no new worker restart, collection or live capture.
+Details: planning/HAMMER_MF_COH_RECONCILIATION.md. Evidence: tmp/hammer-coh-*.
+
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_hammer_mf_chains_honor.py tests/pricing/knowledge/assessment/test_chains_honor_priorities.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_reviewed_source_issues.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Tail completed; resume two demand/family batches before the next tail. Candidate:
+Shaftstop family, identity d7d03c00906ff0580834748d2fa6cecbf5c563a8d4e2b56472cf2bee9f4c1f8b.
+Review mercenary damage-reduction/life utility and explicit base/ethereal/upgraded
+branches using current dossiers; preserve Double Throw CoH/planner conflict and
+Strafe alternative context rather than blindly inheriting named gear. Other source
+conflicts, full named tiers, base/affixed/leveling closure and exact prices remain
+unfinished. Goal active; final matrix checkpoint follows.
+
+Published parity and coverage refresh complete: 673 reviewed / 8 excluded stat-use
+quality rows; 2,739 identities, 1,569 base-quality rows and 362 evidence records.
+Four source issues reconciled; broader source closure remains incomplete.
+
+## Shaftstop survival family — 2026-09-26
+
+First demand batch after Hammerdin MF reconciliation. Added five reviewed uses:
+Dream Hybrid/Ubers, Lightning Strike Standard, Strafe Standard/MF. Three distinct
+builds; Strafe is an alternative, not primary armor. Native 30% physical reduction
+is desirable and 60 life supporting. Helmet leech and socket IAS are not attributed
+to the armor. Strafe does not inherit primary CoH ethereal status; other cited
+uses require ethereal. Explicit Mesh citations retain original base scope; generic
+identity uses accept the verified Mesh Armor/Boneweave upgrade chain.
+
+The initial Shadow Plate assumption failed the native mapping assertion before
+rule writes. Corrected to Boneweave and added a Shadow Plate rejection regression.
+No perfect ED requirement or upgrade price premium. Double Throw's CoH/planner
+versus Shaftstop/prose conflict and other guide-table leads remain unresolved.
+
+Red: six missing-role/demand failures. Green: 22 family/stat/source/demand/publication
+checks in 6.82s, lint/format/diff passed. All 18 saved report texts and prices unchanged
+before/staged/published. Published f56c4ec12a75dbe0c71de90b767583afaf122867320d494577b7570e1d7017f6.
+564 roles / 556 stat configurations; 126 leveling recommendations retained.
+Data-only; no new worker restart, market collection or live capture.
+Details: planning/SHAFTSTOP_BATCH.md. Evidence: tmp/shaftstop-*.
+
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_shaftstop_priorities.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Next candidate: Fortitude family, identity
+b70b3ee02dbddba0708dfb1b974b085aa0c78b69556d575e95a9f2e087ff6f71.
+Review physical player/mercenary use separately, including armor versus weapon,
+base/ethereal/equip requirements, and whether enhanced damage benefits the relevant
+attack. Do not promote old ebug descriptions to current mechanics or prices.
+One more demand batch, then specialist/leveling/unresolved tail. Full named tiers,
+base desirability, affixed patterns, leveling/source closure and exact market prices
+remain incomplete. Goal active; final coverage checkpoint follows.
+
+Published parity and matrix refresh complete: 678 reviewed / 8 excluded stat-use
+quality rows; 2,739 identities, 1,569 base-quality rows and 362 evidence records.
+
+## Fortitude armor family — 2026-09-26
+
+Second demand batch after Hammerdin MF reconciliation (first: Shaftstop). Added
+25 reviewed armor uses across 14 builds, with exact player/mercenary bases and
+ethereal scope. Physical ED is desirable; defense/resistances supporting. Armor
+ED does not improve spell/trap damage, armor FCR is not attack speed, and the
+weapon recipe is a separate use. Native minimum resistance rolls remain useful.
+Historical ebug labels cannot establish extra defense or prices.
+
+Full weapon/helmet/equip/IAS/leech requirements remain qualifications. Blizzard's
+weapon conflict and Cold Rupture/Insight alternative remain explicit. Fissure
+mercenary-type and Mirrored Ubers armor conflicts, unendorsed planner-only variants
+and Hardcore-only references remain outside these rules. No global best-base claim.
+Details: planning/FORTITUDE_BATCH.md; membership and source locators retained.
+
+Red: 26 missing-role/demand failures. Green: 42 family/stat/source/demand/publication
+checks in 14.30s, lint/format/diff pass. All 18 saved report texts and prices unchanged
+before/staged/published. Published f1f147f0dcb84b2f1376657fefa6e478024c49a4b83b8893d154002a6a89283a.
+589 roles / 581 stat configurations; 126 leveling recommendations retained.
+Data-only update; no additional worker restart, collection or live capture.
+Evidence: tmp/fortitude-*.
+
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_fortitude_priorities.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Next must be specialist/leveling/unresolved tail. Candidate: Fissure Standard/MF
+mercenary type, /fissure-druid/variants/1 and /2. Prose says Might while the planner
+uses Holy Freeze, and a separate mercenary section is headed Infinity/Holy Freeze.
+Inspect original cached guide and planner dates/links; determine what is actually
+endorsed before broadening the type predicate. Preserve alternative/context/source
+conflict distinctions rather than silently choosing one. Named tiers, base/affixed/
+leveling closure and sufficiently matched market prices remain unfinished. Goal
+active; final matrix checkpoint follows.
+
+Published parity and coverage refresh complete: 728 reviewed / 8 excluded stat-use
+quality rows (25 new configurations each cover normal/superior); 2,739 identities,
+1,569 base-quality rows and 362 evidence records retained.
+
+## Fissure Fortitude aura reconciliation — 2026-09-26
+
+Scheduled source-review tail after Shaftstop/Fortitude. Standard/MF prose supports
+Might; original guide mercenary prose supports Holy Freeze for slowing enemies in
+area damage. Linked 2026 planner tt9vl0l2 profiles1/2 (QaIr2BVm/Ldr3qiiX) use merc10,
+armor23 ethereal Sacred Armor Fortitude. The 2023 vf0106vk profile serves other
+contexts and must not supply these links. Preserve both supported aura choices for
+the armor component, without claiming identical full loadouts or source typo.
+
+Added fissure-druid-1-merc-fortitude and fissure-druid-2-merc-fortitude. Native
+physical ED/defense/resistance priorities reused; no perfect planner roll gate.
+Wrong aura/base/ethereal/unknown context rejected. MF helmet jewel discrepancy
+remains separate. Registry fissure-standard-mf-mercenary-aura pins original notes,
+HTML and current planner item/profile/merc/slot links; modified links reopen review.
+Fortitude now has15distinct reviewed builds despite two Fissure uses.
+
+Red:3missing rule/source failures. Green:41family/stat/source/registry tests15.40s
+plus6demand/publication checks0.08s; lint/format/diff passed. All18saved report texts
+and price results unchanged before/staged/published. Published 3d828011214230bf0ae5eae630dc7aac2ecc0e85e72367f715e33b0724a7f66a.
+591roles/583stat configurations;126leveling recommendations retained. Data-only;
+no new worker restart, collection or capture. Details:
+planning/FISSURE_FORTITUDE_RECONCILIATION.md. Evidence tmp/fissure-fortitude-*.
+
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_fissure_fortitude_sources.py tests/pricing/knowledge/assessment/test_fortitude_priorities.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_reviewed_source_issues.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Tail complete; resume two demand batches. Next candidate: Andariel's Visage,
+identity1540bd6eeed8ba6b9f388f0453286a040eda999b33d23a3673fe30f3c6a347b2.
+Current dossier has27distinct-build review leads, zero reviewed guide profile IDs.
+Inspect existing Andariel stat/role configurations first to reuse reviewed work;
+review exact mercenary/base/ethereal/IAS-jewel branches and fire-resistance penalty.
+Do not attribute socket properties to the helmet or boost item-granted aura levels
+with all skills. Preserve source conflicts and partial guide coverage. Remaining
+named tiers, base/affixed/leveling closure and exact scoped prices unfinished.
+Goal active; final coverage checkpoint follows.
+
+Published parity and matrix refresh complete: 732 reviewed / 8 excluded stat-use
+quality rows; 2,739 identities, 1,569 base-quality rows and 362 evidence records.
+Five source issues reconciled; broader source closure remains incomplete.
+
+## Andariel’s Visage guide family — 2026-09-26
+
+Completed the first demand batch after the Fissure aura reconciliation. Added 30
+native helmet configurations and reused both existing Fissure configurations:
+32 guide uses across 17 distinct builds. Native IAS and life leech are desirable;
+strength and all skills support the mercenary. The fire-resistance penalty, actual
+socket contents, full gear breakpoints and equipment requirements remain explicit.
+Socket jewel ED is not attributed to the helmet. Existing Fissure jewel and
+companion gates remain unchanged. Conflicting armor/weapon branches stay qualified.
+
+Red: 31 missing-role/demand failures. Green: 60 targeted family, existing Fissure,
+stat/source/demand/publication tests passed in 23.17 seconds; lint/format/diff passed.
+All 18 saved report texts and price outcomes remain unchanged. The initial replay
+used September 25; the final run advanced only the price-policy as-of date to
+September 26. Replaying staged and published data on the same date confirmed exact
+text and complete price-object parity.
+
+Published generation:
+3a4a478975fe30e681a3f752fc1e5ec9120a0b77941f375fdf5e3e4b368aec1c.
+621 roles / 613 stat configurations; 762 reviewed / 8 excluded stat-use quality
+rows. Retained 126 leveling recommendations, 362 evidence records, 2,739 identity
+buckets and 1,569 base-quality rows. Five source issues reconciled. Inventory,
+dossiers, base matrix and coverage matrix refreshed. No new market collection,
+live capture or additional worker restart. Details:
+pricing/knowledge/assessment/planning/ANDARIEL_GUIDE_BATCH.md.
+Evidence: tmp/andariel-family-*.
+
+Reproduce: uv run --offline pytest tests/pricing/knowledge/assessment/test_andariel_guide_family.py tests/pricing/knowledge/assessment/test_andariel_stat_priorities.py tests/pricing/knowledge/assessment/roles/test_fissure_andariel.py tests/pricing/knowledge/assessment/test_stat_bundle.py tests/pricing/knowledge/assessment/test_profile_sources.py tests/pricing/knowledge/assessment/maintenance/test_guide_demand.py tests/pricing/knowledge/assessment/test_profile_publication.py -q
+
+Next: one more demand/family batch, then a specialist/leveling/unresolved tail.
+Vampire Gaze is a candidate: inspect its current dossier and reusable configurations
+before selecting exact mercenary variants, survival alternatives and base upgrades.
+Do not rank solely by mention count or turn guide demand into numerical prices.
+Full named tiers, base/affixed/leveling coverage, unresolved identities and exact
+scoped market cohorts remain incomplete; this is an incremental M1 checkpoint.
+
+## Vampire Gaze expansion — 2026-09-26
+
+Second demand batch after the Fissure tail: four native configurations for Smiter
+Standard/High Investment and Strafe Standard/MF. Existing six Gaze configurations
+and their socket requirements retained. Six distinct reviewed builds; Strafe is
+an explicit survival alternative. Leech and physical DR desirable, magic DR
+supporting; mercenary mana leech and unverified jewel IAS not promoted. Grim Helm
+only in these source-specific uses; Smiter ethereal, Strafe alternative accepts
+known ethereal/non-ethereal. Pride leech limitations and Smite/Life Tap versus
+ordinary leech remain explicit. Native uniqueitems /208 verifies stats.
+
+Red: 5 failures. Green: 38 tests in 12.94 seconds, lint/diff passed. All 18 saved
+report texts and complete price results unchanged before/staged/published.
+Published 2b058eab9fba417ff57fc247b6b64c5e9f8b86dfeecc9904d589520b13ed2db5.
+625 roles / 617 stat configurations; 126 leveling recommendations retained.
+Evidence tmp/gaze-*. Next scheduled leveling tail is already in progress: missing
+class-specific jewelry and Homunculus recommendations, including exact source
+aliases and native requirement levels. Full coverage remains incomplete.
+
+## Leveling jewelry and Homunculus tail — 2026-09-26
+
+Completed scheduled tail after Andariel/Gaze. Eleven new exact guide recommendations:
+Mara's Kaleidoscope for Barbarian, Druid, Necromancer, Paladin and Sorceress;
+Homunculus for Necromancer; Raven Frost, SoJ, Etlich, Cat's Eye and Highlord's for
+Amazon. Exact Maras aliases retained with original source locators. Native equip
+levels retained (Mara67, Homunculus42, Raven45, SoJ29, Etlich15, Cat50, Highlord65).
+Homunculus source all-skills wording corrected to Necromancer skills. Highlord's
+Deadly Strike does not increase Lightning Fury lightning damage. Respec scopes,
+shield/CBF tradeoffs and optional late-level availability retained.
+
+Red:11missing recommendation failures. Green:94 recommendation/runtime tests in
+6.98seconds; lint/diff passed. All18saved report texts and complete price results
+unchanged before/staged/published. Published 26969dd9f8c2becf607caf5dac8266e9bb9da46db9953b9afe3bd4f2fa771a2c.
+137leveling recommendations,625roles/617stat configurations at publication.
+No market collection or new hot-path Python changes. Evidence tmp/leveling-jewelry-*.
+Tail complete. Treachery family is the first next demand batch and is in progress.
+All-item pricing/tier/base/affixed and remaining source coverage still unfinished.
+
+## Treachery mercenary family — 2026-09-26
+
+First demand batch after leveling jewelry tail: fourteen new exact mercenary
+configurations; existing Fissure and shared Smiter rules retained. Sixteen distinct
+reviewed builds. Native Fade when struck supports survival after activation;
+ordinary mercenary roles also prioritize IAS. Dual-Plague Uber roles do not promote
+IAS or defense maximization; Lightning Sorceress is restricted to Uber Mephisto.
+Full base/ethereal/recipe/equip and wearer qualifications retained. Source LFury
+"avoiding high Attack Speed" conflicts with native IAS and remains qualified;
+Double Throw armor, Summoner helmet and linked-planner aura distinctions preserved.
+Native source: runes.json /Treachery; exact membership in test_treachery_guide_family.py.
+
+Red:15missing rules/demand failures. Green:33family/source/publication checks11.55s
+plus12existing Fissure/specialist checks5.34s; lint/diff pass. All18saved reports and
+complete price results unchanged before/staged/published.
+Published 3b6199f3899b6708f7111d082f280662ec87dc5a757c1d33418d88cd66370cdc.
+639roles/631stat configurations;137leveling recommendations retained.
+Evidence tmp/treachery-*. Bulwark is the second demand batch, already in progress;
+then perform specialist/leveling/unresolved tail. Full coverage remains incomplete.
+
+## Bulwark mercenary family — 2026-09-26
+
+Second demand batch after jewelry leveling tail. Seventeen new exact starter/budget
+mercenary configurations; existing Fissure role retained. Eighteen distinct builds
+at publication. Native Non-Ladder leech/physical reduction desirable; maximum life
+and recovery supporting. Minimum rolls accepted. Exact base/ethereal/recipe/context
+conditions retained; no jewel IAS or perfect defense inference. Double Throw armor
+conflict does not discard its supported helmet. FoH aura and Summoner/Fire Blast
+helmet source differences were deferred for separate review. Full member list in
+test_bulwark_guide_family.py; native runes.json /Bulwark. No Ladder revision imported.
+
+Red:18missing role/demand failures. Green:40tests16.10seconds; lint/diff pass.
+All18saved texts and complete price outcomes unchanged before/staged/published.
+Published 667936b4cc7dec6b038c5390b3a25814971e9d94c34b37cc167f7aeae7e3216b. 656roles/648stat configurations;137leveling recommendations.
+Evidence tmp/bulwark-*. Scheduled FoH aura reconciliation tail is now implemented
+and under broader verification. Remaining all-item coverage is incomplete.
+
+## Named tiering priority and verification — 2026-09-26
+
+User priority: complete tiers for all unique/set identities before further particular
+item handlers. GUIDE_FIRST.md and NAMED_TIER_ROLLOUT.md now specify this ordering.
+Generated appraisal-tier-inventory.json: 565 identities, 93 reviewed, 472 pending.
+Retains census evidence, separate historical guide grade, native set membership and
+exact-identity leveling references. Missing evidence never assigns trash. Red import
+failure followed by 2 passing tests; lint/format clean. No new tiers claimed yet.
+Prepared Crown of Ages/counted socket-jewel work remains deferred in tmp.
+
+FoH aura reconciliation finished: two starter Bulwark roles accept the documented
+Might/Holy Freeze source alternatives; source mismatch remains explicit. Published
+c96abceeeb3622b0a4dbc9608938741b1e1cdc23d0a2ab66234a489e01fc59c0.
+All 18 staged/published saved report texts and price outcomes match. Runtime total
+658 roles / 650 stat configurations; 137 leveling recommendations. Guide inventory
+refreshed; broader dossier/base/coverage matrices still need refresh after tier work.
+Full-suite run: 3497 passed, 3 skipped, one source-fixture failure. Fixed the fixture
+to pin all corroborating references to its temporary source; the affected repository
+and profile-source suites then passed (14 tests). Production validation unchanged.
+Do not describe this as a full-suite rerun. Evidence: tmp/foh-bulwark-*,
+tmp/assessment-continuation-full-tests.txt and tmp/tier-inventory-red.txt.
+
+## Published named-tier baseline — 2026-09-26
+
+Completed the user's broad unique/set baseline priority before resuming detailed
+item handlers. 548 explicit policies: 140 set pieces and 408 uniques. All original
+93 policies are unchanged. Defaults: high19/med38/low394/trash97; overrides can
+change a captured variant's tier. Full table:
+pricing/knowledge/assessment/planning/NAMED_TIERS.md.
+Seventeen native records have explicit non-tier dispositions (6quest,10unfinished
+placeholders,1disabled Constricting Ring), preserved in the 565-identity census.
+The inventory has zero unexplained pending identities; ordinary tier-policy coverage
+remains548/565. Neither measure claims complete variant or numerical-price coverage.
+
+New rules reference rules/named_tier_reviews.json (native facts, historical guide
+rows, current build IDs, leveling IDs, pinned inputs). Guide dated2024-03-06 is
+historical early-ladder demand/utility evidence, not NL prices. Qualitative baseline
+priorities are labeled guide/native review in reports. Strong exactly matched dated
+market evidence can refine them; stale/thin/wrong-variant asks retain the baseline.
+Shared variant_rules require exhaustive disjoint native table IDs (Rainbow Facet).
+
+Validation: set rollout red8 -> green8; unique/variant and report-label red-green;
+full suite3606passed/3skipped/1outdated Atma baseline expectation. Corrected that
+expectation (initial low remains immutable while exact asks resolve med), then309
+policy/priced-result/inventory tests pass. No second full-suite claim. Lint/format
+and diff checks pass. All18 saved price objects unchanged; published report text
+matches staged text. Four saved reports gain tier lines. Source-aware labels do
+not call qualitative opinions cached asks.
+
+Published generation e8157a20366d9342a94d677a31f7e9f43fa965450b85ce5bec9d46293444a6de (54artifacts).
+Restart Alt+D worker once for Python variant/precedence/report changes. Future
+ordinary data publications are selected at request boundaries. No live collection,
+new host probe, staging or commit. Guide inventory, review dossiers, base matrix,
+coverage matrix, tier census and readable inventory refreshed. A premature matrix
+attempt was discarded after stale-source validation; dependencies rebuilt before
+successful refresh and publication.
+
+Next: detailed item/variant work. Renewed sunder generated-affix premiums and
+collector/perfect-defense premiums are not covered by identity baselines. Warlord
+availability is explicitly unverified; its tiers are conditional native-utility
+judgments, not drop-location claims. Prepared Crown of Ages/counted-jewel work is
+still in tmp pending files; it was not applied by this tier rollout. Numerical
+SC/NL/PC/RotW estimates still require actual sufficiently matched cached evidence.
+Evidence: tmp/named-tier-*. Rebuild tier inventory with
+uv run --offline python -m pricing.knowledge.assessment.maintenance.tier_inventory.
+
+## Tier visibility and queued defensive items — 2026-09-26
+
+Published 666e92f5fc7a7059377f300e0e9e94a8a51e3691d582b98d6566856539a2d298. Trade and leveling colors high green / med yellow /
+low blue / trash red. Socketed nonethereal Shako now keeps its underlying med tier;
+socket additions excluded and native defense segment withheld when filled.
+Griswold’s Heart already had low trade tier; the missing highlight was the issue.
+
+Crown of Ages adds two exact setups and a counted compound-jewel predicate.
+Stormshield adds four Softcore configurations (one explicit Amazon alternative).
+Spirit Shroud gains conditional leveling advice from transcript15:56, native
+level28/Strength38; original source2025-04-24 retained. Runtime664roles /656stat
+configurations;138recommendation rows (151linked leveling evidence rows).
+Full suite3649passed/3skipped in544.39s; final targeted58pass. All18 staged price
+objects unchanged. Published replay verification in tmp/tier-crown-stormshield-*.
+Worker restart required for renderer/predicate code; no live collection or commit.
+
+Continuing by explicit user request until all queued work is handled. Enigma35
+source configurations and Raven Frost19 have red tests prepared and are currently
+being implemented; Sigon boots/belt conditional leveling tail follows. Remaining
+all-item coverage remains open; do not describe identity tiers as full guide/price
+closure. See CROWN_STORMSHIELD_BATCH.md and tmp/enigma-raven-* for current work.
+
+## Enigma/Raven and Sigon tail published — 2026-09-26
+
+Generation c99da49b9295c5d23ed3687dc4d6ac52f0c8a2337eb0ae153acdf9197510e613,54artifacts.718roles/710stat configurations,
+140leveling recommendation rows. Enigma35configurations/20builds and Raven
+Frost19/10builds added. Sigon boots/belt conditional recommendations retain
+2pieceAR/3pieceMF and70/60Strength costs. Sources pinned and prior rows preserved.
+56red ->56green; affected suite428pass; Sigon/recommendation50pass; lint/format
+pass. All18 staged/published report texts and prices match; numeric prices unchanged
+from previous generation. See ENIGMA_RAVEN_BATCH.md.
+
+Continuing: Heart of the Oak11caster/swap uses across8builds (12new tests pass),
+Griffon’s Eye14uses across6builds (15new tests pass). Socket matcher now accepts
+Colossal Jewels (native cjwl Equiv1 jewl), red/green17socket tests. These latest
+changes are being rebuilt/validated, not yet published. Working scripts/evidence
+are tmp/add_hoto.py,tmp/add_griffon.py,tmp/hoto-*,tmp/griffon-*. Next required
+tail: Rhyme Starter use coverage; only Mirrored Grimoire currently reviewed.
+Do not stop after publication: user explicitly requests continuing all queued items.
+
+## User-requested pause: universal tiers first — 2026-09-26
+
+Stop unrelated implementation. The latest Guardian Angel capture at
+inventory_tracking/runs/alt-d/20260926T102641Z-b5aa4b20/latest.json is nonethereal
+and has pending_review/tier=null. Its policy only covers ethereal200ED. This proves
+the earlier548-policy completion claim was insufficient; the missing tier remains
+unfixed at this checkpoint. The user requested a plan update, not more coding.
+
+Authoritative next plan: pricing/knowledge/assessment/planning/NAMED_TIER_ROLLOUT.md.
+Scan all gathered builds/variants/mercenary gear/alternatives. Assign baseline trade
+tiers high/mid/low/trash to EVERY eligible unique, set piece and complete set;
+review separate leveling tiers for valuable leveling items and combinations.
+Keep premiums separate: failed/unknown roll, ethereal or socket-premium conditions
+must not erase the baseline. Verify actual rendered coverage, not policy presence.
+Only resume other queued work after the universal tier gates pass and are published.
+
+Current published generation:
+c99da49b9295c5d23ed3687dc4d6ac52f0c8a2337eb0ae153acdf9197510e613.
+Hoto11, Griffon14, Rhyme14new+1updated role and Colossal Jewel matching correction
+are staged, not published. Local bundle757roles/749stat configurations. Preserve
+those edits and their tests; do not continue them while this priority is paused.
+No Guardian Angel code fix, new publication, live collection or commit in this
+planning update. The earlier “continue until all queued items” instruction is now
+subordinate to the user's explicit universal-tier gate and pause.
+
+## Phase1 published; phase2 active — 2026-09-26
+
+Selected generation: `39ee03c46fb5d42f6ab70d1b8a5484e80d23ce87113478f660c82174bdc6cfe9`
+(58artifacts). Universal tier gate passes:408uniques +140set pieces,35parent sets,
+17explicit native exclusions,2958rendered cases, zero missing baselines or leveling
+review dispositions. Existing63 leveling identities plus124 supplemental uses/
+combinations are retained. All gathered34builds/591variants/62891occurrences remain
+accounted for; shared-planner ambiguities stay explicit in the guide inventory.
+
+Full run:3813passed/3skipped/4failed in987.55s. All four failures were the same
+pre-existing interaction between Colossal Jewel support and unscoped Rainbow Facet
+upper bounds. Scoped the bounds to Rainbow Facet in three Fissure roles and renewed
+their stat/guide review fingerprints. Final affected suite:408passed/30.92s,
+including all four failures and an additional10%-Colossal +3%-Facet regression.
+All18published saved-item replays match staged output and numeric prices; only
+published artifact provenance contains the additional complete-bundle pins.
+Actual Guardian/Griswold/socketed Shako captures also pass through the selected bundle.
+
+Tier suffixes `(cached asks, DATE)` and `(guide/native review, DATE)` are removed;
+JSON provenance remains. Restart the host worker for these Python changes; the
+agent does not start/stop it (see working-process rule below). No new live probes,
+market fetches, staging or commits were done.
+
+Phase2 now resumes the entire assessment queue, not just top items. The previously
+staged Hoto/Griffon/Rhyme work is included in this publication (757profiles/749stat
+configurations). Next review the broad unique-charm family (Annihilus/Torch), then
+continue demand and specialist/base/pattern batches without declaring catalog or
+routing coverage to be complete assessment. Numeric price gaps remain explicit.
+
+Evidence: tmp/phase1-{full-suite,final-tests,publication,published-replay,
+published-captures}.*, pricing/data/appraisal-named-gate.json.
+
+
+## Phase2 family rollout — 2026-09-26
+
+Published unique-charm and mercenary/Lionheart batches: generation
+`39e6008533b1bf57fda9b435aaac94d56e5389bc3bcaf9de8e91af8cd71be7b0`,
+925 profiles /917 stat configurations. Universal named tiers remain complete.
+67 Torch uses plus8 Annihilus variants,85 early mercenary alternatives,7 Cure
+specialist setups and Strafe Lionheart player/base utility are reviewed.
+37 Torch aliases resolved without changing prices or original labels. Pinned
+source reviews reconcile Mirrored's class label and Nova's unsupported healing wording.
+All18 saved report prices/extractions/text remain unchanged. No live collection.
+The next50 footwear alternatives are staged, pending broad validation/publication.
+This closes these rules, not all item, guide-variant or market-evidence coverage.
+
+
+## Embedded evidence validator — 2026-09-28
+
+Implemented maintenance/embedded_evidence.py after the seven failing tests in
+maintenance/test_embedded_evidence.py. It pins raw guide/planner hashes, verifies
+exact tooltip context and set identity, fingerprints the parent definition and
+resolves socket children without converting evidence resolution into semantic approval.
+Five further graph tests reject missing children, cycles, malformed references and
+ambiguous sets. The combined embedded/completion suite passes: 57 tests; Ruff and
+format checks pass. Actual Abyss helmet items 143,144,140,141,142 validate, preserving
+jewel135 references in143/144. Durable evidence is ABYSS_EMBEDDED_EVIDENCE.json in this
+planning directory. It is explicitly pending semantic review, not completion credit.
+
+Next: integrate a reviewed embedded-use disposition compiler into completion with
+exact role/use fingerprints, identity and wearer/slot constraints; add its code/data
+to completion fingerprints. Then implement/review the five helmet uses and their
+independently authored item-bank scenarios. Do not discharge all397 embedded links
+on source resolution alone. No publication/runtime behavior changed in this pass.
+The universal all-item goal remains active and incomplete. Sacred Rondache saved
+replay again shows Spirit/+27 vs45/socket preparation; two tests passed, but host
+Python delivery remains unverified. No live collection, restart, staging or commit.
+
+
+## Embedded semantic review ledger — 2026-09-28
+
+Added maintenance/embedded_reviews.py and rules/embedded_reviews.json; completion.py
+now compiles those reviews, fingerprints their data and validation dependencies,
+and publishes embedded_dispositions. Exact raw guide/planner evidence, role/use
+fingerprints, reviewed SC endorsement, primary span, embedded corroborating pointer,
+and compatible wearer/slot/build are mandatory. Supported equipment-table slot
+contexts are explicit; unsupported contexts stay pending. No blanket source credit.
+Three previously reviewed Abyss daggers (Void, Rare Kriss, Arch-Devil Kriss) are
+bound to exact refs1/120/226. Their existing runtime rules were not changed.
+
+Red:9 missing-compiler failures. Green:84 related tests, then10 embedded-review
+tests including scope-fingerprint invalidation; Ruff passes. Real completion CLI
+finished successfully:112735 remaining,3 reviewed embedded refs,394 pending.
+Verified reviewed ids are absent from queue and all other embedded tasks remain.
+Sources retain1643 reviewed occurrences; embedded review does not silently discharge
+planner inventory occurrences. Current selected generation unchanged.
+
+Next concrete work: implement/review Abyss embedded Helmets143/144/140/141/142,
+using planning/ABYSS_EMBEDDED_EVIDENCE.json (source proof only) and
+ABYSS_EMBEDDED_CONTEXT.md. Add exact embedded review rows only after their role/use
+and native-decoding item-bank tests exist. Check magic tab normalization and jewel135
+before stat policies. Pending worker delivery and missing Meteor planner remain;
+independent all-item work continues. No live collection, restart, staging or commit.
+
+
+## Abyss embedded helmet rules published — 2026-09-28
+
+Added five roles abyss-warlock-table-embedded-helmet-{rare,magic,coven,hellwarden,horazon}
+and five stat reviews;2517profiles/2509statconfigs. Native source check: magic Diadem
+mp705 is Torrid +3Chaos, native188:58. Guardian'sLight child135 is unique425/cjw
+(Colossal Jewel), not a generic resistance jewel. Coven baseuh9=BoneVisage;
+Horazon baseusk=Demonhead (earlier handoff description was wrong).
+Rare2class/20FCR and magic3Chaos/20FCR are caster alternatives; sockets optional.
+Coven exact BoneVisage3s plus actual rune stats; all3ordinaryqualities. Hellwarden
+minimum magicpierce5/skill/FCR no inherited EchoingUbers companion/jewel dependencies;
+IAS/firepierce excluded from Abyss priority. Horazon standalone skill/str/MDR only.
+
+54 independent native-decoding bankcases red missingroles; then54staged/selectedgreen.
+One test corrected to use wrongsamefamilyDemonhead, since circlet is excluded by
+candidate routing before predicate tracing.2statbundle tests,55embedded/completion
+tests,lint pass. 20staged/selected saved reports+prices match exactly.
+Selected generation16eab754bbda8bbab51c9c8eb2cb154b182219bcba06921b990bd0138cc8eef4
+(79artifacts). Rebuilt index,sourceaudit,bankcoverage,matrix and completion.
+Completion112770remaining,8161coverage rows;6embeddedreviewed/391pending. Additional
+quality rows add real unresolved obligations; no closure claim. Raw occurrence review
+count1643 unchanged. Three named embedded refs140/141/142 received validated reviews.
+Rare/magic refs143/144 still pending actual socket-payload cases and stat review.
+
+NEVER rerun successful tmp/add_abyss_embedded_helmets.py. Logs tmp/abyss-embedded-helmets-*.
+Next: add independent actual143/144 examples with Guardian'sLight+Ist/Um, native
+357magicmastery/358magicpierce contributions, actualcharges and resistances; ensure
+empty/unknown contents cannot invent jewel bonuses. Then finish their embedded
+reviews and remaining source occurrence links. Continue all other contract queues.
+No livecollection,restart,staging,commit. Host delivery remainsunverified.
+
+
+## Actual Diadem payloads published — 2026-09-28
+
+Updated rare/magic Abyss embedded helmet stat priorities for observed357magicmastery
+and358magicpierce. Pinned Guardian'sLight unique425 and actual Ist/Um rune definitions.
+Flat magic attack damage, when-struck trigger and Telekinesis charges do not receive
+passive Abyss spell credit. Unknown children do not erase known parent totals;
+missing parent bonuses are never synthesized from child data.
+
+Added item_bank/cases/abyss_diadem_payloads.py:10 independent cases (actual,unknownchild
+withobservedtotals,empty,unknowncontents,childonly) for both qualities. Parent socket
+stat194 now explicit. Shared bank SocketItem supports exact unique name and native
+child ItemData; Item.capture invokes live annotate_sockets, so report names are
+verified through production identity decoding. New raw identity helper validates
+unique name/base. Only16bankcases have194;10new+6Talmerc cases were exercised.
+Red4missingstatpriorities/6pass; then2reportfailures uncovered missing test-harness
+socketannotation. Final10casesgreen +60helmet/Talregressionsgreen;70selectedgreen.
+4statbundle/socketpayload tests and13embeddedreview tests pass;Ruff passes.
+
+Selected generationfb3bad564274c4d9334ae1539c8523b42b151e8ea724d767b04bd342b57c7074,
+79artifacts.20saved selectedreports/prices exactlymatch staged. Completion112768
+remaining,8embeddedreviews/389pending;2517roles/2509statconfigs. No completion claim.
+NEVER rerun successful tmp/review_abyss_diadem_payloads.py or
+ tmp/link_abyss_diadem_payloads.py. Logs tmp/abyss-diadem-payloads-*.
+
+Next Abyss BodyArmors embedded refs145(span45),146(span51),sameplanner/setdm4EcrJ5:
+145 Authority MagePlate(xtp),HelShaelRal3s,2Warlock,ED60. Planner encodes
+item_skillongethit#387#2=10 and item_skillonhit#399#10=15; verify chance/level semantics
+against native Authority and saved screenshot before assigning trigger use.
+146 Horazon'sDominion RussetArmor(xpl),set136,2DemonSkills (planner tab21=>native188:56,
+NOT Eldritch/Chaos),EDef100,mana100,cold/fire/light25. Native lowrollsEDef75,mana75,res15;
+conditionalset poison25/vit15/DR15 require companions. Demon skills don't directly
+add Abyss ranks; separate summon/Bind support must be reviewed. Also link source
+occurrences explicitly (embedded reviews do not autoapprove inventory occurrences).
+Continue all contract queues; missingMeteor1r010653 and runtimehostrestart unresolved.
+No livecollection,restart,staging,commit.
+
+
+## Abyss Authority/Dominion published — 2026-09-28
+
+Added abyss-warlock-table-embedded-armor-{authority,dominion},2statreviews;
+2519profiles/2511statconfigs. Authority exactMagePlate3sHelShaelRal/all3ordinaryqualities,
+nonethplayer;Warlockskills/FHR/fire resistance highlighted;ED/procs not passiveAbyss.
+Dominion RussetArmor or upgradedBalrogSkin,0/1socket/noneth,lowestEDef75/mana75/res15
+retained;188:56DemonSkills supporting BindDemon utility separately from Abyss ranks.
+Pinned exactguideSkillssection14 as evidence for BindDemon. Setcombo extras conditional.
+
+Confirmed cachedplanner reverses chance/level for Authority AND Guardian'sLight:
+Authority savednativecapture2%lvl10PsychicWard(201:24778),10%lvl15Miasma(198:25551).
+Guardian nativeunique425/function11:1%lvl25PsychicWard(201:24793),not cached25%lvl1.
+Corrected independentdiadem payloadcases and source-reviewnotes/fingerprints forrare/magic
+helmets;rawsource untouched. No inference from triggers into passivecasterdamage.
+33newarmorcased red;43armor+diadem staged/selected green;24decoder/statbundle tests;
+30embedded-evidence/trigger tests;Ruffpass. BodyArmors slot alias red1→green now supported.
+
+Selected86c9a05d4e3a74978819951dc140bf9ff458aafb7386e44cbbd483a5c5cc4f5b,
+80artifacts (Authoritysavedcapture is now pinned evidence).20saved reports/prices
+exactlymatch staging. Rebuilt alldependencies,index,sourceaudit,bankcoverage,completion.
+10embeddedreviews/387pending. Completion112789remaining/8165rows,occurrencereview1643.
+Newrolequalityrows carry real unresolved obligations; no all-item completion claim.
+NEVER rerun successful tmp/add_abyss_embedded_armors.py or tmp/link_abyss_embedded_armors.py.
+Logs tmp/abyss-embedded-armors-*.
+
+Next: explicit remaining Abyss BodyArmors table spans44Enigma,46Stealth,47ChainsHonor,
+48QueHegan,49Vipermagi,50Skullder,52TalArmor. Some wp-a slots already have reviewed
+roles (Stealth,Skullder,Tal,QueHegan),so inspect equivalence/source links before
+adding duplicate rules. Enigma existingStandard/MFvariants may differ from general
+alternative. ChainsHonor existingAbyss role is MERC only; don't reuse wearer blindly.
+Vipermagi no currentAbyssnamedrole found. Then remainingtable/sourceoccurrences and
+allothercontractqueues. Hostdelivery and missingMeteor1r010653 unresolved;independent
+work continues. No livecollection,restart,staging,commit.
+
+
+## Reused Abyss armor rules with exact table links — 2026-09-28
+
+Added maintenance/table_equivalence.py and rules/table_equivalence_reviews.json,
+wired into completion inputs/policy/scope fingerprints and table_dispositions.
+Exact named Mainalternatives/player/slot/build/class rule, reviewed endorsement,
+primarywp-a slot string, rawHTML/cache equality and pinned occurrence/rule/use/source
+fingerprints required. Different variants, wearer, slot, name, source or duplicates
+fail closed. Native corroborating sources validated. No duplicate runtime rule.
+Four raw Abyss BodyArmors spans46Stealth,48QueHegan,50Skullder,52TalArmor now reviewed
+through their existing wp-a slot rules. Completion source-review count1647 (was1643),
+remaining112785. Fourexact ids removed from queue; role/stat counts2519/2511 unchanged.
+
+Added39 independent selected-generation bankcases for those4existingroles: all3Stealth
+qualities, wrong/unknownclass and ethereal facts, empty/unknownsockets, native/upgraded
+armor, Skullderethereal observed/missing/unknownrepair and MF100atlevel80, Talstandalone
+bonuses without setFCR. All39 pass. Sourcecompiler9redmissing→green;54combined source/
+completion tests pass (includes source-hash and scope invalidation). Ruffpass.
+Bankcoverage regenerated. No runtime rule or artifact change, so no republish required;
+selected86c9a05d4e3a74978819951dc140bf9ff458aafb7386e44cbbd483a5c5cc4f5b retained.
+Logs tmp/table-equivalence-red.log and tmp/abyss-existing-armors-*.
+
+Next: Abyss remaining BodyArmors44Enigma,47playerChainsHonor,49Vipermagi. Enigmaexisting
+Standard/MFcontexts may carry extra requirements; inspect before reusing. Existing
+Abyss ChainsHonor is merc-only. Vipermagi lacks currentAbyssnamedrole. Then all other
+contract queues, including sourceoccurrences, variants, market/reports and finalgates.
+MissingMeteor and hostdelivery still unresolved;independentwork continues. No live
+collection,restart,staging,commit. Goal remains active;this is not completion.
+
+## Remaining Abyss armor alternatives and named glove/belt links — 2026-09-28
+
+Published generation cfec4864ea55441011abde40a459f4ee076a1ef9b41b1e35c75cbe0ae2ba2295
+(80 artifacts). Added source-reviewed player rules abyss-warlock-table-armor-
+{enigma,coh,vipermagi}, exact raw guide spans44/47/49. Enigma supports legal armor
+bases, all ordinary qualities, three filled sockets and nonethereal player use;
+the existing Standard/MF Mage Plate configurations remain separate. Player CoH
+supports legal four-socket armor and credits skills/resists, not leech/demon/undead
+attack bonuses as Abyss damage. Vipermagi supports minimum rolls, original and
+upgraded bases,0/1socket. Role/stat counts now2522/2514.
+
+Independent remaining-armors item bank:68red before rules,68green staged,68green
+selected. Fourteen stat-bundle/table-equivalence tests pass; Ruff passes. All20
+saved reports AND price estimates exactly match staged/selected. Planner source
+audit, bank coverage and completion regenerated. Existing named glove/belt rules
+were independently checked in54selected bankcases (original and both upgraded
+bases, minimum utility, wrong/unknownclass/ethereal, impossible sockets, no attack
+properties credited as Abyss cast damage). Three exact table links added for
+Magefist54,ChanceGuards56,Goldwrap59 via table_equivalence; no duplicate runtime
+rules. Seven table-equivalence reviews total. Completion reviewed occurrences1653,
+remaining112820: newly enumerated role/quality obligations increase the queue; this
+is not a final gate pass. No full-suite or whole-bank run claimed.
+
+Successful one-shots NEVER rerun: tmp/add_abyss_remaining_armors.py,
+tmp/link_abyss_remaining_armors.py,tmp/link_abyss_existing_gloves_belts.py.
+Logs tmp/abyss-remaining-armors-* and tmp/abyss-existing-gloves-belts-*.
+
+Next source queue: Abyss gloves53TrangClaws,55embedded,57crafted; belts58Arachnid,
+60crafted,61/62embedded. BloodBoil generic profiles can inform new rules but inspect
+semantics independently. In particular the BloodBoil TrangClaws template currently
+accepts only native HeavyBracers; review legal set upgrade to Vambraces before
+reusing (do not silently inherit a potential missing upgrade). Arachnid native
+SpiderwebSash,20FCR/1skill/5percentmaxmana; slow/chargedVenom are not Abyss spell
+bonuses. All broader contract queues still apply. Missing Meteor source and host
+runtime delivery still unresolved; independent work remains. No live collection,
+restart,staging or commit. Goal stays active and unfinished.
+
+## Abyss Trang gloves and Arachnid belt — 2026-09-28
+
+Published1b2259d701b1f3daf736dad4550de7219342dbbfcc70b83567d045bc4920c003
+(80artifacts). Added abyss-warlock-table-trang and abyss-warlock-table-arachnid,
+exact named player spans53/58. Trang supports native HeavyBracers and upgraded
+Vambraces (native cube154 pinned),20FCR/30coldres/defense; Necromancer Curses do
+not become Warlock skill ranks. Arachnid supports native SpiderwebSash,minimum
+90EDef,1skill/20FCR/5percentmaxmana. Native slow is10percent and Venom is level3,
+11charges (not the20slow/30charges previously guessed in notes). Neither is an
+Abyss passive damage bonus. Nonethereal sustained player rules and0sockets.
+
+21bankcases red before rules,green staged andselected (original/upgradedTrang,
+minimumroll,wrong/unknownclass,ethereal/unknownethereal,invalid/unknownsockets).
+2statbundle tests andRuffpass. All20saved reporttexts andpriceestimates exactly
+match staged/selected. Source audit,bankcoverage,completion rebuilt.2524profiles,
+2516statconfigs.1655reviewed sourceoccurrences,112828remainingtasks: newquality/
+pricing obligations remain; no final gate/fullsuite/wholebank success claimed.
+Never rerun successful one-shots tmp/add_abyss_named_glove_belt.py or
+ tmp/link_abyss_named_glove_belt.py. Logs tmp/abyss-named-glove-belt-*.
+
+Pinned4new embedded source definitions into planning/ABYSS_GLOVE_BELT_EVIDENCE.json
+with validate_embedded_evidence. This is discovery only, no semantic completion.
+Exact contexts: span55item147HorazonHold(set137,DemonhideGloves),span57item92caster
+BrambleMitts,span61item152GheedWager(unique418,TrollBelt),span62item148BaneAuthority
+(set134,LightBelt). Allplanner gsg0p0l0; item92setdGH5vCiB,othersdm4EcrJ5.
+Next review those4 plus legacy span60CasterCraftedBelt x2cpo0l5/item28. Embedded
+semanticcompiler still needs explicit Gloves/Belts slot support with tests when
+adding reviews. HorazonHold native10CB/95–150AR/10–15dex/140–270fire/30–40life;
+onlylife/dex obvious standalonecasterutility; do not assume setcompanions.
+Bane belt10FCR/20life;15energy requires setpieces. GheedWager10–20FCR/FHR/FRW,
+90–150EDef,3–7magicpierce,5–15allres,44–75gold. CraftedBrambles actual30fire/light/
+coldres,25MF,10manaregen,20mana,3MAEK; noFCR. Check requiredaffix thresholds rather
+than requiring everyperfectexample roll.
+
+Additional discovered obligation:6older generic Trangcasterprofiles restrict
+base to xmg only (frozen-orb-sorceress,blood-boil-warlock-guide,hydra-sorceress,
+fire-wall-sorceress-guide,frozen-orb-meteor-sorceress,summoner-warlock-guide).
+Review/fix upgradedVambraces across these with their exactsource/use/stat/context
+fingerprints and independentbank cases. Do not blindly alter exactloadout rules.
+Broadergoal andmissingMeteor/hostdelivery remain unresolved. No livecollection,
+restart,staging orcommit. Continue independentwork;goal remainsactive.
+
+## Trang caster upgrades across six builds — 2026-09-28
+
+Fixed the six older standalone caster Trang profiles noted above. They now accept
+Heavy Bracers and upgraded Vambraces; wearer class, nonethereal status, zero sockets,
+and intrinsic FCR/cold resistance/defense priorities remain intact. These are generic
+Gear alternatives, not exact loadout base substitutions. Native cube recipe 154 is
+pinned in every affected source review. Updated each guide-use and stat-review
+fingerprint and review rationale; no other source-context records referenced them.
+Do not rerun the successful one-shot tmp/fix_trang_caster_upgrades.py.
+
+The independent bank has 72 native/upgraded scenarios across Blood Boil, Summoner,
+Fire Wall, Frozen Orb/Meteor, Frozen Orb and Hydra. Before the fix: 18 failures,
+54 passes; after: all 72 pass both staged and selected. The failures were upgraded
+positive and unknown-fact cases, confirming the old base restriction. Six stat/
+demand tests pass. Embedded semantic reviews now support exact Gloves and Belt/
+Belts slots: three new tests failed before the mapping and pass after it; cross-slot
+rebinding remains rejected. All 29 embedded review/evidence tests and Ruff pass.
+
+Selected generation: 0cb296e0120acd89d0e2f825a7a7a43d97d9d987b2ab8df62b83fdde60bd2508
+(80 artifacts). All 20 saved report texts AND price estimates match staging.
+Source audit, bank coverage and completion regenerated. Counts remain 2524 profiles,
+2516 stat configurations, 1655 reviewed occurrences, 112828 remaining tasks. This
+fix improves variant correctness without creating duplicate profiles or claiming
+new source occurrences. No full suite/whole bank/final completion claim.
+Logs: tmp/trang-caster-upgrades-* and tmp/embedded-gloves-belts-*.
+
+Next: the four pinned Abyss embedded glove/belt definitions in
+ABYSS_GLOVE_BELT_EVIDENCE.json, plus legacy span 60 crafted belt. Its local planner
+pricing/raw/mr/planners/x2cpo0l5.json exists: item 28 is crafted Sharkskin Belt
+(base zvb), crf085 [10,20,10], 30 fire/light/cold resistance, 24 FHR, 10 mana regen,
+20 mana and 10 FCR. The planner has one profile named Set 1, no uid; preserve its
+legacy source format rather than inventing a modern set_id. No assessment review
+has been approved for these five items yet. Horazon Hold/Bane Authority have no
+existing named player role; Gheed Wager has Hammerdin and Fire Warlock alternatives
+that may inform (but do not automatically cover) Abyss. All broader contract work,
+missing Meteor source and host delivery remain pending. No live collection,
+restart, staging or commit. Goal remains active.
+
+## Abyss embedded gloves and belts — 2026-09-28
+
+Published generation f60182050fbebf57b8f46cbf451927fa273c81c1b84396c113ccc74ee4e74109
+(80 artifacts). Added five roles with prefix abyss-warlock-table-glove-belt-:
+horazon, gheed, bane, crafted-gloves, crafted-belt. Native minimums, original and
+legal upgraded/recipe bases, nonethereal player status and zero sockets reviewed.
+Horazon Hold credits life/Dexterity, not attack damage/CB/AR or companion-gated
+IAS/leech as Abyss bonuses. Bane Authority credits standalone FCR/life, not set
+Energy. Gheed Wager credits magic piercing for Abyss alongside casting/survival.
+Caster gloves use native recipe84 (4–10 mana regeneration,10–20 mana,1–3MAEK),
+not FCR. Caster belt uses recipe85 (5–10FCR,4–10 mana regeneration,10–20mana).
+Optional resistance/MF/FHR affixes are evaluated when observed, not required at
+planner maxima. Minimum utility does not imply premium price or full breakpoint.
+
+90 independent bank cases failed before the rules and pass both staged and
+selected. They include all legal bases, minimum and affixed examples, wrong/
+unknown class, ethereal/unknown state, impossible sockets, and missing/unknown
+recipe stats.28 stat/embedded/pattern-review checks and Ruff pass. All20 saved
+report texts AND price estimates match staging. Source audit, bank coverage and
+completion regenerated.2529 profiles,2521 stat configurations. Completion has
+1657 reviewed occurrences,14 embedded semantic reviews,112847 remaining tasks.
+The count rises with newly enumerated obligations; no full suite, whole bank,
+pricing completeness or final completion claim.
+
+Four modern embedded reviews added for items147,152,148,92. Legacy span60 belt
+is reviewed through exact source_context player_pattern and pinned x2cpo0l5 data.
+The named crafted glove span57 also has its own source_context pattern review,
+so its labeled occurrence is preserved in addition to the modern embedded link.
+Legacy link's initial failure was a full-section quote versus exact pattern label;
+fixed the quote to Caster Crafted Belt, preserving section/source validation.
+No compiler weakening. The discovery artifact remains source-only documentation;
+semantic approval is in rules/embedded_reviews.json and source_context_reviews.json.
+
+Successful one-shots NEVER rerun: tmp/add_abyss_embedded_gloves_belts.py,
+tmp/link_abyss_embedded_gloves_belts.py,tmp/link_abyss_legacy_crafted_belt.py,
+tmp/link_abyss_crafted_glove_pattern.py. Logs tmp/abyss-embedded-gloves-belts-*.
+
+Next: Abyss Boots table63/64 modern embedded references,65Waterwalk,66Sandstorm
+Trek,67WarTraveler,68AldurAdvance,69Silkweave,70legacycraftedboots(item29/x2cpo0l5).
+Existing exact Main alternatives roles cover Waterwalk/Trek/Aldur/Silkweave;
+inspect boundaries and independently test before table-equivalence reuse.
+No existing named Abyss WarTraveler role found in Boots slot. Then amulets onward,
+all other source/configuration/pricing/report queues and final gates. A report
+polish pass should expand cramped number/unit wording in recently authored role
+conditions; do it with the next artifact rebuild and preserve fingerprints.
+Missing Meteor source and live worker delivery still pending. No live collection,
+restart, staging or commit. The all-item goal remains active and unfinished.
+
+## Abyss Boots table completed at source level — 2026-09-28
+
+Selected generation: 5588590ad1b860796f136d80691ee1566a208ccf4a2fdc27277fd83af22e9d6d
+(80 artifacts). Added four roles abyss-warlock-table-boots-{wraithstep,legacy,
+traveler,crafted}. Wraithstep's exact example requires observed +1 Chaos Skills
+(native188:58, planner tab23), preserving unknown and wrong-tab boundaries.
+Horazon Legacy credits magic resistance37 rather than flat magic reduction35;
+negative requirements91 use a negative-value activation, not a positive bonus.
+War Traveler supports minimum30MF and native/upgraded bases; attack damage is not
+Abyss damage. Caster boots use native cube83:4–10 mana regeneration,10–20 mana,
+2–5percent max mana, with observed movement/FHR/resistance/MF affixes separately.
+No recipe FCR or planner-maximum prerequisite. All new player boots are nonethereal
+and zero-socket. Original and legal upgraded/recipe bases tested.
+
+Reused existing Waterwalk, Sandstorm Trek, Aldur and Silkweave Main alternatives
+through four validated table-equivalence links (spans65/66/68/69). Wraithstep63
+and Horazon64 have exact embedded semantic reviews (items154/153,dm4EcrJ5),
+WarTraveler67 a named source-context link, crafted70 a legacy pattern link to
+x2cpo0l5/item29. Embedded review compiler gained tested Boots slot support.
+All eight table entries now have reviewed source links. Their other occurrences,
+pricing/report/variant obligations are not automatically closed.
+
+Added97 independent boot cases. Before implementation:53 fail(new roles),44 pass
+(existing rules). After: all97 pass. Re-ran90 preceding glove/belt cases because
+public conditions were spaced for readability, with role/use/stat/embedded/context
+fingerprints updated. All187 pass staged and selected;32 stat/embedded/table tests
+and Ruff pass. Boots slot test failed before support and passes after it. All20
+saved report texts and price estimates match staging. Source audit, bank coverage
+and completion regenerated:2533 profiles,2525 stat configurations,1663 reviewed
+occurrences,16 embedded reviews,11 table-equivalence reviews,112859 remaining tasks.
+No full suite/whole bank/final gate claim. Logs tmp/abyss-boots-* and
+ tmp/embedded-boots-red.log.
+
+Successful one-shots NEVER rerun: tmp/add_abyss_boots.py,
+tmp/link_abyss_embedded_boots.py,tmp/link_abyss_legacy_crafted_boots.py,
+tmp/link_abyss_traveler.py,tmp/link_abyss_existing_boots.py.
+
+Next: Abyss amulet spans71–76. Modern gsg0p0l0 embedded definitions inspected:
+71item84 crafted Entropy Gorget:2Warlock,15FCR (10affix+5recipe),20allres,25MF,
+10mana regen,20mana.73item157 rare:2Warlock,10FCR,20allres,30str,10MF,Teleport
+level3/27charges.74item158 magic:3Chaos/10FCR.75item11 Entropy Locket(unique417):
+magic mastery5–10,FCR5–10,lightres25–40,maxmana10–15,MDR8–12. Native hit-skill
+min4/max19 means4percent level19 Miasma Chains (cached planner reverses chance
+and level again; verify using the established propertyfunc11 decoder).76item156
+Telling of Beads(set95):1skill,18coldres,35–50poisonres,8–10thorns.72Mara named;
+existing Abyss role abyss-warlock-build-guide-1-maras is Standard, so inspect its
+conditions before table reuse. These amulets have not yet been semantically
+reviewed for this source. Preserve exact profile/set refs when extracting evidence.
+All broader contract work, missing Meteor source and runtime delivery remain
+pending. No live collection, restart, staging or commit. Goal remains active.
+
+## Abyss amulet table — 2026-09-28
+
+Published bf08dba33cdcc2ed4f7e212e5fb144b3a405238ff475867807151c74ec18fd28
+(80 artifacts). Added six roles abyss-warlock-table-amulet-{crafted,rare,magic,
+entropy,beads,maras}. Crafted candidate is the cited +2 Warlock /15–20 FCR
+combination (10 FCR suffix plus5–10 recipe), with native recipe mana/regen minima;
+optional resists/MF are not prerequisites. Rare core is +2 Warlock/10FCR; optional
+Teleport uses charge:54 annotation targeting and does not gate core casting use.
+Depleted charges are not usable Teleport or a permanent oskill. Magic is +3 Chaos/
+10FCR, not another tab. Native prefix713,prefix705,suffix174,suffix533 and recipe88
+are pinned. Mara's standalone table role does not inherit Standard125FCR; minimum
+resists and attributes are included while existing Standard configuration remains.
+Telling of Beads uses native skills/cold/poison resistance, not thorns as spell damage.
+
+Entropy Locket is unique417 (not Bitterfall): native hit-skill function11 confirms
+4percent chance to cast level19 Miasma Chain on striking. Cached planner swaps
+chance/level (19percent/level4); raw evidence retained and review records correction.
+Fixture uses native198:25555 raw4 and verifies actual report wording. Magic mastery,
+FCR, lightning resistance, max mana and flat MDR support Abyss; trigger is not
+passive spell damage. Five modern embedded reviews and two named/pattern occurrence
+links added for spans71–76; crafted span71 keeps both its embedded and labeled
+pattern occurrence. Embedded compiler now supports tested Amulet/Amulets role slots.
+
+49 independent cases red before rules,green staged andselected. Available/depleted
+Teleport, wrong skill/tab, below-FCR thresholds, unknown class/skills/ethereal,
+impossible sockets, minimum named rolls and Mara without full FCR tested.25 final
+stat-bundle/embedded/charge checks pass; Ruff passes. The pinned-bundle test's
+magic-amulet candidate count was updated26→27 for the new candidate; snapshot
+isolation/annotation/status assertions remain unchanged. All20 saved reporttexts
+and price estimates match staging. Source audit, bankcoverage and completion
+regenerated:2539 profiles,2531 stat configurations,1665 reviewed occurrences,
+21 embedded reviews,112882 remaining tasks. No full suite/whole bank/final gate claim.
+Logs tmp/abyss-amulets-* and tmp/embedded-amulets-red.log.
+
+Successful one-shots NEVER rerun: tmp/add_abyss_amulets.py,
+tmp/link_abyss_embedded_amulets.py,tmp/link_abyss_maras_table.py,
+tmp/link_abyss_crafted_amulet_pattern.py. Crafted item84's exact set uid is wNE5FX6D;
+other amulet embedded references use dm4EcrJ5. Raw reference contexts validated.
+
+Next: Abyss Rings spans77SoJ,78BK,79embeddedOpalvein(item160,unique416),
+80embeddedSling(item161,unique415),81legacyBloodCraftedRing(item30/x2cpo0l5),
+82legacyRareRing(item31/x2cpo0l5),83magicFCR/resist ring(item159). Actual planner
+examples: Opalvein magic mastery5/FCR10/allres8/LAEK3/MAEK3 and attack trigger
+skill398 (cached chance/level likely swapped; verify native before using).
+Sling has oskill411/10FCR/magicpierce5/15energy/15slow/20MF; verify exact skill
+semantics and do not inherit an unrelated Echoing Ubers dependency. Magic ring is
+10FCR/15allres. Blood crafted ring10FCR/11allres/25MF/3leech/20life/5str; native
+recipe must be checked. Rare ring10FCR/11allres+30lightres/20str/10MF and level5
+Telekinesis32charges, not Teleport. Raw ring definitions inspected only; no reviews
+approved yet. Then charms and remaining guide/source/configuration/pricing/report
+queues. Missing Meteor and runtime delivery still pending. No live collection,
+restart, staging or commit. Goal stays active and unfinished.
+
+2026-09-28: Abyss rings published as 86ffe71bf4997d05fedc88ac483a8c545afc578c018e5e53e771a6f08f7331f1.
+Six new roles plus independently checked BK table reuse;60 bankcases staged/selected,
+24 related checks,Ruff and20saved-report/price parity pass.24embeddedreviews and
+12tableequivalences;112905completion tasks remain. Opalvein random modifier bounds
+remain required work (OPALVEIN_RANDOM_MODIFIER_GAP.md). Continue charm table; no
+full-bank/full-suite/final/runtime-delivery claim. Full objective stays active.
+
+2026-09-28: Published corrected Abyss charms as
+1e7afd6ae0385304088491d4fe250100f8414f808690e29bc2aef307b48c3426.
+Seven charm roles;133combined new ring/charm scenarios pass selected,20saved
+report/price outputs match corrected staging. Removed accidentally imported
+Hardcore life priority; Grand Charm life grounded in the Standard source instead.
+Strict typed charm source reviews,Mechanics-ending Hardcore bounds,andCTA prebuff
+prose links tested. Ordinary labeled Abyss guide occurrences now reviewed/excluded;
+13modern embedded refs still need semantic review or bounded HC exclusion.
+2552profiles/2544statconfigs;112927remainingcompletion tasks. Full all-item goal,
+fullbank/finalgates,missingMeteor andliveworker delivery remain unfinished.
+See handoff.md for evidence,source gaps,andone-shots that must never rerun.
+
+
+2026-09-28: Selected6e3c2c1cdbbc724267f94cfbf24cc900ed1657df93ff3d3fe93a2ff0b4cee809:
+2554profiles/2546statconfigs; two Abyss grimoire roles,22selected bank cases;
+2exact embedded Hardcore exclusions,29totalembeddeddispositions. Runtime/report
+watch projection now removes explicit Hardcore advice while retaining independent
+value rank.36relatedtests plus6selectedscope checks pass;20saved report/price
+outputs match staging. New nine-reference source packet
+ABYSS_EMBEDDED_RECIPE_REVIEW.json corrects earlier recipe-name confusion;
+semantic equivalence still pending.112933completiontasks remain; fullgoalactive.
+HostPythonrestart and missingMeteor remain unverified/unresolved. See handoff.
+
+
+2026-09-28: Nine Abyss embedded recipe uses now reuse five verified existing rules
+through a tested exact-context validator; zero pending Abyss embedded refs. Added
+seven independent Echoing Hardcore source exclusions. Found missingqJ8YXfFZset
+in37Echoingrefs; preserved pending, documented ECHOING_PLANNER_SET_GAP.md.
+Completion112917pendingtasks,40embeddeddispositions; selectedgenerationunchanged.
+60embeddedchecks,57completionchecks,newpolicy mutation,27HCchecks,Ruffpass.
+All-itemgoalactive; Echoing valid-setreferences next; no runtime delivery claim.
+
+
+2026-09-28: Selected3f798f6f3bd30b335d086b48c083b159c000cfd99569c6df20ec05e6aaa817e3.
+Strengthened three Echoing Ubers Sazabi roles with explicit wearer/class/identified/
+nonethereal gates.30newbankcases red18→green30, selected30pass;20savedreport/price
+outputs match staged. Corrected4pre-existing stale demandcounttests,all8pass.
+3257bankcases,3370targets stillmissingcases;112917completiontasks remain.
+No all-itemclosure/hostdeliveryclaim. Echoingvalid-source configuration work next.
+
+
+2026-09-28: Selected815c2d36bd94131ee5ab803e1d33303152657a0cd09ef05f85cedabd3d31628b.
+Two Echoing Ubers temporaryFade roles (player/Act5Frenzy),72stagedcases;105selected
+Fade/Sazabi/DemonLimb cases pass.20savedreport/priceoutputs match staging.
+2556profiles/2548statconfigs,3329bankcases,3370missingtargets;112953completiontasks.
+Next: renderedreport shows oldsmite-shared-treachery lacks classgate, leaking
+Smiteconditionaladvice intoWarlockcontext; thenEchoing exact source links. Fullgoal
+remainsactive,hostdelivery and requiredsourceconflicts unverified/unresolved.
+
+
+2026-09-28: Selecteddf7fd87c8bb842e3b1065e3bbd57901e2bd709a6d1e941cb1314f50b692c49b4.
+Smite sharedTreachery classgate fixed:14newcases,86selectedSmite/EchoingFadecases
+pass;20savedreports/prices matchstaging. PublishedknownWarlock report no longer
+listsSmiteconditionaluse;Paladinretainsit. TwoexactEchoingFadeembeddedrefsreviewed
+throughboundedsourcevalidator,54source/policychecks pass.3343bankcases,
+3368targetsmissingcases;112951completiontasks. All-itemgoalactive;nohostdeliveryclaim.
+
+
+2026-09-28: Validated two Fade visible-label links; added exact player Demon Limb
+Enchant native/source review plus its visible label.43 embedded reviews,3linked
+labels.80 source/completion checks and16 label checks pass after red regressions;
+Ruff/format pass. No runtime generation changes. Mercenary Enchant recipient
+remains distinct/pending; all-item goal and delivery remain unfinished. See handoff.
+
+Completion after source links: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1679, "excluded_occurrences": 4821, "coverage_rows": 8210, "remaining_tasks": 112947}; complete=false.
+
+
+2026-09-28: Published80fd69f956a73db37c243bdc4d3574c11b529787dc49e1e13c22ff21a4adbb15.
+Player-cast mercenary Enchant role with9newbankcases;22staged and124selected
+relatedcases pass.20savedoutputs match.44embeddedreviews/4label links;3352bank
+cases,3368targets missingcases;112950completiontasks. Sling review packet prepared
+for next missing Echoing pairing. All-itemgoalactive; delivery/finalgates incomplete.
+
+
+2026-09-28: Publisheddaba38e154608719afd41b4b71cf009d688b3526edf3b68883163303e3260afa.
+EchoingUbers Sling pairing added,14bankcases;125selectedrelatedcases pass.
+Companionreporting Setup/Needs/Check fixes hiddenrequirements;129appraisaltests pass.
+20savedoutputs matchstaging. CompleteSlingcapture exposes missing358:0->1877
+marketprojection; next implementationgap, not missinglistings.3366bankcases,
+112955completiontasks. ExactSling sourcelinks,hostrestart andall-itemgates pending.
+
+
+2026-09-28: Published90c90ab2726de046051852457713d55942fee6d78d32d9f0979ca1fb82163f46.
+Magicpierce358:0->1877 andexactTownPortaloskill97:411->1878 nowpricedthroughnative
+contracts.27regressions/25selectedbankcasespass;20savedoutputs matchstaging.
+Slingminimumroll1seller(thin),maximum0matches; no inventedestimate. Pricingreview
+packet saved, exactSling sourcelinks stillpending. Bankfingerprint refreshed;
+all-itemcompletionfalse,hostPythonrestart unverified.
+
+
+2026-09-28: ExactEchoingUbers Slingtooltip/label linked throughnative/contextvalidator.
+92source/completion/policychecks passafterRED;45embeddedreviews/5labeldispositions.
+112953tasksremain. Selected90c90ab unchanged; nextHellwarden/Gheedremoval/Malice
+sourcecontexts; all-itemgoal andhostdeliveryremainunfinished.
+
+
+2026-09-28: Published dd011f5c323e8f6eabc19062cd91af7552324c1997b936d3b24e9bfb283aa4ef.
+Hellwarden perfect-roll preference no longer counts socket bonus as helmet roll.
+32 predicate/role and35selected bank checks pass;20savedoutputs match staging.
+3376bankcases/3367missingtargets;112953completiontasks. ExactHellwarden source
+link remains pending after fixing runtime bug. Full goal and delivery unfinished.
+
+
+2026-09-28: ExactHellwarden/jeweltooltip andlabel reviewed after native-rollfix.
+109source/completionchecks pass;46embeddedreviews/6label links;112951tasksremain.
+Runtime dd011f5c unchanged. NextpinnedGheedremoval andMalice refs stillpending.
+All-itemgoal andhostdelivery unfinished.
+
+
+## Active checkpoint — Gheed negative Ubers reference, 2026-09-28
+
+Published f703eb7fafb4231c29777742c1a4b5c8dd057d487011e90bb2caa2b190038f39,
+80 artifacts;2558profiles/2550statconfigs unchanged. Completed exact span11 negative
+Ubers tooltip and visible-label review. Native359/cm3 Gheed, pinned guide sentence
+explicitly says replace it; tooltip happens to point to Magic Find. Exclusion applies
+only to this reference, not Gheed identity, Standard/Magic Find uses or trade tier.
+
+New maintenance/embedded_negative.py validates exact guide/span/section/identity,
+raw removal sentence, native source, absence of positive role endorsement. Visible
+label closure requires corrected recommended=false in actual occurrence. Importer
+negative_mentions.py pins exact source hash + ordinal + label/side/slot, rejects
+changed evidence instead of silently restoring recommendation. build_dataset replay
+proved exactly ONE existing record changed: cc6e26196a4e047f39245526, recommended
+true->false. Other 62k+ occurrences preserved. completion policy fingerprints both
+new helpers; final attestations invalidate on their changes.
+
+Source tests8red->green; label4red/9pass->13green. Importer3red->14combinedgreen.
+109source/completion/watch regressions,23baseline/negative checks,17policydependency
+checks pass. Final selected66Guardian/Gheed bank cases pass;20saved staged/selected
+reports/prices/extractions match. Ruff/format clean. Source audit114planners with
+no guide/source issues; Meteor remains unsupported. Bank3376cases/3913targets,
+3367targets missing scenarios.47embedded reviews/7visible dispositions.
+
+IMPORTANT rebuild incident resolved: valuable regenerated watch artifact hash and
+invalidated six baseline pins. cfcaa3b710e1296b901a2d7a5e5eb0ed77cd5e6df17c0bf1e304292a4ac063c3
+was briefly selected with6missing baselines; now SUPERSEDED. Compared exact cited
+watch rows against retained dd011 generation: all6identical. Revalidated only their
+pins, rebuilt, verified namedgate548eligible/35sets/2958rendered, all gates0, then
+published f703 above. Selected artifact hash+pointer checks prove all6valid. Final
+completion restores prior dimensions; two source tasks closed,112949pending.
+
+Successful one-shots NEVER rerun: tmp/link_echoing_gheed_negative.py,
+tmp/link_echoing_gheed_label.py (first attempt failed KeyError before writes; corrected
+run succeeded), tmp/review_gheed_watch_fingerprints.py. Rebuild script remains safe
+rerunnable. Logs tmp/gheed-*. All handles completed. No live collection/hostprobe,
+restart,commit orstaging. Hostdelivery/fullbank/fullregression/finalgates unfinished.
+
+Next: Malice span14/section25. ECHOING_UBERS_REMAINING_SOURCES.json records Gheed
+closure and pending Malice. Existing role echoing-strike-warlock-guide-malice-ubers-
+source-recipe is Warlock/Act5Frenzy/eth7wd/3filled and ignores mercPMH, but source
+explicitly describes fullSazabi while role only mentions companions in prose, no
+depends_on. Review whether exact Ubers role needs companion predicates before
+source closure. Existing must has broad swordlist AND exact7wd, not broad eligibility.
+Parent planner recipe stats are separate from childrunes; don't sum as captured total.
+Keep Enchant/Fade prebuff availability separate from activebuff inference.
+All-item goal ACTIVE, unfinished; independent work remains despite qJ8YXfFZ/Meteor gaps.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1682, "excluded_occurrences": 4822, "coverage_rows": 8212, "remaining_tasks": 112949}; complete=false.
+
+
+## Active checkpoint — Malice Ubers companions and source closure, 2026-09-28
+
+Published8370632a2f856d4e4a464d9952022fbe7b2e2b11c6163c7b929539c3aac3d58d,
+80artifacts;2558profiles/2550statconfigs unchanged. Exact Malice Ubers profile had
+fullSazabi only in prose. Added3depends_on context_contains mercenary_items for
+CobaltRedeemer,GhostLiberator,MentalSheath. Missing/unknown/player-only companions
+remain partial and do not qualify this setup's statannotations. Retained
+Warlock/Act5Frenzy/eth7wd/identified/3filled. PMH and activeEnchantment/Fade not
+credited; companions only prove names, not rolls or activeeffects.
+
+New independent echoing_malice bank15cases includes normal/superior/low_quality,
+complete/missing/unknown/player-onlycompanions,wrongclass/merc/base,ethstatus and
+identification.6red/6pass before rule;15staged and15selected pass after correction.
+Fixture explicitlypartial totals includesElAR50/Ethtargetdef25 and recipeprops;
+no invented physicalweapon damage or light (-1recipe+1El cancels). Source recipe
+unit context updated with actual companions;9role regressions pass.
+
+New embedded_echoing_malice validates span14/section25, guidewearer/contribution,
+sourceprimary+nativecorroboration, exacteth7wd3runes/order,100OWparent, nativeOW
+recipe100, exactpriorities excludingPMH, class/merc/base/fill and all3companions.
+12sourceRED then50source/pairing/policy GREEN (includes18policydependencies).
+8Malice visible-label/closure tests pass. Added exacttooltip+label;48embeddedreviews,
+8visible dispositions.20selected savedreports/prices/extractions match staged.
+Universalnamedgate548eligible/35sets/2958rendered,allgates0. Ruff/formatclean.
+Sourceaudit114planners/0newguide/sourceissues; Meteor unresolved unchanged.
+Bank3391cases/3913targets/3366targets missing cases. Fullbank/fullsuite/finalgates
+and hostdelivery remainunfinished; no livecollection/probe/restart/commit/staging.
+
+Successful one-shots NEVER rerun: tmp/fix_malice_sazabi_dependencies.py,
+tmp/link_echoing_malice_source.py. First rebuild failed staleguidefp becauseMalice
+is a source_recipe TEMPLATE, not a literalrule. Corrected review fingerprints to
+compile_profiles(load_rule_bundle(...)) result, sourcefp never rawtemplaterow.
+The correction was applied once separately; appendermutator must not rerun.
+Subsequent fullrebuild,index,replay,pub all succeeded. Old failure logs superseded.
+Allprocess handles terminal. Logs tmp/malice-*. ECHOING_UBERS_REMAINING_SOURCES.json
+now records bothGheed andMalice closures.
+
+NEXT: ECHOING_MERC_RECIPE_REVIEW.json pins sevenpendingexactrefs andsections.
+Starter section13/span1native9paInsight,span2xtpTreachery,span3crnBulwark,all eth,
+Act2BlessedAim. Later sections17/21 spans6/8 Insight7wc eth,Act2Prayer+Cure synergy;
+span127section42 generalPrayerInsight;span130section43 progressiontable.
+Do not replace BlessedAim with Prayer/Might or credit triplehealing without
+Cure/Prayer setup. Nativeparent tables distinctfrom rune socketcontributions.
+Blankvisibletooltip labels can still be reviewed as embeddedrefs with nativeproof;
+no invented visible-label alias. MoreEchoing refs remain; missingqJ8YXfFZ andMeteor
+are unresolved source gaps, not grounds to stop independent work. Goal ACTIVE.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1683, "excluded_occurrences": 4822, "coverage_rows": 8212, "remaining_tasks": 112947}; complete=false.
+
+
+## Active checkpoint — Echoing Insight variants and report ordering, 2026-09-28
+
+Published36439601d229641bacebb023e4856674c54a4bf44b590c0e259d545a883006fb,
+80artifacts,2561profiles/2553statconfigs. Found no prior reviewed Echoing Insight
+roles. Added echoing-{0,1,2}-insight-merc: Starter ethPartizan/Act2BlessedAim;
+Standard+MagicFind ethGiantThresher/Act2Prayer with Cure in mercenary_items.
+ExactclassWarlock/base/eth/identified4filled; normal/superior/low_quality supported.
+Priorities Meditation151:120,ED17/18,CriticalStrike97:9,bonusAR119. Minimumrolls
+useful; no activeaura,tripledhealingrate,ownlifeleech or numericalprice inferred.
+Sourcewp variants0/1/2 pinned + nativeInsight recipe. Cure requires mercside;
+unknown/missing companions keep exactlaterconfiguration partial.
+
+Independent bank echoing_insight:9positiveRED/27negativepass initially. Rulefixed
+assessment, but6positivecases still failed visible Cure requirement: reportbounded
+3groups sorted Starter before Standard, hiding valid setup behind knownwrong
+mercenarydependencies. Added dependency_rank inside status sort: satisfied then
+unknown thenfailed typeddependencies before stage/id. No statuspromotion, no
+match changes, full details preserved, same3groupbudget. UnitRED->130reporttests
+GREEN.36staged/36selectedbankpass, then extended everynegative/unknown across all
+3qualities:90selectedpass(111s).3481totalbankcases/3922targets/3366missing targets.
+2statbundlechecks pass(2553);40source/Malice/policy regressions +8Insight visible
+label tests pass. Ruff/format clean.20savedstaged/selected reports/prices/extractions
+match. Universalnamedgate548eligible/35sets/2958rendered allgates0. Sourceaudit114
+planners/0guide/sourceissues;Meteor remainsunsupported. Fullbank/fullsuite/final
+attestations and hostPythonrestart remainunfinished.
+
+New embedded_echoing_insight validates spans1/6/8 sections13/17/21, distinctvariants
+and mercauras, exactnativebase/eth4runes/order, Meditation12-17 native, source
+primary/corroboration, exactstatpriorities (rejectsintrinsicleech), and Cure only
+forlaterPrayerroles. Threeexactrefs +two visiblelabels closed. Blankstartertooltip
+has no invented visible alias.51embeddedreviews/10visible dispositions.
+
+Successful one-shots NEVER rerun: tmp/add_echoing_insight_roles.py,
+tmp/link_echoing_insight_sources.py. All handles terminal. Logs tmp/echoing-insight-*.
+Currentcompletion1685reviewed/4822excluded; scopeidentities/occurrences unchanged.
+Coverage rows grew9 for explicit3rolesx3qualities; requiredpending count112996,
+not a claimof broadcompletion. All-item goal ACTIVE, incomplete. No livecollection,
+probe,restart,commit orstaging.
+
+NEXT ECHOING_MERC_RECIPE_REVIEW.json: spans1/6/8 closed; starterblankspan2Treachery
+MagePlate andspan3BulwarkCrown stillpending. Existingroles
+ echoing-strike-warlock-guide-0-merc-treachery-native
+ echoing-strike-warlock-guide-0-merc-bulwark-native
+already specify Warlock/Act2BlessedAim/exactethbases/3filled but qualities only
+normal/superior. Verify low_quality completedrecipes and add independent native
+bankscenarios before sourceclosure. No existingbankfile matches theirIDs.
+GeneralInsight span127section42 andprogression span130section43 remain separate
+contexts; do not blindlyalias Standard/Cure if source advice is moregeneral.
+OtherEchoing refs (Void, gearalternatives, etc), missingqJ8YXfFZ andMeteor remain.
+ReportPython change requires hostrestart; not performed/verified this turn.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1685, "excluded_occurrences": 4822, "coverage_rows": 8221, "remaining_tasks": 112996}; complete=false.
+
+
+## Active checkpoint — Echoing starter armor quality and blank tooltips, 2026-09-28
+
+Published8df2dd6ecc9c551b0bac06fa4675570b3e03780038fb32516d853456d8a81dff,
+80artifacts,2561profiles/2553configs unchanged. Two existing starter rules only
+allowed normal/superior; completed low_quality Treachery andBulwark now supported.
+Exact ethMagePlate/ethCrown,Warlock,Act2BlessedAim,identified3filled retained.
+Source guide/stat review fingerprints updated for those literal profiles only.
+No itemstats/price multipliers or activebuff claims added.
+
+New independent echoing_starter_armor bank42cases:2words x3qualities x7scenarios
+(positive,wrong/unknownmerc,wrongclass,unknown/noneth,wrongbase). RED2lowquality
+positives/40pass ->42stagedgreen and42selectedgreen. Nativepartialstat arrays;
+Treachery IAS/Fade/FHR/coldres andBulwarkNL4lifeleech/10physicalreduction/maxlife/FHR
+assert their correct desirable/supporting config annotations. Rune names resolve
+through metadata; fullphysicaldefense and unknownstats not fabricated.
+
+New embedded_echoing_starter validates blankspans2/3 section13, exactwearer and
+nativebase/eth3runeorder,primarywp variant0/nativecorroboration,all3qualities and
+priorities. Native Fade5%lvl15whenstruck and NL Bulwark4-6leech/10-15DR checked.
+7semanticRED then33semantic/policy GREEN (includes20policydependency cases).
+Recorded2embeddedrefs;53embeddedreviews/10visiblealiases unchanged because both
+labelsblank. ECHOING_MERC_RECIPE_REVIEW.json marks those2closed. No inventedaliases.
+
+20savedstaged/selected reports/prices/extractions match. Universalnamedgate548
+eligible/35sets/2958rendered,allgates0. Ruff/formatclean. Sourceaudit114planners
+no newguide/sourceissues; Meteor remainsunsupported. Bank3523cases/3924targets,
+3362targets stillmissingcases. Coverage8223rows includes2newqualitytargets;
+completion113006pending, not broadclosure. All-item goalACTIVE, unfinished.
+Fullbank/fullsuite/finalgates andhostdelivery/Pythonrestart stillpending.
+No livecollection/probe/restart/commit/staging. Alltoolhandles terminal.
+
+Successful one-shots NEVER rerun: tmp/fix_echoing_starter_qualities.py,
+tmp/link_echoing_starter_sources.py. Logs tmp/echoing-starter-*.
+
+NEXT GeneralInsight span127section42 ('Insight, Prayer') explicitly says Prayer
+for life regen and InsightGiantThresher for mana; does NOT require Cure. Existing
+EchoingStandard/MF roles intentionally model fullCurehealing setup. Need separate
+reviewed generalmana use (do not silentlyalias strongerCuredependency), independent
+positive/near-miss/unknownbank, and exactsource review. Generalprogression span130
+section43 remainsseparate. Source packet alreadypins both; laterCure refs5/7 and
+manyequipment references also remainpending. MissingqJ8YXfFZ/Meteor are separate
+sourcegaps and do not block this independent work.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1685, "excluded_occurrences": 4822, "coverage_rows": 8223, "remaining_tasks": 113006}; complete=false.
+
+
+## Active checkpoint — General Prayer/Insight use and progression ownership, 2026-09-28
+
+Publishedf9adba7872a9cc7d84b24061822dab07ffb132dfdca980a3294615eb8759c46d,
+80artifacts,2562profiles/2554statconfigs. New echoing-overview-insight-merc reviews
+section42 generalPrayer/Insight mana advice. Native legal4socket Act2polearms
+via legal_base_condition (not spears orBardiche); Warlock/Prayer/identified/4filled.
+No Cure or ethereal gate: nativeMeditation effect survives noneth/unknowneth and
+legalalternativeBill. Guide's ethGiantThresher is an example, not a universalbest
+base. Priority only151:120Meditation; Prayer is mercenary ability, not itemstat;
+no intrinsic lifeleech,activeaura,triplehealingrate or price inferred. Narrower
+Standard/MF Cure combo roles retained separately. Primarypinnedcachedsection42,
+nativeInsight corroboration; conditions keep activation/equipment caveats separate.
+
+Independent echoing_insight_overview bank36cases (3qualitiesx12): without/with/
+unknownCure,noneth/unknowneth,Billalternative,wrong/unknownmerc,wrongclass,
+illegalBardiche/spear,unidentified.18positiveRED/18negativepass ->36staged and
+36selectedgreen.3559bankcases/3927targets/3362missingtargets. Added1profile/config;
+statcount2554 updated,23stat/policychecks pass (includes21policydependencycases).
+
+Extended embedded_echoing_insight spans127section42 and130section43. Generalmust
+is exact canonicalclass/Prayer/identifiedword/fill/nativelegalbase set: reject
+extraCure/eth/fixedbasegates and falsely annotatingPrayer. Source overviewRED1 then
+14green. Progression rawtable parser says side=player despite immediatelypreceding
+Insight,Prayer section and explicit Mercenary tableprose; boundedsemantic review
+corrects to mercenary role, retains rawprovenance. Parentheading/Prayertext/table
+heading/weaponexample all required. Tests source+3Insightlabelbranches:39pass and
+one ineffective mutation initially (rawHTML splits 'Prayer Aura'); fixed mutation
+to actually replacePrayer, isolatedtest passes. Thus all40 source/labelchecks pass;
+no productionchange needed for testmutation. Added2embeddedrefs+2visiblealiases:
+55embeddedreviews/12visible dispositions. ECHOING_MERC_RECIPE_REVIEW.json allits
+7specificrows reviewed; does not mean wholeEchoingguide complete.
+
+20savedpublishedreports/prices/extractions match staged. Universalnamedgate548
+eligible/35sets/2958rendered allgates0. Ruff/formatclean. Sourceaudit114planners,
+0guide/sourceissues, Meteor unsupported unchanged. Fullbank/fullregression/final
+gates/hostdelivery stillunfinished. Source-policy fingerprint now also covers
+merc_survival_templates.py used to validate legalpolearmconditions.
+
+Successful one-shots NEVER rerun: tmp/add_insight_overview.py,
+tmp/link_insight_overview.py. First appendattempt hadSyntaxError before anywrites;
+corrected run succeeded once. An inadvertentlystarted rebuild againstoldprofiles
+then failedreview_dossiers; it was verifiedterminal, then fullrebuild rerun after
+correction and succeeded. No overlapping rebuild left. Alltoolhandles terminal.
+Logs tmp/insight-overview-*. No livecollection/hostprobe/restart/commit/staging.
+Goal ACTIVE, unfinished; sourceconflictsqJ8YXfFZ/Meteor stilloutstanding.
+
+NEXT ECHOING_CURE_REVIEW.json pins refs5/7 blankCure and155CureGrandCrown progression.
+Existing echoing-strike-warlock-guide-{1,2}-merc-cure specify Warlock/Prayer/exact
+ethGrandCrown3filled, but qualitiesnormal/superior only, no depends_on. Priorities
+151:109Cleansing,45poisonres,110poisonlength,76maxlife,99FHR. Review standalone
+Cleansing usefulness vs fullPrayer+Insight healing dependency; do not blockvalid
+standaloneaura or infer fullhealing from names alone. Addlowquality/nativebank
+boundaries. Progressionref155 again rawparser sideplayer needs boundedmerccontext.
+Otherguidegear references remainpending; ownership correction here is ONLY scoped
+Insight references, not a global rawparser fix.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1687, "excluded_occurrences": 4822, "coverage_rows": 8226, "remaining_tasks": 113020}; complete=false.
+
+
+## 2026-09-28 — Cure family quality and exact Echoing component review
+
+Selected runtime dcc3427ed436e927c450336697cf0b35dc312e7565a02d7fcd7d9dc8e1adc7bd
+(80 artifacts; 2562 profiles / 2554 stat configurations). Previous f9ad generation retained.
+All31 reviewed Cure roles now accept completed low_quality alongside normal/superior;
+CURE_QUALITY_REVIEW.json proves each compiled role differs only in qualities. Bearer,
+base, companions, source and native stat priorities unchanged. Family RED9 -> GREEN25;
+Echoing native full-pipeline RED6 -> staged54 and selected54 pass. New bank cases cover
+Standard/MF, all3qualities, without/with/unknownInsight and wrong/unknown bearer, eth
+and base. Cleansing component usefulness remains independent of full Prayer/Insight
+healing; neither active aura nor fixed healing rate inferred.
+
+Added embedded_echoing_cure validation and source refs5/7: blank labels resolved by
+pinned native recipe/planner, no invented visible aliases. Native parent poisonres
+10–30 is distinct from captured total including Tal. Source+policy tests31 pass;
+57 embedded reviews now. Two Zeal source-context pins needed quality-only migration:
+reconstructed old role exactly equals prior fingerprint before updating; 18 context
+tests pass. Completion audit initially failed on those pins, then succeeded unfinished.
+
+Bank3613 cases /3958 requiredtargets /3387 missingcases. Namedbaseline548 identities,
+35 fullsets,2958 renderedcases: all gates0. Twenty saved selected reports, price_estimate
+and extraction fields match staged. Ruff clean,8 files formatclean. Source audit114
+planners; unsupported Meteor and missing qJ8YXfFZ source conflicts remain outstanding.
+Fullbank/fullrepo/finalgates and hostrestart/delivery are still unverified.
+
+Successful one-shots NEVER rerun tmp/fix_cure_quality_family.py,
+tmp/link_echoing_cure_sources.py or the inline two-Zeal-pin migration. All process
+handles terminal. Logs tmp/cure-*. No live collection/probe/restart/commit/staging.
+
+NEXT: ECHOING_CURE_REVIEW.json span155 Cure Grand Crown in section43 progression.
+Exact source context: immediately follows section42 Insight, Prayer; table explicitly
+says Mercenary. Raw parser sideplayer must remain provenance but must not determine
+runtime wearer. Add separately sourced progression role/native bank and semantic
+source validation; do not relabel Standard/MF roles. Review exact Grand Crown example
+versus general legal helm contribution, then close embedded and visible source refs.
+Other source/configuration/pricing/itembank queues remain required; goal ACTIVE.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1687, "excluded_occurrences": 4822, "coverage_rows": 8257, "remaining_tasks": 113204}; complete=false. Expanded quality targets and changed fingerprints expose additional required work; pending totals are not a completion claim.
+
+
+## 2026-09-28 — Cure mercenary progression
+
+Selected generation b4425bf0ed8ab6063441a1e1939cf58a179897ffa9d5567a3c6494337b7960d7
+(80artifacts;2563profiles/2555statconfigs). Added echoing-progression-cure-merc,
+a separately sourced section43 Gear Progression role under section42 Insight/Prayer.
+Warlock, Act2Prayer, identified Cure,3filled, native legal helm/circlet bases, all3
+completed nonmagical qualities. Standalone Cleansing priority151:109; no Insight,
+ethereal or fixed GrandCrown gate. No whole healing multiplier/active aura claim.
+GrandCrown remains pinned guide example; different legal bases can supply same aura.
+
+Native independent bank36:18RED+18negativepass ->36staged and36selectedGREEN;
+without/with/unknownInsight,noneth/unknowneth,BoneVisagealternative,wrong/unknownmerc,
+wrongclass,illegalCap/Monarch,unidentified across3qualities. Bank3649cases,
+3961targets,3387missingtargets. Statbundle count2555;24stat/policychecks pass.
+Source validator extended exactspan155 with Prayer parent, Mercenary table and
+CureGrandCrown example;14semanticchecks pass including mutatedparent/example and
+forbiddeneth/fixedbasegates. Source label support echoing_cure added;8labelchecks
+pass (positive was RED unsupportedkind). Embedded ref155+visiblealias closed;
+58embeddedreviews/13visiblealiases. Raw parser sideplayer retained as provenance,
+corrected only for boundedvalidated mercenary use. ECHOING_CURE_REVIEW.json closes
+its3specificrefs, not wholeguide. No runtime use is inferred from raw table owner.
+
+20selectedreport texts/price_estimate/extractions match staged. Namedtiergate548
+eligible,35fullsets,2958renders,allgates0. Ruff/7formatfilesclean. Completion first
+failed stale planner reachability after addedprofile; regenerated planner_source_audit
+and completion succeeded unfinished. Sourceaudit114planners,0guide/sourceissues,
+Meteorunsupported and qJ8YXfFZ missing source conflicts still unresolved. Fullbank,
+fullregression,finalgates,hostrestart/delivery remain unfinished.
+
+Successful one-shots NEVER rerun tmp/add_cure_progression.py and
+ tmp/link_cure_progression.py. Link script first failed beforewrite on unsupported
+occurrence kind; after RED/GREENfix it succeeded once. All processhandles terminal.
+Logs tmp/cure-progression-*. No livecollection/probe/restart/commit/staging.
+
+NEXT ECHOING_ENIGMA_REVIEW.json pins span18/section30Late-Game, planneritem321.
+Guide says replaceBladeWarp with Teleport upon acquiring EnigmaMagePlate. Existing
+Standard/MF/Ubers Enigma roles do not automatically review this distinct proseuse.
+Review genericTeleportutility vs exactbase/durability, independentnativebank, role
+and exact source link. Scope all remaining configurations, pricing and itembank
+obligations remains unchanged; goal ACTIVE.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1688, "excluded_occurrences": 4822, "coverage_rows": 8260, "remaining_tasks": 113220}; complete=false.
+
+
+## 2026-09-28 — Enigma late-game mobility and 35-role quality correction
+
+Selected generation75e01d7bd96ed3f80b4e18c9ce4f6b3a7c4757c20e8a77da97924ffd1dc38db9
+(80artifacts;2564profiles/2556statconfigs). Earlier cde9c24db59038d66b5ae9ff3fb0788828d921dfa38d50e5c42cbbdf3a59f3bf
+published late-game role alone and remains retained, as do prior generations.
+
+Added echoing-late-game-enigma-player: section30 explicitly replaces BladeWarp with
+Teleport. PlayerWarlock,identifiedEnigma,3filled,nativelegaltors,all3completedqualities,
+nonethereal for durableplayeruse; no fixedMagePlategate or CTAcompanion. Only native
+97:54Teleport contribution; no FCRbreakpoint/selfequip/fullbuild/priceclaim. Ethereal
+still grantsTeleport but cannot normallyrepair, statedinconditions. Native24bankcases
+6RED18pass ->24staged/selectedgreen: all3qualitiesMagePlate/DuskShroud,eth/unknowneth,
+wrong/unknownclass,illegalhelm,unidentified. ECHOING_ENIGMA_REVIEW.json reviewedexact
+span18/section30/player. Newembedded_echoing_enigma.py validates exact prose/native
+JahIthBer/oskill54+1 and legal-roleboundaries.10semanticchecks,23policydependencychecks,
+2statbundlechecks,8visiblelabelchecks pass; REDunsupportedsemantic/label first.
+Source58->59embeddedreviews;13->14visiblealiases. Count2556 updated. No whole-guide
+completion inferred. Late24 remains valid but finalselectedfamily420 does not rerun
+that24 after familyqualitychange; it passed immediatepreviouspublishedgeneration.
+
+Then reviewed35existingEnigma variantroles (of41total) omitting completedlow_quality.
+Independent test_enigma_priorities MEMBERS explicitly lists35build/base variants.
+35RED+1pass ->36GREEN. NativeEchoing representativebank3RED15pass. Migration proves
+allcompiledfields exceptqualities identical and everyotherprofile unchanged; guide/
+statpins updated against exactoldfp. No embedded/sourcecontextpins referred to those
+35roles. ENIGMA_QUALITY_REVIEW.json holds nativepin,before/afterfps and verification.
+Nativebank enigma_quality.py uses independently authoredtestMEMBERS (notproduction
+profiles), all35 x3qualities x4scenarios =420. Positives and ethereal/unknowneth/wrong
+class boundaries; Sorceress supportingTeleport retained by familyunitassertion.
+First210stagedgreen, added210normal/superiornegative/unknown stagedgreen; full420
+selectedgreen226sec. Initial bankcollection error missingCase.expected corrected
+before REDbehavior run, not counted as behavioralRED. Bank4093cases/3999targets/
+3317missingtargets; no missingcasecategories for the35Enigma variants. Casecoverage
+is not fullrepo verification; native bank is partialcapture, not fullpriceevidence.
+
+20finalselectedreporttexts/price_estimate/extractions equal staged. Namedbaseline548
+eligible/35fullsets/2958renders allgates0. Ruff10filesclean/formatted. Sourceaudit114
+planners,0guide/sourceissues; unsupportedMeteor and missingqJ8YXfFZ unchanged. Final
+completionaudit succeeds unfinished. Fullbank/fullrepo/finalgates and hostdelivery
+remainpending. Allprocesshandles terminal. No livecollection/probe/restart/commit/
+staging. Successfulone-shots NEVERrerun tmp/add_enigma_late.py,
+tmp/link_enigma_late.py,tmp/fix_enigma_quality_family.py. Logs tmp/enigma-late-* and
+ tmp/enigma-quality-* (allselected/staged/test/replay/completion evidence).
+
+NEXT: COMPLETED_WORD_QUALITY_AUDIT.json records326remaining completedword roles
+across19words omittinglow_quality;201literal,125merc_survivaltemplates. Audit only,
+no authorization to blindlybroadenpreparation/creation rules. LargestDuress39,
+Smoke31,Fortitude30,Temper30,Lionheart27,ChainsHonor24,Ground21,Bulwark19,Treachery17,
+CTA16,Rhyme15,Spirit14,Hustleweapon12,HOTO11,Hustlearmor8,Wealth6,Infinity3,Flickering2,
+Lore1.7source_context reviewrows referenceaffectedroles;0embeddedreviews. Group by
+sharednativebehavior,RED/GREENexistingindependentfamilytests + nativebank, preserve
+allothercompiledfields, updatepinsONLYafterexactdiffaudit, thenpublish/replay.
+Other source/config/stat/pricing queues still required; this is not a replacement
+for original all-item goal. Goal ACTIVE, unfinished.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1689, "excluded_occurrences": 4822, "coverage_rows": 8298, "remaining_tasks": 113446}; complete=false. Expanded quality scope creates additional obligations; count is not a completion claim.
+
+
+## 2026-09-28 — Seven completed-word quality families
+
+Selected generation: 910c5eb35a4c60feb3544a228dfd26a447b619dd3e0c2758d35b62c6738ed504
+(80 artifacts; 2564 profiles /2556 stat configurations). Previous75e01d retained.
+
+Corrected completed low_quality eligibility for162 roles:125 shared merc_survival
+profiles and37 literals. Words: Duress39,Smoke31,Temper30,Lionheart27,Ground21,
+Hustle(armor)8,Wealth6. The compiled before/after audit proves only qualities changed;
+all other fields and all other profiles are unchanged. No unsocketed preparation,
+recipe creation availability, wearer/base/ethereal/stat/companion policy changed.
+MERC_WORD_QUALITY_REVIEW.json preserves native pin,162 before/after fingerprints,
+source pin migrations and validation. Four source_context reviews updated after
+exact old fingerprint checks: zeal-starter-smoke,zeal-early-merc-equipment spans
+212/233/211. No embedded review referred to these roles.
+
+RED:12 family test failures,25 passes;105 native cases had14 failures/91passes.
+GREEN:55 family/source-context tests, plus separate Ground runtime test checking
+all15early merc roles retain defenses without Vitality.105native cases pass both
+staged and selected: seven independently authored examples x3qualities x5scenarios
+(nonethereal,ethereal,wrongclass,illegalbase,unknownidentified). These are recipe
+representatives, not a claim of native bank coverage for all162build roles. Native
+rune sequences verified locally; Lionheart raw life12800 decodes50. CompletedHustle
+armor is distinct from weapon; player versus merc durability/benefits remain intact.
+
+Bank4198cases/4161targets/3458missingtargets. Expanding162 quality targets introduces
+new required native build cases; seven examples close21quality targets. Twenty saved
+selected text/price_estimate/extraction outputs match staged. Namedbaseline548eligible,
+35fullsets,2958rendered allgates0. Ruff/9formatfilesclean. Sourceaudit114planners,
+0guide/sourceissues; unsupportedMeteor and missingqJ8YXfFZ source conflicts unchanged.
+Completion audit succeeded unfinished. Fullbank/fullrepo/final gates and hostdelivery
+remain pending. All process handles terminal. No livecollection/probe/restart/commit/
+staging. Successful one-shot tmp/fix_merc_word_quality.py MUST NOT be rerun.
+Logs tmp/merc-word-quality-* include RED/GREEN, staged/selected, publication,replay,
+coverage,audit andcompletion. Goal ACTIVE, not complete.
+
+NEXT: COMPLETED_WORD_QUALITY_AUDIT.json retains original326 reviewed candidates,
+marks162 quality_corrected_verified, leaves164pending across12words. All164 are
+literal role definitions. Fortitude30,ChainsHonor24,Bulwark19,Treachery17,CTA16,
+Rhyme15,Spirit14,Hustleweapon12,HOTO11,Infinity3,Flickering2,Lore1. Three source-context
+pins remain relevant: two zeal Fortitude repeats and abyss-named-merc-table-span108
+ChainsHonor. No embedded reviews. next_test_leads lists independent existing tests;
+read their assertions, extend completed-quality boundaries and add nativebank cases.
+Preserve exact compiled behavior except justified quality eligibility, verify all
+pins before migration, then publish/replay. All original source/pricing/item-bank
+closure requirements remain; finishing this quality audit is not the all-item goal.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1689, "excluded_occurrences": 4822, "coverage_rows": 8460, "remaining_tasks": 114418}; complete=false.
+
+
+## 2026-09-28 — Remaining 164 completed-word quality corrections
+
+Selected generation: 61a3fb086a7d0dd5c584a23bc94dc501700f4651eb32aab60790a0ba18c7b39b
+(80 artifacts; 2564 profiles /2556 stat configurations). Previous910c5eb retained.
+
+All164 remaining literal roles now accept completed low_quality: Fortitude30,
+ChainsHonor24,Bulwark19,Treachery17,CTA16,Rhyme15,Spirit14,Hustleweapon12,HOTO11,
+Infinity3,Flickering2,Lore1. Whole compiled-diff audit proves only qualities changed;
+all other profiles and fields unchanged. No base-preparation or creation rule changed.
+COMPLETED_WORD_QUALITY_AUDIT.json marks its original326 quality gaps corrected, with
+zero pending in that bounded audit. This does NOT close all-item work or source,
+pricing, variant, class, or native bank obligations.
+
+Recovery: tmp/fix_remaining_word_quality.py changed164 raw roles, proved exactdiff,
+then stopped BEFORE any review writes because six pre-existing Fissure roles have
+no explicit guide_use_reviews rows. Do NOT rerun. Recovery script
+ tmp/finalize_remaining_word_quality.py revalidated exact old/new diff, migrated158
+existing guide pins and164stat pins, and recorded the exact6missing without inventing
+endorsements. Source-context3pins updated: Zeal Fortitude repeats12/25, Abyss merc
+ChainsHonor span108. No embedded pins affected. REMAINING_WORD_QUALITY_REVIEW.json
+contains before/after hashes, sourcepins, recovery explanation and validation.
+Both scripts are one-shots; recovery SUCCEEDED, never rerun either.
+
+RED: first Fortitude unit test failed low_quality (maxfail1); specialist tests6failed/
+2passed for Infinity3 and playerFlickering3bases. Native12recipes x3qualities x3cases
+=108:12lowqualitypositives failed,96passed. GREEN native108staged +108selected.
+Cases preserve real rune payloads, independent native benefits, wearer/base/ethereal,
+and identified/unidentified/unknown states. Representatives are NOT native coverage
+of all164build roles. Bank4306cases/4325targets/3586missingtargets.
+
+Broader green run:124passed and1 stale Bulwark test failure. Oldselected910c5eb
+already contained20Bulwarkbuilds, but test expected19. Corrected expectation to exact
+MEMBERS build set plus Fissure/FOH/Zeal; isolated test passes. Thus all125 affected
+checks pass across full+isolated runs; no runtime change for stale expectation.
+Logs tmp/remaining-word-quality-green.log and -bulwark-green.log retain that history.
+Ruff/11formatfiles clean. Namedbaseline548eligible/35sets/2958renders allgates0.
+Twenty selected text/price_estimate/extraction replays match staged. Sourceaudit114
+planners,0guide/sourceissues; unsupportedMeteor and missingqJ8YXfFZ remain. Completion
+succeeds unfinished. Fullbank/fullrepo/finalgates/hostdelivery still pending.
+All process handles terminal. No livecollection/probe/restart/commit/staging.
+
+NEXT PRIORITY: INFINITY_CLASS_REVIEW.json records a reproduced runtime bug. Native
+remaining-word-quality/Infinity/normal/native gives nova-standard-infinity-player-stats
+for player_class Sorceress, Paladin AND None. This predates quality edits (must
+unchanged); source-specific Nova demand must not establish applicability for the
+wrong or unknown class. Audit all3 old Infinity roles (Nova player/merc, Lightning
+Strike player), independently test class boundaries while retaining wearer-only
+pierce and merc aura/weapon semantics. Add class guards only after reviewing sources;
+update existing unit contexts currently omit class. Then native cases, pins,
+publication/replays/completion. Do not replace native generic utility with a Nova
+recommendation for unrelated classes.
+
+SECOND: FISSURE_GUIDE_USE_REVIEW.json captures6old roles lacking guide endorsements,
+exact sourceequipment/quotes and variant flags. Allvariants planner_only=false and
+delta_only=false. Standard/MF Fortitude prose says Might, plannerHolyFreeze: preserve
+conflict. Four mercenary roles currently have no mercenary_type guard; review scoped
+component utility versus exact setup advice before endorsing. PlayerLore and
+playerFlickering require source/context/bank review too. Never append endorsements
+merely because profiles exist. All original queues remain required; goal ACTIVE.
+
+Completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1689, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 115402}; complete=false.
+
+## Infinity class guards verified and Sacred Rondache replay, 2026-09-28
+
+Selected generation 8d57f6ff033bce603e2b8ce34fe13cd17dd6b8c013f0c2f5866ec100038edee6 (80 artifacts). Three Infinity roles now require their source-confirmed beneficiary class: Nova Standard/player and Hybrid/merc Sorceress; Lightning Strike/player Amazon. Whole compiled diff only adds class guards. Existing guide/stat fingerprints updated. Native red18fail/9pass -> staged27pass; selected36pass including existing quality cases; role/stat tests5pass. Four test files lint/format clean. Twenty saved replays match text, price_estimate and extraction; named gate548/35sets/2958renders, all error counts zero. Bank4333cases/4325targets/3580missing. All-item goal remains ACTIVE and incomplete.
+
+Sacred Rondache saved replay and both tests pass: Spirit/Paladin caster, +27 vs preferred +45allres, noneth player use, socket preparation conditional on item level. No matching offline price. Python worker restart/live delivery still unverified; no host launch performed.
+
+Next: FISSURE_GUIDE_USE_REVIEW.json six source endorsements, player Lore/Flickering first, Ubers merc next, preserve Standard/MF Might-versus-HolyFreeze source conflict. No one-shot mutation scripts may be rerun. Completion evidence: tmp/infinity-class-completion.json. No commit, staging or live collection.
+
+## Fissure six demand endorsements verified, 2026-09-28
+
+Selected generation 877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec,80artifacts; prior c93157fce099f6c62f72511465826a0c8ead72d9c4d5f9b0e11fa1e923281847 retained. Six existing roles now have explicit guide-use endorsements: Starter player Lore preferred, Standard player Flickering Flame alternative, Standard/MF merc Fortitude preferred, Ubers merc CoH/Flickering preferred. Sourceclass Druid and exact variant slots/prose verified. All2564 profiles remain byte-equivalent; no matching gate changed. Contrary to earlier concern, four mercenary roles already have typed depends_on mercenary and companion predicates. Might/HolyFreeze disagreement is preserved for Standard/MF; Ubers requires Might.
+
+Corrected Flickering merc Resist Fire explanation: aura supports nearby Druid while active; fire skills/pierce remain wearer-only. Native skills.json /100 supports targeted resistance aura and range; guide explicitly counters Flame Rift. Audit other aura explanations found no same generic erroneous wording. Compiled diff tmp/fissure-compiled-diff.json: six guide uses added, one stat-review text changed only.
+
+Red2 player demand checks ->26 focused pass; red5 merc checks ->5pass. New native bank69player+108merc cases; staged pass individually, selected177pass.20saved reports match text/price_estimate/extraction. Named gate548eligible/35sets/2958renders allerrorcounts0. Bank4510cases/4325targets/3568missing. Fullbank/fullrepo/finalgates/hostdelivery remain unverified. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1689, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 115402}; complete=false. Goal remains ACTIVE.
+
+Next: FISSURE_SOURCE_LINK_REVIEW.json inventories55 exact source occurrence candidates. Review actual sections/wearer/variant/native children; do not map old shared planner setups to current variants automatically. Fissure has0 entries in embedded_item_links (legacy guide format), so use appropriate exact context/table/slot review. These endorsements do not close all source occurrences. All original market/roll/report/leveling queues remain required.
+
+One-shot tmp/add_fissure_player_endorsements.py and tmp/add_fissure_merc_endorsements.py succeeded; NEVERrerun. Processes84329,53278 completed successfully; no active task process remains. Logs tmp/fissure-player-*,tmp/fissure-merc-*,tmp/fissure-all-bank-selected.log. No live collection/hostrestart/commit/staging.
+
+## Fissure exact table source closure, 2026-09-28
+
+30general player-table occurrences now have validated equivalence links to existing source-bound roles. Two are Lore/Flickering general helmet alternatives, distinct from Starter staffmod-specific Lore.27other named/word entries preserve exact slots including Phoenix weapon versus shield, Naj/Harmony weapon swaps and Lidless off-hand swap. Original Flame Rift table span162 references decoded vf0106vk item149:quality6/unique402,300immunitypierce,-70fireres,noneth,0s; catalog confirms original, not current crafted variant. Planner and game-data witness hashes are now validated as optional corroborating inputs by table_equivalence compiler. Red stale-witness test failed before fix; rejects changed planner afterward.
+
+Validation:15maintenance tests pass including exactFissure source mapping and existing wrong-context/stale-source cases.36new native LoreCap/FlickeringBoneVisage cases pass staged and selected over all3qualities, wrong/unknownclass, ethereal/unknownethereal and unmade boundaries. Bank {"cases": 4546, "required_targets": 4325, "targets_missing_cases": 3562}. Publication reproduced unchanged runtime877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec (80artifacts); no appraisal matching/rendering/data changes. Runtime saved replay20match evidence from prior turn remains applicable; no repeat runtime changes to validate. Lint clean5files.
+
+Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1719, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 115372}; complete=false. These30source links do not certify other item-bank/market/roll/report dimensions. Fullgoal ACTIVE. Next review remainingFissure rawprose/merc/variant/planner contexts in FISSURE_SOURCE_LINK_REVIEW.json; tablelinker accepts playerMainalternatives only and must not be relaxed to swallow narrative or mercenary uses. Existing known Meteor/missingEchoingset source blockers remain; independent work continues.
+
+Successful one-shot scripts NEVERrerun:tmp/link_fissure_helmet_tables.py, tmp/link_fissure_other_tables.py, tmp/link_fissure_original_rift_table.py. Logs tmp/fissure-table-*,tmp/fissure-rift-link-red.log. All process handles terminal, including39470completion. No live collection/hostrestart/commit/staging.
+
+## Fissure Ubers narrative source links, 2026-09-28
+
+Three more exact raw-guide occurrences reviewed:section25 Chains of Honor span36 and Flickering Flame spans34/37. New variant_mercenary_narrative kind reuses existing WP variant roles only when exact same-section raw passage equals a quote in exact primary variant; source hash, build/class, variant, merc equipment slot/name, and mandatory typed mercenary condition (must or required dependency) validate. Ubers remains Druid/Act2Might plus Infinity and complementary CoH/Flickering. No source context, profile matching or report data rewritten. Preferred endorsements are now consistently accepted by source-context compiler. New helper variant_mercenary_context.py included in completion policy fingerprint.
+
+Red1positive/6negative ->25source-context checks pass; persisted links red1 ->26pass combined. Completion42tests pass. Final recognized-class guard recheck8pass;lintclean. Existing108native merc cases cover unchanged actual item rules. Selected runtime remains 877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec; no runtime artifacts/code changed so no host restart or new publication needed for maintenance-only linking.
+
+Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1722, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 115369}; complete=false. All-item goal ACTIVE. Native bankcoverage unchanged4546cases/4325targets/3562missing (regeneratedfornewtestfiles). Remaining rawFissure Standard playerFlickering span19/section16 could use exact variant-player link; intro span1 is broader, not interchangeable. Fortitude23/26 need explicit Might/HolyFreeze conflict preservation; general mercenary table section46 has multi-bearer branches. See FISSURE_SOURCE_LINK_REVIEW.json updated evidence.
+
+One-shot tmp/link_fissure_ubers_narrative.py SUCCESS, NEVERrerun. All handles terminal including27215; logs tmp/fissure-variant-*. No live collection/hostrestart/commit/staging. Broader source, market, variant/range, report, leveling, fullbank/fullrepo and delivery gates remain unfinished.
+
+## Fissure Standard player narrative verified, 2026-09-28
+
+Raw span19/Setup section16 now links exact Standard player Flickering Flame alternative. Primary variant1 quote is a verbatim substring of that raw section; slot/class/source/variant and same-section checks hold. No mandatory ideal-base staffmod,99FCR complete-loadout guarantee, intro-span1 or mercenary equivalence inferred.
+
+Maintenance helper renamed variant_mercenary_context.py -> variant_prose_context.py and generalized to explicit player/merc kinds with side-specific matching. Mercenary typed-context requirement remains unchanged. Completion policy hashes new helper. Red player proof1failed5pass ->32combined contextchecks pass; persisted linkred1 then final75source-context/completion tests pass. Lint and format5files clean. No appraisal runtime changes; selected generation 877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec unchanged, previous native69player/108merc runs remain applicable. Bankcoverage regenerated4546cases/4325targets/3562missing.
+
+Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 1723, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 115368}; complete=false. Goal ACTIVE. Next exact Fissure Fortitude spans23(section17)/26(section21): explicit Might prose/HolyFreeze planner conflict, existing mercenary dependency is disjunction. Do not force singleton proof or eraseconflict. Standard player introspan1 remains broader. General merc table section46 preserves multiplebearer branches. FISSURE_SOURCE_LINK_REVIEW.json records details.
+
+For wider closure, audit exact table-equivalence family across guides; ensure enclosing PLAYER Gear Options section is independently validated before broad joins (raw parser side agreement alone is insufficient for known misclassified merc tables). Then apply reviewed family links to already source-bound profiles without reclassifying items or merging contexts. Keep item-bank,pricing,range/report gates separate.
+
+One-shot tmp/link_fissure_standard_player_narrative.py SUCCESS; NEVERrerun. Firstpipeline77392 stopped onlint after mutation; continuation5635 completed successfully. All handles terminal. Logs tmp/fissure-player-prose-*,tmp/fissure-player-link-*,tmp/fissure-player-final-green.log. No live collection,hostrestart,commit or staging.
+
+## Plain player-table family closure, 2026-09-28
+
+Closed554new exact plain player-table links across24guides, reusing existing reviewed rules. pre-existing42table links plus554new =596total. Mandatory independent rawHTML boundary added: actual table membership AND enclosing Gear Options heading from all heading levels; raw sections and cached sections must agree. New player_table_context.py in completion policy fingerprint. Red4falseaccepts (mercenary h4ignoredbyoldextractor,othersection,outside-table,forgedsectioncache) ->green. Per-validation pinned source/JSON/guide caches avoid repeated hashing/parsing; caches reset each call and stale witness tests still pass.
+
+Audit initially585mechanicallyvalid candidates from25guides after14qualified-label rejections.14original-sunder references deferred for native identity witness. Initial571appended passed structuralvalidator, but completion rejected17overlapping Abyss dedicated contextreviews. Those17newduplicates removed; original contextreviews retained. Added red-green overlap regression. Final554new links do not change any profile predicates or establish item-bank/price/range completion. PLAYER_TABLE_LINK_AUDIT.json preserves exact members,rejections,priorcontexts,linkedcounts and evidence.
+
+Final63tests pass (tableboundary/existingproofs,24buildsamples,overlap and completion). Lintclean. Coverage regenerated4546cases/4325targets/3562missing. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2277, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 114814}; complete=false. Selected runtime877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec unchanged; maintenance-only changes, previous runtime replay evidence still applies. All-item goal ACTIVE.
+
+Next:14qualified set/upgrade source rows and14sunder original-vs-crafted witnesses in PLAYER_TABLE_LINK_AUDIT.json. Read actual complete labels/companions/upgrades/native references; do not relax plain equality to substringmatching. Fissure Fortitude23/26 still pending: reconciledissue approves narrower etherealSacredArmor roles, broaderbase/nonethroles need independent disjunction scopeproof. Remaining source/market/variant/report/fullbank/delivery queues all required.
+
+One-shot tmp/link_plain_player_tables.py SUCCEEDED then17duplicates removed once; NEVERrerun. tmp/audit_player_table_links.py overwrites the durable audit and must not rerun after endorsement without a new output path. Allprocesshandles terminal including63465completion. Logs tmp/player-table-*,tmp/plain-player-table-*. No live collection,hostrestart,commit/staging.
+
+## Original sunder table witnesses, 2026-09-28
+
+Nine deferred table references resolve to original unique forms via actual referenced planner item and catalog: DreamFlame/Bone/Crack; LightningSorcCrack; PoisonNovaBone/Flame/Rotting; DoubleThrowBone; LightningStrikeCrack. Maxroll quality6, catalog unique IDs and fixed native immunity300 checked; separate planner/catalog hashes now validated as corroborating table proof. No crafted/Latent/Renewed equivalence inferred. Five remaining labels have no planner/itemID or embedded ref: BlizzardCold,StrafeBone,LightningSentryCrack,MeteorFlame,WakeFireFlame. Preserve explicit identity-form gap.
+
+54new native-bank cases verify class/unknownclass, native300 versus299/unknown, and crafted-form rejection.54staged and54selected pass;60source/completion tests pass. Lintclean3testfiles. Bank {"cases": 4600, "required_targets": 4325, "targets_missing_cases": 3553}. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2286, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 114805}; complete=false. Selected runtime877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec unchanged, maintenance provenance/test changes only. Fullgoal ACTIVE.
+
+Next14qualifiedtable entries in QUALIFIED_TABLE_LINK_REVIEW.json include2pieceAngelic,3pieceIK/Trang,2DeathbitUpgradedslots,Stormlash(Shael),RuneMaster(5Ist). ActualHTML places qualifiers immediately after namedspan, sometimes nested itemspans. Must validate entire qualifier plus actual rule companion/upgrade/socket conditions; no plain substring shortcut. Their native snapshots/labels retained for review. Fortitude conflict and other queues staypending.
+
+One-shot tmp/link_original_sunder_tables.py SUCCESS NEVERrerun. Earlier readonlynativeaudit failed afterfirstrow dueblankplanner IDs, then corrected complete14audit; no partialmutation. Allprocesshandles terminal including48440. Logs tmp/original-sunder-table-*. No livecollection,hostrestart,commit/staging.
+
+## Qualified table source closure, 2026-09-28
+
+All14 formerly deferred qualified table occurrences now have validated links:5Angelic jewelry,4IK pieces,Stormlash(Shael),RuneMaster(5Ist),TrangWing(3pieces),DeathbitUpgraded weapon/offhand. New qualified_table_context validates exact approved primary label AND required dependency, or mandatory native elite Deathbit base. TableMentions now captures the complete entry including nested rune/set markup through the next br/cell boundary. Plain-label validator remains strict; no arbitrary substring equivalence. New helper and dependent templates included in completion policy fingerprint. QUALIFIED_TABLE_LINK_REVIEW.json retains exact rows and validations; original PLAYER_TABLE_LINK_AUDIT label rejections are historical, now annotated with links.
+
+Red5 missing parser/qualification tests ->green; upgradedDeathbit red1 ->green.55native item-bank cases pass staged and selected: distinct/missing/unknown/self/duplicate companions, exact/wrong/empty fillers, native upgraded/original Deathbit in both slots.69source/completion tests pass; lint clean7files. Runtime profiles and artifacts unchanged; selected877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec, previous20replay equality still applicable. Bank {"cases": 4655, "required_targets": 4325, "targets_missing_cases": 3543}. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2300, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 114791}; complete=false. Fullgoal ACTIVE; fullbank/fullrepo/finaldelivery remain unverified.
+
+Next: broad Fissure Standard/MF Fortitude source disjunction proof (existing reviewed issue covers narrower ethSacredArmor roles only); five sunder table labels have no native pointer and remain pending. Continue other item-bank/market/roll/report/leveling queues; all14 qualified rows are done. No livecollection/hostrestart/commit/staging. Python hostdelivery gap remains.
+
+Successful one-shots tmp/link_qualified_equipment_tables.py (11links) and tmp/link_qualified_upgrade_trang_tables.py (3links) MUST NOT rerun. All processes terminal including82601,58105,60412,96697,11609,81813. Logs tmp/qualified-table-*. Scope e347abb999001e58f673d8cfb5903ac9265748bcf5d6f17f9934e103bf00220f.
+
+## Fissure Fortitude broader source choices, 2026-09-28
+
+Two variant mercenary prose occurrences (rawspans23/26) now link to existing broader Standard/MF Fortitude component roles. New variant_mercenary_choices.py validates explicit required Might/HolyFreeze disjunction, independently scoped component review, exact WP variant snapshot and current tt9vl0l2 planner profile/item23 witnesses. Keeps Infinity dependency and ethereal preference. Does not reuse or modify narrower reviewed_source_issues SacredArmor proof. Unverified/missing/stale choice reviews, changed aura, missing armor witness or wrong variant rejected. Optional dependencies no longer establish required variant bearer. No runtime profile/artifact changes; selected877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec unchanged.
+
+18added bank scenarios cover ArchonPlate, nonethHolyFreeze, unknownInfinity equipment across both variants/all3qualities.126staged and126selected Fissuremerc bank pass.12choice-proof tests pass; combined source/completion suite initially88pass2fail due obsolete global Fortitude buildcount15 (actual16alreadyinpublishedbundle). Replaced unrelated globalcount with exact Fissure variant preferred endorsement;3narrow-source tests pass preserving both originalethSacredArmor boundaries. Lintclean7files. Bank {"cases": 4673, "required_targets": 4325, "targets_missing_cases": 3543}. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2302, "excluded_occurrences": 4822, "coverage_rows": 8624, "remaining_tasks": 114789}; complete=false; allgoal ACTIVE. No claim fullrepo/fullbank/finalgates complete.
+
+FISSURE_SOURCE_LINK_REVIEW now records39remaining candidate occurrence IDs. Concrete nextgap: Fissure player Mainalternatives Chains of Honor table span110 + WPslotBodyArmor/5 have no general role, only narrow Ubers DuskShroud role. Implement actual general guide alternative and nativecases; do not reuse Ubersbase/setup constraints as universal. Other mercenary table contexts, old planner variants, market/roll/report queues remain required.
+
+One-shot tmp/link_fissure_fortitude_choices.py SUCCEEDED(2links), NEVERrerun. Allprocesses terminal57452,25135,1417,81222,2513,1873,31608. Logs tmp/fissure-choice-*. Previous runtime20replay equality evidence remains applicable. No livecollection/hostrestart/commit/staging. HostPythondelivery still unverified.
+
+## Fissure general Chains of Honor published, 2026-09-28
+
+New role fissure-druid-chains-of-honor-general-armor binds primary BodyArmor/5 and rawtable span110. Source_recipe template bounded to FissureDruid/player/bodyarmor; legal4socketnoneth completed armor all3qualities, no arbitrary DuskShroud or Ubers setup restriction. Skills/resistances/physicalDR desirable; Strength/ReplenishLife/MF/EDef supporting. Weapon leech and demon/undead damage receive no Fissure spell credit; missingTeleport/FCR tradeoff explicit. Native recipe+runes corroborated. Existing2564 profile dicts byte-equivalent; one newrole plus alternative demand/stat review. General table link and primary occurrence now reviewed.
+
+Red nativeArchon case missingannotations ->27staged and27selected cases pass: Archon/Dusk/Sacred across3qualities, eth/unknowneth, wrong/unknownclass, unmadeword, illegalshield.59maintenance tests pass; lint clean3files.20saved replays identical staged/selected for text,price_estimate,extraction. Report inspected tmp/fissure-coh-example.txt: expected10statannotations, weapon-only bonuses neutral. Namedgate548eligible/35sets/2958renders allerrorcounts0. Planner audit114,0newguide/sourceissues; unsupportedMeteor1r010653 remains unresolved.
+
+Selected generation d2d3523681af701e4f4374fb223b1ace0c6702289e81201b0164e2a922653496 (80artifacts), prior877e3ed2a29137d54773f713e84185a9bcea19a542c957af63e34e40c4c161ec retained.2565profiles/2557statconfigs. Bank {"cases": 4700, "required_targets": 4328, "targets_missing_cases": 3543}. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2304, "excluded_occurrences": 4822, "coverage_rows": 8627, "remaining_tasks": 114805}; complete=false, goalACTIVE. New known configuration adds3coverage rows, so remaining taskcount grows despite2source closures; no fullcoverage claim. Fullbank/fullrepo/finalgates/hostdelivery unverified.
+
+FISSURE_SOURCE_LINK_REVIEW records current pendingcandidate IDs and next actual armor gaps: Smoke,Treachery,Skin of Vipermagi,4PerfectTopaz DuskShroud. Current generalFissurebodyroles cover Skullder/Wealth/Rain/newCoH plus separate Enigma/UbersCoH variants. Verify exact source and caster contributions, Fadeproc is not automatically active. Other original queues stayrequired.
+
+One-shots tmp/add_fissure_general_coh.py and tmp/link_fissure_general_coh_table.py SUCCEEDED, NEVERrerun. First rebuild failed because manifest profile_order omitted newID; one recovery appended ID and set coverage count2565, subsequent fullrebuild succeeded. Allprocesses terminal89380,73720,12135,53338,71556,91081,79123,8776,20764,52583,49270,3521. Logs tmp/fissure-coh-*; standard rebuild logs tmp/final-charge-routing-*. No livecollection/hostrestart/commit/staging.
+
+## Fissure armor tail and mercenary IAS delivered, 2026-09-28
+
+Four new general player armor assessments: Smoke legalbodyarmor, Treachery conditionalFade/FHR/coldres, Vipermagi nativeupgradechain, DuskShroud4verifiedPerfectTopazes for96MF. Nonethereal playerdurability, all3basequalities, minimumVipermagirolls and actuallinkedgem payload tested. New source_recipe Smoke/Treachery memberships boundedFissure; caster_core addsFissure onlyforVipermagi. Topaz uses reviewedpattern source with exactquoted WPslot and nativegemsource.3rawtable links forSmoke112,Treachery113,Vipermagi109; Topazraw107/108 stillpending specializedpatternproof. WPprimarysources and3tablelinks close7occurrences. All2565previousprofiledicts unchanged;4rolesadded.
+
+Humanrender inspection caught IAS markeddesirable by older fissure-starter-merc-treachery evenwithunknownmerc. Redunit provedbug. Updatedonlyits93:0priority activation to knownInsight-compatible attacking Act1/Act2 types (nativeThorns verified); unknown andAct3caster stayneutral. No profile predicate changed.3extra nativeknownPrayer cases verifyIASgreen foractualmerc; castercases assertIASnotannotated. Otheroldstatreviews unchanged. OthergenericStartermerc attackproperties (lifeleechetc) need same beneficiaryaudit, not assumedcomplete.
+
+Validation: initial6red absentrole cases ->65stagedpass; afterIASfix final68staged and68selectedpass.15sharedtemplate tests,59maintenance tests,1focusedIASred-green pass. Lintclean5files.20savedreplays matchtext/price_estimate/extraction. Examples regenerated tmp/fissure-armor-example-*.txt: Smoke8keys,Treachery3(noIAS),Vipermagi8,Topaz1. Namedgate548eligible/35sets/2958renders allerrors0. Planner114,0newguide/sourceissues; unsupportedMeteor1r010653 stillpending.
+
+Selected2856b37a1b9a62d4ef47231bba57c0760b88da1e192a5cf66f8b0ece8c500933 (80artifacts); prior d2d3523681af701e4f4374fb223b1ace0c6702289e81201b0164e2a922653496 retained.2569profiles/2561statconfigs. Bank{"cases": 4768, "required_targets": 4338, "targets_missing_cases": 3543}. Completion{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2311, "excluded_occurrences": 4822, "coverage_rows": 8637, "remaining_tasks": 114857}; complete=false. Newknownconfigurations add10coverage rows so remainingcountgrew despite7sourceclosures. GoalACTIVE; fullbank/fullrepo/finalgates/hostdelivery unverified.
+
+Nextactualgaps recorded in FISSURE_SOURCE_LINK_REVIEW: qualified Topazrawsource proof (parent107/filler108), generalEnigma base support (only specificStandard/MF ArchonPlate profiles), olderStartermerc attack-stat beneficiary audit. Allothermarket/roll/report/leveling/sourcequeues stayrequired.
+
+One-shot tmp/add_fissure_armor_tail.py SUCCEEDED; NEVERrerun. Firsttwoattempts failed beforeanyfilewrites (templatekey caster_core vs actualcaster_core_gear; Topaz neededpattern endorsement). Third succeeded. tmp/link_fissure_armor_tail_tables.py SUCCEEDED3links; NEVERrerun. IASinlineprioritypatch alsoSUCCEEDEDonce; do notnestagain. Rebuild repeatedonlyafterrealIASdatachange; final68case logs supersedeinitial65. Allprocesses terminal including49400,63719,92280,1427,87977,75620,13701,79042,15766,84489,2021,81658,89958,43946,87007,95711,20334,21205,65068,24440,17949,94445,15238. Logs tmp/fissure-armor-tail-*,tmp/fissure-armor-ias-*. No livecollection/hostrestart/commit/staging.
+
+## Fissure four-Topaz source proof, 2026-09-28
+
+Parentraw107 ee4737fc39641c54a19681b0 andnestedgem108 8ff3e7f18db075fe8cd1b1ce now linked to fissure-druid-perfect-topaz-general-armor. New socketed_table_pattern.py validates exact bounded full HTML label, primary WPpattern endorsement, required DuskShroud/4s/noneth/identified predicates andmandatorylinked4Topaz+96MF dependency. Native referenced vf0106vk item82 verifies base,quality1,4s and4gemcodes; pinnednativegem armor effect24MF. Missingethflag inplanner is not treated as observedethstate. Component must lie withinparententryend beforebr/cell boundary. TableMentions recordsentry_ends without changing legacymentions. Namedtable checks remainstrict; onlyexplicitreviewedpattern mode bypasses namedidentity requirement, then usesboundednativeproof. Parentcanonical identity remains unresolvedpattern globally; sourceclosure is not discoveryclosure.
+
+Red2missingproof/bounds ->72source/completion checks pass;4focused tests pass including8wrongscope/payload/nativeeffect mutations and2stale-witness hashes. Lintclean5files. Completion input pins rehashed current afterbankcoverage refresh. Bankunchanged4768cases/4338targets/3543missing. Runtimeunchanged selected2856b37a1b9a62d4ef47231bba57c0760b88da1e192a5cf66f8b0ece8c500933 (80artifacts,2569profiles/2561configs); prior68selecteditemcases/20replay equality remainapplicable. No runtimepublicationneeded forprovenance-onlychange.
+
+Completion{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2313, "excluded_occurrences": 4822, "coverage_rows": 8637, "remaining_tasks": 114855}; complete=false. GoalACTIVE; fullbank/fullrepo/finalgates/hostdelivery remainunverified. NextgeneralEnigma base support andolderStartermerc lifeleech/attack-only beneficiary gates; globalpatternidentitydiscovery separate. FISSURE_SOURCE_LINK_REVIEW updated, rawTopaz107/108 no longerpending.
+
+Successful one-shot tmp/link_fissure_topaz_pattern.py appended2links; NEVERrerun. Allhandles terminal15939,16725,65848,49895,76317. Logs tmp/socketed-table-*. No livecollection/hostrestart/commit/staging.
+
+## Fissure general Enigma published, 2026-09-28
+
+Added fissure-druid-enigma-general-armor for general Body Armor/0 and raw table104. Legal nonethereal completed three-socket body armor alternatives across normal/superior/low_quality; no Archon Plate restriction inherited from Standard/MF. Ten native skill/mobility/survival/recovery priorities; character scaling, no self-equipping Strength assumption, full FCR and base requirements remain separate. All previous2569 profiles unchanged. New source/use/stat review validated.
+
+Red missing native MagePlate annotations ->33 staged and33 selected bank cases pass;44 maintenance tests pass; lint clean3files.20 saved replays match text/price_estimate/extraction. Example inspected tmp/fissure-enigma-example.txt. Namedgate548identities/35sets/2958renders allerrors0. Planner114,0newsourceissues; unsupportedMeteor remains. Selected e4820a20cb59eca54703f012fc4e7472d29cdfb39e136017b103250f92a04786,80artifacts,2570profiles/2562configs; prior2856 retained. Bank4801cases/4341requiredtargets/3543missing. Completion2315reviewedof62891occurrences,4822excluded,8640coverage rows,114871remaining; complete=false. Newconfiguration adds3rows; no fullcoverage claim. Host Python delivery remains unverified.
+
+Successful one-shots tmp/add_fissure_general_enigma.py and tmp/link_fissure_general_enigma_table.py MUST NOT rerun. Recovered original rebuild handle20132 completed; all publication/bank/replay/completion handles terminal. Logs tmp/fissure-enigma-*. Next older Startermerc lifeleech beneficiary gates, then globalpatternidentity and fullremaining queue. GoalACTIVE; no livecollection/hostrestart/commit/staging.
+
+## Starter mercenary life-leech beneficiary correction, 2026-09-28
+
+Undead Crown and Bulwark stat60 priority now requires a known Act1/Act2 attacking bearer in the Fissure Starter Insight context. Unknown bearer/Act3 caster retains plain observed leech and independently highlighted defensive stats. Roles themselves unchanged; all2570 profiles identical to previous generation and only these two stat configurations differ. Two red regressions ->6unit tests green;32newnative bank cases staged and32selected pass (allBulwarkbasequalities; positive/zero/unknown/wrongclass/unidentified). Report examples inspected tmp/fissure-leech-*-example.txt.20savedreports unchanged fromprior and staged/selected text,price_estimate,extraction equal. Lintclean3files; namedgate548/35/2958errors0.
+
+Selected7fdd3afaf2dc607c096585f8d50742df713e561c1a06d0be23a573b3398c8ced,80artifacts,2570profiles/2562configs; previouse482retained. Bank4833cases/4341targets/3539missing. Completion refreshed after firstattempt correctly rejected staleplannerreachability; planner_source_audit regenerated thencompletion passed. Complete=false, fullgoalACTIVE. No livecollection/hostrestart/commit/staging. Logs tmp/fissure-leech-*. Allhandles terminal81975,89476,74161,43205,70458,1138,32197,53380,19187,33538,52786,42701; failedcompletion39863 superseded.
+
+Next audit found one merc Vitality priority: fissure-starter-merc-rockstopper. Local D2MOO D2StatList.cpp case9 (lines377-403) converts Vitality into Life only for UNIT_PLAYER; native itemstatcost must corroborate operator9 before changing it. Do not conflate maxLifepercent (operator may applyto monsters) with Vitality. Other pendingCBF/requirements, globalGemmedDuskShroudpatternidentity, andallremainingcontractqueues remain.
+
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2315, "excluded_occurrences": 4822, "coverage_rows": 8640, "remaining_tasks": 114871}
+
+## Mercenary Vitality corrected; socketed armor family audited, 2026-09-28
+
+Native itemstatcost Vitality op9 plus D2MOO D2StatList.cpp UNIT_PLAYER guard corroborates no hireling Life from Vitality. Removed stat3priority and important_stats entry ONLY from fissure-starter-merc-rockstopper; updated exact guide/stat review fingerprints. Raw Vitality remains visible. No other mercenary Vitality or Energy configurations exist. MaximumLifepercent is op11 and accepts UNIT_MONSTER;105merc configs preserved. MERCENARY_ATTRIBUTE_REVIEW.json records source hashes and legacy-runtime limitation. No liveprobe.
+
+One red Rockstopper assertion ->6unit tests green;6new nativebank cases staged/selectedpass, include known/unknownbearer,Act3,ethereal,wrong/unknownclass,visibleVitality. Only Rockstopper profilepriority changed; all other2570profile predicates retained.20savedreplays match text/price_estimate/extraction. Lintclean3files; namedgate548/35/2958errors0. Selected66abc4ae2b669c3ddf0586e3d0c72f05f461eab946b7a9d2f3a2698dc76b5076 (80artifacts,2570profiles/2562configs), prior7fddretained. Bank4839cases/4341targets/3538missing. Completion refreshed complete=false.
+
+Next family source audit in GEMMED_DUSK_SHROUD_REVIEW.json:25occurrences,11rawmerc tables reference fc01065b item93 DuskShroud4s containing Ral/Ort/Thul/Tal (native armor effects30fire/light/cold/poisonres respectively),10structuredmerc entries,4rawplayer4PerfectTopaz entries. Fissureplayer alreadylinked. Others await exactcontext/payload handlers and sourceproof. This label cannot be universally mapped to one configuration or given one desirability. No ethstate inferred from missing plannerfield. Implement shared mercresistancepayload family, preserve class/bearer/source conditions; add positive/missing/wrongchild/unknowncases per reviewedbuild.
+
+Allhandles terminal85906,5799,37556,33717,98032,45077,26888,72049,96850,69434,15695. Logs tmp/fissure-vitality-*. No one-shot appenders run; raw correction script succeeded once, do not repeat. No livecollection/hostrestart/commit/staging. GoalACTIVE; fullbank/fullrepo/finalgates andPythonhostdelivery remainunverified.
+
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2315, "excluded_occurrences": 4822, "coverage_rows": 8640, "remaining_tasks": 114871}
+
+## Eleven mercenary resistance-armor assessments published, 2026-09-28
+
+Implemented shared resistance_rune_armor template in maintenance/resistance_armor_templates.py, registered in profile_templates.py. Eleven explicit build memberships retain their source-specific player classes and early mercenary choices: Might/Holy Freeze alternatives for Lightning Fury and Lightning Sorceress; Holy Freeze for Lightning Strike; Prayer for Enchant; Might/Act5 Frenzy for Double Throw and Zeal; Might/Act5 Bash/Frenzy for Fissure; Might for Poison Nova, Summoner, Berserk and Dream. Requires identified Dusk Shroud,4filled sockets, exact linked Ral/Ort/Thul/Tal and observed30fire/lightning/cold/poison resistance, across normal/superior/low_quality. Ethereal preferred, not required; unknown ethereal does not block these resistance benefits or establish a premium. Dusk requirements, lack of leech/DR, destruction of fillers on clearing and separate player Topaz use are explicit.
+
+Primary sources are exact cached Mercenary Gear Options sections. Native fc01065b item93 and four exact gems.json rune records corroborate socket payload/effects. New11 profile/use/stat reviews; previous2570profiles unchanged. Native red Fissure example failed missing annotations, then381 staged and381 selected cases pass. Four shared maintenance tests pass. Example inspected tmp/merc-resistance-example.txt. Namedgate548eligible/35sets/2958renders allerrors0. Planner114/0newissues; unsupportedMeteor remains. Twenty saved replays match text/price_estimate/extraction. Selected0a7413a5dd78b148f316ba66060a189fa48b986fb7f91b0ab379027fe6f80886,80artifacts,2581profiles/2573configs; prior66abc retained. Bank5220cases/4374targets/3538missing. Completion remains false; added33configuration-quality rows increase remaining work count despite new executable coverage.
+
+GEMMED_DUSK_SHROUD_REVIEW.json records all25 occurrences and new11 profile links. Exact completion source links are still pending for11rawmerc and10structured entries. Their native witnesses all agree, but do not mark these21 occurrences reviewed until the compiler validates each complete context. Added table_cells.py CellMentions and require_early_armor_cell as a tested prerequisite: preserves table/row/cell per mention and rejects wrong/outside/late/other-table/spanning layouts. Initial missing-module red plus spanning-layout red;7cell tests and4existing socketed-pattern tests pass (11total). All11real merc guide references verified at exact Early-Game Body Armor coordinates after final guard. This helper is not yet wired into completion.
+
+NEXT: implement dedicated resistance-armor source-link validator, binding role/use fingerprints, exact cached section and raw guide hashes, typed bearer membership, early table cell, native planner93/rune effects. Link raw11 and structured10 only after positive and stale/wrong-context/payload tests. Preserve unresolved global Gemmed Dusk Shroud identity and three remaining player Topaz references; Fissureplayer already validated. Continue all other completion-contract dimensions afterward.
+
+One-shot tmp/add_merc_resistance_armor.py SUCCEEDED; NEVER rerun. First build failed because profile corroboration cannot resolve HTML /html or JSON root /; fixed11sources to exact planner /data and four rune JSON pointers, updated use/stat fingerprints, then full rebuild passed. All process handles terminal10267,19253,73321,93132,33554,76410,69507,77521,41197,52802,99806,56974,68244. Logs tmp/merc-resistance-*. Lint clean template/registry/bank/cell helper/tests. No live collection, host restart, commit or staging. Goal remains ACTIVE; full-bank/full-repo/final gates and prior Python worker delivery unverified.
+
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2315, "excluded_occurrences": 4822, "coverage_rows": 8673, "remaining_tasks": 115069}
+
+## Resistance armor source closure and duplicate correction, 2026-09-28
+
+Added resistance_armor_links.py, dispatched only explicit merc_resistance_armor reviews from table_equivalence. Validates exact reviewed template/role/use fingerprints, class/side/slot, affirmative occurrence recommendation, raw/cache hashes and extraction equality, complete Mercenary Gear Options section, Early-Game Body Armor cell, exact fc01065b item93 and four native rune effects. Structured entries additionally require exact pinned WP early armor index/class/label. Policy fingerprint includes new validator, template and table_cells. Wrong re-fingerprinted bearer/payload/class/side/span, changed native item/effect, stale source hashes and wrong structured progression are tested. An explicit negative recommendation initially slipped through; red test proved it and the affirmative recommendation guard fixed it.
+
+Initial21link append succeeded, but completion correctly found a duplicate ownership: Zeal span217 was already reviewed by zeal-paladin-early-merc-resistance-armor. Inspected old role and source; same four-rune setup and Might/Frenzy bearer choices. Removed only new zeal-paladin-merc-resistance-rune-armor profile/use/stat review and membership plus its redundant new tablelink. Redirected36newbank Zeal cases to the established role. All remaining2580profiles unchanged; no weakening of completion conflict detection. There are20newtable links plus1existing Zeal source, covering all21merc references.
+
+84final source/table/completion tests pass;36Zeal staged and36selected cases pass. Other345family cases passed prior selected0a7413 with unchanged retained profiles.20savedreplays match text/price_estimate/extraction. Lintclean6files. Namedgate548eligible/35sets/2958renders errors0; planner114/0newissues, unsupportedMeteor stillpending. Selectedb960ef15e555829009a214157415b921e0db4b730f7d335c46ae05e8093ce3c5,80artifacts,2580profiles/2572configs, prior0a7413retained. Bank5220cases/4371targets/3536missing. Completion2335reviewed,4822excluded,8670rows,115031remaining; complete=false. GoalACTIVE; fullbank/fullrepo/finalgates and prior Python hostdelivery remainunverified.
+
+Next actual missing player configurations confirmed from inventory and profile audit: Berserk raw87 native rk0106ln item92; Double Throw raw143 db0106mf item92; Lightning Strike raw107 vc0106wm item94. All three native bodies are DuskShroud4PerfectTopaz; Fissure alreadyhandled. Add these three player memberships and item-bank cases, extend bounded player-pattern proof with exact variant labels (Berserk singular Topaz, others Topazes), and link parent/nested gem and primary occurrences. Then resolve the global Gemmed Dusk Shroud identity as a reviewed collection of distinct configurations, not one named item. Keep all remaining contract work.
+
+One-shot tmp/link_merc_resistance_armor.py SUCCEEDED then its Zeal row was deliberately removed; NEVERrerun. Duplicate-removal inline script SUCCEEDED; do not repeat. Initialcompletion5294 failed conflict and was superseded by successful76991. Allhandles terminal84081,90731,49209,25879,27474,75711,3197,36214,54516,17206,41598,10921,62242,5001,14078,76991. Logs tmp/merc-resistance-links-*. No livecollection/hostrestart/commit/staging.
+
+Completion counts: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2335, "excluded_occurrences": 4822, "coverage_rows": 8670, "remaining_tasks": 115031}
+
+## Player four-Topaz armor alternatives published, 2026-09-28
+
+Added Berserk Barbarian, Double Throw Barbarian and Lightning Strike Amazon general Dusk Shroud / four Perfect Topaz armor uses. Required linked payload and96MF, identified nonethereal player armor, three base qualities. Exact raw parent/child links and primary guide uses validated separately. Existing Fissure handling kept. No defense premium or numerical price inferred. All25 plain Gemmed Dusk Shroud source contexts have reviewed dispositions; global pattern discovery remains open.
+
+Red missing assessment and three source links ->81staged and81selected bank cases pass;66maintenance checks pass.20saved replays match text,price_estimate,extraction. Selected 9dde192ebd2918190fcccf970b5eb7e99c22b27a433037d942075ec4b51bd6a6;80artifacts,2583profiles,2575statconfigs. Bank5301cases/4380targets/3536missing. Completion2344reviewed,4822excluded,8679rows,115076remaining;false. Final handles49721/43598/10404 exited0. Logs tmp/player-topaz-*. Successful tmp/add_player_topaz_armor.py and tmp/link_player_topaz_armor.py MUST NOT rerun. No livecollection/hostrestart/commit/staging. Goalactive; fullbank/fullrepo/finalgates/hostdelivery remain unverified.
+
+## Reviewed pattern collection discovery, 2026-09-28
+
+New maintenance/pattern_collections.py and rules/pattern_collection_reviews.json
+validate complete occurrence membership and exact source-role links before closing
+discovery. Compilation independently revalidates guide uses/dossiers and bounded
+table equivalence; review pins identity, each occurrence and each profile. Missing,
+new, duplicate, stale or wrong-role members reject closure. Coverage matrix keeps
+collection identities distinct and closes only discovery, leaving all other
+dimensions unchanged. Completion policy fingerprint includes the validator.
+
+Three reviewed Dusk Shroud label collections cover29occurrences (25plain and4
+decorated primary mentions). No variant/price/tier/report promotion. Red9missing
+validator and red integration, then2missing decorated reviews ->58maintenance tests
+pass43.29s. Ruffcheck/format clean4files. Matrix diff verified exactly3rows changed,
+only discovery. Rebuilt completion: {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2344, "excluded_occurrences": 4822, "coverage_rows": 8679, "remaining_tasks": 115073},
+complete=false. Selected runtime unchanged9dde192ebd2918190fcccf970b5eb7e99c22b27a433037d942075ec4b51bd6a6;
+no publication or runtime testing needed for this maintenance-only change. Prior81
+selected bank and20saved replay evidence retained, not reclassified as full gates.
+All handles terminal76962/59065/96197/91560/91628/46262/1702/85435. Logs
+tmp/pattern-collections-* and tmp/pattern-decorated-red.log. The inline creation of
+pattern_collection_reviews and append of its two decorated records SUCCEEDED; do
+not rerun. No live collection, host restart, commit or staging. Goalactive.
+
+Next exact gap: two Berserk Starter variant occurrences with label
+Gemmed Dusk Shroud (4x Perfect Topaz), no space before closing parenthesis, at
+wp-a-variants/berserk-barbarian.json /variants/0/player/Body Armor/0 and
+wp-a-builds.json /berserk-barbarian/variants/0/player/Body Armor/0. Starter source
+references r2Hsc2Mk #6 level75. General alternatives use rk0106ln item92; never
+substitute that witness for Starter without checking. Additional fully source-
+reviewed unresolved labels include JMoD payload collections and Artisan diadems;
+each still needs explicit semantic discovery review, not automated blanket closure.
+
+## Berserk Starter Topaz armor and helmet published, 2026-09-28
+
+Explicit guide Starter labels now supported: DuskShroud/fourPerfectTopaz96MF and
+Crown/threePerfectTopaz72MF. Native armor/gem tables pinned; all3base qualities,
+nonethereal identified player items, full linked payload and observedMF required.
+Whole combat setup and base requirements remain conditional. Old r2Hsc2Mk planner
+is not cached; no substitute planner, defense roll or native eth state inferred.
+See planning/BERSERK_STARTER_TOPAZ_REVIEW.json. Two exact primary WPsource contexts
+closed; their wp-a-variants mirror occurrences remain pending, along with collection
+discovery for these exact spellings. Missing planner remains explicit research gap.
+
+Red missing native armor annotation ->60staged and60selected item-bank cases pass.
+20saved replays match text/price_estimate/extraction.12pattern maintenance tests
+and2statbundle tests pass; lint/format clean3files. Statbundle stale hardcoded2556
+count failed; replaced with exact equality against all reviewed configuration IDs,
+duplicate/count checks and existing tamper rejection preserved. No fixed count bump.
+Namedgate548/35/2958 allerrors0; planner114,0newissues, unsupportedMeteor remains.
+All previous2583profiles unchanged. Selected 51aedd0bfd9142b5fabf43759ab68dd603604423030dc37568799c503713b81f
+80artifacts,2585profiles/2577statconfigs; prior9dde retained. Bank5361cases/4386targets/
+3536missing. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2346, "excluded_occurrences": 4822, "coverage_rows": 8685, "remaining_tasks": 115107};false.
+Fullbank/fullrepo/finalgates/hostdelivery unverified; overall goalactive.
+
+Successful one-shot tmp/add_berserk_starter_topaz.py MUST NOT rerun. All handles
+terminal27906/18859/92266/69257/24498/11485/89715/13114/6371/41010/18898/80314/41383/61115.
+Logs tmp/berserk-topaz-*. No livecollection/hostrestart/commit/staging.
+
+Next: exact structured-source mirror linkage for armor0ff7e7f10298bff5d49f444d and
+helmet7d927db7b5a0268e002a7463 (same Starter labels in wp-a-variants). Current
+compile_demand requires use.source == role.source, so do not add another use with
+a different source or duplicate runtime role. A reviewed structured-equipment
+equivalence validator can pin both source documents and exact variant/player/slot
+labels, preserving native payload predicates and independent missing-planner gap.
+Then close only discovery for these labels once all occurrences validated. Continue
+remaining family/source/market/report/bank completion work.
+
+## Structured Starter source mirrors and discovery validated, 2026-09-28
+
+New structured_variant_mirrors.py dispatched only explicit
+structured_player_variant_mirror table reviews. Requires exact primary and mirror
+variant/slot/index, full variant document equality (including companions), cached
+class/build/url, positive source recommendation and unchanged reviewed role/use.
+Revalidates native/profile sources. Supports missing redundant occurrence.class
+only when both pinned source documents agree with the role class predicate. No
+new runtime rule or missing-planner substitution. Two Berserk Starter mirrors
+linked; two exact label collection discovery records now cover all4references.
+
+Red2unimplemented and1unregistered ->92tests pass98.20s (source/table/collection/
+completion). Mutations cover side,slot,class,label,index,hash,role,endorsement and
+complete variant gear/mercenary changes. Ruffclean5files. Matrix diff exactly2
+rows and only discovery changed. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2348, "excluded_occurrences": 4822, "coverage_rows": 8685, "remaining_tasks": 115103};false.
+Selected51aedd0bfd9142b5fabf43759ab68dd603604423030dc37568799c503713b81f
+unchanged; maintenance-only, no runtime publication/replays repeated. Prior60
+selected bank and20replays still apply; no final/fullsuite claim. Goalactive.
+Successful tmp/link_berserk_topaz_mirrors.py appended2table and2collectionrecords,
+NEVERrerun. Handles82388/29687/97492/50779/47471/87964/89414 allterminal.
+Logs tmp/variant-mirror-*. No livecollection/hostrestart/commit/staging.
+
+NEXT IMPORTANT RCA: preparation rules were found satisfying full pattern source
+coverage. Confirmed JMoD lightning-fury-main-shield source lists4RainbowFacets but
+role accepts only empty sockets; LightningStrike ArtisanTopazCrown similarly only
+empty while source lists3Topazes. Existing _pattern_bindings/compile_dossiers
+classify these occurrences reviewed. Do not blanket-close other collections based
+on those links. New PREPARATION_SOURCE_COVERAGE_AUDIT.json inventories all empty-
+socket pattern uses as candidates; each needs review, not automatic classification.
+Preserve legitimate empty-base runtime assessments, but record explicit partial
+source coverage/remaining filled branches and keep completion + collection
+discovery honest. Actual empty-base source labels can remain complete. Then
+implement the missing filled-item configurations with native payload bank cases.
+
+## Preparation source coverage corrected and published, 2026-09-28
+
+Seventeen guide labels explicitly describing inserted facets/jewels/gems/runes
+were incorrectly considered source-complete by empty-base-only rules. Added
+validated use.source_coverage kind preparation_only + explicit remaining_branches.
+Only17reviewed candidates changed;61other empty-socket patterns not automatically
+reclassified (many are unsocketable items or explicit preparation labels).
+Runtime base demand/conditions remain intact. _pattern_bindings excludes partial
+reviews from complete bindings by default; dossiers preserve their demand and
+partial_pattern_reviews separately. Completion records exact remaining branches;
+collection discovery cannot borrow these incomplete links. Table/mirror
+equivalence refuses partial endorsements. Repeated source-context reviews inherit
+remaining branches so they cannot silently erase incomplete payload work.
+
+Red regressions covered false complete binding, invalid partial metadata, repeated
+source erasure and explicit null metadata.90focused tests pass;7runtime demand/
+statbundle tests pass. Ruffcheck/format clean7files. All2585runtime profiles, all
+statconfigs and demand summaries equal prior generation; only17use metadata
+records changed.20saved replays match prior/staged/selected text,price,extraction.
+Fulldependent/index rebuild and publication complete. Selected
+45f1d9a2457179315bb92bf75c4a8e350019b5350a453205b2b1064c1a4d3c4d (80artifacts), prior51aedd retained.
+Bank5361cases/4386targets/3536missing, unchanged. Namedgate548/35/2958 errors0;
+planner114/0newissues, unsupportedMeteor remains. Completion
+{"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2331, "excluded_occurrences": 4822, "coverage_rows": 8685, "remaining_tasks": 115120};false. Exactly17occurrence tasks reopened
+with explicit payload reasons. This corrects overclaimed coverage; it does not
+implement the missing finished-item assessments. Goalactive, final/fullsuite and
+hostdelivery remain unverified.
+
+Successful one-shot tmp/mark_preparation_source_branches.py MUST NOT rerun.
+Handles98337/54267/41088/85907/41667/11773/87772/35601/37823/49084 allterminal.
+The first completion37823 was valid before the final null-field guard;49084
+regenerated scope after that policy change. No runtime artifact bytes changed from
+that final guard. Logs tmp/partial-pattern-*. No livecollection/hostrestart/commit/staging.
+
+Next executable targets: LightningStrike magic Crown filled alternatives, primary
+slots/Helmets/12 threeTopaz72MF and /13 Ral/Ort/Thul30fire/lightning/cold. These
+need separate filled rules and native item-bank cases; preserve existing empty
+preparation rules and partial metadata. Closing a new complete binding may satisfy
+the same source occurrence without pretending the empty rule covers filled items.
+Then remaining diadem/JMoD finished payloads and fullglobalcompletion queue.
+See PREPARATION_SOURCE_COVERAGE_AUDIT.json for17partial source IDs and78original
+audit candidates.
+
+## Lightning Strike completed magic Crowns published, 2026-09-28
+
+Added topaz-crown-filled (threeTopaz72MF) and resist-crown-filled (Ral/Ort/Thul
+30fire/lightning/cold) to LightningStrike, only magic Crown/noneth/identified/3s.
+Actual linked payload and native effects required; no poison resistance inferred.
+Native gems pinned, original empty preparation rules and partial source metadata
+retained. Exact primary Helmets12/13 sources now fully bound through new filled
+rules. Added two collection discovery records; no other dimensions promoted.
+
+Red2missing native annotations ->initial32staged passed, but report inspection
+found wrong payload reported conditional because checks were in depends_on. Added
+red opposite-role status assertions, moved captured payload into must for these
+two new rules, refreshed use/stat fingerprints, rebuilt. Final32staged and32selected
+pass; each valid Crown makes other payload's role failed. Extra-modifier fixture
+corrected from inappropriate CrownFRW to verified +20Life (native suffix ofWolf
+entry329);2changed cases rerun staged andselected pass. No runtime change from
+fixture correction. Fifteenfocused statbundle/source tests and2discovery tests
+pass. Ruffcheck/format clean4files.20savedreplays equal staged/selected text,price,
+extraction. Final examples tmp/ls-filled-crown-*-final-example.txt inspected.
+
+Selected 459b8c239f6d63daf4dda898e4f73085a11b8a77ec3536dd3d296edf670e567a (80artifacts),
+2587profiles/2579statconfigs; all prior2585profiles unchanged. Bank5393cases/4388
+targets/3536missing. Namedgate548/35/2958 errors0; planner114/0newissues, unsupported
+Meteor remains. Completion {"identities": 2570, "occurrences": 62891, "reviewed_occurrences": 2333, "excluded_occurrences": 4822, "coverage_rows": 8687, "remaining_tasks": 115126};false. Fifteen
+explicit unfinished payload occurrence tasks remain from preparation audit.
+No fullbank/fullrepo/finalgates/hostdelivery claim; goalactive.
+
+Successful one-shots NEVER rerun: tmp/add_ls_filled_crowns.py, inline move-two-
+payload-checks-to-must fixer, tmp/link_ls_filled_crown_collections.py. Initial
+bank collection error was fixed (Item field rarity, not quality) before meaningful
+red2. Initial discovery red2 then validated records. Logs tmp/ls-filled-crown-*.
+All handles terminal53097/4332/52331/35342/52929/81732/43347/36882/52906/41278/54300/
+90794/18286/49631/38995/33545/96597/14631/57544/15872/66994/40265/48985/9113/74510/
+51568/54439/88446/64244/68382/27287. First lint run flagged an en dash in new test
+comment; corrected and regenerated bank coverage + completion27287 after prior
+completion68382 terminated. No livecollection/hostrestart/commit/staging.
+
+Next important fit audit: CAPTURED_PAYLOAD_FIT_AUDIT.json inventories27other roles
+with socket_gems_equal/socket_runes_equal inside depends_on. Actual wrong captured
+contents can appear conditional instead of failed. Review mandatory completed
+configurations versus legitimate optional/external setup requirements, with bank
+role-status assertions in addition to stat-marker checks. Candidates include
+Topaz armor/helm families, sixLem gold-find swords, Ist shields and socketed named
+items. Do not blanket-move all dependencies. Then finish remaining15filled-source
+branches (diadems/JMoD etc.) and all other global completion queues.

@@ -44,4 +44,4 @@ def test_report_shows_concrete_better_rolls_without_rejecting_lower_candidate():
     claw = item('Greater Talons', {'188:48': 2, '107:271': 2, '93:0': 20})
     roles = assess_roles(claw, build()['profiles'])
     lines = assessment_lines({'assessment': {'roles': roles}})
-    assert any('Better rolls:' in line and '+3 to Lightning Sentry' in line for line in lines)
+    assert any('Targets:' in line and '+3 to Lightning Sentry' in line for line in lines)

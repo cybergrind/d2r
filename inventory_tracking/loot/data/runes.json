@@ -1,0 +1,137 @@
+{
+  "source": "pricing/raw/d2data/misc.json (game classid column, as the item decoder uses)",
+  "runes": {
+    "625": {
+      "code": "r01",
+      "name": "El Rune"
+    },
+    "626": {
+      "code": "r02",
+      "name": "Eld Rune"
+    },
+    "627": {
+      "code": "r03",
+      "name": "Tir Rune"
+    },
+    "628": {
+      "code": "r04",
+      "name": "Nef Rune"
+    },
+    "629": {
+      "code": "r05",
+      "name": "Eth Rune"
+    },
+    "630": {
+      "code": "r06",
+      "name": "Ith Rune"
+    },
+    "631": {
+      "code": "r07",
+      "name": "Tal Rune"
+    },
+    "632": {
+      "code": "r08",
+      "name": "Ral Rune"
+    },
+    "633": {
+      "code": "r09",
+      "name": "Ort Rune"
+    },
+    "634": {
+      "code": "r10",
+      "name": "Thul Rune"
+    },
+    "635": {
+      "code": "r11",
+      "name": "Amn Rune"
+    },
+    "636": {
+      "code": "r12",
+      "name": "Sol Rune"
+    },
+    "637": {
+      "code": "r13",
+      "name": "Shael Rune"
+    },
+    "638": {
+      "code": "r14",
+      "name": "Dol Rune"
+    },
+    "639": {
+      "code": "r15",
+      "name": "Hel Rune"
+    },
+    "640": {
+      "code": "r16",
+      "name": "Io Rune"
+    },
+    "641": {
+      "code": "r17",
+      "name": "Lum Rune"
+    },
+    "642": {
+      "code": "r18",
+      "name": "Ko Rune"
+    },
+    "643": {
+      "code": "r19",
+      "name": "Fal Rune"
+    },
+    "644": {
+      "code": "r20",
+      "name": "Lem Rune"
+    },
+    "645": {
+      "code": "r21",
+      "name": "Pul Rune"
+    },
+    "646": {
+      "code": "r22",
+      "name": "Um Rune"
+    },
+    "647": {
+      "code": "r23",
+      "name": "Mal Rune"
+    },
+    "648": {
+      "code": "r24",
+      "name": "Ist Rune"
+    },
+    "649": {
+      "code": "r25",
+      "name": "Gul Rune"
+    },
+    "650": {
+      "code": "r26",
+      "name": "Vex Rune"
+    },
+    "651": {
+      "code": "r27",
+      "name": "Ohm Rune"
+    },
+    "652": {
+      "code": "r28",
+      "name": "Lo Rune"
+    },
+    "653": {
+      "code": "r29",
+      "name": "Sur Rune"
+    },
+    "654": {
+      "code": "r30",
+      "name": "Ber Rune"
+    },
+    "655": {
+      "code": "r31",
+      "name": "Jah Rune"
+    },
+    "656": {
+      "code": "r32",
+      "name": "Cham Rune"
+    },
+    "657": {
+      "code": "r33",
+      "name": "Zod Rune"
+    }
+  }
+}

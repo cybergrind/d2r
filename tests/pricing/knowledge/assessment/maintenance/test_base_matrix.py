@@ -83,6 +83,25 @@ def test_native_membership_is_separate_from_mode_preparation_and_desirability():
     result = audit_bases(bases, types, edges, [], {}, recipes=recipes)
     assert result['counts']['dimensions']['type_capacity_eligibility'] == {'excluded': 3, 'reviewed': 3}
     for row in result['rows']:
-        assert row['dimensions']['recipe_eligibility']['state'] == 'pending'
+        assert row['dimensions']['recipe_eligibility']['state'] == (
+            'excluded' if row['base_code'] == 'no-sockets' else 'pending'
+        )
         assert row['dimensions']['desirability']['state'] == 'pending'
         assert row['dimensions']['market']['state'] == 'pending'
+
+
+def test_no_recipe_link_alone_does_not_exclude_runeword_eligibility():
+    bases = {'example': {'name': 'Example', 'type': 'weapon', 'gemsockets': 2}}
+    types = {'weapon': {'MaxSockets1': 2, 'MaxSockets2': 2, 'MaxSockets3': 2}}
+    recipe = {'Word': {'complete': 1, 'itype1': 'weapon', 'Rune1': 'first', 'Rune2': 'second'}}
+    for recipes in (None, {}, recipe):
+        result = audit_bases(bases, types, [], [], {}, recipes=recipes)
+        assert all(row['dimensions']['recipe_eligibility']['state'] == 'pending' for row in result['rows'])
+
+
+def test_complete_native_catalog_can_exclude_incompatible_socketable_type():
+    bases = {'example': {'name': 'Example', 'type': 'armor', 'gemsockets': 2}}
+    types = {'armor': {'MaxSockets1': 2, 'MaxSockets2': 2, 'MaxSockets3': 2}}
+    recipes = {'Word': {'complete': 1, 'itype1': 'weapon', 'Rune1': 'first', 'Rune2': 'second'}}
+    result = audit_bases(bases, types, [], [], {}, recipes=recipes)
+    assert all(row['dimensions']['recipe_eligibility']['state'] == 'excluded' for row in result['rows'])

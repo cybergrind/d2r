@@ -38,9 +38,11 @@ class AssessmentResult:
     generation: AssessmentGeneration = field(default_factory=AssessmentGeneration)
     upgrades: tuple[UpgradePath, ...] = ()
     stat_evaluation: StatEvaluation | None = None
+    utility: Mapping | None = None
 
     def __post_init__(self):
         for name in (
+            'utility',
             'roles',
             'base_uses',
             'leveling',

@@ -13,16 +13,15 @@ def test_hellwarden_ubers_preserves_magic_resistance_companions_and_jewel():
         sockets=1,
         socket_contents='filled',
         socket_items=[{'name': "Guardian's Light"}],
-        stats={
-            k: {'status': 'decoded', 'value': v} for k, v in [('358:0', 8), ('127:0', 1), ('93:0', 20), ('105:0', 20)]
-        },
+        stats={k: {'status': 'decoded', 'value': v} for k, v in [('358:0', 8), ('127:0', 1), ('105:0', 20)]},
     )
     context = {'player_class': 'Warlock', 'player_items': ['Sling', 'Renewed Black Cleft']}
     result = assess_roles(item, [profile], context)[0]
     assert result['rule_trace']['truth'] == 'true'
     assert all(d['status'] == 'true' for d in result['dependencies'])
     assert "Setup socket: Guardian's Light" in result['matched']
-    assert result['preferences'][0]['status'] == 'true'
+    # A name-only jewel cannot establish the helmet roll beneath socket bonuses.
+    assert result['preferences'][0]['status'] == 'unknown'
     missing = assess_roles(replace(item, socket_items=[]), [profile], context)[0]
     assert any("Guardian's Light" in message for message in missing['missing'])
     for names in (['Sling'], ['Renewed Black Cleft'], []):

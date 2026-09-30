@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_spirit_loadouts",
+  "inputs": {
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "third-parties/d2data/json/runes.json": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+    "third-parties/d2data/json/uniqueitems.json": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7",
+    "inventory_tracking/items/data/item_metadata.json": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "third-parties/d2data/json/itemstatcost.json": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237",
+    "third-parties/d2data/json/itemtypes.json": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+    "third-parties/d2data/json/gems.json": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
+    "pricing/raw/mr/guides__blessed-hammer-paladin.html": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d",
+    "pricing/raw/mr/planners/f80206a8.json": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "third-parties/d2data/json/properties.json": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34",
+    "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2"
+  },
+  "rows": [
+    {
+      "id": "hammer-standard-spirit-shield:planner:3402fbede7bb2d3779710b6e",
+      "profile_id": "hammer-standard-spirit-shield",
+      "profile_sha256": "efedf90b33746673de1bd582cb0ed87a347d2f27d9e1681547d789e096ab8516",
+      "use_sha256": "ad1ff75bc39c235f89d6917c2d09d970c45bf69c849029836cbb19151889179a",
+      "parent": {
+        "occurrence_id": "3402fbede7bb2d3779710b6e",
+        "sha256": "fc1a2d96a046452620e1c565b822d4465a2de438999cae39bc9218f8bd876008"
+      },
+      "children": [
+        {
+          "occurrence_id": "b31b0405dac2c277ec3dba35",
+          "sha256": "3c2af7d5d3b793e700d4ba98f982d572d7885f8a2752b0995e2370c0f0847d3f"
+        },
+        {
+          "occurrence_id": "f6fbeb416ac29a91eea4e8aa",
+          "sha256": "0bd8ea5203460fcb1a18b1b0041b4a5f1da4c11be40321fad3133403b1a4835a"
+        },
+        {
+          "occurrence_id": "f20497089084bccbd747155f",
+          "sha256": "f2513cb8d2115e8bfad7c726fe05479a31020089b0923d68742b5d2854f85160"
+        },
+        {
+          "occurrence_id": "6b8e5154b5b2588d99cde6bd",
+          "sha256": "8d329b35c99394b0ee7834e6171379ff26fdcce86a1db88099487e603ef037c9"
+        }
+      ],
+      "planner_endorsement": {
+        "spirit_loadout": "hammer_active",
+        "coverage": "player_runeword_component",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "quote": "Spirit Sacred Targe",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blessed-hammer-paladin/variants/1/player/Off-Hand/0"
+        },
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 1,
+        "profile_uid": "HxoCbTiH",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "larm",
+        "item_id": "5",
+        "expected_item": {
+          "base": "pab",
+          "quality": 7,
+          "ilvl": 99,
+          "auto": {
+            "am027": [
+              45
+            ]
+          },
+          "superior": {},
+          "uniqueValues": [
+            55,
+            112,
+            250,
+            22,
+            35,
+            8,
+            2
+          ],
+          "unique": "runeword155",
+          "defense": 158,
+          "sockets": 4,
+          "socketedItems": [
+            "r07",
+            "r10",
+            "r09",
+            "r11"
+          ],
+          "stats": {
+            "item_fastergethitrate": 55,
+            "maxmana": 112,
+            "armorclass_vs_missile": 250,
+            "vitality": 22,
+            "item_fastercastrate": 35,
+            "item_absorbmagic": 8,
+            "item_allskills": 2,
+            "fireresist": 45,
+            "lightresist": 45,
+            "coldresist": 45,
+            "poisonresist": 45
+          },
+          "description": "158 def 35 fcr 112 mana 45@ 8 magic abs"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "fcr_sources": {
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "misc": {
+            "path": "third-parties/d2data/json/misc.json",
+            "sha256": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary Spirit Sacred Targe entry and selected guide planner bind this active shield and four native runes. The actual active equipment reaches 125 FCR with required named companions; swap copies are excluded. Unknown ethereal status remains unknown. This discharges source occurrences only, not independent companion, variant, market or item-bank obligations."
+    },
+    {
+      "id": "hammer-mf-spirit-shield:planner:5f3d54f6eac658bda66c85f3",
+      "profile_id": "hammer-mf-spirit-shield",
+      "profile_sha256": "23e9723d76cf366960451182acaa2ba6b9791bb7d7013433a027f0fbd5882998",
+      "use_sha256": "9bfc000cdfc6b7fd3a88e4157133090a26c8cf66955ab24ab5bf5f3941ff5274",
+      "parent": {
+        "occurrence_id": "5f3d54f6eac658bda66c85f3",
+        "sha256": "1384fb09e79d55ebd34bf1f10a3be3e096fb6d7e1d1756f8155dc75f1a4eb9ef"
+      },
+      "children": [
+        {
+          "occurrence_id": "8e4870f1fa2086a1b9e51060",
+          "sha256": "aa95762ccf2b9b16a04b2a097984b84e3901f9492133589198a9fa473c47ffc4"
+        },
+        {
+          "occurrence_id": "d29f4ca825afe5328fbf4ad2",
+          "sha256": "048bbc726808a5e7663de71bc44d8fb243a44578a02cd65caf58822f89c1b12a"
+        },
+        {
+          "occurrence_id": "f80d82f641ac0a0fdaf39935",
+          "sha256": "30dc9f8361c692101820a8e2fa29f7e00085571a32d3d03a36cbc08e65c61c7b"
+        },
+        {
+          "occurrence_id": "236c3b8a40e00037b8056fac",
+          "sha256": "e7bcbc64be57a71b767c8b0c23a73dd7a3523389c7e0e726e2d217c1c18c7a9d"
+        }
+      ],
+      "planner_endorsement": {
+        "spirit_loadout": "hammer_active",
+        "coverage": "player_runeword_component",
+        "ethereal_scope": "unrestricted_reviewed_role",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "quote": "Spirit Sacred Targe",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blessed-hammer-paladin/variants/2/player/Off-Hand/0"
+        },
+        "variant_alias": "Magic Find",
+        "guide_tab": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 2,
+        "profile_uid": "SOPaTLww",
+        "profile_name": "Magic Find",
+        "player_class_code": "pal",
+        "slot": "larm",
+        "item_id": "87",
+        "expected_item": {
+          "base": "pab",
+          "quality": 7,
+          "ilvl": 99,
+          "auto": {
+            "am027": [
+              45
+            ]
+          },
+          "superior": {},
+          "uniqueValues": [
+            55,
+            112,
+            250,
+            22,
+            35,
+            8,
+            2
+          ],
+          "unique": "runeword155",
+          "defense": 158,
+          "sockets": 4,
+          "socketedItems": [
+            "r07",
+            "r10",
+            "r09",
+            "r11"
+          ],
+          "stats": {
+            "item_fastergethitrate": 55,
+            "maxmana": 112,
+            "armorclass_vs_missile": 250,
+            "vitality": 22,
+            "item_fastercastrate": 35,
+            "item_absorbmagic": 8,
+            "item_allskills": 2,
+            "fireresist": 45,
+            "lightresist": 45,
+            "coldresist": 45,
+            "poisonresist": 45
+          },
+          "description": "158 def 35 fcr 112 mana 45@ 8 magic abs"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          }
+        },
+        "fcr_sources": {
+          "game": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "metadata": {
+            "path": "inventory_tracking/items/data/item_metadata.json",
+            "sha256": "fa06dacf7ec7b1f6d6ca4ff73d8b779bb5430ea28a2dfe9bd1d829f4d64a7383"
+          },
+          "uniques": {
+            "path": "third-parties/d2data/json/uniqueitems.json",
+            "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "armor": {
+            "path": "third-parties/d2data/json/armor.json",
+            "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "properties": {
+            "path": "third-parties/d2data/json/properties.json",
+            "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+          },
+          "stats": {
+            "path": "third-parties/d2data/json/itemstatcost.json",
+            "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+          },
+          "misc": {
+            "path": "third-parties/d2data/json/misc.json",
+            "sha256": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072"
+          },
+          "gems": {
+            "path": "third-parties/d2data/json/gems.json",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary Spirit Sacred Targe entry and selected guide planner bind this active shield and four native runes. The actual active equipment reaches 125 FCR with required named companions; swap copies are excluded. Unknown ethereal status remains unknown. This discharges source occurrences only, not independent companion, variant, market or item-bank obligations."
+    }
+  ]
+}

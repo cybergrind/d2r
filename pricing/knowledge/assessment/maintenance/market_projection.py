@@ -11,8 +11,11 @@ from inventory_tracking.items.stats import StatContext, decode_stat
 ROOT = Path(__file__).resolve().parents[4]
 OUTPUT = Path(__file__).resolve().parents[1] / 'rules/native_market_properties.json'
 PROBE = 104729
-# Explicit reviewed wording difference; same class-wide skill stat, not a skill tab.
-LABEL_ALIASES = {'83:7': '+{{value}} to Warlock Skills'}
+# Reviewed wording differences preserve exact native skill family and parameter.
+LABEL_ALIASES = {
+    '83:7': '+{{value}} to Warlock Skills',
+    '97:411': '+{{value}} to Town Portal',  # Native Townportal O Skill on Sling.
+}
 
 
 def compile_projection(metadata, properties):
@@ -53,7 +56,10 @@ def main():
     payloads = [(ROOT / path).read_bytes() for path in inputs]
     document = compile_projection(json.loads(payloads[0]), json.loads(payloads[1])['properties'])
     document['inputs'] = {path: hashlib.sha256(raw).hexdigest() for path, raw in zip(inputs, payloads, strict=True)}
-    document['review'] = '2026-09-24: Scalar skill families; exact labels plus reviewed Warlock class wording alias.'
+    document['review'] = (
+        '2026-09-28: Scalar skill families; exact labels plus reviewed Warlock class '
+        'and Town Portal oskill wording aliases.'
+    )
     temporary = OUTPUT.with_suffix('.tmp')
     temporary.write_text(json.dumps(document, indent=2) + '\n')
     temporary.replace(OUTPUT)

@@ -23,23 +23,15 @@ def test_empty_startup_can_show_a_later_alert():
     label.set_text.assert_called_with('700/1000 · juv 2')
 
 
-def test_assessment_lines_are_multiline_and_unmap_when_cleared():
-    window, label = Mock(), Mock()
-    apply_display(window, label, ['Ring', 'Price: unknown'], multiline=True)
-    label.set_text.assert_called_with('Ring\nPrice: unknown')
-    apply_display(window, label, [], multiline=True)
-    window.set_visible.assert_called_with(False)
-
-
 def test_styled_osd_uses_escaped_markup_and_clears_it_on_hide():
     from inventory_tracking.presentation import StyledLine, Tone
 
     window, label = Mock(), Mock()
-    apply_display(window, label, [StyledLine('<Ring>', Tone.MAGIC)], multiline=True)
+    apply_display(window, label, [StyledLine('<Ring>', Tone.MAGIC)])
     markup = label.set_markup.call_args.args[0]
     assert '&lt;Ring&gt;' in markup
     assert 'foreground=' in markup
-    apply_display(window, label, [], multiline=True)
+    apply_display(window, label, [])
     label.set_text.assert_called_with('')
     window.set_visible.assert_called_with(False)
 

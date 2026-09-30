@@ -1,4 +1,4 @@
-from pricing.knowledge.assessment.maintenance.guide_sections import section_inventory
+from pricing.knowledge.assessment.maintenance.guide_sections import legacy_item_references, section_inventory
 
 
 def test_sections_keep_prose_without_item_markup_and_skip_scripts():
@@ -34,3 +34,31 @@ def test_empty_planner_tooltip_keeps_exact_profile_set_and_item_references():
             'section_locator': '/sections/0',
         }
     ]
+
+
+def test_legacy_item_reference_preserves_planner_without_inventing_set():
+    html = (
+        '<h2>Gear</h2><span class="d2planner-item" data-d2planner-profile="zb01066h" '
+        'data-d2planner-id="7">Dream Shield</span>'
+    )
+    result = legacy_item_references(html)
+    assert result == [
+        {
+            'profile_id': 'zb01066h',
+            'set_id': None,
+            'item_id': '7',
+            'position': [1, 13],
+            'section_locator': '/sections/1',
+            'format': 'legacy_item',
+        }
+    ]
+    assert section_inventory(html)['embedded_item_refs'] == []
+
+
+def test_legacy_skill_and_hidden_or_incomplete_markup_do_not_become_items():
+    html = (
+        '<span class="d2planner-skill" data-d2planner-profile="p" data-d2planner-id="7">Skill</span>'
+        '<script><span class="d2planner-item" data-d2planner-profile="p" data-d2planner-id="7"></span></script>'
+        '<span class="d2planner-item" data-d2planner-id="7">Missing planner</span>'
+    )
+    assert legacy_item_references(html) == []

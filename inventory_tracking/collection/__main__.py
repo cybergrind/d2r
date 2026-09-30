@@ -23,7 +23,7 @@ def collect_once(args) -> int:
         with log_to_file(directory / 'probe.log'):
             reader = LiveReader(directory, pid=args.pid)
             pid, images, capture = reader.connect(directory)
-            record = collect_inventory(pid, images, capture)
+            record = collect_inventory(pid, images, capture, scope='equipment' if args.equipped else 'all')
             build, summary = record_collection(directory, report, record, args.database, args.html)
             print(f'{build.character.name} ({build.character.class_name}, level {build.character.level}): {summary}')
             print(f'Shared tabs (owner unit → tab): {build.tabs}')
@@ -48,9 +48,15 @@ def main(argv=None) -> int:
     commands = parser.add_subparsers(dest='command', required=True)
     collect = commands.add_parser('collect', help='read every owned item from the running game once (host)')
     collect.add_argument('--pid', type=int)
+    collect.add_argument(
+        '--equipped', action='store_true', help='only what the character and the mercenary wear (no stash reads)'
+    )
     collect.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
     collect.add_argument('--html', type=Path, default=DEFAULT_HTML, help='page to regenerate after the capture')
-    commands.add_parser('status', help='row counts per table')
+    commands.add_parser('status', help='row counts per table and the latest sheet per character')
+    stats = commands.add_parser('stats', help='character sheet as last captured (every decoded stat line)')
+    stats.add_argument('name', nargs='?', help='character name; default: every character')
+    stats.add_argument('--history', action='store_true', help='every captured sheet, newest first')
     probe = commands.add_parser('probe-materials', help='research: dump raw records of the currency/materials stash')
     probe.add_argument('--pid', type=int)
     probe.add_argument('--output', type=Path, default=DEFAULT_OUTPUT)
@@ -84,7 +90,7 @@ def main(argv=None) -> int:
             return 1
         finally:
             publish(directory / 'report.json', report)
-    if args.command == 'status' and not args.database.exists():
+    if args.command in ('status', 'stats') and not args.database.exists():
         print(f'No collection database at {args.database}')
         return 2
     with CollectionStore(args.database) as store:
@@ -108,7 +114,21 @@ def main(argv=None) -> int:
                 print(
                     f'character: {character.name} ({character.class_name or "class unknown"}, level {character.level})'
                 )
+                for seen_at, sheet in store.character_stats(character.name):
+                    print(f'    {sheet.summary} (seen {seen_at})')
             return 0
+        if args.command == 'stats':
+            names = [args.name] if args.name else [c.name for c in store.characters()]
+            shown = 0
+            for name in names:
+                for seen_at, sheet in store.character_stats(name, history=args.history):
+                    shown += 1
+                    print(f'{name} — {sheet.summary} (seen {seen_at})')
+                    for line in sheet.lines:
+                        print(f'    {line}')
+            if not shown:
+                print('No character sheet captured yet')
+            return 0 if shown else 1
         rows = store.query(' '.join(args.text), owner=args.owner, container=args.container, sockets=args.sockets)
         for item, placement in rows:
             extra = [f'{item.sockets} sockets' if item.sockets else '', item.set_name or '', item.runeword or '']

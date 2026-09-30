@@ -14,6 +14,9 @@ def socketed_item(base, rarity, name, fillers, bonuses):
     definition = catalog().named.get((rarity, name), {})
     values = {(s['stat_id'], s.get('layer', 0)): s['min'] for s in definition.get('roll_ranges', {}).values()}
     values[31, 0] = 150
+    # Native armor-table blocking is part of the captured total on these bases.
+    if name is None and base in {'Large Shield', 'Sacred Targe', 'Monarch'}:
+        values[20, 0] = {'Large Shield': 12, 'Sacred Targe': 30, 'Monarch': 22}[base]
     if rarity == 'superior' and any(
         b['name'] == base and b['category'] == 'armor' for b in metadata()['bases'].values()
     ):

@@ -1,11 +1,11 @@
-# Unique/set items to review first
+# Items to review first
 
 Generated from cached research, 2026-09-24. This is a keep/review priority list, not a price ranking.
 Numerical report estimates use verified Softcore / Non-Ladder / PC / RotW asks only.
 The Maxroll source is dated 2024-03-06 and describes early ladder; its tiers are demand context only.
 Local qualitative tiers are dated 2026-09-18; conditions and rolls can change value.
 
-98 valuable candidates; 223 total watch items including build demand.
+99 valuable candidates; 228 total watch items including build demand.
 
 | Item | Local research tier | Builds | Guide priority (2024) |
 | --- | --- | ---: | --- |
@@ -24,7 +24,7 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Andariel's Visage | Mid (non-eth) / HR (eth 30/10) | 27 | Med |
 | Ravenlore | High–HR (-20+) / Low | 1 | Med |
 | Death's Fathom | HR (30) / High (25–29) / Mid | 3 | High |
-| Nightwing's Veil | HR (15/20) / High (15 cold) / Low | 1 | Med |
+| Nightwing's Veil | HR (15/20) / High (15 cold) / Low | 2 | Med |
 | Dracul's Grasp | High (perfect) / Mid | 5 | Med |
 | War Traveler | High | 30 | High |
 | Mara's Kaleidoscope | High | 29 | High |
@@ -39,7 +39,7 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Shadow Dancer | High (25 dex) / Mid | 1 | Med |
 | Wisp Projector | HR (perfect) / Mid | 13 | High |
 | Guardian's Light | Mid–High | 3 | not listed |
-| Bul-Kathos' Wedding Band | Mid–High | 26 | High |
+| Bul-Kathos' Wedding Band | Mid–High | 27 | High |
 | The Stone of Jordan | High | 26 | High |
 | Verdungo's Hearty Cord | High (near-perfect) / Low | 23 | Med |
 | Windforce | High (8 ML) / Mid | 1 | Med |
@@ -52,46 +52,46 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Latent Crack of the Heavens | unranked | 0 | not listed |
 | Raven Frost | Mid | 15 | Med |
 | Annihilus | unranked | 33 | High |
-| Gheed's Fortune | Mid | 28 | Med |
+| Gheed's Fortune | Mid | 31 | Med |
 | Ormus' Robes | Mid (skill-dependent) | 11 | Med |
 | Black Cleft | unranked | 1 | Low |
 | Renewed Crack of the Heavens | unranked | 7 | not listed |
 | Renewed Cold Rupture | unranked | 1 | not listed |
-| Skin of the Vipermagi | Mid | 20 | High |
+| Skin of the Vipermagi | Mid | 21 | High |
 | Bone Break | unranked | 7 | Med |
 | Herald of Zakarum | Mid | 4 | High |
 | Gore Rider | Mid | 9 | Med |
 | Vampire Gaze | unranked | 29 | Med |
 | Ondal's Wisdom | Low–Mid | 5 | Med |
 | Harlequin Crest | Mid | 28 | High |
+| Chance Guards | Low–Mid | 27 | Med |
 | Guillaume's Face | Low | 27 | Med |
-| Chance Guards | Low–Mid | 26 | Med |
-| Skullder's Ire | Low–Mid | 26 | Med |
+| Skullder's Ire | Low–Mid | 27 | Med |
 | Trang-Oul's Claws | Floor–Low | 24 | Med |
 | Waterwalk | Low–Mid | 20 | Med |
 | Flame Rift | unranked | 11 | Med |
 | Highlord's Wrath | Mid | 10 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
 | Tal Rasha's Lidless Eye | Low | 7 | Med |
 | Crack of the Heavens | unranked | 6 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
-| Rainbow Facet | unranked | 5 | High |
 | Cold Rupture | unranked | 2 | High |
 | Thundergod's Vigor | Low | 14 | Med |
 | Tal Rasha's Horadric Crest | Low | 32 | Med |
 | Tal Rasha's Guardianship | Low–Mid | 15 | High |
 | Tal Rasha's Adjudication | Low | 10 | High |
 | Tal Rasha's Fine-Spun Cloth | Floor–Low | 10 | Med |
-| Trang-Oul's Girth | Low | 4 | Med |
+| Trang-Oul's Girth | Low | 5 | Med |
 | The Oculus | Floor–Low | 8 | High |
 | Immortal King's Soul Cage | Floor | 0 | Med |
 | Wizardspike | Floor | 26 | Med |
-| Hellfire Torch | unranked | 22 | High |
+| Hellfire Torch | unranked | 33 | High |
 | The Reaper's Toll | unranked | 5 | Med |
 | Arreat's Face | unranked | 2 | Med |
 | Homunculus | unranked | 2 | Med |
@@ -106,6 +106,7 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Tyrael's Might | unranked | 1 | High |
 | Warshrike | unranked | 1 | Med |
 | Arkaine's Valor | unranked | 0 | Med |
+| Grand Charm | unranked | 0 | Medium |
 | Griswold's Redemption | unranked | 0 | Med |
 
 Source: [https://maxroll.gg/d2/items/valuable-unique-set-items](https://maxroll.gg/d2/items/valuable-unique-set-items); local WP-I and appraisal-demand research.

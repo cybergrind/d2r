@@ -12,6 +12,7 @@ from pricing.knowledge.assessment.engine import assess_result
 from pricing.knowledge.assessment.guide_demand import demand_for_item
 from pricing.knowledge.assessment.inputs import artifact_inputs
 from pricing.knowledge.assessment.market_repository import compare_request_results, market_rows
+from pricing.knowledge.assessment.policies.value_watch import matching_watches
 from pricing.knowledge.assessment.pricing import finalize_assessment
 from pricing.knowledge.bases import BASE_QUALITIES, assess_base
 from pricing.knowledge.index import compact_result, lookup, search
@@ -80,7 +81,21 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
     priced = finalize_assessment(outcome, comparison_results, fallback_rows=fallback_rows, today=as_of)
     payload = legacy_priced_payload(priced)
     assessment, estimate = payload['assessment'], payload['price_estimate']
-    watches = evidence.get('identity', {}).get('evidence', {}).get('value_watch', [])
+    conditional_watches = (
+        search(
+            database,
+            kind='affixed_value_watch',
+            base_name=outcome.facts.base_name,
+            rarity=outcome.facts.rarity,
+            limit=1000,
+        )
+        if outcome.facts.rarity in ('magic', 'rare', 'crafted')
+        else []
+    )
+    watches = matching_watches(
+        [*evidence.get('identity', {}).get('evidence', {}).get('value_watch', []), *conditional_watches],
+        outcome.facts,
+    )
     return {
         'price_estimate': estimate,
         'guide_demand': demand_for_item(item.get('runeword') or item.get('name'), assessment['roles']),

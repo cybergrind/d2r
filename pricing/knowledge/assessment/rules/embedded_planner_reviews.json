@@ -1,0 +1,150 @@
+{
+  "schema_version": 1,
+  "inputs": {
+    "pricing/knowledge/assessment/rules/embedded_reviews.json": "19c32e9539de7130a876ff9e13cf4f2bf578d780dc25f7b60ea4f60326462cf6",
+    "pricing/raw/mr/guides__echoing-strike-warlock-guide.html": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "pricing/raw/mr/planners/ucgz20le.json": "757bccebbf7012b2ec350f5ccdb79ff114fcb406e5dba2305f9e8c147f686a91",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072"
+  },
+  "rows": [
+    {
+      "endorsement_occurrence_id": "e89e1cdab50f51015e35cb99",
+      "endorsement_sha256": "d80f171993a49afb70e4dbc777b48a6ae6c269bff52594c440187556488798ac",
+      "profile_index": 2,
+      "quote": "Mercenary Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime.",
+      "parent": {
+        "occurrence_id": "18068e8b55eb7790b7b5f8a4",
+        "sha256": "e3377a6b08c3f1e68cf4c19ad1808585a611f89c3bc13d4c67587bfb2ad0283f"
+      },
+      "children": [
+        {
+          "occurrence_id": "b3b5dd827ed51ed6d16e5597",
+          "sha256": "e27cccb4c6e1480cf11ea891eb2e1153732e0978bb8a4b3ad324eb6ea8563eb9"
+        },
+        {
+          "occurrence_id": "a0bdb11d81185efbde7b2f49",
+          "sha256": "4ee3ac1e1260dc695f330f2cc5888796ff33d23ddbaac7f0573e050030a64ef9"
+        },
+        {
+          "occurrence_id": "8b2a750f2ec0e1f5ee3840a1",
+          "sha256": "8cef998eb8338eeaeb4ba734ee164394a3d5c6818056fe47c7d73a82bd34fe08"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected mercenary configuration and full rune payload reuse validated embedded recipe review. Copied item IDs must retain identical complete definitions; variant, player class and mercenary remain independently bound."
+    },
+    {
+      "endorsement_occurrence_id": "f886d62ffc77e50b4cda9ce5",
+      "endorsement_sha256": "18ea5d3d8d76299e0bf431b3a4d8b8cdd2d917602b73b34cbd8070f7a44ec3ba",
+      "profile_index": 3,
+      "quote": "Mercenary Act 5 Frenzy Mercenary with the full Sazabi's Set becomes incredibly tanky, and can survive the attacks of the Ancients with some Potion help.",
+      "parent": {
+        "occurrence_id": "33cb2c11d0edc4bb35565fbf",
+        "sha256": "333233cee1c8d470c5099e1191f085f0bf26a8284d41a73996ab5a87865bc2e9"
+      },
+      "children": [
+        {
+          "occurrence_id": "cb51a977e5a600c1a488057f",
+          "sha256": "8be43ba18c3dc451fdcee861709af4c092d66967750b8bd5b27b791a95ebd1bf"
+        },
+        {
+          "occurrence_id": "5acf44b37abfc1c33277e2d6",
+          "sha256": "acf599ae4ceaad67a7033410092479de5c0ea8525a5255dac45fb69f418a41bb"
+        },
+        {
+          "occurrence_id": "13915619aae3e493e7f7a641",
+          "sha256": "a5563fa72b19aeba87d1d326017ec3fdef9070dd04a66039b9a0f6adcd476240"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected mercenary configuration and full rune payload reuse validated embedded recipe review. Copied item IDs must retain identical complete definitions; variant, player class and mercenary remain independently bound."
+    },
+    {
+      "endorsement_occurrence_id": "0cf815250bb33dcf692c3bf5",
+      "endorsement_sha256": "e24451088db02da06b0790a6295e46f8c543f6018b1f78d3c7704c9d993aa2fd",
+      "profile_index": 1,
+      "quote": "Mercenary Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime.",
+      "parent": {
+        "occurrence_id": "42bee2cb36a69c532cf8602e",
+        "sha256": "8ea8408063c3aacb751a0a90611143cd1111780567a23cf1e7381f0b1cc8529c"
+      },
+      "children": [
+        {
+          "occurrence_id": "26eaaba3d8179a58c8f52af0",
+          "sha256": "d71cea2e82b0cc2d1640504d5e53ad29619b1027f5488ed8cbdf70afc5eba2f8"
+        },
+        {
+          "occurrence_id": "8cfa8acddb4475ce50ee40e0",
+          "sha256": "36b8ce0eee5380283b37db0e90ca0bd998336803b2424e355fb31a2262c93a6b"
+        },
+        {
+          "occurrence_id": "93ce11bf76f3bb31053cba9a",
+          "sha256": "8f674fbcb37746cf4293ae186b56f603813c58c17bb4e2d2f1f17f8d0480397c"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected mercenary configuration and full rune payload reuse validated embedded recipe review. Copied item IDs must retain identical complete definitions; variant, player class and mercenary remain independently bound."
+    },
+    {
+      "endorsement_occurrence_id": "cdcfc3c2b1b0ba8e12d53284",
+      "endorsement_sha256": "e02bba33ebbc3e3442d7e9b9f4aa5baad01312c9e2cdc852ba526d7647bbbc2a",
+      "profile_index": 2,
+      "quote": "Mercenary Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime.",
+      "parent": {
+        "occurrence_id": "8ab0f9b880da31967b15b542",
+        "sha256": "7bca700acd70c1f58ebeee720ae978198d9509c8fc7834b04b8d987f613571bd"
+      },
+      "children": [
+        {
+          "occurrence_id": "5255ad6cd6727c2546e0c330",
+          "sha256": "54f71d8796f546590171e404ef623cd06c6d59dc03b03ee2512ab9a4f63fc10f"
+        },
+        {
+          "occurrence_id": "dc2f6ccbb852932dfabf7569",
+          "sha256": "2d1e71960913d6211206d6bd4effc6e08a63d9fc1f0c24a8c197bce10aed1a0b"
+        },
+        {
+          "occurrence_id": "4f658b76d7aa1c1c2db2fa52",
+          "sha256": "1d6b2c0a9c8e6fdc9921317a9497a1e0b204769de05cc3191f2a125f3d03dfee"
+        },
+        {
+          "occurrence_id": "956138cedc2ab0a3ea89c5a6",
+          "sha256": "7695f235536ffb0a689c007993220e061915c348667060e1a0dc5cc60a5a206b"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected mercenary configuration and full rune payload reuse validated embedded recipe review. Copied item IDs must retain identical complete definitions; variant, player class and mercenary remain independently bound."
+    },
+    {
+      "endorsement_occurrence_id": "852c5ade57390f6735b54251",
+      "endorsement_sha256": "84701001d85954e3f3928abe09337251906385517be7d0d1be4788557a33d4f1",
+      "profile_index": 1,
+      "quote": "Mercenary Act 2 Prayer Mercenary with a + Insight Giant Thresher offer three times the Healing received and manage Mana use while shedding Poison/Curse uptime.",
+      "parent": {
+        "occurrence_id": "cb04127ae96656d40f1a176f",
+        "sha256": "178b26428935985669b10a45cb1d45e70fb6a24363f355dbc45b7ca476216a81"
+      },
+      "children": [
+        {
+          "occurrence_id": "e0a2eda469b67b73169337b9",
+          "sha256": "b9374fce59028161642b42f59a7aaf8d2d2b11fb249693db6c536edb410294d8"
+        },
+        {
+          "occurrence_id": "55827c26e6f4614a0ddccc72",
+          "sha256": "e83478b0fd02c794fd830032eff49b42f61f915993ec83a8ebe71e31ade71a29"
+        },
+        {
+          "occurrence_id": "e2bbc5c47e5c873ccbc02307",
+          "sha256": "8a81ec4795268b652b69ad34630311407eab3d5eef4ff3099873817f4410f0cb"
+        },
+        {
+          "occurrence_id": "ef213ef468748ff1999d15c0",
+          "sha256": "1f22285cdf4a61477c896b9f118192ab3a258e57bd5fe1ac62b65499d58ca4c9"
+        }
+      ],
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact selected mercenary configuration and full rune payload reuse validated embedded recipe review. Copied item IDs must retain identical complete definitions; variant, player class and mercenary remain independently bound."
+    }
+  ]
+}

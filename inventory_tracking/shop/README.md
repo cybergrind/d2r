@@ -67,7 +67,7 @@ drops and player trade items cannot qualify merely by their flags.
 
 ## Targets
 
-Since 2026-09-26 (evening) the scan alerts only on blue patterns that sell in this
+Since 2026-09-26 (evening) the scan primarily alerts on blue patterns that sell in this
 economy, taken from `guides/pricing.html` §2 (blue table), `guides/pricing-primer.html`
 §3.3 and the Anya rows of `guides/pindle-anya.html` §4.1 (Traderie asks 2026-09-18/19).
 Everything the earlier build-list catalog added — starter and pre-runeword pieces
@@ -78,7 +78,12 @@ prefix, charms and jewels (never vendor stock) — no longer alerts. The compile
 (`magic_targets.json`, [MAGIC_COVERAGE.md](MAGIC_COVERAGE.md), `build_catalog.py`)
 remains an offline audit tool, reachable with `match_item(..., build_candidates=True)`.
 
-What alerts (all decoded native stats; thresholds are the priced rolls):
+On 2026-09-27, reviewed +3 skill-tree amulets became an explicit self-use exception.
+Plain rolls show `Build use`; useful FCR/life/MF suffixes (gold find for Warcries)
+show `Build review`. These labels are not resale-price claims. See
+[amulet evidence and matching rules](AMULETS.md).
+
+Other alerts (decoded native stats; thresholds are the priced rolls):
 
 - Jeweler's Monarch of Deflecting (4 sockets / 20 block / 30 FBR); any other 4-socket
   magic Monarch or Archon Plate (4os-magic bucket minimum).
@@ -86,21 +91,21 @@ What alerts (all decoded native stats; thresholds are the priced rolls):
   15 damage reduction (of Amicae), 24 FHR (of Stability) or 10+ dexterity (of Precision).
 - Circlets: +2 class skills, better with 20 FCR (of the Magus), sockets or 30 FRW;
   any 3-socket magic Tiara / Diadem (Artisan's), 30 FRW noted.
-- Echoing (+3 Warcries) Barbarian helms.
 - Gloves of Alacrity: +3 Bow / Passive / Javelin / Martial Arts with 20 IAS
   (+2 Passive "Gymnastic" stays in the shop).
 - Claws with +3 Traps (Cunning) or +2 Assassin (Witch-hunter's) and 30+ IAS; the label
   names Lightning Sentry / Death Sentry / Wake of Fire staffmods when present.
 - Amazon javelins: +3 Javelin and Spear with 40 IAS plus either +Amazon skills or the
   +6 automod total.
-- Orbs with 20 FCR or scepters with 10 FCR carrying a native +3 demanded skill.
-- Preserved Heads with 2 sockets and +Necromancer skills; grimoires with a +3 Warlock tree.
-- 155 demanded skills in `skills.json`: a native +3 staffmod with +2 class or +2/+3 of
-  its own tree (an unrelated tree never counts), or two demanded +3 staffmods on one
-  item (mastery + main skill), at any rarity. A lone staffmod is a vendor item.
+- Reviewed staffmod targets require +2 of the skill's own class / +3 of its own
+  tree, plus a native +3 primary skill: +5 / +6 total. Extra utility/mastery
+  staffmods can be named as companions, but never qualify the item alone.
+  No generic two-staffmod, plain Warcries-helm, plain tree-grimoire, socketed
+  +1 Necromancer head, or FCR + lone-staffmod shortcut remains.
+  See [the skill review](SKILL_REVIEW.md) for the full 155-skill disposition.
 
 Larzuk outcomes, affix generation chances, item prices and requirements are not
-predicted, and a hit is a resale candidate, not a BiS claim. Prices are never
+predicted, and a hit is a resale or explicitly labeled self-use candidate, not a BiS claim. Prices are never
 matched; when the guides' bands move, edit the thresholds in `rules.py` and cite the pass.
 
 ## Validation

@@ -20,10 +20,11 @@ def test_index_agrees_with_selectors_and_retains_roles_with_unknown_stats():
             if item.rarity in p['qualities']
             and (not p.get('types') or item.item_type in p['types'])
             and (not p.get('names') or item.name in p['names'])
+            and (not p.get('base_codes') or item.base_code in p['base_codes'])
         ]
         assert [p['id'] for p in index.select(item)] == expected
     # Unknown identity/type cannot establish a mismatch.
-    partial = replace(facts('Cinquedeas', 'rare'), name=None, item_type=None)
+    partial = replace(facts('Cinquedeas', 'rare'), name=None, item_type=None, base_code=None)
     assert {p['id'] for p in index.select(partial)} == {p['id'] for p in profiles if 'rare' in p['qualities']}
 
 

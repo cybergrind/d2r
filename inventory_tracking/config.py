@@ -160,9 +160,10 @@ class RepairMarkWidgetConfig(Config):
     enabled: bool = True
     # Button centre and highlight size as fractions of the game window height; x from the
     # window's left edge, y from its bottom edge. Measured 2026-09-28 on a 2560x1418 window
-    # (Charsi): centre 768 px from the left, 426 px above the bottom, button about 96 px.
+    # (Charsi): centre 768 px from the left, 414 px above the bottom, button about 96 px
+    # (2026-09-28 screenshot check: 426 px sat ~12 px too high).
     center_x: Positive = 0.542
-    center_y: Positive = 0.300
+    center_y: Positive = 0.292
     size: Positive = 0.085
     color: str = '#ff3b3b'
     pulse_seconds: Positive = 1.2
@@ -287,10 +288,6 @@ RESOURCE_READER = ResourceReaderConfig(
 
 class AppraisalConfig(Config):
     osd: bool = True
-    # Assessment card: margin from the output's left edge and offset from its vertical
-    # center (negative = up), both in logical pixels.
-    osd_x: Annotated[int, Field(ge=0)] = 520
-    osd_y: int = -150
     display_seconds: Positive = 30
     cache_seconds: Positive = 300
     poll_interval: Positive = 0.2
@@ -301,6 +298,42 @@ class AppraisalConfig(Config):
     stash_poll_interval: Positive = 0.5  # seconds between open-panel flag reads
     identify_auto: bool = True  # assess inventory/cube items the moment they become identified (Cain, scrolls)
     identify_poll_interval: Positive = 1.0  # seconds between identified-flag reads in town; 5x outside town
+    level_guide: bool = True  # on entering a guided level (levels/handlers/), point at its target
+    level_guide_poll_interval: Positive = 0.5  # seconds between current-area reads
+    level_guide_seconds: Positive = 5.0  # how long the arrow stays on the OSD
+    level_walls: bool = True  # draw walkable tiles of loaded rooms on the level map
+    rune_marks: bool = True  # HUD arrows to valuable runes on the ground (streamed, often off-screen)
+    rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r16'  # Io and up (user, 2026-09-30)
+    rune_poll_interval: Positive = 0.5
+    shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
+    super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
 
 
 APPRAISAL = AppraisalConfig()
+
+
+class HudSlot(Config):
+    """Top-left of a slot's widget stack as fractions of the game window (x from left, y from top)."""
+
+    x: Annotated[float, Field(ge=0, le=1)]
+    y: Annotated[float, Field(ge=0, le=1)]
+    max_width: Annotated[float, Field(gt=0, le=1)] = 1.0  # widest widget, fraction of the game window width
+
+
+class HudConfig(Config):
+    """HUD canvas (inventory_tracking/hud/plan.md): one click-through overlay with widget slots."""
+
+    # Widget sizes are logical pixels at this game-window height; other heights scale (0.6-2.0).
+    reference_height: Positive = 1422
+    refresh_interval: Positive = 0.1
+    gap: Annotated[int, Field(ge=0)] = 8
+    slots: dict[str, HudSlot] = {
+        'guide': HudSlot(x=0.03, y=0.08),
+        # Alt+D / shop / identify card: right of the guide card, at most 45% of the window wide.
+        'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
+        # Valuable runes on the ground: under the guide card.
+        'loot': HudSlot(x=0.03, y=0.34),
+    }
+
+
+HUD = HudConfig()

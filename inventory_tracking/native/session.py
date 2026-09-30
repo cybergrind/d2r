@@ -23,6 +23,10 @@ class GameProcessUnavailable(RuntimeError):
     """No D2R.exe is running yet; callers may wait and retry."""
 
 
+class GameNotReady(RuntimeError):
+    """D2R.exe runs but no character is in a game (no unit table yet); callers may wait and retry."""
+
+
 def select_game_process(requested_pid):
     if requested_pid is not None:
         if not is_game(requested_pid):

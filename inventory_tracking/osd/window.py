@@ -7,7 +7,7 @@ import time
 
 from inventory_tracking.common import LOG
 from inventory_tracking.config import OSD
-from inventory_tracking.osd.monitor import GameOutput, choose_monitor, place_assessment, place_mark
+from inventory_tracking.osd.monitor import GameOutput, choose_monitor, place_mark
 from inventory_tracking.presentation import StyledLine, render_markup
 
 
@@ -26,12 +26,12 @@ def load_toolkit():
     return Gtk, Gdk, Gio, GLib, Gtk4LayerShell, cairo
 
 
-def apply_display(window, label, lines, *, multiline=False):
+def apply_display(window, label, lines):
     """Unmap empty overlays so the compositor cannot retain the last alert."""
     if any(isinstance(line, StyledLine) for line in lines):
         label.set_markup(render_markup(line if isinstance(line, StyledLine) else StyledLine(line) for line in lines))
     else:
-        label.set_text(('\n' if multiline else ' · ').join(lines))
+        label.set_text(' · '.join(lines))
     window.set_visible(bool(lines))
 
 
@@ -69,7 +69,9 @@ def draw_mark(cr, size, mark, now):
     cr.stroke()
 
 
-def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
+def show(render, config=OSD, *, demo=False, marks=None):
+    """The inventory OSD label (centred) and the repair mark. Cards and the level guide are on the
+    HUD canvas (inventory_tracking/hud); this window moves there in HUD Phase 3."""
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.InventoryOSD', flags=Gio.ApplicationFlags.NON_UNIQUE)
     failure = []
@@ -84,7 +86,7 @@ def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
         window.set_resizable(False)
         window.set_focusable(False)
         LayerShell.init_for_window(window)
-        LayerShell.set_namespace(window, 'd2r-appraisal-osd' if assessment else 'd2r-inventory-osd')
+        LayerShell.set_namespace(window, 'd2r-inventory-osd')
         LayerShell.set_layer(window, LayerShell.Layer.OVERLAY)
         LayerShell.set_keyboard_mode(window, LayerShell.KeyboardMode.NONE)
         LayerShell.set_exclusive_zone(window, -1)
@@ -98,24 +100,10 @@ def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
                 application.quit()
                 return
             LayerShell.set_monitor(window, monitors.get_item(config.monitor))
-        label = Gtk.Label(xalign=0 if assessment else 0.5)
+        label = Gtk.Label(xalign=0.5)
         game_output = GameOutput()
-        assessment_monitor = None
-        if assessment:
-            # A card at the left edge, config.x away from it, vertically centered by the
-            # compositor. It is as wide as its longest line, up to half the output
-            # (place_assessment sets the cap).
-            LayerShell.set_anchor(window, LayerShell.Edge.LEFT, True)
-            LayerShell.set_margin(window, LayerShell.Edge.LEFT, max(0, config.x))
-            label.set_wrap(True)
-            label.set_natural_wrap_mode(Gtk.NaturalWrapMode.NONE)
-            # Long assessments remain bounded and explicitly ellipsized.
-            from gi.repository import Pango
-
-            label.set_ellipsize(Pango.EllipsizeMode.END)
-        else:
-            label.set_margin_start(max(0, 2 * config.x))
-            label.set_margin_end(max(0, -2 * config.x))
+        label.set_margin_start(max(0, 2 * config.x))
+        label.set_margin_end(max(0, -2 * config.x))
         # Transparent widget margins shift the label inside the centered window.
         # Twice the requested offset compensates for centering the whole window.
         label.set_margin_top(max(0, 2 * config.y))
@@ -124,7 +112,7 @@ def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
         window.set_child(label)
         marker = area = None
         shown_mark = [None]
-        if marks is not None and not assessment:
+        if marks is not None:
             # A second click-through surface anchored to the output's bottom-left corner; place_mark
             # moves it over the button from the game window's size (see design.md, repair mark).
             marker = Gtk.ApplicationWindow(application=application, title='D2R inventory OSD mark')
@@ -149,11 +137,10 @@ def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
             marker.set_child(area)
             marker.connect('realize', lambda *_: marker.get_surface().set_input_region(cairo.Region()))
         css = Gtk.CssProvider()
-        background = 'rgba(15, 15, 20, 0.88)' if assessment else 'transparent'
         css.load_from_string(f"""
             window {{ background: transparent; }}
             drawingarea {{ background: transparent; }}
-            label {{ color: {config.color}; background: {background};
+            label {{ color: {config.color}; background: transparent;
                      border-radius: 6px; padding: 6px 10px;
                      font-family: {config.font_family}; font-size: {config.font_size}px;
                      font-weight: {config.font_weight}; }}
@@ -163,19 +150,10 @@ def show(render, config=OSD, *, demo=False, assessment=False, marks=None):
         )
 
         def refresh():
-            nonlocal assessment_monitor
             lines = render(now=time.monotonic())
             if demo:
                 lines.insert(0, 'PREVIEW')
-            if assessment and lines:
-                monitor = choose_monitor(monitors, config.monitor, game_output() if config.monitor is None else None)
-                if monitor is None:
-                    lines = []
-                    assessment_monitor = None
-                elif monitor != assessment_monitor:
-                    place_assessment(window, label, monitor, LayerShell, config.font_size)
-                    assessment_monitor = monitor
-            apply_display(window, label, lines, multiline=assessment)
+            apply_display(window, label, lines)
             surface = window.get_surface()
             if surface is not None:
                 surface.set_input_region(cairo.Region())

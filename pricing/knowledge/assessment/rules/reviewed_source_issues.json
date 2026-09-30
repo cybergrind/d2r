@@ -1,0 +1,1060 @@
+{
+  "schema_version": 1,
+  "reviews": [
+    {
+      "id": "fire-blast-starter-magic-amulet-two-prefixes",
+      "review_date": "2026-09-25",
+      "reason": "magic_prefix_conflict",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fire-blast-assassin/variants/0/player/Amulet",
+        "expected": [
+          "Magic Amulet (+1 Traps / +20 All Res / 25 MF)"
+        ]
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+        },
+        {
+          "path": "third-parties/d2data/json/magicsuffix.json",
+          "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+        }
+      ],
+      "review": "The quoted magic amulet combines Entrapping (Traps prefix), Prismatic (all-resistance prefix), and Fortune (MF suffix). Ordinary magic items allow at most one prefix and one suffix; the two prefixes conflict. Do not infer a rare item or remove a property to manufacture a reviewed pattern.",
+      "next_action": "Reviewed rare Traps/all-resistance starter configuration is linked. Other amulet combinations and exact market pricing remain separate reviews.",
+      "resolution": {
+        "review_date": "2026-09-25",
+        "corrected_rarity": "rare",
+        "item_name": "Wraith Collar",
+        "planner_date": "2026-02-17 23:58:03",
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/items/34",
+            "expected": {
+              "base": "amu",
+              "quality": 4,
+              "ilvl": 99,
+              "mods": {
+                "mp331": [
+                  20
+                ],
+                "ms287": [
+                  25
+                ],
+                "mp505": [
+                  1
+                ]
+              },
+              "name": "Wraith Collar",
+              "sockets": 0,
+              "stats": {
+                "fireresist": 20,
+                "lightresist": 20,
+                "coldresist": 20,
+                "poisonresist": 20,
+                "item_magicbonus": 25,
+                "item_addskill_tab#18": 1
+              },
+              "ethereal": false,
+              "description": "1 traps 20@ 25 mf"
+            }
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/uid",
+            "expected": "kNG46Gvn"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/name",
+            "expected": "Starter"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/items/neck",
+            "expected": 34
+          }
+        ],
+        "review": "The original Starter planner neck links item 34, Wraith Collar, quality 4 (rare in the Maxroll planner encoding; magic is 3). It explicitly contains the same Traps, all-resistance and MF modifiers. The structured WP-A extraction mislabeled its quality. Preserve the original text as evidence and use rare for a separately reviewed future configuration; these illustrative rolls are not guide-required minima.",
+        "reviewed_profile_id": "fire-blast-starter-rare-amulet"
+      }
+    },
+    {
+      "id": "fire-blast-starter-ring-quality",
+      "review_date": "2026-09-25",
+      "reason": "extraction_quality_mismatch",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "format": "json",
+        "locator": "/fire-blast-assassin/variants/0/player/Rings",
+        "expected": [
+          "Cobalt Ring (+30 Cold Res)",
+          "Magic Ring (+30 Cold Res / MF / +1 Mana after kill)"
+        ]
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+          "format": "json",
+          "locator": "/353",
+          "expected": {
+            "Name": "Cobalt",
+            "version": 1,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 18,
+            "levelreq": 13,
+            "frequency": 3,
+            "group": 117,
+            "mod1code": "res-cold",
+            "mod1min": 21,
+            "mod1max": 30,
+            "itype1": "armo",
+            "itype2": "ring",
+            "itype3": "amul",
+            "itype4": "orb",
+            "itype5": "circ",
+            "multiply": 0,
+            "add": 0
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicsuffix.json",
+          "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+          "format": "json",
+          "locator": "/286",
+          "expected": {
+            "Name": "of Chance",
+            "version": 1,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 12,
+            "levelreq": 9,
+            "frequency": 4,
+            "group": 22,
+            "mod1code": "mag%",
+            "mod1min": 5,
+            "mod1max": 15,
+            "itype1": "boot",
+            "itype2": "glov",
+            "itype3": "ring",
+            "itype4": "amul",
+            "itype5": "circ",
+            "multiply": 0,
+            "add": 0
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+          "format": "json",
+          "locator": "/417",
+          "expected": {
+            "Name": "Triumphant",
+            "version": 1,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 3,
+            "levelreq": 2,
+            "frequency": 4,
+            "group": 121,
+            "mod1code": "mana-kill",
+            "mod1min": 1,
+            "mod1max": 1,
+            "itype1": "weap",
+            "itype2": "ring",
+            "itype3": "circ",
+            "multiply": 0,
+            "add": 0
+          }
+        }
+      ],
+      "review": "Stone Finger has Cobalt and Triumphant prefixes plus Chance suffix, all rare-eligible; its same-slot original planner quality4 is rare. The separate left Cobalt ring remains quality3 magic.",
+      "resolution": {
+        "review_date": "2026-09-25",
+        "corrected_rarity": "rare",
+        "item_name": "Stone Finger",
+        "planner_date": "2026-02-17 23:58:03",
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/items/44",
+            "expected": {
+              "base": "rin",
+              "quality": 4,
+              "ilvl": 99,
+              "mods": {
+                "mp353": [
+                  30
+                ],
+                "ms286": [
+                  15
+                ],
+                "mp417": [
+                  1
+                ]
+              },
+              "name": "Stone Finger",
+              "sockets": 0,
+              "stats": {
+                "coldresist": 30,
+                "item_magicbonus": 15,
+                "item_manaafterkill": 1
+              },
+              "ethereal": false,
+              "description": "30 cr 1 maek 15 mf"
+            }
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/uid",
+            "expected": "kNG46Gvn"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/name",
+            "expected": "Starter"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/items/rrin",
+            "expected": 44
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/items/43",
+            "expected": {
+              "base": "rin",
+              "quality": 3,
+              "ilvl": 99,
+              "mods": {
+                "mp353": [
+                  30
+                ]
+              },
+              "sockets": 0,
+              "stats": {
+                "coldresist": 30
+              },
+              "ethereal": false,
+              "description": "30 cr"
+            }
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/0/items/lrin",
+            "expected": 43
+          }
+        ],
+        "review": "Stone Finger has Cobalt and Triumphant prefixes plus Chance suffix, all rare-eligible; its same-slot original planner quality4 is rare. The separate left Cobalt ring remains quality3 magic. Planner magnitudes are examples, not automatically required minima.",
+        "reviewed_profile_ids": [
+          "fire-blast-starter-magic-resistance-ring",
+          "fire-blast-starter-rare-resistance-ring"
+        ]
+      },
+      "next_action": "Reviewed cold-resistance magic ring and rare cold-resistance/mana-after-kill configuration linked. Other combinations and exact price cohorts remain separate reviews."
+    },
+    {
+      "id": "fire-blast-standard-diadem-quality",
+      "review_date": "2026-09-25",
+      "reason": "extraction_quality_mismatch",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "format": "json",
+        "locator": "/fire-blast-assassin/variants/1/player/Helmet",
+        "expected": [
+          "Magic Diadem (+2 Assassin Skills / 30 FRW / +30 Str / +20 All Res / Telekinesis charges; Defender's Fire jewel + Fire Rainbow Facet) — table: Flickering Flame / Harlequin Crest"
+        ]
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+          "format": "json",
+          "locator": "/589",
+          "expected": {
+            "Name": "Witch-hunter's",
+            "version": 100,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 90,
+            "levelreq": 67,
+            "classspecific": "ass",
+            "frequency": 2,
+            "group": 125,
+            "mod1code": "ass",
+            "mod1min": 2,
+            "mod1max": 2,
+            "transformcolor": "cgrn",
+            "itype1": "amul",
+            "itype2": "circ",
+            "multiply": 0,
+            "add": 0,
+            "expansion": 1
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicsuffix.json",
+          "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+          "format": "json",
+          "locator": "/396",
+          "expected": {
+            "Name": "of Speed",
+            "version": 1,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 37,
+            "levelreq": 29,
+            "frequency": 4,
+            "group": 35,
+            "mod1code": "move3",
+            "mod1min": 30,
+            "mod1max": 30,
+            "itype1": "boot",
+            "itype2": "circ",
+            "multiply": 0,
+            "add": 0
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicsuffix.json",
+          "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+          "format": "json",
+          "locator": "/377",
+          "expected": {
+            "Name": "of Atlus",
+            "version": 100,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 71,
+            "levelreq": 63,
+            "frequency": 3,
+            "group": 31,
+            "mod1code": "str",
+            "mod1min": 21,
+            "mod1max": 30,
+            "transformcolor": "dgld",
+            "itype1": "amul",
+            "itype2": "belt",
+            "itype3": "club",
+            "itype4": "hamm",
+            "itype5": "circ",
+            "multiply": 0,
+            "add": 0,
+            "expansion": 1
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+          "format": "json",
+          "locator": "/420",
+          "expected": {
+            "Name": "Mechanist's",
+            "version": 100,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 10,
+            "levelreq": 7,
+            "frequency": 3,
+            "group": 122,
+            "mod1code": "sock",
+            "mod1min": 1,
+            "mod1max": 2,
+            "itype1": "weap",
+            "itype2": "shld",
+            "itype3": "helm",
+            "itype4": "tors",
+            "itype5": "circ",
+            "etype1": "thro",
+            "multiply": 0,
+            "add": 0,
+            "expansion": 1
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicprefix.json",
+          "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d",
+          "format": "json",
+          "locator": "/331",
+          "expected": {
+            "Name": "Prismatic",
+            "version": 1,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 42,
+            "levelreq": 31,
+            "frequency": 4,
+            "group": 116,
+            "mod1code": "res-all",
+            "mod1min": 16,
+            "mod1max": 20,
+            "transformcolor": "lpur",
+            "itype1": "amul",
+            "itype2": "circ",
+            "multiply": 1280,
+            "add": 24000
+          }
+        },
+        {
+          "path": "third-parties/d2data/json/magicsuffix.json",
+          "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415",
+          "format": "json",
+          "locator": "/511",
+          "expected": {
+            "Name": "of Telekinesis",
+            "version": 100,
+            "spawnable": 1,
+            "rare": 1,
+            "level": 24,
+            "levelreq": 24,
+            "class": "sor",
+            "classlevelreq": 6,
+            "frequency": 1,
+            "group": 44,
+            "mod1code": "charged",
+            "mod1param": 43,
+            "mod1min": -20,
+            "mod1max": -5,
+            "itype1": "hamm",
+            "itype2": "mace",
+            "itype3": "scep",
+            "itype4": "ring",
+            "itype5": "circ",
+            "multiply": 0,
+            "add": 0,
+            "expansion": 1
+          }
+        }
+      ],
+      "review": "Eagle Visage has three rare-eligible prefixes and three rare-eligible suffixes, with two filled sockets. Original planner quality4 is rare. This resolves only the Magic label; the guide table/prose preference for Flickering Flame or Harlequin Crest versus planner diadem remains a separate conflict.",
+      "resolution": {
+        "review_date": "2026-09-25",
+        "corrected_rarity": "rare",
+        "item_name": "Eagle Visage",
+        "planner_date": "2026-02-17 23:58:03",
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/items/61",
+            "expected": {
+              "base": "ci3",
+              "quality": 4,
+              "ilvl": 99,
+              "mods": {
+                "mp589": [
+                  2
+                ],
+                "ms396": [
+                  30
+                ],
+                "ms377": [
+                  30
+                ],
+                "mp420": [
+                  2
+                ],
+                "mp331": [
+                  20
+                ],
+                "ms511": [
+                  -5
+                ]
+              },
+              "name": "Eagle Visage",
+              "defense": 60,
+              "sockets": 2,
+              "socketedItems": [
+                62,
+                63
+              ],
+              "stats": {
+                "item_addclassskills#6": 2,
+                "item_fastermovevelocity": 30,
+                "strength": 30,
+                "item_numsockets": 2,
+                "fireresist": 20,
+                "lightresist": 20,
+                "coldresist": 20,
+                "poisonresist": 20,
+                "item_charged_skill#43#5": 32
+              },
+              "description": "60 def 2 assa 30 frw 30 str 20@ 32 charges"
+            }
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/uid",
+            "expected": "i9dgnI9K"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/name",
+            "expected": "Standard"
+          },
+          {
+            "path": "pricing/raw/mr/planners/e113x0l4.json",
+            "sha256": "1ce9227863f892573b6ac3f2a6ac7f1207123be436c965502cc6395544b4a2b0",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/items/head",
+            "expected": 61
+          }
+        ],
+        "review": "Eagle Visage has three rare-eligible prefixes and three rare-eligible suffixes, with two filled sockets. Original planner quality4 is rare. This resolves only the Magic label; the guide table/prose preference for Flickering Flame or Harlequin Crest versus planner diadem remains a separate conflict. Planner magnitudes are examples, not automatically required minima."
+      },
+      "next_action": "Review a source-specific rare configuration separately. Do not promote this corrected label to endorsed guide demand, full-loadout fit or a price."
+    },
+    {
+      "id": "hammer-mf-chains-honor-base-examples",
+      "review_date": "2026-09-26",
+      "reason": "different_named_base_examples",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/blessed-hammer-paladin/variants/2/quotes/1",
+        "expected": "This variant is designed for a lower player count, so stack +x% Better Chance of Getting Magic Items by equipping items such as Stealskull and Chains of Honor Sacred Armor on the Mercenary. Note: Magic Find on your Mercenary is added to your own when they kill an enemy."
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/armor.json",
+          "sha256": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
+        },
+        {
+          "path": "third-parties/d2data/json/runes.json",
+          "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+        }
+      ],
+      "review": "Original MF planner profile SOPaTLww equips item24, ethereal Archon Plate Chains of Honor. Original guide prose explicitly names Sacred Armor as an example. Retain both source-backed base branches without asserting one is a transcription error or universally best. Sacred Armor prose does not specify ethereal; both known statuses are eligible there, unknown remains unresolved. Native mechanics support four sockets on both, with different requirements. MF utility requires mercenary kill credit.",
+      "next_action": "Both reviewed branches linked. Exact base/ethereal market cohorts and complete equip fit remain separate; other guide conflicts remain pending.",
+      "resolution": {
+        "review_date": "2026-09-26",
+        "review": "Original MF planner profile SOPaTLww equips item24, ethereal Archon Plate Chains of Honor. Original guide prose explicitly names Sacred Armor as an example. Retain both source-backed base branches without asserting one is a transcription error or universally best. Sacred Armor prose does not specify ethereal; both known statuses are eligible there, unknown remains unresolved. Native mechanics support four sockets on both, with different requirements. MF utility requires mercenary kill credit.",
+        "reviewed_profile_ids": [
+          "blessed-hammer-paladin-2-merc-chains-honor"
+        ],
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+            "sha256": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/blessed-hammer-paladin/variants/2/merc/Body Armor",
+            "expected": [
+              "Chains of Honor Archon Plate (ethereal)"
+            ]
+          },
+          {
+            "path": "pricing/raw/mr/planners/f80206a8.json",
+            "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+            "locator": "/items/24",
+            "expected": {
+              "base": "utp",
+              "quality": 7,
+              "ilvl": 99,
+              "superior": {},
+              "uniqueValues": [
+                50,
+                70,
+                200,
+                100,
+                8,
+                2,
+                20
+              ],
+              "unique": "runeword040",
+              "sockets": 4,
+              "socketedItems": [
+                "r14",
+                "r22",
+                "r30",
+                "r24"
+              ],
+              "stats": {
+                "fireresist": 50,
+                "lightresist": 50,
+                "coldresist": 50,
+                "poisonresist": 50,
+                "item_armor_percent": 70,
+                "item_demondamage_percent": 200,
+                "item_undeaddamage_percent": 100,
+                "lifedrainmindam": 8,
+                "item_allskills": 2,
+                "strength": 20
+              },
+              "defense": 524,
+              "description": "1336 def eth",
+              "ethereal": true
+            },
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/f80206a8.json",
+            "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+            "locator": "/profiles/2/uid",
+            "expected": "SOPaTLww",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/f80206a8.json",
+            "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+            "locator": "/profiles/2/name",
+            "expected": "Magic Find",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/f80206a8.json",
+            "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+            "locator": "/profiles/2/mercItems/tors",
+            "expected": 24,
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/f80206a8.json",
+            "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+            "locator": "/profiles/2/merc",
+            "expected": "10",
+            "format": "maxroll_planner"
+          }
+        ]
+      }
+    },
+    {
+      "id": "fissure-standard-mf-mercenary-aura",
+      "review_date": "2026-09-26",
+      "reason": "different_supported_aura_choices",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fissure-druid/variants_notes",
+        "expected": "Live page (2026-09-20) matches cache: tabs Starter / Standard / Magic Find / Ubers, Last Updated May 22, 2026. Three tabs embed planner tt9vl0l2 (Feb 2026); the Ubers tab embeds set 9 of the 2023 profile vf0106vk (pre-Sunder-charm-rework era: no Flame Rift in its inventory, Verdungo's belt rather than Thundergod's). Mercenary aura discrepancy: variant prose says 'Act 2 Might' for Standard/MF but the embedded planner sets use Holy Freeze (mercType 10) and the guide's Mercenary section heading is 'Infinity, Holy Freeze'; Starter planner uses a Prayer merc. Hardcore is prose-only (delta) although the text refers to a 'Hardcore Build Variant below' that is not present as a tab; the 2023 planner's Hardcore set is recorded for reference. Merc gear table also lists Act 3 Lightning (Iron Wolf) with Spirit Monarch shield as an End-Game option. Planner id resolution: uniques/sets via d2data by id, runewords via maxroll span text and the RunewordNN+27 position rule (verified on 15/17 known names)."
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/runes.json",
+          "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+        }
+      ],
+      "review": "Variant prose explicitly uses Might, while original guide mercenary prose recommends Holy Freeze for slowing enemies in area damage and the linked2026Standard/MF planner selects Holy Freeze. Retain both supported aura choices for this armor component, not a claim of one identical complete loadout. Same ethereal Sacred Armor Fortitude; no perfect defense/life/resistance gates from planner examples. Infinity supplies Conviction, not armor. Original source difference preserved.",
+      "next_action": "Two conditional armor configurations linked. Other Fissure gear, MF jewel choice and exact market prices remain separate reviews.",
+      "resolution": {
+        "review_date": "2026-09-26",
+        "review": "Variant prose explicitly uses Might, while original guide mercenary prose recommends Holy Freeze for slowing enemies in area damage and the linked2026Standard/MF planner selects Holy Freeze. Retain both supported aura choices for this armor component, not a claim of one identical complete loadout. Same ethereal Sacred Armor Fortitude; no perfect defense/life/resistance gates from planner examples. Infinity supplies Conviction, not armor. Original source difference preserved.",
+        "reviewed_profile_ids": [
+          "fissure-druid-1-merc-fortitude",
+          "fissure-druid-2-merc-fortitude"
+        ],
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/guides__fissure-druid.html",
+            "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/items/23",
+            "expected": {
+              "base": "uar",
+              "quality": 7,
+              "ilvl": 99,
+              "superior": {},
+              "uniqueValues": [
+                200,
+                300,
+                25,
+                15,
+                12,
+                12,
+                30
+              ],
+              "unique": "runeword067",
+              "defense": 600,
+              "ethereal": true,
+              "sockets": 4,
+              "socketedItems": [
+                "r01",
+                "r12",
+                "r14",
+                "r28"
+              ],
+              "stats": {
+                "item_armor_percent": 200,
+                "item_mindamage_percent": 300,
+                "item_maxdamage_percent": 300,
+                "item_fastercastrate": 25,
+                "item_skillongethit#60#20": 15,
+                "item_damagetomana": 12,
+                "item_hp_perlevel": 12,
+                "fireresist": 30,
+                "lightresist": 30,
+                "coldresist": 30,
+                "poisonresist": 30
+              },
+              "description": "2700 def 12 life/lvl 30@ eth"
+            },
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/1/uid",
+            "expected": "QaIr2BVm",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/1/name",
+            "expected": "Standard",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/1/merc",
+            "expected": "10",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/1/mercItems/tors",
+            "expected": 23,
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/2/uid",
+            "expected": "Ldr3qiiX",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/2/name",
+            "expected": "Magic Find",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/2/merc",
+            "expected": "10",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/tt9vl0l2.json",
+            "sha256": "2dad6c6557759a4ffa28ef52f6a4f65debd7dac987b79f794f831c1bd55be70d",
+            "locator": "/profiles/2/mercItems/tors",
+            "expected": 23,
+            "format": "maxroll_planner"
+          }
+        ]
+      }
+    },
+    {
+      "id": "foh-starter-mercenary-aura",
+      "review_date": "2026-09-26",
+      "reason": "different_supported_aura_choices",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fist-of-the-heavens-paladin/variants_notes",
+        "expected": "Live page (2026-09-20) matches cache: tabs FoH Starter / Holy Bolt Starter / Standard / Tri-Brid, Last Updated May 22, 2026. No Hardcore item changes exist ('This build is Hardcore viable', generic advice only). Tri-Brid mercenary Act is not stated in prose; the embedded planner set (sC3xbgGF) uses hireling id 36 = Act 5 Barbarian (Frenzy) dual-wielding Lawbringer + Death Phase Blades, which matches the Decrepify + Sanctuary description. Starter prose says Holy Freeze merc but planner sets 1-2 use Might. Eight <span class=\"d2-planner-tooltip\"> cells in the gear table render blank on the page and were resolved from planner s10106pr's 'Skill Tree' set (RotW items: Coven, Hellwarden's Will, Gheed's Wager, Entropy Locket, Sling, Opalvein) and from the Standard/Tri-Brid sets (Crafted Crack of the Heavens / Crafted Black Cleft). 'Holy Bolt Support' is planner set 3 and is named in the Summary but is not a tab. The Standard tab header image uses planner set 5; the Mercenary section embeds generic profile 0s0106ba set 3 (Act 2 Might: Insight Thresher eth, Fortitude Sacred Armor eth, Andariel's Visage eth)."
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/runes.json",
+          "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+        }
+      ],
+      "review": "Original FoH/Holy Bolt Starter prose recommends Holy Freeze for crowd control; linked2026s10106pr profiles0/1 explicitly use Might and the same Bulwark Mask. Retain both supported choices for helmet utility, not one identical complete loadout or a corrected source. Native minimum rolls remain useful; exact Mask example and real equip/resistance/weapon conditions retained. Original planner perfect values are examples, not required minima.",
+      "next_action": "Two conditional helmet uses linked; weapon/armor and complete breakpoint qualification remain separate.",
+      "resolution": {
+        "review_date": "2026-09-26",
+        "review": "Original FoH/Holy Bolt Starter prose recommends Holy Freeze for crowd control; linked2026s10106pr profiles0/1 explicitly use Might and the same Bulwark Mask. Retain both supported choices for helmet utility, not one identical complete loadout or a corrected source. Native minimum rolls remain useful; exact Mask example and real equip/resistance/weapon conditions retained. Original planner perfect values are examples, not required minima.",
+        "reviewed_profile_ids": [
+          "fist-of-the-heavens-paladin-0-merc-bulwark-native",
+          "fist-of-the-heavens-paladin-1-merc-bulwark-native"
+        ],
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/guides__fist-of-the-heavens-paladin.html",
+            "sha256": "3c86ad1cb7065c7eb2f3ab35f3c08d5d8b33a48d051687a0c555632c491a5fd8"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/items/77",
+            "expected": {
+              "base": "msk",
+              "quality": 7,
+              "ilvl": 99,
+              "superior": {},
+              "uniqueValues": [
+                5,
+                100,
+                15,
+                30,
+                6
+              ],
+              "unique": "runeword204",
+              "defense": 27,
+              "sockets": 3,
+              "socketedItems": [
+                "r13",
+                "r16",
+                "r12"
+              ],
+              "stats": {
+                "item_maxhp_percent": 5,
+                "item_armor_percent": 100,
+                "damageresist": 15,
+                "hpregen": 30,
+                "lifedrainmindam": 6
+              },
+              "description": "54 def 6 ll 100% def 15% dr"
+            },
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/0/uid",
+            "expected": "ikNka8Tc",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/0/name",
+            "expected": "FoH Starter",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/0/merc",
+            "expected": "11",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/0/mercItems/head",
+            "expected": 77,
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/1/uid",
+            "expected": "mZS79qi7",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/1/name",
+            "expected": "Holy Bolt Starter",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/1/merc",
+            "expected": "11",
+            "format": "maxroll_planner"
+          },
+          {
+            "path": "pricing/raw/mr/planners/s10106pr.json",
+            "sha256": "c621f21672974789b6e48aac9c3cc3da436a52282f94b7bca6b3c4e112be5388",
+            "locator": "/profiles/1/mercItems/head",
+            "expected": 77,
+            "format": "maxroll_planner"
+          }
+        ]
+      }
+    },
+    {
+      "id": "mirrored-standard-torch-class",
+      "review_date": "2026-09-26",
+      "reason": "table_class_label_conflicts_with_linked_planner",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/mirrored-blades-warlock-guide/variants/1/player/Charms/0",
+        "expected": "Hellfire Torch (planner 20/20; the gear table oddly labels it 'Hellfiretorch (Paladin)')"
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/uniqueitems.json",
+          "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+        },
+        {
+          "path": "third-parties/d2data/json/properties.json",
+          "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+        }
+      ],
+      "review": "Linked Standard Warlock planner inventory contains Torch item34. uniqueValues[0]=7 selects Warlock; the fixed class-skill bonus is3. The table Paladin label is inconsistent with the linked item, not evidence for using a wrong-class Torch.",
+      "next_action": "Resolved for the class-specific Torch role.",
+      "resolution": {
+        "review_date": "2026-09-26",
+        "review": "Linked Standard Warlock planner inventory contains Torch item34. uniqueValues[0]=7 selects Warlock; the fixed class-skill bonus is3. The table Paladin label is inconsistent with the linked item, not evidence for using a wrong-class Torch.",
+        "reviewed_profile_id": "mirrored-blades-warlock-guide-1-torch",
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/planners/rg2je0ld.json",
+            "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+            "format": "maxroll_planner",
+            "locator": "/items/34/uniqueValues/0",
+            "expected": 7
+          },
+          {
+            "path": "pricing/raw/mr/planners/rg2je0ld.json",
+            "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/class",
+            "expected": "war"
+          },
+          {
+            "path": "pricing/raw/mr/planners/rg2je0ld.json",
+            "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/uid",
+            "expected": "lMWSt4RR"
+          },
+          {
+            "path": "pricing/raw/mr/planners/rg2je0ld.json",
+            "sha256": "0d22fd5112dbdbe6920d4352b6369073b3e024505800632d927205f05bff2468",
+            "format": "maxroll_planner",
+            "locator": "/profiles/1/inventory/1",
+            "expected": 34
+          }
+        ]
+      }
+    },
+    {
+      "id": "nova-cure-healing-without-prayer",
+      "review_date": "2026-09-26",
+      "reason": "aura_synergy_missing_from_stated_loadout",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/nova-sorceress-guide/variants/1/merc/Helmet/0",
+        "expected": "Cure Diadem (ethereal) — 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'"
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/skills.json",
+          "sha256": "b40393a3b024c8363ee2c77b52a4b2330ec90b1c06b1afe38b0f434f47f35956",
+          "locator": "/109/aurastatcalc2",
+          "expected": "skill('Prayer'.edns)"
+        }
+      ],
+      "review": "Nova guide healing wording conflicts with its stated Might/Holy Freeze mercenary. Native Cleansing hitpoint calculation reads Prayer effective skill; the helmet does not grant Prayer. Preserve documented mercenary choices and Cleansing utility without claiming Prayer regeneration.",
+      "next_action": "Resolved as Cleansing utility with no unsupported healing claim.",
+      "resolution": {
+        "review_date": "2026-09-26",
+        "review": "Nova guide healing wording conflicts with its stated Might/Holy Freeze mercenary. Native Cleansing hitpoint calculation reads Prayer effective skill; the helmet does not grant Prayer. Preserve documented mercenary choices and Cleansing utility without claiming Prayer regeneration.",
+        "reviewed_profile_ids": [
+          "nova-sorceress-guide-1-merc-cure",
+          "nova-sorceress-guide-2-merc-cure",
+          "nova-sorceress-guide-3-merc-cure"
+        ],
+        "evidence": [
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/nova-sorceress-guide/variants/1/merc/type",
+            "expected": "Act 2 Might or Holy Freeze — 'Use the Might (Damage) or Holy Freeze (Crowd Control) version, depending on your preference' (planner: Holy Freeze, id 10)"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/nova-sorceress-guide/variants/2/merc/type",
+            "expected": "Act 2 Might or Holy Freeze (planner: Holy Freeze)"
+          },
+          {
+            "path": "pricing/data/wp-a-builds.json",
+            "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+            "locator": "/nova-sorceress-guide/variants/3/merc/type",
+            "expected": "Act 2 Might or Holy Freeze — 'The Mercenary is clear-cut across all variants' (planner: Holy Freeze)"
+          }
+        ]
+      }
+    },
+    {
+      "id": "summoner-warlock-gear-torch-class",
+      "review_date": "2026-09-27",
+      "reason": "table_class_label_conflicts_with_linked_planner",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/29/text",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "expected": "While every Stat in the Desirable Stats column is useful for this build, we highlighted the Priority Stats in Teal so you can easily identify the Most Important Stats on them. Hover over any Item to see a pop-out with the full Item description. Gear/Base Notes: Slot Item Options Desirable Stats Weapon Obsession Heart of the Oak Spirit Insight Mang Song's Lesson Ondal's Wisdom Razorswitch Suicide Branch Spectral Shard Wizardspike +x to All Skills +x to Warlock Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx Off-Hand Ars Tor'Baalos Lidless Wall Phoenix Measured Wrath Ars Dul'Mephistos Splendor Ancients' Pledge Rhyme Horazon's Secrets +x to All Skills +x to Warlock Skill Levels +x to Demon Skills (Warlock Only) +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% Faster Hit Recovery All Resistances +xx Cannot be Frozen Level 15 redemption Aura When Equipped Weapon-Swap Call to Arms Blade of Ali Baba Gull Naj's Puzzler Staff of Teleportation +x to All Skills +x to battlecommand +x to battleorders +x to battlecry Level x Teleport [x/x Charges] +x% Better Chance of Getting Magic Items Off-Hand-Swap Spirit Lidless Wall +x to All Skills Helmets Harlequin Crest Crown of Ages Lore Peasant Crown Horazon's Countenance +x to All Skills +x to Class Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage -xx% to Enemy Fire Resistance All Resistances +xx Body Armors Enigma Stealth Chains of Honor Que-Hegan's Wisdom Skin of the Vipermagi Skullder's Ire Tal Rasha's Guardianship Horazon's Dominion +1 to teleport +x to All Skills +x to Class Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage All Resistances +xx Gloves Magefist Trang-Oul's Claws Chance Guards +xx% Faster Cast Rate +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) All Resistances +xx Belts Arachnid Mesh Goldwrap Caster Crafted Belt Gheed's Wager +x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx Boots Waterwalk Sandstorm Trek War Traveler Aldur's Advance Silkweave Caster Crafted Boots Horazon's Legacy +x % Faster Run / Walk +x% Faster Hit Recovery X Resist +x% +x Life +x% Better Chance of Getting Magic Items Amulets Rare Amulet +x to All Skills +x to Warlock Skill Levels +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate All Resistances +xx Rings The Stone of Jordan Bul-Kathos' Wedding Band Blood Crafted Ring Rare Ring +x to All Skills +x to all Attributes +x to Life +x to Mana +xx% Better Chance of Getting Magic Items (Magic Find) +xx% Faster Cast Rate +xx% to Fire Skill Damage All Resistances +xx Charms Grand Charm Large Charm Small Charm +x to Warlock Skill Levels All Resistances +x x% Better Chance of Getting Magic Items +x to Life Unique Charms Gheeds Fortune Hellfiretorch (Paladin) Annihilus +x to All Skills +x to Warlock Skill Levels Monster Physical Immunity is Sundered +x to all Attributes All Resistances +x x% Better Chance of Getting Magic Items Reduces all Vendor Prices x%"
+      },
+      "mechanics": [
+        {
+          "path": "third-parties/d2data/json/uniqueitems.json",
+          "sha256": "e6f28489942a6145d99190728071c0e7557313239517bb03c627d3d41bbad8e7"
+        },
+        {
+          "path": "third-parties/d2data/json/properties.json",
+          "sha256": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34"
+        }
+      ],
+      "review": "The gear table says Hellfiretorch (Paladin), but its skill priorities are Warlock. Linked Standard planner9e4fm0ow inventory[1] points to item13: native unique400, uniqueValues[0]=7 selects Warlock with fixed +3 class skills. Retain the conflicting label; use the explicit linked item for this reviewed Warlock Torch use.",
+      "next_action": "Resolved for the class-specific Torch role; unrelated planner alternatives remain separate.",
+      "resolution": {
+        "review_date": "2026-09-27",
+        "review": "The gear table says Hellfiretorch (Paladin), but its skill priorities are Warlock. Linked Standard planner9e4fm0ow inventory[1] points to item13: native unique400, uniqueValues[0]=7 selects Warlock with fixed +3 class skills. Retain the conflicting label; use the explicit linked item for this reviewed Warlock Torch use.",
+        "reviewed_profile_id": "summoner-warlock-guide-hellfire-torch-gear-inventory-charm",
+        "evidence": [
+          {
+            "path": "pricing/raw/mr/planners/9e4fm0ow.json",
+            "locator": "/items/13/uniqueValues/0",
+            "sha256": "6a4f4f0b597e0d2905973c30a9e24db5ff22ff6fc0401933dc9a87b971f8fbf5",
+            "format": "maxroll_planner",
+            "expected": 7
+          }
+        ]
+      }
+    }
+  ]
+}

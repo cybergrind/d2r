@@ -8,9 +8,9 @@ from pricing.knowledge.assessment.caster_base_templates import TEMPLATES, compil
 
 def test_reviewed_membership_is_legal_and_exceptions_are_scoped():
     index = compile_templates(TEMPLATES)
-    assert len(index) == 10
+    assert len(index) == 18
     for (word, base), template in index.items():
-        assert template.version == 1
+        assert template.version == (2 if word == 'White' else 1)
         assert template.source_locators
         assert any(
             row['details'].get('runeword') == word and row['details'].get('legality') == 'verified_type_and_capacity'

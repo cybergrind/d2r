@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "scope": "reviewed_weapon_components",
+  "inputs": {
+    "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+    "pricing/raw/mr/planners/f80206a8.json": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a",
+    "third-parties/d2data/json/itemtypes.json": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae",
+    "pricing/data/appraisal-build-profiles.json": "69403d9e14328cc8bcd75390ca263586ba97c794c4ea544d4beefbfa29f8e54c",
+    "third-parties/d2data/json/runes.json": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "4f5256b44f4d846fb4b6dc7d72e63b7545c3f44650acbb87073fc873b24d81ee",
+    "third-parties/d2data/json/misc.json": "116264d5df4e7724beaf9a7ae1f005c58544a5a50a331baf4b370a4f01110072",
+    "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
+    "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
+    "third-parties/d2data/json/itemstatcost.json": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237",
+    "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+    "pricing/raw/mr/guides__blessed-hammer-paladin.html": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d",
+    "pricing/raw/mr/guides__dream-paladin.html": "0f7f0079b7f795b581a0c43f00153ca60c86c7d44b12ee3b1d72e6437d5eddf6",
+    "pricing/raw/mr/planners/w670e0o0.json": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+  },
+  "rows": [
+    {
+      "id": "hammer-standard-insight-merc:planner:e7add5e1af7fa015eeed1775",
+      "profile_id": "hammer-standard-insight-merc",
+      "profile_sha256": "34d3ab1c67b551aa60d2caf29051f70276e648ea1a753f055ba1c3fc868a6e9e",
+      "use_sha256": "b48f0ba6e17ccc2ae1fb4bacba147cd473d0372800b0a708a44c1c76ef408e81",
+      "parent": {
+        "occurrence_id": "e7add5e1af7fa015eeed1775",
+        "sha256": "ec33d0372e3ad43e4a6884ae1f06c0bfca936bf8a2d21dad22a8cf0f406165b7"
+      },
+      "children": [
+        {
+          "occurrence_id": "7336e5a732da7a93069d991b",
+          "sha256": "f44a3255c45e53dcb3a10bb8aa96c9fe5c75fc496fd85a495186183ff3311dca"
+        },
+        {
+          "occurrence_id": "6468ded444acc69c3c9fb223",
+          "sha256": "3100d0a18a65631b8cc055517999acae7f58ee16a1bc5745f5a7beae89ff2109"
+        },
+        {
+          "occurrence_id": "ecce8aad86ae456955764c86",
+          "sha256": "71299e1584651abd8ea1a282c1a70f0341face547cb2982690759777f0681f4f"
+        },
+        {
+          "occurrence_id": "7ece8c6e4af1ce20779d87ef",
+          "sha256": "d5d1d1d7ee77951cd9484d18dc61892cbe862989bc41a56e5273f9f6252e1699"
+        }
+      ],
+      "planner_endorsement": {
+        "weapon_component": "insight_mercenary",
+        "coverage": "merc_runeword_component",
+        "ethereal_scope": "known_status_example",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "quote": "Insight Giant Thresher (ethereal)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blessed-hammer-paladin/variants/1/merc/Weapon/0"
+        },
+        "variant_alias": "Standard",
+        "guide_tab": "Standard",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 1,
+        "profile_uid": "HxoCbTiH",
+        "profile_name": "Standard",
+        "player_class_code": "pal",
+        "slot": "rarm",
+        "item_id": "25",
+        "expected_item": {
+          "base": "7wc",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {
+            "qm001": [
+              15
+            ]
+          },
+          "uniqueValues": [
+            260,
+            250,
+            23,
+            6,
+            35,
+            17,
+            5
+          ],
+          "unique": "runeword088",
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r08",
+            "r03",
+            "r07",
+            "r12"
+          ],
+          "stats": {
+            "item_mindamage_percent": 275,
+            "item_maxdamage_percent": 275,
+            "item_tohit_percent": 250,
+            "item_magicbonus": 23,
+            "item_nonclassskill#9": 6,
+            "item_fastercastrate": 35,
+            "item_aura#120": 17,
+            "strength": 5,
+            "energy": 5,
+            "dexterity": 5,
+            "vitality": 5
+          },
+          "ethbugged": false,
+          "description": "17 aura 275% ed 250% ar 6 critical strike eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "equipment_branches": {
+          "/all/4": 4
+        },
+        "mercenary_type": "Act 2 Holy Freeze",
+        "mercenary_id": "10"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary weapon entry and selected guide planner bind this native recipe and aura. Insight preserves its required Holy Freeze wearer and all runtime base alternatives; its observed ethereal base is only the source example. Hand of Justice preserves nonethereal player scope. No active aura, complete loadout, price or independent companion obligation is inferred."
+    },
+    {
+      "id": "hammer-mf-insight-merc:planner:1b8fc8ec04c39f3918047fff",
+      "profile_id": "hammer-mf-insight-merc",
+      "profile_sha256": "889b34ab0cc5c715ebcf30a92dd71c2b566e6336583df4eae8b680e0edefb985",
+      "use_sha256": "c113c482a129c4d7f6bf54854f97cd8a01dafd887b2673a49511ea5c9f223e24",
+      "parent": {
+        "occurrence_id": "1b8fc8ec04c39f3918047fff",
+        "sha256": "fedf846dde3015b68c0701d28602ea629a92b2d9a1fbbbbeed2d3bd3c51e16b3"
+      },
+      "children": [
+        {
+          "occurrence_id": "02cab645edc1917eb03bc8a8",
+          "sha256": "bace0b816d16f74afe7ad4edd9c45e0768a5204b8121efeabff3bc528d1907ed"
+        },
+        {
+          "occurrence_id": "a9c3bb5d7093eb81c6b94aad",
+          "sha256": "ba7ed2c85f69472974993da24d4fad8bb1ae12c3b46733fd755f4d558fdc62fd"
+        },
+        {
+          "occurrence_id": "fb208f28e49b0416679d963b",
+          "sha256": "9063a6a73b0462c74dc3ab199ac267c07b9adc6d386f47530bdd40bae1e9c5b3"
+        },
+        {
+          "occurrence_id": "3e81617df2d6ebbf0e2fe528",
+          "sha256": "e393281f0a4b5ca47135bc2e96b9357cd51d1b2809d7b19eec7c195656dcb9c4"
+        }
+      ],
+      "planner_endorsement": {
+        "weapon_component": "insight_mercenary",
+        "coverage": "merc_runeword_component",
+        "ethereal_scope": "known_status_example",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__blessed-hammer-paladin.html",
+        "quote": "Insight Giant Thresher (ethereal)",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/blessed-hammer-paladin/variants/2/merc/Weapon/0"
+        },
+        "variant_alias": "Magic Find",
+        "guide_tab": "Magic Find",
+        "planner": {
+          "path": "pricing/raw/mr/planners/f80206a8.json",
+          "sha256": "0ee9b08754a1f50de7e61e0898f94fb6f23c3ea7af42e1f2d9d9f48f0b43ee9a"
+        },
+        "profile_index": 2,
+        "profile_uid": "SOPaTLww",
+        "profile_name": "Magic Find",
+        "player_class_code": "pal",
+        "slot": "rarm",
+        "item_id": "25",
+        "expected_item": {
+          "base": "7wc",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {
+            "qm001": [
+              15
+            ]
+          },
+          "uniqueValues": [
+            260,
+            250,
+            23,
+            6,
+            35,
+            17,
+            5
+          ],
+          "unique": "runeword088",
+          "ethereal": true,
+          "sockets": 4,
+          "socketedItems": [
+            "r08",
+            "r03",
+            "r07",
+            "r12"
+          ],
+          "stats": {
+            "item_mindamage_percent": 275,
+            "item_maxdamage_percent": 275,
+            "item_tohit_percent": 250,
+            "item_magicbonus": 23,
+            "item_nonclassskill#9": 6,
+            "item_fastercastrate": 35,
+            "item_aura#120": 17,
+            "strength": 5,
+            "energy": 5,
+            "dexterity": 5,
+            "vitality": 5
+          },
+          "ethbugged": false,
+          "description": "17 aura 275% ed 250% ar 6 critical strike eth"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        },
+        "equipment_branches": {
+          "/all/4": 4
+        },
+        "mercenary_type": "Act 2 Holy Freeze",
+        "mercenary_id": "10"
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary weapon entry and selected guide planner bind this native recipe and aura. Insight preserves its required Holy Freeze wearer and all runtime base alternatives; its observed ethereal base is only the source example. Hand of Justice preserves nonethereal player scope. No active aura, complete loadout, price or independent companion obligation is inferred."
+    },
+    {
+      "id": "dream-paladin-hand-of-justice-hybrid-source-recipe:planner:00d03b96b189194cf8780c0b",
+      "profile_id": "dream-paladin-hand-of-justice-hybrid-source-recipe",
+      "profile_sha256": "bc5a976f5e3be1194ab1274d9d26fe54b288e840eb527a34c2120c6b708750ea",
+      "use_sha256": "2867416b6825d3a8a1daefd5bff49e59d944cf838c2d5512665434137a76b43d",
+      "parent": {
+        "occurrence_id": "00d03b96b189194cf8780c0b",
+        "sha256": "a030c12a605e9b8e6ea8615439749dbb981e459e76b841835579f3d0b2b9f9e4"
+      },
+      "children": [
+        {
+          "occurrence_id": "a092bf6e3d266f2171356657",
+          "sha256": "65893ebf625d2775844974d0e2490da0928e034f234ace75a671d56fe5840967"
+        },
+        {
+          "occurrence_id": "e57e4d538220e336c4b0a2b2",
+          "sha256": "49820f87827560d0c5c0f08c2efa3b17657b368a9f828713a6a1e9f404f16b43"
+        },
+        {
+          "occurrence_id": "6280d255caac02111d465a93",
+          "sha256": "eab7c14e0f38bdd7e9b0f352d227ad71a77051440697995b01916c5b393d701f"
+        },
+        {
+          "occurrence_id": "13687bf38049a629acd9d601",
+          "sha256": "7f52b464a9a76e7862ecfadc6eb40b939db36a0597a9f3e73ce50ea6946e3423"
+        }
+      ],
+      "planner_endorsement": {
+        "weapon_component": "hand_of_justice_player",
+        "coverage": "player_runeword_component",
+        "ethereal_scope": "nonethereal_only",
+        "guide": {
+          "path": "pricing/data/appraisal-guide-sections.json",
+          "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+        },
+        "guide_source": "pricing/raw/mr/guides__dream-paladin.html",
+        "quote": "Hand of Justice Phase Blade",
+        "equipment_quote": {
+          "path": "pricing/data/wp-a-builds.json",
+          "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+          "locator": "/dream-paladin/variants/1/player/Weapon/0"
+        },
+        "variant_alias": "Hybrid",
+        "guide_tab": "Hybrid",
+        "planner": {
+          "path": "pricing/raw/mr/planners/w670e0o0.json",
+          "sha256": "73e8a511606a9c53a021f76fab3e7821a5c3e7980c0985e411892d97a2b94cd0"
+        },
+        "profile_index": 1,
+        "profile_uid": "DFT6FkWt",
+        "profile_name": "Hybrid",
+        "player_class_code": "pal",
+        "slot": "rarm",
+        "item_id": "50",
+        "expected_item": {
+          "base": "7cr",
+          "quality": 7,
+          "ilvl": 99,
+          "superior": {},
+          "uniqueValues": [
+            33,
+            330,
+            16,
+            36,
+            48,
+            1,
+            20
+          ],
+          "unique": "runeword074",
+          "sockets": 4,
+          "socketedItems": [
+            "r29",
+            "r32",
+            "r11",
+            "r28"
+          ],
+          "stats": {
+            "item_fasterattackrate": 33,
+            "item_mindamage_percent": 330,
+            "item_maxdamage_percent": 330,
+            "item_aura#102": 16,
+            "item_skillonlevelup#46#100": 36,
+            "item_skillondeath#56#100": 48,
+            "item_ignoretargetac": 1,
+            "passive_fire_pierce": 20
+          },
+          "ethereal": false,
+          "description": "330% ed"
+        },
+        "recipe_sources": {
+          "planner": {
+            "path": "pricing/raw/mr/planners/game-data.json",
+            "sha256": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b"
+          },
+          "runes": {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          "types": {
+            "path": "third-parties/d2data/json/itemtypes.json",
+            "sha256": "cbfc6d0abdddb20ae0fa9f50e07a072fd075967c5fff5e6455bcf93be922d3ae"
+          },
+          "weapons": {
+            "path": "third-parties/d2data/json/weapons.json",
+            "sha256": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88"
+          }
+        },
+        "stat_definitions": {
+          "path": "third-parties/d2data/json/itemstatcost.json",
+          "sha256": "32624e8d83e2149cfa6c3506d002e6dab605bb5c92acb287f4b62ed856653237"
+        }
+      },
+      "reviewed_at": "2026-09-30",
+      "reason": "Exact primary weapon entry and selected guide planner bind this native recipe and aura. Insight preserves its required Holy Freeze wearer and all runtime base alternatives; its observed ethereal base is only the source example. Hand of Justice preserves nonethereal player scope. No active aura, complete loadout, price or independent companion obligation is inferred."
+    }
+  ]
+}

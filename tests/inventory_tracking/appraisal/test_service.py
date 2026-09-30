@@ -79,15 +79,18 @@ def test_worker_defaults_to_publication_but_explicit_database_stays_legacy(tmp_p
 def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, capsys):
     import pytest
 
-    from inventory_tracking.native.session import GameProcessUnavailable
+    from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 
     attempts = []
     states = []
 
-    def connect(*args):
-        attempts.append(1)
+    def connect(self, directory):
+        attempts.append(directory)
         if len(attempts) < 3:
             raise GameProcessUnavailable('Expected one D2R.exe process, found []')
+        if len(attempts) < 5:
+            (directory / 'image.bin').write_bytes(b'menu capture')
+            raise GameNotReady('unit table unavailable; enter a game with a character')
         raise ValueError('unsupported build')
 
     def sleep(seconds):
@@ -108,11 +111,15 @@ def test_serve_waits_for_game_process_before_attaching(tmp_path, monkeypatch, ca
                 str(tmp_path / 'unused.sqlite3'),
             ]
         )
-    assert len(attempts) == 3
-    assert states == ['waiting', 'waiting']
-    assert capsys.readouterr().out.count('Waiting for D2R.exe') == 1
+    assert len(attempts) == 5
+    assert states == ['waiting'] * 4
+    out = capsys.readouterr().out
+    assert out.count('Waiting for D2R.exe') == 1
+    assert out.count('Waiting for a character in game') == 1
     report = json.loads(next((tmp_path / 'runs').glob('*/report.json')).read_text())
     assert report['state'] == 'failed'
+    # Menu-time attachments are removed; the final (fatal) attempt's directory is kept as evidence.
+    assert [path.exists() for path in attempts[2:]] == [False, False, True]
 
 
 def test_reconnect_uses_fresh_capture_directory_even_after_partial_failure(tmp_path, monkeypatch):

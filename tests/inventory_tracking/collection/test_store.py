@@ -2,7 +2,14 @@ import sqlite3
 
 import pytest
 
-from inventory_tracking.collection.models import CaptureRun, Character, ItemRecord, Location, Sighting
+from inventory_tracking.collection.models import (
+    CaptureRun,
+    Character,
+    CharacterStats,
+    ItemRecord,
+    Location,
+    Sighting,
+)
 from inventory_tracking.collection.store import CollectionStore
 
 
@@ -158,11 +165,33 @@ def test_older_databases_gain_the_added_columns_and_tables(tmp_path, insight):
         for column in ('quantity', 'width', 'height'):
             raw.execute(f'ALTER TABLE items DROP COLUMN {column}')
         raw.execute('DROP TABLE spaces')
+        raw.execute('DROP TABLE character_stats')
         raw.execute('PRAGMA user_version = 1')
     with CollectionStore(path) as store:
-        assert store.db.execute('PRAGMA user_version').fetchone()[0] == 3
+        assert store.db.execute('PRAGMA user_version').fetchone()[0] == 4
+        assert store.character_stats('MuleOne') == []
         item = store.item(ItemRecord.from_observation(insight).fingerprint)
         assert item is not None
         assert item.quantity is None
         assert item.width is None
         assert store.spaces() == []
+
+
+def test_character_sheet_rows_keep_a_history_and_the_latest_is_first(store, insight):
+    first = CharacterStats(
+        level=12, strength=50, life_max=200, lines=['Level: 12'], stats=[{'id': 12, 'layer': 0, 'raw': 12}]
+    )
+    later = first.model_copy(update={'level': 13, 'lines': ['Level: 13']})
+    store.record_capture(capture('c1'), [sighting(insight)], stats=first)
+    store.record_capture(capture('c2', started_at='2026-09-25T11:00:00+00:00'), [sighting(insight)], stats=later)
+    store.record_capture(capture('c3', started_at='2026-09-25T12:00:00+00:00'), [sighting(insight)])
+    [(seen_at, latest)] = store.character_stats('MuleOne')
+    assert (seen_at, latest.level, latest.lines) == ('2026-09-25T11:00:00+00:00', 13, ['Level: 13'])
+    assert latest.stats == [{'id': 12, 'layer': 0, 'raw': 12}]
+    history = store.character_stats('MuleOne', history=True)
+    assert [(at, sheet.level) for at, sheet in history] == [
+        ('2026-09-25T11:00:00+00:00', 13),
+        ('2026-09-25T10:00:00+00:00', 12),
+    ]
+    assert store.character_stats('MuleTwo') == []
+    assert store.db.execute('PRAGMA user_version').fetchone()[0] == 4
