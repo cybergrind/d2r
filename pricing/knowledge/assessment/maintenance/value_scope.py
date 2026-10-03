@@ -36,10 +36,11 @@ def use_exclusions(profiles, review, root):
         if (
             source != profile.get('source')
             or not row.get('quote')
-            or row['quote'] not in source.get('quotes', [])
+            or 'variant_context' in row
             or not path.is_relative_to(root.resolve())
             or not path.is_file()
             or hashlib.sha256(path.read_bytes()).hexdigest() != source.get('sha256')
+            or not verified_dimension_quote(row, source, path)
         ):
             raise ValueError(f'Stale or unverified generic leveling source: {key}')
         if row['classification'] in ('hardcore_only', 'ladder_only'):
@@ -57,6 +58,17 @@ def use_exclusions(profiles, review, root):
                 raise ValueError(
                     f'{mode.capitalize()} exclusion lacks an exact {mode.capitalize()} source variant: {key}'
                 )
+        if (
+            row['classification'] == 'generic_leveling'
+            and profile.get('variant') == 'Gear alternatives'
+            and source['path'] == 'pricing/data/appraisal-guide-sections.json'
+            and 'table_context' not in row
+        ):
+            raise ValueError('Table-based generic use exclusions require exact cell context')
+        if 'table_context' in row:
+            from pricing.knowledge.assessment.maintenance.early_merc_table_scope import validate_table_context
+
+            validate_table_context(row, profile, root)
         for quality in profile['qualities']:
             result[f'use:{key}:{quality}'] = {
                 'state': 'excluded',

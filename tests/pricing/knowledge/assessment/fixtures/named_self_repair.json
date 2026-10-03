@@ -1,0 +1,1507 @@
+{
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260927T181819Z-8114d888/capture.json",
+      "sha256": "279ada326832c616853e066521603c69ab0b1348521aacf67d7243b237f08ba1",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T181909Z-dfa48341/capture.json",
+      "sha256": "4ac3082a3a3671e8d5e114ff98f8c56622adadf04e1f0af99d369952fd613946",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T181922Z-e8c4acd3/capture.json",
+      "sha256": "06801d90ff9c5e54e74e2da9d89b55b4ce16cdecce5c7909cfd87ed4e4e08fcc",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195822Z-6d6a3a75/capture.json",
+      "sha256": "e8049f4efc0781c482010bfae0e87d63369836792068d942016287350701673c",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T210219Z-f5789919/capture.json",
+      "sha256": "2dd18b8d6757fb6d68d6a7adb0a45a87298fb85b04472f648b2bf2feea11186c",
+      "issues": []
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "441eafbd4bc4dafbc8f80e02b623e93d65d441484c9ce7ab7b80d5c1fd2b16f3",
+      "name": "Warlord's Trust",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Warlord's Trust",
+          "base_name": "Military Axe",
+          "base_code": "9la",
+          "item_type": "axe",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "427",
+              "value": 10,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 10,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 10,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 10,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "417",
+              "value": 20,
+              "label": "Replenish Life +{{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 74,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 175,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 175
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 175
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 634659445,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 134,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 111589787,
+          "owner_id": 634659445,
+          "owner_type": 0,
+          "item_owner_id": 634659445,
+          "player_id": 634659445,
+          "position": [
+            2,
+            0
+          ],
+          "run_id": "20260927T181819Z-8114d888",
+          "captured_at": "2026-09-27T18:18:19.490961+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 38
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 38",
+            "value": 38
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 93
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 93",
+            "value": 93
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 75
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 75",
+            "value": 75
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +10%",
+            "value": 10,
+            "label": "Fire Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +10%",
+            "value": 10,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +10%",
+            "value": 10,
+            "label": "Cold Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +10%",
+            "value": 10,
+            "label": "Poison Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: -10 (lower is faster; not increased attack speed)",
+            "value": -10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 30",
+            "value": 30
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 30",
+            "value": 30
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 74,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "hpregen",
+            "text": "Replenish Life +20",
+            "value": 20,
+            "label": "Replenish Life +{{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 223,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "item_vitality_perlevel",
+            "text": "+0 to Vitality (Based on Character Level)",
+            "value": 0,
+            "range_label": "+{{value}} to Vitality (Based on Character Level)",
+            "viewer_level": 1,
+            "per_level": {
+              "numerator": 4,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 25
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 4 seconds",
+            "value": 4
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 175,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+175% Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 175
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 175
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "7858da19b83981e4eed0365dfdfe57ac7bb9a93d655379f3b08f3652a2984040",
+      "name": "Skullder's Ire",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Skullder's Ire",
+          "base_name": "Russet Armor",
+          "base_code": "xpl",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "414",
+              "value": 10,
+              "label": "Magic Damage Reduced by {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 35,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "587",
+              "value": 1,
+              "label": "+{{value}} to All Skills",
+              "memory_stat": {
+                "layer": 0,
+                "id": 127,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 193,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 193
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 722248208,
+            "level": 92
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 217,
+            "offset": 52
+          },
+          "container": {
+            "page": 3,
+            "name": "Horadric Cube"
+          },
+          "unit_id": 1461485705,
+          "owner_id": 722248208,
+          "owner_type": 0,
+          "item_owner_id": 722248208,
+          "player_id": 722248208,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20260930T181909Z-dfa48341",
+          "captured_at": "2026-09-30T18:19:10.122014+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 714
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 714",
+            "value": 714
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 35,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "magic_damage_reduction",
+            "text": "Magic Damage Reduced by 10",
+            "value": 10,
+            "label": "Magic Damage Reduced by {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 60
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 60",
+            "value": 60
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 127,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_allskills",
+            "text": "+1 to All Skills",
+            "value": 1,
+            "label": "+{{value}} to All Skills"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 240,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_find_magic_perlevel",
+            "text": "115% Better Chance of Getting Magic Items (Based on Character Level)",
+            "value": 115,
+            "range_label": "{{value}}% Better Chance of Getting Magic Items (Based on Character Level)",
+            "viewer_level": 92,
+            "per_level": {
+              "numerator": 10,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 5 seconds",
+            "value": 5
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 193
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+193% (160-200%) Enhanced Defense",
+            "value": 193,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 160,
+              "max": 200,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "feefe34ec19815cd50a77d2a3475241d554898bcad49a04647f83bd5abe7bcaa",
+      "name": "Skullder's Ire",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Skullder's Ire",
+          "base_name": "Russet Armor",
+          "base_code": "xpl",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "414",
+              "value": 10,
+              "label": "Magic Damage Reduced by {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 35,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "587",
+              "value": 1,
+              "label": "+{{value}} to All Skills",
+              "memory_stat": {
+                "layer": 0,
+                "id": 127,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 193,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 193
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 722248208,
+            "level": 92
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 217,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 1461485705,
+          "owner_id": 722248208,
+          "owner_type": 0,
+          "item_owner_id": 722248208,
+          "player_id": 722248208,
+          "position": [
+            3,
+            4
+          ],
+          "run_id": "20260930T181922Z-e8c4acd3",
+          "captured_at": "2026-09-30T18:19:23.140725+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 714
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 714",
+            "value": 714
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 35,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "magic_damage_reduction",
+            "text": "Magic Damage Reduced by 10",
+            "value": 10,
+            "label": "Magic Damage Reduced by {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 62
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 62",
+            "value": 62
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 127,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_allskills",
+            "text": "+1 to All Skills",
+            "value": 1,
+            "label": "+{{value}} to All Skills"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 240,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_find_magic_perlevel",
+            "text": "115% Better Chance of Getting Magic Items (Based on Character Level)",
+            "value": 115,
+            "range_label": "{{value}}% Better Chance of Getting Magic Items (Based on Character Level)",
+            "viewer_level": 92,
+            "per_level": {
+              "numerator": 10,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 5 seconds",
+            "value": 5
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 193
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+193% (160-200%) Enhanced Defense",
+            "value": 193,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 160,
+              "max": 200,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "e6396a1550e69a345875fb22fdd45ce45a3cf4d7629980c17cbbb67395f5c8b3",
+      "name": "Skullder's Ire",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Skullder's Ire",
+          "base_name": "Russet Armor",
+          "base_code": "xpl",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "414",
+              "value": 10,
+              "label": "Magic Damage Reduced by {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 35,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "587",
+              "value": 1,
+              "label": "+{{value}} to All Skills",
+              "memory_stat": {
+                "layer": 0,
+                "id": 127,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 177,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 177
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2778214828,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 217,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 657102753,
+          "owner_id": 2778214828,
+          "owner_type": 0,
+          "item_owner_id": 2778214828,
+          "player_id": 2778214828,
+          "position": [
+            6,
+            2
+          ],
+          "run_id": "20260930T195822Z-6d6a3a75",
+          "captured_at": "2026-09-30T19:58:23.004930+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 675
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 675",
+            "value": 675
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 35,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "magic_damage_reduction",
+            "text": "Magic Damage Reduced by 10",
+            "value": 10,
+            "label": "Magic Damage Reduced by {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 127,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_allskills",
+            "text": "+1 to All Skills",
+            "value": 1,
+            "label": "+{{value}} to All Skills"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 240,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_find_magic_perlevel",
+            "text": "1% Better Chance of Getting Magic Items (Based on Character Level)",
+            "value": 1,
+            "range_label": "{{value}}% Better Chance of Getting Magic Items (Based on Character Level)",
+            "viewer_level": 1,
+            "per_level": {
+              "numerator": 10,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 5 seconds",
+            "value": 5
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 177
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+177% (160-200%) Enhanced Defense",
+            "value": 177,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 160,
+              "max": 200,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "d7f4e5f8600a22d388cb4f2d7ecf13970ce9d813573a39f0977b68a9dd682863",
+      "name": "Skullder's Ire",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Skullder's Ire",
+          "base_name": "Russet Armor",
+          "base_code": "xpl",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "414",
+              "value": 10,
+              "label": "Magic Damage Reduced by {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 35,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "587",
+              "value": 1,
+              "label": "+{{value}} to All Skills",
+              "memory_stat": {
+                "layer": 0,
+                "id": 127,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 193,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 193
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2778214828,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 217,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 1274057168,
+          "owner_id": 2778214828,
+          "owner_type": 0,
+          "item_owner_id": 2778214828,
+          "player_id": 2778214828,
+          "position": [
+            6,
+            5
+          ],
+          "run_id": "20260930T195822Z-6d6a3a75",
+          "captured_at": "2026-09-30T19:58:23.004930+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 714
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 714",
+            "value": 714
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 35,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "magic_damage_reduction",
+            "text": "Magic Damage Reduced by 10",
+            "value": 10,
+            "label": "Magic Damage Reduced by {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 90
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 90",
+            "value": 90
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 127,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_allskills",
+            "text": "+1 to All Skills",
+            "value": 1,
+            "label": "+{{value}} to All Skills"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 240,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_find_magic_perlevel",
+            "text": "1% Better Chance of Getting Magic Items (Based on Character Level)",
+            "value": 1,
+            "range_label": "{{value}}% Better Chance of Getting Magic Items (Based on Character Level)",
+            "viewer_level": 1,
+            "per_level": {
+              "numerator": 10,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 5 seconds",
+            "value": 5
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 193
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+193% (160-200%) Enhanced Defense",
+            "value": 193,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 160,
+              "max": 200,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "f3497b730270d00f9dc82a9b462cfc3e35ae3b10e5380c4df970fd3af29c15fc",
+      "name": "Hone Sundan",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 252:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Hone Sundan",
+          "base_name": "Yari",
+          "base_code": "9st",
+          "item_type": "spea",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "567",
+              "value": 45,
+              "label": "+{{value}}% Chance of Crushing Blow",
+              "memory_stat": {
+                "layer": 0,
+                "id": 136,
+                "raw": 45
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 192,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 192
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 192
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 3,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 3,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2782902488,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 175,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 668599656,
+          "owner_id": 2782902488,
+          "owner_type": 0,
+          "item_owner_id": 2782902488,
+          "player_id": 2782902488,
+          "position": [
+            8,
+            0
+          ],
+          "run_id": "20260930T210219Z-f5789919",
+          "captured_at": "2026-09-30T21:02:20.246772+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 104
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 104",
+            "value": 104
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 212
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 212",
+            "value": 212
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 28
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 28",
+            "value": 28
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 28
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 28",
+            "value": 28
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 136,
+              "raw": 45
+            },
+            "status": "decoded",
+            "name": "item_crushingblow",
+            "text": "+45% Chance of Crushing Blow",
+            "value": 45,
+            "label": "+{{value}}% Chance of Crushing Blow"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 194,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_numsockets",
+            "text": "Sockets: 3 \u2014 3 empty",
+            "value": 3,
+            "socket_source": "complete_child_scan"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 252,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_replenish_durability",
+            "text": "Repairs 1 durability in 10 seconds",
+            "value": 10
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 192,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+192% (160-200%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 192
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 192
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 160,
+              "max": 200,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    }
+  ]
+}

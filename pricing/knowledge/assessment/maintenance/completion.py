@@ -59,6 +59,10 @@ def policy_fingerprint():
         'value_scope_manifest.py',
         'seasonal_named_audit.py',
         'coverage_matrix.py',
+        'report_reviews.py',
+        'trade_reviews.py',
+        'trade_review_cases.py',
+        'trade_scalar_jewelry.py',
         'pattern_collections.py',
         'named_matrix.py',
         'recipe_applicability.py',
@@ -86,6 +90,8 @@ def policy_fingerprint():
         'embedded_occurrences.py',
         'hardcore_bounds.py',
         'table_equivalence.py',
+        'sharp_charm_table.py',
+        'skill_charm_table.py',
         'prose_socket_links.py',
         'structured_variant_mirrors.py',
         'structured_named_variants.py',
@@ -790,6 +796,13 @@ def main():
     verify_artifact_inputs({key: {'sources': check.get('evidence', [])} for key, check in checks.items()}, ROOT)
     pointer_path = ROOT / 'pricing/data/generations/current.json'
     pointer = json.loads(pointer_path.read_bytes())
+    from pricing.knowledge.assessment.maintenance.report_reviews import validate_published_reviews
+    from pricing.knowledge.assessment.maintenance.verification_scope import verification_inputs
+
+    validate_published_reviews(docs['matrix'], source_documents, pointer['generation'], verification_inputs(ROOT))
+    from pricing.knowledge.assessment.maintenance.trade_reviews import validate_published_reviews as validate_trade
+
+    validate_trade(docs['matrix'], source_documents, pointer['generation'], verification_inputs(ROOT), ROOT)
     result = compile_completion(
         **docs, final_checks=checks, generation=pointer['generation'], source_documents=source_documents
     )

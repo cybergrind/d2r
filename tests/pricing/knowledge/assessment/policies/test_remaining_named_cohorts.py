@@ -18,8 +18,7 @@ def test_metalgrid_other_cohort_has_medium_tier_without_invented_perfect_premium
     observed = item('Metalgrid', {31: 324, 19: ar, **dict.fromkeys((39, 41, 43, 45), res)})
     assert assess_tier(observed)['tier'] == 'med'
     perfect = item('Metalgrid', {31: 350, 19: 450, **dict.fromkeys((39, 41, 43, 45), 35)})
-    assert assess_tier(perfect)['status'] == 'pending_review'
-    assert assess_tier(perfect)['tier'] is None
+    assert assess_tier(perfect)['tier'] == 'med'
     assert assess_tier(replace(observed, ethereal=True))['tier'] is None
     assert assess_tier(replace(observed, sockets=1))['tier'] is None
     assert assess_tier(replace(observed, stats={}))['tier'] is None

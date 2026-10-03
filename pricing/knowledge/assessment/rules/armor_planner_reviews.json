@@ -2,10 +2,10 @@
   "schema_version": 1,
   "scope": "reviewed_completed_armor_recipes",
   "inputs": {
-    "pricing/data/appraisal-build-profiles.json": "dd49708cfbd2baadef06e3d2250cf8c58f8236c7ee5da458fc7c1949eaa67063",
+    "pricing/data/appraisal-build-profiles.json": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0",
     "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
     "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
-    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "f50eff0a70d9bc90625958c7dcb10d539da517ef427bfe5cda6d7b81cae93a7b",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "f0616da6bde0512a9ae88d48b207d6f0115f0aec7495621f4cd5a03ddf3678ba",
     "pricing/raw/mr/guides__abyss-warlock-build-guide.html": "95020de34fa8cbe5cbced07aae716b0696af9df15b8e280cfe8b4ff853caea3b",
     "pricing/raw/mr/guides__blessed-hammer-paladin.html": "975f19ce21afcee1cfe771b06513d05dbe890a81475f33cf749caeacfad4476d",
     "pricing/raw/mr/guides__dream-paladin.html": "0f7f0079b7f795b581a0c43f00153ca60c86c7d44b12ee3b1d72e6437d5eddf6",

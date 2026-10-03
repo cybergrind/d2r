@@ -27,7 +27,6 @@ def test_opalvein_requires_all_four_resistances_within_native_range(resistance):
     ('base', 'name', 'quality', 'key', 'low', 'high', 'tier'),
     [
         ('Burnt Text', 'Measured Wrath', 'unique', '16:0', 130, 180, 'med'),
-        ('Troll Belt', "Trang-Oul's Girth", 'set', '9:0', 25, 50, 'low'),
         ('War Belt', "Thundergod's Vigor", 'unique', '16:0', 160, 200, 'low'),
         ('Ring', 'Sling', 'unique', '358:0', 3, 5, 'high'),
     ],

@@ -1,0 +1,1275 @@
+{
+  "schema_version": 1,
+  "reviewed_at": "2026-10-02",
+  "reason": "Explicit WP-H pulled/fetched collection log and per-item dated asks queries match each pinned raw cache, catalog identity, original scope count and timestamp bounds. This is recovered collection provenance, not inferred freshness or confirmed sales.",
+  "files": [
+    {
+      "path": "pricing/raw/traderie/wph-sunder-cold-base.json",
+      "sha256": "5d5d69492e09eb7c6e3fa57e1b321db70784fbeb6fadeb426129920a09287d2f",
+      "catalog_id": "21102838",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-cold-base/sources/0",
+        "scope_locator": "/CH-sunder-cold-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-sunder-poison-base.json",
+      "sha256": "3d8f86ab15a0be7cba43386145b1bea639ecace2e6ac602581c39ab8da3c6f3f",
+      "catalog_id": "1283013862",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-poison-base/sources/0",
+        "scope_locator": "/CH-sunder-poison-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-sunder-magic-base.json",
+      "sha256": "43bd6784d89f5393a48c85e2281ecbcc9684203470814cbcc4216bde028212d6",
+      "catalog_id": "1731212580",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-magic-base/sources/0",
+        "scope_locator": "/CH-sunder-magic-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-sunder-phys-base.json",
+      "sha256": "32af0a23e3c93aa7235e7a0d41a8d06f76ae35b975a227f717f7ef0eac2af64d",
+      "catalog_id": "374110750",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-physical-base/sources/0",
+        "scope_locator": "/CH-sunder-physical-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-annihilus.json",
+      "sha256": "a4e5a220a6cae81c463bccd43e4072d1fdedc85dbf90b14154af86051f2deff6",
+      "catalog_id": "3101777677",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-anni-20-20-10/sources/0",
+        "scope_locator": "/CH-anni-20-20-10/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-defenders-bile.json",
+      "sha256": "f2f52d1901aa1b9aabe6366b7c04c4cdf788256028a82c9d9fffcc983d2b76b4",
+      "catalog_id": "71831106",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-defenders-bile/sources/0",
+        "scope_locator": "/JW-colossal-defenders-bile/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-protectors-frost.json",
+      "sha256": "3d07fff62852297ec268fb72e0623fa9fb8986d3fb3566e439441484447bbbc6",
+      "catalog_id": "1863477272",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-protectors-frost/sources/0",
+        "scope_locator": "/JW-colossal-protectors-frost/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-defenders-fire.json",
+      "sha256": "4e9eb673d61b7a3f8c8dc5ea5e676310ddb97a62666a0e3f122a22239c822229",
+      "catalog_id": "1800159900",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-defenders-fire/sources/0",
+        "scope_locator": "/JW-colossal-defenders-fire/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-guardians-light.json",
+      "sha256": "d264c6feca98b0f5f2d57dbf53b047c36dc4c53239d4740ca17ad5374c6fb400",
+      "catalog_id": "1587435925",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-guardians-light/sources/0",
+        "scope_locator": "/JW-colossal-guardians-light/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-guardians-thunder.json",
+      "sha256": "f72d8defcb46e1ea2ffb9af0f14340914154475deef19267db815ada6a25e9b9",
+      "catalog_id": "6886385",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-guardians-thunder/sources/0",
+        "scope_locator": "/JW-colossal-guardians-thunder/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-colossal-protectors-stone.json",
+      "sha256": "2a97b1aa17764e6c38ea9b77536733a2f975d510a30e74d07319017387220375",
+      "catalog_id": "1464621663",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-colossal-protectors-stone/sources/0",
+        "scope_locator": "/JW-colossal-protectors-stone/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-cold-death.json",
+      "sha256": "163051e253454b1a43ea1e488fec2e983eafccf0ca570d68222143f513d87caf",
+      "catalog_id": "3308865831",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-cold-die-lt5/sources/0",
+        "scope_locator": "/JW-facet-cold-die-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-cold-levelup.json",
+      "sha256": "d8bd4b641fbc43717c3b4a570d8b4c20d1bba960d5f66b5cc0914d1d897a4783",
+      "catalog_id": "3807838496",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-cold-lvl-lt5/sources/0",
+        "scope_locator": "/JW-facet-cold-lvl-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-fire-death.json",
+      "sha256": "fe25b184f2d078b39fb0b0d6f7ffaea03bd7129f298fe9368b5eb3cfcfc1bdec",
+      "catalog_id": "2991746251",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-fire-die-lt5/sources/0",
+        "scope_locator": "/JW-facet-fire-die-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-fire-levelup.json",
+      "sha256": "9dacf438167bbfa4f43d47a97dc89306f7b1c6c3e31da4e629cabe3b34a25e35",
+      "catalog_id": "2722722130",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-fire-lvl-lt5/sources/0",
+        "scope_locator": "/JW-facet-fire-lvl-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-lightning-death.json",
+      "sha256": "12bdad759b02c888fff43bdfc8500e2a0d9e567f504a891968d8634076484f9d",
+      "catalog_id": "2368934470",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-lightning-die-lt5/sources/0",
+        "scope_locator": "/JW-facet-lightning-die-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-lightning-levelup.json",
+      "sha256": "d7b3f359bdf333a398246530a78ca8339a813b0d528f1acbb6ec1217cd9275bd",
+      "catalog_id": "3699123392",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-lightning-lvl-lt5/sources/0",
+        "scope_locator": "/JW-facet-lightning-lvl-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-poison-death.json",
+      "sha256": "f215dc4c5ca259ef3508d98d156a75ef243ed99353de3fd40ab60008da49b9fc",
+      "catalog_id": "2470315921",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-poison-die-lt5/sources/0",
+        "scope_locator": "/JW-facet-poison-die-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-facet-poison-levelup.json",
+      "sha256": "7b853ce8fb8165d01afddd6ee1e4004709602d7e4e9588e9a44c5591184f3e3b",
+      "catalog_id": "2188191106",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/JW-facet-poison-lvl-lt5/sources/0",
+        "scope_locator": "/JW-facet-poison-lvl-lt5/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-gheeds-fortune.json",
+      "sha256": "60f5da2f681afb64dd2b077105e3c204d6014e87f93d1363a4a6275702f536c6",
+      "catalog_id": "3792129580",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-gheed/sources/0",
+        "scope_locator": "/CH-gheed/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-hellfire-torch.json",
+      "sha256": "d4fff7e6687495849f24f4c0e9543fb72a5c74f06ee3a836485b71e6ccdd64a4",
+      "catalog_id": "3475729354",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-torch-warlock-all/sources/0",
+        "scope_locator": "/CH-torch-warlock-all/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-sunder-fire-base.json",
+      "sha256": "a5989a94c9c932cbc5d23fa10b87c636a58969561a4f7d04ad4b5679b1a1b98b",
+      "catalog_id": "1363635173",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-fire-base/sources/0",
+        "scope_locator": "/CH-sunder-fire-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wph-sunder-light-base.json",
+      "sha256": "3bc93992395702532be7dbdf9148a27184570a9eaa200524c4b0d0ba8234518a",
+      "catalog_id": "849307965",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-h-jewels-charms.json",
+        "sha256": "e4aa9003497cde400d646b7bd73b49f10a0234cc1c9decd4f0bfcd858e5309e6",
+        "locator": "/CH-sunder-lightning-base/sources/0",
+        "scope_locator": "/CH-sunder-lightning-base/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-h.md",
+        "sha256": "1e309b9248972b4420a3edf975f99e2ac949350733c1aea97bcdead7668cf3cf"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/archon-plate.json",
+      "sha256": "b633044327a1097df951abb7b3729c60c666c5b695c464bc11b086c6bb78850c",
+      "catalog_id": "3707980542",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/archon-plate",
+        "scope_locator": "/archon-plate/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/mage-plate.json",
+      "sha256": "a7fcf7930457750dc7e430bb18ebb4961d1a4de1b8692c9747b4eaedec36830b",
+      "catalog_id": "2887351925",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/mage-plate",
+        "scope_locator": "/mage-plate/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/dusk-shroud.json",
+      "sha256": "8db977528aebd67b80cceba86caa46f88f13ed3678f61de650d067137e074883",
+      "catalog_id": "2856656958",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/dusk-shroud",
+        "scope_locator": "/dusk-shroud/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/wire-fleece.json",
+      "sha256": "51c26fc4695afad6b4354287e440599b58b085dbc0df34991e8012013b8c0c77",
+      "catalog_id": "2558460115",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/wire-fleece",
+        "scope_locator": "/wire-fleece/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/monarch.json",
+      "sha256": "c65385e4063101caa68a6e1739957beb51e01e022989d62b17a89612d4f2fb90",
+      "catalog_id": "4283849324",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/monarch",
+        "scope_locator": "/monarch/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/sacred-targe.json",
+      "sha256": "eb8132d79c5b37ca2239972d05a74eda69268029154aa3bfeec280e0f7f481ca",
+      "catalog_id": "2588089657",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/sacred-targe",
+        "scope_locator": "/sacred-targe/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/sacred-rondache.json",
+      "sha256": "e3fe435b0a085eb5575eece3b83e4411c0840525e14064c355302ac74067bf3f",
+      "catalog_id": "2317685657",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/sacred-rondache",
+        "scope_locator": "/sacred-rondache/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/phase-blade.json",
+      "sha256": "c0b29bfb7a7540c7c6579b1e123b64ee583b79b9832cdf59a57fe0c3e3fad1de",
+      "catalog_id": "3101628651",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/phase-blade",
+        "scope_locator": "/phase-blade/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/berserker-axe.json",
+      "sha256": "641538921a40d316b8252fbf30794578ffba4b50b2e8a25582e81c03cbeade74",
+      "catalog_id": "4139459522",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/berserker-axe",
+        "scope_locator": "/berserker-axe/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/colossus-blade.json",
+      "sha256": "f5ca7bd63b87998c01543a9f0bc99570182f4305e8d3622d745eea6ee6bf2404",
+      "catalog_id": "2268151771",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/colossus-blade",
+        "scope_locator": "/colossus-blade/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/thresher.json",
+      "sha256": "bfdfb19fa42b2929419023bdfec50cf0ff9b3744d13de5434654d7870391824a",
+      "catalog_id": "2966095818",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/thresher",
+        "scope_locator": "/thresher/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/giant-thresher.json",
+      "sha256": "ebe3e83f3fe1c5626f91e7959005f22fc097ebe2e3dc4be88086853ea59eaca1",
+      "catalog_id": "2221303065",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/giant-thresher",
+        "scope_locator": "/giant-thresher/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/cryptic-axe.json",
+      "sha256": "6be8e8b6fe30055f95205b852737975072607df2017966e9d7380339d86fd652",
+      "catalog_id": "2698321720",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/cryptic-axe",
+        "scope_locator": "/cryptic-axe/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/great-poleaxe.json",
+      "sha256": "1532ac3b826278ccbc2d44c0eb1591ed4505571455a780cfe29c028d8dc9d5ca",
+      "catalog_id": "2506707690",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/great-poleaxe",
+        "scope_locator": "/great-poleaxe/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/colossus-voulge.json",
+      "sha256": "48a6263bbb31cfc13346f9d32de7c052f8568dae2683e93de9fcf2da10db1c81",
+      "catalog_id": "3230278631",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/colossus-voulge",
+        "scope_locator": "/colossus-voulge/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/flail.json",
+      "sha256": "72c0b79bff8e9fa99206287d5b6021a821f14a1f2fc3cec08c75cff42bcef8da",
+      "catalog_id": "4166148769",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/flail",
+        "scope_locator": "/flail/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/crystal-sword.json",
+      "sha256": "450528df72c6d010989a5f3e79f44d2abce718c7a9957dfc19c2f7d9bdd491c1",
+      "catalog_id": "3850450357",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/crystal-sword",
+        "scope_locator": "/crystal-sword/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/grand-matron-bow.json",
+      "sha256": "684d65d9ecae180e8be5a9c59e6a24be778e98a62663177ab16f2bd4f4b78d3b",
+      "catalog_id": "3324975300",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/grand-matron-bow",
+        "scope_locator": "/grand-matron-bow/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/matriarchal-bow.json",
+      "sha256": "bd3e4296df2701952b1a466f3ce07a789ae1331576f861bedb1be80bcc38088c",
+      "catalog_id": "2431134757",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/matriarchal-bow",
+        "scope_locator": "/matriarchal-bow/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/matriarchal-javelin.json",
+      "sha256": "309d9b870fc2d0d296fff1b6c914836fc9f1d9c8b08b34380681807fd3b31483",
+      "catalog_id": "3493754760",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/matriarchal-javelin",
+        "scope_locator": "/matriarchal-javelin/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/greater-talons.json",
+      "sha256": "0c413bb923ce65179432450bc5f98f9d11f6b8aa684ee10605ca349abd78ea6b",
+      "catalog_id": "2321091478",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/greater-talons",
+        "scope_locator": "/greater-talons/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/runic-talons.json",
+      "sha256": "20c1a410d2bb621291c8c9c07cfb90acd135268f02e5704abc77fe63bb838c13",
+      "catalog_id": "3764026520",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/runic-talons",
+        "scope_locator": "/runic-talons/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/diadem.json",
+      "sha256": "269a1b63507a02bbfef725dd41ac2d1785edaabe4010eb21be90402f8683a1e9",
+      "catalog_id": "3321654555",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/diadem",
+        "scope_locator": "/diadem/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/tiara.json",
+      "sha256": "d0f9ce900025b7b49b421e51ef08f6e54834f670ad5c3d37906f48500b523c66",
+      "catalog_id": "3211735138",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/tiara",
+        "scope_locator": "/tiara/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/circlet.json",
+      "sha256": "af7e85af88396815381a0f6bc7e6425155c15a29469ce40715b5438fbfa4b287",
+      "catalog_id": "3694218278",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/circlet",
+        "scope_locator": "/circlet/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/coronet.json",
+      "sha256": "9d4fdd834f136e792dd4f8fdd3d6214fdbc98eebcd50deeda1e34a72fbf620fc",
+      "catalog_id": "2387623923",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/coronet",
+        "scope_locator": "/coronet/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/blasphemous-grimoire.json",
+      "sha256": "ef9dd1a20ae4894cec62084a4c769cb2d3e47f3c6ebed004429dfcf4c40171a5",
+      "catalog_id": "1316178507",
+      "listing_count": 73,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/blasphemous-grimoire",
+        "scope_locator": "/blasphemous-grimoire/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/possessed-grimoire.json",
+      "sha256": "42ec3eb57b03235a192e200189881d87903101334b641e36488d61aba4ecac2c",
+      "catalog_id": "1380202707",
+      "listing_count": 87,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/possessed-grimoire",
+        "scope_locator": "/possessed-grimoire/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/grimoire.json",
+      "sha256": "b925448732ced37728f4f7890bd143c83da0cbaac963403f9af01cd1ca8ec534",
+      "catalog_id": "522150085",
+      "listing_count": 198,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/grimoire",
+        "scope_locator": "/grimoire/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/legend-spike.json",
+      "sha256": "04594d1f42b3f357ae24b041334a602faf03cf1b6e49aa0dde85a4f74bab4444",
+      "catalog_id": "3775204239",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/legend-spike",
+        "scope_locator": "/legend-spike/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/fanged-knife.json",
+      "sha256": "3d63b5b9bfd77a91de55443e8a5ee2c3444006a2cba258fce14c2c201b24c000",
+      "catalog_id": "3152943467",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/fanged-knife",
+        "scope_locator": "/fanged-knife/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/mithril-point.json",
+      "sha256": "b894285033ecbe0572844fa948d65b93cd84aed1d81ba73039e930dda890cccc",
+      "catalog_id": "2331975001",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/mithril-point",
+        "scope_locator": "/mithril-point/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/bone-knife.json",
+      "sha256": "8d7b1dfede7781c27a4c8f84ce47a4a9ac455d5dcf8fbfc0a1fb960fa0d6c742",
+      "catalog_id": "3664912608",
+      "listing_count": 160,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/bone-knife",
+        "scope_locator": "/bone-knife/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/vampirebone-gloves.json",
+      "sha256": "6ab90c0c7448c3b26c22551fc5fb5404a2c0e2668bd7671982031e7dd1f5b067",
+      "catalog_id": "2449277359",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/vampirebone-gloves",
+        "scope_locator": "/vampirebone-gloves/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/sharkskin-gloves.json",
+      "sha256": "ebc26cc71e7904259fe811d2d34a2e1413b7175d619db4228ed1b9dcef5b22c9",
+      "catalog_id": "3788911467",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/sharkskin-gloves",
+        "scope_locator": "/sharkskin-gloves/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/heavy-bracers.json",
+      "sha256": "acb8001de144bf97dbbd36aa52865370ab71a1d367c9321fd60a2d57ef3e25c9",
+      "catalog_id": "3614114614",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/heavy-bracers",
+        "scope_locator": "/heavy-bracers/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/demonhide-gloves.json",
+      "sha256": "6cb1dfda3b7611405f92dae9cac79ef4134675eb71ae1b89fb2ea2d63328e272",
+      "catalog_id": "3190519363",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/demonhide-gloves",
+        "scope_locator": "/demonhide-gloves/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/chain-gloves.json",
+      "sha256": "e4154b42997c6635ddbd4e90f7adec6fdc8bd5594b22cfc9ebba7a3dba73fe0c",
+      "catalog_id": "3336115398",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/chain-gloves",
+        "scope_locator": "/chain-gloves/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/vambraces.json",
+      "sha256": "be940581295f08388226644227174cc6e2fa8024ec2c01a78d8d309aac3b23fa",
+      "catalog_id": "2476237053",
+      "listing_count": 100,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/vambraces",
+        "scope_locator": "/vambraces/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/bone-shield.json",
+      "sha256": "a736205ebe15d5b99147222d647a6f51e5d1472eb173237b08dbd29f75123374",
+      "catalog_id": "2946064884",
+      "listing_count": 56,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/bone-shield",
+        "scope_locator": "/bone-shield/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/sacred-armor.json",
+      "sha256": "5c81f5339cced9f5d655341a2f975e6fda006dd279c8354da9591f2b4794afeb",
+      "catalog_id": "3517194212",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/sacred-armor",
+        "scope_locator": "/sacred-armor/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/targe.json",
+      "sha256": "8c4518b71ca2c3b42621a9c83cb3da4b133a43fd5029c38d3751a1d0557b75ad",
+      "catalog_id": "3933241232",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/targe",
+        "scope_locator": "/targe/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/mask.json",
+      "sha256": "898e2139183534b4dab1dca4f70f9a8c0dd026135074b4799f2dda7aa35f2bba",
+      "catalog_id": "4288110108",
+      "listing_count": 131,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/mask",
+        "scope_locator": "/mask/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/preserved-head.json",
+      "sha256": "2e16b0cdbe733fe908e1f2d5eea9ee30f46687cb6bff15d3000fc69491bf3bae",
+      "catalog_id": "3702021361",
+      "listing_count": 73,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/preserved-head",
+        "scope_locator": "/preserved-head/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    },
+    {
+      "path": "pricing/raw/traderie/mancatcher.json",
+      "sha256": "f5da6596b5af970d7b25f4bca26dd5e5d1b6f6c34f4dc6bb06fbf66f9d1fe58b",
+      "catalog_id": "3339861364",
+      "listing_count": 200,
+      "source": {
+        "path": "pricing/data/wp-b-prices.json",
+        "sha256": "cc918fd7a913519bbd2a0d4893224d3eebe2860366b096c64e934ab1465082f7",
+        "locator": "/mancatcher",
+        "scope_locator": "/mancatcher/n_scope"
+      },
+      "collection_log": {
+        "path": "pricing/data/wp-b.md",
+        "sha256": "16b77cbbbc7549461d5dea760c9cb346238eca9e97f45a91a7d73272f4bc9c55"
+      },
+      "catalog_ids": {
+        "path": "pricing/tools/wp_b_ids.txt",
+        "sha256": "5f5fff77086837d2710632db6363d5504144ebd2c83abc750c9985633dc31579"
+      }
+    }
+  ]
+}

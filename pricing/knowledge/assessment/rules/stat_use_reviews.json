@@ -9730,10 +9730,10 @@
       "id": "blizzard-sorceress-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-main-shield-jmod-base",
-      "profile_fingerprint": "18e07f307ff6e0cf4e1bdfeda347241743c09a05bfaace689e890e357bb8e347",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "5ccd44ea7b053ecac0edcbe0a33892095d6134a861bb712ad7f3bf4da4eddc6a",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9741,7 +9741,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9767,10 +9767,10 @@
       "id": "blizzard-sorceress-main-swap-jmod-base-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-main-swap-jmod-base",
-      "profile_fingerprint": "57aa7d38e687e51080d7a5ec707fb893517f4d49eba00dad15dfad0405c2c029",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "5cfce8e4aeeb60a8fb89ade2f925a0be59513f51913fb3b943b22a5fb59fcbb1",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9778,7 +9778,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9804,10 +9804,10 @@
       "id": "blizzard-sorceress-standard-swap-jmod-base-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-standard-swap-jmod-base",
-      "profile_fingerprint": "001d1de6d987f8b7f67fcd2a790d754e2075fe7d40dbcc194755e9588fc78e7d",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "53e9551c3d0034269abc251beffd98d9584cffab5407389f29475963a24e82d2",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9815,7 +9815,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9841,10 +9841,10 @@
       "id": "fissure-druid-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "fissure-druid-main-shield-jmod-base",
-      "profile_fingerprint": "af6a9e1ddcd7a54fb20e82f9fe3ccb697aad778a0b347e43a241878bf07373fd",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "8ea5f4a5eeb064caa3fd56d4f17d20afcdef7f5bf1e7db08272e70a572285a1a",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9852,7 +9852,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9878,10 +9878,10 @@
       "id": "fissure-druid-magic-find-shield-jmod-base-stats",
       "version": 1,
       "role_id": "fissure-druid-magic-find-shield-jmod-base",
-      "profile_fingerprint": "2fe879be50b23e2ad574a4eef5dffc4508a62cefb34eb29d8f7a3e80ca7baea2",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "25f6ad0b7ceb33055ba293b260e22c6ca562cb25c8bc639156aba0337771b124",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9889,7 +9889,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9915,10 +9915,10 @@
       "id": "lightning-sentry-assassin-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-sentry-assassin-main-shield-jmod-base",
-      "profile_fingerprint": "374f75ee16233440d2d0c7213cfb9034c628100e7311d8c8fe5faf35e3073981",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "840434dfc4f76d07cd891ac5bdb4baab12e9bb82e7ca8d3757971b4a93ce406b",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9926,7 +9926,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9952,10 +9952,10 @@
       "id": "lightning-sentry-assassin-main-swap-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-sentry-assassin-main-swap-jmod-base",
-      "profile_fingerprint": "951b6e85ea32a230749793f5b627d137a9f6d2803842d02b20942ff104f14655",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "08c5545a47ccf8c205138eff24025b6f474fedee06eee6fefedb81de7d7d88d8",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -9963,7 +9963,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -9989,10 +9989,10 @@
       "id": "lightning-sorceress-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-sorceress-main-shield-jmod-base",
-      "profile_fingerprint": "cebd419f3a39455810d2011fda11c9fa8d96d5f220b7d82f16222ef3fb580884",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "9b31dbd3dda6e83a2229c69aa9c8ff61116c004e0f9516aa81241c4abda3b882",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -10000,7 +10000,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -10026,10 +10026,10 @@
       "id": "lightning-strike-amazon-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-strike-amazon-main-shield-jmod-base",
-      "profile_fingerprint": "3edc0174acad52fc131920798b6d759c5d72ce45e93fc95db7c904d7fe273877",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "029f17b0398b155f568e034026db253a1e81444a8f0bbc3367d48ccf5947b439",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -10037,7 +10037,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -10063,10 +10063,10 @@
       "id": "poison-nova-necromancer-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "poison-nova-necromancer-main-shield-jmod-base",
-      "profile_fingerprint": "6379f98cf51cd28800a5a91891cb99491f8cfaf71c5d8178527d5b0c8cb8cd30",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "c463dc3bd3b501af4614665eb7b14c21dcc6dc9c163415a42270c133be4d4b04",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -10074,7 +10074,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -10100,10 +10100,10 @@
       "id": "lightning-fury-amazon-guide-main-shield-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-fury-amazon-guide-main-shield-jmod-base",
-      "profile_fingerprint": "bc63f2131680ad8746d8fc3cae51927b1b58527769a68617ea6012a2ec1e17cf",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "0379dbc3460286257c8fc835641eeba6ead51da512266b92d6ab1360e8d4e0ee",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -10111,7 +10111,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -10137,10 +10137,10 @@
       "id": "lightning-fury-amazon-guide-ubers-shield-jmod-base-stats",
       "version": 1,
       "role_id": "lightning-fury-amazon-guide-ubers-shield-jmod-base",
-      "profile_fingerprint": "646a656071b93df8cb23958d51f93093983583ce878347c8920de99ffc1835b8",
-      "review_date": "2026-09-25",
+      "profile_fingerprint": "5d6e648db94b96d5acd9f4d5d0cbc07205c153baa09ea22418a89ca5154d5330",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim.",
+      "rationale": "Reviewed exact cached JMOD source entry. Preserve magic non-ethereal Monarch, four empty sockets, correct class and both20block/30FBR modifiers. Highlight only the captured blocking pair. Source-specific future Facet or Ist payload remains absent and cannot supply elemental bonuses or MF. Remaining equipment/block/cast-rate and socket-investment conditions stay on partial fit, advisory only for recognizing the prepared base modifiers. No finished payload, perfect roll, breakpoint or price claim. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "priorities": [
         {
           "key": "20:0",
@@ -10148,7 +10148,7 @@
           "activation": {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           "explanation": "Required blocking modifier in the four-empty-socket Monarch preparation role"
@@ -40530,12 +40530,12 @@
     },
     {
       "id": "gold-find-barbarian-0-merc-treachery-native-stats",
-      "version": 1,
+      "version": 2,
       "role_id": "gold-find-barbarian-0-merc-treachery-native",
       "profile_fingerprint": "f1946eeb486c90d3991741fe4fe6f45640e54a7b7c88c1870a17471cfedec25a",
-      "review_date": "2026-09-28",
+      "review_date": "2026-10-01",
       "review_state": "reviewed",
-      "rationale": "Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications.",
+      "rationale": "Reviewed cited Treachery mercenary component and exact base/context. Native level15 Fade when struck supports survival only after activation; attack speed desirable for ordinary damage/leech roles, not promoted for the dual-Plague incoming-hit proc setup. Recovery/cold resistance supporting. No automatic defense or ethereal premium, active-buff assertion, player transfer or perfect gear gate. Preserve source conflicts and full loadout qualifications. 2026-10-01: The cited Budget guide relies on mercenary kills for gold farming. Lem supplies 50% Extra Gold in body armor (native gems.json, Treachery Rune3); credit this to mercenary kills without asserting player-kill benefit or a complete loadout.",
       "advisory_conditions": [
         "Fade is a chance to cast when struck, not proof of an active buff; verify activation and survival before relying on its resistances and physical reduction.",
         "Verify actual base equip requirements, weapon attack-speed breakpoint and helmet life leech; Treachery itself does not supply life leech. Assassin skills do not improve mercenary skills.",
@@ -40585,6 +40585,17 @@
             "absent_is_zero": true
           },
           "explanation": "Cold resistance supports mercenary survival."
+        },
+        {
+          "key": "79:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "79:0",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Extra Gold supports this mercenary-kill farming setup; this armor bonus applies to kills credited to the mercenary, not player-only kills."
         }
       ]
     },
@@ -50766,7 +50777,7 @@
       "id": "poison-nova-necromancer-0-rhyme-stats",
       "version": 1,
       "role_id": "poison-nova-necromancer-0-rhyme",
-      "profile_fingerprint": "8b1806556e746b98eb554c3a156a8651fa90a7a6c20a9bd71762b033f9e60827",
+      "profile_fingerprint": "641b7afb7184751a8d63de9fea9b594efd4b755bb55b5e90ad2cccfe3cd0f095",
       "review_date": "2026-10-01",
       "review_state": "reviewed",
       "rationale": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
@@ -69674,12 +69685,12 @@
     },
     {
       "id": "summoner-necromancer-spirit-shroud-alternative-stats",
-      "version": 1,
+      "version": 2,
       "role_id": "summoner-necromancer-spirit-shroud-alternative",
-      "profile_fingerprint": "202d805c7b9595a936b708419f6f92f66151c36006615dd3f1b29091146c7e63",
-      "review_date": "2026-09-26",
+      "profile_fingerprint": "1a83113dbae48b9d559587311797e56207e0d2e1dfd70f2710af24d7c11a2290",
+      "review_date": "2026-10-01",
       "review_state": "reviewed",
-      "rationale": "Reviewed named weapon/armor alternative for Summoner. Native skill priorities intersect the guide skill plan: Raise Skeleton, Skeleton Mastery, Corpse Explosion and Decrepify. No automatic value assigned to every skill on the item: unused Mage/Terror bonuses and hit-flee are not highlighted. Original and valid upgraded bases retain use; minimum rolls do not need perfect defense. Numeric price and full loadout fit remain separate.",
+      "rationale": "Reviewed named weapon/armor alternative for Summoner. Native skill priorities intersect the guide skill plan: Raise Skeleton, Skeleton Mastery, Corpse Explosion and Decrepify. No automatic value assigned to every skill on the item: unused Mage/Terror bonuses and hit-flee are not highlighted. Original and valid upgraded bases retain use; minimum rolls do not need perfect defense. Numeric price and full loadout fit remain separate. Native/upgraded armor requires a known legal zero-or-one socket count before assigning this configuration stat credit.",
       "advisory_conditions": [
         "Cannot Be Frozen preserves movement when chilled; it does not increase casting speed. This armor supplies no Faster Cast Rate."
       ],
@@ -83860,7 +83871,7 @@
       "id": "poison-nova-white-alternative-stats",
       "version": 1,
       "role_id": "poison-nova-white-alternative",
-      "profile_fingerprint": "ca395e5ea2ad77a2942a6728518a79119c5c8b4481e134689e82e533ab0d402b",
+      "profile_fingerprint": "f37465490c130daf41de3da2e10b867dc2e79894adfaba64673f80065807b914",
       "review_date": "2026-10-01",
       "review_state": "reviewed",
       "rationale": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
@@ -147047,10 +147058,10 @@
       "id": "frozen-orb-sorceress-specialist-shield-cold-empty-stats",
       "version": 1,
       "role_id": "frozen-orb-sorceress-specialist-shield-cold-empty",
-      "profile_fingerprint": "1f0746267b6435afdc39a6ac5c5928c6e9841a88d008073b1833c03688d1b053",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "cb784b33f0ff6f9d240e80f6589b6f05d8d9dd73dd8a1f5a4d46d900ccc49cf4",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Empty preparation base: Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel). The four specified fillers are still needed; this is not the completed setup."
       ],
@@ -147083,10 +147094,10 @@
       "id": "frozen-orb-sorceress-specialist-shield-cold-filled-stats",
       "version": 1,
       "role_id": "frozen-orb-sorceress-specialist-shield-cold-filled",
-      "profile_fingerprint": "57479f93d7e413cbfc0240ec4217760e602f02b7435a46ff0d87df29d0907226",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "516ae3091627080a012d2728f3422194c2b0eac8ceca77958abbd9f359c4d930",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Cold Facets support Frozen Orb; retain needed cast rate, block and survival elsewhere. Death/level-up procs are not assumed active."
       ],
@@ -147141,10 +147152,10 @@
       "id": "zeal-paladin-specialist-shield-ruby-empty-stats",
       "version": 1,
       "role_id": "zeal-paladin-specialist-shield-ruby-empty",
-      "profile_fingerprint": "c4c45c85f3dcdb85fa994d4b3bb0e519bf812058af89c2454ba5b01f32a83ceb",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "41d89fda3773b84c91251627536712ee8d1274bfacec8c4a261439d0a5e5ff94",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Empty preparation base: Jeweler's Sacred Targe of Deflecting (4x Ruby Jewels of Fervor). The four specified fillers are still needed; this is not the completed setup.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
@@ -147178,10 +147189,10 @@
       "id": "zeal-paladin-specialist-shield-ruby-filled-stats",
       "version": 1,
       "role_id": "zeal-paladin-specialist-shield-ruby-filled",
-      "profile_fingerprint": "ba14faef1520401e434e1c180242816310fbf14da5f38cafb393ed04c068ac0f",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "2004129afe7584d2ad31dce9fc8545ac99642bff82bcfae975c68dc29dad5a3a",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Each Ruby jewel needs 31\u201340 enhanced damage and 15 IAS. Ruby fire-resistance jewels do not satisfy this setup. Off-weapon ED and IAS support Zeal; attack breakpoints depend on the complete loadout.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
@@ -147248,10 +147259,10 @@
       "id": "zeal-paladin-specialist-shield-ist-empty-stats",
       "version": 1,
       "role_id": "zeal-paladin-specialist-shield-ist-empty",
-      "profile_fingerprint": "f4b76306b7308bcf948b4fa7447655e69a19bc58554ef1c7f5eccde0203fd88c",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "3fa2e5d3c847fdbe821d2e579ff3f5234563fdc9a4ba425f838ae86242246620",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Empty preparation base: Jeweler's Sacred Targe of Deflecting (4x Ist Runes). The four specified fillers are still needed; this is not the completed setup.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
@@ -147285,10 +147296,10 @@
       "id": "zeal-paladin-specialist-shield-ist-filled-stats",
       "version": 1,
       "role_id": "zeal-paladin-specialist-shield-ist-filled",
-      "profile_fingerprint": "4e02226fee36242345149a463fae7829fd570dd1871d56aa703d8a65cfbc38de",
-      "review_date": "2026-09-27",
+      "profile_fingerprint": "d8de0925dd68730d7c3c116b845838d13a3315bea3f67657d74f0d39bb6aa084",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred.",
+      "rationale": "2026-09-27: Reviewed exact specialist shield alternative and linked planner payload. Empty preparation and completed setup are separate. Native Jeweler and Deflecting properties required; socket payload cannot supply missing native block/FBR. Planner perfect rolls are preferences, not minimum candidate rolls. No full loadout, breakpoint or market price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Four Ist runes supply 100% Magic Find in a shield. Verify block and survival in the complete Zeal loadout.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
@@ -189033,10 +189044,10 @@
       "id": "fissure-druid-magic-find-shield-ist-filled-stats",
       "version": 1,
       "role_id": "fissure-druid-magic-find-shield-ist-filled",
-      "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "b2d7ef28840b0286ba66646f9f3c75450476df4bf601a05bd335bcba5a01cc2d",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed Magic Find shield explicitly specified by the cached Fissure variant. Four actual Ist runes supply 100% Magic Find in shields; native Deflecting still supplies 20% increased blocking and 30% faster block rate. Empty preparation remains separate. No defense premium or numerical price inferred.",
+      "rationale": "2026-09-28: Completed Magic Find shield explicitly specified by the cached Fissure variant. Four actual Ist runes supply 100% Magic Find in shields; native Deflecting still supplies 20% increased blocking and 30% faster block rate. Empty preparation remains separate. No defense premium or numerical price inferred. Native blocking threshold includes base blocking plus the 20% Deflecting bonus; positive-presence annotation guards remain behind that role requirement.",
       "advisory_conditions": [
         "Four Ist runes supply 100% Magic Find. Maintain casting speed, damage and survival in the complete Fissure setup.",
         "Meet Monarch requirements and evaluate full block chance using Dexterity and character level. Magic quality cannot form a runeword; clearing sockets destroys inserted runes."
@@ -189120,10 +189131,10 @@
       "id": "blizzard-sorceress-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-main-shield-facet-shield-filled",
-      "profile_fingerprint": "7ca98b7728a45a5101f3def0cdaa7628b27c8d6a5abf80a76d218ac447613c90",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "fe883bf5e5b4c050ab0b5cf515ff1f2504a53a912d4a8ebc0db0ecb37d3926b2",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching cold skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -189255,10 +189266,10 @@
       "id": "blizzard-sorceress-main-swap-facet-shield-filled-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-main-swap-facet-shield-filled",
-      "profile_fingerprint": "3a591763e3960a54c52aa261aead162dbff7172f860c2464ae2e01ea5577fe5b",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "4ce6f9a12e5cda50741ac46113c5d047b8daf82df333be501217918fec9cc298",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching cold skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -189390,10 +189401,10 @@
       "id": "blizzard-sorceress-standard-swap-facet-shield-filled-stats",
       "version": 1,
       "role_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
-      "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "e2ca6235fe07a1745681cdaa6abd00f286ebe090df2bf9362460caada37b4d53",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed cold shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching cold skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -189525,10 +189536,10 @@
       "id": "lightning-fury-amazon-guide-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-fury-amazon-guide-main-shield-facet-shield-filled",
-      "profile_fingerprint": "25fa78606f4647b9d55e103d471f14bef4800df3a30a2c34e115cdee3b77f7dc",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "5f0f6aba886c0f27c5e591fb4f4439bbcc5bfb6c610d999bf286a99ddb34b6c7",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -189660,10 +189671,10 @@
       "id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
-      "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "d2d19878381cb4281b038cad82f36363e87f50cc6af1886ad5c1336a91f4f379",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword.",
@@ -189876,10 +189887,10 @@
       "id": "fissure-druid-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "fissure-druid-main-shield-facet-shield-filled",
-      "profile_fingerprint": "194260b4e93d7372b4d1d673934ce063f06f6c14a4325e8dbf8a02063707eaf0",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "e90729c90f52e703da04dff86655609388fc2830b153b59cf180f1daba5dfd9d",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed fire shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed fire shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching fire skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -190011,10 +190022,10 @@
       "id": "lightning-strike-amazon-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-strike-amazon-main-shield-facet-shield-filled",
-      "profile_fingerprint": "78454102815dfcc7f998cd26a745b5e4625b7c9e2962fbe7a40eedc4a55738ff",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "86eec35de491b679be060d79e1265d6c7eca08d6505649a017284b0b81703a07",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -190146,10 +190157,10 @@
       "id": "poison-nova-necromancer-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "poison-nova-necromancer-main-shield-facet-shield-filled",
-      "profile_fingerprint": "d5c808acf57e934fb1ffc567551334bb5e8970cd57da19f2e9058636cfc652a3",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "99ab3088787e5b484a6cfc928f244df39ae50452f822547703556600c82597eb",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching poison skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -190281,10 +190292,10 @@
       "id": "lightning-sentry-assassin-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-sentry-assassin-main-shield-facet-shield-filled",
-      "profile_fingerprint": "060b22d1b392fe51f75b4341c312ecf26f2d0435c60dde991bb43964e5de7a32",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "d69e96911398c28e667030290888ecca364cb2d5f36b121084d961f613ebc0fd",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -190416,10 +190427,10 @@
       "id": "lightning-sentry-assassin-main-swap-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-sentry-assassin-main-swap-facet-shield-filled",
-      "profile_fingerprint": "34c7322e8ae4ad22b8a7e89355970db950f90989ff66420feeedf69157cdcb4d",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "00e851052c676e41f41234bee5b51de41200cb481e5035f5a6b684b371d7a980",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -190551,10 +190562,10 @@
       "id": "lightning-sorceress-main-shield-facet-shield-filled-stats",
       "version": 1,
       "role_id": "lightning-sorceress-main-shield-facet-shield-filled",
-      "profile_fingerprint": "cd05a6dc7af34343946fc28b2fd2b76f145899d05a982c5a6dc813cd5d1d08d0",
-      "review_date": "2026-09-28",
+      "profile_fingerprint": "b772d010cacdc43b0ffbab017f11e4b49c2925870b9207023078d253fa0141de",
+      "review_date": "2026-10-02",
       "review_state": "reviewed",
-      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "rationale": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. Native stat 20 includes base blocking: require total 42 (22 base + 20 modifier).",
       "advisory_conditions": [
         "The shield contributes matching lightning skill damage and enemy resistance reduction. This does not by itself break immunity; evaluate the build, target and full loadout.",
         "Native Deflecting supplies 20% increased blocking and 30% faster block rate. Meet Monarch requirements and calculate full block chance using Dexterity and level. Magic quality cannot form a runeword."
@@ -195923,6 +195934,1005 @@
             "absent_is_zero": true
           },
           "explanation": "Captured modifier contributes to this reviewed physical Double Throw inventory combination; evaluate the complete weapon and hit-chance setup."
+        }
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-vita-stats",
+      "version": 1,
+      "role_id": "fissure-elemental-grand-charm-vita",
+      "profile_fingerprint": "55913b7bc5ec82ea02e51548110ce008e5e46d38b31fedc7ffc6363ebd2b89ab",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed Fissure main Charm option0 and planner vf0106vk item23. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36-40 and 41-45 life. Lower-life skillers can still match the separate plain Elemental skiller use; no price premium is assumed."
+      ],
+      "priorities": [
+        {
+          "key": "188:42",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-balance-stats",
+      "version": 1,
+      "role_id": "fissure-elemental-grand-charm-balance",
+      "profile_fingerprint": "62a6958ce29ebf6a3f3041baacb921a2b32ac0524195eab066031103e0cda744",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed Fissure main Charm option1 and planner vf0106vk item21. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Hit recovery is valuable only with the complete loadout breakpoint; 12% on this charm does not by itself establish a faster recovery animation."
+      ],
+      "priorities": [
+        {
+          "key": "188:42",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-inertia-stats",
+      "version": 1,
+      "role_id": "fissure-elemental-grand-charm-inertia",
+      "profile_fingerprint": "8c7f91fe7ea7b8e5030e8beb48159f64fdeb3651fa9661fdd0a081a2afb3d03f",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed Fissure main Charm option2 and planner vf0106vk item107. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Run/walk supports movement; it does not increase Faster Cast Rate or teleport speed."
+      ],
+      "priorities": [
+        {
+          "key": "188:42",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "96:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-plain-stats",
+      "version": 1,
+      "role_id": "fissure-elemental-grand-charm-plain",
+      "profile_fingerprint": "8a302ef2e4f1b8340f8691b2dc39a57c520dfe7efc9646ecd12c109b5c8a0d80",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed Fissure main Charm option3 and planner vf0106vk item108. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The plain skiller requires no secondary affix; optional suffixes do not invalidate the Elemental skill contribution. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price."
+      ],
+      "priorities": [
+        {
+          "key": "188:42",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this exact source-listed Elemental charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-sentry-assassin-main-skiller-vita-stats",
+      "version": 1,
+      "role_id": "lightning-sentry-assassin-main-skiller-vita",
+      "profile_fingerprint": "1ed47250ced06cf892d9c0bd1d7a4d0cb9d0ba245bc44efd7c450f0f7335c5c3",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option0, raw table span116, planner rj010607 item25, native prefix502 and its exact Traps tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "priorities": [
+        {
+          "key": "188:48",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Traps charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Traps charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-sorceress-main-skiller-vita-stats",
+      "version": 1,
+      "role_id": "lightning-sorceress-main-skiller-vita",
+      "profile_fingerprint": "1902a61fd603b4208be19e8eb8943b5288088c6afea4eef89853f93d00cb4550",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option0, raw table span148, planner uf0106rb item78, native prefix443 and its exact Lightning tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "priorities": [
+        {
+          "key": "188:9",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Lightning charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Lightning charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-sorceress-main-skiller-balance-stats",
+      "version": 1,
+      "role_id": "lightning-sorceress-main-skiller-balance",
+      "profile_fingerprint": "0e760ef4f876456d0f16d33df411b1e13c2d1a09b7e95ba076eee9e481b55a79",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option1, raw table span149, planner uf0106rb item79, native prefix443 and its exact Lightning tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "12% hit recovery contributes to a complete-loadout breakpoint; the charm alone does not establish a faster recovery animation."
+      ],
+      "priorities": [
+        {
+          "key": "188:9",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Lightning charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Lightning charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-sorceress-main-skiller-plain-stats",
+      "version": 1,
+      "role_id": "lightning-sorceress-main-skiller-plain",
+      "profile_fingerprint": "50fc4d8b6ba28cc0b027fc6ed9c372e27e03495bd83c5291f9c3bc5bf6497f98",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option2, raw table span150, planner uf0106rb item80, native prefix443 and its exact Lightning tree. Plain skiller requires no secondary affix; optional suffixes retain the tree contribution. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price."
+      ],
+      "priorities": [
+        {
+          "key": "188:9",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:9",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Lightning charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-strike-amazon-main-skiller-vita-stats",
+      "version": 1,
+      "role_id": "lightning-strike-amazon-main-skiller-vita",
+      "profile_fingerprint": "5c238d2ef6788a9c9550c657f2bb61b680d01dc992847178a282b920eb8a5a33",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option0, raw table span147, planner vc0106wm item19, native prefix432 and its exact Javelin and Spear tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "priorities": [
+        {
+          "key": "188:2",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-strike-amazon-main-skiller-balance-stats",
+      "version": 1,
+      "role_id": "lightning-strike-amazon-main-skiller-balance",
+      "profile_fingerprint": "fcbb795cbde3230085a2d1979cfcc1c842255196e3fd30cf854d2e2479d6da57",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option1, raw table span148, planner vc0106wm item23, native prefix432 and its exact Javelin and Spear tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "12% hit recovery contributes to a complete-loadout breakpoint; the charm alone does not establish a faster recovery animation."
+      ],
+      "priorities": [
+        {
+          "key": "188:2",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-strike-amazon-main-skiller-inertia-stats",
+      "version": 1,
+      "role_id": "lightning-strike-amazon-main-skiller-inertia",
+      "profile_fingerprint": "b82bf616f85643d24390ae2129537f9f166466177728ba72a11589e76d42cbb2",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option2, raw table span149, planner vc0106wm item111, native prefix432 and its exact Javelin and Spear tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Run/walk supports movement; it does not increase Faster Cast Rate or teleport speed."
+      ],
+      "priorities": [
+        {
+          "key": "188:2",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "96:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-strike-amazon-main-skiller-plain-stats",
+      "version": 1,
+      "role_id": "lightning-strike-amazon-main-skiller-plain",
+      "profile_fingerprint": "b0b39f9c876f6bc31830bddc5b60e3c41e124e8206fe54c512b5b7f5f2f9d665",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option3, raw table span150, planner vc0106wm item58, native prefix432 and its exact Javelin and Spear tree. Plain skiller requires no secondary affix; optional suffixes retain the tree contribution. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price."
+      ],
+      "priorities": [
+        {
+          "key": "188:2",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:2",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Javelin and Spear charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-vita-stats",
+      "version": 1,
+      "role_id": "poison-nova-necromancer-main-skiller-vita",
+      "profile_fingerprint": "7b3f5c64b5927a10f42b69ca883c0e45dc8c2d006af5aa9d739136663c472a23",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option0, raw table span120, planner fw0106lo item22, native prefix455 and its exact Poison and Bone tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "priorities": [
+        {
+          "key": "188:17",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Poison and Bone charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Poison and Bone charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-balance-stats",
+      "version": 1,
+      "role_id": "poison-nova-necromancer-main-skiller-balance",
+      "profile_fingerprint": "1693b2b26c506a2e995a691f60bdf402372a149ac1564cd669b4097888b85b56",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option1, raw table span121, planner fw0106lo item48, native prefix455 and its exact Poison and Bone tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "12% hit recovery contributes to a complete-loadout breakpoint; the charm alone does not establish a faster recovery animation."
+      ],
+      "priorities": [
+        {
+          "key": "188:17",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Poison and Bone charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Poison and Bone charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-plain-stats",
+      "version": 1,
+      "role_id": "poison-nova-necromancer-main-skiller-plain",
+      "profile_fingerprint": "abea47f701ed958933a8578d11c7abfb68171d10b5970b2e76a93e900a37d189",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Reviewed main Charms option2, raw table span122, planner fw0106lo item49, native prefix455 and its exact Poison and Bone tree. Plain skiller requires no secondary affix; optional suffixes retain the tree contribution. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price."
+      ],
+      "priorities": [
+        {
+          "key": "188:17",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Poison and Bone charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "lightning-sentry-assassin-mf-high-player-skiller-stats",
+      "version": 1,
+      "role_id": "lightning-sentry-assassin-mf-high-player-skiller",
+      "profile_fingerprint": "21668bdb7fb05daf08f50f7b5212960f593a9ff713ca81a7dc52e7355d3fc844",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact Magic Find Setup prose span15/section20 recommends a Traps/Vita charm instead of MF small charms at high player counts. Require explicitly known high_player_count_farming activity; missing activity remains unknown. The guide supplies no numeric count cutoff, so none is invented. Native +1 Traps and attainable Vita minimum36 life; perfect planner life45 is not required. Softcore/Non-Ladder use, separate from the unconditional main equipment alternative.",
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "priorities": [
+        {
+          "key": "188:48",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Traps charm configuration; whole-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to the source-listed Traps charm configuration; whole-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-vita-stats",
+      "version": 1,
+      "role_id": "double-throw-barbarian-guide-main-sharp-vita",
+      "profile_fingerprint": "fd4d6bfd423f3341cb56d2c2833976edd5241da3f571eb69acc59bdecdce4b19",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option14, raw equipment span201, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Attainable Vita tiers are36-40 and41-45 life. The guide does not require a perfect life roll."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-balance-stats",
+      "version": 1,
+      "role_id": "double-throw-barbarian-guide-main-sharp-balance",
+      "profile_fingerprint": "6546a774c40f6378d962baedc45cc7b8cdb73b57f64712446d4bbfc943728872",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option15, raw equipment span202, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "12% Faster Hit Recovery contributes to the complete loadout; it alone does not prove a recovery breakpoint."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-inertia-stats",
+      "version": 1,
+      "role_id": "double-throw-barbarian-guide-main-sharp-inertia",
+      "profile_fingerprint": "3673dfeada80ea18610c3bf1b54b3e755a4e1064a31b1f95c427da9a52d571d1",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option16, raw equipment span203, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Run/walk supports movement, not Faster Cast Rate or teleport speed."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "96:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-plain-stats",
+      "version": 1,
+      "role_id": "double-throw-barbarian-guide-main-sharp-plain",
+      "profile_fingerprint": "63ccaa9c5a03c5a5689e5bb77a1e58ae36e2141e4493f964422d9cee8457d99d",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option17, raw equipment span204, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Plain Sharp requires no secondary suffix; optional bonuses remain useful. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-vita-stats",
+      "version": 1,
+      "role_id": "berserk-barbarian-main-sharp-vita",
+      "profile_fingerprint": "1f0a3d12dff80bdc511c9b52f6381d11508db425f75a295a42e0b7f5ed622aec",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option16, raw equipment span141, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage.",
+        "Attainable Vita tiers are36-40 and41-45 life. The guide does not require a perfect life roll."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-balance-stats",
+      "version": 1,
+      "role_id": "berserk-barbarian-main-sharp-balance",
+      "profile_fingerprint": "96d8d93480dd0cc387257cd844b714099bbe69bcd9344bd86292b6b5a9984d03",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option14, raw equipment span139, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage.",
+        "12% Faster Hit Recovery contributes to the complete loadout; it alone does not prove a recovery breakpoint."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-plain-stats",
+      "version": 1,
+      "role_id": "berserk-barbarian-main-sharp-plain",
+      "profile_fingerprint": "614c5e462f79c9f5d6cbac82f9d9396caf77bd2db0271908b47248165e9e1d63",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option18, raw equipment span143, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Plain Sharp requires no secondary suffix; optional bonuses remain useful. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "dream-paladin-main-sharp-vita-stats",
+      "version": 1,
+      "role_id": "dream-paladin-main-sharp-vita",
+      "profile_fingerprint": "85f23874054b7766d7c7128ca3689cf6fae9cfd5a5e6541b96a07d505f829c8c",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option11, raw equipment span126, linked zb01066h planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Attainable Vita tiers are36-40 and41-45 life. The guide does not require a perfect life roll."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "7:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "dream-paladin-main-sharp-balance-stats",
+      "version": 1,
+      "role_id": "dream-paladin-main-sharp-balance",
+      "profile_fingerprint": "368b987c819e34495ba0159ab17d3adab3e314a0c0260c2a3b77861445e69bc7",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Exact main Charms option12, raw equipment span127, linked zb01066h planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "12% Faster Hit Recovery contributes to the complete loadout; it alone does not prove a recovery breakpoint."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "99:0",
+          "desirability": "supporting",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        }
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-maiming-stats",
+      "version": 1,
+      "role_id": "double-throw-barbarian-guide-main-sharp-maiming",
+      "profile_fingerprint": "c67fa2eeb69e20e40533b81b5054711745dafd7d90768d81c8966f09db3e9f81",
+      "review_date": "2026-10-01",
+      "review_state": "reviewed",
+      "rationale": "2026-10-01: Main Charms option12 and raw equipment span199 link db0106mf item62. Native Sharp253 provides49-76 attack rating and7-10 maximum damage; Maiming678 adds3-4 maximum damage. Require captured native affix identities because combined minimum10 overlaps plain Sharp maximum10. Planner14/76 is a perfect example, not a minimum requirement. Softcore/Non-Ladder contribution; no inferred price premium.",
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Sharp plus Maiming totals10-14 maximum damage. Captured affix identity distinguishes it from other combinations with the same total."
+      ],
+      "priorities": [
+        {
+          "key": "19:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
+        },
+        {
+          "key": "22:0",
+          "desirability": "desirable",
+          "activation": {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          "explanation": "Observed modifier contributes to this source-listed Sharp charm option; complete-loadout conditions remain."
         }
       ]
     }

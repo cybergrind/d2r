@@ -128,3 +128,19 @@ def test_owned_copies_show_after_the_stats_with_the_best_copy_on_the_osd():
     osd = [line.text for line in document.to_osd()]
     assert texts[header + 1] in osd
     assert texts[header + 2] not in osd
+
+
+def test_owned_jewel_comparison_is_neutral_and_not_a_keep_limit():
+    record = saved_result()
+    record['result']['extraction']['item'].update(name='Jewel', base_name='Jewel', rarity='magic')
+    record['result']['owned'] = {
+        'kind': 'magic Jewel with the same stats',
+        'count': 2,
+        'relation': 'worse',
+        'perfection': 0.89,
+        'copies': [],
+    }
+    document = ItemAssessment.from_record(record)
+    header = next(line for line in document.lines if line.text.startswith('Owned:'))
+    assert header.tone == Tone.METADATA
+    assert header.text == 'Owned: 2 x magic Jewel with the same stats'

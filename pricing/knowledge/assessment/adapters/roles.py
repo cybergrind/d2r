@@ -7,7 +7,11 @@ from pricing.knowledge.assessment.domain.roles import RoleAssessment
 
 
 def legacy_role(result: RoleAssessment):
-    return {field.name: thaw(getattr(result, field.name)) for field in fields(result)}
+    return {
+        field.name: thaw(getattr(result, field.name))
+        for field in fields(result)
+        if field.name != 'advisory_conditions' or result.advisory_conditions
+    }
 
 
 def legacy_roles(results):

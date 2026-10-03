@@ -1,0 +1,911 @@
+{
+  "schema_version": 1,
+  "rows": [
+    {
+      "role_id": "lightning-sorceress-main-skiller-plain",
+      "quality": "magic",
+      "profile_fingerprint": "50fc4d8b6ba28cc0b027fc6ed9c372e27e03495bd83c5291f9c3bc5bf6497f98",
+      "configuration_id": "lightning-sorceress-main-skiller-plain-stats",
+      "configuration_fingerprint": "710efdc806bfd5468c5f14307614a0a317eaff29a2353a231e8d4c6f8277e222",
+      "dimensions": [
+        "report",
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Reviewed complete compact report and native Sparking +1 Lightning range/T1/color, exact distinct-build counts, role eligibility and unavailable-price outcome for positive, negative and unknown owner-class contexts. Other uses/qualities and item-wide coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-sorceress/plain/minimum": "12227fe0b150d1f1cf90aad5a9f6a1ddfdc7c8f39b1c06127541139b1a83d07c",
+        "main-skill-charms/lightning-sorceress/plain/wrong-class": "055ef3856e9992d87575647ff3580391299eb919e11b8b6ba80ea41914126e8c",
+        "main-skill-charms/lightning-sorceress/plain/unknown-class": "0be5788283fdacc36349c2128aa8e296841e08226df8e98daf9fd1eb6c0b609c"
+      },
+      "stats": {
+        "188:9": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "fissure-elemental-grand-charm-vita",
+      "quality": "magic",
+      "profile_fingerprint": "55913b7bc5ec82ea02e51548110ce008e5e46d38b31fedc7ffc6363ebd2b89ab",
+      "configuration_id": "fissure-elemental-grand-charm-vita-stats",
+      "configuration_fingerprint": "f387ec7a0767630edbfde07c828385485f9aa2614d5878c08d72e473c219c7e0",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and Grand Charm life5\u201345 verified at attainable T1 maximum45, minimum5, lower20% boundary13/14 and local tier maxima35/40. Per-use skill/life contribution priorities and actual OSD body colors are independently asserted in positive, negative and unknown-class cases; this does not certify the complete report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "fissure-skill-charms/vita/minimum": "eeb37123bf4bcb733b0375d98e98ecb83351ff625d5a19613eafa183a56a48b9",
+        "fissure-skill-charms/vita/unknown-class": "daa299485875f5bb6ea5fc9e5bf392b6158ddf9f28509d14f675d32b63cd9b1d",
+        "fissure-skill-charms/vita/life-5": "80a368a981e2de488729d8e0c52aeb1236f09f19762950bb6f131a7897f75325",
+        "fissure-skill-charms/vita/life-13": "149e284d7bbbb29aa90119988c693b815bb2904236f2f2c4da34b9ba0e77a47d",
+        "fissure-skill-charms/vita/life-14": "8cfc6ab87d0c03a9a4a8d6360314d52b6b79ab9c871c80bcec97484bdf00d8ca",
+        "fissure-skill-charms/vita/life-35": "f923b9abe0ffa321ea0c8a95d65a530403bc46f62adb5836333369a5870f3d0e",
+        "fissure-skill-charms/vita/life-40": "261d2ad04a2a5beb7541b07fe139d745f038601659a257586879f3664e7f5c25",
+        "fissure-skill-charms/vita/life-41": "813e09ac1882a86d862b9e712db457612244781c5c4013c05b25ac31ddb42c82",
+        "fissure-skill-charms/vita/life-45": "b054191dd34e8b5783a9e4ac06045a17948cd78d86e7a03189dd0cfec0af5a23"
+      },
+      "stats": {
+        "188:42": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "lightning-sentry-assassin-main-skiller-vita",
+      "quality": "magic",
+      "profile_fingerprint": "1ed47250ced06cf892d9c0bd1d7a4d0cb9d0ba245bc44efd7c450f0f7335c5c3",
+      "configuration_id": "lightning-sentry-assassin-main-skiller-vita-stats",
+      "configuration_fingerprint": "5193dc9f897b03bc8d475d078f9ef5ff9eba58d02d62a6c7d8ddad2d9dda86ee",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and Grand Charm life5\u201345 verified at attainable T1 maximum45, minimum5, lower20% boundary13/14 and local tier maxima35/40. Per-use skill/life contribution priorities and actual OSD body colors are independently asserted in positive, negative and unknown-class cases; this does not certify the complete report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-sentry-assassin/vita/minimum": "90513185584fbfa794f3ba514b2d91da827e5ede2e498a8608c1811ce23a6dcf",
+        "main-skill-charms/lightning-sentry-assassin/vita/unknown-class": "238ac88957c86c65f93dbc007b5266431055e728c2d815d86fa9af6eaff48590",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-5": "5c643a1231a031a46412b7b90c59fb0865270458253ec069d7f7165a74a87929",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-13": "a49880dfe2fdb9d2c92886cecbd1f5cd26f7db40191cb139b4be5b1edcd24061",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-14": "62c330c02b0b855bd48274ffeb1d50e3ef71f31e2f876fe23d23bebc4c9983f7",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-35": "014571dd90de6bd840b13a7ab6635559f73ff7a2aa5089ba8099f8dd54f0b8c5",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-40": "74453684b1ff0c44f7d4176dda8e45aa3234b641b92e1c4ee45122b3f6e5dd3d",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-41": "7db5c584d32262cf09a7edfc5e7c2428d30433a899c12ecf415ba8d8c251b3a3",
+        "main-skill-charms/lightning-sentry-assassin/vita/life-45": "16c32760e3b684d4977c3f1594fb6e6ba99da7205beed8c132a0cd109e1df2c8"
+      },
+      "stats": {
+        "188:48": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "lightning-sorceress-main-skiller-vita",
+      "quality": "magic",
+      "profile_fingerprint": "1902a61fd603b4208be19e8eb8943b5288088c6afea4eef89853f93d00cb4550",
+      "configuration_id": "lightning-sorceress-main-skiller-vita-stats",
+      "configuration_fingerprint": "aacd6da4943b0c11d4b26f2decc89eb5e0a713aac719455fc43b1241f9cbad3e",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and Grand Charm life5\u201345 verified at attainable T1 maximum45, minimum5, lower20% boundary13/14 and local tier maxima35/40. Per-use skill/life contribution priorities and actual OSD body colors are independently asserted in positive, negative and unknown-class cases; this does not certify the complete report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-sorceress/vita/minimum": "1956b6cd858d6afadebc9380c51ed5d3c01790d245899920e57f4863950b06eb",
+        "main-skill-charms/lightning-sorceress/vita/unknown-class": "87e841f8993c3f9fe8c8d19f08dfbc924905a740372fcf51ab631bc21038d81f",
+        "main-skill-charms/lightning-sorceress/vita/life-5": "664a643cc14363f298ff6b37fb3948e996b8840a31461945d535b8611d8f7c95",
+        "main-skill-charms/lightning-sorceress/vita/life-13": "70ade745dd7951668fbc5bf3510215242d80d660cd2036e2b6b0e7c6824a409d",
+        "main-skill-charms/lightning-sorceress/vita/life-14": "19c2fe86b8e2c6538309ad77565f8c1ed97ff391754e97d39bd1c7c979ea3d10",
+        "main-skill-charms/lightning-sorceress/vita/life-35": "1e223c614f89e79bc758ad830dd9a280f464201b76635561bb2afcb87db7765f",
+        "main-skill-charms/lightning-sorceress/vita/life-40": "af40019fac5fac97c49f6cb94418486edd0012bcf11f0f7cabb4d0754c9f1048",
+        "main-skill-charms/lightning-sorceress/vita/life-41": "64ce097415c6569273aef2809c1e2e2802d34105c07ad0ab4a50ce9c844230ed",
+        "main-skill-charms/lightning-sorceress/vita/life-45": "aee0a6a9ccfb42dca80516408dae76cebd1983bee543ba16c8557ded4f98e49d"
+      },
+      "stats": {
+        "188:9": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "lightning-strike-amazon-main-skiller-vita",
+      "quality": "magic",
+      "profile_fingerprint": "5c238d2ef6788a9c9550c657f2bb61b680d01dc992847178a282b920eb8a5a33",
+      "configuration_id": "lightning-strike-amazon-main-skiller-vita-stats",
+      "configuration_fingerprint": "6b2205ec53d433d1d138e959f14555121f3d744c5808478c2dfd907be2141ca0",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and Grand Charm life5\u201345 verified at attainable T1 maximum45, minimum5, lower20% boundary13/14 and local tier maxima35/40. Per-use skill/life contribution priorities and actual OSD body colors are independently asserted in positive, negative and unknown-class cases; this does not certify the complete report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-strike-amazon/vita/minimum": "d1ef4213559a9d341126864a599897c26cf59f5fb4018e919e7f7d09d66c083a",
+        "main-skill-charms/lightning-strike-amazon/vita/unknown-class": "1f8cb8b54202f380785e3a03fb6166c1fa8b20f4991a646a800867421f46d2c2",
+        "main-skill-charms/lightning-strike-amazon/vita/life-5": "95706d678ffdeaf9434e87d40f71a8e371923bf68dde86dcec85168b2571dbe8",
+        "main-skill-charms/lightning-strike-amazon/vita/life-13": "9bd6e3d42eae575c1ef102c726066515b15d1fd29132dcc9f278a97f2b5f287d",
+        "main-skill-charms/lightning-strike-amazon/vita/life-14": "2ed6a832a6f81cfd96c8a4eba04f4e1977b19a8c943e3fcf44da0adfa4a126f3",
+        "main-skill-charms/lightning-strike-amazon/vita/life-35": "939232f026217b901bdba6fb3e4c5fd4c56d23dd94b0821c82a1e055435a3909",
+        "main-skill-charms/lightning-strike-amazon/vita/life-40": "5c81b2f914a775b8d5c6133207ada3ba66e19ce7925985dc47255279778eb926",
+        "main-skill-charms/lightning-strike-amazon/vita/life-41": "b2037b21263d6809c93972b4c58d3e1b0eb20a886dc5c16d25c101946e11db7d",
+        "main-skill-charms/lightning-strike-amazon/vita/life-45": "7575fd1ed56aeee9c84510cc2c02614a00ab4a1367bf719f88bc69c92ed1854d"
+      },
+      "stats": {
+        "188:2": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "poison-nova-necromancer-main-skiller-vita",
+      "quality": "magic",
+      "profile_fingerprint": "7b3f5c64b5927a10f42b69ca883c0e45dc8c2d006af5aa9d739136663c472a23",
+      "configuration_id": "poison-nova-necromancer-main-skiller-vita-stats",
+      "configuration_fingerprint": "319168e03335711abe3c682ac66b5cc3313fe1fd0e8ece6eb7425005622fc608",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and Grand Charm life5\u201345 verified at attainable T1 maximum45, minimum5, lower20% boundary13/14 and local tier maxima35/40. Per-use skill/life contribution priorities and actual OSD body colors are independently asserted in positive, negative and unknown-class cases; this does not certify the complete report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/poison-nova-necromancer/vita/minimum": "e1c528fe36313d27be39526a405fc65fdc52e5be1f412eebffcbe053a158100e",
+        "main-skill-charms/poison-nova-necromancer/vita/unknown-class": "f405398664578dfe0a552e2a2aa5f294e74f2bd0c2f7fe3e59630e1a61b04e7e",
+        "main-skill-charms/poison-nova-necromancer/vita/life-5": "77b4011fb047a50668cec08cd9d65bd76adb992b19a6b5699202e6746cf67dd0",
+        "main-skill-charms/poison-nova-necromancer/vita/life-13": "6213ac5a93347564632657d59b67c4d436d3f42c789863ab568c78c91fa2bcf7",
+        "main-skill-charms/poison-nova-necromancer/vita/life-14": "6212dca42284c411e91bca4f0fef73396cb03349911f7b083e1be20994b13284",
+        "main-skill-charms/poison-nova-necromancer/vita/life-35": "6968d4d373c8f6e7046d49a1607b2b2a37f181edaaaf982729877946a22f11d1",
+        "main-skill-charms/poison-nova-necromancer/vita/life-40": "74fef87985aeddcbbc771b84608f685f06b1d40b130f571a739282b9d9a4f948",
+        "main-skill-charms/poison-nova-necromancer/vita/life-41": "b3eca9e5bc25f7477f8b7ce95a806288a9ec7177d5d11abb4a14325a1747eb54",
+        "main-skill-charms/poison-nova-necromancer/vita/life-45": "98fc1d828146dbd826bd8345af0d191c74a3fce2a2b827312e471a881071bf20"
+      },
+      "stats": {
+        "188:17": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "fissure-elemental-grand-charm-balance",
+      "quality": "magic",
+      "profile_fingerprint": "62a6958ce29ebf6a3f3041baacb921a2b32ac0524195eab066031103e0cda744",
+      "configuration_id": "fissure-elemental-grand-charm-balance-stats",
+      "configuration_fingerprint": "fa56069dc035117266b8e03d1f7ab05c7a1fa4455fa7962b9d85f9d0dbc1a344",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "fissure-skill-charms/balance/minimum": "8435d7dd7e9c45fc24bf4da553ce84da6791f91df8b463079e9e31df2d8a6971",
+        "fissure-skill-charms/balance/wrong-class": "ce90e3c5c93485e9db2ecf692fc0645a91bbfcdaa311e14925fd320471f9add9",
+        "fissure-skill-charms/balance/unknown-class": "ce6b646f833f96bf7e90af76854bb2ccd309b133e4d33448e8d35fb337a851b8"
+      },
+      "stats": {
+        "188:42": {
+          "kind": "fixed"
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "fissure-elemental-grand-charm-inertia",
+      "quality": "magic",
+      "profile_fingerprint": "8c7f91fe7ea7b8e5030e8beb48159f64fdeb3651fa9661fdd0a081a2afb3d03f",
+      "configuration_id": "fissure-elemental-grand-charm-inertia-stats",
+      "configuration_fingerprint": "1b74da9c6475e53a831b33abbd599b7339cb5190e5449ca95ba6bb75afe0daad",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "fissure-skill-charms/inertia/minimum": "8727836a6067d0bb159b5c913926fabf90fdf12fa66bbed86841da244524c6c7",
+        "fissure-skill-charms/inertia/wrong-class": "c3f5ca8b5b522f069943c216b38301b361ba1cd7cf7cf0dc84ca24a4335819f2",
+        "fissure-skill-charms/inertia/unknown-class": "bc6a03ec2cfd62189be1ac5e37b2f5d8821d28057ec1a6c3d3cecd62d4bbf783"
+      },
+      "stats": {
+        "188:42": {
+          "kind": "fixed"
+        },
+        "96:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "fissure-elemental-grand-charm-plain",
+      "quality": "magic",
+      "profile_fingerprint": "8a302ef2e4f1b8340f8691b2dc39a57c520dfe7efc9646ecd12c109b5c8a0d80",
+      "configuration_id": "fissure-elemental-grand-charm-plain-stats",
+      "configuration_fingerprint": "983ebafe80328c851ac97fccf8257426443d545dc876ef2bd7346b6be34a7cc1",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "fissure-skill-charms/plain/minimum": "cd6eda42991c1a8440bad19a0e59210904586a6896d8dea9df2258088db8e6f7",
+        "fissure-skill-charms/plain/wrong-class": "19393faf1daf5178ae52e188a152a162c7990c32c0be78660c69af33ef8ba363",
+        "fissure-skill-charms/plain/unknown-class": "ea90452bc8af75c258833e8158b4bda89e8f51e3b7c838633c99b5d66b9cae14"
+      },
+      "stats": {
+        "188:42": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "lightning-sorceress-main-skiller-balance",
+      "quality": "magic",
+      "profile_fingerprint": "0e760ef4f876456d0f16d33df411b1e13c2d1a09b7e95ba076eee9e481b55a79",
+      "configuration_id": "lightning-sorceress-main-skiller-balance-stats",
+      "configuration_fingerprint": "c08b3eec0d70824fa4d86ab5164d63c5c87b9d408760e72b8f214ab02ed624c0",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-sorceress/balance/minimum": "4097d2a51cab1514202f7af3407ef5967bf4b51277cb2c9a21da1aab50897613",
+        "main-skill-charms/lightning-sorceress/balance/wrong-class": "2af36d3d1c0fac933ce5376b2ef80affbf2ffbd8fb2f4329b0cfb2cc1833d182",
+        "main-skill-charms/lightning-sorceress/balance/unknown-class": "711a0981548a8b028e420d821243c6410f34e28db9f833d00addc87fab443148"
+      },
+      "stats": {
+        "188:9": {
+          "kind": "fixed"
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "lightning-strike-amazon-main-skiller-balance",
+      "quality": "magic",
+      "profile_fingerprint": "fcbb795cbde3230085a2d1979cfcc1c842255196e3fd30cf854d2e2479d6da57",
+      "configuration_id": "lightning-strike-amazon-main-skiller-balance-stats",
+      "configuration_fingerprint": "20447df8cf4cf7d11a8452383579e4b5effe8f4be0be86fee1026093116e6682",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-strike-amazon/balance/minimum": "7fadf64a989d3d456842a2bd848008acf158ceafc24658f90cf4daab9d4d6616",
+        "main-skill-charms/lightning-strike-amazon/balance/wrong-class": "d44525331e2e184bd851696b5c0c0cbede9909f9b959d3f0a2a4ea42ab176d8b",
+        "main-skill-charms/lightning-strike-amazon/balance/unknown-class": "e2ed47162fe7d793f7f6e7ba1e984a774f62ccb4e5f523f4c5c5cbe6105021fc"
+      },
+      "stats": {
+        "188:2": {
+          "kind": "fixed"
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "lightning-strike-amazon-main-skiller-inertia",
+      "quality": "magic",
+      "profile_fingerprint": "b82bf616f85643d24390ae2129537f9f166466177728ba72a11589e76d42cbb2",
+      "configuration_id": "lightning-strike-amazon-main-skiller-inertia-stats",
+      "configuration_fingerprint": "7db096a1491d4f230f5358e40f65ecc085cebdc59c716c80cab1ca231d8eba5e",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-strike-amazon/inertia/minimum": "ee3afee6f4438bf86e32acb25b4d4b9ff13dc93545832be2ab1cf826a78336d6",
+        "main-skill-charms/lightning-strike-amazon/inertia/wrong-class": "150931194008dc1a3475a1fd7e1e702d877403a50087435137655a749f3b6798",
+        "main-skill-charms/lightning-strike-amazon/inertia/unknown-class": "91f15ef2cbe042aafc21af75845d09d2c3f87a921d01ff374b3504563af1318c"
+      },
+      "stats": {
+        "188:2": {
+          "kind": "fixed"
+        },
+        "96:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "lightning-strike-amazon-main-skiller-plain",
+      "quality": "magic",
+      "profile_fingerprint": "b0b39f9c876f6bc31830bddc5b60e3c41e124e8206fe54c512b5b7f5f2f9d665",
+      "configuration_id": "lightning-strike-amazon-main-skiller-plain-stats",
+      "configuration_fingerprint": "2078798b258ab31d0ac80b39b933066f4ae73e04b81bcae87c7887adef9ca947",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/lightning-strike-amazon/plain/minimum": "787fcf5dcf484bda8bcddce3c1cf8acad959a36054e3f3770068c0ed36818899",
+        "main-skill-charms/lightning-strike-amazon/plain/wrong-class": "e3e32d5c623d0c19d8fa2e27b5a77847ac2d10027dbe2221fd0a1c2b204c64cd",
+        "main-skill-charms/lightning-strike-amazon/plain/unknown-class": "60e7916163090b68cbb6358124e874179d463db8dff58025bed4c66a476d4673"
+      },
+      "stats": {
+        "188:2": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "poison-nova-necromancer-main-skiller-balance",
+      "quality": "magic",
+      "profile_fingerprint": "1693b2b26c506a2e995a691f60bdf402372a149ac1564cd669b4097888b85b56",
+      "configuration_id": "poison-nova-necromancer-main-skiller-balance-stats",
+      "configuration_fingerprint": "0fb7d9f534187550d93726b98fe509755b7f94a5655f1035311448710e4d487a",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/poison-nova-necromancer/balance/minimum": "e57cf8a544f3cbf28044bed96ae3ffd24eddd66ce1e177ca1a4a0ebc23eb480a",
+        "main-skill-charms/poison-nova-necromancer/balance/wrong-class": "dafb0f2f0ce28cd5a66e3f65650ba5139d54b3cf0ea8fdb752107e624a3a789e",
+        "main-skill-charms/poison-nova-necromancer/balance/unknown-class": "5b3944833a5d0554e86659f4b8b241518f0637a16d719ae7ef2692f5d774ad90"
+      },
+      "stats": {
+        "188:17": {
+          "kind": "fixed"
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "poison-nova-necromancer-main-skiller-plain",
+      "quality": "magic",
+      "profile_fingerprint": "abea47f701ed958933a8578d11c7abfb68171d10b5970b2e76a93e900a37d189",
+      "configuration_id": "poison-nova-necromancer-main-skiller-plain-stats",
+      "configuration_fingerprint": "abd0d1085bc8fb863d4c247ae34948d9ed6ab5bd05c37d06bddacd76e09ef3c3",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native skill prefix and fixed Grand Charm suffix reviewed against local tables: Balance 12% FHR, Inertia 7% FRW, or plain +1 skill tree. Independent native value, T1 range, neutral roll color and own build-priority assertions execute through appraisal in positive, wrong-class and unknown-class cases. Complete report and pricing coverage remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-skill-charms/poison-nova-necromancer/plain/minimum": "8b83d514f0fe7d11ca3db00908bef4c47ff5d1a7eb214d6a2a56bdf15b2e7938",
+        "main-skill-charms/poison-nova-necromancer/plain/wrong-class": "355a8c5afcf5203b4e931a55968c5e5a3548f27431392cea5f2c7b9f96aac703",
+        "main-skill-charms/poison-nova-necromancer/plain/unknown-class": "def6d2bc55c61ce1fab50b9185d160521382bf7bddd347c8401a1cb66d880614"
+      },
+      "stats": {
+        "188:17": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "lightning-sentry-assassin-mf-high-player-skiller",
+      "quality": "magic",
+      "profile_fingerprint": "21668bdb7fb05daf08f50f7b5212960f593a9ff713ca81a7dc52e7355d3fc844",
+      "configuration_id": "lightning-sentry-assassin-mf-high-player-skiller-stats",
+      "configuration_fingerprint": "3317c3b03a5078be52e6ae104df901fdfdb2e006a5532b80f4a941e4dc09770b",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Traps/Vita stat ranges, attainable life5-45, T1 maximum and low-roll boundary independently asserted for explicit high-player-count Magic Find use. Wrong and unknown activity/class do not activate this use; other skiller contributions remain independent. Whole-report/market evidence remains separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "sentry-high-player-charm/minimum": "8cd2770cef7b407ba6110e0d55c1bd6b129fa7679a08525b5e1ff237b5023785",
+        "sentry-high-player-charm/solo": "be8906aed926337d22cfa88dac2455079a1aeead583e2ff15509b0f4d247e8b3",
+        "sentry-high-player-charm/unknown-activity": "f15a7c1d46b672a3a4247bdf657721f90a0bfaef2c7d51dde609b36b8a33f1e0",
+        "sentry-high-player-charm/wrong-class": "be8906aed926337d22cfa88dac2455079a1aeead583e2ff15509b0f4d247e8b3",
+        "sentry-high-player-charm/unknown-class": "f15a7c1d46b672a3a4247bdf657721f90a0bfaef2c7d51dde609b36b8a33f1e0",
+        "sentry-high-player-charm/life-5": "3e0ca6382c96ab283bc94e860a3865bed071bd45a14cdca1df8828449660ca14",
+        "sentry-high-player-charm/life-13": "b30aca20664ec7592b54799435c5f6b1392670c4c6359a1d10402188c1750211",
+        "sentry-high-player-charm/life-14": "ef9ec3494dfda86a178582252ffbcc5a368883b8874b2690c9da77be50ea240d",
+        "sentry-high-player-charm/life-35": "0a56b94b1a30ec0a27e2fbdc6061a2cc418cda476bc71348fd7750a380dcc169",
+        "sentry-high-player-charm/life-40": "813460b500c97c84abdf5b1697c45af61773d54f99feab330d5f4d33f1dfc7da",
+        "sentry-high-player-charm/life-41": "17ccdac9b29b84d8dc73c24b084ee4e90250f0ff0512d6ab998ea15a207765f1",
+        "sentry-high-player-charm/life-45": "8ee1ab7cba7e0ddc86b844a40d7a79ca95625135a8bbacc4dca03bfe6fad8483"
+      },
+      "stats": {
+        "188:48": {
+          "kind": "fixed"
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "berserk-barbarian-main-sharp-balance",
+      "quality": "magic",
+      "profile_fingerprint": "96d8d93480dd0cc387257cd844b714099bbe69bcd9344bd86292b6b5a9984d03",
+      "configuration_id": "berserk-barbarian-main-sharp-balance-stats",
+      "configuration_fingerprint": "8244f17be272c4cb36ff9551a1a597f4117358250494dbc8401172608959cad9",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/berserk-barbarian/balance/minimum": "61bc32b727589423e5c7f0a031ac6caac0491ce5138193a002f618f6ba12bacb",
+        "main-sharp-charms/berserk-barbarian/balance/maximum": "a4da6ba0f8d83197d9661936663f22898059eb3df6f3ba28ebc7a65c2f357d2c",
+        "main-sharp-charms/berserk-barbarian/balance/wrong-class": "7689845996f2f238ae669d9006d636069ecab6b3cbe7dc4e6e82e6187e89e775",
+        "main-sharp-charms/berserk-barbarian/balance/unknown-class": "e90846b169aa8fe289b3403b72c6992c762caee911f997f9027a147995cc94fd",
+        "main-sharp-charms/berserk-barbarian/balance/ar-global-min": "819a70d111551eeabe8444499d165828388820c4b66c86f40061a9b4bb5c1ff1",
+        "main-sharp-charms/berserk-barbarian/balance/ar-global-max": "5390191d81c0a349e875c56b410f3390672695ddbc200f14804f91b29e053a70",
+        "main-sharp-charms/berserk-barbarian/balance/ar-low-edge": "7587b9d1fd8d55da409d0c57381b8bb199b65b0cdf3826204d18c75cae463180",
+        "main-sharp-charms/berserk-barbarian/balance/ar-neutral-edge": "98e9542d6c729ae3820bbdbf138146e7435e732e40910b3e50dfe96607acb7b5",
+        "main-sharp-charms/berserk-barbarian/balance/damage-global-min": "0079f3d856668b12ce1b54b2d9b6931d76829c461ba4765e6234c2775a6cdb93",
+        "main-sharp-charms/berserk-barbarian/balance/damage-low-edge": "1391fd6ebd6d031c020da2f34ee147ce416feddc35078d0a5cad1bc0e9c26046",
+        "main-sharp-charms/berserk-barbarian/balance/damage-neutral-edge": "c62cb4a2e1f8dd6abfd44d0de3d4093fdfc6fa15ede84b13e53cbd33ec56eff0"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "berserk-barbarian-main-sharp-plain",
+      "quality": "magic",
+      "profile_fingerprint": "614c5e462f79c9f5d6cbac82f9d9396caf77bd2db0271908b47248165e9e1d63",
+      "configuration_id": "berserk-barbarian-main-sharp-plain-stats",
+      "configuration_fingerprint": "842fb1be1b39d514ed136fcb092171e197451afef9de088bd74502480899891d",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/berserk-barbarian/plain/minimum": "de515794aea6419120389c2bdb396f69acbe8c76a34fb2487ac34bc33c2c49c5",
+        "main-sharp-charms/berserk-barbarian/plain/maximum": "2b7bed66370fb1c721399c9008e59da9f24f74bdeb6fd2cc0c6bd6b9eb68a976",
+        "main-sharp-charms/berserk-barbarian/plain/wrong-class": "268d79cb8418c05230634e22bf69a3e976f469961c01dbd47977e3c621e31747",
+        "main-sharp-charms/berserk-barbarian/plain/unknown-class": "d92612b72116fa101bf6e43a777d41ffdcb14699c030c534b296b548a498137f",
+        "main-sharp-charms/berserk-barbarian/plain/ar-global-min": "5528ad3ff29582ce83eed7a431c243aafde5f7b436d4060251c33d7aeaa6a5c8",
+        "main-sharp-charms/berserk-barbarian/plain/ar-global-max": "86e21b82b4b85480e70955b039fc45e19603d1104f428fe426275dd0b77aa066",
+        "main-sharp-charms/berserk-barbarian/plain/ar-low-edge": "35b81a2b580ff3f0f11d09158b0b3b7bc25aa1fbc470eda8de1794d010ae1949",
+        "main-sharp-charms/berserk-barbarian/plain/ar-neutral-edge": "026978800e858f6b75339572a49a3d3c96b8d97f1c5cf219a6761b4b36101775",
+        "main-sharp-charms/berserk-barbarian/plain/damage-global-min": "ddc7fbe29b4c4fffd0890cc0f8d6308219dc66bc735b22bed8de70150dce45c3",
+        "main-sharp-charms/berserk-barbarian/plain/damage-low-edge": "e7ddde31f37688c466fe1eec199cb92d26f69565ced248020a3dab25961183c6",
+        "main-sharp-charms/berserk-barbarian/plain/damage-neutral-edge": "98cb3a94ae19ead4326844319d2d60309d258916bd6cc6c749dc03ebaaa53a5f"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        }
+      }
+    },
+    {
+      "role_id": "berserk-barbarian-main-sharp-vita",
+      "quality": "magic",
+      "profile_fingerprint": "1f0a3d12dff80bdc511c9b52f6381d11508db425f75a295a42e0b7f5ed622aec",
+      "configuration_id": "berserk-barbarian-main-sharp-vita-stats",
+      "configuration_fingerprint": "70b47272e80125c3bd17a8b2a63b671b8a017f02cd21e436385916ab28aa4e4a",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/berserk-barbarian/vita/minimum": "12d7b1db75a49cf3810226171d6eb7145806608332e013f4fa97b0a1809329a7",
+        "main-sharp-charms/berserk-barbarian/vita/maximum": "af77f232a84c1a2c181f9085ab892124d359797dca732a0ac61905af640a2dce",
+        "main-sharp-charms/berserk-barbarian/vita/wrong-class": "c919ee9ae8a60be6e4a5e757a0cbd2811ede1c0e9b72d8cde6b5f8c8d823edc6",
+        "main-sharp-charms/berserk-barbarian/vita/unknown-class": "1560adb5a939a6ebcae3ece7ddd8d0621f4188b7cec92fad3cad22981d659e8b",
+        "main-sharp-charms/berserk-barbarian/vita/life35": "e92d70739ee44980934288e514edefa5a39c013c109415c5edd9665125c61723",
+        "main-sharp-charms/berserk-barbarian/vita/life40": "ef56a38e0aa3ab7dd3181c77b436be5777a4cc331dd35c8cf3288223ac2b371b",
+        "main-sharp-charms/berserk-barbarian/vita/ar-global-min": "33dc9f62c8acfd7968e4891b4bd9ec3336fe21436a01ff3ede291a3aa79a61d2",
+        "main-sharp-charms/berserk-barbarian/vita/ar-global-max": "dc2540888406bdb1245e653ba6955c7e5dc50ed6e4baffda79928826e61139cf",
+        "main-sharp-charms/berserk-barbarian/vita/ar-low-edge": "84486fa5752d089b251fd8a67b59aec41f00ae7e68bc349d1c44976180fd2842",
+        "main-sharp-charms/berserk-barbarian/vita/ar-neutral-edge": "193b826ab6f5302acec1ad0de1a78786dc75a755fa8d89a8f84ad94e2c61a81a",
+        "main-sharp-charms/berserk-barbarian/vita/damage-global-min": "d43426a37bb7c5f7b1f17c80c671fc0a6b8200e729c8363c20dcdf9a0eb57e5f",
+        "main-sharp-charms/berserk-barbarian/vita/damage-low-edge": "b90f55402c3ed13551a9b97a6738cb5eab991b8f5de2c59b3e7c7e311506a089",
+        "main-sharp-charms/berserk-barbarian/vita/damage-neutral-edge": "23226ff19cfc7eb2e7b42ad04108afb630db7d881cb9b0e48beae33bcf6a053c",
+        "main-sharp-charms/berserk-barbarian/vita/life-global-min": "bc810c610febf5b1a6cb7a66308ecc1d3a400d15a41e2acd00194f840c8d7fb5"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "double-throw-barbarian-guide-main-sharp-balance",
+      "quality": "magic",
+      "profile_fingerprint": "6546a774c40f6378d962baedc45cc7b8cdb73b57f64712446d4bbfc943728872",
+      "configuration_id": "double-throw-barbarian-guide-main-sharp-balance-stats",
+      "configuration_fingerprint": "4fa2c93511df243556c2f0268f89dd814955e208543882904184c5ae749ba24b",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/double-throw-barbarian-guide/balance/minimum": "fe25609f594848cb5ac5de03cff4c84182a6c3e07626875bedcb6b7d0d7444b2",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/maximum": "b53f63833602ccf765f7842beacbfd900656a405eca8e3ad4052c5ef24d6186e",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/wrong-class": "3207f784b1d034351611b15ff1db5c6ce15e6e6cabbb72510400123f1276feb9",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/unknown-class": "c97af17e533f9469582f6a7967c0d18107ec310770dbdef41eed725972a469f4",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/ar-global-min": "a9c0a388e142ecfd1fe27a2f7c5e1f332b9a44d39dfc90903808c5f2a31e2d28",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/ar-global-max": "3a224b0badc1a2e85b30eeec4fc42a755fd6361167eafbd77eb261ca7c11d64b",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/ar-low-edge": "97922911808cabff713d3de33e63f301b189f5d5256cbdfb386182feb14db83e",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/ar-neutral-edge": "088b006e70f77a8039407529d5dfa301456d785bbc3a60764bd9c4988dea60f9",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/damage-global-min": "966114bbb7b43c38fdd15cbc7fd6a09621d1fdc8bc0918c4e50ea331ad7a3625",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/damage-low-edge": "d8e92b772f4014a2d1cdaf3336ecb3d1a6b13f76418775181b64fcb4ab2149eb",
+        "main-sharp-charms/double-throw-barbarian-guide/balance/damage-neutral-edge": "478c19fa7258e190d21aa1d50a0f337b9232fe22e8b81e522339a2d3675c2738"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "double-throw-barbarian-guide-main-sharp-inertia",
+      "quality": "magic",
+      "profile_fingerprint": "3673dfeada80ea18610c3bf1b54b3e755a4e1064a31b1f95c427da9a52d571d1",
+      "configuration_id": "double-throw-barbarian-guide-main-sharp-inertia-stats",
+      "configuration_fingerprint": "646de60a4d00274e02c08977cac9be0903a0442c4f185ff511817f0554b19fa3",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/minimum": "77514bddc092c293309463d1268a1509ad14e1eb0dda0cdfcb6aebc7b2406df4",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/maximum": "4ab7525b891f6c1d952453f05f57d664f2254ed20f7b89eb6680acf2b9bd6af8",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/wrong-class": "0f6099935ef31fab3a68e73e61faddfd66a0bab1bce5f12d1a7706cda0617dcb",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/unknown-class": "6b90bfbdb14b5559aba8c22bb64ed08febcd3b253ec75a7f387c8f6db2264705",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/ar-global-min": "0aabc1d675adc4517c11aebd13518f9321ce98630f26713dab478467ff58d46e",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/ar-global-max": "5fca17df42ba07579a16cc19ff0011ebdec5d2e612b2a227c7f8127b6cd5d64a",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/ar-low-edge": "f68158eba708ecfc72fe3f16d49771b3501649d4972e630965d4d67484c6a6cb",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/ar-neutral-edge": "f229c472915a49bf5b93a221143d0d465dc6fa851b05071c69de6686a3085177",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/damage-global-min": "67063f34075f95b351f96995e5d072051e4afbf841dc6c2c2f2226de2c55663e",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/damage-low-edge": "2b5b7789c7b1b33590152d0958821e5db27a0496217651643085a990105b02b1",
+        "main-sharp-charms/double-throw-barbarian-guide/inertia/damage-neutral-edge": "6d48c5f40a0654fd000e3446394e5eb5d85f24a52341a9a120d64879d900846f"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "96:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "double-throw-barbarian-guide-main-sharp-plain",
+      "quality": "magic",
+      "profile_fingerprint": "63ccaa9c5a03c5a5689e5bb77a1e58ae36e2141e4493f964422d9cee8457d99d",
+      "configuration_id": "double-throw-barbarian-guide-main-sharp-plain-stats",
+      "configuration_fingerprint": "6523980fdb1a6e2a3f3efbdc1340bc2c4f4fb01d64be9e03b327b465cab83224",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/double-throw-barbarian-guide/plain/minimum": "c2daadb71a79f97e72a1092ffa54355baf078d0af600e9f896713b6438826ec7",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/maximum": "43e8e0ce62cffa7609a713a9c0c36577b0fb7248eeda0ab3a1d167b690eb561c",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/wrong-class": "98f3b6b2bdea962eaec1bb20c791d65714cd644bb3d72b620525a15b903120ec",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/unknown-class": "d8909b2bbcf0320bfb8237df75d0322bf35e06877aff3ef200f4e8cd75096a2d",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/ar-global-min": "6dd932bab2a05dc890160053b4f25432c4f9f635f79facfd86cbda04bb74970e",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/ar-global-max": "19e1dd409447e280350a2547f014a220c337ed61637e5b443284a3c97e5c2e8d",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/ar-low-edge": "1d5bc12db971c8dc0226e977d94397f3b5f97d739dead35563f1013ce65f5578",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/ar-neutral-edge": "3c36fbdb55b6f7c986ccf0c544f7d4e5d77a6ee49b6b7316a7a32217027909e8",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/damage-global-min": "71fa131331fbbbc6d2eefa3b1e3e9058d9d937288260231a883c51cb5ba201d0",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/damage-low-edge": "a5fec902589050673558b29c9639c7f7944723793a93378f5995c6d80982a516",
+        "main-sharp-charms/double-throw-barbarian-guide/plain/damage-neutral-edge": "48bb98ccc36a6994736dde81fdce31cb6630bccec7c3b062866b48269dfa48ab"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        }
+      }
+    },
+    {
+      "role_id": "double-throw-barbarian-guide-main-sharp-vita",
+      "quality": "magic",
+      "profile_fingerprint": "fd4d6bfd423f3341cb56d2c2833976edd5241da3f571eb69acc59bdecdce4b19",
+      "configuration_id": "double-throw-barbarian-guide-main-sharp-vita-stats",
+      "configuration_fingerprint": "f4e6bf48c9c4bc980f5138cbff5a35b1735be097a20a3b9f53d29b2733f2f74d",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/double-throw-barbarian-guide/vita/minimum": "8bfd4e35962dd4a11cb96b20d264521105ac1f9033f9921bf16f0933162b52f6",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/maximum": "16c045b7047cb388544c7f173940bede004bc3b1ad082f6b99dba58ac7f37a27",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/wrong-class": "a821a02538c4d41466b66cdb9f4d5a05412b8136714a671ec6a542316f9fbbc9",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/unknown-class": "6c56bc2e4bf87a17a38bf16471dcd7bfe237824b1f1e215af419512c5d9be67b",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/life35": "df02097f2201aad8a95a591c66727a4fe9ef55f3ce83eeed19e1a4644251c323",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/life40": "3ffc0dfa5898330aeba0c60044499b8663f99c4572804528160a7abebc774282",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/ar-global-min": "38a7225be1679a177fbb76a5d61dd9eda5e8a236a1b3090e8fae1160b0ab41ff",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/ar-global-max": "aaaf54e338a3782cb216c74e499b33c0763b19f3aca1909a82d140427a323101",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/ar-low-edge": "caa0b83bac38df7bbe5217089da2c367231eef4d7c7bed6a165c5a3bb8d4a40e",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/ar-neutral-edge": "5ac64a7e9b9f8fc7ac86f79ef2135adb5f5269da739b509d5f4053e3fb9c86b8",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/damage-global-min": "97240bb9a15711657d5d8597a5a007460e626e47499fb78c14c3135e6d21ec24",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/damage-low-edge": "a3a00b25eb0e3889f9a86ffea9cd20888cc6b7008c616aa3b510680931a0fc1e",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/damage-neutral-edge": "a9ecc47008d78e8dbdcfadf3b96874de98f2b05243a195cbf18e4a1783f1b905",
+        "main-sharp-charms/double-throw-barbarian-guide/vita/life-global-min": "fe11656f055141ce227bc0973f92de11c40ac5f18540a1d0d8a65cc0dac708ed"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "dream-paladin-main-sharp-balance",
+      "quality": "magic",
+      "profile_fingerprint": "368b987c819e34495ba0159ab17d3adab3e314a0c0260c2a3b77861445e69bc7",
+      "configuration_id": "dream-paladin-main-sharp-balance-stats",
+      "configuration_fingerprint": "07583f7a644a92cfe283f1612b6b9e30057a8bc297f331d3a9c7db52f52f6e6e",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/dream-paladin/balance/minimum": "a8f7e9ab013ba4c3211aa2009c6a15a833b9ba765bb32cf6c5a2878a30a44f2d",
+        "main-sharp-charms/dream-paladin/balance/maximum": "3364d7a497fd5d0467bc086e40127764070ce5e15b9cfe26e241ffab46de7bd3",
+        "main-sharp-charms/dream-paladin/balance/wrong-class": "15239c6b0c379e473544577e1297198857921df86aa7ea088a976ad8d00d6bc8",
+        "main-sharp-charms/dream-paladin/balance/unknown-class": "ac58e10e665a354a7bc9830f44b9525b4f7789b7bdb34409ceaf66c306180c0f",
+        "main-sharp-charms/dream-paladin/balance/ar-global-min": "c13956842002296d574584fdf4e4bd80ec958a87d073d2dabeea516349cbcf08",
+        "main-sharp-charms/dream-paladin/balance/ar-global-max": "330f4e61a44acee7b2d0696fe809974de416d56f69ca7b9c2435cfcbd1161343",
+        "main-sharp-charms/dream-paladin/balance/ar-low-edge": "cc21863bc15c08e0e1fcc1318049f51b08e865101d8dad990bd009ea6f24258d",
+        "main-sharp-charms/dream-paladin/balance/ar-neutral-edge": "7d99231db68549db7d342bca2056f2d8172ed1a17250de77c9b63a7d6cb73d39",
+        "main-sharp-charms/dream-paladin/balance/damage-global-min": "de9a4220b52c40ffdafe26985b60f7c41b351d55ffd9a0686ad0b4d9e05e6e09",
+        "main-sharp-charms/dream-paladin/balance/damage-low-edge": "402f11bc1eff50c4752f349508eb64fe06f2acdea323113fbc829a5ce2aaad06",
+        "main-sharp-charms/dream-paladin/balance/damage-neutral-edge": "779b475626e8e05cc1518a5d29831ae30b67b7900e72a7b9fa1ddb7c497e052c"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "99:0": {
+          "kind": "fixed"
+        }
+      }
+    },
+    {
+      "role_id": "dream-paladin-main-sharp-vita",
+      "quality": "magic",
+      "profile_fingerprint": "85f23874054b7766d7c7128ca3689cf6fae9cfd5a5e6541b96a07d505f829c8c",
+      "configuration_id": "dream-paladin-main-sharp-vita-stats",
+      "configuration_fingerprint": "dc4d1cadaff23f8bd8794d6375aed698a692fac9bc5b029775d458923944c2ea",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Native Grand Charm affixes independently reviewed: Sharp253 has49-76AR/7-10damage, global eligible AR6-132 and single-prefix damage1-10. Assert Sharp76 is not perfect AR, damage10 is perfect, native Bronze/Steel endpoint colors, AR31/32 and damage2/3 red/neutral boundaries. Applicable suffix checks retain attainable life5-45 or fixed FHR/FRW. Per-use priorities and actual rendered body colors are checked for positive, negative and unknown class; full report and price obligations remain separate.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "main-sharp-charms/dream-paladin/vita/minimum": "71f4b36cc21aa11321bea37f51b6d5083a6f27dfd7626e816a8257b5417c4cc0",
+        "main-sharp-charms/dream-paladin/vita/maximum": "1ee267a7120ab6c61d5059216dc7037c50a768ee85746830ba029be6960d9a1b",
+        "main-sharp-charms/dream-paladin/vita/wrong-class": "0a4451c41783fe19088a11694df00e8e3a7ececd07d53e7f293ecdd101f89117",
+        "main-sharp-charms/dream-paladin/vita/unknown-class": "3a249169629cd6112a4f9cd76351cfbc5b15bb5d97b3724be526643492a4c384",
+        "main-sharp-charms/dream-paladin/vita/life35": "84b317217e4042259914d7d9150f37b3ea72252087bfe0cecef6319d65b0e797",
+        "main-sharp-charms/dream-paladin/vita/life40": "ed1a7cee08e49385140ecaab993e58714152c6164d6bc15f86343931d3bf339b",
+        "main-sharp-charms/dream-paladin/vita/ar-global-min": "d92b60b60a74781aa244f482d3b5974e5eac6ce97a0f77ce9c55704b820dd476",
+        "main-sharp-charms/dream-paladin/vita/ar-global-max": "c1e01b031aa591b2d0137ccc5b6bfef210d836f1bc1b3aa2cbefadcf975169b0",
+        "main-sharp-charms/dream-paladin/vita/ar-low-edge": "76035d2e1742f02313781f679a33bdc9d5c5f3414c5546c350ed25730d9d9ba0",
+        "main-sharp-charms/dream-paladin/vita/ar-neutral-edge": "303e631cf67a7aa13cc0c30867d22c8a163c3039d6ba691586071dc420b70099",
+        "main-sharp-charms/dream-paladin/vita/damage-global-min": "c71e926cc331e682a1c7fb139e203e5da84d735538bd639d47be988cf6fd4504",
+        "main-sharp-charms/dream-paladin/vita/damage-low-edge": "766a653c0b2ccdaa0d25547f26cc4908d5bdc32cd1df85fe5e92fd8d832f060a",
+        "main-sharp-charms/dream-paladin/vita/damage-neutral-edge": "2c762f9363a8acfd503cf3691864ee1a7419ca81c7f5c1f56d3544daef02719f",
+        "main-sharp-charms/dream-paladin/vita/life-global-min": "975c18f7507388d817cf8ee524b481bf44c245865cca8a3e285e399c076d50b5"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 1,
+          "max": 10
+        },
+        "7:0": {
+          "kind": "variable",
+          "min": 5,
+          "max": 45
+        }
+      }
+    },
+    {
+      "role_id": "double-throw-barbarian-guide-main-sharp-maiming",
+      "quality": "magic",
+      "profile_fingerprint": "c67fa2eeb69e20e40533b81b5054711745dafd7d90768d81c8966f09db3e9f81",
+      "configuration_id": "double-throw-barbarian-guide-main-sharp-maiming-stats",
+      "configuration_fingerprint": "15379ee88d5467f227014ac8e191c140f55f199979d831295f85820c7d056242",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Independent native prefix/suffix sums for Grand Charms: Sharp253 plus Maiming678 yields10-14; eligible combined range2-14. Cases exercise AR6/132, combined damage2/14 and red/neutral boundary4/5, positive minimum/perfect and negative/unknown class. Captured affix identity guards remain independently tested. Full captures and unread-stat captures are explicit; this review certifies stat annotations, not a numerical price or the whole report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "double-throw/maiming/native-low-roll": "79fbad5116054933f0179ef6df1fec33b8f7d8e7eec24d540b3a60718033a1e7",
+        "double-throw/maiming/native-perfect": "91958630b31722390d779b914cfdf273fce51230978467ba3adc4977c89b5d33",
+        "double-throw/maiming/wrong-class": "b8de07c5fd77bfa9a2f10b89ef5fc5d7eca9e9a5427440694aa66e89fc3b1dcd",
+        "double-throw/maiming/unknown-class": "f68ade105d2f5644914997290027f77a7c77abf8ac3c96b9b9adc6bd9e6f2b16",
+        "double-throw/maiming/ar-global-min": "50128103f93e008875cdeebcffb6910a8abf6472af4bb441521bb41cf80e0754",
+        "double-throw/maiming/ar-global-max": "a22bbcbe48a223131379ff1a6e65cdafcd3d17681decf25cc09460777704228d",
+        "double-throw/maiming/damage-global-min": "63d1707774698d10293e99f6c381e08e764158ae6590932f78d0d2a9f2b2139c",
+        "double-throw/maiming/damage-low-edge": "e2313cb0db527f5ffe41f674c0421a128745795a649ced77efb20d1533ed459e",
+        "double-throw/maiming/damage-neutral-edge": "5eb7fe40df7ea6abdb99bcecdca16b4b62e131175eb5923b4008583bad4c8c1e"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 2,
+          "max": 14
+        }
+      }
+    },
+    {
+      "role_id": "zeal-paladin-charm-grand-sharp-maiming",
+      "quality": "magic",
+      "profile_fingerprint": "fd1499a9c11c614ce701de4e3874c5dbe7603a046a485d7a9f75141452ea97e4",
+      "configuration_id": "zeal-paladin-charm-grand-sharp-maiming-stats",
+      "configuration_fingerprint": "2aae7df94bb1f8d6583f30843efae85c7d387e82fa9510b1ab8553b0a2a3cb2e",
+      "dimensions": [
+        "stat_annotations"
+      ],
+      "review_date": "2026-10-01",
+      "reason": "Independent native prefix/suffix sums for Grand Charms: Sharp253 plus Maiming678 yields10-14; eligible combined range2-14. Cases exercise AR6/132, combined damage2/14 and red/neutral boundary4/5, positive minimum/perfect and negative/unknown class. Captured affix identity guards remain independently tested. Full captures and unread-stat captures are explicit; this review certifies stat annotations, not a numerical price or the whole report.",
+      "receipt": "pricing/data/report-receipts/integrated-reviews-2026-10-03.json",
+      "cases": {
+        "zeal/maiming/native-low-roll": "dab2070ee18ed3c6810698bc75230af981a4ed904d660a75ee67b9011cdeab41",
+        "zeal/maiming/native-perfect": "12513cdcea66f6adc3b02834b1199d708efb09b0d3515f2bab571b70f354db17",
+        "zeal/maiming/wrong-class": "c87f37af924bf26936f2b70c1711eef6901b52c2d70f36bf9f2dc2fe054b1212",
+        "zeal/maiming/unknown-class": "e5e75ff71df2fbc9926f0e09d0653a67e7e96b307b63e442b17d7fbfbcdcde9c",
+        "zeal/maiming/ar-global-min": "e1b31dd8792cdaf3abc6c92e9b3eec43aca21c60d4477e341e214b064d23acc7",
+        "zeal/maiming/ar-global-max": "5438af246c1692f74b2a08078873e718be7eb9a783a33737935eded9c65725e3",
+        "zeal/maiming/damage-global-min": "9f629b8f0cc595cbdc123e92a81e599d0d336dc53ffdae87970b0fe99e2d2cbf",
+        "zeal/maiming/damage-low-edge": "7425557adc817ce34606f58dfa1347af93ee65a6045b7d7b242835c5d4a31b1e",
+        "zeal/maiming/damage-neutral-edge": "c16a8420e8a364e3d8f9624c77c5ee2e3a8c0dad1ca7eff77922c0c0940f1917"
+      },
+      "stats": {
+        "19:0": {
+          "kind": "variable",
+          "min": 6,
+          "max": 132
+        },
+        "22:0": {
+          "kind": "variable",
+          "min": 2,
+          "max": 14
+        }
+      }
+    }
+  ]
+}

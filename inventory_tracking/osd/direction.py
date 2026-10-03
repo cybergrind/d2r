@@ -4,7 +4,7 @@ import math
 
 
 ARROWS = ('→', '↗', '↑', '↖', '←', '↙', '↓', '↘')
-MAP_SIZE = (260, 180)  # logical pixels; the whole level is scaled to fit
+MAP_SIZE = (390, 270)  # logical pixels (260x180 x1.5, user 2026-10-02); the whole level is scaled to fit
 
 
 def arrow_polygon(glyph, width, height):

@@ -1,4 +1,19 @@
-> **Scope clarification, 2026-09-29:** prioritize valuable SC/Non-Ladder items
+> **FROZEN 2026-10-03 (user decision).** This document no longer drives work: its gates, queues and
+> stopping rules are suspended. The active plan is [PLAN.md](PLAN.md). Kept as technical reference only.
+
+> **Execution rethink — 2026-10-03:** follow [the revised delivery approach](DELIVERY_APPROACH.md).
+> Prioritize complete, useful appraisal behavior; batch maintenance and broad verification.
+> This changes execution order, not the all-item scope or final completion requirements.
+
+> **Immediate priority, 2026-10-01:** review valuable unique/set items one by one
+> for roll-dependent trade qualification, then other valuable item configurations.
+> Build usefulness and baseline tiers do not prove sellability. Follow
+> [ROLL_VALUE_REVIEW.md](ROLL_VALUE_REVIEW.md); this supersedes incidental profile
+> and ordinary starter-test expansion. The overall completion goal remains active.
+
+> **Scope clarification, 2026-10-01:** only Softcore / Non-Ladder. Skip Hardcore
+> and Ladder-only uses and market research; preserve applicable shared-item uses.
+> Prioritize valuable SC/Non-Ladder items
 > and valuable or exceptional best-in-slot leveling items. Generic leveling and
 > ordinary starter progression are out of scope. Preserve mixed-use trade/endgame
 > candidates. See COMPLETION_CONTRACT.md; older exhaustive leveling instructions
@@ -9,7 +24,8 @@
 The task is unfinished until all final gates pass for one scope manifest and
 selected generation, with zero pending or blocked required work. Batches,
 publications and milestones never stop execution. Next implementation priority:
-make the completion ledger/gate trustworthy, then drain the entire remaining queue.
+close the highest-value missing appraisal decisions using DELIVERY_APPROACH.md;
+retain scope migration and final gate validation as explicit required work.
 This planning update changes no runtime artifacts or published coverage claims.
 
 # Offline item assessment implementation plan
@@ -92,7 +108,9 @@ An impossible Grief base can still be a useful socket platform or other recipe b
 The detailed tree contains player subtrees, all observed mercenary types, family
 support branches, role-dependent base evaluation, named tier overlays and source
 conflict handling. Numeric planner targets are not required minima until reviewed.
-Hardcore-origin utility remains a separate review context; pricing stays SC/NL.
+Hardcore-only and Ladder-only uses are excluded from implementation and required
+tests. Shared items require independently supported Softcore / Non-Ladder uses;
+historical incompatible sources remain for traceability only.
 
 ## 3. Concrete implementation architecture
 

@@ -1,3 +1,1788 @@
+> **FROZEN 2026-10-03 (user decision).** This document no longer drives work: its gates, queues and
+> stopping rules are suspended. The active plan is [PLAN.md](PLAN.md). Kept as technical reference only.
+
+## IK Forge low-value trade rule published; belt-defense RCA found — 2026-10-02
+
+Selected453b58ec15501e09bf9a69e759b99828613d010d180feb2b797f3e3ca7ff1cad,
+172 artifacts; previous47912 retained. Original IKForge nowlowtier and candidate,
+with concise low-value/no-defense-premium/companion-pieces wording. Upgraded and
+unknown variants don't borrow this original-base rule. Only Forge changed in
+named_tiers versus tmp/ik-forge-named-tiers-before.json; proof tmp/ik-forge-policy-proof.json.
+
+Three single-item independent sellers selected:
+ 1daaff53b47fc5faf2698025 total111, UmRune ask;
+ c863d5b70766d6bd87bf712f total118, onePerfectAmethyst barter;
+ abf7270a197be1b31f11c25b total115, fourRandomGems barter.
+Rejected b30e283ee57748e10533eff1:amount4/unitambiguous. Initial rule construction
+used that row and correctly failed scoped validation; replaced with the explicit
+single-item row. No quantity division, gem conversion, sale guarantee or defense
+premium. Source3-pieceIK demand from Berserk and DoubleThrow glove slots retained
+in pricing/data/appraisal-ik-forge-trade-research-2026-10-02.json.
+
+Validation:35policy/barter/original-set tests pass;13stagednativeForge cases pass;
+128selected Forge/Shako/WarTraveler/JMOD cases pass60.08s.20savedreplays unchanged
+(extraction,prices,text):tmp/ik-forge-selected-replay-proof.json. Lint/diff checks
+pass. Bank inventory30993cases,4058targets,304missingtargets. All handles terminal.
+No collection, worker restart, staging or commit. Runtime rule data is published;
+formal Forge review integration still pending. Prior review receipts are stale
+for the newgeneration/source fingerprint; don't rerunfullbank aftereachitem.
+
+IMPORTANT next: IKDetail defense89 is NOT necessarily invalid. Initial mental
+41..52base+36flat arithmetic missed dormant ac%100partial property. Native D2MOO
+ITEMMODS_AssignProperty loops partial properties (ItemMods.cpp2407..2425);
+ITEMMODS_PropertyFunc02 calls sub_6FD92CF0 unconditionally for items (2921..2936);
+armorpercent setsbase max+1 (888..909), even though partialstatlistisn'tactiveyet.
+Thus original IKDetail53+36=89. Forge onlyflatpartialac120 so108..118 remainsvalid.
+Upgrade rerolls base, so don't transfer originalmax+1 to upgraded totals.
+
+Saved source-pinned RCA:
+ pricing/data/appraisal-ik-detail-defense-rca-2026-10-02.json.
+Native setdefinitions with conditionalac%: IKDetail, IKSoulCage, MilabregaOrb,
+MilabregaRobe. Audit compiler/report/comparisonrange handling before fixing;
+shared mechanical coverage doesn't require generic leveling build expansion.
+Source exact paths in RCA; local D2MOO already inspected. CodeGraph didn't locate
+third-party symbols; used targeted rg --no-ignore afterCodeGraph attempt.
+
+IKDetail research lookup tmp/ik-detail-current-lookup.json; rows
+ tmp/ik-detail-roll-rows.json. Originalexplicitbase3sellers:
+ 5a644f59077b2f8c4615f195 total89 (and mislabeled39989), Ist1;
+ c205a335f0621d16db9caf13 missingdefense, Lem/Fal/Hel askingalternatives;
+ d968f466bab69c246dd3afa9 missingdefense, Hel/PerfectAmethyst alternatives.
+Allsingleitem. Do not reject89based on oldformula; do not silently reinterpret399
+as bonus/total for numerical comparisons. Upgraded knownbase rows are two sellers
+only (three rows; two same seller). Missingbase/399only examples remain uncertain.
+Review native conditionaldefense mechanics first, then reconsider belt qualification.
+
+Goal remains active; last fullaggregate110676pendingstale. No completion claim.
+
+## Shako formal underlying-item review closed — 2026-10-02
+
+Selected runtime unchanged47912d1b6933757632329d5c16afc7f87361d5f366f92ef15824ef40abd5707e.
+Added maintenance/trade_shako.py and scope native_unique_underlying_shako. Context
+loads/validates shako_trade.json inside the selected snapshot and binds it to the
+named policy fingerprint; baseline tiers alone cannot satisfy this review.
+Native fixed benefits, defense98..141, socket/capture boundaries and rendered
+reason/color are checked independently of the runtime result.
+
+Shako bank10->35cases: empty0/1 sockets, missing/low/max/high defense, filled and
+unknown/null inserts with higher total defense, unidentified/ethereal/unknown
+facts, contradictory zero-filled and incomplete captures. Formal red caught the
+old missing boundaries.35initial selected cases pass28.98s.34Shako/WarTraveler
+maintenance regressions pass12.51s; lint/diff checks pass.
+
+Fresh shared receipt pricing/data/report-receipts/named-equipment-trade.json:
+101selected Shako+WarTraveler cases pass51.52s. Full39-row registry validation
+accepts exactly these2current reviews; older37receipts stale after source changes.
+Proof:tmp/named-equipment-trade-acceptance.json. Registry rows37WarTraveler and
+38HarlequinCrest both point to the shared receipt. No whole-goal completion claim.
+Bank inventory30980cases,4058requiredtargets,304targets missingcases.
+All work/probe/test handles for this step are terminal. No runtime publication
+needed for maintenance-only changes; no live collection/restart/staging/commit.
+
+Next research:
+-Vipermagi lookup tmp/vipermagi-roll-lookup.json;29scoped dated single-item rows,
+ 15sellers,0explicitlyempty. One LightningFacet-filled row only. Um helm/armor
+ +15allres verified in nativegems:20intrinsic+15Um=35displayed. Unknown contents
+ cannot establish35native premium. ED425values800/998 conflict with native120;
+ Normal-tier selectors conflict with this exceptional unique. Preserve conflicts.
+ Research pricing/data/appraisal-vipermagi-roll-research-2026-10-02.json. Existing
+ qualitative policy explicitly requires empty contents, so no observed false
+ perfect-roll promotion to fix. Native35trade qualification remains pending.
+-Laying of Hands KB lookup tmp/laying-hands-roll-lookup.json; no market records,
+ including case-insensitive name check. Don't treat missing data as worthless.
+-Unreviewed clean named census tmp/unreviewed-clean-named-census.json finds only
+ IKForge5rows/5sellers and IKDetail5rows/4sellers with known variants, numeric asks.
+ These mix native/upgraded and some mislabeled399defense; don't infer cutoffs.
+ IKForge fresh lookup tmp/ik-forge-current-lookup.json. Additional original rows
+ have explicit barter asking terms (ask_istNone), potentially useful under the
+ new reviewed barter mechanism. Inspect their actual prices before dismissing.
+ Original xhg rows: fdaacc5a54b4e339ecda524c total115 ask1;
+ 1daaff53b47fc5faf2698025 total111 ask0.674;
+ abf7270a197be1b31f11c25b total115 noIst;
+ c863d5b70766d6bd87bf712f total118 noIst;
+ b30e283ee57748e10533eff1 noTotal/noIst. Don't infer no price from no conversion.
+ Guide demand exists: berserk-barbarian/slots/Gloves/2 and
+ double-throw-barbarian-guide/slots/Gloves/4 explicitly3-pieceIK; corresponding
+ qualified roles already reviewed. Zeal partial-set gloves/belt/boots roles also
+ exist with exact source spans. Keep standalone item demand separate from having
+ required companion pieces; fixed benefits may justify no arbitrary defensecutoff.
+
+Continue all-item roll review and completion contract. Last full aggregate110676
+pending remains stale; current scoped work is not a full gate refresh.
+
+## War Traveler review and executed boundary proof — 2026-10-02
+
+Runtime generation remains47912d1b6933757632329d5c16afc7f87361d5f366f92ef15824ef40abd5707e.
+Added maintenance/trade_war_traveler.py and trade_war_traveler_evidence.py;
+registered native_unique_mf_boots in trade_reviews.py. Native specification guards
+identity/base/socket mechanics, material MF/ED/thorns ranges, stat scaling and the
+50MF threshold. Review rejects changed semantics, omitted cases and wrong colors.
+
+Expanded native WarTraveler bank10->66cases: original/upgraded roll endpoints,
+49/50MF boundary, mixed secondary rolls, each missing/illegal material value,
+unidentified/ethereal/unknownethereal/socket/unknowncontents/filled variants.
+All66selected cases pass37.81s with current report receipt:
+ pricing/data/report-receipts/war-traveler-trade.json.
+54new/related maintenance regressions pass36.78s. Ruff/diff checks pass.
+Bank inventory30955cases;4058requiredtargets,304targets missingcases.
+
+Source census:3complete perfect-MF rows/3sellers (one explicit barter),0proved
+lower-MF cohorts,55unproven rows/28sellers (one barter). Unproven is not worthless.
+Census:pricing/data/appraisal-war-traveler-trade-census-2026-10-02.json.
+Registered38th formal named trade review in rules/trade_qualification_reviews.json.
+Current selected-generation receipt is accepted for WarTraveler; acceptance proof
+ tmp/war-traveler-review-acceptance.json. Older receipts are invalidated by changed
+verification sources; do not present all38 as currently attested. No full aggregate
+refresh or all-bank run at this isolated edit; goal remains unfinished.
+
+Next: integrate separate Shako underlying-item handler into formal named trade
+review coverage with native defense/socket/capture/report boundaries. Its runtime
+rule and10bankcases are already published and passing; named_tiers does not own
+that rule, so load_context must bind the separate published rule explicitly rather
+than pretending baseline tier rules establish trade qualification. Then continue
+remaining item-by-item valuable roll reviews. No live collection/restart/commit.
+
+## War Traveler perfect-MF trade candidate published — 2026-10-02
+
+Selected47912d1b6933757632329d5c16afc7f87361d5f366f92ef15824ef40abd5707e,
+172 artifacts; previous f76a75 retained. Only War Traveler changed in named_tiers
+relative to that generation (tmp/war-traveler-policy-proof.json). Verified
+nonethereal50MF is a candidate across legal ED150..190 and thorns5..10; no
+perfect-ED requirement. Lower MF remains unresolved, not use-only/worthless.
+Original and upgraded bases retain their identities; numeric pricing unchanged.
+
+Native defense proves nonethereal for4scoped rows;3include all material rolls.
+Two have Ist-convertible asks; the third explicitly requests3SmallCharms with
+20life/20AR/3maxdamage each. It has no Ist conversion. New trade_barter validator
+allows explicitly reviewed barter IDs for candidate interest only, not premium
+or numeric valuation. Source payload and full market hash retained. Fourth row
+missing ED/thorns remains context only. Tests reject absent/zero/bool quantities,
+missing item identity and undeclared/premium use of barter evidence.
+
+Mechanics: war_traveler_ethereal.py uses pinned native tables, original48baseAC
+before ED; upgraded59..68. Legal total must also be below conservative ethereal
+minimum. Unknown flags never default false;399never treated as1855.
+Research:pricing/data/appraisal-war-traveler-trade-research-2026-10-02.json.
+
+Validation:13inference cases red/green; trade/barter tests red/green;138combined
+policy/mechanics regressions pass106.71s;59report/Shako/Arachnid regressions pass.
+10staged WarTraveler cases pass;34selected WarTraveler/Shako/JMOD cases pass29.30s.
+20saved replays unchanged vsShako publication (extraction,price,text):
+ tmp/war-traveler-selected-replay-proof.json. Ruff and git diff --check pass.
+Bank inventory regenerated30899cases,4058requiredtargets,304targets missingcases.
+All recorded publication, selected bank, replay and coverage jobs are terminal0.
+No collection, worker restart, staging or commit. Python requires worker restart.
+
+Continue item-by-item roll work and completion-contract gates. Formal named trade
+review registry/report receipts still need Shako/WarTraveler review integration;
+scoped runtime success is not full goal completion. Last full aggregate110676
+pending remains stale; don't claim a current total or rerun the whole bank after
+every isolated edit. Goal stays active.
+
+## Shako ordinary trade demand published — 2026-10-02
+
+Selected f76a75ff4c61b5f3cc37d2cb049ed2ae5126febdf3dfce9ea734bf1581018731
+(172 artifacts), previous be08b02 retained. Harlequin Crest now has a separate
+underlying-item trade candidate outcome for verified nonethereal captures. Legal
+98..141 empty defense rolls qualify; perfect defense is not automatically premium.
+Filled/unknown inserts are valued separately. Ethereal/unknown identity/illegal
+socket count/incomplete capture stay unresolved. No numeric pricing change.
+
+Source review:29 explicit-total-defense asks/11 sellers prove nonethereal by native
+bounds; five independent low-defense sellers selected, with exact build slots.
+Unknown contents stay unknown, never empty. New rule shako_trade.json, mechanics
+shako_shell.py; shared native hashes moved to socket_evidence.py (JMOD unchanged).
+Research:pricing/data/appraisal-shako-trade-research-2026-10-02.json.
+
+Red8failed/12passed before implementation;114 mechanics/policy regressions pass;
+155 report/fixed-jewelry/coverage regressions pass.10 staged Shako cases and24
+selected Shako/JMOD cases pass.20 saved replays preserve extraction/prices; only
+Shako text changes (candidate line). Proof:tmp/shako-selected-replay-proof.json.
+No all-bank final receipt refreshed. Aggregate completion remains incomplete;
+last completed aggregate110676pending is stale after scoped changes.
+Python changes require worker restart; no live restart/test, collection, staging
+or commit performed.
+
+Next: War Traveler explicit defense has two original and two upgraded nonethereal
+proof candidates, all50MF. Three include ED and reflected-damage rolls. Check
+native upgrade bounds before accepting evidence across variants; never convert
+omitted ethereal to false or perfect-MF interest into a price for all rolls.
+
+## Native blocking corrected across 30 magic-shield roles — 2026-10-02
+
+Selected be08b02f46f4920c17334a9b665b2530c252022b1de429fa1abec1b9271e517a
+(171 artifacts), previous b5b2f2 retained. All jobs from this repair are terminal.
+Red/green reproduced insufficient native blocking accepted by Monarch and Sacred
+Targe rules. Thresholds now include native base blocking: Monarch42=22+20,
+Sacred Targe50=30+20. Thirty empty/filled Deflecting roles corrected; only must
+predicates and review notes changed in profiles. Existing empty JMOD bank fixtures
+already used42; filled fixtures and old unit fixtures were corrected. Eleven new
+negative bank cases cover insufficient bonuses. No market threshold/price change.
+
+Updated23+7 stat/guide reviews after verifying old pins and unchanged sources,
+build/class/variant/slot/socket/payload conditions. Refreshed dependent source,
+table, scope and collection pins only for these reviewed roles; proof files:
+ tmp/jmod-blocking-change-proof.json, tmp/jmod-blocking-extra-proof.json,
+ tmp/deflecting-review-pins-proof.json. Backup directories retain original inputs.
+Mutation scripts partially ran before their checked finish scripts completed;
+do NOT rerun tmp/fix-jmod-native-block.py or tmp/fix-other-deflecting-block.py.
+
+Rebuilt profiles2695, guide inventory62891 occurrences/1951 configurations and
+review dossiers2548 identities. Derived inventory had caused expected stale-data
+regression failures; rebuilt before recheck. Final evidence:
+-328 staged cases pass175.22s;328 selected cases pass132.46s.
+-46scope regressions pass9.94s;52collection/table tests pass299.93s.
+-Initial73JMOD/mechanics regressions pass; other related tests passed before
+ the stale-scope recheck. Ruff and git diff --check pass.
+-20saved replays preserve extraction/price/text; tmp/deflecting-selected-replay-proof.json.
+-Research/RCA: pricing/data/appraisal-deflecting-blocking-rca-2026-10-02.json.
+
+Bank inventory regenerated30879cases. These are affected-case executions, not a
+fresh all-bank final receipt. Last complete aggregate remains WP-B110676pending;
+full objective still active. No collection, worker restart, staging or commit.
+
+Next offline roll research: Archon Plate magic has24dated scoped single-item asks
+from7sellers, but22unknown contents and2filled, zero explicitlyempty. Concrete
+counterexample:94total life can come from2PerfectRubies(38each)+18life Jewel of Hope,
+with no Whale suffix. Thus unknown payload total-life cannot establish intrinsic
+Whale81..100 or an empty-base price. Source-pinned note:
+ pricing/data/appraisal-archon-whale-roll-research-2026-10-02.json.
+Rare ethereal Matriarchal Javelin census is tmp/matriarchal-javelin-rare-rows.json:
+23rows/9sellers, but only3listed IAS rows from2sellers (10/20IAS); omitted IAS is
+unknown, not zero. No new rare-javelin cutoff inferred. Continue item-specific
+roll qualification and the full completion contract; no blocker/complete claim.
+
+## JMOD trade candidate published — 2026-10-02
+
+Selected generation b5b2f259d637f18cc393cb18bf04e5a1cdb208b8489ef4b1cbf94514d9b3b72f
+(171 artifacts). Previous 704528 retained. New Python modules/report behavior need
+a worker restart for an already-running older process; no host restart or live
+verification was performed. No fresh market collection, staging or commit.
+
+The magic trade handler now recognizes a fully captured, identified nonethereal
+four-socket Monarch with the native Deflecting bonus (20 block / 30 FBR). Native
+blocking TOTAL is 42, not 20: use the existing base-block projection. Empty,
+filled and unknown contents can retain the shell trade claim; payload valuation
+stays separate. Report has a blue Trade: candidate line, no premium-defense claim
+or invented empty-base price. Other/uncertain variants do not inherit this rule.
+
+Evidence: four independent dated SC/NL/PC/RotW listings, from the 12-row mechanical
+proof, plus hash-bound wp-a-blues guide demand. Entire reviewed native catalogs
+are pinned; source/variant/scope/quantity/date/seller/definition failures reject
+publication or the qualification. Sources join runtime snapshot/publication.
+New files policies/magic_trade.py, rules/magic_trade.json; shell evidence module
+moved from maintenance/jmod_shell_evidence.py to mechanics/jmod_shell.py.
+
+Red/green: initial missing trade claim, then full capture exposed the native
+base-block total; report-color red exposed a missing-tier fallback to white.
+14 selected published native item scenarios now pass (19.83s), including color,
+base defense endpoints, class independence, payload uncertainty, wrong variants,
+bonus-as-total and incomplete captures. 186 policy/mechanics/coverage/publication
+regressions pass (37.06s); 39 report regressions pass (17.50s). Ruff/diff checks pass.
+20 saved replays preserve extraction, price_estimate and text; proof is
+ tmp/jmod-selected-replay-proof.json. Research proof is
+ pricing/data/appraisal-jmod-shell-evidence-2026-10-02.json.
+
+Bank inventory now has a real trade:magic:jmod-shell target with positive,
+negative and unknown scenarios; no JMOD orphan. This is inventory coverage, not
+an all-bank execution receipt. The old 1988-case WP-B receipt is stale for this
+new code/generation. Do not rerun that expensive bank after every isolated change;
+refresh final aggregate verification at the next substantive closure checkpoint.
+Last completed aggregate remains WP-B 110676 remaining, complete=false; the all-item
+goal is active. No completion or new all-item coverage claim is made here.
+
+Next useful review: existing JMOD build-role/annotation fixtures often supply raw
+blocking 20 and incomplete captures; audit them against native total 42. The new
+trade tests intentionally use real native totals and complete capture. Also
+continue roll-sensitive magic/rare/base and named coverage from the full contract;
+filled listing amounts remain unsuitable as an empty-base quote.
+
+## JMOD shell evidence check implemented; runtime qualification pending — 2026-10-02
+
+WP-B finalizer 52278 completed zero: 37 reviews accepted, matrix/scope/completion
+rebuilt for 70452815826ecfd4f097d6ab04b988e5e61cd8dc8811723677ee0ab454f87a1e.
+Scope verified; complete=false, remaining_tasks=110676. No live jobs remain.
+The new maintenance code/tests below invalidate that prior executable-input
+receipt; do not treat it as current after these edits.
+
+Added maintenance/jmod_shell_evidence.py: a narrow non-mutating proof for magic
+Monarch, four sockets, exactly 20 block / 30 FBR, explicit total defense 133..148.
+It binds eight complete reviewed native catalogs, rejects conflicting flags and
+ambiguous defense, and preserves socket contents. Result is recoverable-shell
+only with price_eligible=false. It does not change runtime trade qualification,
+market normalization, current-item pricing, or published generation.
+
+Red reproduced missing module; 35 new tests plus 40 existing market-ethereal
+regressions pass (75 in 0.62s). New tests include every native catalog changing,
+base/quality/ethereal/socket/stat conflicts, unknown and ambiguous defense,
+endpoints, and preservation of source data and unknown contents. Ruff passes.
+Proof output pricing/data/appraisal-jmod-shell-evidence-2026-10-02.json: 12 dated
+SC/NL/PC/RotW single-item asking records, four independent sellers. This proves
+mechanical shell identity, not an empty-shell price or confirmed sale. Local
+D2MOO SUnitNpc.cpp socket quest corroborates magic quest maximum two sockets;
+current cube recipes only grant normal shields random sockets, not magic ones.
+
+Next: design and test the magic-family trade rule using this shell evidence and
+reviewed guide demand, keeping filled payload valuation separate. Do not reuse
+filled listing amounts as an empty-base price. Continue full goal; no new live
+collection, host restart, staging or commit.
+
+## WP-B published bank passed; base qualification research — 2026-10-02
+
+All 1,988 selected published item-bank cases passed in 779.15s. Original bank
+53206 and prepare 49007 are terminal zero. Generation is 70452815826ecfd4f097d6ab04b988e5e61cd8dc8811723677ee0ab454f87a1e;
+receipt exitstatus=0 and sources_unchanged=true. Finalizer 52278 has accepted all
+37 named reviews and is rebuilding matrix/scope/completion; inspect its original
+handle and tmp/wpb-finish.log before any executable input changes.
+
+New offline research only (no runtime trade or price thresholds changed):
+- pricing/data/appraisal-jmod-roll-research-2026-10-02.json: fixed native affixes,
+  socket-clearing recipe, dated market census, and unresolved payload/ethereal
+  proof requirements. Four sockets/30 FBR/20 increased block is a variant gate,
+  not a percentile roll cutoff. Never infer total defense from property 399.
+- pricing/data/appraisal-superior-base-roll-research-2026-10-02.json: explicit
+  superior ethereal zero-socket three-seller groups for Great Poleaxe, Thresher
+  and Wire Fleece. Sample minimum ED is not a demonstrated sellability cutoff.
+  Intended runeword socket feasibility must precede a build-base claim.
+
+Next promising implementation: prove recoverable JMOD shell eligibility separately
+from inserted-payload price. Native Jeweler's is four sockets; Deflecting is
+20 increased block/30 FBR. Eld adds seven block and Shael twenty FBR. Exactly
+30 FBR cannot be synthesized from the other native shield suffix (15) by Shaels,
+but validate complete socketable/affix catalogs and inheritance before runtime
+inference. Total-defense 133..148 is a possible nonethereal proof only after
+binding all nonnegative defense contributions; no such inference was implemented.
+All-item goal remains active; no fresh collection, host restart, staging or commit.
+
+## WP-B recovered-date generation published; full report receipt running — 2026-10-02
+
+Selected70452815826ecfd4f097d6ab04b988e5e61cd8dc8811723677ee0ab454f87a1e,
+169artifacts. Previousdd4c11 retained.7777recovered dates nowpublished; no freshfetch.
+44trade owners changed onlymarket_snapshot; allcitednormalizedrowsunchanged.
+37registered policy fingerprints updated after matchingpreviousfingerprints.
+Seven partialcensuses (Mara,Nagel,Opalvein,Trek,Titan,Arachnid,Torch) reproduce old
+fingerprints after replacing onlysnapshot; no changed thresholds/cohorts. Proof
+ tmp/wpb-reviewed-market-rebind-proof.json. Script tmp/wpb-rebind-reviewed-market.py
+ALREADYRAN; backupguardpreventsrepeat.76trade policy/maintenance tests passed134.88s.
+
+Rebuilt profiles2695, basecoverage,runewords99 (67demand/98scopedlistings),watch/index.
+PublicationfirstrejectedstaleEschuta baseline source because watchinputhash changed.
+All228watch rows and allothernon-inputfields provedidentical. Six exact source
+locators in named_baselines.json were refreshed; proof tmp/wpb-watch-source-rebind-proof.json.
+Finalpublication68112terminal0. No blindlyrebound evidence or changed baseline tiers.
+79date/import and21publicationtests alreadypassed in priorpass. No hostrestart.
+
+All20selectedsavedreplays preserve extraction/price_estimate/text vspriorgeneration.
+47973terminal0; tmp/wpb-selected-replay-proof.json. The new Python provenance
+validator mayrequire workerrestart for an already-running oldPython process;
+no livehostverification claimed. Selectedpublication itself isvalid.
+
+LIVE53206: registered1969+Kingslayer19=1988reportcases, tmp/wpb-published-bank.log.
+LIVE49007: sevenauditprepare, tmp/wpb-prepare.log, usesNEWselectedreplay.
+LIVE52278: tmp/finish-wpb-when-ready.py -> tmp/wpb-finish.log; waits forNEWgeneration
+ANDcurrentinputreceipt, then37reviewacceptance/matrix/scope/completion.
+Freeze executable/test/rule inputs untilterminal. Re-polloriginalhandles, never
+restartonobservationtimeout. Latestcompletedaggregate remainsKingslayer110676;
+newgenerationcompletionnotyetcertified. Goalactive, notcomplete. No stage/commit.
+Next use recovered WP-B rows for base/magic/rare roll-sensitive evidence review,
+with originalvariant uncertainties preserved. Collectiondates are not new prices.
+
+## Publication regression recheck passed after index rebuild — 2026-10-02
+
+exec95424terminal0: both previously failing publication repository tests passed
+(tmp/wpb-publication-recheck.log). Earlier other19 publication tests passed;
+79date/import regressions pass. Index rebuild32368terminal0. All jobs from this
+turn are terminal. WP-B7777date recovery is applied to working data and index,
+but selected runtime remainsdd4c11... and named snapshot pins/derived artifacts,
+publication/replay/receipts/completion still require follow-through. Do not claim
+published prices or fullgoalcomplete. Application proof and source backups below.
+
+## WP-B date recovery implemented and applied; publication unfinished — 2026-10-02
+
+Kingslayer pass completed first:1988passed764.11s;23274/67844terminal0,37reviews
+accepted, matrix/scope/completion successful. Scopeverified,completefalse,
+110676required tasks. No jobs from that pass remain. New edits invalidate its
+shared execution inputs; refresh receipts only after this maintenance stabilizes.
+
+New production documented_base_dates.py validates WP-B raw/catalog/counts/version
+distributions/log/day/ID-map hashes separately from existing WP-H validation.
+documented_cache_dates.py dispatches and bundles WP-B provenance only for those
+explicit source records.24 new integration cases (canonicalred confirmed); all45
+new+WP-H tests passed, broader79date/import/reconciliation regressions passed0.44s.
+Lint/format/diffcheck passed. Registered45 approved files in existing registry
+(now68records), all source validationpassed. Backup tmp/wpb-date-before/.
+
+Dry and --write date_recovery each terminal0:41135observations,7777date-only
+changes;dated22276->30053. All7777formerlyundatedWP-B observations nowcarry documented
+2026-09-18, whileprices/facets/scope unchanged. Independent full zipped comparison
+and verify_policy_sources passed. Proof tmp/wpb-date-application-proof.json:
+oldmarket57ad30f409ef5643fd48abc09095f125c48d4a831f1b138583f3ec336674b210,
+newmarketf3e81392e606f45845bed7ba20fc370cde740c9b8e9181a120e1ae2fb1c5de9a.
+Collectionproof pricing/data/appraisal-collection-date-recovery.json. No livefetch.
+
+Publication tests19passed2failed67.49s: both failures are actual repository-index
+sourcehash mismatch for changed appraisal-market.jsonl (not date-validator failure).
+Index rebuild32368terminal0 (tmp/wpb-index-rebuild.log). Two failed publication
+repository tests are now rerunning: exec95424, tmp/wpb-publication-recheck.log. Selected generation STILLdd4c11...; no new
+publication or workerrestart. Need rebuilddependent evidence/index, revalidate
+named market-snapshot pins (all referenced trade rows independentlyunchanged),
+registry policyfingerprints if changed, compile/publish/replay, fullrequiredreceipt
+andmatrix/scope/completion. Do not blindly rebind source hashes or claim completion.
+New dated WP-B evidence should then feed separate base/magic/rare roll reviews;
+date recovery alone is not a sellability threshold or completed all-item assessment.
+
+## WP-B validator draft passes all45 real caches — 2026-10-02
+
+Isolated implementation at tmp/documented_base_dates_draft.py now validates all45
+real raw caches against pinned source/log/ID-map, collection day, catalog identity,
+counts and version distributions. Rejects conflicting duplicate listing records;
+identical Circlet duplicate passes while retaining historical raw count7778.
+Creates reviewed registry PROPOSAL only: tmp/wpb-date-registry-proposal.json.
+No production module/registry/import was changed during Kingslayer input freeze.
+Draft16 integration tests remain tmp/test_documented_base_dates_draft.py; one
+canonical red confirmed existing WPH-only registry rejection. Need install after
+original jobs terminal, wire dispatch/parse/runtime provenance, run all draft
+negative integration tests and existing WP-H/date/import/publication regressions.
+Use source path as explicit adapter discriminator, not generic filename dates.
+Potential follow-up strictness: preserve _read path/hash checks and typed count
+checks; add raw/source/log/catalog-map tamper and conflicting-duplicate tests.
+
+Kingslayer23274 still live at90%;67844finalizer pending receipt. Original prep5673
+terminal0. Last authoritative completed count isFrost110676; do not overwrite it
+with expectations. No runtime/network/publication/worker/stage/commit changes.
+
+## WP-B recovery integration test reproduces missing support — 2026-10-02
+
+While the original Kingslayer bank remains live, drafted16 integration scenarios
+at tmp/test_documented_base_dates_draft.py without changing executable inputs.
+Canonical positive test run red:1failed15deselected0.43s, log
+ tmp/wpb-date-draft-red.log. Exact failure is documented_cache_dates.parse_reviews
+rejecting non-WP-H path; not an import/setup failure. Draft covers actual ask
+preservation/unknown ethereal, catalog/IDs/count/distribution/date/log/query/pointer
+failures, historical unset-version scope remaining unknown, and identical raw
+duplicate deduplication. Run via uv run --offline python -m pytest.
+These drafts are not installed or implemented. Wait for existing23274/67844 to
+finish, then add separate WP-B validator and copy/refine tests into tests/pricing/
+knowledge/test_documented_base_dates.py. Do not make arbitrary paths dateable or
+replace strict scope with WP-B's legacy unset-accepted filter.
+
+## WP-B date provenance verified while Kingslayer tests run — 2026-10-02
+
+Concrete offline progress: appraisal-wpb-date-recovery-research-2026-10-02.json
+pins45 raw caches, WP-B JSON/log, IDs file and bucket script. All7778 raw rows
+match documented catalogs, counts and game-version distributions; no updates
+after documented2026-09-18 collection. Circlet has one identical repeated listing
+1002446469140, already deduplicated in normalized market. All7777 normalized
+observations are currently undated;4622 pass current strict SC/NL/PC/RotW scope.
+This is a verified recovery lead, NOT an imported date or price change.
+Research script: tmp/audit-wpb-documented-dates.py. Next implementation steps are
+in the artifact. Existing documented_cache_dates.py only supports WP-H; use a
+separate WP-B validator and preserve old behavior. Do not import legacy scope
+("unset" versions were kept) or bucket prices. No global date-from-filename rule.
+
+Crown follow-up artifact adds exact two-Ber source review:413 is labeled flat DR,
+1865 percent DR, and one399 field contains399 (outside native flat100–150).
+Cannot promote these three filled sellers to a clean intrinsic/premium cohort.
+Ber helmet effect8% verified in gems.json. Cached valuable-items guide primarily
+recommends Crown for Hardcore/early Ladder, not independent SC/NL demand proof.
+
+Kingslayer bank23274 confirmed live this turn; input freeze still applies.
+Prep5673 completed all seven audit steps. Finalizer67844 waits on current-input
+receipt then37 reviews/matrix/scope/completion. Last terminal count stillFrost
+110676 remaining. Check original handles; do not restart on an observation timeout.
+No runtime/data import/publication/network/restart/staging/commit this turn.
+
+## Kingslayer Smite report coverage added; broad receipt refresh running — 2026-10-02
+
+Previous Frost pass is complete and verified (progress). Selected runtime remains
+ dd4c11f4ae81c9fceaf85a2a4306b35fcd8c160af4dbdec2ff39fe3badd10425.
+Added19 native cases in cases/smite_kingslayer.py, registered once. Source is
+wp-a-builds.json:/smite-paladin/slots/Weapon/3 (Kingslayer Phase Blade), exact
+native recipe MalUmGulFal and rune effects. All three base qualities; min/max
+230–270ED have identical Smite utility. IAS30/CB33/OW50 desirable, Strength10
+supporting; no ED/AR/target-defense/Vengeance/gold stat credit. Includes wrong
+base/class, missing/reversed runes, unidentified, unknown class/ethereal/sockets,
+and uncaptured IAS without fabricated annotation. Native rune contributions
+include Um25OW plus recipe25OW. Partial captures remain partial.
+
+19passed/30835deselected in19.58s; tmp/smite-kingslayer-bank.log (56673terminal0).
+No runtime/rule changes were needed; this is required missing valuable-use bank
+coverage, not a new sellability or price claim. Ruff format/check and diffcheck pass.
+New test inputs invalidate older shared execution receipts, so refreshing the
+registered1969 cases plus these19 together: exec23274 live,1988 cases, log
+ tmp/smite-kingslayer-published-bank.log; script tmp/run-smite-kingslayer-published-bank.py.
+Seven dependent audits exec5673 live, tmp/smite-kingslayer-prepare.log.
+Finalizer exec67844 (tmp/finish-smite-kingslayer-when-ready.py) waits for selected generation
+AND current input hashes, then37 review acceptance/matrix/scope/completion.
+Freeze executable/test/rule inputs until all jobs finish. Do not restart on timeout.
+No publication, live collection, worker restart, staging or commit. Goal active;
+last completed aggregate110676remaining (Frost), not final completion.
+
+## Frost verification and coverage refresh complete — 2026-10-02
+
+Selected generation: dd4c11f4ae81c9fceaf85a2a4306b35fcd8c160af4dbdec2ff39fe3badd10425.
+Full registered report selection: 1969 passed in 761.41s. Exec72496 terminal0.
+Receipt independently checked: selected generation, exitstatus0,
+sources_unchanged=true,1969 passing case IDs. Finalizer8445 terminal0 accepted
+all37 registered reviews and refreshed matrix/scope/completion. Seven preparatory
+audits also complete. No running jobs remain from this pass. Executable input
+freeze lifted. Proof: tmp/frost-receipt-proof.json; logs tmp/frost-finish.log and
+ tmp/frost-completion.log. Scope verified; complete=false. Counts:2548identities,
+62891occurrences,3527reviewed,15229excluded,8770coverage rows,110676remaining
+required tasks,8312trade-qualification gaps. These are obligations, not item counts.
+
+Additional item-by-item research: Crown of Ages43 eligible dated single-item asks
+from31 sellers,33 unknown socket contents and10 filled; zero explicit empty.
+Ber-filled examples mix native/total DR conventions; several ED properties
+contradict fixed native50%. No new trade threshold or numerical price inferred.
+Artifact: pricing/data/appraisal-crown-ages-roll-research-2026-10-02.json.
+ROLL_VALUE_REVIEW.md documents the gap and correct full-registry receipt selection.
+Protector's Stone already reviewed; do not duplicate it. Trang-Oul's Wing lookup
+has zero cached market observations; no qualification added.
+
+Next: continue valuable-item reviews using audited evidence gaps. The prior named
+inventory's only unregistered >=3 explicit-variant-seller leads are Crown of Ages,
+Immortal King's Forge and Detail; all have documented cohort limitations. Do not
+repeat their census, fabricate sample-minimum thresholds, or treat unknown demand
+as worthless. Broader family/configuration work remains authorized. Fresh live
+collection request is still unanswered. No worker restart, live collection,
+staging or commit. Wider goal remains active and unfinished.
+
+## Frost published; full selected-generation verification running — 2026-10-02
+
+Supersedes priorpendingproposal/runningDwarf notes. Dwarf checkpointcomplete:
+36reviews,1913passed738.62s, lastcompletedcounts110677remaining/completefalse.
+Currentturnprogress: finalizedevidence-backedFrostpolicy,56nativecases,published.
+
+Selected dd4c11f4ae81c9fceaf85a2a4306b35fcd8c160af4dbdec2ff39fe3badd10425 (121artifacts).
+Frost ordinarycandidate over all legal5..10coldDamage/Pierce,XP3..5,MF15..35,GF25..50;
+all5required,knownnoneth0emptysockets. No premium from1joint-perfectseller or
+secondarymaxima. Demandbasisnowreviewed: cachednew-items guide explicitly says
+ColossalJewel family improvesFacets,1percharacter; nativecorefloor5/5. Guide
+modified2026-02-19, path/hash/excerpt/date in demand_source and researchartifact.
+ThreecompleteSC/NL/PC/RotW mixedrolls supportordinarydemand, notnumericprice.
+Minimumuse isindependentlysupported, notcutoffinferredfromsampleminimum8/9.
+Rootparentvariant narrowedtolegalnative noneth0empty; invalidetherealnotatierclaim.
+
+Red5canonicaltests; green6focused2.44s,65policy/source139.89s,
+278relatedFrost/Colossalstagedappraisals106.77s; lint/format/diffgreen.
+All20savedcaptures unchangedextraction/price/text vsDwarf; proof
+ tmp/frost-selected-replay-proof.json. Registered37threview,1969requiredcases.
+LIVE exec72496: tmp/run-facet-published-bank.py -> tmp/frost-published-bank.log.
+LIVE exec68127: sevenauditprepare -> tmp/frost-prepare.log.
+Queuedfinalizer tmp/finish-frost-when-receipt-ready.py -> tmp/frost-finish.log:
+waitsfornewgeneration ANDcurrentexecutableinput receipt, thenrequires0/unchanged,
+runs tmp/frost-finish.py expecting37acceptedreviews andmatrix/scope/completion.
+Freeze executable/test/rule inputs untilterminal. Neverrestartonobservationtimeout.
+No commit/stage, no workerrestart, no newlivecollection.
+
+Additionalread-onlylead tmp/archon-staff-trade-research.json:4normaleth0socket
+rows butONLY2sellers; differentSorceressstaffmods. Do notinfergeneralbasevalue
+fromfourrows. PriorGriffon/Shako/WarTraveler andIK gaps documented; broadergoal
+stillunfinished. Next explicitreadyaction verifyFrostreceipt/finalizer, then
+continueitem-by-item supportedroll/use research withoutinventingmarketthresholds.
+
+## Frost ordinary trade refinement implemented; staged bank green — 2026-10-02
+
+Dwarf checkpointfullycomplete:finalizer35257terminal0,36reviewsaccepted,
+1913passed738.62s, completion110677remaining/completefalse. Goalactive.
+
+New semantic evidence resolves earlierFrostproposalhesitation:
+pricing/raw/mr/items__new-items-in-reign-of-the-warlock.html, Colossal Ancient
+Jewels introduction explicitly calls thisfamily facetupgrades with1percharacter
+limit. Articlemodified2026-02-19 (actualdateModified); hash/excerpt/path/date
+pinned in new trade.demand_source and researchartifact. Nativefloor5coldDamage/
+5pierce plusMF15+ supports reviewedBlizzardcoldsocketordinaryutility; scoped
+complete8/9,9/8,10/10asks from3sellerssupportordinarynameditemdemand. Only1complete
+10/10seller, so nopremium. Historical5/7/partial6/9arecontextonly, notprices.
+
+Applied Frostpolicy to named_tiers.json; legalnoneth/0emptyvariant required,
+all5variable331/335/85/80/79known/bounded, allvalidrollscandidate, no secondary
+perfectpromotion. New canonicaltest_frost_trade.py:5redthen6green2.44s (includes
+actualguidehash/date/one-per-character sourcebinding). New56-case frost_trade.py
+bankregistered; all278relatedfrost/colossalstagedappraisals passed106.77s. Native
+scalarboundaryproof passedall56. Source-policy suite exec77379 stillRUNNING in
+tmp/frost-policy-green.log; awaitterminal and investigatefailure ifany. Lint/diffgreen.
+Researchartifact pricing/data/appraisal-frost-roll-review-2026-10-02.json.
+
+NOT YET PUBLISHED: selectedstillDwarf6159fc0d4e556e5d22e018ffa755234225a396debb6fa1800636f17bf5539f91.
+After source-suitegreen: publish, run tmp/register-frost-review.py (adds37th/56cases),
+replay20captures to tmp/frost-selected-replay.json, compare extraction/price/text,
+run tmp/frost-prepare.py audits. Then fullregistrybank tmp/run-facet-published-bank.py
+(expected1969cases) withreceiptpathsame; freezeinputs until bankandfinalizerterminal.
+Prepared tmp/frost-finish.py expects37acceptedreviews, writesmatrix/scope/completion.
+Do not repeat appenders; checkexistingregistrybefore rerun.
+
+## Dwarf complete published report bank passed — 2026-10-02
+
+exec92001terminal0:1913passed738.62s. Receiptselected6159fc0d4e556e5d22e018ffa755234225a396debb6fa1800636f17bf5539f91,
+exitstatus0,sources_unchangedtrue. Finalizer35257LIVE, tmp/dwarf-finish-final.log,
+alreadyreports36reviewsaccepted. Keepinputs frozenuntilmatrix/scope/completion
+terminal0. Old91533/97314interruptedruns are superseded; do not accepttheirpartialreceipts.
+
+Currentturnprogress: persistedHarlequinrollresearch, actualsuccessfulfullbank;
+notblocked/completed. Harlequin40eligibleasks/18sellers,alletherealunknown,
+39socketcontentsunknown. pricingsnapshotsha pinned in
+pricing/data/appraisal-harlequin-roll-research-2026-10-02.json. No guessedthreshold.
+
+Concrete nextproposal TMPONLY tmp/frost-ordinary-proposal.json. Threecomplete
+scopedmixedrolls (8/9,9/8,10/10) supportobserveddemand; only1completeperfectcore.
+Lowerpartial6/9and10/7seller lacksGF; historicalanybucketincludes5/7 butscopelegacy.
+Need FINALSEMANTICREVIEW beforeapply: genericBlizzard socket role already accepts
+native5/5core plusMF15..35; compare reviewedcoldsocketalternatives, don't mechanically
+inferfullminimuminterval fromthreehighrollasks or assertmarketdominance overFacets.
+Source pstats331damage→747 and335pierce→609; XP85→776,MF80→461,GF79→460.
+Proposalexplicitlymarkedpendingreview; notimplemented. Draftred
+ tmp/test_frost_trade_draft.py (fiveordinary/min/core/secondary/perfectcases)
+usesexistingnativejewel('cold') fixture withfixedcold/procstats andtable422.
+If semanticreview cannot supportfulldomain, keepproposalpending and pickother
+independentwork; no arbitrary sampleminimumcutoff, no automaticpremium.
+
+## Named/affixed evidence follow-up during confirmed live verification — 2026-10-02
+
+Previous turnprogress; currentturnverified live bank92001 and finalizer35257;
+prep96458terminal0. Same1913-case bank still progressing without failures;
+use tmp/dwarf-published-bank-final.log and tmp/dwarf-finish-final.log. No restart.
+Inputs remainfrozen. Completionstillunproven; no blocking/completion claim.
+
+New persisted research pricing/data/appraisal-crafted-ring-roll-research-2026-10-02.json:
+157eligible craftedRing asks/17sellers but0matches for reviewedZeal highleech/life/
+minDamage/AR combo;3matches for reviewedAbyssFCR+allres Bloodrecipe, allONEseller.
+Builduse remains independent; no tradequalification inferred fromlargeglobalcount.
+Read nativepropertymapping through metadata, canonicalizedallres beforematching.
+Raw targetedcohorts/profiles under tmp/crafted-ring* and tmp/abyss-crafted-ring*.
+WarTraveler followup persisted pricing/data/appraisal-war-traveler-roll-research-2026-10-02.json:
+56eligibleasks/29sellers;55unknowneth;31unknownbase;only3explicit totaldefenserows.
+Enhanceddefense%alonecannotinferethereal. No thresholds invented fromthoseasks.
+Plan ROLL_VALUE_REVIEW.md currentheader/registry updated36identities1913cases;
+last fully completed checkpoint remainsTorch35 whileDwarfverificationrunning.
+
+## Dwarf full verification restarted after regression fixes — 2026-10-02
+
+Supersedes all older running job notes. Previous partial bank91533 intentionally
+interrupted (682passed/exit2) and finalizer97314 terminated. No partialreceipt accepted.
+Complete Dwarf regression audit found6old farming-accessory expectations showing
+a tier for impossible ethereal/socketed rings. Fixed sharedberserk_farming_accessories
+fixtures to explicitly assert unresolvedqualification and no trade/tierline for
+those variants; role assertions preserved. New perfect-MDR evidence regression
+rejects a premium from2sellers without relying on an unrelateddefaultgroup failure.
+Green:78relatedunittests93.07s;138relatedpublishedappraisals55.20s;5policytests0.66s;
+lint/format/diffcheckgreen. No runtime/rulechanges; selectedgeneration unchanged
+6159fc0d4e556e5d22e018ffa755234225a396debb6fa1800636f17bf5539f91.
+
+LIVE exec92001 full1913publishedreportbank -> tmp/dwarf-published-bank-final.log.
+LIVE exec96458 sevenauditrefresh -> tmp/dwarf-prepare-final.log.
+Queued new finalizer logs tmp/dwarf-finish-final.log; helpernowpins CURRENT executable
+inputs aswellas generation, so ignores interruptedoldreceipt withsamegeneration.
+It requires terminalexit0/sourcesunchanged before dwarf-finish.py (36reviews).
+Do NOT mutate executable/rule/test inputs until allterminal. No commit/stage/restart.
+Currentturnprogress:actualregressionfixes, notonlywait.
+
+Next evidence: pricing/data/appraisal-ik-armor-roll-research-2026-10-02.json and
+ tmp/griffon-roll-followup-census.json. Griffon100rows,68eligibleasks/10sellers but
+67unknownethereal,62unknownsocketcount,41filled/27unknowncontents. Do not infer
+nonethereal or zero sockets, or treat total lightningrolls with fillers asnative.
+No new threshold justified. IKnearmaxupgradedgloves don't establish lowercutoff.
+No new livecollection authorization; otheroffline assessment work remains.
+
+## Dwarf legacy regression correction — 2026-10-02
+
+Previous turn is progress. On continuation found existing
+policies/test_dwarf_trade_qualification.py still asserting no qualification for
+all MDR rolls. Reproduced6red cases in tmp/dwarf-legacy-red.log. Intentionally
+stopped bank91533 after682passed249.85s (exit2) and queuedfinalizer97314(exit143),
+BEFORE modifying test. Do NOT call these live or accept partial receipt.
+Replaced obsolete expectation with source-backed regression proving the current
+TWOperfectsingleitemsellers cannot establish a premium. Defaultunresolvedempty
+is used so rejection actually addresses the premiumcohort. Green5tests0.66s;
+lintgreen. Runtime/rules/publication unchanged6159fc0d..., no republish needed.
+Broader Dwarf regressions now RUNNING exec47838 tmp/dwarf-related-regressions.log
+and related published bank exec97429 tmp/dwarf-related-bank.log. Await both;
+fix realfailures, then rerun full1913 bank into NEWlog before finalizer. Old
+finish-dwarf-when-receipt-ready.py currently sees failedsamegenerationreceipt;
+do NOT relaunch unchanged until a new successfulreceipt exists (or gate freshlog).
+Seven dependent preparationaudits already complete. Need refresh bankcoverage
+if tests change affects inputfingerprint; usual dwarf-prepare.py beforefinalreceipt.
+
+IKfollowupresearch saved pricing/data/appraisal-ik-armor-roll-research-2026-10-02.json.
+No runtime rule: upgradedForge135/136/136doesn't establish lower-rollthreshold;
+Detailupgraded3rows=2sellers. CachedBerserkguide proves threepiece utility, not
+arbitrary upgradeddefense sellability. Don't infer135cutoff fromsampleminimum.
+
+## Dwarf ordinary trade qualification implemented and published — 2026-10-02
+
+Torch checkpoint fully finished: exec46377 terminal0,35reviews accepted,
+1900passed728.56s, matrix/scope/completion refreshed. Last completed aggregate
+110678remaining, complete:false. Goalactive, concrete progress this turn.
+
+Dwarf published generation6159fc0d4e556e5d22e018ffa755234225a396debb6fa1800636f17bf5539f91
+(121artifacts). Ordinary candidate for legal12–15MDR; fixed100%GF/15%absorb role
+and3independent complete scoped single-item asks. Only2perfect sellers: no premium.
+Original maximum-only withdrawal not reversed: this is reviewed ordinary demand.
+Guide demand verified in cached gold-find-barbarian Rings section, hashed into
+pricing/data/appraisal-dwarf-roll-review-2026-10-02.json. Native definition matches.
+Canonical policy red4 then green4. Source suite62passed plus1obsolete expectation
+fixed to still-unreviewed Nature'sPeace; targeted rerun5passed0.68s. 13staged bank
+casespassed10.55s. Lint/format/diffcheckgreen. All20saved captures preserve
+extraction/price/text (tmp/dwarf-selected-replay-proof.json).
+Existing dwarf_trade.py was revised and its existing registry slot retained;
+a duplicate registration added during editing was removed before verification.
+36thtrade review registered with13cases; total1913cases.
+RUNNING exec91533: full published report bank tmp/dwarf-published-bank.log.
+RUNNING exec64998: seven dependent audits tmp/dwarf-prepare.log.
+Queued finalizer via tmp/finish-dwarf-when-receipt-ready.py waits for this generation's
+successful unchanged-source receipt, then runs tmp/dwarf-finish.py; log tmp/dwarf-finish.log.
+DO NOT mutate executable/test/rule inputs or restart these jobs while running.
+Verify terminal0 and36acceptedreviews; then update this header with currentcounts.
+
+Next read-only research: tmp/ik-forge-roll-lookup.json and
+ tmp/ik-armor-roll-candidates.json. Upgraded IKForge has3independent single-item
+sellers (135/136/136totaldefense); original2sellers. IKDetail upgraded THREErows
+are only TWOsellers, not3: cannotpool repeatedseller ororiginalbase. Original
+lookup baseWarGauntlets, native setID73, fixed65defense/20str/20dex plusfixed
+gethit-skill. Any roll-specific review must understand upgradedbase defense and
+set-dependent IAS; no genericstarter/leveling expansion. Currentconstraints:
+SC/NL/PC/RotW only, no live authorization, no commit/stage, no workerrestart.
+
+## Torch published reports passed — 2026-10-02
+
+exec74218 terminal0:1900passed728.56s; receipt confirms selected
+fdfcd61b772fb5ac72055f85afd85ce0554c7e7441d9937cd9f57bf2c6f3efe7,
+exitstatus0 and sources_unchanged:true. Finalizer exec46377 is LIVE:
+tmp/finish-torch-when-receipt-ready.py -> tmp/torch-finish.py,
+log tmp/torch-finish.log already reports35reviews accepted.
+Keep executable/test/rule inputs frozen until finalizer terminal.
+Dwarf13case bank draft tmp/dwarf_trade_cases.py passes native scalar boundary proof;
+ready to move into canonical item bank only after finalization.
+
+## Live verification checkpoint — 2026-10-02
+
+Torch published bank exec74218 still running; no failures observed. Do not start
+another bank or alter runtime/rules/tests before terminal and torch-finish.py.
+Dwarf ordinary proposal additionally validated through validate_review and native
+scalar specification (tmp/dwarf-ordinary-proposal-proof.json). Its four draft tests
+are red on unchanged runtime and green with the proposed policy injected only in
+a temporary test (tmp/dwarf-ordinary-proposal-green.log:4passed0.98s). This is not
+yet an implemented/published Dwarf rule. Next turn finish Torch receipt first,
+then apply/test/publish Dwarf ordinary demand. No completion or blocking claim.
+
+## Torch refinement published; verification running — 2026-10-02
+
+Supersedes previous running-state notes below. Guardian finalization completed:
+34 reviews accepted; matrix/scope/completion refreshed. Goal remains incomplete.
+Torch selected generation: fdfcd61b772fb5ac72055f85afd85ce0554c7e7441d9937cd9f57bf2c6f3efe7.
+Implemented native exactly-one +3 class selection, separate compound roll validation,
+Amazon ordinary demand only; other seven classes unresolved under the complete
+scoped seller census. Preserved premium qualitative tiers independently. Native
+coverage requires all 80 new item cases. Red27 tests; focused45 green; source97 green;
+maintenance integration36 green. All20 saved captures preserve extraction/price/text.
+Evidence: pricing/data/appraisal-torch-class-roll-review-2026-10-02.json.
+35th review registered. All seven preparation audits finished (tmp/torch-prepare.log).
+RUNNING exec74218: tmp/run-facet-published-bank.py, 1900 published report cases,
+log tmp/torch-published-bank.log. Freeze executable/test/rule inputs until terminal
+and finalizer: uv run --offline python tmp/torch-finish.py > tmp/torch-finish.log 2>&1.
+After finalizer verify receipt sources_unchanged and all35 reviews, update this state.
+
+Next concrete proposal ONLY in tmp/dwarf-ordinary-proposal.json: Dwarf Star ordinary
+candidate for all legal12–15 MDR; fixed100% GF/15% absorb independently support its
+role. Three complete scoped single-item sellers at13/15/15 support ordinary demand;
+only two at15 means no premium. Earlier withdrawal addressed only maximum-MDR group,
+not ordinary demand. tmp/test_dwarf_ordinary_draft.py reproduces missing ordinary
+qualification (4 red tests). Do not mutate sources until Torch receipt/finalizer ends.
+Need validate proposal, canonical tests + bank boundaries, register scalar review,
+publish/replay/new receipt and refresh coverage. No fresh market collection authorized.
+Crown of Ages/Andariel rows with sockets mostly unknown contents or filled: do not
+reinterpret structural readiness as unsocketed/empty evidence.
+
+## Guardian published report bank terminal green — 2026-10-02
+
+Run51324 terminal0:1820passed658.67s; tmp/guardian-published-bank.log. Full34review
+receipt sources unchanged on selected0ee2ed0f747f30ce2dd5c06786816bdcc3e0dbc80387fe98a4cb9ca750f6e0ba.
+Guardian finalizer exec55067 is RUNNING (tmp/guardian-finish.py > tmp/guardian-finish.log),
+so keep executable/test/rule inputs frozen until terminal. Previous currentturn
+classified verified wait plus research progress; no blocker and no completionclaim.
+
+Torch explicit final census tmp/verify-torch-class-census.py / torch-verified-class-census.json
+rechecks native classproperties through market_projection, unique/base/ethereal/
+empty-sockets, explicitSC/NL/PC/RotW, datedsinglepositiveasks, exactlyone+3class,
+coherent compoundattributes/resists10..20. Use this census ratherthan exploratory
+labelsearch counts. Includes normalizedrow hashes and currentmarkethash. Any-roll
+Amazon demand context exists in WP-H CH-torch-amazon-all; unknownRotW10/16listing
+muststayexcluded fromactualpricedcohort despite historicalbucketmention.
+Draft27red tests and200tier-equivalence proof remain in tmp only, not implemented.
+Goalactive/incomplete; do not mark allitems covered.
+
+## Torch next-item investigation while Guardian receipt runs — 2026-10-02
+
+Current turn: verified live Guardian bank51324 (do not restart); no source/rule/test
+mutations while receipt/finalizer runs. Read-only research changed next action:
+
+- tmp/torch-class-market-audit.json: dated, scoped single-item positive asks give
+  Amazon3sellers (15/11,20/14,18/19), Warlock2, all otherclasses1 each. Source
+  wph-hellfire-torch.json; must further verify explicit scope/native facets before
+  final rule. Pooling allclasses would give a false breadth of evidence.
+- Native unique400 randclassskill chooses class0..7; +3bonus. Stats allattributes
+  and allresists are independent10..20 compoundrolls. Existing random_skills
+  comparison_gaps verifies oneclassbonus in a complete capture. classfields:
+  Amazon453, Sorceress514, Necromancer498, Paladin442, Barbarian403, Druid488,
+  Assassin519, Warlock1862; verify via market_projection mapping/metadata in code.
+- WP-H CH-torch-amazon-all has any-roll context, but historical figures/fills cannot
+  become scopedprices. Its additional10/16 ask is normalized id5015f2537a7676754941be29
+  with missingRotW1854 and scope_statusunknown; keep excluded (not fourthseller).
+- tmp/test_torch_trade_draft.py is a TEMP draft with27 red tests2.28s: Amazon
+  ordinarycandidate low/mixed/perfect (no premium from3mixed asks), otherclasses
+  unresolved, missing/wrong/duplicateclass and compound/variant contradictions.
+  No canonical test file or runtime rule yet. Re-evaluate expectations against
+  native/source review before applying; classscope evidence remains essential.
+- Torch rootnamedtier currently stores premium18+/18+ or20/20 in valid_if. That
+  would wrongly restrict an ordinary trade rule inheriting parentvalidity.
+  tmp/torch-tier-separation-proposal.json / proof.py moves premium clause tohigh
+  override, defaultlow, leavesnativebounds/variantvalidity in valid_if. Shadow
+  checkpreserved all200 tier outcomes (8classes x5attributepoints x5resistpoints).
+  Nativeclassmissing/unknown variants and existingtier tests still required.
+
+Suggested bounded implementation after Guardian finalizer: add separate reviewed
+required-class guard for Torch (complete capture, exactlyone verified+3nativeclass;
+no mixed/unknown advertisedclass, no crossclass sellerpool). Keep variablecompound
+rolls separate fromfixed classselection; numerical NamedHandler remains strict.
+Runtime/evidence should share nativeclass validation but not infer identity from
+rolls. Maintenance needs class-aware compoundLargeCharm scope: independent scalar
+boundaries plus all8class cases/unknown/incomplete/multipleclass cases and full
+source-bound census of unreviewedclasses; existing genericcompoundscope supports
+SmallCharm only. No falsecompletefamilyclaim fromonlyAmazonreview. Existinghigh
+qualitativetiers preserved independently of actualtradequalification.
+
+Frost currently has3completepricedhighrolltuples and1lower6/9seller missinggoldfind;
+not enough to invent allminimum-roll demand or distinctperfect premium. The proper
+next step there needs explicit separation of trade-driving and exact-price facets,
+not arbitrary sample-minimum cutoffs or substitution ofperfectplannerexamples.
+No newliveauthorization. Goalactive, broadcompletionstillunproven.
+
+## Guardian premium publication selected; full report bank running — 2026-10-02
+
+Publication80499 terminal0, selected0ee2ed0f747f30ce2dd5c06786816bdcc3e0dbc80387fe98a4cb9ca750f6e0ba
+(121artifacts). Savedreplay29650 terminal0:all20extractions/prices/text unchanged
+versus facet checkpoint;tmp/guardian-selected-replay-proof.json. Preparation85380
+finished all seven dependent audits (tmp/guardian-prepare.log).
+
+RUNNING: exec session51324, source-bound published item bank; tmp/guardian-published-bank.log.
+Command uv run --offline python tmp/run-facet-published-bank.py dynamically selects
+all34 registryreviews /1820 requiredcases and writes shared named-jewelry-trade
+receipt. Do not edit executable/test/rule inputs during it or subsequent finalizer.
+After terminal0 run uv run --offline python tmp/guardian-finish.py > tmp/guardian-finish.log 2>&1.
+It requires34 acceptedreviews, rebuilds matrix/scope/completion. Goalunfinished;
+last complete checkpointfacet110679remaining. No new live collection or permission.
+
+Extra Frost research: tmp/protector-frost-roll-research.json / lookup.json. Offline
+index has14demandrows, including Blizzard MF socketfiller planner with perfect
+example, not a minimumtrade threshold. Additional priced6/9 listing omitsgoldfind;
+three completefive-roll sellers are8/9,9/8,10/10. Missingsecondary is not a known
+legalroll, and perfectplanner is not proof lowrolls unsellable. Nextreview should
+consider separation of trade-driving facets and exact-price facets explicitly,
+not generalize highrollcohort to allminimums or inferpremiumfromoneperfectseller.
+
+## Guardian Light/Thunder roll refinement green, publication pending — 2026-10-02
+
+Previous turn classified PROGRESS: eight facet variants implemented/published and
+1740source-bound report cases passed. Finalizer66792 terminal0:34reviews accepted,
+matrix/scope/completion finished. Selected facet01ce01a...; aggregate incomplete,
+remaining110679, identities2548, occurrences62891, reviewed3527, excluded15229,
+coverage8770. tmp/facet-completion.log. No blocker condition.
+
+Now upgraded Guardian Light and Thunder from ordinary-all-rolls to joint10/10
+premium. Four independent dated complete-five-roll perfect sellers each; separate
+ordinarygroups19/13sellers. Secondary rolls remain required; no secondary-only
+premium. Evidence artifact appraisal-guardian-core-roll-review-2026-10-02.json.
+Native/evidence mapping unchanged; no new market fetch/import or snapshot change.
+Updated two root trade policies and tests; review registry still34identities.
+
+Redtmp/test_guardian_jewel_refinement.py:4failed34passed1.06s for both10/10 with
+secondaryminimum/maximum. Moved exact tests to canonical tests/.../policies/
+test_guardian_jewel_trade.py. Green policy+allsourceevidencetests95passed98.52s.
+Expanded guardian_jewel_trade bank from106→186cases, includes9/10 and10/9 boundaries;
+staged186passed68.42s. Native scalar completeness checker accepts all186 and
+rejects removal of every individual case:tmp/guardian-native-boundary-proof.json.
+Updated registry two policy fingerprints/reasons/casehashes; source/definition
+hashes verified. Lint and diffclean. No other execution/rule changes.
+
+Publication running; tmp/guardian-publication.log. Next: verify selected generation,
+replay all20 saveditems vs facet checkpoint (price/extraction/text unaffected),
+refresh dependent bank/observed/fixed/variable/material/potion/scroll audits before
+source-bound final report run. Allregistryrequired cases now1820. Reuse
+ tmp/run-facet-published-bank.py (reads currentregistrydynamically), but log under
+ guardian prefix; then adjusted facet-finish.py (still34reviews), after terminal0.
+Do not edit executable/test/rule inputs during final receipt/finalizer.
+
+Protector Frost cache only complete8/9,9/8,10/10 from3sellers; do not infer demand
+for allminimumrolls fromthese3highrolls. A future review needs conditional/partial
+trade boundaries and source-bound low-roll evidence audit. Only1perfectseller,
+so no distinctpremium supported. Stone perfectalso1seller. No live approval yet.
+Goal active/incomplete. No commit or worker restart.
+
+## Facet published bank green; completion finalizer running — 2026-10-02
+
+Final report run7423 terminal0:1740passed623.32s. Receipt generation
+01ce01a8018c17b28bf3dfa9e36a24201d9605250487c1d1df0934738584ec69,
+exitstatus0,sources_unchanged=true. tmp/facet-published-bank.log.
+Finalizer66792 RUNNING: tmp/facet-finish.py > tmp/facet-finish.log 2>&1.
+It already accepted all34trade reviews, now rebuilding matrix/scope/completion.
+No executable/test/rule changes until this completes. Previous running-session
+notes below are historical. Next proposals tmp/guardian-premium-proposals.json
+validated offline only, not yet applied. Goal active/incomplete; no live approval,
+no commit/restart. All relevant details and red/green proof below.
+
+Additional read-only checks during the receipt run: tmp/facet-fixed-listing-audit.json
+found zero explicit fixed-stat conflicts in any reviewed facet listing. Next-item
+research tmp/next-colossal-roll-audit.json: Guardian Light ordinary48rows/19sellers,
+perfect15/4; Thunder ordinary35/13, perfect13/4. Every five-roll tuple complete,
+dated and scoped. Perfect versus ordinary seller-min median asks182.736vs2.585
+and188.4465vs6.638 respectively (dated2026-09-18, not price estimates). Secondary
+rolls vary; no same-seller matched-secondary pairs, no separate secondary premium.
+Two validated policy proposals saved ONLY in tmp/guardian-premium-proposals.json;
+not applied. After facet checkpoint completes, implement with red/green tests and
+expanded boundary/report bank. Protector Frost2ordinarysellers/1perfect, Stone
+12ordinary/1perfect: do not promote a distinct premium from one seller.
+Full structural audit tmp/facet-next-market-readiness.json is prerequisites only,
+not actual price/roll coverage. IK Detail/Forge split original/upgraded bases and
+Torch explicit class rolls must not be pooled. No live authorization received.
+
+## Facet roll qualification published; final report receipt running — 2026-10-02
+
+Selected generation: 01ce01a8018c17b28bf3dfa9e36a24201d9605250487c1d1df0934738584ec69
+(121 artifacts). Eight native Rainbow Facet variants now have separate reviewed
+trade_qualification records in variant_rules. Joint 5/5 is premium; other legal
+complete rolls remain ordinary candidates. Evidence is dated SC/NL/PC/RotW asks,
+not completed sales or exact prices. Each variant has >=4 independent sellers in
+each segment. Lightning Level-up excluded one listing with a conflicting trigger.
+Review artifact: pricing/data/appraisal-facet-trade-review-2026-10-02.json.
+
+New policies/trade_facets.py validates native catalog/label, material axes, integer
+rolls, and advertised trigger conflicts. Runtime selects only the verified native
+variant, checks captured trigger and both legal rolls. Nested reviews must cover
+all eight variants; no pooled root fallback. trade_evidence validates native
+listing provenance; date_recovery.verify_policy_sources traverses nested reviews.
+
+Red/green: initial94fail/1pass; fractional guard16fail/95pass; final facetpolicy
+and maintenance122passed9.93s. Staged item bank192passed74.79s. Policy/regression
+188passed101.44s. Broad policy run1027passed/14failed because sources/index were
+being rebuilt concurrently; affected four modules rerun after stabilization:
+69passed11.09s. Do not repeat tests during source mutations. Lint/diff clean.
+Maintenance native_facet_variants scope independently verifies all roll boundaries
+and missing/chance/cross-native trigger cases; omission tests10passed2.14s.
+
+Market references rebound only after every old cited row fingerprint remained
+unchanged. Five watch baseline rows unchanged, Torch row changed only verified
+collection dates; tmp/facet-baseline-rebind-proof.json. Registry33 prior policy
+hashes and6 unresolved-region hashes rebound after proving snapshot-only changes;
+tmp/facet-review-rebind-proof.json. Added one complete native_facet_variants review
+for Rainbow Facet: total34reviews,192facet cases,1740total required case IDs.
+
+All20 saved published replays have identical extraction/text/price decisions;
+only source generation provenance and policy date advanced. Proof:
+ tmp/facet-selected-replay-proof.json. Rebuilds and dependent audits finished via
+ tmp/facet-trade-rebuild.py and tmp/facet-prepare.py; logs adjacent.
+
+RUNNING: exec session7423 runs tmp/run-facet-published-bank.py. It executes all1740
+required registry cases against publication, writes source-bound receipt
+ pricing/data/report-receipts/named-jewelry-trade.json. Log tmp/facet-published-bank.log.
+DO NOT edit executable/test/rule inputs during this run. When terminal0, run
+ uv run --offline python tmp/facet-finish.py > tmp/facet-finish.log 2>&1
+This requires34 accepted reviews, then regenerates matrix/scope/completion.
+If failures, inspect/fix specifically and rerun required checks; never weaken
+receipt gates. Goal stays active/incomplete (last aggregate110680remaining).
+
+Next offline research while receipt runs: tmp/audit-next-colossal-rolls.py (session54195)
+reads newly dated Guardian Light/Thunder, Protector Frost/Stone groups, writes
+ tmp/next-colossal-roll-audit.json. No new live collection authorized or received.
+No commits, no worker restart. Python changes require host worker restart.
+
+## Targeted facet cache reconciliation applied — 2026-10-02
+
+Implemented CLI pricing.knowledge.facet_recovery with --write. It only reconciles
+verified eight facet catalog/name pairs (including already canonical rows), checks
+properties against raw listing fields, preserves non-derived evidence and every
+unrelated row, and checks existing trade evidence hashes before writing. Proof:
+ pricing/data/appraisal-facet-recovery.json. Tests5passed0.31s; lintclean.
+ tests/pricing/knowledge/test_facet_recovery.py. Initial red was missingmodule;
+normalizationbehavior already had separate38-case red/green proof.
+
+Full dry1274 and apply43298 terminal0:800changed/40335unchanged of41135observations.
+ tmp/facet-recovery-{dry,apply}.log. Follow-up15537 terminal0:zerochanges/all41135
+unchanged, tmp/facet-recovery-idempotent.log. Current stagedmarketsha
+57ad30f409ef5643fd48abc09095f125c48d4a831f1b138583f3ec336674b210.
+No jobs running. Existing selected generation remains Bile2459615d..., not these
+new facet code/cache changes. Rebuild/publication/replays/source rebind pending.
+
+Reviewed pervariant asking groups after normalization: each ofeightfacetvariants
+has>=4independent sellers in ordinary and joint-perfect groups. Seller-min median
+perfect exceeds ordinary for each, but some ranges overlap; no salesguarantee or
+exactprice fromtheseaggregates. Trigger/catalog variants mustremainseparate.
+Earlier persisted cohortresearch points to pre-normalization proposedrows; use
+currentmarketrecords andtheirnewfingerprints for actualtradeevidence.
+
+NEXT implementation architecture: attach trade_qualification to each existing
+RainbowFacet variant_rules record (each table_ids=[nativeID]); rootreview absent.
+Require perreview facet_table_id matches its nativevariant, validateall eight via
+sharedverifiedcatalog map. Extend named_tiers policy validation and trade_qualification
+selection to resolve nativevariant before choosingreview. No mixedroot+variant
+fallback. Materialkeys twoelementrolls; requirecorrectnativefixedtrigger (reuse
+facet_trigger) before trade classification. Evidence rows now canonicalRainbowFacet
+and retain catalog_name/catalog_id/nativeprovenance; validate matchingcatalog and
+reject conflicting advertisedtrigger fields before providing nativeidentity to
+trade_evidence ItemFacts. Missing listingfixedtrigger may use verifiedcatalog,
+never invent nonexistent PoisonLevelup field. Unknown/crossvariant captures stay
+unresolved. Thresholdjoint5/5premium, otherlegalrollscandidate onlywithseparately
+validatedevidence pervariant. Native/crosscatalog/unknown/illegal/report tests.
+Maintenance will need variant-aware scalarfacet scope; current scalarreviewrequires
+one native definition and registryidentity is one RainbowFacet (all8variants under
+onecomplete review), not8duplicateidentityrows. Keep pervariant source/roll tests.
+
+Allstagedmarket snapshotrefs need rebinding onlyafter proof unchanged citedrows;
+include six unresolved_evidence fingerprints BEFORE source-bound finalreportrun.
+No livecollection/permission received; no commits. Goal active; turnprogress.
+
+## Facet normalization and comparison code green; cache update pending — 2026-10-02
+
+Finalizer30195 terminal0:33reviews,matrix,scope,completion finished on Bile selected
+2459615d47f837c362fe6cd077f9c2e0c293eb7d894707513e7224e3dc6ef46c.
+Complete=false; remaining_tasks110680 (from tmp/bile-completion.log).
+
+Registered16additional documented collection dates, then CLI dry4325 and write25095
+terminal0:41135observations,1600changed dates,20676→22276dated. Logs
+ tmp/facet-date-recovery-{dry,apply}.log. validate_records passes allregistered
+provenance. No market facets changed during date recovery. Nowmarketsha changed;
+alloldwholemarketsnapshot references/audits need eventualverifiedrebind, including
+six unresolved-evidence fingerprints. Do this BEFORE finalreportreceipt nexttime.
+
+Implemented pricing/knowledge/market_facet_catalog.py:8exactID+label/native-table
+mappings, native element/event/skill/chance/level verification, missing-definition
+fallback, provenance retainingcataloglabel/nativeID. Genericcatalog staysunresolved.
+Wired into market_named_aliases.py. Actual tests
+ tests/pricing/knowledge/test_facet_catalog_aliases.py:38pass. Red32case phase
+24fail/8pass; additionalnativechanged/missingdefinition5+1guardcases green.
+Rootmarket regression118passed4.37s:tmp/facet-market-regressions.log.
+
+Implemented namedcomparison:NamedHandler bindsall8catalogs via verifieddefinition;
+verifiedfacettrigger fields become intrinsic optional listingfields, conflicting
+values remainrejected. Removedoldsingle399 CATALOG_VARIANTS map. Added actual
+nativecapture→normalization→contract→matching integration tests in
+ tests/pricing/knowledge/assessment/test_facet_catalog_comparisons.py.
+Correctlyformed red7fail/1pass (initialfixturecompleteness/pricebugs corrected
+beforeproductionchange). Greenfocused16pass0.53s including existingtriggertests.
+Broader42passed3.15s:tmp/facet-comparison-regressions.log. Ruff/diffclean.
+
+Dry targeted facet re-normalization validated by tmp/facet-normalization-dry.py:
+800matched observed rows,40335other rows unchanged;rawproperties,dates,ask,seller,
+listing IDs unchanged; existingtradeevidencerowhashes preserved. Proof
+ tmp/facet-normalization-dry-proof.json. Initially guessed1200count andcorrected
+to actual800; no writes wereperformed. All eightWP-Hfiles have100rows; do not
+assume additionalWPIrows. Dryprocess93158terminal0. No jobs running.
+
+NEXT: implement reviewed, idempotent targetedfacet-normalization application (CLI
+or guardedmaintenance), preserveproofraw/otherrows. Then rebuildKB consumers/index,
+verify/rebind genuinelyunchangedcitedrows and market/unresolved-evidence snapshots,
+publish,replay/checkprices and reports. Facettradevariant dispatch is STILLmissing:
+roottradequalification cannot handleeightnameddefinitions/cataloglabels; add
+pervariantreview isolation and fullnativevariant/report tests. Do not confuse
+comparisonfix withfinishedfacettiering. Guardianpremiums/Frostreview alsoqueued.
+CurrentPythoncode/facetdata changes NOTpublished; runtimeworkerrestart notperformed.
+No commit/staging/livecollection. Sixitemlivepermission remainsunanswered.
+Goalturnsubstantialprogress; activeoverallgoalunchanged.
+
+## Bile dependent audits refreshed; aggregate retry running — 2026-10-02
+
+Finalizer 91006 ended with status1 after all33trade reviews were accepted.
+Matrix failed because fixed-jewelry market audit had become stale when the six
+unresolved-evidence registry references changed. Report receipt itself remains
+valid (1788pass, unchanged inputs). Do not repeat the report run without new need.
+
+Prepare 56494 terminal0: tmp/bile-prepare-final.log. Bank coverage, observed,
+fixed/variable jewelry and material/potion/scroll audits all regenerated against
+current registry. Finalizer30195 LIVE:tmp/bile-finish-refreshed.log. It runs the
+same tmp/bile-finish.py:33reviewacceptance, matrix, scope, completion. Inspect
+terminal result before applying16new date records. No other job running.
+
+Draft facet normalization regression at tmp/test_facet_catalog_aliases.py now
+has32cases:8canonical mappings+8wronglabel/catalog rejection cases+16conflicting
+advertised ethereal/socket cases. tmp/facet-catalog-aliases-red-complete.log:
+24failed,8passed; intended missingproductionbehavior. Canonical mapping asserts
+native table ID provenance, shared Jewel mechanics and repeated normalization
+idempotence. Conflict cases require preserving given True/1 while recording
+mechanics_conflicts. Wrongcatalog and genericcatalog must not canonicalize a
+variant label. Tests remain outside registered tree pending date-only recovery.
+Move to tests/pricing/knowledge/test_facet_catalog_aliases.py when implementing.
+Previous genuinecomparisonred/diagnostic and8catalognative mapping remain in
+pricing/data/appraisal-facet-identity-rca-2026-10-02.json. Use exactcatalog+name+
+native record agreement; no generic prefix stripping. Apply1600date recovery
+before normalization edits, then reconcile only the known facet observations.
+
+Goalturnprogress:staleauditRCA/fix+strongerredcoverage. Goalactive/incomplete.
+No live requests, authorization, commit or runtime changes this turn.
+
+## Defender’s Bile: stable published report gate passed — 2026-10-02
+
+Bank 16077 finished successfully: 1,788 passed, 28,639 deselected, 592.05s.
+Log: tmp/bile-published-bank-final.log. The receipt confirms sources_unchanged=true
+for selected generation 2459615d47f837c362fe6cd077f9c2e0c293eb7d894707513e7224e3dc6ef46c.
+
+Finalizer 91006 is LIVE (tmp/bile-finish-final.log). It has accepted all 33 trade
+reviews, including the six corrected unresolved-evidence references and Bile.
+It is now rebuilding matrix/scope/completion. Do not restart it or change bound
+runtime inputs until it exits. No other jobs are running. After terminal success,
+inspect the actual completion totals; this is still far from the overall goal.
+
+The next 1,600-row date recovery remains verified but unapplied. Proposed entries:
+tmp/remaining-wph-date-candidates.json; proof: tmp/remaining-wph-date-dry-proof.json.
+Apply those 16 reviews once this finalizer completes, then run date_recovery dry
+and --write before changing facet normalization. That ordering preserves the
+strict date-only reconciliation guarantee. Further normalization changes should
+be targeted to the eight verified Facet catalogs, with unrelated rows preserved.
+
+This turn also verified all eight native table/catalog mappings and persisted them
+inside pricing/data/appraisal-facet-identity-rca-2026-10-02.json. There is a ninth
+catalog, generic Rainbow Facet 2935638020, which does not establish element or
+trigger; keep it unresolved instead of guessing a variant. The eight labels and
+native properties are pinned to the catalog hash and definition generation.
+Standalone source: tmp/facet-catalog-native-review.json.
+
+Goal turn: progress plus verified waits. Stable report gate passed and all 33
+reviews accepted; final aggregate audit still running. No live collection,
+authorization, commit, worker restart or navigation changes. Goal remains active.
+
+## Rainbow Facet comparison RCA reproduced — 2026-10-02
+
+Previous turn progress:report1788green+six unresolvedevidence rebind. This turn
+progress:read current nativefacet paths and reproduce a concrete comparison gap.
+Bank16077stillLIVE (28% lastpoll),tmp/bile-published-bank-final.log. Do not change
+bound production/tests/rules before terminal. Afterpass run tmp/bile-finish.py.
+
+New persisted RCA:pricing/data/appraisal-facet-identity-rca-2026-10-02.json.
+Actual complete LightningDeath native392capture via existing NamedHandler succeeds,
+but real cached5/5 listing is rejected for name plus unknownbase/eth/sockets/contents
+and omittedfixedtrigger. Script tmp/facet-identity-red.py now reaches intentional
+AssertionError (initialdraftasdictmappingproxy error was fixed withto_dict).
+ tmp/facet-identity-red.log/json. Expected spellingaliases are not canonicalized;
+market_named_aliases currently only originalSunders. named_base cannot findfacet
+labels; CATALOG_VARIANTS onlymapsPoisonLevelup399. Existingfacet_trigger has
+strictnativeevent/skill/level/chance verification; reuseit.
+
+Diagnostic shadowprojection (NOTproduction) exactcatalog2368934470+LightningDeath
+name→nativeRainbowFacet, applycommonJewelmechanics, contractcatalogbinding, native
+fixedchance780as intrinsic produceszero rejections. Wronglevelupcatalog and
+conflictingchance99 remainrejected. tmp/facet-projection-diagnostic.py/json.
+This establishes bounded fix notgenericnamestripping. Must supportall8 explicitly
+and preservecapturednativeID+eventconflicts. No numericprice claim fromthisonecase.
+
+Nextorder:finishBile, apply1600date-only recovery, thenfullfacetidentity normalization
+andvarianttrade dispatch inonecoherent implementation. Do not change normalization
+before date_recovery—it properly rejectsnondatefacetchanges. No mutation ofruntime
+ornewnetwork thisturn. Pendingliveauthorization unchanged.
+
+## Bile report green; unresolved evidence references corrected — 2026-10-02
+
+Bank70247terminal0:1788passed596.93s,28639deselected; receipt sources_unchangedtrue
+on generation2459615d47f837c362fe6cd077f9c2e0c293eb7d894707513e7224e3dc6ef46c.
+Finalizer10331terminal1 BEFORE matrix: six old unresolved_evidence_fingerprint
+values included preceding wholemarket hash. Allotherreviews includingBile reviewed.
+No runtime/report failure. Six affected:Mara,Nagelring,Opalvein,Trek,Titan,Arachnid.
+
+Rebind45787terminal0. Loaded current derivedevidence, replaced ONLYmarket_snapshot
+with previous216534f0publishedpolicy snapshot, and verified exact old registered
+fingerprint before writingnew. Allsix evidencebodies unchanged; proof
+ tmp/bile-unresolved-rebind-proof.json; log tmp/bile-rebind-unresolved.log.
+This changedregistryinput, so require fresh reportreceipt. Do not reuseoldreceipt
+or weakeninputbinding. Do NOT rerun one-shot rebindscript afterthisapplication.
+
+LIVE bank16077:tmp/bile-published-bank-final.log; same1788cases. No other jobs.
+Afterterminal0, run tmp/bile-finish.py again; requires33reviewsaccepted then
+matrix/scope/completion. Previouslyrefreshed audits/replays still current (no
+runtimegeneration/datachange). Hold16verifieddate recovery untilgatecompleted.
+This turnprogress:terminalreportpass+exactevidenceRCA+sourcecorrection. Goalactive.
+
+## Recovered roll cohorts audited while Bile report runs — 2026-10-02
+
+Goal turn classified progress: evaluated next usable cohorts; polled bank70247
+confirmedLIVE (64% lastpoll). Keep bound runtime/test/rule inputs unchanged.
+Prepare13372 and selectedreplay84093alreadyterminal0. After bank70247terminal0
+run tmp/bile-finish.py for33review acceptance+matrix/scope/completion.
+
+New persisted research:
+ pricing/data/appraisal-recovered-roll-cohorts-2026-10-02.json.
+Uses proposed16collection date recovery, not yet imported. Draft normalization
+source tmp/remaining-wph-dated-draft-rows.json, script
+ tmp/remaining-wph-date-cohorts.py; cohortscript tmp/remaining-wph-roll-cohorts.py.
+Complete native scalar keys only, SC/NL/PC/RotW datedsingleasks. Jointperfect/other
+seller counts:GuardianLight4/18,Thunder4/10; all8RainbowFacetvariants have>=4
+sellers in eachgroup. DefenderFire7/8. This justifies focused premium review, not
+a price claim; still check extra fields, native trigger/catalog identity, asks.
+Some rows carry wrong elemental IDs (coldlisting poison783,etc) and are excluded
+without automatic reinterpretation. Eightfacetgroups remain separated by catalog.
+
+Concrete next architecture gap for facets: native identity RainbowFacet has
+8variant_rules withtableIDs392..399; trade_qualification currently expects a
+single rootreview and evidence row name equality. Listing labels are eight
+RainbowFacet:ElementDeath/Level-up names, so cannot paste scalarjewel rules and
+mergeelements/triggers. Need verifiednative/catalogvariant dispatch, separate
+pervariantreviews and negativecrossvariant tests. Current scalarreview checker
+requires len(variants)==1. Implement after16date recovery/verification or alongside
+that next coherent change; do not weakeningidentity validation for pooleddata.
+No production mutations/new live requests this turn; oldBilebehavior remains
+published, finalreceipt stillrunning. No authorizations received.
+
+## Bile verification running; next date recovery reviewed — 2026-10-02
+
+Previous goal turn progressed through publication. This turn completed selected
+replay verification and dependent audits, plus independently verified a larger
+offline evidence recovery. No blocker streak; goal remains active.
+
+Replay84093terminal0. All20saved extraction/price/text unchanged versus preceding
+named-misc generation:tmp/bile-selected-replay-proof.json.
+Prepare13372terminal0:bankcoverage,observed,fixed,variable,material,potion,scroll
+refreshed. tmp/bile-prepare.log. No source mutations during report run.
+Bank70247stillLIVE (24% last poll):tmp/bile-published-bank.log. After terminal
+success execute tmp/bile-finish.py to require33reviews thenmatrix/scope/completion.
+No other jobs live. Do not restart bank or mutate bound input until it finishes.
+
+Next independently reviewed recovery, WITHOUT network:
+ pricing/data/appraisal-remaining-wph-date-review-2026-10-02.json.
+16bare WP-H collections:fourremainingColossal,eightRainbowFacetvariants,Gheed,
+HellfireTorch,Fire/LightningbaseSunders. Exact original2026-09-18source/date/query,
+rawhash,catalog,count/scopechecks pass. 63other candidate links rejected; no
+weakened validator. Torch has32samecollectionlinks; selectedoneWarlock-all
+source pointer does NOT imply all observed TorchclassesareWarlock. Listing facts
+remain authoritative. tmp/remaining-wph-date-candidates.json has16proposedrows.
+Dry current normalizer+recover_rows proves1600date-only changes and preservesall
+existingtradeevidencerowhashes:tmp/remaining-wph-date-dry-proof.json.
+No registry/market writes yet. Process72591terminal0. Candidate census script
+ tmp/remaining-wph-date-census.py and dryscript tmp/remaining-wph-date-dry.py.
+
+After Bile final acceptance, recover this whole verified set at once to avoid
+repeatingpublication/marketrebuild peritem. Then refine remaining valuable items
+using actual recovered cohorts. Offlineimport only date_recovery, not broad
+refresh normalization; preserveotherfacets. Fresh source/citation references,
+index/publication,replays/report gates required afterward. Previous source-stable
+scripts guard their baselines; do not blindly rerun one-shot scripts against new
+selectedgeneration. No liveauthorization received; sixitemrequest pending.
+
+## Defender Bile published; final report gate running — 2026-10-02
+
+Selected generation2459615d47f837c362fe6cd077f9c2e0c293eb7d894707513e7224e3dc6ef46c,
+105artifacts. Publication76955terminal0:tmp/bile-publication.log.
+Rebuild25023completed. Facts/recommendations semantically unchanged were retained
+byte-for-byte; six baseline watch citations rebound only after exact-row equality.
+ tmp/bile-source-rebind-proof.json. ProtectorFrost watch row changed only from
+verified collection dates. Recovered200dates applied earlier; no livecollection.
+
+Policy source regression initially31stale whole-market hashes. Updated32snapshot
+references after validating every cited original listing row unchanged; updated
+existing review policy fingerprints with canonical ensure_ascii=False fingerprint.
+ tmp/bile-market-rebind-proof.json. Earlier attempts with wrong fingerprint then
+syntax error made no edits; resulting intermediate red logs are superseded.
+Corrected broad policy919passed/1newBiletest failed its missing expected-band clause.
+Added independent (783,723)==(10,10) expectation; affected test1passed3.82s.
+ tmp/bile-policy-regressions-rebound.log, tmp/bile-source-preservation-green.log.
+Native boundary checker originally rejected inherited etherealTrue alternative;
+Bile parent guard now explicitly nonethereal,sockets0,empty. All93cases independently
+required (dropping any case fails): tmp/bile-native-boundary-proof.json.
+Final staged93passed38.03s:tmp/bile-final-staged-bank.log. Ruff/diffclean.
+Candidate20savedreplays extraction/price/text unchanged;proof
+ tmp/bile-candidate-replay-proof.json. Candidate was before final snapshot-hash/guard
+edits, so selected replay below remains required for final state.
+
+Bile registration8103terminal0:33registryrows,93Bilecases scalar_colossal_jewel,
+ tmp/register-bile-review.log. Do NOT rerun one-shot registration/implementation.
+LIVE selected replay84093:tmp/bile-selected-replay.json/errors.log.
+LIVE published bank70247: tmp/bile-published-bank.log,
+ selection trade or wisp or arachnid (1788cases expected). Shared named-jewelryreceipt.
+Do not mutate bound source/tests/rules until terminal. After selectedreplay compare
+20outputs with preceding named-misc replay; regenerate observed review, fixed and
+variable market audits, bankcoverage. Since market changed also refresh material,
+potion,scroll pricing audits (see tmp/wisp-refresh-dependent-audits.py and prior
+date-recovery maintenance). Then run tmp/bile-finish.py (prepared,notrun):requires
+33accepted reviews, regenerates matrix/scope/completion. Fresh receipts not yet
+accepted. Prior32checkpoint remains historical. Goal active; this turn progress.
+
+## Defender's Bile qualification staged and green — 2026-10-02
+
+Previous checkpoint finalizer6017 terminal0:32reviews accepted,matrix,scope,
+completion all regenerated. Stable named-misc bank1695passed sources unchanged.
+Goal remains incomplete; do not treat checkpoint as end goal.
+
+Applied TWO documented collection-date reviews in
+ pricing/knowledge/documented_collection_dates.json for WP-H DefenderBile and
+ProtectorFrost. CLI dry and --write terminal0:41135rows,exactly200date-only changes,
+dated20476→20676. Existing trade evidence hashes preserved; no live requests.
+ tmp/colossal-date-recovery-{dry,apply}.log.
+Date regression32passed0.10s: tmp/colossal-date-regressions.log.
+
+DefenderBile qualification now STAGED in named_tiers.json, not published.
+Allfive native rolls required:332poison damage,336pierce,85XP,80MF,79gold.
+Both332/336=10 premium; other legal pairs candidate. Premium six complete asks /
+four sellers; ordinary29/six sellers from verified2026-09-18WP-H collection.
+Explicit market mapping783/723/776/461/460. Additional maximum rolls do not create
+unsupported premiums. Exact numeric pricing still independent. Source evidence
+retains row hashes and dates. Existing identity baseline low remains unchanged.
+Initial three ordinary/premium/missing cases reproduced red in
+ tmp/defender-bile-red.log. Registered93case item bank module
+ tests/pricing/knowledge/assessment/item_bank/cases/defender_bile_trade.py.
+STAGED93passed36.79s: tmp/defender-bile-green.log. Ruff check/fix importorder/format
+clean. No receipt generated yet for new cases. Do NOT rerun one-shot
+ tmp/implement-bile-qualification.py; already applied.
+
+LIVE rebuild25023: tmp/colossal-date-rebuild.log. Script
+ tmp/colossal-date-rebuild.py runs runewords,facts,recommendations,valuable,index,bases
+sequentially (offline). Consumer logs tmp/colossal-date-rebuild-*.log.
+After terminal inspect generated source fingerprint effects, follow prior date
+recovery maintenance/rebind workflow deliberately, not blindly rerunning old
+one-shot scripts. Existing market snapshot changed; audits/receipts must be
+refreshed for new selected generation. Need publication + savedreplays + broad
+report gate + register Bile scalar_colossal_jewel review with93case hashes and
+independent native boundary checking, then33review acceptance and completion.
+ProtectorFrost's recovered1perfect/2other sellers do not establish premium; no
+new Frost qualification yet. Read current recovered evidence (old audit predates
+recovery). Sixitem live authorization still pending, no fetch performed.
+
+## Named misc report gate green; finalizer running — 2026-10-02
+
+Bank57558 terminal0:1695passed,28639deselected,593.31s.
+ tmp/named-misc-final-bank-corrected.log.
+Shared named-jewelry receipt sources_unchangedtrue, generation216534f0e9aed6bd88b6d049093fddcbb11ab464c7036d9cd8f02e940db850c3.
+Finalizer6017 LIVE: tmp/named-misc-finish.log. Already accepted all32trade reviews;
+coverage_matrix child confirmed live. It will regenerate matrix,scope,completion.
+Do not restart or mutate bound runtime/review inputs before it exits.
+
+Next offline recovery remains prepared, not applied. See the following entry.
+Recovered Bile complete-roll cohort:6joint-perfect rows/4sellers,29other rows/6sellers.
+All from dated2026-09-18 scoped single asks. Premium is joint10poison damage and
+10pierce, with all XP/MF/gold fields required and legal. MaxXP/MF/gold alone does
+not establish an extra premium. Protector's Frost has1perfect seller and2other
+sellers: insufficient separate premium evidence. Draft Bile93cases prepared at
+ tmp/defender_bile_trade_cases.py, not registered or executed yet. This clones
+DefenderFire boundary structure using verified native332/336; use red-green.
+
+This goal turn completed a stable report gate and advanced roll evidence review.
+No live collection or authorization received. Goal remains active/incomplete.
+
+## Offline Colossal collection-date recovery prepared — 2026-10-02
+
+Previous goal turn was progress (fixture correction + independent roll review);
+this turn adds verified offline provenance and polls bank57558 live. It is still
+running (50% at last poll); do not restart it or mutate bound inputs yet.
+
+New authoritative research artifact:
+ pricing/data/appraisal-colossal-date-recovery-review-2026-10-02.json.
+Both raw WP-H files match dated per-item queries, exact hashes,100listings each,
+catalog IDs, original SC/NL/PC counts and collection log/timestamp bounds.
+Documented collection day2026-09-18 for Defender's Bile and Protector's Frost.
+Existing documented_day validator accepts both proposed entries.
+Dry recover_rows proves200date-only changes, preserving all existing trade policy
+source fingerprints. No production registry/market writes yet. Candidates:
+ tmp/colossal-date-review-candidates.json; dryproof tmp/colossal-date-dry-proof.json.
+Draft normalized rows tmp/colossal-dated-draft-rows.json omit final date proof and
+conversion snapshot fields; use date_recovery CLI after registering, not this draft
+as an import. Recovered Bile40dated scoped single asks/12sellers; Frost3/3sellers.
+Earlier audit's thin market count is true only before this provenance recovery.
+
+After bank57558 succeeds, run tmp/named-misc-finish.py before next mutation.
+Then append the two reviewed date records (not fabricated freshness), dry-run
+pricing.knowledge.date_recovery; expect200changes only and preserved policies.
+Apply/rebuild/verify/publish in sequence, then review material-roll segments.
+No live permission received or fetch performed; six-item request remains pending.
+This offline recovery may reduce that request's need; do not implicitly collect.
+
+## Shared named misc legality fix — 2026-10-02 (verification running)
+
+Previous Wisp work is fully verified: stable1695reports passed563.88s with
+sources_unchangedtrue. Finalizer43721 terminal0 accepted32trade reviews and
+regenerated matrix/scope/completion. Remaining110681required /8317trade tasks,
+completefalse on generation216534f0e9aed6bd88b6d049093fddcbb11ab464c7036d9cd8f02e940db850c3.
+Material/potion/scroll pricing audits were refreshed because Wisp changed the
+shared comparables source. No further Wisp registration/publication needed.
+
+Then implemented mechanics/named_variant_legality.py, shared by strict named_tiers
+and composed named_baselines. Known impossible ethereal/socketed/filled misc
+variants cannot regain identity baseline tiers. Uses the same reviewed CATALOGS
+misc families as market mechanics plus native base/nondurability identity checks;
+not a universal nodurability rule. Known ethereal sets remain rejected. Unknown
+premium facts keep identity baseline; valid ethereal armor and upgraded ethereal
+Ginther's Rift PhaseBlade remain allowed.
+
+Draft red45fail/3pass (including rendered Nature report), then actual production
+focused59pass2.28s including all8RainbowFacetIDs and CraftedSunderCharm.
+Broader policy916passed131.96s (collected before three CraftedSunder parameters
+were added; those3are covered by focused59). Ruff/format/diff clean. Expanded
+catalog audit53identities:0strict/0composed impossible tiers,1ambiguousFacetfixture
+excluded from diagnostic but covered by the eight explicit native tests. Artifacts:
+ appraisal-named-misc-variant-audit{,-green}-2026-10-02.json.
+
+Replay80943 terminal0: all20saved extraction/prices/text unchanged. Authority:
+ tmp/named-misc-selected-replay.json; proof tmp/named-misc-replay-proof.json.
+No rules/data publication change this pass; selected generation stays216534f0.
+Python changes require worker restart (not performed/confirmed).
+
+Bank4334 terminal1: 1691 passed and four stale report expectations failed for
+impossible ethereal/socketed Wisp rings. Corrected shared defensive-accessory
+fixtures to assert absence of Trade tier for those variants. Focused22 passed
+18.45s; lint clean. No production change after the previous59/916 test passes.
+Prepare73600 terminal0. Regenerated after fixture edits: prepare96665 terminal0,
+ tmp/named-misc-prepare-corrected.log.
+LIVE job, do not change code/tests/rules until terminal:
+- bank57558: tmp/named-misc-final-bank-corrected.log;1695selected report cases,
+  writes shared pricing/data/report-receipts/named-jewelry-trade.json.
+After success run uv run --offline python tmp/named-misc-finish.py, redirect
+ tmp/named-misc-finish.log; requires32reviews accepted then matrix/scope/completion.
+
+Independent offline review artifact:
+ pricing/data/appraisal-colossal-roll-review-2026-10-02.json.
+Defender's Bile: three dated single asks/three sellers, but only two double-perfect
+poison damage/pierce sellers and one nonperfect. Protector's Frost: two asks from
+one seller; both missing gold find. Neither supports a new threshold/price.
+
+Pending async user authorization (not answered): collect at most2pages each for
+Griffon, Nature, Aldur, Dwarf Star, Defender's Bile, Protector's Frost,12requests.
+ pricing/data/appraisal-roll-refinement-market-batch.json remains UNAPPROVED.
+ tmp/collect_roll_refinement_batch.py syntaxchecked, NOT RUN. Do not infer consent.
+No live fetch/import or publication occurred in this continuation.
+Previous Wisp acceptance is the preceding checkpoint; fresh source-bound receipts
+remain pending for this code change. Never run registration scripts again.
+
+Goal active; this turn made concrete progress, no blocker streak. No livecollection,
+staging, commit, workerrestart or navigation edits. Next after final checks:
+continue valuable-item roll reviews; Griffon and Nature market gaps are documented.
+
+## Named misc legality RCA while Wisp rerun runs — 2026-10-02
+
+Goal turn is progress plus verified wait. Handle29046 remains LIVE; stable bank
+log tmp/wisp-final-bank-stable.log was21% at last poll. Keep code/tests/rules
+unchanged. After terminal success run tmp/wisp-finish.py and inspect source-bound
+32-review acceptance, matrix/scope/completion. No other job is running.
+
+New source-bound diagnostic:
+ pricing/data/appraisal-named-misc-variant-audit-2026-10-02.json
+47 catalog identities examined with ethereal=True/partial stats:20strict tiers,
+45composed tiers, one ambiguous RainbowFacet fixture not assessed. Includes
+seasonal/disabled identities; NOT a scoped completion count. Reproducer script:
+ tmp/audit-named-misc-variants.py. No production edits were made.
+
+RCA: qualitative named_tiers rules often allow either known ethereal flag.
+More importantly named_baselines.assess_tier falls back to identity baseline when
+strict tier is absent, and only rejects known ethereal sets. Changing Nature's
+Peace's predicate alone would still leave its composed report tier low. Implement
+a shared native variant-legality guard for known impossible misc variants in both
+strict and composed paths; preserve existing identity baseline for genuinely
+unknown premium facts. Avoid a universal nodurability rule (upgraded ethereal
+PhaseBlades differ). Existing market_mechanics.CATALOGS/native misc mechanics
+and D2MOO ITEMS_MakeEthereal lines228+ establish the narrow misc families.
+Add red/green through actual composed report path, and explicit RainbowFacet
+identity variants rather than silently skipping the ambiguous fixture. Check
+sockets too where native misc mechanics establish impossibility. Do this AFTER
+stable Wisp final gates so current source receipts are not invalidated again.
+
+Nature's Peace audit now links this RCA. No cached listings, no new roll-price
+claim. Current selected generation216534f0e9aed6bd88b6d049093fddcbb11ab464c7036d9cd8f02e940db850c3.
+No live collection, restart, staging, commit or navigation edits.
+
+## Wisp final receipt rerun — 2026-10-02
+
+This turn made progress: all1695selected reports passed566.73s, but final review
+check25918 failed correctly because registry registration completed after the
+bank captured initial sources. The sole input difference was
+pricing/knowledge/assessment/rules/trade_qualification_reviews.json.
+No runtime test failed. The receipt has exitstatus0 but sources_unchangedfalse;
+DO NOT accept it or rewrite its fingerprints. Registration is now terminal and
+must never be rerun. Preparation and saved replay are terminal success.
+
+A fresh identical bank run is LIVE as handle29046:
+ tmp/wisp-final-bank-stable.log. Keep code, tests and rules
+unchanged until it finishes. Then run tmp/wisp-finish.py (32-review acceptance,
+matrix, scope and completion), record actual final counts and terminal status.
+Published generation remains216534f0e9aed6bd88b6d049093fddcbb11ab464c7036d9cd8f02e940db850c3.
+Goal active, not complete; no blocker streak.
+
+Independent research: Griffon raw cache has no description fields. Twelve
+25pierce/20damage Lightning Facet listings come from only two sellers. No direct
+known nonethereal empty cohort; total/flat defense must remain distinct. Details
+in appraisal-griffon-trade-audit-2026-10-02.{json,md}.
+Nature's Peace audit saved in appraisal-natures-peace-trade-audit-2026-10-02.json:
+zero cached market rows despite catalog/demand presence. Native variable rolls:
+PDR7–11, poisonres20–30; fixed RIP/noheal and level5OakSage27charges. Actual strict
+assess_tier reproduces an invalid ethereal ring as reviewed/low; unknowneth is
+conditional. Fix this next with red/green after source-bound Wisp gates complete.
+No runtime Nature policy or market inference edits yet. No livecollection,
+worker restart, staging, commit or navigation edits.
+
+## Wisp classification published; final gates running — 2026-10-02
+
+Goal active, concrete progress, no blocker streak. New selected generation:
+216534f0e9aed6bd88b6d049093fddcbb11ab464c7036d9cd8f02e940db850c3 (103 artifacts).
+Previous bc27ce generation retained. Wisp now has ordinary/premium qualification:
+premium requires both20%absorb and20%MF; single-perfect stays ordinary. Both legal
+10–20 rolls and known nonethereal/zero sockets/empty contents required. Exact
+pricing remains unavailable (121-grid audit), distinct from candidate status.
+Source-bound26ask rows preserved; raw cache unchanged.
+
+21 new item-bank cases: nine joint10/19/20points, six missing/outside points,
+six unknown/illegal variants. Red21fail→green; native scalar proof passes all21
+and rejects every single-case omission. 117 Wisp staged reports passed45.42s.
+Policy suite865passed/one stale unreviewed-Wisp expectation. Updated it to Dwarf
+Star and added Wisp source preservation; follow-up55passed/one new test branch
+omission, then corrected Wisp independent expected segment; the two affected
+tests pass. No production failure remains from those runs. Ruff/diff clean.
+
+Publication36546 terminal0. Registration18523 terminal0 appended Wisp as row31
+(32nd review), scalar_named_jewelry,21case fingerprints. DO NOT rerun either
+registration or implementation one-shot script. Replay7884 terminal0: all20
+extractions/prices/text unchanged, tmp/wisp-selected-replay.json and
+ tmp/wisp-replay-proof.json.
+
+LIVE jobs (poll authoritative handles):
+- final bank65349: tmp/wisp-final-bank.log; selected trade or wisp or arachnid;
+  writes pricing/data/report-receipts/named-jewelry-trade.json. Must finish and
+  source bindings must validate before review acceptance is claimed.
+- preparation52282 is terminal success: tmp/wisp-prepare.log; bank coverage,
+  observed replay, fixed and variable jewelry audits all finished.
+After both succeed run uv run --offline python tmp/wisp-finish.py, redirect to
+ tmp/wisp-finish.log. It asserts all32reviews accepted, then writes matrix,
+ scope manifest and ordinary completion. Inspect terminalcounts; overall goal
+ still unfinished. Do not run finish early or report the prior acceptance as fresh.
+
+Next item research: appraisal-griffon-trade-audit-2026-10-02.{json,md}. 68 scoped
+single-item asks/10sellers, none known nonethereal; filled/unknown sockets dominate.
+Need preserved raw variant evidence before new Griffon roll-price claims.
+No live collection, worker restart, staging, commit or navigation edits.
+
+## Wisp market projection in progress — 2026-10-02
+
+Previous goal turn made progress (Arachnid final acceptance plus Wisp source
+review). This turn implemented catalog/native-bound Wisp legacy absorb mapping
+in mechanics/wisp.py, reused by comparables.py and policies/trade_evidence.py.
+23 targeted tests passed red/green, including complete decoded fixed skills and
+actual cached listings; lint and diff checks passed. Raw cache untouched.
+All 121 legal pairs audited in appraisal-wisp-exact-grid-2026-10-02.json:
+107 no matches, 14 thin, maximum two exact sellers. No numeric price claimed.
+
+Regression handle4830 finished successfully: 239 passed in 276.57s,
+tmp/wisp-regressions.log (named contracts, comparables, family contracts and
+trade-policy suites). Grid handle6014 is terminal success. No running jobs.
+Published generation remains bc27ce0399bc0dabb5edb9ca652da254c388afffe6c1c59b8844f6b9f62ab135.
+Python/test edits invalidate previous report/source-bound receipts; Arachnid's
+31-review acceptance below is the preceding checkpoint, not fresh proof.
+Next: finish regressions, Wisp material threshold/item-bank/native maintenance
+review and selected replay/report gates. Do not rerun the Arachnid registration
+script. Full goal active; no live collection, staging, commit or worker restart.
+
+## Arachnid native review accepted — 2026-10-02
+
+All final jobs are terminal: 1,569 report cases passed; all 31 native trade
+reviews are accepted. Matrix, scope and ordinary completion checks finished
+successfully against generation bc27ce0399bc0dabb5edb9ca652da254c388afffe6c1c59b8844f6b9f62ab135.
+The overall goal remains unfinished: 110,682 required tasks, including 8,318
+trade-qualification tasks. The running-job notes below are historical.
+Evidence: tmp/arachnid-native-final-bank.log, tmp/arachnid-native-finish.log,
+tmp/arachnid-native-receipt-proof.json and tmp/arachnid-native-completion.log.
+No new publication, live collection, staging, commit or worker restart.
+Next: Wisp Projector's native percentage-absorb versus legacy listing field.
+
+## Arachnid native maintenance review — 2026-10-02 (final verification running)
+
+Goal active and unfinished; this and prior turns made concrete progress, no blocker
+streak. Runtime data generation remainsbc27ce0399bc0dabb5edb9ca652da254c388afffe6c1c59b8844f6b9f62ab135.
+No publication/data threshold change this pass. No livecollection/staging/commit/
+workerrestart/navigation edits. Workerrestart previouslyrequested, notconfirmed.
+
+New trade_arachnid.py checks exact native6properties, five roll definitions, EDop13
+and maxmanaop11, fixedcasterstats, legalnative90..120/120premium boundary. Cases
+retainformer109/110boundary, missing/outsideED,alluncertainvariants plusimpossible
+0socket/filled. Capturestayspartial; completeclaimwithoutdefense/charges rejected.
+Market helper now accepts an explicitselecteddefinition argument; nativechecker
+andfullcacheloader don't accidentally read a different workingtree definition.
+KnownFalseflag needs no totaldefense inference, but conflicting suppliedtotal still
+fails; newtest wentredthen green. Missingflag stillrequiresconsistent total1855.
+
+New trade_arachnid_evidence recomputes fullcurrentcache: perfect8rows/4sellers,
+lower4/2,unproven27/24. Newthirdlower seller (including explicitFalsewithouttotal)
+reopensreview; changedSHA/thinpositivecensus invalidates. Loader pinned to selected
+native definition; testglobalcatalogempty stillusespasseddefinition. trade_reviews
+adds native_unique_caster_belt scope and evidenceguard. Registryrow30 appended
+(31st); DO NOT rerun tmp/register-arachnid-review.py.
+
+Spec11passed; integrationred26fail/11pass→37pass30.33s. Evidence+inference50passed
+before extra loader test. Final broader1428policy/maintenance tests passed242.16s
+(tmp/arachnid-native-regressions.log,84373terminal0). Ruffcheck/format7files and
+gitdiffcheckpassed. No code/rule/test edits since finalbanklaunch.
+All20saved extraction/prices/text identical afterhelperchange; newauthority
+ tmp/arachnid-native-selected-replay.json,93496terminal0; proof
+ tmp/arachnid-native-replay-proof.json. Preparation42191terminal0.
+Finalbank51379running: tmp/arachnid-native-final-bank.log (same1569case selection).
+Afterterminalsuccess run tmp/arachnid-native-finish.py (asserts31acceptedreviews,
+thenmatrix/scope/completion). Oldreceipt remainsstale untilbankcompletes.
+
+Next useful item afterArachnid acceptance: Wisp Projector. New research
+pricing/data/appraisal-wisp-trade-audit-2026-10-02.{json,md}:26scoped datedasks,
+20sellers;7/7doubleperfect,19/14other,only2/2eachsingleperfect. Criticalaliasgap:
+legacy689 is labelledflatabsorb; native144 percentage maps1866. Do notchangeglobal
+mapping. Neednativeidentity-boundmarketprojection withdual-fieldconflict tests,
+thenreviewordinarynativefloor beforecandidateclaims. NoWispcodechangesyet.
+Harlequin rawcachehasno descriptions/socket clarification. Correctedpriorarmor
+researchnote:65rowsallpassscope,25lackobservationdate→40dated; differencewasnot
+scope rejection. Rawmarketcache unchanged; no blanketdate recovery performed.
+
+## Arachnid publication verified — 2026-10-02
+
+All jobs terminal. Finalbank37465 exited0:1569passed/28744deselected,529.31s.
+Preparation44479 exited0. Finish7007 exited0:30existingreviewsaccepted;
+matrix/scope/ordinarycompletion regenerated. Scopeverified,complete=false,
+110683requiredtasks and8319tradequalifications remain. No blocker streak;
+this and prior turn made concreteprogress. Goalactive, not completed.
+
+Selectedruntime bc27ce0399bc0dabb5edb9ca652da254c388afffe6c1c59b8844f6b9f62ab135,
+103artifacts; cab95retained. Onlynamed_tiers dataartifact changed, indexidentical.
+Python market_ethereal_inference/trade_evidence changed: userwas told restart
+appraisalworker; no restartperformed or confirmed. No livecollection/staging/
+commit/navigationedits. New replayauthority tmp/arachnid-selected-replay.json.
+20saved extraction/prices/text unchangedold/staged/selected, proof
+ tmp/arachnid-replay-proof.json. All embeddedmarketrowSHA verified againstcache.
+842policytests,535maintenance tradetests,63final inference/policyfocusedtests,
+73stagedArachnidreports,1569selectedreportcases pass; Ruff/format/diffclean.
+No code/rule/test edits sincefinalbanklaunch. Current sharedreceipt
+pricing/data/report-receipts/named-jewelry-trade.json. Logs tmp/arachnid-{final-bank,
+policy-suite-green,maintenance-green,finish,matrix,scope,completion}.log.
+
+Next: dedicated native Arachnid maintenance proof/census and registry entry,
+currentlypending (runtimepolicy is31st but only30acceptedreviews). Concrete plan
+atend of pricing/data/appraisal-arachnid-trade-review-2026-10-02.md. Reuse exact
+native verification with an explicitdefinitionargument; don't relax generic
+scalar op13 guard. Recompute source-bound lower/premium cohorts and require
+executed current nativeboundaryreports. Then continuevaluableitems (Harlequin,
+Griffon,WarTraveler facet gaps remain). Do notrerun tmp/add-arachnid-trade.py.
+
+## Arachnid roll refinement published — 2026-10-02 (verification running)
+
+Previous goal turn and this turn made concrete progress; no blocker streak. Goal
+active and unfinished. New selected generation
+bc27ce0399bc0dabb5edb9ca652da254c388afffe6c1c59b8844f6b9f62ab135 (103artifacts).
+Only named_tiers.json differs from cab95; index and all other artifacts identical.
+Publication17438 terminal0; proof tmp/arachnid-publication-artifacts-proof.json.
+This pass adds Python logic; user must restart appraisal worker. No hostrestart,
+livecollection, staging, commit or navigation edits performed.
+
+market_ethereal_inference.py opts in only Arachnid listing evidence using explicit
+native-consistent total1855 plusED425. Verifies exact6nativeproperties andelite
+Spiderwebbase55..62/0sockets; disjoint ethereal minimum. Missing flag alone is not
+false; contradictoryflags, upgraded/wrongbase, invalidrolls/totals and ambiguous
+sockets/contents are rejected. Does not alter raw rows or captured-item flags.
+trade_evidence validates explicit inference mode; old policies unchanged.
+
+New Arachnid trade qualification:120ED premium/high from8scoped single-item asks,
+4independent sellers; lower rolls mid/unresolved (only2complete-facet sellers),
+notworthless. Legacy110highoverride superseded. Fixedcasterutility remains.
+All embedded row fingerprints independently checked against fullmarketcache.
+Research pricing/data/appraisal-arachnid-trade-review-2026-10-02.md; earlier
+priority-armor-facet audit supplies exact source rows/native mechanics references.
+
+TDD: missingmodule red,37initialinference tests green;14policy red; expandedfocused
+63passed0.88s. Oldselected14Arachnidreportcases correctlyred. Bank now15newcases;
+all73stagedArachnid-related reports pass31.25s. Wrongbasebank fixture initially
+failed because builder rejects impossibleidentity; moved to captured-facts policy
+test. All842policy tests pass129.60s;535maintenance trade tests pass80.53s.
+Broadpolicy run exposedpreexisting ProtectorStone baselineexpectation: before
+andafter Arachnid it correctly refuses missingEDpair. Test now asserts missing
+rejection then verified30/30pair plusoriginal variantchecks. No Protector rulechange.
+Ruffcheck/format9files +gitdiffcheckpassed. No code/rule/test edits afterfinalbanklaunch.
+
+All20saved extraction,prices,text identicalold/staged/newselected;
+ tmp/arachnid-replay-proof.json. Newreplayauthority tmp/arachnid-selected-replay.json
+(42748terminal0). Stagedreplay12255terminal0. Final selectedbank37465 running:
+ tmp/arachnid-final-bank.log, alltradechecks plus Arachnid-related cases; writes
+ sharedreceipt named-jewelry-trade.json. Preparation44479running:
+ tmp/arachnid-prepare.log. Afterbothterminalsuccess run tmp/arachnid-finish.py:
+ asserts30existingreviewsaccepted, atomicallywritesmatrix, scope andcompletion.
+No Arachnid dedicatedmaintenance registry entry yet; that is the next missing
+trade-review proof, not all-item completion. Do notrerun tmp/add-arachnid-trade.py
+(one-shot alreadyapplied). Oldcab95 is retained. Allotherhandles terminal.
+
+## Titan native proof finalized — 2026-10-02
+
+All processes terminal. Fresh1496-case report bank43531 exited0 in501.61s;
+28802deselected. Dwarf13stale expectations corrected (withdrawn15MDR claim stays
+withdrawn), with separate13-case green15.28s.963maintenance/policy tests passed
+196.85s; Ruffcheck/format/diffcheck passed. No code/rule/test edits since final
+receipt launch. Preparation15735 exited0. Finish66752 exited0: all30registered
+trade reviews accepted, matrix atomicallywritten, scope+ordinarycompletion rebuilt.
+Scope verified; complete=false,110683required tasks and8319trade qualifications
+remain. Goalactive, no blocker streak; every recent turn made concrete progress.
+Runtimecab95unchanged; maintenance/test proof only. No livecollection, commit,
+staging, workerrestart or navigation edits. Currentreplay tmp/titan-selected-replay.json.
+Logs tmp/titan-native-final-bank-green.log, tmp/titan-native-final-maintenance.log,
+tmp/titan-native-{finish,matrix,scope,completion}.log. Source proof
+ tmp/titan-native-receipt-proof.json. No pending toolhandles; do not rerun one-shot
+ tmp/register-titan-review.py. Sharedreceipt named-jewelry-trade.json is current.
+
+Next concrete item: Arachnid Mesh. Read appraisal-priority-armor-facet-audit-2026-10-01.md
+and companionJSON: exact native propertylist, scoped rows, defense-based candidate
+nonethereal inference, current110ED legacytier concern, boundary/test plan. No
+Arachnid code was changed yet. Work offline; evidence limitations on Harlequin,
+Griffon and WarTraveler are captured too. Continue every required item;30reviews
+is a maintenance milestone, not all-item completion or a sufficient stopping goal.
+
+## Titan verification correction — 2026-10-02
+
+Supersedes pending handles in the next entry. Broad bank15542 exited1:
+13failed/1483passed in511.68s. All failures were stale Dwarf Star bank contracts
+left behind when the insufficient-seller15MDR qualification was withdrawn.
+Updated cases/dwarf_trade.py preserves all13 specimens and now asserts absence
+of the trade_qualification field via dirty-equals negated IsPartialDict, and no
+Trade lines. This follows the existing source review and policy tests; no runtime
+qualification or threshold was restored. Focused13passed15.28s,33657terminal0.
+Initial correction expected an empty object rather than omittedfield (13failed);
+second used unavailable IsNot (collectionerror); both superseded by green3log.
+Ruffcheck/formatpass. Noproduction code changed after963maintenance/policy pass.
+
+Fresh all1496 bank43531 running: tmp/titan-native-final-bank-green.log; receipt
+named-jewelry-trade.json remains invalid until this finishes successfully.
+Preparation15735terminal0: tmp/titan-native-prepare-green.log. Do not run completion
+against the failed receipt. After43531terminal0 run tmp/titan-native-finish.py.
+No code/rule/test edits since freshbank launch. New research notes/JSON do not
+change verification inputs. Goal active and incomplete; runtimecab95 unchanged.
+
+## Titan native trade proof — 2026-10-01
+
+Goal remains active and unfinished. Dedicated native checker now covers verified
+Ceremonial/Matriarchal base codes, paired enhanced damage150–200, leech5–9,
+fixed skill/replenishment/utility properties and original190/upgraded200 thresholds.
+The shared evaluator accepts an explicitly verified base override; upgraded items
+are no longer evaluated using the original code in the maintenance proof.
+
+The full current market census is recomputed, snapshot-bound and fingerprinted:
+original premium8rows/4sellers; upgraded6/4; explicit lower/nonethereal cohorts0;
+original unknowneth4/4; unknownbase10/7. Unknowns are never reassigned. New sufficient
+lower/nonethereal evidence, thin positive cohorts or changed source bytes reopen
+review. Scope ethereal_unique_javelin is registered as row29 (30th).
+
+Tests went red21fail/11pass to32pass; source census12pass; native report bank62pass.
+The bank adds both ED mismatch directions and jointly illegal shared values perbase.
+Trek shares identical ethereal variant constants; other review defaults unchanged.
+Ruffcheck and formatcheck pass9affected files. Broader maintenance/policy963passed
+196.85s. Final receipt and completion regeneration still pending at time of entry.
+Runtime remains cab95c4ef40bdfe2d30f90aeeb942beb0896b3e56b08fc1193d6184080846f94;
+this pass changes maintenance/test proofs only. Saved replay authority remains
+ tmp/titan-selected-replay.json. No network/staging/commit/restart/navigation edits.
+
+Current handles: finalbank15542 (tmp/titan-native-final-bank.log), maintenance21432
+terminal0, preparation42984terminal0. Final bank includes1496trade-check cases
+(previous receipt covered1436 before6new Titan cases; now includes older trade
+regressions too). After terminalsuccess run tmp/titan-native-finish.py. Preparation
+already regenerated bankcoverage, observed, fixed and variable market reviews.
+Do not rerun tmp/register-titan-review.py; it has already appended the entry.
+No code/rule/test changes since finalreceipt launch.
+
+Next offline refinement: Arachnid Mesh, followed by Griffon/Harlequin/War Traveler
+facet gaps. Research appraisal-priority-armor-facet-audit-2026-10-01.{json,md}
+records exact scoped rows and native roll axes. Property1855 total defense may
+support a tightly bounded nonethereal inference for Arachnid; property399 cannot.
+Do not publish a threshold until native definitions, contradictions and report
+boundaries are tested. Other cached armor variants retain unknown sockets/ethereal.
+
 ## 2026-09-30 — user-approved dormant planner definitions excluded
 
 User approved cutting planner item definitions placed in no profile and linked by no
@@ -9574,3 +11359,132 @@ role-status assertions in addition to stat-marker checks. Candidates include
 Topaz armor/helm families, sixLem gold-find swords, Ist shields and socketed named
 items. Do not blanket-move all dependencies. Then finish remaining15filled-source
 branches (diadems/JMoD etc.) and all other global completion queues.
+
+## Unconditional set effects repaired — 2026-10-01
+
+Published0f605fe633e9aeda365f96e587498d13d11df8432ec74d0ecc0cbb5743b5f951
+imports only addfunc0/absent extra properties as ordinary modifiers. Claws gains
+fixed poison skill damage25; Civerb gains the fixed8/8 per-level max-damage
+coefficient. Conditional set properties retain their previous semantics. No
+trade premium or numerical price was added. Red/green native/compiler cases,
+993 final selected item-bank cases,78 planner regressions, and20 saved replay
+comparisons passed. Full-file provenance refresh preserved exact reviewed records.
+
+Continue Claws fixed-armor trade proof: native67–74 defense, skilltab layer16,
+fixed poison, original/upgrade boundaries and rendered qualification checks.
+Current cache supports ordinary candidacy, not a perfect-defense premium (only
+two independent perfect-defense sellers). See
+pricing/data/appraisal-claws-trade-review-2026-10-01.md.
+Civerb variable flat max-damage remains separate; all-item completion remains open.
+
+## Claws original-base trade qualification reviewed — 2026-10-01
+
+The authoritative matrix now marks Claws identity trade_qualification reviewed
+(trade_reviews /rows/23). Its separate native proof validates fixed caster stats,
+parameter-to-property-slot binding, unconditional poison bonus, original67–74
+armor and native Vambraces exclusion. Legal test cases include the complete fixed
+functional stat set; missing/wrong native evidence cannot certify the review.
+72 maintenance regressions and1003 final selected item-bank cases passed.24 trade
+reviews accepted. Runtime generation remains0f605fe633e9aeda365f96e587498d13d11df8432ec74d0ecc0cbb5743b5f951;
+no tier/premium/price behavior changed. No perfect-defense premium established.
+
+Next is Tal Rasha's Fine-Spun Cloth variable MF and original-base proof; source
+findings and narrow scope requirements are in
+pricing/data/appraisal-tal-belt-trade-review-2026-10-01.md. All-item work remains
+unfinished; identity trade review does not close set/build fit or numerical price.
+
+## Tal belt original-base trade qualification reviewed — 2026-10-01
+
+New original_set_mf maintenance scope verifies the native variable MF interval,
+fixed modifiers (including shifted mana), ordered partial set activation and
+original/upgraded bases.46 native cases cover every MF roll10–15 in ordinary,
+partial-defense and partial-defense-plus-FCR states, plus missing/invalid rolls
+and identification/ethereal/socket/content boundaries.141 maintenance regressions
+and1049 selected bank cases passed; all25 registered reviews accepted. The matrix
+marks this identity's trade qualification reviewed at trade_reviews /rows/24.
+Runtime generation remains0f605fe633e9aeda365f96e587498d13d11df8432ec74d0ecc0cbb5743b5f951.
+No runtime policy or economic threshold changed:15MF ordinary candidate,
+10–14unresolved; no upgraded, defense-premium, set/build-fit or price claim.
+
+Next: explicit partial-evidence scalar/compound jewelry scopes for Mara and
+Nagelring, preserving unresolved lower-roll segments. See
+pricing/data/appraisal-partial-jewelry-trade-review-2026-10-01.md. Selected Mara
+boundary probes already reject impossible resistances; no runtime boundary bug
+was found. All-item completion remains open.
+
+## Mara and Nagelring trade reviews accepted — 2026-10-01
+
+Explicit partial-evidence scopes retain reviewed unknown lower-roll vectors only
+when a current, source-pinned full-cache census supports evidence-unavailable.
+Mara20–26 resistance has one priced independent seller; Nagel15–29MF has zero.
+Changed snapshots, stale fingerprints, expanded bounds or three sellers prevent
+closure. The existing full-disposition scopes still reject unknown legal branches.
+No runtime threshold changed, and unknown does not mean use-only or worthless.
+
+95 native cases cover legal ranges, independent/shared components, missing and
+impossible values, variants and rendered trade colors.301 maintenance regressions
+and1144 selected bank cases passed.27 registered reviews accepted; matrix trade
+qualification rows25/26 now reviewed. Selected runtime generation remains
+0f605fe633e9aeda365f96e587498d13d11df8432ec74d0ecc0cbb5743b5f951.
+The scalar verifier now treats impossible native vectors as unresolved before
+premium predicates, matching runtime behavior. The evidence census is preserved
+in pricing/data/appraisal-partial-trade-regions-2026-10-01.json.
+
+Next existing rules: ethereal Titan's Revenge, ethereal Sandstorm Trek, Opalvein
+native property choices. Source findings are in
+pricing/data/appraisal-remaining-qualified-items-review-2026-10-01.md. These are
+not the remaining all-item denominator; the overall goal is unfinished.
+
+
+2026-10-01 Opalvein choice census and bank repair: 16 stale lightning positives
+reproduced red, corrected to unresolved under published fire/cold-only choice_keys.
+90 native report cases pass with fixed proc/FCR included and invalid/mixed choice
+boundaries. Full receipt1234pass384.26s;22policy and131maintenance regressions pass.
+Strict full-cache census: fire4,cold3,lightning2,magic2,physical1,poison1 independent
+sellers. Other choices remain thin, not worthless. No runtime policy/generation
+change;27existing reviews accepted. Dedicated choice proof still pending. Matrix,
+scope,completion regenerated: verified scope,complete=false,110686required tasks,
+8322tradequalification gaps. Evidence: appraisal-opalvein-choice-audit-2026-10-01
+.md/.json. No network/restart/staging/commit. Goal active; all handles terminal.
+
+
+2026-10-01: Opalvein dedicated trade-choice review accepted. New native proof
+validates all six mutually exclusive properties, native shared rolls, encoding,
+fixed modifiers and every conflicting pair; independent seller census is recomputed
+from the pinned full market snapshot. Fire/cold qualify, other choices remain thin
+and unresolved. Changing evidence invalidates the review. 182 Opalvein native cases,
+471 maintenance/policy regressions, and 1326 selected published report cases pass
+(400.92s final bank). All28registered reviews accepted. Matrix/scope/completion
+regenerated: scopeverified,complete=false,110685required tasks,8321trade gaps.
+Runtime generation0f605 and trade thresholds unchanged. No network/restart/commit.
+Next current-policy reviews: Titan and Trek, preserving audited variant/evidence
+limits. Wider all-item goal stays active; no live processes or blocker streak.
+
+
+2026-10-01: Sandstorm Trek native trade review accepted. Four material axes,
+native repair/stamina and ethereal variant checks preserve the 15/15 attribute
+segment without claiming a universal price ranking. Full source-bound census
+keeps nonethereal evidence unknown (0 explicit sellers); omitted flags stay
+unknown. New sufficient evidence or stale source invalidates the review.
+54 distinct Trek cases; 505 selected maintenance/policy tests pass. Shared
+report receipt: 1380 passed, 28870 deselected in 416.65s. All 29 registered reviews
+accepted; scope verified and completion remains false: 110684 required tasks,
+8320 trade qualifications. Registry Trek row28. Runtime generation0f605 unchanged;
+no network, restart, staging or commit. All handles terminal. Next current-policy
+review: Titan's Revenge, retaining original/upgraded cutoff caveats. The wider
+all-item goal remains active, with no blocker streak.
+
+
+2026-10-01: Titan runtime correction published in cab95c4ef40bdfe2d30f90aeeb942beb0896b3e56b08fc1193d6184080846f94.
+Original ethereal190%+ segment retained; upgraded ethereal requires200% ED. Both
+high-tier overrides and explicit trade qualification now use separate base guards
+and paired ED. Upgraded190–199 remains mid/unresolved, not worthless. Independent
+cohorts preserved (original8asks/4sellers; upgraded6/4). Only named_tiers.json
+changed among103published artifacts; index and other artifacts unchanged.
+Red/green cutoff and tier tests;56staged Titan cases pass,574maintenance/policy
+tests pass,1436selected published cases pass487.58s. All20saved decoded outputs,
+text and prices match old/staged/selected. All29existing reviews accepted; matrix,
+scope,completion rebuilt for cab95: scopeverified,complete=false,110684required
+tasks and8320trade gaps. Titan native maintenance proof remains pending and must
+use a verified upgraded base code (scalar _outcome assumes original definition).
+No network/restart/staging/commit. All handles terminal; goal remains active.

@@ -24,3 +24,26 @@ def test_obsolete_affixes_do_not_set_top_tier_or_add_unavailable_brackets(rare):
     assert rows[0][prefix + 'quality_ranges']['fixture-base']['7'] == {'min': 10, 'max': 20 if rare else 30}
     # Historical identity/range evidence stays intact; it cannot define today's ceiling.
     assert rows[-1]['roll_ranges']['7']['max'] == 50
+
+
+def test_unreachable_grand_charm_vita_tier_does_not_raise_life_ceiling():
+    # Native magicsuffix records 338/339/340; the last requires affix level 110.
+    rows = []
+    for level, low, high in ((77, 36, 40), (91, 41, 45), (110, 46, 50)):
+        row = affix(low, high, 1, rare=False)
+        row['game_definition']['level'] = level
+        rows.append(row)
+    add_charm_quality_ranges(rows)
+    assert rows[0]['roll_tiers']['fixture-base']['7'] == [{'min': 41, 'max': 45}, {'min': 36, 'max': 40}]
+    assert rows[0]['quality_ranges']['fixture-base']['7'] == {'min': 36, 'max': 45}
+    assert rows[-1]['roll_ranges']['7']['max'] == 50
+
+
+@pytest.mark.parametrize('rarity', ['magic', 'rare', 'crafted'])
+@pytest.mark.parametrize(('level', 'eligible'), [(99, True), (100, False), (110, False)])
+def test_affix_generation_respects_native_maximum_level(rarity, level, eligible):
+    from pricing.knowledge.assessment.mechanics.affix_pool import can_generate
+
+    row = affix(1, 2, 1)
+    row['game_definition']['level'] = level
+    assert can_generate(row, 'fixture-base', rarity) is eligible

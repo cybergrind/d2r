@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from inventory_tracking.appraisal.build_use_summary import build_use_summary
+from inventory_tracking.appraisal.build_use_summary import build_use_summary, detail_lines
 
 
 def role(i, **changes):
@@ -31,7 +31,8 @@ def test_summary_budget_preserves_all_details_and_deduplicates_targets():
     assert sum('Level 17 Meditation' in line for line in summary.lines) == 1
     assert '+7 more' in '\n'.join(summary.lines)
     assert '0 more groups' not in '\n'.join(summary.lines)
-    assert 'at least 5 builds' in summary.lines[0]
+    assert summary.lines[0] == 'Build use'
+    assert '0 confirmed / 10 conditional builds' in summary.lines[1]
     assert roles == saved
     assert summary == build_use_summary(
         list(reversed(roles)), {'grade': 'Pending', 'distinct_builds': 5, 'complete': False}
@@ -48,8 +49,9 @@ def test_base_dependencies_beneficiaries_and_failures_are_not_hidden_by_top_thre
     ]
     summary = build_use_summary(roles)
     assert len(summary.clusters) == 5
-    assert any('1 failed' in line for line in summary.lines)
-    assert any('2 more groups' in line for line in summary.lines)
+    assert not any('failed' in line for line in summary.lines)
+    assert 'Wrong base' in '\n'.join(detail_lines(summary))
+    assert any('Other matching configurations: 1' in line for line in summary.lines)
     assert len(summary.details) == 5
     assert len(summary.lines) <= 8
 
@@ -64,7 +66,8 @@ def test_omitted_failure_reason_survives_and_build_labels_are_readable():
     roles = [role(i, build=f'example-{i}-build-guide') for i in range(4)]
     roles.append(role(9, status='failed', failed=['Requires an elite polearm']))
     summary = build_use_summary(roles)
-    assert 'Requires an elite polearm' in '\n'.join(summary.lines)
+    assert 'Requires an elite polearm' not in '\n'.join(summary.lines)
+    assert 'Requires an elite polearm' in '\n'.join(detail_lines(summary))
     assert 'Example 0' in '\n'.join(summary.lines)
     assert 'example-0-build-guide' not in '\n'.join(summary.lines)
 
@@ -143,7 +146,8 @@ def test_reviewed_progression_groups_equivalent_variants_but_preserves_rule_boun
     summary = build_use_summary(roles, demand)
     assert len(summary.clusters) == 3
     assert {r['variant'] for r in next(g for g in summary.clusters if len(g) == 2)} == {'Standard', 'Magic Find'}
-    assert 'Starter' in summary.lines[2]
+    assert 'Endgame' in summary.lines[2]
+    assert any('Starter' in line for line in summary.lines)
     assert len(summary.details) == 4
 
 
@@ -428,3 +432,50 @@ def test_nested_alternative_uses_parent_truth_instead_of_one_satisfied_child():
         ],
     )
     assert companion_lines(candidate) == ('    Needs: Spirit on swap and a supported mercenary weapon',)
+
+
+def test_one_build_is_not_both_confirmed_and_conditional_in_compact_summary():
+    from inventory_tracking.appraisal.build_use_summary import detail_lines
+
+    roles = [
+        role(1, build='lightning-sorceress', variant='Main', status='matched', missing=[]),
+        role(2, build='lightning-sorceress', variant='Starter', status='partial'),
+        role(3, build='poison-necromancer', status='failed', failed=['Wrong skill tree']),
+    ]
+    summary = build_use_summary(roles, {'grade': 'Pending', 'distinct_builds': 2, 'complete': False})
+    compact = '\n'.join(summary.lines)
+    assert '1 confirmed / 0 conditional builds' in compact
+    assert 'Pending' not in compact
+    assert 'at least' not in compact
+    assert 'Starter' not in compact
+    assert 'Poison' not in compact
+    assert 'Wrong skill tree' not in compact
+    assert 'Details: 3 uses' not in compact
+    details = '\n'.join(detail_lines(summary))
+    assert 'Starter' in details
+    assert 'Wrong skill tree' in details
+    assert len(summary.details) == 3
+
+
+def test_confirmed_variant_keeps_actionable_requirements_for_another_endgame_variant():
+    roles = [
+        role(1, build='echoing-strike-warlock-guide', variant='Standard', status='matched', missing=[]),
+        role(
+            2,
+            build='echoing-strike-warlock-guide',
+            variant='Ubers',
+            status='partial',
+            dependencies=[
+                {
+                    'label': 'Complete Sazabi mercenary set',
+                    'status': 'false',
+                    'trace': {'reason': 'mercenary_items: Sazabi'},
+                }
+            ],
+        ),
+    ]
+    summary = build_use_summary(roles)
+    text = '\n'.join(summary.lines)
+    assert '1 confirmed / 0 conditional builds' in text
+    assert 'Ubers · conditional' in text
+    assert 'Needs: Complete Sazabi mercenary set' in text

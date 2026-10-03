@@ -16,13 +16,18 @@ def test_replenishment_comparison_requires_rate_units_even_under_negation(unit):
     assert evaluate({'not': RULE}, item).truth == 'unknown'
 
 
-def test_correct_rate_can_match_but_absence_cannot_supply_a_typed_zero():
+def test_correct_rate_matches_and_only_complete_absence_can_supply_zero():
     item = replace(
         facts('Flying Axe', 'rare'), stats={'253:0': {'status': 'decoded', 'value': 10, 'unit': 'replenishment_rate'}}
     )
     assert evaluate(RULE, item).truth == 'true'
     assert evaluate({**RULE, 'value': 11}, item).truth == 'false'
-    assert evaluate({**RULE, 'value': 0, 'absent_is_zero': True}, replace(item, stats={})).truth == 'unknown'
+    zero_rule = {**RULE, 'value': 0, 'absent_is_zero': True}
+    absent = replace(item, stats={}, capture_complete=True, gaps=())
+    assert evaluate(zero_rule, absent).truth == 'true'
+    assert evaluate(zero_rule, replace(absent, capture_complete=False)).truth == 'unknown'
+    assert evaluate(zero_rule, replace(absent, gaps=('Unresolved stat capture',))).truth == 'unknown'
+    assert evaluate({**zero_rule, 'absent_is_zero': False}, absent).truth == 'unknown'
 
 
 @pytest.mark.parametrize('unit', ['', True, 10, [], 'invented_unit'])

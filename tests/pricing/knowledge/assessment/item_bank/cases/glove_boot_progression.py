@@ -131,6 +131,10 @@ def late_cases():
             ('missing-roll', replace(item, raw_stats=tuple(s for s in stats if s[0] != missing)), 'med', 'unknown'),
             ('unidentified', replace(item, identified=False), None, 'negative'),
         ):
+            if name == 'Sandstorm Trek' and label == 'premium':
+                # This legacy partial capture has no ED roll and is nonethereal.
+                # Perfect attributes cannot establish the reviewed ethereal premium.
+                label, tier, scenario = 'high-attributes-missing-defense', 'med', 'unknown'
             yield Case(
                 id=f'glove-boot-late/{name}/{label}',
                 item=candidate,

@@ -30,6 +30,7 @@ from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.memory import observe_level
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location
 from inventory_tracking.levels.registry import handler_for
+from inventory_tracking.levels.spots import pinpoint
 from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
 
@@ -64,6 +65,8 @@ class LevelGuide:
         evidence=None,
         observe_walls=None,
         library=None,
+        visited_rooms=None,
+        map_dots=None,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.seconds, self.poll_interval, self.clock, self.observe = seconds, poll_interval, clock, observe
@@ -81,6 +84,8 @@ class LevelGuide:
         # Walkable tiles of loaded rooms, remembered for the current level (called under the capture lock).
         # The library (levels/walls.py) draws rooms of already-seen layouts before they load.
         self.observe_walls, self.library = observe_walls, library
+        self.visited_rooms = visited_rooms  # area -> bounds of the rooms ever loaded (terror/tracker.py)
+        self.map_dots = map_dots  # area -> live MapPoi dots: monsters, Heralds (terror/tracker.py)
         self.walls = {}
         self.rooms = ()  # the current level's rooms, for the library
         # Walls read this game, per level: a trip to town must not lose generated terrain, which
@@ -182,7 +187,7 @@ class LevelGuide:
             self._present(LevelSnapshot(location, tuple(rooms)), Guidance())
 
     def _present(self, snapshot: LevelSnapshot, guidance: Guidance):
-        self.shown = (snapshot, guidance.pois)
+        self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
         self.visible, self.expires = self._card(snapshot.location), self.clock() + self.seconds
 
     def press(self, requested_at: float) -> bool:
@@ -227,7 +232,9 @@ class LevelGuide:
 
     def _card(self, location: Location) -> list:
         snapshot, pois = self.shown
-        card = build_map(snapshot, pois, location, self.walls.values())
+        visited = self.visited_rooms(location.area_id) if self.visited_rooms is not None else None
+        dots = self.map_dots(location.area_id) if self.map_dots is not None else ()
+        card = build_map(snapshot, pois, location, self.walls.values(), visited=visited, dots=dots)
         return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
 
     def dismiss(self):

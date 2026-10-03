@@ -150,7 +150,7 @@ def test_reviewed_temporary_merc_uses_do_not_exclude_aura_or_player_roles():
                 assert (f'use:{profile["id"]}:{quality}' in excluded) is temporary
 
 
-def test_basic_starter_amulet_uses_preserve_specialist_and_mixed_sources():
+def test_basic_starter_amulet_uses_preserve_specialist_and_stronger_sources():
     import json
     from pathlib import Path
 
@@ -162,16 +162,24 @@ def test_basic_starter_amulet_uses_preserve_specialist_and_mixed_sources():
         'nova-starter-amulet',
         'fist-of-the-heavens-paladin-0-magic-skill-fcr-amulet',
         'fist-of-the-heavens-paladin-1-magic-skill-fcr-amulet',
+        'fire-warlock-guide-0-magic-skill-fcr-amulet',
+        'fissure-druid-0-magic-skill-fcr-amulet',
     }
     protected = {
         'enchant-budget-amulet',
         'enchant-prebuff-amulet',
         'lightning-starter-amulet',
-        'fire-warlock-guide-0-magic-skill-fcr-amulet',
-        'fissure-druid-0-magic-skill-fcr-amulet',
+        'poison-nova-necromancer-starter-venomous',
+        'poison-nova-necromancer-budget-venomous',
     }
     for role in ordinary | protected:
         assert (f'use:{role}:magic' in excluded) is (role in ordinary)
+    # The excluded Fire profile describes only the modest magic item, not the
+    # stronger crafted amulet embedded in the same source variant.
+    fire = next(p for p in profiles if p['id'] == 'fire-warlock-guide-0-magic-skill-fcr-amulet')
+    assert fire['qualities'] == ['magic']
+    assert f'use:{fire["id"]}:crafted' not in excluded
+    assert any('Bitter Mark' in quote for quote in fire['source']['quotes'])
 
 
 def dimension_inputs(tmp_path):
@@ -185,6 +193,22 @@ def dimension_inputs(tmp_path):
     )
     review['dimensions'] = [entry]
     return profile, review
+
+
+def test_modest_crafted_thrower_exclusions_keep_named_and_premium_rare_uses():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    excluded = use_exclusions(profiles, review, root)
+    for slot in ('weapon', 'offhand'):
+        assert f'use:double-throw-starter-crafted-{slot}:crafted' in excluded
+        assert f'use:double-throw-rare-planner-{slot}:rare' not in excluded
+    for ethereal in ('ethereal', 'nonethereal'):
+        for slot in ('weapon', 'off-hand'):
+            assert f'use:double-throw-scalper-{ethereal}-{slot}:unique' not in excluded
 
 
 def test_dimension_scope_excludes_only_leveling_for_the_exact_use(tmp_path):
@@ -462,6 +486,48 @@ def test_dimension_review_can_pin_an_exact_quote_when_profile_has_none(tmp_path,
         assert use_exclusions([profile], review, tmp_path) == {}
 
 
+@pytest.mark.parametrize('mutation', [None, 'other-slot', 'other-file', 'hash', 'invented', 'parent', 'no-link'])
+def test_use_review_can_pin_its_exact_equipment_quote_without_rewriting_profile(tmp_path, mutation):
+    import hashlib
+    import json
+
+    profile, review = inputs(tmp_path)
+    source = tmp_path / 'source.json'
+    source.write_text(json.dumps({'gear': {'Weapon': ['Temporary +1 skill dagger'], 'Swap': ['Valuable prebuff']}}))
+    profile['source'] = {
+        'path': 'source.json',
+        'sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
+        'locator': '/gear/Weapon',
+    }
+    row = review['uses'][0]
+    row.update(
+        profile_sha256=profile_fingerprint(profile),
+        source=deepcopy(profile['source']),
+        quote='Temporary +1 skill dagger',
+        quote_source={**profile['source'], 'locator': '/gear/Weapon/0'},
+    )
+    if mutation == 'other-slot':
+        row['quote_source']['locator'] = '/gear/Swap/0'
+        row['quote'] = 'Valuable prebuff'
+    elif mutation == 'other-file':
+        row['quote_source']['path'] = 'other.json'
+    elif mutation == 'hash':
+        row['quote_source']['sha256'] = 'wrong'
+    elif mutation == 'invented':
+        row['quote'] = 'Not in this source'
+    elif mutation == 'parent':
+        row['quote_source']['locator'] = '/gear'
+    elif mutation == 'no-link':
+        del row['quote_source']
+    if mutation:
+        with pytest.raises(ValueError, match='generic leveling source'):
+            use_exclusions([profile], review, tmp_path)
+    else:
+        result = use_exclusions([profile, {**profile, 'id': 'valuable-prebuff'}], review, tmp_path)
+        assert set(result) == {'use:temporary-dagger:magic', 'use:temporary-dagger:rare'}
+        assert 'quotes' not in profile['source']
+
+
 def test_farming_scope_preserves_trade_and_exceptional_leveling_identity_reviews():
     import json
     from pathlib import Path
@@ -583,7 +649,11 @@ def test_ordinary_starter_fillers_do_not_exclude_premium_candidates():
     profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
     review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
     excluded = use_exclusions(profiles, review, root)
-    for role in ('summoner-necromancer-guide-starter-rare-amulet', 'fire-blast-starter-rare-resistance-ring'):
+    for role in (
+        'summoner-necromancer-guide-starter-rare-amulet',
+        'fire-blast-starter-rare-resistance-ring',
+        'nova-starter-boots',
+    ):
         assert excluded[f'use:{role}:rare']['state'] == 'excluded'
     # These remain review leads: do not infer low demand from a Starter label.
     retained = {
@@ -592,6 +662,7 @@ def test_ordinary_starter_fillers_do_not_exclude_premium_candidates():
         'poison-nova-necromancer-0-rhyme',
         'fire-blast-starter-rare-amulet',
         'poison-nova-white-alternative',
+        'smite-starter-crafted-belt',
     }
     selected = [profile for profile in profiles if profile['id'] in retained]
     assert {profile['id'] for profile in selected} == retained
@@ -600,3 +671,70 @@ def test_ordinary_starter_fillers_do_not_exclude_premium_candidates():
             assert f'use:{profile["id"]}:{quality}' not in excluded
     assert all(key.startswith('use:') for key in excluded)
     assert review['migration_status'] == 'partial'
+
+
+def test_ordinary_bulwark_survival_uses_preserve_specialist_and_item_scope():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    excluded = use_exclusions(profiles, review, root)
+    ordinary = {
+        'fissure-starter-merc-bulwark',
+        'smite-paladin-0-merc-bulwark-native',
+        'zeal-paladin-early-merc-bulwark',
+        *{
+            build + '-0-merc-bulwark-native'
+            for build in (
+                'abyss-warlock-build-guide',
+                'berserk-barbarian',
+                'blessed-hammer-paladin',
+                'blizzard-sorceress',
+                'double-throw-barbarian-guide',
+                'echoing-strike-warlock-guide',
+                'fire-warlock-guide',
+                'lightning-fury-amazon-guide',
+                'lightning-sentry-assassin',
+                'lightning-sorceress',
+                'lightning-strike-amazon',
+                'nova-sorceress-guide',
+                'poison-nova-necromancer',
+                'strafe-amazon',
+                'wake-of-fire-assassin',
+            )
+        },
+    }
+    retained = {
+        'enchant-sorceress-0-merc-bulwark-native',
+        'fist-of-the-heavens-paladin-0-merc-bulwark-native',
+        'fist-of-the-heavens-paladin-1-merc-bulwark-native',
+        'zeal-paladin-bulwark-player-equipment-alternative',
+        'abyss-warlock-merc-table-bulwark',
+    }
+    selected = {p['id']: p for p in profiles if p['id'] in ordinary | retained}
+    assert selected.keys() == ordinary | retained
+    for ident, profile in selected.items():
+        for quality in profile['qualities']:
+            assert (f'use:{ident}:{quality}' in excluded) == (ident in ordinary)
+    assert all(key.startswith('use:') for key in excluded)
+    assert review['migration_status'] == 'partial'
+
+
+def test_medium_sigon_walkthroughs_keep_exceptional_leveling_and_item_scope():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[5]
+    profiles = json.loads((root / 'pricing/data/appraisal-build-profiles.json').read_text())['profiles']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    excluded = use_exclusions(profiles, review, root)
+    sigon = [p for p in profiles if '-starter-set-Sigon' in p['id']]
+    assert len(sigon) == 9
+    assert all(f'use:{p["id"]}:set' in excluded for p in sigon)
+    valuable = [p for p in profiles if p.get('names') in (["Death's Hand"], ["Death's Guard"], ["Sander's Riprap"])]
+    assert valuable
+    assert all(f'use:{p["id"]}:set' not in excluded for p in valuable)
+    assert all(key.startswith('use:') for key in excluded)
+    assert 'pricing/data/appraisal-recommendations.json' in review['inputs']

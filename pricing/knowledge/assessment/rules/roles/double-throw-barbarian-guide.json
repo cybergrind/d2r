@@ -3047,7 +3047,7 @@
           "2x Hustles on Weapon-Swap can be used to pre-buff Burst of Speed with Double Swing for Faster Run/Walk and Attack Speed.",
           "The Starter Double Throw Barbarian uses an Act 2 Might Mercenary with Hustle for the Attack Speed, Damage, and Attack Rating provided by its Fanaticism Aura. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
         ],
-        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4–6life leech and10–15physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/runes.json",
@@ -7717,6 +7717,501 @@
       "conditions": [
         "Keep in the active inventory for bonuses; compare damage, hit chance and Dexterity benefit per inventory cell. Both native Dexterity tiers qualify; the perfect planner roll is not required.",
         "Attack rating supports hit chance, not guaranteed hits. Dexterity can support weapon requirements and physical damage; it does not guarantee a complete build or a trade premium."
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-vita",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/14",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Vita"
+        ],
+        "review": "2026-10-01: Exact main Charms option14, raw equipment span201, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Attainable Vita tiers are36-40 and41-45 life. The guide does not require a perfect life roll."
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-balance",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/15",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Balance"
+        ],
+        "review": "2026-10-01: Exact main Charms option15, raw equipment span202, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/265",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "99:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "12% Faster Hit Recovery contributes to the complete loadout; it alone does not prove a recovery breakpoint."
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-inertia",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/16",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Inertia"
+        ],
+        "review": "2026-10-01: Exact main Charms option16, raw equipment span203, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/399",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with run/walk",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "96:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Run/walk supports movement, not Faster Cast Rate or teleport speed."
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-plain",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/17",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm"
+        ],
+        "review": "2026-10-01: Exact main Charms option17, raw equipment span204, linked db0106mf planner and native Sharp253 (49-76AR,7-10maximum damage). Plain Sharp requires no secondary suffix; optional bonuses remain useful. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout."
+      ]
+    },
+    {
+      "id": "double-throw-barbarian-guide-main-sharp-maiming",
+      "build": "double-throw-barbarian-guide",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/slots/Charms/12",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Maiming"
+        ],
+        "review": "2026-10-01: Main Charms option12 and raw equipment span199 link db0106mf item62. Native Sharp253 provides49-76 attack rating and7-10 maximum damage; Maiming678 adds3-4 maximum damage. Require captured native affix identities because combined minimum10 overlaps plain Sharp maximum10. Planner14/76 is a perfect example, not a minimum requirement. Softcore/Non-Ladder contribution; no inferred price premium.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/db0106mf.json",
+            "locator": "/data",
+            "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/678",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with Maiming",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 10,
+            "absent_is_zero": true
+          },
+          {
+            "op": "affix_present",
+            "table": "prefix",
+            "value": 1038
+          },
+          {
+            "op": "affix_present",
+            "table": "suffix",
+            "value": 678
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to the physical weapon attack; assess it with the equipped weapon and complete loadout.",
+        "Sharp plus Maiming totals10-14 maximum damage. Captured affix identity distinguishes it from other combinations with the same total."
       ]
     }
   ]

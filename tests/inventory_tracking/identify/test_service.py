@@ -114,6 +114,22 @@ def wait(worker):
     worker.future.result(timeout=5)
 
 
+def test_full_identify_observation_survives_lookup_failure(parts):
+    worker, _state, _displays, _notifications, output = parts
+
+    def fail(observation):
+        files = list((output / 'identified').glob('*.json'))
+        assert len(files) == 1
+        assert json.loads(files[0].read_text())['observation'] == observation
+        raise RuntimeError('lookup failed')
+
+    worker.retrieve = fail
+    worker._assess(['1'])
+    [path] = (output / 'identified').glob('*.json')
+    assert json.loads(path.read_text())['observation'] == observation(unit_id=1)
+    assert any('lookup failed' in issue for issue in worker.last_result['issues'])
+
+
 def test_first_read_is_a_baseline_and_newly_identified_items_are_assessed(parts):
     worker, state, displays, notifications, tmp_path = parts
     assert worker.poll(100.0)
@@ -446,3 +462,104 @@ def test_trade_reasons_stay_keep_with_an_owned_copy():
     result['price_estimate'] = {'estimate_ist': 3}
     owned = {'kind': 'unique Ring', 'count': 2, 'relation': 'worse', 'perfection': None, 'copies': []}
     assert verdict_for(result, owned) == ('keep', 'asks ~3 Ist')
+
+
+@pytest.mark.parametrize('base', ['Small Charm', 'Large Charm', 'Grand Charm', 'Jewel', 'Colossal Jewel'])
+def test_useful_multiple_copy_items_remain_keep_with_better_owned_copy(base):
+    result = saved_result()['result']
+    result['extraction']['item'].update(base_name=base, name=base, rarity='magic')
+    result.setdefault('assessment', {})['roles'] = [role('matched')]
+    owned = {'kind': base, 'count': 3, 'relation': 'worse', 'perfection': None, 'copies': []}
+    assert verdict_for(result, owned)[0] == 'keep'
+
+
+@pytest.mark.parametrize('status', ['candidate', 'premium'])
+def test_qualified_trade_item_is_keep_even_when_a_better_copy_satisfies_build(status):
+    result = saved_result()['result']
+    result.setdefault('assessment', {}).update(
+        roles=[role('matched')], trade_qualification={'status': status, 'reason': 'Reviewed valuable combination.'}
+    )
+    owned = {'kind': 'Ring', 'count': 2, 'relation': 'worse', 'perfection': None, 'copies': []}
+    assert verdict_for(result, owned) == ('keep', 'Reviewed valuable combination.')
+
+
+@pytest.mark.parametrize(('unstable_reads', 'state'), [(2, 'complete'), (3, 'partial')])
+def test_snapshot_that_changed_during_the_read_is_read_again(parts, unstable_reads, state):
+    worker, probe_state, _, _, tmp_path = parts
+    reads = []
+
+    def decode(record):
+        reads.append(record)
+        if len(reads) <= unstable_reads:
+            return [], [f'Item {u}: Unstable item snapshot' for u in record['unit_ids']]
+        return [observation(unit_id=int(u)) for u in record['unit_ids']], []
+
+    worker.decode, worker.retry_delay = decode, 0
+    assert worker.poll(100.0)
+    wait(worker)
+    probe_state['probe'] = probe_result(a=True, b=False, c=True)
+    assert worker.poll(101.0)
+    wait(worker)
+    latest = json.loads((tmp_path / 'identify-latest.json').read_text())
+    assert len(reads) == 3  # the first read and at most two more
+    assert latest['state'] == state
+
+
+def test_focus_loss_hides_the_card_without_cancelling_the_pass(parts):
+    worker, state, displays, _, _ = parts
+    started, release = threading.Event(), threading.Event()
+
+    def slow_retrieve(observation):
+        started.set()
+        assert release.wait(5)
+        return valuable(observation)
+
+    worker.retrieve = slow_retrieve
+    assert worker.poll(100.0)
+    wait(worker)
+    state['probe'] = probe_result(a=True, b=False, c=True)
+    assert worker.poll(101.0)
+    assert started.wait(5)
+    worker.focused = lambda _: False  # e.g. one failed focus probe while "Assessing…" shows
+    worker.tick()
+    assert displays[-1] == []
+    release.set()
+    wait(worker)
+    worker.tick()
+    assert displays[-1] == []  # still unfocused: hidden, not dropped
+    worker.focused = lambda _: True
+    worker.tick()
+    assert displays[-1][0].text.startswith('Identified 1 — 1 keep')
+
+
+def test_lookups_of_one_pass_run_in_parallel_and_keep_item_order(parts):
+    worker, state, _, _, tmp_path = parts
+    both = threading.Barrier(2)
+
+    def retrieve(observation):
+        both.wait(5)  # passes only when the two lookups overlap
+        return valuable(observation)
+
+    worker.retrieve = retrieve
+    with ThreadPoolExecutor(max_workers=2) as lookups:
+        worker.lookup_executor = lookups
+        assert worker.poll(100.0)
+        wait(worker)
+        state['probe'] = probe_result(a=True, b=True, c=True)
+        assert worker.poll(101.0)
+        wait(worker)
+    latest = json.loads((tmp_path / 'identify-latest.json').read_text())
+    assert latest['state'] == 'complete'
+    assert [item['unit_id'] for item in latest['items']] == [1, 2]
+
+
+def test_triage_overrides_build_keep_and_uses_sell_colors():
+    result = saved_result()['result']
+    result['triage'] = {'verdict': 'slow', 'reason': 'asks 0.25 Ist median', 'band': None}
+    summary = item_summary(observation(), result)
+    assert summary['verdict'] == 'slow'
+    lines = result_lines({'state': 'complete', 'items': [summary], 'issues': []})
+    assert any('SELL (slow)' in line.text for line in lines)
+    assert any(line.tone == Tone.TIER_MED for line in lines)
+    result['triage']['verdict'] = 'vendor'
+    assert verdict_for(result)[0] == 'vendor'

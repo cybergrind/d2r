@@ -7,13 +7,15 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.stat_configurations import compile_stat_configurations
 
 
-def test_compiler_binds_explicit_priorities_to_exact_role_and_source(tmp_path):
+@pytest.mark.parametrize('note_field', ['conditions', 'advisory_conditions'])
+def test_compiler_binds_explicit_priorities_to_exact_role_and_source(tmp_path, note_field):
     source = tmp_path / 'guide.json'
     source.write_text('{"ring": "cast rate plus mana"}')
     role = {
         'id': 'ring-role',
         'qualities': ['rare'],
         'types': ['ring'],
+        note_field: ['Compare the complete loadout breakpoint.'],
         'must': {
             'all': [
                 {'op': 'stat_at_least', 'key': '105:0', 'value': 10},
@@ -30,6 +32,7 @@ def test_compiler_binds_explicit_priorities_to_exact_role_and_source(tmp_path):
         'review_state': 'reviewed',
         'rationale': 'Reviewed the complete combination',
         'review_date': '2026-09-25',
+        'advisory_conditions': ['Compare the complete loadout breakpoint.'],
         'priorities': [
             {
                 'key': '105:0',
@@ -43,6 +46,7 @@ def test_compiler_binds_explicit_priorities_to_exact_role_and_source(tmp_path):
     assert len(configs) == 1
     assert configs[0].required['all'][1]['key'] == '9:0'
     assert len(configs[0].priorities) == 1  # No conversion of every role stat into a priority.
+    assert configs[0].advisory_conditions == ('Compare the complete loadout breakpoint.',)
     with pytest.raises(ValueError, match='exact role conditions'):
         compile_stat_configurations([{**review, 'advisory_conditions': ['Invented exemption']}], [role], root=tmp_path)
     changed = deepcopy(role)

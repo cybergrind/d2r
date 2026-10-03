@@ -71,7 +71,8 @@ def gheed_cases():
     for magic_find, tier, quality, scenario in (
         (20, 'med', 'low', 'negative'),
         (37, 'med', 'normal', 'negative'),
-        (38, 'high', 'normal', 'positive'),
+        # The reviewed asking segment requires 40 MF; 38 is not a premium.
+        (38, 'med', 'normal', 'negative'),
         (40, 'high', 'perfect', 'positive'),
         (None, 'med', None, 'unknown'),
     ):

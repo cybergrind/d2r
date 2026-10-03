@@ -87,3 +87,35 @@ def test_merc_animation_can_change_but_death_invalidates_sample():
     assert unit_matches(lambda a, n: bytes(data), original)
     struct.pack_into('<I', data, 12, 12)
     assert not unit_matches(lambda a, n: bytes(data), original)
+
+
+def header(data, unit_type):
+    fields = {'type': 0, 'txt_id': 4, 'unit_id': 8, 'mode': 0x0C}
+    pointers = {
+        'data_pointer': 0x10,
+        'path_pointer': 0x38,
+        'stats_pointer': 0x88,
+        'inventory_pointer': 0x90,
+        'next_pointer': 0x158,
+    }
+    return {
+        **{name: struct.unpack_from('<I', data, offset)[0] for name, offset in fields.items()},
+        **{name: struct.unpack_from('<Q', data, offset)[0] for name, offset in pointers.items()},
+        'type': unit_type,
+        'address': 4096,
+    }
+
+
+def test_player_animation_change_keeps_the_sample_but_item_mode_does_not():
+    from inventory_tracking.native.units import unit_matches
+
+    player = bytearray(unit(0, 7))
+    original = header(player, 0)
+    struct.pack_into('<I', player, 12, 5)  # walking/attacking while the snapshot is read
+    assert unit_matches(lambda a, n: bytes(player), original)
+    struct.pack_into('<Q', player, 0x90, 1)  # the inventory pointer still pins the owner
+    assert not unit_matches(lambda a, n: bytes(player), original)
+    item = bytearray(unit(4, 9))
+    original = header(item, 4)
+    struct.pack_into('<I', item, 12, 1)  # an item's mode is its location state
+    assert not unit_matches(lambda a, n: bytes(item), original)

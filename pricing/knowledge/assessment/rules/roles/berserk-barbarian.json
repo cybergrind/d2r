@@ -4483,6 +4483,298 @@
           }
         ]
       }
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-vita",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/slots/Charms/16",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Vita"
+        ],
+        "review": "2026-10-01: Exact main Charms option16, raw equipment span141, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/rk0106ln.json",
+            "locator": "/data",
+            "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage.",
+        "Attainable Vita tiers are36-40 and41-45 life. The guide does not require a perfect life roll."
+      ]
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-balance",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/slots/Charms/14",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm of Balance"
+        ],
+        "review": "2026-10-01: Exact main Charms option14, raw equipment span139, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Attainable native suffix minima, not perfect planner values, establish the stated option. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/rk0106ln.json",
+            "locator": "/data",
+            "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/265",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0",
+        "99:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage.",
+        "12% Faster Hit Recovery contributes to the complete loadout; it alone does not prove a recovery breakpoint."
+      ]
+    },
+    {
+      "id": "berserk-barbarian-main-sharp-plain",
+      "build": "berserk-barbarian",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/slots/Charms/18",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Sharp Grand Charm"
+        ],
+        "review": "2026-10-01: Exact main Charms option18, raw equipment span143, linked rk0106ln planner and native Sharp253 (49-76AR,7-10maximum damage). Plain Sharp requires no secondary suffix; optional bonuses remain useful. Softcore/Non-Ladder item contribution only; no guaranteed hit chance, whole-loadout breakpoint or market premium inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/rk0106ln.json",
+            "locator": "/data",
+            "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/253",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          }
+        ]
+      },
+      "role": "Sharp damage/attack-rating charm",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Barbarian"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "19:0",
+            "value": 49,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "22:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "19:0",
+        "22:0"
+      ],
+      "advisory_conditions": [
+        "Keep in the active inventory; compare damage, hit chance and utility per inventory cell. Attack rating supports hit chance, not guaranteed hits.",
+        "Maximum damage contributes to weapon damage before Berserk converts it to magic damage; do not describe the final Berserk hit as physical damage."
+      ]
     }
   ]
 }

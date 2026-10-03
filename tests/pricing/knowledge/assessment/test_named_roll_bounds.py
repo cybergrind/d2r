@@ -10,8 +10,8 @@ def shaftstop(ed):
     return replace(
         facts('Mesh Armor', 'unique', 'Shaftstop'),
         stats={
-            f'{stat}:0': {'status': 'decoded', 'value': value}
-            for stat, value in [(16, ed), (31, 650), (32, 250), (36, 30), (7, 60)]
+            f'{stat}:0': {'status': 'decoded', 'raw': value * 256 if stat in (7, 9) else value, 'value': value}
+            for stat, value in [(16, ed), (31, 214 * (100 + ed) // 100), (32, 250), (36, 30), (7, 60)]
         },
         properties={'425': ed},
     )
@@ -35,7 +35,7 @@ def test_total_defense_is_not_mistaken_for_flat_defense_roll():
     item = replace(
         facts('Tiara', 'unique', "Kira's Guardian"),
         stats={
-            f'{stat}:0': {'status': 'decoded', 'value': value}
+            f'{stat}:0': {'status': 'decoded', 'raw': value, 'value': value}
             for stat, value in [(31, 170), (39, 70), (41, 70), (43, 70), (45, 70), (153, 1), (99, 20)]
         },
     )
@@ -50,7 +50,7 @@ def test_set_enhanced_defense_uses_its_own_definition(ed, accepted):
     item = replace(
         facts('Quilted Armor', 'set', 'Arctic Furs'),
         stats={
-            f'{stat}:0': {'status': 'decoded', 'value': value}
+            f'{stat}:0': {'status': 'decoded', 'raw': value * 256 if stat in (7, 9) else value, 'value': value}
             for stat, value in [(16, ed), (31, 49), (39, 10), (41, 10), (43, 10), (45, 10)]
         },
     )
@@ -66,8 +66,8 @@ def test_crown_gold_find_roll_is_bounded_independently(gold, accepted):
     item = replace(
         facts('Grand Crown', 'unique', 'Crown of Thieves'),
         stats={
-            f'{stat}:0': {'status': 'decoded', 'value': value}
-            for stat, value in [(31, 300), (2, 25), (60, 12), (7, 50), (9, 35), (39, 33), (16, 200), (79, gold)]
+            f'{stat}:0': {'status': 'decoded', 'raw': value * 256 if stat in (7, 9) else value, 'value': value}
+            for stat, value in [(31, 342), (2, 25), (60, 12), (7, 50), (9, 35), (39, 33), (16, 200), (79, gold)]
         },
     )
     item = replace(item, properties=scalar_properties(item.stats))

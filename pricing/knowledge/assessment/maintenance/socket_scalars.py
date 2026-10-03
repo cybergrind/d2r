@@ -9,6 +9,11 @@ EXPLICIT_FUNCTIONS = {1, 2, 3, 8, 15, 16, 17}
 
 
 def compile_scalars(gems, properties, stats, bases):
+    for key in SUPPORTED:
+        stat = stats[key.split(':')[0]]
+        expected_op = 13 if key == '16:0' else 0
+        if stat['op'] != expected_op or any(stat[field] != 0 for field in ('shift', 'encode', 'parameter_bits')):
+            raise ValueError(f'Socket stat is not an unscaled scalar: {key}')
     target_names = {stats[key.split(':')[0]]['name']: key for key in SUPPORTED}
     effects = {}
     for code, gem in gems.items():
@@ -35,7 +40,15 @@ def compile_scalars(gems, properties, stats, bases):
                     if key is None:
                         continue
                     low, high = gem.get(prefix + 'Min'), gem.get(prefix + 'Max')
-                    if function != 1 or type(low) is not int or low != high or gem.get(prefix + 'Param', 0) != 0:
+                    # PropertyFunc02 stores the fixed ED percentage directly;
+                    # its armor-base initialization does not change that stat.
+                    expected_function = 2 if key == '16:0' else 1
+                    if (
+                        function != expected_function
+                        or type(low) is not int
+                        or low != high
+                        or gem.get(prefix + 'Param', 0) != 0
+                    ):
                         raise ValueError(f'Socket scalar is not fixed and direct: {prop}')
                     totals[key] += low
             destinations[destination] = totals

@@ -1,0 +1,1499 @@
+{
+  "generation": "8e3563f47d2004edd9f155a031fdb34cd717033b2cc335f10c74c7901f4d6486",
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260927T181819Z-8114d888/capture.json",
+      "sha256": "279ada326832c616853e066521603c69ab0b1348521aacf67d7243b237f08ba1",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195410Z-a0c89e94/capture.json",
+      "sha256": "c1f0f838fac7181e29a18c3aec97a0ea6a04b10f8042b189a6fa109a58a645bd",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T210219Z-f5789919/capture.json",
+      "sha256": "2dd18b8d6757fb6d68d6a7adb0a45a87298fb85b04472f648b2bf2feea11186c",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20261002T180804Z-bbf88d5f/capture.json",
+      "sha256": "ae9d9fc7ebb633c32b3a68eaaf7b841e03acc5e603884a4e5ff4011109658221",
+      "issues": []
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "36732837cef12276142750bb0598f360abde0383b4c31e2bde90e808c7445016",
+      "name": "Snowclash",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 201:3791."
+      ],
+      "observation": {
+        "item": {
+          "name": "Snowclash",
+          "base_name": "Battle Belt",
+          "base_code": "ztb",
+          "item_type": "belt",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "616",
+              "value": 15,
+              "label": "+{{value}}% to Maximum Cold Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 44,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 13,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 13
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 21,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 21
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "702",
+              "value": 15,
+              "label": "+{{value}} Cold Absorb",
+              "memory_stat": {
+                "layer": 0,
+                "id": 149,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 157,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 157
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 634659445,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 245,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 2887358214,
+          "owner_id": 634659445,
+          "owner_type": 0,
+          "item_owner_id": 634659445,
+          "player_id": 634659445,
+          "position": [
+            6,
+            3
+          ],
+          "run_id": "20260927T181819Z-8114d888",
+          "captured_at": "2026-09-27T18:18:19.490961+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 110
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 110",
+            "value": 110
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 44,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "maxcoldresist",
+            "text": "+15% to Maximum Cold Resist",
+            "value": 15,
+            "label": "+{{value}}% to Maximum Cold Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 13
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+13 to Minimum Cold Damage",
+            "value": 13,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 21
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+21 to Maximum Cold Damage",
+            "value": 21,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 75
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 3 seconds (before target/difficulty modifiers)",
+            "value": 3.0,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 16
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 16",
+            "value": 16
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 18
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 18",
+            "value": 18
+          },
+          {
+            "memory_stat": {
+              "layer": 55,
+              "id": 107,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+3 to Glacial Spike (Sorceress Only)",
+            "value": 3,
+            "range_label": "+{{value}} to Glacial Spike (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 59,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Blizzard (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Blizzard (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 60,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Chilling Armor (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Chilling Armor (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 149,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "item_absorbcold",
+            "text": "+15 Cold Absorb",
+            "value": 15,
+            "label": "+{{value}} Cold Absorb"
+          },
+          {
+            "memory_stat": {
+              "layer": 3791,
+              "id": 201,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "5% Chance to cast level 15 Blizzard when struck",
+            "value": 5,
+            "unit": "percent_chance"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 157
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+157% (130-170%) Enhanced Defense",
+            "value": 157,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 130,
+              "max": 170,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "79854caeb0b50015cd30fb22443b2bc9205cc8d9df84ca5c5770be4c1bbafa47",
+      "name": "Snowclash",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 201:3795."
+      ],
+      "observation": {
+        "item": {
+          "name": "Snowclash",
+          "base_name": "Battle Belt",
+          "base_code": "ztb",
+          "item_type": "belt",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "616",
+              "value": 15,
+              "label": "+{{value}}% to Maximum Cold Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 44,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 13,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 13
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 21,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 21
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "702",
+              "value": 15,
+              "label": "+{{value}} Cold Absorb",
+              "memory_stat": {
+                "layer": 0,
+                "id": 149,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 131,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 131
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144123059,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 245,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 1813811077,
+          "owner_id": 3144123059,
+          "owner_type": 0,
+          "item_owner_id": 3144123059,
+          "player_id": 3144123059,
+          "position": [
+            8,
+            9
+          ],
+          "run_id": "20260930T195410Z-a0c89e94",
+          "captured_at": "2026-09-30T19:54:10.920785+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 99
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 99",
+            "value": 99
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 44,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "maxcoldresist",
+            "text": "+15% to Maximum Cold Resist",
+            "value": 15,
+            "label": "+{{value}}% to Maximum Cold Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 13
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+13 to Minimum Cold Damage",
+            "value": 13,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 21
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+21 to Maximum Cold Damage",
+            "value": 21,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 75
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 3 seconds (before target/difficulty modifiers)",
+            "value": 3.0,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 12
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 12",
+            "value": 12
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 18
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 18",
+            "value": 18
+          },
+          {
+            "memory_stat": {
+              "layer": 55,
+              "id": 107,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+3 to Glacial Spike (Sorceress Only)",
+            "value": 3,
+            "range_label": "+{{value}} to Glacial Spike (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 59,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Blizzard (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Blizzard (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 60,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Chilling Armor (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Chilling Armor (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 149,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "item_absorbcold",
+            "text": "+15 Cold Absorb",
+            "value": 15,
+            "label": "+{{value}} Cold Absorb"
+          },
+          {
+            "memory_stat": {
+              "layer": 3795,
+              "id": 201,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "5% Chance to cast level 19 Blizzard when struck",
+            "value": 5,
+            "unit": "percent_chance"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 131
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+131% (130-170%) Enhanced Defense",
+            "value": 131,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 130,
+              "max": 170,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "61b7bdc46ddc64793a170d66618d308216f867f8816453f7cbff27b8fb8979c0",
+      "name": "Snowclash",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 201:3795."
+      ],
+      "observation": {
+        "item": {
+          "name": "Snowclash",
+          "base_name": "Battle Belt",
+          "base_code": "ztb",
+          "item_type": "belt",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "616",
+              "value": 15,
+              "label": "+{{value}}% to Maximum Cold Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 44,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 13,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 13
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 21,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 21
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "702",
+              "value": 15,
+              "label": "+{{value}} Cold Absorb",
+              "memory_stat": {
+                "layer": 0,
+                "id": 149,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 161,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 161
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2782902488,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 245,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 2674398624,
+          "owner_id": 2782902488,
+          "owner_type": 0,
+          "item_owner_id": 2782902488,
+          "player_id": 2782902488,
+          "position": [
+            6,
+            9
+          ],
+          "run_id": "20260930T210219Z-f5789919",
+          "captured_at": "2026-09-30T21:02:20.246772+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 112
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 112",
+            "value": 112
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 44,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "maxcoldresist",
+            "text": "+15% to Maximum Cold Resist",
+            "value": 15,
+            "label": "+{{value}}% to Maximum Cold Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 13
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+13 to Minimum Cold Damage",
+            "value": 13,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 21
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+21 to Maximum Cold Damage",
+            "value": 21,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 75
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 3 seconds (before target/difficulty modifiers)",
+            "value": 3.0,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 13
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 13",
+            "value": 13
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 18
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 18",
+            "value": 18
+          },
+          {
+            "memory_stat": {
+              "layer": 55,
+              "id": 107,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+3 to Glacial Spike (Sorceress Only)",
+            "value": 3,
+            "range_label": "+{{value}} to Glacial Spike (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 59,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Blizzard (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Blizzard (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 60,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Chilling Armor (Sorceress Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Chilling Armor (Sorceress Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 149,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "item_absorbcold",
+            "text": "+15 Cold Absorb",
+            "value": 15,
+            "label": "+{{value}} Cold Absorb"
+          },
+          {
+            "memory_stat": {
+              "layer": 3795,
+              "id": 201,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "5% Chance to cast level 19 Blizzard when struck",
+            "value": 5,
+            "unit": "percent_chance"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 161
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+161% (130-170%) Enhanced Defense",
+            "value": 161,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 130,
+              "max": 170,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "3a58735997d945979f210d0379cb139134a72fa2e8c287182bedbdefcb70485a",
+      "name": "The Rising Sun",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 201:3603."
+      ],
+      "observation": {
+        "item": {
+          "name": "The Rising Sun",
+          "base_name": "Amulet",
+          "base_code": "amu",
+          "item_type": "amul",
+          "identified": true,
+          "category": "misc",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "458",
+              "value": 24,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 48,
+                "raw": 24
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "459",
+              "value": 48,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 49,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "417",
+              "value": 10,
+              "label": "Replenish Life +{{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 74,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "422",
+              "value": 4,
+              "label": "+{{value}} to Light Radius",
+              "memory_stat": {
+                "layer": 0,
+                "id": 89,
+                "raw": 4
+              },
+              "descriptor_offset": 232
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2782902488,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 270,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 336702461,
+          "owner_id": 2782902488,
+          "owner_type": 0,
+          "item_owner_id": 2782902488,
+          "player_id": 2782902488,
+          "position": [
+            9,
+            6
+          ],
+          "run_id": "20260930T210219Z-f5789919",
+          "captured_at": "2026-09-30T21:02:20.246772+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 48,
+              "raw": 24
+            },
+            "status": "decoded",
+            "name": "firemindam",
+            "text": "+24 to Minimum Fire Damage",
+            "value": 24,
+            "label": "+{{value}} to Minimum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 49,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "firemaxdam",
+            "text": "+48 to Maximum Fire Damage",
+            "value": 48,
+            "label": "+{{value}} to Maximum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 74,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "hpregen",
+            "text": "Replenish Life +10",
+            "value": 10,
+            "label": "Replenish Life +{{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 89,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "item_lightradius",
+            "text": "+4 to Light Radius",
+            "value": 4,
+            "label": "+{{value}} to Light Radius"
+          },
+          {
+            "memory_stat": {
+              "layer": 1,
+              "id": 126,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_elemskill",
+            "text": "+2 to Fire Skills",
+            "value": 2,
+            "range_label": "+{{value}} to Fire Skills"
+          },
+          {
+            "memory_stat": {
+              "layer": 3603,
+              "id": 201,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "2% Chance to cast level 19 Meteor when struck",
+            "value": 2,
+            "unit": "percent_chance"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 235,
+              "raw": 6
+            },
+            "status": "decoded",
+            "name": "item_absorb_fire_perlevel",
+            "text": "+0 Absorbs Fire Damage (Based on Character Level)",
+            "value": 0,
+            "range_label": "+{{value}} Absorbs Fire Damage (Based on Character Level)",
+            "viewer_level": 1,
+            "per_level": {
+              "numerator": 6,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "5536bfce469b579ef2c8ca85de1f5cb9350631f97da688761ebc257ba6aa1b7f",
+      "name": "Stormspire",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 201:2452."
+      ],
+      "observation": {
+        "item": {
+          "name": "Stormspire",
+          "base_name": "Giant Thresher",
+          "base_code": "7wc",
+          "item_type": "pole",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "437",
+              "value": 10,
+              "label": "+{{value}} to Strength",
+              "memory_stat": {
+                "layer": 0,
+                "id": 0,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 50,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 50
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "478",
+              "value": 1,
+              "label": "+{{value}} to Minimum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 50,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "479",
+              "value": 237,
+              "label": "+{{value}} to Maximum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 51,
+                "raw": 237
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 30,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 30
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "611",
+              "value": 27,
+              "label": "Attacker Takes Lightning Damage of {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 128,
+                "raw": 27
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "432",
+              "value": 1,
+              "label": "Indestructible",
+              "memory_stat": {
+                "layer": 0,
+                "id": 152,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 190,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 190
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 190
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2943817483,
+            "level": 93
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 264,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Shared stash"
+          },
+          "unit_id": 649278165,
+          "owner_id": 2901883248,
+          "owner_type": 0,
+          "item_owner_id": 2901883248,
+          "player_id": 2943817483,
+          "position": [
+            2,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 0,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "strength",
+            "text": "+10 to Strength",
+            "value": 10,
+            "label": "+{{value}} to Strength"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 116
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 116",
+            "value": 116
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 330
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 330",
+            "value": 330
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +50%",
+            "value": 50,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 50,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "lightmindam",
+            "text": "+1 to Minimum Lightning Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 51,
+              "raw": 237
+            },
+            "status": "decoded",
+            "name": "lightmaxdam",
+            "text": "+237 to Maximum Lightning Damage",
+            "value": 237,
+            "label": "+{{value}} to Maximum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: -10 (lower is faster; not increased attack speed)",
+            "value": -10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 50",
+            "value": 50
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 55
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 55",
+            "value": 55
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+30% Increased Attack Speed",
+            "value": 30,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 128,
+              "raw": 27
+            },
+            "status": "decoded",
+            "name": "item_attackertakeslightdamage",
+            "text": "Attacker Takes Lightning Damage of 27",
+            "value": 27,
+            "label": "Attacker Takes Lightning Damage of {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 152,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_indesctructible",
+            "text": "Indestructible",
+            "value": 1,
+            "label": "Indestructible"
+          },
+          {
+            "memory_stat": {
+              "layer": 2452,
+              "id": 201,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "2% Chance to cast level 20 Charged Bolt when struck",
+            "value": 2,
+            "unit": "percent_chance"
+          },
+          {
+            "memory_stat": {
+              "layer": 3397,
+              "id": 201,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "item_skillongethit",
+            "text": "5% Chance to cast level 5 Chain Lightning when struck",
+            "value": 5,
+            "unit": "percent_chance"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 190,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+190% (150-250%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 190
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 190
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 150,
+              "max": 250,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    }
+  ]
+}

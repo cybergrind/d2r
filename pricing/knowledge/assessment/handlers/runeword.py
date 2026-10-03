@@ -4,6 +4,7 @@ from pricing.knowledge.assessment.domain.contracts import ComparableContract
 from pricing.knowledge.assessment.handlers.exact import comparison_properties
 from pricing.knowledge.assessment.handlers.intrinsic import fixed_properties
 from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
+from pricing.knowledge.assessment.mechanics.compound_recipe import compound_recipe_gaps
 from pricing.knowledge.assessment.mechanics.elemental import fixed_elemental_properties
 from pricing.knowledge.assessment.mechanics.named_charges import fixed_charge_properties
 from pricing.knowledge.assessment.mechanics.per_level import fixed_per_level_keys, variable_per_level_properties
@@ -110,6 +111,7 @@ class RunewordHandler:
                 gaps.append('Rune poison market value conflicts with captured components.')
             else:
                 properties[key] = value
+        gaps.extend(compound_recipe_gaps(facts, definition, elemental_effects(definition, family)))
         intrinsic = intrinsic_properties(facts, definition, family)
         elemental = fixed_elemental_properties(facts, elemental_effects(definition, family))
         if {'482', '483'} <= elemental.keys():

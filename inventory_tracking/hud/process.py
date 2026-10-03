@@ -34,14 +34,20 @@ def guide_widgets(lines) -> list[Widget]:
     return [Widget('guide', 'guide', 'guide', guide_payload(rows, card))]
 
 
-def card_widgets(lines) -> list[Widget]:
-    """An assessment/shop/identify card's lines as the 'assessment' slot text widget."""
-    return [Widget('card', 'text', 'assessment', card_payload(lines))] if lines else []
+def card_widgets(lines, widget_id='card') -> list[Widget]:
+    """An assessment/shop/identify card's lines as a text widget in the 'assessment' slot (cards of
+    different producers stack there)."""
+    return [Widget(widget_id, 'text', 'assessment', card_payload(lines))] if lines else []
 
 
 def loot_widgets(lines) -> list[Widget]:
     """Valuable ground runes as arrow rows (a guide card without a map) in the 'loot' slot."""
     return [Widget('runes', 'guide', 'loot', guide_payload(lines, None))] if lines else []
+
+
+def terror_widgets(lines) -> list[Widget]:
+    """The Terror Zone card (terror/tracker.py) as a text widget in the 'terror' slot."""
+    return [Widget('terror', 'text', 'terror', card_payload(lines))] if lines else []
 
 
 @contextmanager

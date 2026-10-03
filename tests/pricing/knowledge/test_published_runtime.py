@@ -10,6 +10,31 @@ from pricing.knowledge.published_runtime import retrieve_published, runtime_inpu
 ROOT = Path(__file__).resolve().parents[3]
 
 
+def test_publication_rejects_stale_named_leveling_evidence(monkeypatch):
+    import hashlib
+    import json
+
+    import pytest
+
+    from pricing.knowledge import artifacts
+    from pricing.knowledge.assessment.policies import named_leveling
+    from pricing.knowledge.publication_validation import validate_runtime_inputs
+
+    original_read = artifacts._read
+    document = json.loads(original_read(named_leveling.RULES).data)
+    document['inputs']['pricing/data/appraisal-item-facts.json'] = '0' * 64
+
+    def stale_review(path):
+        if path == named_leveling.RULES:
+            raw = json.dumps(document).encode()
+            return artifacts.Artifact(raw, hashlib.sha256(raw).hexdigest())
+        return original_read(path)
+
+    monkeypatch.setattr(artifacts, '_read', stale_review)
+    with pytest.raises(ValueError, match='Named leveling evidence changed'):
+        validate_runtime_inputs()
+
+
 def test_published_retrieval_uses_only_bundle_inputs_and_restores_normal_readers(tmp_path, monkeypatch):
     from inventory_tracking.items import metadata as item_metadata
     from pricing.knowledge import artifacts, definition_store

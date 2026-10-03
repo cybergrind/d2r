@@ -1,0 +1,20 @@
+{
+  "id": "shako-underlying",
+  "scope": "SC / Non-Ladder / PC / RotW",
+  "reviewed_at": "2026-10-02",
+  "guide_sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+  "guide_entries": {
+    "/abyss-warlock-build-guide/slots/Helmets/0": "Harlequin Crest",
+    "/berserk-barbarian/slots/Helmets/0": "Harlequin Crest ( Cham Rune )",
+    "/blessed-hammer-paladin/slots/Helmets/1": "Harlequin Crest"
+  },
+  "market_sha256": "00512f592fa45f3524748c142407e37745fe1ebdeaa2c6ce3dbbee1ef691adc4",
+  "evidence_ids": [
+    "604c3bb6a7d27457c786bc79",
+    "36fd982f66187b460634800b",
+    "a8ec9be3656767117922bae6",
+    "7114a6e7100c6e36e53bfa40",
+    "1724391a9afc82de102c0df2"
+  ],
+  "review_notes": "Five independent sellers with explicit low total defense support underlying nonethereal item demand together with fixed-benefit build use. Unknown or filled contents remain unchanged. Defense 120 bounds the research cohort, not a user-facing roll threshold. No empty-base quote, sell-through claim or perfect-defense premium."
+}

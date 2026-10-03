@@ -4,7 +4,7 @@ from dataclasses import replace
 
 from dirty_equals import Contains, IsPartialDict
 
-from tests.pricing.knowledge.assessment.item_bank.models import Case, Item
+from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, SocketItem
 
 
 REVIEWS = (
@@ -163,3 +163,40 @@ CASES += tuple(
     )
     for rank, quality in ((10, 'low'), (13, 'perfect'))
 )
+
+
+# Native Windforce mana steal is 6-8; total includes the declared weapon insert.
+for insert, mana, life in (('Vex Rune', 7, 0), ('Perfect Skull', 3, 4)):
+    for native in (5, 6, 7, 8, 9):
+        raw = tuple((s, p, native + mana if s == 62 else v) for s, p, v in WIND.item.raw_stats)
+        raw += ((0, 0, 10), (2, 0, 5), (28, 0, 30), (194, 0, 1))
+        if life:
+            raw += ((60, 0, life),)
+        valid = 6 <= native <= 8
+        CASES += (
+            replace(
+                WIND,
+                id=f'windforce-leech-socket/{insert}/{native}',
+                item=replace(
+                    WIND.item,
+                    raw_stats=raw,
+                    complete=True,
+                    sockets=1,
+                    socket_contents='filled',
+                    socket_items=(SocketItem(insert),),
+                ),
+                expected={
+                    'assessment': IsPartialDict(
+                        contract=IsPartialDict(
+                            properties=IsPartialDict({'463': native + mana}), socket_payload=[insert]
+                        )
+                        if valid
+                        else None
+                    ),
+                    'price_estimate': IsPartialDict(estimate_ist=None),
+                },
+                report_contains=('Sockets: 1', 'Vex' if insert == 'Vex Rune' else 'Perfect Skull'),
+                report_absent=('Price: ~',),
+                evidence=(*WIND.evidence, 'third-parties/d2data/json/gems.json'),
+            ),
+        )

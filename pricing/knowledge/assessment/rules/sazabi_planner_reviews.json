@@ -3,7 +3,7 @@
   "scope": "reviewed_sazabi_mercenary",
   "inputs": {
     "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
-    "pricing/data/appraisal-build-profiles.json": "dd49708cfbd2baadef06e3d2250cf8c58f8236c7ee5da458fc7c1949eaa67063",
+    "pricing/data/appraisal-build-profiles.json": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0",
     "third-parties/d2data/json/setitems.json": "c9987086caa820e8642149248d3138d3ebb89215f971525aec8e20e97fac4c5b",
     "pricing/data/appraisal-guide-sections.json": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
     "pricing/raw/mr/guides__echoing-strike-warlock-guide.html": "08024534e035dd39cc599510f2e8bdafb6596c7aa27fc1f0c4fcfab24f13660c",
@@ -13,7 +13,7 @@
     "pricing/raw/mr/planners/game-data.json": "ba895e8a8415546d2e4be7edc46b6f57665656940dce1b04d78a6b0ec9792f1b",
     "third-parties/d2data/json/gems.json": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670",
     "third-parties/D2MOO/source/D2Game/src/ITEMS/Items.cpp": "3355722a346046252d30bda74c413c6e5b8d67004a606437d60c1cb22a0ca7c4",
-    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "f50eff0a70d9bc90625958c7dcb10d539da517ef427bfe5cda6d7b81cae93a7b",
+    "pricing/knowledge/assessment/rules/guide_use_reviews.json": "f0616da6bde0512a9ae88d48b207d6f0115f0aec7495621f4cd5a03ddf3678ba",
     "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271"
   },
   "rows": [
@@ -45,7 +45,7 @@
         "set_sources": {
           "profiles": {
             "path": "pricing/data/appraisal-build-profiles.json",
-            "sha256": "dd49708cfbd2baadef06e3d2250cf8c58f8236c7ee5da458fc7c1949eaa67063"
+            "sha256": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0"
           },
           "game": {
             "path": "pricing/raw/mr/planners/game-data.json",
@@ -147,7 +147,7 @@
         "set_sources": {
           "profiles": {
             "path": "pricing/data/appraisal-build-profiles.json",
-            "sha256": "dd49708cfbd2baadef06e3d2250cf8c58f8236c7ee5da458fc7c1949eaa67063"
+            "sha256": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0"
           },
           "game": {
             "path": "pricing/raw/mr/planners/game-data.json",
@@ -251,7 +251,7 @@
         "set_sources": {
           "profiles": {
             "path": "pricing/data/appraisal-build-profiles.json",
-            "sha256": "dd49708cfbd2baadef06e3d2250cf8c58f8236c7ee5da458fc7c1949eaa67063"
+            "sha256": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0"
           },
           "game": {
             "path": "pricing/raw/mr/planners/game-data.json",

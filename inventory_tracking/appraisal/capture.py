@@ -2,6 +2,7 @@
 
 import copy
 import os
+import threading
 import time
 from typing import Any
 
@@ -61,6 +62,30 @@ def game_focused(images):
         return False
     with X11Keyboard().connect() as connection:
         return connection is not None and owns_process(connection.focused_window_pid(), session)
+
+
+class RecentFocus:
+    """`game_focused` remembered briefly for per-tick watchers.
+
+    Each probe starts `niri msg` and opens an X11 connection; the service loop's watchers
+    asked several times per pass. Captures keep calling `game_focused` for a fresh answer.
+    """
+
+    def __init__(self, probe=None, *, seconds: float, clock=time.monotonic):
+        self.probe, self.seconds, self.clock = probe or game_focused, seconds, clock
+        self.lock = threading.Lock()
+        self.last: tuple[Any, float, bool] | None = None
+
+    def __call__(self, images) -> bool:
+        with self.lock:
+            last = self.last
+            now = self.clock()
+            if last is not None and last[0] == images['identity'] and 0 <= now - last[1] < self.seconds:
+                return last[2]
+        focused = self.probe(images)
+        with self.lock:
+            self.last = (images['identity'], now, focused)
+        return focused
 
 
 def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=None) -> dict[str, Any]:
@@ -240,26 +265,37 @@ class AppraisalCapture:
             'capture_ms': round((time.monotonic() - started) * 1000, 2),
         }
 
+    def still_hovered(self, frozen):
+        """Cheap display recheck: same process, focus and hovered item location; stats are not re-read."""
+        return self._hovered_sample(frozen) is not None
+
     def still_selected(self, frozen):
+        sample = self._hovered_sample(frozen)
+        if sample is None:
+            return False
+        candidates = sample.get('snapshot', {}).get('groups', {}).get('items', {}).get('units')
+        verify_item(self.pid, self.images, frozen['selection']['item'], frozen['arrays'], socket_candidates=candidates)
+        return game_focused(self.images)
+
+    def _hovered_sample(self, frozen):
+        """The current selection sample if it still shows the frozen item, else None."""
         # Publication must never reconnect or accept an old process's capture.
         if self.images['identity'] != frozen['identity']:
-            return False
+            return None
         try:
             if identity(self.pid) != frozen['identity'] or not game_focused(self.images):
-                return False
+                return None
         except OSError, ValueError:
-            return False
+            return None
         sample, selection = self.selection()
         original = frozen['selection']['item']
         current = selection['item']
         if any(selection.get(k) != frozen['selection'].get(k) for k in ('owner_id', 'owner_type', 'container')):
-            return False
+            return None
         if any(current[k] != original[k] for k in ('address', 'unit_id', 'data_pointer', 'stats_pointer', 'details')):
-            return False
-        sample_record: Any = sample
+            return None
+        sample_record: Any = sample or {}
         expected_viewer = frozen.get('observation', {}).get('source', {}).get('viewer_context')
-        if expected_viewer and viewer_context((sample_record or {}).get('snapshot', {})) != expected_viewer:
-            return False
-        candidates = (sample_record or {}).get('snapshot', {}).get('groups', {}).get('items', {}).get('units')
-        verify_item(self.pid, self.images, original, frozen['arrays'], socket_candidates=candidates)
-        return game_focused(self.images)
+        if expected_viewer and viewer_context(sample_record.get('snapshot', {})) != expected_viewer:
+            return None
+        return sample_record

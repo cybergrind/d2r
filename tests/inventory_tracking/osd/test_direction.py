@@ -30,3 +30,11 @@ def test_all_diagonals_fit_inside_the_indicator():
 
     for glyph in ARROWS:
         assert all(0 < x < 80 and 0 < y < 80 for x, y in arrow_polygon(glyph, 80, 80))
+
+
+def test_level_map_is_half_again_the_first_card():
+    from inventory_tracking.osd.direction import MAP_SIZE
+
+    width, height = MAP_SIZE
+
+    assert (width, height) == (round(260 * 1.5), round(180 * 1.5))  # +30%, then "slightly bigger" (user, 2026-10-02)

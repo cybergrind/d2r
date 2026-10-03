@@ -23,6 +23,27 @@ def cases():
                     (stat, 0, value) for stat, value in ((mastery, damage), (pierce, penetration)) if value is not None
                 )
                 complete = scenario != 'unknown'
+                # The dated SC/NL/PC/RotW cache has three exact 1-Ist sellers
+                # for each cold level-up 4/5 and5/4 variant. Market evidence
+                # refines the qualitative low baseline; neither is perfect.
+                market_mid = element == 'cold' and up and label in ('damage-one-short', 'pierce-one-short')
+                tier_expectation = IsPartialDict(tier=tier)
+                price_expectation = {'price_estimate': IsPartialDict(estimate_ist=None)} if not complete else {}
+                if market_mid:
+                    tier = 'med'
+                    tier_expectation = IsPartialDict(
+                        status='market_supported', tier='med', baseline=IsPartialDict(tier='low')
+                    )
+                    price_expectation = {
+                        'price_estimate': IsPartialDict(
+                            basis='classified_exact_variant_asks',
+                            estimate_ist=1.0,
+                            low_ist=1.0,
+                            high_ist=1.0,
+                            sellers=3,
+                            dates=['2026-09-18'],
+                        )
+                    }
                 yield Case(
                     id=f'loose-facet/{element}/{"level-up" if up else "death"}/{label}',
                     item=Item(
@@ -36,26 +57,27 @@ def cases():
                     context={},
                     expected={
                         'assessment': IsPartialDict(
-                            trade_tier=IsPartialDict(tier=tier),
+                            trade_tier=tier_expectation,
                             contract=IsPartialDict(name='Rainbow Facet', family='jewel', mode='exact_variant')
                             if complete
                             else None,
                         ),
-                        **({'price_estimate': IsPartialDict(estimate_ist=None)} if not complete else {}),
+                        **price_expectation,
                     },
                     covers=('named:unique:Rainbow Facet',),
                     scenario=scenario,
                     report_contains=(
                         'Rainbow Facet',
-                        'Trade tier: ' + tier,
+                        'Trade tier: ' + ('mid' if tier == 'med' else tier),
                         '(3-5%)',
                         'when you Level-Up' if up else 'when you Die',
                     ),
-                    report_absent=('Trade tier: high',) if tier == 'low' else (),
+                    report_absent=('Trade tier: high',) if tier != 'high' else (),
                     evidence=(
                         f'third-parties/d2data/json/uniqueitems.json:/{table_id}',
                         'pricing/knowledge/assessment/rules/named_tier_reviews.json:/rows/unique:Rainbow Facet',
-                    ),
+                    )
+                    + (('pricing/raw/traderie/wph-facet-cold-levelup.json',) if market_mid else ()),
                 )
 
 

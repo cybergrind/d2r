@@ -33,3 +33,19 @@ def test_pit_1_tracks_the_stairs_down_and_the_way_back():
 def test_pit_level_2_has_no_handler_and_the_route_is_confirmed():
     assert handler_for(16) is None
     assert all(handler_for(area).confirmed for area in (7, 12))  # user, in game, 2026-09-30
+
+
+def test_tamoe_highland_names_its_border_gaps_before_the_pit():
+    rooms = (
+        Room(4, 0, 0, 8, 8, 3, (0, 0, 8, 8), (26,)),  # Wild Border 1, seen from the Monastery side
+        Room(5, 0, 80, 8, 8, 3),  # the other gap: Black Marsh by elimination
+        Room(51, 40, 16, 8, 8),
+    )
+    guidance = handler_for(7).guide(LevelSnapshot(Location(7, 0, 20, 20), rooms))
+
+    assert [(p.label, p.kind) for p in guidance.pois] == [
+        ('Monastery Gate', 'stairs'),
+        ('Black Marsh', 'previous'),
+        ('Pit', 'stairs'),
+    ]
+    assert guidance.problems == ()

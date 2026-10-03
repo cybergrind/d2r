@@ -476,7 +476,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -508,7 +508,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "lightning-sentry-assassin-main-swap-jmod-base",
@@ -549,7 +549,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -581,7 +581,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Rainbow Facet ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "lightning-sentry-assassin-2-gheeds-inventory",
@@ -3350,7 +3350,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -3434,7 +3434,7 @@
         ],
         "review": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "preferences": [
         {
           "label": "Four perfect 5/5 facets",
@@ -3489,7 +3489,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -3573,7 +3573,7 @@
         ],
         "review": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "preferences": [
         {
           "label": "Four perfect 5/5 facets",
@@ -3906,6 +3906,221 @@
           }
         ]
       }
+    },
+    {
+      "id": "lightning-sentry-assassin-main-skiller-vita",
+      "build": "lightning-sentry-assassin",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sentry-assassin/slots/Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Entrapping Grand Charm of Vita"
+        ],
+        "review": "2026-10-01: Reviewed main Charms option0, raw table span116, planner rj010607 item25, native prefix502 and its exact Traps tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/rj010607.json",
+            "locator": "/data",
+            "sha256": "dd1809b97eac5e452bd37b4e65c4a81dc593703b9f3c415bb26ea30100efd20a"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/502",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Traps skiller with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:48",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ]
+    },
+    {
+      "id": "lightning-sentry-assassin-mf-high-player-skiller",
+      "build": "lightning-sentry-assassin",
+      "variant": "Magic Find",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__lightning-sentry-assassin.html/item_spans/15",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Entrapping Grand Charm of Vita",
+          "Use Entrapping Grand Charm of Vita over Magic Find Small Charms in high player count scenarios."
+        ],
+        "review": "2026-10-01: Exact Magic Find Setup prose span15/section20 recommends a Traps/Vita charm instead of MF small charms at high player counts. Require explicitly known high_player_count_farming activity; missing activity remains unknown. The guide supplies no numeric count cutoff, so none is invented. Native +1 Traps and attainable Vita minimum36 life; perfect planner life45 is not required. Softcore/Non-Ladder use, separate from the unconditional main equipment alternative.",
+        "corroborating": [
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__lightning-sentry-assassin.html/sections/20/text",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/raw/mr/planners/rj010607.json",
+            "locator": "/data",
+            "sha256": "dd1809b97eac5e452bd37b4e65c4a81dc593703b9f3c415bb26ea30100efd20a"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/502",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Traps skiller for high player counts",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Assassin"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:48",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          },
+          {
+            "op": "context_eq",
+            "field": "activity",
+            "value": "high_player_count_farming"
+          }
+        ]
+      },
+      "important_stats": [
+        "188:48",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ],
+      "depends_on": [
+        {
+          "label": "High-player-count farming; replace Magic Find small charms for damage",
+          "when": {
+            "op": "context_eq",
+            "field": "activity",
+            "value": "high_player_count_farming"
+          }
+        }
+      ]
     }
   ]
 }

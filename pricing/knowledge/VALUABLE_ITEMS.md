@@ -5,7 +5,7 @@ Numerical report estimates use verified Softcore / Non-Ladder / PC / RotW asks o
 The Maxroll source is dated 2024-03-06 and describes early ladder; its tiers are demand context only.
 Local qualitative tiers are dated 2026-09-18; conditions and rolls can change value.
 
-99 valuable candidates; 228 total watch items including build demand.
+148 valuable candidates; 277 total watch items including build demand.
 
 | Item | Local research tier | Builds | Guide priority (2024) |
 | --- | --- | ---: | --- |
@@ -17,8 +17,8 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Opalvein | HR | 3 | not listed |
 | Defender's Fire | High–HR (offer-heavy) | 3 | not listed |
 | Gheed's Wager | High | 2 | not listed |
-| Death's Web | HR / High | 1 | High |
 | Griffon's Eye | High–HR | 7 | High |
+| Death's Web | HR / High | 1 | High |
 | Protector's Stone | High | 3 | not listed |
 | Titan's Revenge | Mid (non-eth) / HR asks (eth perfect) | 2 | Med |
 | Andariel's Visage | Mid (non-eth) / HR (eth 30/10) | 27 | Med |
@@ -62,6 +62,14 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Herald of Zakarum | Mid | 4 | High |
 | Gore Rider | Mid | 9 | Med |
 | Vampire Gaze | unranked | 29 | Med |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
+| Rainbow Facet | unranked | 7 | High |
 | Ondal's Wisdom | Low–Mid | 5 | Med |
 | Harlequin Crest | Mid | 28 | High |
 | Chance Guards | Low–Mid | 27 | Med |
@@ -71,14 +79,6 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Waterwalk | Low–Mid | 20 | Med |
 | Flame Rift | unranked | 11 | Med |
 | Highlord's Wrath | Mid | 10 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
-| Rainbow Facet | unranked | 7 | High |
 | Tal Rasha's Lidless Eye | Low | 7 | Med |
 | Crack of the Heavens | unranked | 6 | High |
 | Cold Rupture | unranked | 2 | High |
@@ -107,7 +107,56 @@ Local qualitative tiers are dated 2026-09-18; conditions and rolls can change va
 | Warshrike | unranked | 1 | Med |
 | Arkaine's Valor | unranked | 0 | Med |
 | Grand Charm | unranked | 0 | Medium |
+| Grand Charm | unranked | 0 | Very High |
+| Grand Charm | unranked | 0 | High |
+| Grand Charm | unranked | 0 | High |
+| Grand Charm | unranked | 0 | Very High |
+| Grand Charm | unranked | 0 | High |
+| Grand Charm | unranked | 0 | High |
+| Grand Charm | unranked | 0 | Medium |
+| Grand Charm | unranked | 0 | Low |
 | Griswold's Redemption | unranked | 0 | Med |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | High |
+| Jewel | unranked | 0 | Very High |
+| Jewel | unranked | 0 | Very High |
+| Jewel | unranked | 0 | High |
+| Large Charm | unranked | 0 | High |
+| Large Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | Very High |
+| Small Charm | unranked | 0 | Very High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | Very High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | Very High |
+| Small Charm | unranked | 0 | Very High |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | Medium |
+| Small Charm | unranked | 0 | Low |
+| Small Charm | unranked | 0 | High |
+| Small Charm | unranked | 0 | Medium |
+| Small Charm | unranked | 0 | Low |
 
 Source: [https://maxroll.gg/d2/items/valuable-unique-set-items](https://maxroll.gg/d2/items/valuable-unique-set-items); local WP-I and appraisal-demand research.
 Full conditions and build names: pricing/data/appraisal-value-watch.json.

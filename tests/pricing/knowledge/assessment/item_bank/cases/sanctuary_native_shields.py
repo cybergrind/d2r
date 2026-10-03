@@ -111,7 +111,9 @@ def cases():
                     evidence=(
                         f'pricing/data/wp-a-builds.json:/{build}/slots/Off-Hand/{slot}',
                         'third-parties/d2data/json/runes.json:/Sanctuary',
-                        'third-parties/d2data/json/armor.json:/ush,/tow,/urg',
+                        'third-parties/d2data/json/armor.json:/ush',
+                        'third-parties/d2data/json/armor.json:/tow',
+                        'third-parties/d2data/json/armor.json:/urg',
                         'third-parties/d2data/json/skills.json:/17',
                     ),
                 )

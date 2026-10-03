@@ -49,3 +49,46 @@ def test_unverified_or_duplicate_per_level_bonus_is_not_added_to_damage():
     bad[2]['value'] = 90
     assert display_damage(bad)[0]['text'] == 'One-Hand Damage: 22-46'
     assert display_damage([*rows, rows[2]])[0]['text'] == 'One-Hand Damage: 22-46'
+
+
+@pytest.mark.parametrize(
+    ('values', 'expected'),
+    [
+        ([(21, 5), (23, 5), (159, 5)], '+5 to Minimum Damage'),
+        ([(22, 10), (24, 10), (160, 10)], '+10 to Maximum Damage'),
+        ([(21, 15), (23, 15), (159, 15), (22, 25), (24, 25), (160, 25)], 'Adds 15-25 Damage'),
+    ],
+)
+def test_armor_damage_channels_are_one_bonus_not_three(values, expected):
+    rows, _, _ = decode_stats([{'id': stat, 'layer': 0, 'raw': value} for stat, value in values])
+    original = deepcopy(rows)
+    assert [r['text'] for r in display_damage(rows, {'category': 'armor'})] == [expected]
+    assert rows == original
+
+
+@pytest.mark.parametrize('mutation', ['missing', 'conflicting', 'unknown', 'weapon'])
+def test_unverified_armor_damage_channels_are_not_silently_merged(mutation):
+    rows, _, _ = decode_stats([{'id': stat, 'layer': 0, 'raw': 5} for stat in (21, 23, 159)])
+    item = {'category': 'armor'}
+    if mutation == 'missing':
+        rows.pop()
+    elif mutation == 'conflicting':
+        rows[-1]['value'] = 6
+    elif mutation == 'unknown':
+        rows[-1]['status'] = 'unresolved'
+    elif mutation == 'weapon':
+        item['category'] = 'weapons'
+    assert display_damage(rows, item) == rows
+
+
+def test_throwing_weapon_totals_are_shown_without_mutating_internal_evidence():
+    rows, _, _ = decode_stats(
+        [{'id': stat, 'layer': 0, 'raw': value} for stat, value in [(21, 20), (22, 40), (159, 28), (160, 61)]]
+    )
+    original = deepcopy(rows)
+    displayed = display_damage(rows, {'category': 'weapons', 'item_type': 'tkni'})
+    assert [r['text'] for r in displayed] == ['One-Hand Damage: 20-40', 'Throw Damage: 28-61']
+    assert all(r.get('presentation') != 'internal' for r in displayed)
+    assert rows == original
+    for item in ({}, {'category': 'weapons', 'item_type': 'swor'}, {'category': 'armor', 'item_type': 'glov'}):
+        assert not any(r['text'].startswith('Throw Damage:') for r in display_damage(rows, item))

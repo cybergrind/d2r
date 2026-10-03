@@ -29,6 +29,13 @@ No online refresh during default appraisal. Live item checking requires an expli
 request and the separate `appraise-online` skill; cache misses never trigger it.
 The full image-to-report command is not implemented yet.
 
+## Assessment engine work (all agents)
+
+The active plan is `pricing/knowledge/assessment/planning/PLAN.md` (2026-10-03). The completion
+contract, coverage matrix, report receipts and per-item formal reviews are frozen: do not resume
+them, do not regenerate their artifacts, and do not append to `handoff.md` or `STATUS.md`.
+Measure changes with the corpus score (`inventory_tracking/corpus`).
+
 ## Rules that apply to every task
 
 1. **The repo is the price source, not the web.** Never web-search for prices: generic price guides,

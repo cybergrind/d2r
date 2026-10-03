@@ -56,10 +56,10 @@ def scalar_capture(arrays):
     for stat in totals[0]['stats']:
         if not isinstance(stat, dict) or any(type(stat.get(key)) is not int for key in ('id', 'layer', 'raw')):
             return None
-        if stat['id'] not in (93, 96, 105):
+        if stat['id'] not in (93, 96, 105, 107):
             continue
-        key = str(stat['id']) + ':0'
-        if stat['layer'] != 0 or key in stats:
+        key = str(stat['id']) + ':' + str(stat['layer'])
+        if (stat['id'] != 107 and stat['layer'] != 0) or key in stats:
             return None
         shift = metadata()['stats'][str(stat['id'])]['shift']
         stats[key] = {'status': 'decoded', 'value': stat['raw'] / (1 << shift)}

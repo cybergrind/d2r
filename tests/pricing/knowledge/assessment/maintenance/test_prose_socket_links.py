@@ -131,6 +131,8 @@ def test_recorded_prose_link_closes_discovery_without_claiming_prices():
         {'rows': []},
         read('pricing/data/appraisal-build-profiles.json'),
         pattern_reviews=read('pricing/knowledge/assessment/rules/pattern_collection_reviews.json'),
+        source_context_reviews=read('pricing/knowledge/assessment/rules/source_context_reviews.json'),
+        hardcore_reviews=read('pricing/knowledge/assessment/rules/hardcore_reviews.json'),
         uses=read('pricing/knowledge/assessment/rules/guide_use_reviews.json'),
         table_reviews=read('pricing/knowledge/assessment/rules/table_equivalence_reviews.json'),
     )

@@ -1,4 +1,15 @@
-> **Scope clarification, 2026-09-29:** prioritize valuable SC/Non-Ladder items
+> **FROZEN 2026-10-03 (user decision).** This document no longer drives work: its gates, queues and
+> stopping rules are suspended. The active plan is [PLAN.md](PLAN.md). Kept as technical reference only.
+
+> **Immediate priority, 2026-10-01:** review valuable unique/set items one by one
+> for roll-dependent trade qualification, then other valuable item configurations.
+> Build usefulness and baseline tiers do not prove sellability. Follow
+> [ROLL_VALUE_REVIEW.md](ROLL_VALUE_REVIEW.md); this supersedes incidental profile
+> and ordinary starter-test expansion. The overall completion goal remains active.
+
+> **Scope clarification, 2026-10-01:** only Softcore / Non-Ladder. Skip Hardcore
+> and Ladder-only uses and market research; preserve applicable shared-item uses.
+> Prioritize valuable SC/Non-Ladder items
 > and valuable or exceptional best-in-slot leveling items. Generic leveling and
 > ordinary starter progression are out of scope. Preserve mixed-use trade/endgame
 > candidates. See COMPLETION_CONTRACT.md; older exhaustive leveling instructions

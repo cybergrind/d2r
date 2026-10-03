@@ -65,7 +65,7 @@ def cases():
             (facet(element, 5),) + (facet(element, minimum, up=True),) * 3 if mixed else (facet(element, minimum),) * 4
         )
         total = minimum * 4 + (5 - minimum if mixed else 0)
-        raw = ((20, 0, 20), (102, 0, 30), (mastery, 0, total), (pierce, 0, total), (194, 0, 4))
+        raw = ((20, 0, 42), (102, 0, 30), (mastery, 0, total), (pierce, 0, total), (194, 0, 4))
         item = Item('Monarch', 'magic', raw_stats=raw, sockets=4, socket_contents='filled', socket_items=children)
         variants = [
             ('native', item, klass, True),
@@ -91,7 +91,7 @@ def cases():
                 False,
             ),
             ('empty', replace(item, socket_contents='empty', socket_items=()), klass, False),
-            ('low-block', replace(item, raw_stats=((20, 0, 19), *raw[1:])), klass, False),
+            ('low-block', replace(item, raw_stats=((20, 0, 41), *raw[1:])), klass, False),
             ('low-fbr', replace(item, raw_stats=tuple((s, p, 29 if s == 102 else v) for s, p, v in raw)), klass, False),
             ('wrong-class', item, 'Warlock', False),
             ('ethereal', replace(item, ethereal=True), klass, False),

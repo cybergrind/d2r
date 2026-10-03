@@ -11,6 +11,7 @@ from pricing.knowledge import artifacts, definition_store
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.inputs import artifact_inputs
 from pricing.knowledge.assessment.profile_sources import profile_source_paths
+from pricing.knowledge.documented_cache_dates import REVIEW_PATH, parse_reviews
 from pricing.knowledge.pipeline import retrieve_draft
 
 
@@ -33,11 +34,11 @@ class LoadedRuntime:
         return self.bundle.generation
 
 
-def runtime_inputs(profile_document=None):
+def runtime_inputs(profile_document=None, collection_reviews=None):
     if profile_document is None:
         profile_document = json.loads(artifacts.read_artifact(OUTPUT))
     return [
-        *artifact_inputs(),
+        *artifact_inputs(collection_reviews),
         OUTPUT,
         METADATA,
         definition_store.STORE.path,
@@ -45,13 +46,21 @@ def runtime_inputs(profile_document=None):
     ]
 
 
-def load_runtime(bundle):
+def load_runtime(bundle, *, validate=True):
+    """Hash-checked runtime of one generation; `validate=False` skips the policy re-validation
+    (seconds of CPU) for a process that only reuses a generation another process validated."""
     profile_name = OUTPUT.relative_to(ROOT).as_posix()
     profile_artifact = artifacts._read(bundle.artifact(profile_name))
     if profile_artifact.generation != bundle.artifacts[profile_name]['sha256']:
         raise ValueError('Published profile artifact changed')
     profile_document = json.loads(profile_artifact.data)
-    required = {p.resolve().relative_to(ROOT).as_posix() for p in runtime_inputs(profile_document)}
+    if REVIEW_PATH not in bundle.artifacts:
+        raise ValueError('Incomplete runtime publication: documented collection-date registry is missing')
+    collection_artifact = artifacts._read(bundle.artifact(REVIEW_PATH))
+    if collection_artifact.generation != bundle.artifacts[REVIEW_PATH]['sha256']:
+        raise ValueError('Published collection-date registry changed')
+    collection_reviews = parse_reviews(collection_artifact.data)
+    required = {p.resolve().relative_to(ROOT).as_posix() for p in runtime_inputs(profile_document, collection_reviews)}
     missing = required - bundle.artifacts.keys()
     if missing:
         raise ValueError(f'Incomplete runtime publication: {sorted(missing)}')
@@ -68,6 +77,8 @@ def load_runtime(bundle):
     if definitions.generation != mapping[definition_store.STORE.path.resolve()].generation:
         raise ValueError('Published definitions changed during load')
     loaded = LoadedRuntime(bundle, MappingProxyType(mapping), definitions)
+    if not validate:
+        return loaded
     from pricing.knowledge.publication_validation import validate_runtime_inputs
 
     with published_snapshot(loaded):

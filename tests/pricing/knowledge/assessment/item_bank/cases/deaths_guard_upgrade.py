@@ -57,7 +57,8 @@ def cases():
                 evidence=(
                     f'pricing/data/wp-a-variants/{build}.json:/variants/0',
                     "third-parties/d2data/json/setitems.json:/Death's Guard",
-                    'third-parties/d2data/json/armor.json:/lbl,/zlb',
+                    'third-parties/d2data/json/armor.json:/lbl',
+                    'third-parties/d2data/json/armor.json:/zlb',
                 ),
             )
 

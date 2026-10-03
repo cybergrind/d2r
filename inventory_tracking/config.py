@@ -289,8 +289,12 @@ RESOURCE_READER = ResourceReaderConfig(
 class AppraisalConfig(Config):
     osd: bool = True
     display_seconds: Positive = 30
+    display_recheck_interval: Positive = 0.5  # seconds between hover re-reads while an Alt+D card shows
     cache_seconds: Positive = 300
     poll_interval: Positive = 0.2
+    publication_poll_interval: Positive = 2.0  # seconds between checks for a newly published KB generation
+    focus_cache_seconds: Positive = 0.15  # watchers reuse a D2R focus answer this long
+    slow_loop_seconds: Positive = 0.5  # log a per-step breakdown when one service-loop pass takes longer
     reconnect_delay: Positive = 2.0
     shop_auto: bool = True  # watch loaded vendor stock and scan when its first gear item changes
     shop_poll_interval: Positive = 1.0  # seconds between stock probes in town; 5x outside town
@@ -298,6 +302,8 @@ class AppraisalConfig(Config):
     stash_poll_interval: Positive = 0.5  # seconds between open-panel flag reads
     identify_auto: bool = True  # assess inventory/cube items the moment they become identified (Cain, scrolls)
     identify_poll_interval: Positive = 1.0  # seconds between identified-flag reads in town; 5x outside town
+    identify_lookup_processes: Annotated[int, Field(ge=1, le=8)] = 3  # KB lookups of one identify pass run in parallel
+    retrieval_keep_warm_interval: Positive = 15.0  # idle seconds before a retrieval process reruns a recent lookup
     level_guide: bool = True  # on entering a guided level (levels/handlers/), point at its target
     level_guide_poll_interval: Positive = 0.5  # seconds between current-area reads
     level_guide_seconds: Positive = 5.0  # how long the arrow stays on the OSD
@@ -307,6 +313,13 @@ class AppraisalConfig(Config):
     rune_poll_interval: Positive = 0.5
     shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
+    terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
+    terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
+    terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
+    terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
+    terror_card_unconfirmed: bool = (
+        False  # also show it before any monster says terrorized or not (marked "unconfirmed")
+    )
 
 
 APPRAISAL = AppraisalConfig()
@@ -333,6 +346,8 @@ class HudConfig(Config):
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
         # Valuable runes on the ground: under the guide card.
         'loot': HudSlot(x=0.03, y=0.34),
+        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, below the automap's area text.
+        'terror': HudSlot(x=0.78, y=0.25, max_width=0.2),
     }
 
 

@@ -2,6 +2,12 @@
   "inspected_on": "2026-09-21",
   "sources": [
     {
+      "file": "desecratedzones-game.json",
+      "url": "installed game (Steam), data/hd/global/excel/desecratedzones.json, extracted 2026-10-02 with terror_zones/game_files.py; D2R.exe sha256 1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+      "status": "Authoritative for the installed build: per-tier zone_chance_slope/midpoint/asymptote/vertical_shift (equal to the article's), zone_data_id groups and zone_completion_weight per level, always_unique_mod_pool.",
+      "sha256": "8eb533d6ad6aa933d629a3ec14801734f2640f050857c22473a6c247345e2ee0"
+    },
+    {
       "file": "desecratedzones-d2data.json",
       "url": "https://raw.githubusercontent.com/blizzhackers/d2data/fc469993502d0498809b9fc1af140ee2a9eb8902/json/desecratedzones.json",
       "status": "Rejected for Patch 3.2: old token mechanics; no zone_chance_slope or zone_data_id.",

@@ -1,0 +1,252 @@
+{
+  "id": "stormshield-underlying",
+  "scope": "SC / Non-Ladder / PC / RotW",
+  "reviewed_at": "2026-10-02",
+  "guide_sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+  "guide_variants": {
+    "/lightning-fury-amazon-guide/variants/3": {
+      "name": "Ubers",
+      "purpose": "The Ubers variant specializes in defeating the Uber Bosses, particularly Uber Mephisto, using Charged Strike; -Enemy Lightning Resistance, + Skills, Damage Reduction, Resistances and Life are priority stats.",
+      "planner_only": false,
+      "delta_only": false,
+      "player": {
+        "Weapon": [
+          "Thunderstroke Matriarchal Javelin"
+        ],
+        "Off-Hand": [
+          "Jeweler's Monarch of Deflecting (4x Lightning Rainbow Facets; planner: 1x -5/+5 'die' + 3x 'up')",
+          "Stormshield (prose: 'Use Stormshield if you have not acquired the ultra-rare Jeweler's Monarch of Deflecting')"
+        ],
+        "Weapon-Swap": [
+          "Call to Arms Crystal Sword"
+        ],
+        "Off-Hand-Swap": [
+          "Spirit Monarch"
+        ],
+        "Helmet": [
+          "Griffon's Eye Diadem (Guardian's Thunder Colossal Jewel)"
+        ],
+        "Body Armor": [
+          "Chains of Honor Dusk Shroud",
+          "Treachery (prose: 'Pre-buff Fade with Treachery prior to engaging the Ubers')"
+        ],
+        "Gloves": [
+          "Rare Sharkskin Gloves 'Blood Claw' +2 Javelin and Spear Skills / 20% IAS / 15 Str / 15 Dex / 30 Cold Res / 30 Light Res"
+        ],
+        "Belt": [
+          "Thundergod's Vigor"
+        ],
+        "Boots": [
+          "Rare Light Plated Boots 'Viper Greaves' 30% FRW / 10% FHR / 9 Dex / 40 Cold-Light-Fire Res"
+        ],
+        "Amulet": [
+          "Highlord's Wrath"
+        ],
+        "Rings": [
+          "Raven Frost",
+          "Rare Ring 'Doom Hold' 10% FCR / 6% Mana Leech / 40 Life / 90 Mana / 41 Light Res / 11 Cold-Fire-Poison Res"
+        ],
+        "Charms": [
+          "Hellfire Torch (Amazon)",
+          "Annihilus",
+          "Crafted Crack of the Heavens (Crafted Sunder Charm; 12% FHR, 10% Lightning pierce, 65 Life, 5 MDR, 25% MF)",
+          "Grand Charm +1 Javelin and Spear Skills / 45 Life (x7)",
+          "Small Charm 20 Life / +5 All Res (x5)",
+          "Small Charm 5% FHR / +5 All Res (x2)"
+        ],
+        "Prebuff": [
+          "Treachery (Fade pre-buff for Resistances and Damage Reduction)",
+          "Call to Arms Crystal Sword (Battle Command x2 then Battle Orders; refresh every 2-3 minutes)"
+        ],
+        "Other": [
+          "Stacked Lightning Resistance to tank Uber Mephisto"
+        ]
+      },
+      "merc": {
+        "type": "Act 5 Frenzy Barbarian (prose: 'Act 5 Frenzy Mercenary'; planner mercType 38 = Barbarian Frenzy, Hell)",
+        "Weapon": [
+          "Plague Phase Blade (Cham Shael Um) x2 - 'for their Lower Resist proc'"
+        ],
+        "Body Armor": [
+          "Treachery Mage Plate (ethereal)"
+        ],
+        "Helmet": [
+          "Vampire Gaze Grim Helm (Um Rune)"
+        ],
+        "Off-Hand": [
+          "(second weapon: Plague Phase Blade)"
+        ]
+      },
+      "quotes": [
+        "Use Stormshield if you have not acquired the ultra-rare Jeweler's Monarch of Deflecting. Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction.",
+        "The Ubers Lightning Fury Amazon uses an Act 5 Frenzy Mercenary with 2x Plague Phase Blade for their Lower Resist proc. This high Level Lower Resist breaks Uber Mephisto's Lightning Immunity. Vampire Gaze and Treachery Mage Plate make him tanky while avoiding high Attack Speed. Note: The Mercenary is notoriously hard to keep alive when facing Ubers. Don't count on him always being alive."
+      ]
+    },
+    "/lightning-sorceress/variants/3": {
+      "name": "Ubers",
+      "purpose": "Specialises in defeating the Uber Bosses and mini-Ubers with Static Field and Charged Bolt, prioritising -Enemy Lightning Res, + Skills, Damage Reduction, Resistances and Life, at the 105% FCR breakpoint.",
+      "planner_only": false,
+      "planner": "player uf0106rb set 6 'Ubers' (ptr embed) plus set 10 'Sunder Charm Ubers'; merc uf0106rb set 6",
+      "player": {
+        "Weapon": [
+          "Crescent Moon Crystal Sword"
+        ],
+        "Off-Hand": [
+          "Stormshield socketed with Shael Rune"
+        ],
+        "Weapon-Swap": [
+          "Call to Arms Flail",
+          "Lower Resist Charge Wand (prose: use on Weapon-Swap with Infinity merc vs all Ubers except Mephisto)"
+        ],
+        "Off-Hand-Swap": [
+          "Spirit Monarch"
+        ],
+        "Helmet": [
+          "Griffon's Eye (Rainbow Facet)"
+        ],
+        "Body Armor": [
+          "Chains of Honor Archon Plate",
+          "Treachery (prebuff Fade before engaging)"
+        ],
+        "Gloves": [
+          "Trang-Oul's Claws (Trang-Oul's Avatar)"
+        ],
+        "Belt": [
+          "Arachnid Mesh",
+          "Thundergod's Vigor (swap in and stack Lightning Res to tank Uber Mephisto)"
+        ],
+        "Boots": [
+          "Rare Boots 30% FRW / 10% FHR / 9 Dex / 40 Cold Res / 40 Lightning Res / 40 Fire Res"
+        ],
+        "Amulet": [
+          "Caster Crafted Amulet +2 Sorceress / 20% FCR / 20 Mana / 10% Mana Regen / 20 Cold Res / 20 Lightning Res / 60 Fire Res / 20 Poison Res"
+        ],
+        "Rings": [
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res",
+          "Rare Ring 10% FCR / 20 Str / 40 Life / 90 Mana / 41 Lightning Res / 11 Cold+Fire+Poison Res"
+        ],
+        "Charms": [
+          "5x Sparking Grand Charm of Vita",
+          "3x Sparking Grand Charm of Balance",
+          "Sorceress Hellfire Torch",
+          "Annihilus",
+          "6x Shimmering Small Charm of Vita (20 Life / 5 All Res)",
+          "3x Shimmering Small Charm of Balance",
+          "'Sunder Charm Ubers' embed instead carries: Crack of the Heavens Grand Charm + 4x Sparking GC of Vita + 3x Sparking GC of Balance + 6x Amber Small Charm of Vita (20 Life / 11 Lightning Res) + 3x Shimmering SC of Balance + Torch + Anni"
+        ],
+        "Prebuff": [
+          "Fade from Treachery (pre-buff before engaging the Ubers)",
+          "Call to Arms: Battle Command x2, Battle Orders",
+          "Lower Resist from the charge wand"
+        ],
+        "Other": []
+      },
+      "merc": {
+        "type": "Act 5 Frenzy (note: use the Standard Act 2 Might Infinity merc against every Uber except Uber Mephisto)",
+        "Weapon": [
+          "Plague Phase Blade (Cham Shael Um)",
+          "Plague Phase Blade (Cham Shael Um)"
+        ],
+        "Body Armor": [
+          "Treachery Archon Plate"
+        ],
+        "Helmet": [
+          "Vampire Gaze socketed with Um Rune"
+        ],
+        "Off-Hand": []
+      },
+      "attributes": "Strength for gear, Dexterity to 75% block with Stormshield, rest Vitality (planner 46 Str / 162 Dex / 297 Vit)",
+      "quotes": [
+        "Swapping in Thundergod's Vigor and stacking Lightning Resistance allows this build to tank Uber Mephisto. Pre-buff Fade with Treachery prior to engaging the Ubers for massive boosts to Resistances and Damage Reduction. Using a Lower Resist Charge Wand on Weapon-Swap and Infinity on an Act 2 Mercenary enables you to maximize your damage output against all Uber Bosses except Uber Mephisto.",
+        "Crack of the Heavens breaks Uber Mephisto's Lightning Immunity, allowing you to deal more damage to him. Use Lightning Resist Charms to counteract its negative effect.",
+        "The Ubers Lightning Sorceress uses an Act 5 Frenzy Mercenary with 2x Plagues for their Lower Resist proc. This high Level Lower Resist breaks Uber Mephisto's Lightning Immunity. Vampire Gaze and Treachery make him tanky while avoiding high Defense.",
+        "Note: It is better to use the Standard Act 2 Might Mercenary with Infinity against every Uber Boss besides Uber Mephisto."
+      ],
+      "notes": "Two player embeds in this tab: the ptr-flagged set 6 and a 'Sunder Charm Ubers' set 10 (same gear, Crack of the Heavens GC + Lightning-res charms). Ubers planner sets date from 2023 (no RotW Colossal Jewel / crafted sunder update)."
+    },
+    "/meteor-sorceress/variants/4": {
+      "name": "Ubers",
+      "purpose": "One of the most common ways to kill the Uber Bosses as a Sorceress: as much Damage Reduction as possible while over-stacking Resistance for Mephisto's level 20 Conviction and a large Life pool, at 86% FHR and 105% FCR.",
+      "planner_only": false,
+      "planner": "gca1a0l6 set 4 'Ubers'",
+      "player": {
+        "Weapon": [
+          "Eschuta's Temper (ethereal) socketed with Rainbow Facet (Fire, die -5/+5)"
+        ],
+        "Off-Hand": [
+          "Stormshield socketed with Um Rune"
+        ],
+        "Weapon-Swap": [
+          "Call to Arms Crystal Sword (ethereal)",
+          "Wand of Lower Resistance (Yew Wand, 82 charges / 40 Fire Res, carried in inventory)"
+        ],
+        "Off-Hand-Swap": [
+          "Spirit Monarch"
+        ],
+        "Helmet": [
+          "Crown of Ages (2 sockets: 2x Jewel 7% FHR / 15 All Res)"
+        ],
+        "Body Armor": [
+          "Skin of the Vipermagi socketed with Jewel 7% FHR / 15 All Res"
+        ],
+        "Gloves": [
+          "Magefist"
+        ],
+        "Belt": [
+          "Thundergod's Vigor"
+        ],
+        "Boots": [
+          "Marrowwalk (Bone Prison charges to trap bosses)"
+        ],
+        "Amulet": [
+          "Caster Crafted Amulet +2 Sorceress / 20% FCR / 60 Life / 20 Mana / 10% Mana Regen / 20 All Res"
+        ],
+        "Rings": [
+          "Wisp Projector (20% Lightning Absorb / 20% MF)",
+          "Rare Ring 10% FCR / 40 Life / 41 Fire Res / 11 Cold+Light+Poison Res / 25% MF"
+        ],
+        "Charms": [
+          "7x Burning Grand Charm of Vita",
+          "Burning Grand Charm of Balance",
+          "Sorceress Hellfire Torch",
+          "Annihilus",
+          "11x Small Charm 20 Life / 5 All Res"
+        ],
+        "Prebuff": [
+          "Call to Arms: Battle Command x2, Battle Orders",
+          "Frozen Armor",
+          "Lower Resist on bosses from the Wand of Lower Resistance",
+          "Enchant on the Mercenary for Attack Rating",
+          "Mercenary's Fade from Treachery Archon Plate (helps your own Resistance and Damage Reduction)"
+        ],
+        "Other": []
+      },
+      "merc": {
+        "type": "Act 2 Might",
+        "Weapon": [
+          "Infinity Giant Thresher (ethereal)"
+        ],
+        "Body Armor": [
+          "Treachery Archon Plate (Fade)"
+        ],
+        "Helmet": [
+          "Guillaume's Face (Orphan's Call) socketed with Scintillating Jewel of Fervor (15% IAS / 15 All Res)"
+        ],
+        "Off-Hand": []
+      },
+      "quotes": [
+        "Note: You can use the Mercenary's Fade from Treachery Archon Plate to help with both Resistance and Damage Reduction.",
+        "Use Lower Resist at all times against bosses from Wand of Lower Resistance. Use Static Field to get bosses down to half of their Life. Trap bosses with Bone Prison from Marrowwalk. Spam Meteor to prevent the bosses from healing with burning Damage Over Time (DOT).",
+        "This setup for your Mercenary is a little different but aims to use x% Chance of Crushing Blow from Guillaume's Face, Fade from Treachery Archon Plate, and Conviction from Infinity Giant Thresher. Might Aura works great for extra Physical Damage."
+      ],
+      "notes": "Eschuta's socket resolved from planner item 92 (Rainbow Facet fire/die). Guillaume's Face is a set piece worn singly on the merc."
+    }
+  },
+  "market_sha256": "00512f592fa45f3524748c142407e37745fe1ebdeaa2c6ce3dbbee1ef691adc4",
+  "evidence_ids": [
+    "b6939376ed994646925b04e4",
+    "b6cfb60a2673fb2fce45fe2f",
+    "abaec9b00dc4bf3120fd8cbe"
+  ],
+  "review_notes": "Three independent scoped asking sellers and non-Hardcore Uber use support ordinary underlying-item interest. Defense fields133..142 bound a conservative research cohort, not native-roll proof or a user threshold. Sockets remain unknown; no numeric estimate, sell-through guarantee or defense premium."
+}

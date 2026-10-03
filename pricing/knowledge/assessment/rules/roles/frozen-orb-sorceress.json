@@ -1030,7 +1030,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -1049,7 +1049,8 @@
       ],
       "conditions": [
         "Empty preparation base: Jeweler's Monarch of Deflecting (4x Rainbow Facet Jewel). The four specified fillers are still needed; this is not the completed setup."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "frozen-orb-sorceress-specialist-shield-cold-filled",
@@ -1131,7 +1132,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -1210,7 +1211,8 @@
       ],
       "conditions": [
         "Cold Facets support Frozen Orb; retain needed cast rate, block and survival elsewhere. Death/level-up procs are not assumed active."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "frozen-orb-sorceress-aldur-s-advance-caster-accessory-gear",
@@ -5727,7 +5729,7 @@
       ],
       "conditions": [
         "Source-specific player body-armor alternative; preserve equipment requirements and the rest of the casting/resistance setup. A legal upgraded base is not automatically a better roll. No unspecified socket filler or full-loadout breakpoint is inferred.",
-        "Fire and cold skill damage are credited only to the corresponding spells; lightning damage is not a priority for these builds. Native random +3 Sorceress skill rolls use IDs36–60: Fire Wall51 and Meteor56 are possible, Hydra62 and Frozen Orb64 are not. A matching random skill is optional, not assumed or required; other skill rolls are not promoted. FCR does not remove casting delays."
+        "Fire and cold skill damage are credited only to the corresponding spells; lightning damage is not a priority for these builds. Native random +3 Sorceress skill rolls use IDs36\u201360: Fire Wall51 and Meteor56 are possible, Hydra62 and Frozen Orb64 are not. A matching random skill is optional, not assumed or required; other skill rolls are not promoted. FCR does not remove casting delays."
       ],
       "preferences": []
     }

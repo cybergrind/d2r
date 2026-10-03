@@ -158,3 +158,42 @@ def test_reconnect_uses_fresh_capture_directory_even_after_partial_failure(tmp_p
                 str(tmp_path / 'unused.sqlite3'),
             ]
         )
+
+
+class RecordingProcess:
+    def __init__(self):
+        self.calls = []
+
+    def call(self, function, *args):
+        self.calls.append((function, args))
+        return {}
+
+
+def test_keep_warm_lookup_replays_recent_items_in_turn(tmp_path):
+    runs = (('20260101T000000Z-a', 'Ring'), ('20260102T000000Z-b', 'Amulet'), ('20260102T000001Z-b', 'Amulet'))
+    for run, name in runs:  # the repeated Amulet is one warm-up item
+        request = tmp_path / run / 'request-1'
+        request.mkdir(parents=True)
+        (request / 'frozen.json').write_text(json.dumps({'observation': {'item': {'name': name}}}))
+    (tmp_path / '20260103T000000Z-c' / 'request-1').mkdir(parents=True)
+    (tmp_path / '20260103T000000Z-c' / 'request-1' / 'frozen.json').write_text('{"selection": {}}')  # rejected request
+
+    recent = appraisal_service.RecentObservations(appraisal_service.stored_observations(tmp_path))
+    process = RecordingProcess()
+    touch = appraisal_service.warm_lookup(None, tmp_path / 'index.sqlite', recent)
+    for _ in range(3):
+        touch(process)
+    retrieve = appraisal_service.process_retrieval(process, None, tmp_path / 'index.sqlite', recent)
+    retrieve({'item': {'name': 'Jewel'}})  # a real lookup joins the rotation
+    for _ in range(3):
+        touch(process)
+
+    names = [args[0]['item']['name'] for _, args in process.calls]
+    assert names[:4] == ['Amulet', 'Ring', 'Amulet', 'Jewel']  # newest stored request first
+    assert sorted(names[4:]) == ['Amulet', 'Jewel', 'Ring']
+
+
+def test_keep_warm_lookup_without_any_item_does_nothing(tmp_path):
+    process = RecordingProcess()
+    appraisal_service.warm_lookup(None, tmp_path / 'index.sqlite', appraisal_service.RecentObservations())(process)
+    assert process.calls == []

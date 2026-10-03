@@ -65,6 +65,10 @@ def unit_matches(read, unit):
         ('inventory_pointer', '<Q', 0x90),
         ('next_pointer', '<Q', 0x158),
     ]
+    if unit['type'] == 0:
+        # The player's animation (walking, attacking) changes during any sample; its
+        # pointers still pin the owner, and each item rechecks its own mode/location.
+        fields = [field for field in fields if field[0] != 'mode']
     if unit['type'] == 1:
         # Monster animation changes are normal during combat. For hirelings,
         # preserve the dead/dying boundary; other monsters are traversal only.

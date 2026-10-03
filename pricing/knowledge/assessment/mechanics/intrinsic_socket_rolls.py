@@ -1,7 +1,7 @@
 """Recover reviewed additive rolls from complete linked-jewel captures.
 
 Only reviewed unscaled scalar stats are enabled. This is not a general subtraction rule:
-weapon damage, armor defense, scaled and compound effects need other mechanics.
+weapon damage, total armor defense, scaled and compound effects need other mechanics.
 Rune/gem payloads use separately compiled recipient-specific fixed effects.
 """
 
@@ -11,8 +11,9 @@ from pricing.knowledge.assessment.domain.facts import FactStatus, thaw
 from pricing.knowledge.assessment.mechanics.fixed_socket_scalars import contribution as fixed_contribution
 
 
-# ItemStatCost: op0, ValShift0, no parameter for each of these item bonuses.
-SUPPORTED = frozenset({'2:0', '330:0', '331:0', '333:0', '334:0'})
+# Enhanced defense stores an additive percentage; op13 applies it to armorclass,
+# not to the percentage itself (D2StatList.cpp). Never subtract total defense.
+SUPPORTED = frozenset({'0:0', '2:0', '16:0', '60:0', '330:0', '331:0', '333:0', '334:0'})
 
 
 def intrinsic_socket_rolls(facts, keys):

@@ -1379,7 +1379,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -1411,7 +1411,7 @@
         "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Poison Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "poison-nova-necromancer-1-gheeds-inventory",
@@ -2781,7 +2781,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
             "locator": "/staffmods/inferior_range"
           }
         ]
@@ -3562,7 +3562,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "1b1151ff13fdf1dc3551ff08743f497959fe9f54c053840546c4a801a3486c5b",
+            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
             "locator": "/staffmods/inferior_range"
           }
         ]
@@ -4901,7 +4901,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -4985,7 +4985,7 @@
         ],
         "review": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed poison shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "preferences": [
         {
           "label": "Four perfect 5/5 facets",
@@ -5220,6 +5220,274 @@
           }
         ]
       }
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-vita",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Fungal Grand Charm of Vita"
+        ],
+        "review": "2026-10-01: Reviewed main Charms option0, raw table span120, planner fw0106lo item22, native prefix455 and its exact Poison and Bone tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fw0106lo.json",
+            "locator": "/data",
+            "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/455",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Poison and Bone skiller with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:17",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36\u201340 and 41\u201345 life. Lower-life skillers remain useful through their skill contribution; no automatic price premium."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-balance",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Fungal Grand Charm of Balance"
+        ],
+        "review": "2026-10-01: Reviewed main Charms option1, raw table span121, planner fw0106lo item48, native prefix455 and its exact Poison and Bone tree. Use the attainable native suffix minimum rather than the perfect planner roll. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fw0106lo.json",
+            "locator": "/data",
+            "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/455",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/265",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Poison and Bone skiller with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:17",
+        "99:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price.",
+        "12% hit recovery contributes to a complete-loadout breakpoint; the charm alone does not establish a faster recovery animation."
+      ]
+    },
+    {
+      "id": "poison-nova-necromancer-main-skiller-plain",
+      "build": "poison-nova-necromancer",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/slots/Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Fungal Grand Charm"
+        ],
+        "review": "2026-10-01: Reviewed main Charms option2, raw table span122, planner fw0106lo item49, native prefix455 and its exact Poison and Bone tree. Plain skiller requires no secondary affix; optional suffixes retain the tree contribution. This is item contribution, not a full-loadout breakpoint or a price claim. No Hardcore or Ladder-only configuration is introduced.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/fw0106lo.json",
+            "locator": "/data",
+            "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/455",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          }
+        ]
+      },
+      "role": "Poison and Bone skiller",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Necromancer"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:17",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:17"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses; compare benefit per inventory cell and the complete loadout. A matching build use alone does not establish a trade price."
+      ]
     }
   ]
 }

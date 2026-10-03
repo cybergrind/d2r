@@ -145,11 +145,26 @@ def test_native_material_runs_through_index_pricing_and_shared_report(tmp_path, 
     )
     assert result['price_estimate'] == IsPartialDict(estimate_ist=1, sellers=3)
     text = format_appraisal({'state': 'complete', 'request_id': 'material', 'result': result})
-    assert 'Price:' in text
+    assert 'Unit price:' in text
     assert '1 Ist' in text
     assert 'not implemented' not in text
     assert 'No supported stats decoded' not in text
-    assert 'No variable rolls' in text
+    assert 'No variable rolls' not in text
+
+
+def test_bulk_material_price_reaches_report_without_becoming_single_unit_estimate(tmp_path):
+    from inventory_tracking.appraisal.text import format_appraisal
+    from pricing.knowledge.pipeline import retrieve_draft
+    from tests.pricing.knowledge.assessment.test_pipeline_context import database
+
+    rows = [dict(observation('Ber Rune', str(i)), amount=10, unit_policy='stack_total') for i in range(3)]
+    result = retrieve_draft(
+        Item('Ber Rune', 'normal', complete=True).capture(), database(tmp_path, rows), as_of=date(2026, 9, 28)
+    )
+    assert result['price_estimate']['estimate_ist'] is None
+    assert result['commodity_bulk'][0]['estimate']['estimate_ist'] == 1
+    text = format_appraisal({'state': 'complete', 'request_id': 'bulk', 'result': result})
+    assert 'Bulk 10: ~10 Ist total (~1 each; asks)' in text
 
 
 @pytest.mark.parametrize(

@@ -78,6 +78,13 @@ def test_collection_does_not_hide_unreviewed_or_changed_members(change):
         ('Gemmed Crown (3x Perfect Topaz)', 2),
         ("Artisan's Crown (3x Perfect Topaz es )", 1),
         ("Artisan's Crown ( Ral Rune , Ort Rune , Thul Rune )", 1),
+        ('Ethereal Rare Weapon', 1),
+        ('Blood Crafted Armet', 1),
+        ('Sharp Grand Charm of Vita', 8),
+        ('Sharp Grand Charm of Balance', 7),
+        ('Sharp Grand Charm of Inertia', 2),
+        ('Sharp Grand Charm of Maiming', 3),
+        ('Sharp Grand Charm', 5),
     ],
 )
 def test_real_armor_collection_closes_only_discovery(label, count):
@@ -99,6 +106,8 @@ def test_real_armor_collection_closes_only_discovery(label, count):
         pattern_reviews=read('pricing/knowledge/assessment/rules/pattern_collection_reviews.json'),
         uses=read('pricing/knowledge/assessment/rules/guide_use_reviews.json'),
         table_reviews=read('pricing/knowledge/assessment/rules/table_equivalence_reviews.json'),
+        source_context_reviews=read('pricing/knowledge/assessment/rules/source_context_reviews.json'),
+        hardcore_reviews=read('pricing/knowledge/assessment/rules/hardcore_reviews.json'),
     )
     row = next(r for r in result['rows'] if r.get('name') == label)
     assert row['dimensions']['discovery']['state'] == 'reviewed'
@@ -131,3 +140,64 @@ def test_collection_retains_quality_union_or_unknown(qualities, expected):
         member['profile_fingerprint'] = fingerprint(profile)
     result = validate_collection(review, identity, occurrences, profiles, links)
     assert result['qualities'] == expected
+
+
+def test_sentry_collection_preserves_separate_conditional_prose_use():
+    import json
+    from pathlib import Path
+
+    from pricing.knowledge.assessment.maintenance.pattern_collections import compile_collections
+
+    root = Path.cwd()
+
+    def read(path):
+        return json.loads((root / path).read_text())
+
+    inventory = read('pricing/data/appraisal-guide-inventory.json')
+    profiles = read('pricing/data/appraisal-build-profiles.json')['profiles']
+    uses = read('pricing/knowledge/assessment/rules/guide_use_reviews.json')['uses']
+    tables = read('pricing/knowledge/assessment/rules/table_equivalence_reviews.json')
+    reviews = read('pricing/knowledge/assessment/rules/pattern_collection_reviews.json')
+    context = read('pricing/knowledge/assessment/rules/source_context_reviews.json')
+    hardcore = read('pricing/knowledge/assessment/rules/hardcore_reviews.json')
+    identity = next(i for i in inventory['identities'] if i['name'] == 'Entrapping Grand Charm of Vita')
+    result = compile_collections(
+        reviews, inventory, profiles, uses, tables, root, context_reviews=context, hardcore_reviews=hardcore
+    )
+    assert result[identity['id']]['profile_ids'] == [
+        'lightning-sentry-assassin-main-skiller-vita',
+        'lightning-sentry-assassin-mf-high-player-skiller',
+    ]
+    assert len(result[identity['id']]['occurrence_ids']) == 3
+    assert result[identity['id']]['qualities'] == ['magic']
+    # The main table alone cannot certify the conditional prose occurrence.
+    with pytest.raises(ValueError, match='validated source configuration'):
+        compile_collections(reviews, inventory, profiles, uses, tables, root, hardcore_reviews=hardcore)
+
+
+def test_collection_accepts_only_source_verified_foreign_mode_exclusion():
+    from pricing.knowledge.assessment.maintenance.pattern_collections import validate_collection
+
+    review, identity, occurrences, profiles, links = inputs()
+    excluded = occurrences[1]
+    review['members'][1] = {
+        'occurrence_id': excluded['id'],
+        'occurrence_fingerprint': fingerprint(excluded),
+        'excluded_by': 'hardcore-prose',
+    }
+    proof = {'b': {'id': 'hardcore-prose', 'state': 'excluded'}}
+    result = validate_collection(review, identity, occurrences, profiles, links, excluded_occurrences=proof)
+    assert result['profile_ids'] == ['mf']
+    assert result['occurrence_ids'] == ['a', 'b']
+    assert result['excluded_occurrence_ids'] == ['b']
+    for invalid in (
+        {},
+        {'b': {'id': 'other', 'state': 'excluded'}},
+        {'b': {'id': 'hardcore-prose', 'state': 'pending'}},
+    ):
+        with pytest.raises(ValueError, match='scope exclusion'):
+            validate_collection(review, identity, occurrences, profiles, links, excluded_occurrences=invalid)
+    ambiguous = deepcopy(review)
+    ambiguous['members'][1]['profile_id'] = 'resists'
+    with pytest.raises(ValueError, match='scope exclusion'):
+        validate_collection(ambiguous, identity, occurrences, profiles, links, excluded_occurrences=proof)

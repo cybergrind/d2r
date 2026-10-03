@@ -123,6 +123,8 @@ def build_watchlist(root):
     trainer = next((r for r in magic.rows if r[0] == "Trainer's Grand Charm of Vita"), None)
     if not trainer or trainer[1] != 'Medium' or '30-45 Life can have solid value' not in trainer[2]:
         raise ValueError('Reviewed Trainer life-skiller source changed')
+    from pricing.knowledge.collectible_watches import resale_group
+
     rows.append(
         {
             'name': 'Grand Charm',
@@ -137,6 +139,9 @@ def build_watchlist(root):
             },
             'details': {
                 'watch_id': 'druid-summoning-life-skiller',
+                **resale_group(
+                    'druid-summoning-life-skiller', 'Grand Charm', {'188:40': (1, 1), '7:0': (30, 45)}, trainer[2]
+                ),
                 'priority': 'valuable_candidate',
                 'local_tier': None,
                 'guide_tier': 'Medium',
@@ -158,6 +163,9 @@ def build_watchlist(root):
             },
         }
     )
+    from pricing.knowledge.collectible_watches import build_combinations
+
+    rows.extend(build_combinations(read, magic.rows))
     rows.sort(
         key=lambda r: (
             r['details']['priority'] != 'valuable_candidate',

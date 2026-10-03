@@ -59,6 +59,14 @@ def validate_profiles(profiles):
         if profile['id'] in ids or (not profile.get('names') and not profile.get('types')):
             raise ValueError('Duplicate or unscoped build profile')
         ids.add(profile['id'])
+        advice = profile.get('advisory_conditions', [])
+        if (
+            not isinstance(advice, list)
+            or any(not isinstance(note, str) or not note.strip() for note in advice)
+            or len(set(advice)) != len(advice)
+            or set(advice).intersection(profile.get('conditions', ()))
+        ):
+            raise ValueError('Invalid or conflicting advisory conditions')
         socket_keys = [key for key in ('required_rune', 'required_socket_item') if key in profile]
         if len(socket_keys) > 1 or any(
             not isinstance(profile[key], str) or not profile[key].strip() for key in socket_keys
@@ -122,6 +130,15 @@ def validate_profiles(profiles):
 
 def assess_roles(facts, profiles, loadout=None, *, upgrades=None):
     return legacy_roles(assess_role_results(facts, profiles, loadout, upgrades=upgrades))
+
+
+def _companion_results(profile, facts, loadout):
+    """Expose existing mercenary set requirements as structured report evidence."""
+    results = []
+    for name in sorted(profile.get('companions', ())):
+        trace = evaluate({'op': 'context_contains', 'field': 'mercenary_items', 'value': name}, facts, loadout)
+        results.append({'label': name, 'required': True, 'status': trace.truth, 'trace': trace.to_dict()})
+    return results
 
 
 def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
@@ -193,7 +210,7 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
                 missing.append('Set companions not confirmed: ' + ', '.join(sorted(needed)))
             if loadout.mercenary_type != p['mercenary_type']:
                 missing.append('Mercenary type not confirmed: ' + p['mercenary_type'])
-        dependencies = []
+        dependencies = _companion_results(p, facts, loadout)
         for dependency in p.get('depends_on', []):
             result = evaluate(dependency['when'], facts, loadout)
             dependencies.append(
@@ -250,6 +267,7 @@ def assess_role_results(facts, profiles, loadout=None, *, upgrades=None):
                     ],
                     'matched': matched,
                     'missing': missing,
+                    'advisory_conditions': p.get('advisory_conditions', ()),
                     'failed': failed,
                     'important_rolls': [facts.stats[k] for k in p.get('important_stats', []) if k in facts.stats],
                     'alternatives': p.get('alternatives', []),

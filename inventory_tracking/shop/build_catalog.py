@@ -336,6 +336,22 @@ class Compiler:
         return list(grouped.values())
 
 
+def profile_target(profile):
+    """Retain actionable requirements separately from non-blocking advice."""
+    return {
+        'id': 'profile:' + profile['id'],
+        'types': profile['types'],
+        'label': f'Build candidate: {profile["build"]} / {profile["variant"]} / {profile["role"]}',
+        'must': item_predicate(profile['must']),
+        'builds': [profile['build']],
+        'conditions': profile.get('conditions', []),
+        **({'advisory_conditions': profile['advisory_conditions']} if profile.get('advisory_conditions') else {}),
+        'setup_requirements': {key: profile[key] for key in ('depends_on', 'required_socket_item') if key in profile}
+        | {'original_predicate': profile['must']},
+        'source': profile['source'],
+    }
+
+
 def build():
     sources = [
         'pricing/data/wp-a-builds.json',
@@ -360,21 +376,7 @@ def build():
             continue
         if 'magic' not in profile.get('qualities', []):
             continue
-        targets.append(
-            {
-                'id': 'profile:' + profile['id'],
-                'types': profile['types'],
-                'label': f'Build candidate: {profile["build"]} / {profile["variant"]} / {profile["role"]}',
-                'must': item_predicate(profile['must']),
-                'builds': [profile['build']],
-                'conditions': profile['conditions'],
-                'setup_requirements': {
-                    key: profile[key] for key in ('depends_on', 'required_socket_item') if key in profile
-                }
-                | {'original_predicate': profile['must']},
-                'source': profile['source'],
-            }
-        )
+        targets.append(profile_target(profile))
     targets.extend(supplemental_targets(builds))
     candidates = {
         name: {'builds': row['builds'], 'sources': ['pricing/data/wp-a-blues.json/' + name]}

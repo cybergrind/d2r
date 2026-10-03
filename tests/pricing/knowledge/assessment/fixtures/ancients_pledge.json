@@ -1,0 +1,633 @@
+{
+  "generation": "8e3563f47d2004edd9f155a031fdb34cd717033b2cc335f10c74c7901f4d6486",
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260925T132106Z-82e84695/capture.json",
+      "sha256": "ac9e74c221a14257503588d74e0788e898143407b633fd7ecfc295709ef761e3",
+      "issues": []
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "d9a028a25093a597f5e138a88d74663b061600735707a2d27983c3493f88caaa",
+      "name": "Ancients' Pledge",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "Runeword resistance totals conflict with recipe, rune or shared base bonuses."
+      ],
+      "observation": {
+        "item": {
+          "name": "Ancients' Pledge",
+          "runeword": "Ancients' Pledge",
+          "base_name": "Gothic Shield",
+          "base_code": "gts",
+          "item_type": "shie",
+          "identified": true,
+          "category": "armor",
+          "rarity": "normal",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "446",
+              "value": 16,
+              "label": "Shield blocking (base + bonuses): {{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 20,
+                "raw": 16
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "427",
+              "value": 48,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 48,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 43,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 43
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 48,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "440",
+              "value": 10,
+              "label": "+{{value}}% Damage Taken Goes To Mana",
+              "memory_stat": {
+                "layer": 0,
+                "id": 114,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            }
+          ],
+          "sockets": 3,
+          "ethereal": false,
+          "socket_contents": "filled",
+          "socket_items": [
+            {
+              "name": "Ral Rune",
+              "base_code": "r08",
+              "unit_id": 211989381,
+              "position": 0,
+              "item_type": "rune",
+              "stats": {
+                "39:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            },
+            {
+              "name": "Ort Rune",
+              "base_code": "r09",
+              "unit_id": 2521905602,
+              "position": 1,
+              "item_type": "rune",
+              "stats": {
+                "41:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            },
+            {
+              "name": "Tal Rune",
+              "base_code": "r07",
+              "unit_id": 1260952801,
+              "position": 2,
+              "item_type": "rune",
+              "stats": {
+                "45:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            }
+          ],
+          "empty_sockets": 0,
+          "filled_sockets": 3
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 273232769,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "runeword",
+            "table_id": 20507,
+            "offset": 72
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 423995146,
+          "owner_id": 273232769,
+          "owner_type": 0,
+          "item_owner_id": 273232769,
+          "player_id": 273232769,
+          "position": [
+            6,
+            0
+          ],
+          "run_id": "20260925T132106Z-82e84695",
+          "captured_at": "2026-09-25T13:21:07.105645+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 20,
+              "raw": 16
+            },
+            "status": "decoded",
+            "name": "toblock",
+            "text": "Shield blocking (base + bonuses): 16%",
+            "value": 16,
+            "label": "Shield blocking (base + bonuses): {{value}}%",
+            "origin": "shield_block_total"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 46
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 46",
+            "value": 46
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +48%",
+            "value": 48,
+            "label": "Fire Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +48%",
+            "value": 48,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 43
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +43%",
+            "value": 43,
+            "label": "Cold Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +48%",
+            "value": 48,
+            "label": "Poison Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 40",
+            "value": 40
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 40",
+            "value": 40
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 114,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_damagetomana",
+            "text": "+10% Damage Taken Goes To Mana",
+            "value": 10,
+            "label": "+{{value}}% Damage Taken Goes To Mana"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 194,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_numsockets",
+            "text": "Sockets: 3 \u2014 Ral, Ort, Tal",
+            "value": 3,
+            "socket_source": "captured_children"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "d1c48a24c7b8181396cb92a23e596ed2b0dd56efe71e1a5a1ff7dce4a790b222",
+      "name": "Ancients' Pledge",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "Runeword resistance totals conflict with recipe, rune or shared base bonuses."
+      ],
+      "observation": {
+        "item": {
+          "name": "Ancients' Pledge",
+          "runeword": "Ancients' Pledge",
+          "base_name": "Kite Shield",
+          "base_code": "kit",
+          "item_type": "shie",
+          "identified": true,
+          "category": "armor",
+          "rarity": "normal",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "446",
+              "value": 8,
+              "label": "Shield blocking (base + bonuses): {{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 20,
+                "raw": 8
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "427",
+              "value": 48,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 48,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 43,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 43
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 48,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 48
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "440",
+              "value": 10,
+              "label": "+{{value}}% Damage Taken Goes To Mana",
+              "memory_stat": {
+                "layer": 0,
+                "id": 114,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            }
+          ],
+          "sockets": 3,
+          "ethereal": false,
+          "socket_contents": "filled",
+          "socket_items": [
+            {
+              "name": "Ral Rune",
+              "base_code": "r08",
+              "unit_id": 1558258080,
+              "position": 0,
+              "item_type": "rune",
+              "stats": {
+                "39:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            },
+            {
+              "name": "Ort Rune",
+              "base_code": "r09",
+              "unit_id": 779129040,
+              "position": 1,
+              "item_type": "rune",
+              "stats": {
+                "41:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            },
+            {
+              "name": "Tal Rune",
+              "base_code": "r07",
+              "unit_id": 389556328,
+              "position": 2,
+              "item_type": "rune",
+              "stats": {
+                "45:0": {
+                  "status": "decoded",
+                  "value": 35,
+                  "raw": 35
+                }
+              },
+              "stats_complete": true
+            }
+          ],
+          "empty_sockets": 0,
+          "filled_sockets": 3
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 273232769,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "runeword",
+            "table_id": 20507,
+            "offset": 72
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 3116532544,
+          "owner_id": 273232769,
+          "owner_type": 0,
+          "item_owner_id": 273232769,
+          "player_id": 273232769,
+          "position": [
+            2,
+            0
+          ],
+          "run_id": "20260925T132106Z-82e84695",
+          "captured_at": "2026-09-25T13:21:07.105645+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 20,
+              "raw": 8
+            },
+            "status": "decoded",
+            "name": "toblock",
+            "text": "Shield blocking (base + bonuses): 8%",
+            "value": 8,
+            "label": "Shield blocking (base + bonuses): {{value}}%",
+            "origin": "shield_block_total"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 24
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 24",
+            "value": 24
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +48%",
+            "value": 48,
+            "label": "Fire Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +48%",
+            "value": 48,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 43
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +43%",
+            "value": 43,
+            "label": "Cold Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 48
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +48%",
+            "value": 48,
+            "label": "Poison Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 30",
+            "value": 30
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 30",
+            "value": 30
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 114,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_damagetomana",
+            "text": "+10% Damage Taken Goes To Mana",
+            "value": 10,
+            "label": "+{{value}}% Damage Taken Goes To Mana"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 194,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_numsockets",
+            "text": "Sockets: 3 \u2014 Ral, Ort, Tal",
+            "value": 3,
+            "socket_source": "captured_children"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    }
+  ]
+}

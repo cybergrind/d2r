@@ -76,7 +76,8 @@ def test_pattern_summary_labels_candidate_combinations_and_excludes_unknown_rule
     roles = assess_roles(item, document['profiles'])
     demand = demand_for_item(None, roles, document)
     summary = build_use_summary(roles, demand)
-    assert 'matching configurations' in summary.lines[0]
+    assert summary.lines[0] == 'Build use'
+    assert 'conditional builds' in summary.lines[1]
     assert len(summary.lines) <= 8
     unknown = [{**r, 'rule_trace': {'truth': 'unknown'}} for r in roles]
     assert demand_for_item(None, unknown, document) is None

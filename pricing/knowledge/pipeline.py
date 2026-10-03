@@ -7,6 +7,8 @@ from pricing.knowledge import definition_store
 from pricing.knowledge.artifacts import artifact_snapshot
 from pricing.knowledge.assessment.adapters import discovery
 from pricing.knowledge.assessment.adapters.priced import legacy_priced_payload
+from pricing.knowledge.assessment.commodities import bulk_quotes
+from pricing.knowledge.assessment.commodity_sets import relevant_set, set_quote
 from pricing.knowledge.assessment.domain.context import AssessmentContext
 from pricing.knowledge.assessment.engine import assess_result
 from pricing.knowledge.assessment.guide_demand import demand_for_item
@@ -81,6 +83,13 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
     priced = finalize_assessment(outcome, comparison_results, fallback_rows=fallback_rows, today=as_of)
     payload = legacy_priced_payload(priced)
     assessment, estimate = payload['assessment'], payload['price_estimate']
+    commodity_bulk = (
+        bulk_quotes(assessment['contract'], market_rows(database, query_name), today=as_of)
+        if (assessment.get('contract') or {}).get('policy') == 'socket_material'
+        else []
+    )
+    basket_name = relevant_set(assessment.get('contract'))
+    basket = set_quote(basket_name, market_rows(database, basket_name), today=as_of) if basket_name else None
     conditional_watches = (
         search(
             database,
@@ -98,6 +107,8 @@ def _retrieve_draft(extraction, database, *, loadout, as_of):
     )
     return {
         'price_estimate': estimate,
+        **({'commodity_bulk': commodity_bulk} if commodity_bulk else {}),
+        **({'commodity_set': basket} if basket else {}),
         'guide_demand': demand_for_item(item.get('runeword') or item.get('name'), assessment['roles']),
         'assessment': assessment,
         'value_watch': watches,

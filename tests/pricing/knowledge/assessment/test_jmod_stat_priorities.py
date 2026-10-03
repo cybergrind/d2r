@@ -34,7 +34,7 @@ def test_jmod_markers_require_both_block_modifiers_and_four_empty_sockets(klass,
     reviews = json.loads((ROOT / 'pricing/knowledge/assessment/rules/stat_use_reviews.json').read_text())['reviews']
     configs = [c for c in compile_stat_configurations(reviews, profiles, root=ROOT) if c.role_id in roles]
     assert {c.role_id for c in configs} == set(roles)
-    stats = {'20:0': {'status': 'decoded', 'value': 20}, '102:0': {'status': 'decoded', 'value': 30}}
+    stats = {'20:0': {'status': 'decoded', 'value': 42}, '102:0': {'status': 'decoded', 'value': 30}}
     item = replace(facts('Monarch', 'magic'), sockets=4, socket_contents='empty', stats=stats)
 
     def evaluate(item, context=None):

@@ -93,9 +93,9 @@ REVIEWS = (
         ((105, 0, 20), (127, 0, 1), (77, 0, 5), (150, 0, 10)),
         (
             ('perfect', False, ((16, 0, 120),), 'high', 'positive', '(90-120%)'),
-            ('reviewed-high-boundary', False, ((16, 0, 110),), 'high', 'positive', '(90-120%)'),
+            ('former-high-boundary', False, ((16, 0, 110),), 'med', 'unknown', '(90-120%)'),
             ('below-reviewed-boundary', False, ((16, 0, 109),), 'med', 'negative', '(90-120%)'),
-            ('one-ed-short-of-perfect', False, ((16, 0, 119),), 'high', 'positive', '(90-120%)'),
+            ('one-ed-short-of-perfect', False, ((16, 0, 119),), 'med', 'unknown', '(90-120%)'),
             ('unknown-ed', False, (), 'med', 'unknown', 'Faster Cast Rate'),
         ),
     ),
@@ -120,6 +120,7 @@ REVIEWS = (
         (
             ('perfect-pair', False, ((2, 0, 20), (19, 0, 250)), 'high', 'positive', '(150-250)'),
             ('one-ar-short', False, ((2, 0, 20), (19, 0, 249)), 'med', 'negative', '(150-250)'),
+            ('one-dex-short', False, ((2, 0, 19), (19, 0, 250)), 'med', 'negative', '(15-20)'),
             ('unknown-ar', False, ((2, 0, 20),), 'med', 'unknown', '(15-20)'),
         ),
     ),
@@ -141,12 +142,33 @@ def cases():
                 ),
                 context={},
                 expected={
-                    'assessment': IsPartialDict(trade_tier=IsPartialDict(status='reviewed', tier=tier)),
+                    'assessment': IsPartialDict(
+                        trade_tier=IsPartialDict(status='reviewed', tier=tier),
+                        **(
+                            {
+                                'trade_qualification': IsPartialDict(
+                                    status='premium'
+                                    if label == 'perfect-pair'
+                                    else 'unresolved'
+                                    if label == 'unknown-ar'
+                                    else 'candidate'
+                                )
+                            }
+                            if name == 'Raven Frost'
+                            else {}
+                        ),
+                    ),
                     'price_estimate': IsPartialDict(estimate_ist=None),
                 },
                 scenario=scenario,
                 covers=('named:unique:' + name,),
-                report_contains=(name, 'Trade tier: ' + ('mid' if tier == 'med' else tier), report_stat),
+                report_contains=(name, 'Trade tier: ' + ('mid' if tier == 'med' else tier), report_stat)
+                + (
+                    ('Trade: ' + ('premium' if label == 'perfect-pair' else 'ordinary') + ' candidate',)
+                    if name == 'Raven Frost' and label != 'unknown-ar'
+                    else ()
+                ),
+                report_absent=('Trade:',) if name == 'Raven Frost' and label == 'unknown-ar' else (),
                 evidence=(
                     f'third-parties/d2data/json/uniqueitems.json:/{table_id}',
                     'pricing/data/wp-i-uniques-misc.json:/' + research,

@@ -145,3 +145,61 @@ def test_sigons_starter_demand_does_not_expand_to_uncited_set_pieces():
     companions = {p['build']: {d['when']['value'] for d in p['depends_on']} for p in roles}
     assert companions['strafe-amazon'] == {"Sigon's Visor", "Sigon's Sabot"}
     assert companions['berserk-barbarian'] == {"Sigon's Wrap", "Sigon's Sabot"}
+
+
+def test_repeated_pinned_demand_reuses_parsing_without_leaking_results(monkeypatch):
+    from pricing.knowledge.artifacts import Artifact, supplied_artifacts
+    from pricing.knowledge.assessment import guide_demand
+    from pricing.knowledge.assessment.build_profiles import OUTPUT
+
+    raw = json.dumps({'guide_demand': {'summaries': {'Cache test': {'contexts': [{'build': 'first'}]}}}}).encode()
+    original = json.loads
+    parsed = []
+
+    def loads(data, *args, **kwargs):
+        parsed.append(data)
+        return original(data, *args, **kwargs)
+
+    monkeypatch.setattr(guide_demand.json, 'loads', loads)
+    with supplied_artifacts({OUTPUT.resolve(): Artifact(raw, 'first')}):
+        first = guide_demand.demand_for_item('Cache test', [])
+        first['contexts'][0]['build'] = 'changed by caller'
+        assert guide_demand.demand_for('Cache test') == {'contexts': [{'build': 'first'}]}
+        assert guide_demand.demand_for_item('Cache test', []) == {'contexts': [{'build': 'first'}]}
+    assert parsed == [raw]
+
+
+def test_prepared_demand_cache_tracks_bytes_across_pinned_generations():
+    from pricing.knowledge.artifacts import Artifact, supplied_artifacts
+    from pricing.knowledge.assessment import guide_demand
+    from pricing.knowledge.assessment.build_profiles import OUTPUT
+
+    def raw(build):
+        return json.dumps({'guide_demand': {'summaries': {'Changing': {'contexts': [{'build': build}]}}}}).encode()
+
+    for build in ('old', 'new', 'old'):
+        with supplied_artifacts({OUTPUT.resolve(): Artifact(raw(build), build)}):
+            assert guide_demand.demand_for_item('Changing', []) == {'contexts': [{'build': build}]}
+    with supplied_artifacts({}), pytest.raises(ValueError, match='absent from pinned'):
+        guide_demand.demand_for('Changing')
+
+
+def test_pattern_demand_results_cannot_mutate_cached_presentation():
+    from pricing.knowledge.artifacts import Artifact, supplied_artifacts
+    from pricing.knowledge.assessment.build_profiles import OUTPUT
+    from pricing.knowledge.assessment.guide_demand import demand_for_item
+
+    summary = {
+        'scope': 'pattern',
+        'profile_ids': ['role'],
+        'distinct_builds': 1,
+        'contexts': [{'build': 'build', 'variant': 'variant', 'side': 'player', 'strength': 'preferred'}],
+        'role_presentation': {'role': {'label': 'original'}},
+    }
+    raw = json.dumps({'guide_demand': {'summaries': {'pattern:role': summary}}}).encode()
+    roles = [{'id': 'role', 'status': 'matched', 'rule_trace': {'truth': 'true'}}]
+    with supplied_artifacts({OUTPUT.resolve(): Artifact(raw, 'pattern')}):
+        result = demand_for_item('unlisted', roles)
+        result['role_presentation']['role']['label'] = 'mutated'
+        assert demand_for_item('unlisted', roles)['role_presentation']['role']['label'] == 'original'
+        assert demand_for_item('unlisted', []) is None

@@ -372,8 +372,8 @@ def test_pinned_card_hides_while_unfocused_and_returns_on_focus():
 
 
 def test_a_level_with_nothing_to_mark_is_read_once_and_stays_quiet():
-    # Lower Kurast without a super chest camp: rooms read, no POI, nothing required missing.
-    guide, shown, _ = make_guide([79, 79, 79], fixture='arcane_summoner_w')
+    # Great Marsh without a clearing (its only, optional, POI): rooms read, no POI, nothing missing.
+    guide, shown, _ = make_guide([77, 77, 77], fixture='arcane_summoner_w')
     reads = []
     observe = guide.observe
     guide.observe = lambda pid, images, capture, rooms=False: (
@@ -469,3 +469,35 @@ def test_rooms_of_a_learned_layout_have_walls_on_entry_and_live_reads_teach_the_
     card = next(line for line in shown[-1] if isinstance(line, MapCard))
     assert {(x, y) for x, y, *_ in card.walkable} >= {(known.x, known.y), (loaded.x, loaded.y)}
     assert WallLibrary(tmp_path / 'walls.json').known([loaded]) == [live]
+
+
+def test_the_map_carries_the_visited_rooms_of_the_current_area():
+    from inventory_tracking.osd.level_map import MapCard
+
+    guide, shown, _ = make_guide([74])
+    asked = []
+
+    def visited(area):
+        asked.append(area)
+        return set()
+
+    guide.visited_rooms = visited
+    guide.poll(1.0)
+    guide.tick()
+
+    card = next(line for line in shown[-1] if isinstance(line, MapCard))
+    assert asked[-1] == 74
+    assert card.visited == ()  # none known: unshaded
+
+
+def test_the_map_carries_live_dots_of_the_current_area():
+    from inventory_tracking.osd.level_map import MapCard, MapPoi
+
+    guide, shown, _ = make_guide([74])
+    dot = MapPoi('Herald T1', 'herald', 3.0, 4.0)
+    guide.map_dots = lambda area: [dot] if area == 74 else []
+    guide.poll(1.0)
+    guide.tick()
+
+    card = next(line for line in shown[-1] if isinstance(line, MapCard))
+    assert card.pois[-1] == dot

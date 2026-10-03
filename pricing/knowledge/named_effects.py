@@ -7,28 +7,35 @@ def fixed_elemental_effects(record, properties, *, runeword=False):
     effects = []
     for slot in range(1, 13):
         code = record.get(f'T1Code{slot}' if runeword else f'prop{slot}')
-        if code not in ('dmg-cold', 'dmg-fire', 'dmg-ltng'):
+        if code == 'dmg-elem':
+            kinds = ('fire', 'lightning', 'cold')
+            functions = tuple(pair for name in ('dmg-fire', 'dmg-ltng', 'dmg-cold') for pair in FUNCTIONS[name][1])
+        elif code in ('dmg-cold', 'dmg-fire', 'dmg-ltng'):
+            kind, functions = FUNCTIONS[code]
+            kinds = (kind,)
+        else:
             continue
-        kind, functions = FUNCTIONS[code]
         spec = properties.get(code, {})
         if any((spec.get(f'func{i}'), spec.get(f'stat{i}')) != pair for i, pair in enumerate(functions, 1)):
             continue
         prefixes = ('T1Min', 'T1Max', 'T1Param') if runeword else ('min', 'max', 'par')
         low, high, frames = (record.get(f'{prefix}{slot}') for prefix in prefixes)
-        # A recipe can omit cold duration. Retain its source so rune-only cold
-        # totals cannot accidentally become intrinsic; runtime cannot verify None.
-        values = (low, high, frames) if kind == 'cold' and not (runeword and frames is None) else (low, high)
-        if any(type(value) is not int or value <= 0 for value in values) or low > high:
-            continue
-        effects.append(
-            {
-                'kind': kind,
-                'slot': slot,
-                'minimum_damage': low,
-                'maximum_damage': high,
-                **({'duration_frames': frames} if kind == 'cold' else {}),
-            }
-        )
+        for kind in kinds:
+            # Without a duration, fire/lightning endpoints are still fixed.
+            # Recipe cold retains its source with an unknown duration, so rune
+            # contributions cannot silently replace the missing recipe proof.
+            values = (low, high, frames) if kind == 'cold' and not (runeword and frames is None) else (low, high)
+            if any(type(value) is not int or value <= 0 for value in values) or low > high:
+                continue
+            effects.append(
+                {
+                    'kind': kind,
+                    'slot': slot,
+                    'minimum_damage': low,
+                    'maximum_damage': high,
+                    **({'duration_frames': frames} if kind == 'cold' else {}),
+                }
+            )
     return effects
 
 

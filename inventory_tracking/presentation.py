@@ -45,6 +45,9 @@ class Tone(StrEnum):
     WAYPOINT = 'waypoint'
     POI = 'poi'
     EXIT = 'exit'
+    HERALD = 'herald'  # a live Terror Zone Herald on the level map
+    MOB = 'mob'  # a hostile monster alive, level map
+    MOB_LEADER = 'mob_leader'  # a unique, champion or super unique alive, level map
 
 
 PALETTE = MappingProxyType(
@@ -82,6 +85,9 @@ PALETTE = MappingProxyType(
         Tone.WAYPOINT: '#6fa8ff',
         Tone.POI: '#ffee33',
         Tone.EXIT: '#dddddd',
+        Tone.HERALD: '#ff3d6e',
+        Tone.MOB: '#a8463e',
+        Tone.MOB_LEADER: '#ff4dff',
     }
 )
 

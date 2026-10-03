@@ -26,7 +26,8 @@ def test_ethereal_premium_requires_both_flag_and_roll():
     from pricing.knowledge.assessment.policies.named_tiers import assess_tier
 
     item = replace(
-        facts('Ceremonial Javelin', 'unique', "Titan's Revenge"), stats={'17:0': {'status': 'decoded', 'value': 195}}
+        facts('Ceremonial Javelin', 'unique', "Titan's Revenge"),
+        stats={key: {'status': 'decoded', 'value': 195} for key in ('17:0', '18:0')},
     )
     assert assess_tier(item)['tier'] == 'med'
     assert assess_tier(replace(item, ethereal=True))['tier'] == 'high'

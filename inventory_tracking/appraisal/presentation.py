@@ -4,8 +4,9 @@ from dataclasses import dataclass
 
 from rich.text import Text
 
+from inventory_tracking.appraisal.commodity import commodity_lines
 from inventory_tracking.appraisal.intrinsic_rolls import display_stats
-from inventory_tracking.appraisal.owned import owned_lines
+from inventory_tracking.appraisal.owned import multiple_copy_use, owned_lines
 from inventory_tracking.appraisal.sections import (
     assessment_lines,
     base_lines,
@@ -14,8 +15,11 @@ from inventory_tracking.appraisal.sections import (
     price_lines,
     review_lines,
     tier_lines,
+    trade_qualification_lines,
     utility_lines,
+    value_watch_heading,
     value_watch_lines,
+    value_watch_rows,
 )
 from inventory_tracking.appraisal.stat_markers import stat_line
 from inventory_tracking.presentation import StyledLine, Tone, render_rich
@@ -64,11 +68,17 @@ def base_tones(assessment):
 
 
 def watch_tones(result):
-    rows = result.get('value_watch', [])[:1]
+    rows = value_watch_rows(result)[:1]
     if not rows:
         return {}
+    details = rows[0]['details']
+    group = details.get('resale_group', {})
+    if group.get('qualification') == 'candidate' and group.get('liquidity') == 'unverified':
+        niche = group.get('buyer_scope') == 'niche' or group.get('buyer_focus') == 'low_level'
+        tone = Tone.TIER_MED if niche else Tone.TIER_LOW
+        return {value_watch_heading(details): tone}
     if rows[0]['details']['priority'] == 'valuable_candidate':
-        return {'VALUABLE CANDIDATE': Tone.VALUABLE}
+        return {value_watch_heading(rows[0]['details']): Tone.VALUABLE}
     return {'BUILD DEMAND': Tone.DEMAND}
 
 
@@ -86,10 +96,11 @@ def ethereal_tone(result):
 
 def result_tones(result):
     """Compatibility for callers requesting a text-to-style lookup."""
+    comparison = result.get('triage', {}).get('roll_comparison')
     tones = {
-        row['text']: ROLL_TONES[row['roll_quality']]
+        row['text']: stat_line(row, {}, comparison=comparison).tone
         for row in display_stats(result)
-        if row.get('roll_quality') in ROLL_TONES
+        if row.get('roll_quality') in ROLL_TONES or comparison is not None
     }
     ethereal = result.get('extraction', {}).get('item', {}).get('ethereal')
     if type(ethereal) is bool and ethereal_tone(result) != Tone.DEFAULT:
@@ -122,6 +133,15 @@ class ItemAssessment:
             add(f'Status: {record["state"]}', Tone.METADATA)
             return cls(tuple(lines))
         result = record['result']
+        if triage := result.get('triage'):
+            from inventory_tracking.appraisal.triage import TONES, headline
+
+            add(headline(triage), TONES[triage['verdict']])
+        commodity = commodity_lines(result)
+        if commodity is not None:
+            for line in commodity:
+                add(line)
+            return cls(tuple(lines))
         extraction = result['extraction']
         item = extraction['item']
         frozen = frozen or record.get('frozen') or {}
@@ -148,7 +168,9 @@ class ItemAssessment:
             for stat in display_stats(result):
                 if stat['status'] == 'decoded' and stat.get('presentation') != 'internal':
                     annotations = result.get('assessment', {}).get('stat_evaluation', {}).get('annotations', {})
-                    lines.append(stat_line(stat, annotations))
+                    lines.append(
+                        stat_line(stat, annotations, comparison=result.get('triage', {}).get('roll_comparison'))
+                    )
         else:
             for affix in affixes:
                 add('  ' + affix['label'].replace('{{value}}', str(affix['value'])))
@@ -160,8 +182,10 @@ class ItemAssessment:
                 add('  No supported stats decoded.', Tone.WARNING)
         # The owned header and the best-rolled copy go to the OSD; further copies only to the text report.
         owned = result.get('owned')
-        for index, line in enumerate(owned_lines(owned)):
-            add(line, OWNED_TONES.get(owned['relation'], Tone.DEFAULT) if index == 0 else Tone.METADATA, osd=index < 2)
+        comparison_only = multiple_copy_use(result)
+        for index, line in enumerate(owned_lines(owned, comparison_only=comparison_only)):
+            tone = OWNED_TONES.get(owned['relation'], Tone.DEFAULT) if index == 0 else Tone.METADATA
+            add(line, Tone.METADATA if comparison_only else tone, osd=index < 2)
         for line in utility_lines(result):
             add(line, Tone.HEADING if line.startswith('Consumable use') else Tone.DEFAULT)
         for line in assessment_lines(result):
@@ -174,12 +198,20 @@ class ItemAssessment:
         for line in base_lines(base_result):
             add(line, bases.get(line.strip(), Tone.HEADING if line == 'Runeword base:' else Tone.DEFAULT))
         tier = result.get('assessment', {}).get('trade_tier', {}).get('tier')
-        for line in tier_lines(result):
-            add(line, TIER_TONES.get(tier, Tone.DEFAULT))
+        if 'triage' not in result:
+            for line in tier_lines(result):
+                add(line, TIER_TONES.get(tier, Tone.DEFAULT))
+        qualification = result.get('assessment', {}).get('trade_qualification', {})
+        trade_tone = Tone.TIER_HIGH if qualification.get('status') == 'premium' else Tone.TIER_LOW
+        if qualification.get('status') == 'candidate' and qualification.get('material_stats') == []:
+            trade_tone = TIER_TONES.get(tier, Tone.TIER_LOW)
+        for line in trade_qualification_lines(result):
+            add(line, trade_tone)
         for line in leveling_lines(result):
             add(line, TIER_TONES.get(line.split()[1], Tone.DEFAULT) if line.startswith('Leveling:') else Tone.DEFAULT)
-        for line in price_lines(result):
-            add(line)
+        if 'triage' not in result:
+            for line in price_lines(result):
+                add(line)
         issues = review_lines(extraction)
         if issues:
             add('Unreadable:', Tone.WARNING)

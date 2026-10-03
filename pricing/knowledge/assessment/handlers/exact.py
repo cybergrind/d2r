@@ -6,6 +6,7 @@ from pricing.knowledge.assessment.domain.contracts import ComparableContract
 from pricing.knowledge.assessment.handlers.socket_fillers import compare_equipment_sockets
 from pricing.knowledge.assessment.mechanics.affixed_charges import affixed_charge_properties
 from pricing.knowledge.assessment.mechanics.affixed_cold import affixed_cold_properties
+from pricing.knowledge.assessment.mechanics.affixed_damage import affixed_without_ed
 from pricing.knowledge.assessment.mechanics.affixed_per_level import affixed_per_level_properties
 from pricing.knowledge.assessment.mechanics.affixed_physical import affixed_physical_properties
 from pricing.knowledge.assessment.mechanics.affixed_poison import affixed_poison_properties
@@ -86,6 +87,8 @@ def exact_contract(facts, family, policy, supported):
         gaps.append('No comparable affix inventory.')
     flat_damage = policy == 'base' and family == 'weapon' and superior_flat_damage(facts)
     no_ed = policy == 'base' and family == 'weapon' and (superior_without_ed(facts) or flat_damage)
+    if policy == 'affixed' and family == 'weapon':
+        no_ed = affixed_without_ed(facts)
     no_defense = policy == 'base' and family in DEFENSE_FAMILIES and superior_without_ed(facts, 'armor')
     if (
         policy == 'base'
@@ -114,7 +117,7 @@ def exact_contract(facts, family, policy, supported):
     if no_defense:
         properties['425'] = 0
     if no_ed:
-        properties['510'] = 0  # Proven quality identity; require explicit zero ED in listings.
+        properties['510'] = 0  # Proven native identity; require explicit zero ED in listings.
     if flat_damage:
         properties['448'] = 1
     if gaps:

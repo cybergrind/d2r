@@ -17,9 +17,9 @@ def test_shako_defense_segment_keeps_med_tier_and_specific_premium(defense, prem
     assert bool(result['reasons']) is premium
 
 
-@pytest.mark.parametrize(('mf', 'tier'), [(20, 'med'), (37, 'med'), (38, 'high'), (40, 'high')])
+@pytest.mark.parametrize(('mf', 'tier'), [(20, 'med'), (37, 'med'), (38, 'med'), (39, 'med'), (40, 'high')])
 def test_gheed_magic_find_segment(mf, tier):
-    assert assess_tier(item('Grand Charm', "Gheed's Fortune", {'80:0': mf}))['tier'] == tier
+    assert assess_tier(item('Grand Charm', "Gheed's Fortune", {'80:0': mf, '79:0': 160, '87:0': 15}))['tier'] == tier
 
 
 def test_ravenlore_uses_native_max_not_socket_augmented_market_values():

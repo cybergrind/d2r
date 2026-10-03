@@ -872,7 +872,7 @@
       "branches": [
         {
           "profile_id": "zeal-paladin-specialist-shield-ruby-empty",
-          "profile_fingerprint": "c4c45c85f3dcdb85fa994d4b3bb0e519bf812058af89c2454ba5b01f32a83ceb",
+          "profile_fingerprint": "41d89fda3773b84c91251627536712ee8d1274bfacec8c4a261439d0a5e5ff94",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -884,7 +884,7 @@
         },
         {
           "profile_id": "zeal-paladin-specialist-shield-ruby-filled",
-          "profile_fingerprint": "ba14faef1520401e434e1c180242816310fbf14da5f38cafb393ed04c068ac0f",
+          "profile_fingerprint": "2004129afe7584d2ad31dce9fc8545ac99642bff82bcfae975c68dc29dad5a3a",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -936,7 +936,7 @@
       "branches": [
         {
           "profile_id": "zeal-paladin-specialist-shield-ist-empty",
-          "profile_fingerprint": "f4b76306b7308bcf948b4fa7447655e69a19bc58554ef1c7f5eccde0203fd88c",
+          "profile_fingerprint": "3fa2e5d3c847fdbe821d2e579ff3f5234563fdc9a4ba425f838ae86242246620",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -948,7 +948,7 @@
         },
         {
           "profile_id": "zeal-paladin-specialist-shield-ist-filled",
-          "profile_fingerprint": "4e02226fee36242345149a463fae7829fd570dd1871d56aa703d8a65cfbc38de",
+          "profile_fingerprint": "d8de0925dd68730d7c3c116b845838d13a3315bea3f67657d74f0d39bb6aa084",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -2617,7 +2617,7 @@
         "path": "pricing/data/appraisal-guide-sections.json",
         "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
         "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/12/text",
-        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter ✔ tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
+        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter \u2714 tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
       },
       "branches": [
         {
@@ -3337,7 +3337,7 @@
         "path": "pricing/data/appraisal-guide-sections.json",
         "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
         "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/12/text",
-        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter ✔ tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
+        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter \u2714 tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
       },
       "branches": [
         {
@@ -4946,7 +4946,7 @@
       "branches": [
         {
           "profile_id": "zeal-paladin-specialist-shield-ruby-filled",
-          "profile_fingerprint": "ba14faef1520401e434e1c180242816310fbf14da5f38cafb393ed04c068ac0f",
+          "profile_fingerprint": "2004129afe7584d2ad31dce9fc8545ac99642bff82bcfae975c68dc29dad5a3a",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -4997,7 +4997,7 @@
       "branches": [
         {
           "profile_id": "zeal-paladin-specialist-shield-ist-filled",
-          "profile_fingerprint": "4e02226fee36242345149a463fae7829fd570dd1871d56aa703d8a65cfbc38de",
+          "profile_fingerprint": "d8de0925dd68730d7c3c116b845838d13a3315bea3f67657d74f0d39bb6aa084",
           "variant": "Gear alternatives",
           "slot": "Off-Hand",
           "player_class": "Paladin",
@@ -5646,7 +5646,7 @@
         "path": "pricing/data/appraisal-guide-sections.json",
         "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
         "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/12/text",
-        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter ✔ tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
+        "quote": "The Starter variant of the Zeal Paladin meets the minimum gear requirements for farming the Starter \u2714 tagged areas in the \"Farming Spots\" section below. These areas can be Solo-farmed by this setup (/Players1 on Single Player) in both Nightmare and Hell difficulty. An Upgraded Butcher's Pupil is a strong, relatively easy to acquire weapon that provides this build with sufficient power. There are several other low budget options that work just as well or nearly as well such as Unbending Will (see \"Gear Options\" below). Beyond a decently strong weapon, make sure to prioritize Attack Speed, Attack Rating, Damage, Damage Reduction, Resistances, Cannot Be Frozen, and Life/Attributes on your gear. A Teleport Charge Staff on Weapon-Swap allows this build to reposition. Follow the Paladin Leveling Guide to get your Paladin to Level 75."
       },
       "branches": [
         {
@@ -8669,7 +8669,7 @@
       "id": "abyss-table-legacy-crafted-belt-span-60",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player table span60. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 5–10 FCR,4–10 mana regeneration and 10–20 mana. The cited 24 FHR and 30 fire/lightning/cold resistance are optional affixes. A 5 FCR recipe roll remains caster utility, not proof of the desired full-loadout breakpoint or high trade value. Base requirements and potion capacity still matter. Legacy tooltip profile x2cpo0l5/item28 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable.",
+      "reason": "2026-09-28: Exact Abyss player table span60. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 5\u201310 FCR,4\u201310 mana regeneration and 10\u201320 mana. The cited 24 FHR and 30 fire/lightning/cold resistance are optional affixes. A 5 FCR recipe roll remains caster utility, not proof of the desired full-loadout breakpoint or high trade value. Base requirements and potion capacity still matter. Legacy tooltip profile x2cpo0l5/item28 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable.",
       "occurrence_id": "5848dc94ed2897633f2a8b2e",
       "expected_occurrence": {
         "name": "Caster Crafted Belt",
@@ -8712,7 +8712,7 @@
           "qualities": [
             "crafted"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player table span60. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 5–10 FCR,4–10 mana regeneration and 10–20 mana. The cited 24 FHR and 30 fire/lightning/cold resistance are optional affixes. A 5 FCR recipe roll remains caster utility, not proof of the desired full-loadout breakpoint or high trade value. Base requirements and potion capacity still matter. Legacy tooltip profile x2cpo0l5/item28 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable."
+          "configuration_review": "2026-09-28: Exact Abyss player table span60. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 5\u201310 FCR,4\u201310 mana regeneration and 10\u201320 mana. The cited 24 FHR and 30 fire/lightning/cold resistance are optional affixes. A 5 FCR recipe roll remains caster utility, not proof of the desired full-loadout breakpoint or high trade value. Base requirements and potion capacity still matter. Legacy tooltip profile x2cpo0l5/item28 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable."
         }
       ],
       "remaining_branches": []
@@ -8721,7 +8721,7 @@
       "id": "abyss-table-crafted-gloves-span-57",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player table span57. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 4–10 mana regeneration,10–20 mana and 1–3 mana after kills, not Faster Cast Rate. The cited 30 fire/lightning/cold resistance and 25 Magic Find are optional affixes, not guaranteed recipe bonuses. Low recipe rolls show resource utility, not premium trade value. Compare the actual affixes against casting gloves and the remaining loadout. Modern tooltip gsg0p0l0/item92 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well.",
+      "reason": "2026-09-28: Exact Abyss player table span57. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 4\u201310 mana regeneration,10\u201320 mana and 1\u20133 mana after kills, not Faster Cast Rate. The cited 30 fire/lightning/cold resistance and 25 Magic Find are optional affixes, not guaranteed recipe bonuses. Low recipe rolls show resource utility, not premium trade value. Compare the actual affixes against casting gloves and the remaining loadout. Modern tooltip gsg0p0l0/item92 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well.",
       "occurrence_id": "349258edf524aa3385e67498",
       "expected_occurrence": {
         "name": "Caster Crafted Bramble Mitts",
@@ -8764,7 +8764,7 @@
           "qualities": [
             "crafted"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player table span57. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 4–10 mana regeneration,10–20 mana and 1–3 mana after kills, not Faster Cast Rate. The cited 30 fire/lightning/cold resistance and 25 Magic Find are optional affixes, not guaranteed recipe bonuses. Low recipe rolls show resource utility, not premium trade value. Compare the actual affixes against casting gloves and the remaining loadout. Modern tooltip gsg0p0l0/item92 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well."
+          "configuration_review": "2026-09-28: Exact Abyss player table span57. Native identity, legal upgrade/recipe bases, nonethereal zero-socket wearer state and minimum intrinsic rolls reviewed independently of the planner maxima. Caster recipe supplies 4\u201310 mana regeneration,10\u201320 mana and 1\u20133 mana after kills, not Faster Cast Rate. The cited 30 fire/lightning/cold resistance and 25 Magic Find are optional affixes, not guaranteed recipe bonuses. Low recipe rolls show resource utility, not premium trade value. Compare the actual affixes against casting gloves and the remaining loadout. Modern tooltip gsg0p0l0/item92 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well."
         }
       ],
       "remaining_branches": []
@@ -8773,7 +8773,7 @@
       "id": "abyss-table-legacy-crafted-boots-span-70",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player Boots span 70; native minimums, legal bases and zero-socket nonethereal wearer state reviewed. Caster boots supply 4–10% mana regeneration, 10–20 mana and 2–5% maximum mana; the recipe does not supply Faster Cast Rate. The guide example adds 30% movement, 10% recovery, 40% fire resistance and 25% Magic Find as optional affixes. Evaluate actual affixes and requirements; minimum resource utility is not a premium price claim. Legacy tooltip profile x2cpo0l5/item29 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable.",
+      "reason": "2026-09-28: Exact Abyss player Boots span 70; native minimums, legal bases and zero-socket nonethereal wearer state reviewed. Caster boots supply 4\u201310% mana regeneration, 10\u201320 mana and 2\u20135% maximum mana; the recipe does not supply Faster Cast Rate. The guide example adds 30% movement, 10% recovery, 40% fire resistance and 25% Magic Find as optional affixes. Evaluate actual affixes and requirements; minimum resource utility is not a premium price claim. Legacy tooltip profile x2cpo0l5/item29 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable.",
       "occurrence_id": "aafbb91a473547218d6e6a96",
       "expected_occurrence": {
         "name": "Caster Crafted Boots",
@@ -8816,7 +8816,7 @@
           "qualities": [
             "crafted"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player Boots span 70; native minimums, legal bases and zero-socket nonethereal wearer state reviewed. Caster boots supply 4–10% mana regeneration, 10–20 mana and 2–5% maximum mana; the recipe does not supply Faster Cast Rate. The guide example adds 30% movement, 10% recovery, 40% fire resistance and 25% Magic Find as optional affixes. Evaluate actual affixes and requirements; minimum resource utility is not a premium price claim. Legacy tooltip profile x2cpo0l5/item29 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable."
+          "configuration_review": "2026-09-28: Exact Abyss player Boots span 70; native minimums, legal bases and zero-socket nonethereal wearer state reviewed. Caster boots supply 4\u201310% mana regeneration, 10\u201320 mana and 2\u20135% maximum mana; the recipe does not supply Faster Cast Rate. The guide example adds 30% movement, 10% recovery, 40% fire resistance and 25% Magic Find as optional affixes. Evaluate actual affixes and requirements; minimum resource utility is not a premium price claim. Legacy tooltip profile x2cpo0l5/item29 is pinned in the role source; absence of a modern profile uid does not make this exact item unavailable."
         }
       ],
       "remaining_branches": []
@@ -8873,7 +8873,7 @@
       "id": "abyss-table-amulet-span-72",
       "kind": "player_equipment",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player amulet span 72; source affixes, native minimums and optional modifiers reviewed separately. Two all-skills, 20–30 all resistances and five to all attributes support the caster. Minimum resistance rolls remain useful. This standalone table alternative does not require proof of the Standard variant's 125% FCR; assemble and verify the full casting setup separately. Exact named player slot alternative; preserve native-stat and actual socket qualifications.",
+      "reason": "2026-09-28: Exact Abyss player amulet span 72; source affixes, native minimums and optional modifiers reviewed separately. Two all-skills, 20\u201330 all resistances and five to all attributes support the caster. Minimum resistance rolls remain useful. This standalone table alternative does not require proof of the Standard variant's 125% FCR; assemble and verify the full casting setup separately. Exact named player slot alternative; preserve native-stat and actual socket qualifications.",
       "occurrence_id": "604771bf30572e10a9d595eb",
       "expected_occurrence": {
         "name": "Mara's Kaleidoscope",
@@ -8912,7 +8912,7 @@
           "variant": "Gear Options amulets",
           "slot": "Amulets",
           "player_class": "Warlock",
-          "configuration_review": "2026-09-28: Exact Abyss player amulet span 72; source affixes, native minimums and optional modifiers reviewed separately. Two all-skills, 20–30 all resistances and five to all attributes support the caster. Minimum resistance rolls remain useful. This standalone table alternative does not require proof of the Standard variant's 125% FCR; assemble and verify the full casting setup separately. Exact named player slot alternative; preserve native-stat and actual socket qualifications."
+          "configuration_review": "2026-09-28: Exact Abyss player amulet span 72; source affixes, native minimums and optional modifiers reviewed separately. Two all-skills, 20\u201330 all resistances and five to all attributes support the caster. Minimum resistance rolls remain useful. This standalone table alternative does not require proof of the Standard variant's 125% FCR; assemble and verify the full casting setup separately. Exact named player slot alternative; preserve native-stat and actual socket qualifications."
         }
       ],
       "remaining_branches": []
@@ -8921,7 +8921,7 @@
       "id": "abyss-table-crafted-amulet-span-71",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player amulet span 71; source affixes, native minimums and optional modifiers reviewed separately. The cited +2 Warlock / 15% FCR combination combines a 10% FCR affix with the caster recipe's 5–10% FCR. Recipe mana and regeneration may roll below the example maxima. Resistance and Magic Find are optional affixes. This specific combination does not establish the full 125% casting breakpoint or a numeric market premium. Modern tooltip gsg0p0l0/item84 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well.",
+      "reason": "2026-09-28: Exact Abyss player amulet span 71; source affixes, native minimums and optional modifiers reviewed separately. The cited +2 Warlock / 15% FCR combination combines a 10% FCR affix with the caster recipe's 5\u201310% FCR. Recipe mana and regeneration may roll below the example maxima. Resistance and Magic Find are optional affixes. This specific combination does not establish the full 125% casting breakpoint or a numeric market premium. Modern tooltip gsg0p0l0/item84 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well.",
       "occurrence_id": "7a4024201fc2cb0bfd53e37b",
       "expected_occurrence": {
         "name": "Caster Crafted Amulet",
@@ -8964,7 +8964,7 @@
           "qualities": [
             "crafted"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player amulet span 71; source affixes, native minimums and optional modifiers reviewed separately. The cited +2 Warlock / 15% FCR combination combines a 10% FCR affix with the caster recipe's 5–10% FCR. Recipe mana and regeneration may roll below the example maxima. Resistance and Magic Find are optional affixes. This specific combination does not establish the full 125% casting breakpoint or a numeric market premium. Modern tooltip gsg0p0l0/item84 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well."
+          "configuration_review": "2026-09-28: Exact Abyss player amulet span 71; source affixes, native minimums and optional modifiers reviewed separately. The cited +2 Warlock / 15% FCR combination combines a 10% FCR affix with the caster recipe's 5\u201310% FCR. Recipe mana and regeneration may roll below the example maxima. Resistance and Magic Find are optional affixes. This specific combination does not establish the full 125% casting breakpoint or a numeric market premium. Modern tooltip gsg0p0l0/item84 is separately bound by its exact embedded review; this row preserves the named pattern occurrence as well."
         }
       ],
       "remaining_branches": []
@@ -9021,7 +9021,7 @@
       "id": "abyss-table-legacy-ring-span-81",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player ring span 81; native effects, affix tiers and optional utility reviewed separately. The cited caster combination has 10% FCR and the Rainbow all-resistance affix (8–11), with the Blood recipe's 10–20 life, 1–5 Strength and 1–3% life leech. Leech identifies the recipe contribution but does not heal Abyss damage. Magic Find is optional; neither maximum recipe rolls nor the example's 25% Magic Find are prerequisites. Legacy tooltip profile x2cpo0l5/item30 is pinned in the role source. No modern profile uid is invented.",
+      "reason": "2026-09-28: Exact Abyss player ring span 81; native effects, affix tiers and optional utility reviewed separately. The cited caster combination has 10% FCR and the Rainbow all-resistance affix (8\u201311), with the Blood recipe's 10\u201320 life, 1\u20135 Strength and 1\u20133% life leech. Leech identifies the recipe contribution but does not heal Abyss damage. Magic Find is optional; neither maximum recipe rolls nor the example's 25% Magic Find are prerequisites. Legacy tooltip profile x2cpo0l5/item30 is pinned in the role source. No modern profile uid is invented.",
       "occurrence_id": "99d5e1d76768737505d40d5f",
       "expected_occurrence": {
         "name": "Blood Crafted Ring",
@@ -9064,7 +9064,7 @@
           "qualities": [
             "crafted"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player ring span 81; native effects, affix tiers and optional utility reviewed separately. The cited caster combination has 10% FCR and the Rainbow all-resistance affix (8–11), with the Blood recipe's 10–20 life, 1–5 Strength and 1–3% life leech. Leech identifies the recipe contribution but does not heal Abyss damage. Magic Find is optional; neither maximum recipe rolls nor the example's 25% Magic Find are prerequisites. Legacy tooltip profile x2cpo0l5/item30 is pinned in the role source. No modern profile uid is invented."
+          "configuration_review": "2026-09-28: Exact Abyss player ring span 81; native effects, affix tiers and optional utility reviewed separately. The cited caster combination has 10% FCR and the Rainbow all-resistance affix (8\u201311), with the Blood recipe's 10\u201320 life, 1\u20135 Strength and 1\u20133% life leech. Leech identifies the recipe contribution but does not heal Abyss damage. Magic Find is optional; neither maximum recipe rolls nor the example's 25% Magic Find are prerequisites. Legacy tooltip profile x2cpo0l5/item30 is pinned in the role source. No modern profile uid is invented."
         }
       ],
       "remaining_branches": []
@@ -9073,7 +9073,7 @@
       "id": "abyss-table-legacy-ring-span-82",
       "kind": "player_pattern",
       "review_date": "2026-09-28",
-      "reason": "2026-09-28: Exact Abyss player ring span 82; native effects, affix tiers and optional utility reviewed separately. The reviewed rare combination is 10% FCR and Rainbow-tier all resistances (8–11). Strength, Magic Find and extra single resistance improve the observed ring without being prerequisites. Optional Telekinesis charges provide utility while available; they are neither Teleport nor a permanent oskill. Depleted charges do not remove the core caster use. Legacy tooltip profile x2cpo0l5/item31 is pinned in the role source. No modern profile uid is invented.",
+      "reason": "2026-09-28: Exact Abyss player ring span 82; native effects, affix tiers and optional utility reviewed separately. The reviewed rare combination is 10% FCR and Rainbow-tier all resistances (8\u201311). Strength, Magic Find and extra single resistance improve the observed ring without being prerequisites. Optional Telekinesis charges provide utility while available; they are neither Teleport nor a permanent oskill. Depleted charges do not remove the core caster use. Legacy tooltip profile x2cpo0l5/item31 is pinned in the role source. No modern profile uid is invented.",
       "occurrence_id": "c40259199d87e788ecd54d84",
       "expected_occurrence": {
         "name": "Rare Ring",
@@ -9116,7 +9116,7 @@
           "qualities": [
             "rare"
           ],
-          "configuration_review": "2026-09-28: Exact Abyss player ring span 82; native effects, affix tiers and optional utility reviewed separately. The reviewed rare combination is 10% FCR and Rainbow-tier all resistances (8–11). Strength, Magic Find and extra single resistance improve the observed ring without being prerequisites. Optional Telekinesis charges provide utility while available; they are neither Teleport nor a permanent oskill. Depleted charges do not remove the core caster use. Legacy tooltip profile x2cpo0l5/item31 is pinned in the role source. No modern profile uid is invented."
+          "configuration_review": "2026-09-28: Exact Abyss player ring span 82; native effects, affix tiers and optional utility reviewed separately. The reviewed rare combination is 10% FCR and Rainbow-tier all resistances (8\u201311). Strength, Magic Find and extra single resistance improve the observed ring without being prerequisites. Optional Telekinesis charges provide utility while available; they are neither Teleport nor a permanent oskill. Depleted charges do not remove the core caster use. Legacy tooltip profile x2cpo0l5/item31 is pinned in the role source. No modern profile uid is invented."
         }
       ],
       "remaining_branches": []
@@ -10181,6 +10181,59 @@
               ]
             }
           }
+        }
+      ],
+      "remaining_branches": []
+    },
+    {
+      "id": "sentry-high-player-skiller-prose",
+      "kind": "player_pattern_prose_repeat",
+      "review_date": "2026-10-01",
+      "reason": "2026-10-01: Exact Magic Find Setup prose span15/section20 recommends a Traps/Vita charm instead of MF small charms at high player counts. Require explicitly known high_player_count_farming activity; missing activity remains unknown. The guide supplies no numeric count cutoff, so none is invented. Native +1 Traps and attainable Vita minimum36 life; perfect planner life45 is not required. Softcore/Non-Ladder use, separate from the unconditional main equipment alternative.",
+      "occurrence_id": "649cc48d1235a7b1a9b02343",
+      "expected_occurrence": {
+        "name": "Entrapping Grand Charm of Vita",
+        "original_label": "Entrapping Grand Charm of Vita",
+        "category": null,
+        "build": "lightning-sentry-assassin",
+        "variant": "Guide mention",
+        "side": "player",
+        "slot": "unspecified",
+        "source_id": "pricing/raw/mr/guides__lightning-sentry-assassin.html",
+        "source_locator": "/item-spans/15",
+        "class": "Assassin"
+      },
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "locator": "/sources/pricing~1raw~1mr~1guides__lightning-sentry-assassin.html/item_spans/15",
+        "expected": {
+          "item_id": "25",
+          "profile_id": "rj010607",
+          "label": "Entrapping Grand Charm of Vita",
+          "slot": "unspecified",
+          "side": "player"
+        }
+      },
+      "evidence": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__lightning-sentry-assassin.html/sections/20/text",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "quote": "Use Entrapping Grand Charm of Vita over Magic Find Small Charms in high player count scenarios."
+      },
+      "branches": [
+        {
+          "profile_id": "lightning-sentry-assassin-mf-high-player-skiller",
+          "profile_fingerprint": "21668bdb7fb05daf08f50f7b5212960f593a9ff713ca81a7dc52e7355d3fc844",
+          "variant": "Magic Find",
+          "slot": "Charms",
+          "player_class": "Assassin",
+          "configuration_review": "2026-10-01: Exact Magic Find Setup prose span15/section20 recommends a Traps/Vita charm instead of MF small charms at high player counts. Require explicitly known high_player_count_farming activity; missing activity remains unknown. The guide supplies no numeric count cutoff, so none is invented. Native +1 Traps and attainable Vita minimum36 life; perfect planner life45 is not required. Softcore/Non-Ladder use, separate from the unconditional main equipment alternative.",
+          "qualities": [
+            "magic"
+          ],
+          "pattern_label": "Entrapping Grand Charm of Vita",
+          "source_label": "Entrapping Grand Charm of Vita"
         }
       ],
       "remaining_branches": []

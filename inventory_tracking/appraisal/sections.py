@@ -79,24 +79,54 @@ def build_name(slug):
     return slug.removesuffix('-build-guide').removesuffix('-guide').replace('-', ' ').title()
 
 
+def value_watch_heading(details):
+    """Demand-qualified groups never imply measured liquidity."""
+    group = details.get('resale_group', {})
+    if group.get('qualification') == 'candidate' and group.get('liquidity') == 'unverified':
+        niche = group.get('buyer_scope') == 'niche' or group.get('buyer_focus') == 'low_level'
+        label = 'NICHE TRADE CANDIDATE' if niche else 'TRADE CANDIDATE'
+        return label + ' — liquidity unverified'
+    return 'VALUABLE CANDIDATE' if details['priority'] == 'valuable_candidate' else 'BUILD DEMAND'
+
+
+def value_watch_rows(result):
+    """One deterministic summary, retaining every independently matched buyer use."""
+
+    def order(row):
+        details = row['details']
+        heading = value_watch_heading(details)
+        priority = {
+            'TRADE CANDIDATE — liquidity unverified': 0,
+            'NICHE TRADE CANDIDATE — liquidity unverified': 1,
+            'VALUABLE CANDIDATE': 2,
+            'BUILD DEMAND': 3,
+        }[heading]
+        return priority, details.get('watch_id', ''), row.get('name', '')
+
+    return sorted(softcore_watches(result.get('value_watch', [])), key=order)
+
+
 def value_watch_lines(result):
-    lines = []
+    rows = value_watch_rows(result)
+    if not rows:
+        return []
+    heading = value_watch_heading(rows[0]['details'])
+    lines = [heading]
+    shown, descriptions = set(), set()
     covered = {
         (r['build'], r['variant'], r['side'], r['slot'])
         for r in result.get('assessment', {}).get('roles', [])
         if r['status'] in ('matched', 'partial')
     }
-    for row in softcore_watches(result.get('value_watch', []))[:1]:
+    for row in rows:
         details = row['details']
-        lines.append('VALUABLE CANDIDATE' if details['priority'] == 'valuable_candidate' else 'BUILD DEMAND')
         contexts = sorted(
             details.get('build_contexts', []),
             key=lambda c: c.get('variant') in ('Main alternatives', 'Prose alternatives'),
         )
-        shown = set()
         for context in contexts:
             key = (context['build'], context['variant'], context['side'], context['slot'])
-            if key in covered or key in shown:
+            if key in covered or key in shown or len(shown) >= 3:
                 continue
             shown.add(key)
             lines.append(
@@ -108,9 +138,20 @@ def value_watch_lines(result):
         for key in ('roll_bucket', 'guide_conditions', 'stat_priority'):
             detail = details.get(key)
             if key == 'guide_conditions':
+                if details.get('resale_group') and details.get('roll_bucket'):
+                    continue  # The reviewed combination already states its thresholds.
                 detail = WATCH_GUIDE_DISPLAY.get(detail, detail)
             if detail and str(detail).strip().rstrip('.').casefold() not in WATCH_PLACEHOLDERS:
-                lines.append(f'  {detail}')
+                normalized = str(detail).strip().rstrip('.').casefold()
+                if normalized in descriptions:
+                    continue
+                descriptions.add(normalized)
+                niche = (
+                    key == 'roll_bucket'
+                    and value_watch_heading(details).startswith('NICHE')
+                    and not heading.startswith('NICHE')
+                )
+                lines.append(f'  {"Niche: " if niche else ""}{detail}')
     return lines
 
 
@@ -199,19 +240,34 @@ def full_assessment_lines(result):
 def leveling_lines(result):
     """Show the strongest reviewed leveling uses; ordinary progression stays in JSON."""
     lines = []
-    for use in result.get('assessment', {}).get('leveling', []):
-        if use.get('generic') or use.get('tier') != 'high':
-            continue
+    for use in grouped_leveling_uses(result):
         classes = ', '.join(use['classes']) if len(use['classes']) < 8 else 'all classes'
         context = f'{use["side"]}, {classes}, {", ".join(use["archetypes"])}'
         level = f'; equip level {use["required_level"]}' if use.get('required_level') is not None else ''
-        label = 'mid' if use['tier'] == 'med' else use['tier']
-        lines.append(f'Leveling: {label} — {context}{level}. {use["reason"]}')
-        for shortfall in use.get('requirements_fit', {}).get('shortfalls', []):
-            lines.append('  Needs: ' + shortfall)
-        for condition in use['conditions']:
-            lines.append('  Needs: ' + condition)
+        lines.append(f'Leveling: {use["tier"]} — {context}{level}. {use["reason"]}')
+        for condition, affected in use['needs'].items():
+            scope = f' ({", ".join(affected)})' if set(affected) != set(use['classes']) else ''
+            lines.append(f'  Needs{scope}: {condition}')
     return lines
+
+
+def grouped_leveling_uses(result):
+    """Combine repeated recommendations while retaining class-specific caveats."""
+    groups = {}
+    for use in result.get('assessment', {}).get('leveling', []):
+        if use.get('generic') or use.get('tier') != 'high':
+            continue
+        key = (use['tier'], use['side'], tuple(sorted(use['archetypes'])), use.get('required_level'), use['reason'])
+        group = groups.setdefault(key, {**use, 'classes': [], 'needs': {}})
+        for klass in use['classes']:
+            if klass not in group['classes']:
+                group['classes'].append(klass)
+        for condition in (*use.get('requirements_fit', {}).get('shortfalls', []), *use['conditions']):
+            affected = group['needs'].setdefault(condition, [])
+            for klass in use['classes']:
+                if klass not in affected:
+                    affected.append(klass)
+    return list(groups.values())
 
 
 def tier_lines(result):
@@ -230,6 +286,17 @@ def tier_lines(result):
     return [line]
 
 
+def trade_qualification_lines(result):
+    review = result.get('assessment', {}).get('trade_qualification', {})
+    labels = {'candidate': 'ordinary candidate', 'premium': 'premium candidate', 'use_only': 'use only'}
+    if review.get('status') not in labels:
+        return []
+    label = labels[review['status']]
+    if review['status'] == 'candidate' and review.get('material_stats') == []:
+        label = 'candidate'
+    return [f'Trade: {label} — {review["reason"]}']
+
+
 def price_lines(result):
     lines = current_price_lines(result)
     from inventory_tracking.appraisal.prepared_prices import prepared_price_lines
@@ -242,8 +309,14 @@ def utility_lines(result):
     utility = result.get('assessment', {}).get('utility')
     if not utility:
         return []
-    label = 'Supply use' if utility.get('kind') == 'supply' else 'Consumable use'
+    label = {
+        'supply': 'Supply use',
+        'quest_material': 'Material use',
+        'quest_utility': 'Quest utility',
+    }.get(utility.get('kind'), 'Consumable use')
     lines = [label + (':' if utility['status'] == 'usable' else ' (verify item):')]
+    if utility.get('name') and utility['name'] != result.get('extraction', {}).get('item', {}).get('name'):
+        lines[0] += ' ' + utility['name']
     for key in ('effects', 'uses', 'improvements', 'gaps'):
         lines.extend('  ' + line for line in utility.get(key, []))
     return lines

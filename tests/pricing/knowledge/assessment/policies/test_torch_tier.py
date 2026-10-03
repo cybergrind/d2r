@@ -19,7 +19,8 @@ def test_torch_premium_tiers_preserve_class_and_observed_roll_buckets(class_id):
     assert perfect['tier'] == 'high'
     near = assess_tier(torch(class_id, 18, 19))
     assert near['tier'] == ('high' if class_id in (0, 1, 5, 6, 7) else None)
-    assert assess_tier(torch(class_id, 10, 10))['tier'] is None
+    # Legal low rolls retain the reviewed baseline independently of premium bands.
+    assert assess_tier(torch(class_id, 10, 10))['tier'] == 'low'
 
 
 def test_torch_missing_or_conflicting_class_cannot_resolve_a_tier():
@@ -33,4 +34,6 @@ def test_torch_missing_or_conflicting_class_cannot_resolve_a_tier():
     ):
         assert assess_tier(changed)['tier'] is None
     missing_roll = replace(item, stats={k: v for k, v in item.stats.items() if k != '45:0'})
-    assert assess_tier(missing_roll)['status'] == 'conditional'
+    # An incomplete compound resistance roll cannot certify a specimen tier.
+    assert assess_tier(missing_roll)['status'] == 'pending_review'
+    assert assess_tier(missing_roll)['tier'] is None

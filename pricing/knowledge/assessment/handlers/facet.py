@@ -16,12 +16,6 @@ TRIGGERS = {
     399: (199, 278, None, 'Venom'),
 }
 
-# appraisal-traderie-catalog.json: Rainbow Facet: Poison Level-up. Cached
-# wph-facet-poison-levelup listings have no trigger field; their catalog ID
-# distinguishes this variant. Never synthesize a nonexistent market property.
-CATALOG_VARIANTS = {399: '2188191106'}
-
-
 def facet_trigger(facts, definition):
     if facts.name != 'Rainbow Facet':
         return {}, set(), []

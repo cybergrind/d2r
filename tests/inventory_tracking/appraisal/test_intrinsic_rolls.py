@@ -110,12 +110,68 @@ def test_verified_empty_item_keeps_its_native_range(sockets):
     assert row['roll_range']['max'] == 20
 
 
-def test_guardian_angel_keeps_definition_bounds_without_asserting_unknown_socket_roll():
+@pytest.mark.parametrize('unknown_sockets', [False, True])
+def test_guardian_angel_roll_color_requires_verified_empty_sockets(unknown_sockets):
     from inventory_tracking.appraisal.intrinsic_rolls import display_stats
     from pricing.knowledge.assessment.maintenance.replay import replay
 
     result = replay('guardian_angel')
+    if unknown_sockets:
+        result['extraction']['item'].update(
+            sockets=None, socket_contents='unknown', filled_sockets=None, empty_sockets=None
+        )
     row = next(r for r in display_stats(result) if r.get('memory_stat', {}).get('id') == 16)
-    assert row['text'] == '+187% Enhanced Defense — item range: 180-200'
-    assert 'roll_quality' not in row
-    assert 'roll_range' not in row
+    if unknown_sockets:
+        assert row['text'] == '+187% Enhanced Defense — item range: 180-200'
+        assert 'roll_quality' not in row
+        assert 'roll_range' not in row
+    else:
+        assert row['text'] == '+187% (180-200%) Enhanced Defense'
+        assert row['roll_range']['min'] == 180
+        assert row['roll_range']['max'] == 200
+
+
+def test_andariel_strength_total_displays_and_colors_its_native_roll():
+    from inventory_tracking.appraisal.intrinsic_rolls import display_stats
+    from tests.pricing.knowledge.assessment.policies.test_socketed_andariel import andariel
+
+    jewel = {
+        'name': 'Jewel',
+        'item_type': 'jewl',
+        'stats_complete': True,
+        'stats': {'0:0': {'status': 'decoded', 'value': 5}},
+    }
+    item = andariel(30, 10, jewel)
+    rows, _, _ = decode_stats([{'id': 0, 'layer': 0, 'raw': 30}])
+    annotate_roll_ranges(rows, thaw(catalog().named['unique', "Andariel's Visage"]))
+    result = {
+        'extraction': {'item': item.to_dict(), 'decoded_stats': rows},
+        'assessment': {'trade_tier': assess_tier(item)},
+    }
+    original = deepcopy(result)
+    row = display_stats(result)[0]
+    assert row['text'] == '+30 to Strength — item roll: 25 (25-30), sockets: +5'
+    assert row['roll_quality'] == 'low'
+    assert row['value'] == 30
+    assert result == original
+
+
+@pytest.mark.parametrize(
+    ('total', 'native', 'quality'), [(230, 200, 'perfect'), (217, 187, 'normal'), (210, 180, 'low')]
+)
+def test_guardian_display_keeps_intrinsic_ed_when_premium_does_not_apply(total, native, quality):
+    from inventory_tracking.appraisal.intrinsic_rolls import display_stats
+    from pricing.knowledge.assessment.policies.named_baselines import assess_tier as baseline_tier
+    from tests.pricing.knowledge.assessment.policies.test_guardian_socket_roll import guardian
+
+    item = guardian(total, 'Pul Rune')
+    rows, _, _ = decode_stats([{'id': 16, 'layer': 0, 'raw': total}])
+    annotate_roll_ranges(rows, thaw(catalog().named['unique', 'Guardian Angel']))
+    result = {
+        'extraction': {'item': item.to_dict(), 'decoded_stats': rows},
+        'assessment': {'trade_tier': baseline_tier(item)},
+    }
+    row = display_stats(result)[0]
+    assert row['text'] == f'+{total}% Enhanced Defense — item roll: {native} (180-200), sockets: +30'
+    assert row['value'] == total
+    assert row['roll_quality'] == quality

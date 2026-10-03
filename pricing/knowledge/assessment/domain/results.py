@@ -39,6 +39,7 @@ class AssessmentResult:
     upgrades: tuple[UpgradePath, ...] = ()
     stat_evaluation: StatEvaluation | None = None
     utility: Mapping | None = None
+    trade_qualification: Mapping = field(default_factory=dict)
 
     def __post_init__(self):
         for name in (
@@ -47,6 +48,7 @@ class AssessmentResult:
             'base_uses',
             'leveling',
             'trade_tier',
+            'trade_qualification',
             'ethereal_preference',
             'coverage_gaps',
             'price_gaps',

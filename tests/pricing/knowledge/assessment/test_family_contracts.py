@@ -72,7 +72,7 @@ def test_named_unique_does_not_mix_original_and_unverified_upgraded_base():
     item = replace(
         facts('Templar Coat', 'unique', 'Guardian Angel'),
         stats={
-            str(k) + ':0': {'id': k, 'value': v, 'status': 'decoded'}
+            str(k) + ':0': {'id': k, 'value': v, 'raw': v, 'status': 'decoded'}
             for k, v in [(31, 789), (89, 4), (16, 187), (102, 30), (40, 15), (42, 15), (44, 15), (46, 15), (20, 20)]
         },
         properties={'425': 187},

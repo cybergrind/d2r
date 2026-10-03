@@ -10,7 +10,8 @@
     "pricing/data/wp-a-variants/wake-of-fire-assassin.json": "16c6b1edaba856554181add1e91696f7be11cb7d6cc0511628280140c0965bef",
     "pricing/data/wp-a-variants/fist-of-the-heavens-paladin.json": "80d6121308a4ecde3afbb673c146b659cbafe829169ceec26336b83384f421ca",
     "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5",
-    "pricing/data/wp-a-variants/poison-nova-necromancer.json": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3"
+    "pricing/data/wp-a-variants/poison-nova-necromancer.json": "5f3e52337c98076f2bf309251f498024a8fbe95396c5a11f04481234cdf65ed3",
+    "pricing/data/appraisal-recommendations.json": "201ab62d7faa26c0c2e51a0b3313a463fd8ee1cb9fd778dfe48a9dd2b342ab78"
   },
   "uses": [
     {
@@ -4479,6 +4480,2155 @@
         ]
       },
       "quote": "Magic Ring (+30 Cold Res / MF / +1 Mana after kill)"
+    },
+    {
+      "profile_id": "fissure-starter-merc-bulwark",
+      "profile_sha256": "a5629bdfde2e258584d0368b9cacf39dc28efa49d54fb0551c9093bbd3823b81",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes.",
+          "Bulwark Crown (ethereal)"
+        ],
+        "review": "2026-09-25: explicit prose alternatives for early mercenary progression. Planner ethereal preference applies only to its Bulwark and Treachery examples. No market tier or price inferred. Native stat priorities reviewed 2026-09-25: no automatic defense premium, no shared set/skill transfer to the player, and no active proc assumed. Mercenary helmet types exclude class-restricted player helmets."
+      },
+      "quote": "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes.",
+      "reason": "The exact fissure-druid Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "abyss-warlock-build-guide-0-merc-bulwark-native",
+      "profile_sha256": "279caeae0e68764595eb248b8559f60584e21a9481e45195b0add9e107ee9600",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/abyss-warlock-build-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/abyss-warlock-build-guide",
+        "quotes": [
+          "Bulwark Bone Visage (ethereal)",
+          "The Abyss Warlock Starter setup looks to maintain the 75% FCR Breakpoint while stacking as many bonus Skill ranks to scale your damage; it also prioritizes capping your resistances with easily found gear.",
+          "Before you find the Runes and Base for Spirit and Ancients' Pledge, check any Daggers and Books you find for chances at bonus Skill ranks and good affixes like All Resistance on a Magic Grimoire.",
+          "An Act 2 Might Mercenary offers a solid tank that provides tons of utility and added damage, especially against the small handful of Magic Immune monsters. Insight provides easy Mana Regeneration via Meditation Aura. Bulwark is a must have for early game survivability for Life Steal. Treachery provides the Attack Speed necessary to Leech as well as Resistances via Fade."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "An Act 2 Might Mercenary offers a solid tank that provides tons of utility and added damage, especially against the small handful of Magic Immune monsters. Insight provides easy Mana Regeneration via Meditation Aura. Bulwark is a must have for early game survivability for Life Steal. Treachery provides the Attack Speed necessary to Leech as well as Resistances via Fade.",
+      "reason": "The exact abyss-warlock-build-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "berserk-barbarian-0-merc-bulwark-native",
+      "profile_sha256": "d8c42bb27650dab0ff99bac287e5b3d713e08ce1ffe07d5ab6c9621cd8ea5efc",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/berserk-barbarian/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "quotes": [
+          "Bulwark Death Mask",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; solo-farmable (/Players1) in Nightmare and Hell.",
+          "An Unbending Will is a strong, relatively easy to acquire weapon that provides this build with sufficient power.",
+          "A Harmony on Weapon-Swap allows this build to travel faster.",
+          "The Starter Berserk Barbarian uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Berserk Barbarian uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact berserk-barbarian Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "blessed-hammer-paladin-0-merc-bulwark-native",
+      "profile_sha256": "806a4e63eab7236c44a831734146c7bb4e8d7264b155b0e29f807165669c45fa",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blessed-hammer-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/blessed-hammer-paladin",
+        "quotes": [
+          "Bulwark Crown (ethereal)",
+          "The Starter Variant relies heavily on Skills and Faster Cast Rate to deal damage; Lore, Stealth, Spirit Crystal Sword, and Spirit Targe are easily obtainable sources of these stats.",
+          "Lore, Stealth, Spirit Crystal Sword, and Spirit Targe are easily obtainable sources of these stats. Life, Resistances, and Faster Hit Recovery are also great stats to help your starter setup.",
+          "To keep your Mercenary alive, equip him with a Body Armor and Helmet that provide Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "To keep your Mercenary alive, equip him with a Body Armor and Helmet that provide Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control.",
+      "reason": "The exact blessed-hammer-paladin Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "blizzard-sorceress-0-merc-bulwark-native",
+      "profile_sha256": "c9293dce486a60f599d8566fcc02c632dc37a6be12bdb233bfeacaaeda09496f",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/blizzard-sorceress/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/blizzard-sorceress",
+        "quotes": [
+          "Bulwark Diadem",
+          "The Blizzard Sorceress is strong enough to rely on a few key Runewords: Spirit, Stealth, Lore, and Ancients' Pledge make up the core of this build.",
+          "Our Spirit, Stealth, Lore, and Ancients' Pledge make up the core of this build. This gives us the core Stats we need to successfully farm any of the \"Starter\" indicated Farming Spots.",
+          "Focus on giving your Mercenary Resistances and Life. Insight is a pretty easy Runeword to farm that gives a great amount of damage and Quality of Life with Meditation. Get the Might Aura Mercenary for extra damage against Cold Immunes.",
+          "If you do not have Infinity equipped on your Mercenary, purchase a Lower Resist Charge Wand from Nightmare Drognan."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Focus on giving your Mercenary Resistances and Life. Insight is a pretty easy Runeword to farm that gives a great amount of damage and Quality of Life with Meditation. Get the Might Aura Mercenary for extra damage against Cold Immunes.",
+      "reason": "The exact blizzard-sorceress Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-0-merc-bulwark-native",
+      "profile_sha256": "aceb48012b7536d27e50969f989ff3b95ff39237886f5429a23170b61b6e0d9c",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/double-throw-barbarian-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "quotes": [
+          "Bulwark Crown (ethereal)",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; solo-farmable (/Players1) in Nightmare and Hell; a slightly modified version using Dwarf Star can farm Travincal.",
+          "A slightly modified version of this build using Dwarf Star can farm Travincal. Upgraded The Scalper and Upgraded Deathbit are strong, relatively easy to acquire Unique Throwing Weapons that provide this build with sufficient power. Imbuing, picking up Rare Throwing Weapons, Crafting Blood Throwing Axes, and shopping Cruel Throwing Weapons from Malah can also be sufficient.",
+          "2x Hustles on Weapon-Swap can be used to pre-buff Burst of Speed with Double Swing for Faster Run/Walk and Attack Speed.",
+          "The Starter Double Throw Barbarian uses an Act 2 Might Mercenary with Hustle for the Attack Speed, Damage, and Attack Rating provided by its Fanaticism Aura. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Double Throw Barbarian uses an Act 2 Might Mercenary with Hustle for the Attack Speed, Damage, and Attack Rating provided by its Fanaticism Aura. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact double-throw-barbarian-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "echoing-strike-warlock-guide-0-merc-bulwark-native",
+      "profile_sha256": "e9f9f8feee93ac436ed53c0f2a4fb283eca3d6ea3d43ae14aa4b8b66ab3d47f7",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/echoing-strike-warlock-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "August 26, 2026",
+        "url": "https://maxroll.gg/d2/guides/echoing-strike-warlock-guide",
+        "quotes": [
+          "Bulwark Crown (ethereal)",
+          "The Echoing Strike Warlock requires very few things to get off the ground. Prioritize reaching the 75% FCR Breakpoint, which is easily done with Spirit as your weapon.",
+          "Remember that you can wield a 2-Handed Weapon in a single hand if you have a Book equipped, so options like Bastard Sword open up at Item Level 26 or higher.",
+          "The biggest priority is to get as much Attack Rating as you can across your gear. Then find as many sources of +xx to All Skills or Warlock Skills to boost your damage even further.",
+          "Also keep an eye out for Daggers that can roll three sockets, with valuable Staffmods on them, for Runeword options later.",
+          "The Act 2 Blessed Aim Mercenary with an [Insight Partizan] helps to buff your damage further while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up. (bracketed items are d2planner tooltips whose text is blank in the HTML; resolved from planner profile ZWcxvtFt)"
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language. 2026-09-28: Completed low-quality native runeword is eligible alongside normal/superior. Exact base, ethereal, sockets, wearer and stat requirements remain unchanged; low base defense is not a missing runeword effect.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Act 2 Blessed Aim Mercenary with an [Insight Partizan] helps to buff your damage further while giving him enough damage to Leech Life and stay alive. [Treachery] provides survivability and Attack Speed, while [Bulwark] provides the Leech needed to stay up. (bracketed items are d2planner tooltips whose text is blank in the HTML; resolved from planner profile ZWcxvtFt)",
+      "reason": "The exact echoing-strike-warlock-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "fire-warlock-guide-0-merc-bulwark-native",
+      "profile_sha256": "4cdbad971a901319aadf61e619993426603e54cbc103d78281ad5304b7d9bc90",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fire-warlock-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 27, 2026",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "quotes": [
+          "Bulwark Crown (ethereal)",
+          "The Fire Warlock Starter variant meets the minimum gear requirements for farming the Starter tagged areas in the Farming Spots section; most of this gear can be acquired by early Nightmare.",
+          "Most of this gear can be acquired by early Nightmare. Use a [Staff of Teleportation] on Weapon-Swap to reposition and get past tricky areas fast. Keep a [Wand of Lower Resistance] in your inventory to break monster Fire Immunity/lower monster Fire Resistances.",
+          "Equip your Mercenary with an Insight in any Base to boost your Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Treachery provides survivability and Attack Speed, while Bulwark provides the Life Leech needed to stay healthy.",
+          "Before Enigma, use Blade Warp for additional mobility."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Equip your Mercenary with an Insight in any Base to boost your Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Treachery provides survivability and Attack Speed, while Bulwark provides the Life Leech needed to stay healthy.",
+      "reason": "The exact fire-warlock-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "lightning-fury-amazon-guide-0-merc-bulwark-native",
+      "profile_sha256": "f69c7cc0b98420d9ab0217516996f988d223743139db6251b7d4699afe9c1674",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-fury-amazon-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
+        "quotes": [
+          "Bulwark Death Mask (prose: 'the cheapest Helmet that provides Life Leech and Damage Reduction')",
+          "In almost every regard, the Starter variant is what you end up with by following the Amazon Leveling Guide; it meets the minimum gear requirements for the Starter tagged areas and can even farm The Secret Cow Level at /Players3.",
+          "Prioritize Increased Attack Speed, Resistances, Faster Run/Walk, + to Skills, Life, and the Cannot Be Frozen stat on your gear. Achieving the 52% Increased Attack Speed (IAS) Breakpoint for Lightning Fury is ideal, while 30% IAS is needed at minimum. Depending on the farm, use a Wand of Lower Resistance, Staff of Teleportation, or Harmony Hunter's Bow on Weapon-Swap (or a combination thereof).",
+          "The Starter Lightning Fury Amazon uses an Act 2 Might Mercenary with Insight Poleaxe for Mana Regeneration. This helps with Lightning Fury's high Mana cost. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark Death Mask is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+          "You can also choose to allocate enough Stat Points into Dexterity to achieve maximum Chance to Block (75%) with Rhyme Bone Shield."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Lightning Fury Amazon uses an Act 2 Might Mercenary with Insight Poleaxe for Mana Regeneration. This helps with Lightning Fury's high Mana cost. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark Death Mask is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact lightning-fury-amazon-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "lightning-sentry-assassin-0-merc-bulwark-native",
+      "profile_sha256": "3fd06a86e3cca6ccde85a6189126b88612087b49d567ae252b08423258d93eef",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sentry-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-sentry-assassin",
+        "quotes": [
+          "Bulwark Tiara",
+          "Not much is needed to start off the Lightning Sentry Assassin; a Bone Wand of Lower Resistance to break Lightning Immunes plus items giving Skill Points, Increased Attack Speed, Life and Resistances.",
+          "You are pretty much set with a Bone Wand of Lower Resistance (obtainable from Drognan in Act 2 Nightmare) to break Lightning Immunes.",
+          "Temper, Ground, and hearth are great helmet options to improve either your Cold, Fire or Lightning resistances. hearth even provides Cannot Be Frozen which is important to maintain our Trap-laying speed.",
+          "Equip him with Resistances, Life, and an Insight Partizan to make him fairly durable and increase your Mana Regeneration."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Equip him with Resistances, Life, and an Insight Partizan to make him fairly durable and increase your Mana Regeneration.",
+      "reason": "The exact lightning-sentry-assassin Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "lightning-sorceress-0-merc-bulwark-native",
+      "profile_sha256": "c1d4b19e3b80b2d84b82ea956531c2cb7a4ee4870cfa04ae69996a01d6d5292b",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-sorceress/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-sorceress",
+        "quotes": [
+          "Bulwark Death Mask",
+          "Meets the minimum gear requirements for farming the Starter-tagged areas solo in Nightmare and Hell, prioritising + to Skills, FCR, Resistances, Life and Mana, and hits the 117% FCR breakpoint.",
+          "Use a Lower Resist Charge Wand on Weapon-Swap to break Lightning Immunity and reduce enemy Lightning Resistance. You can also use a Harmony on Weapon-Swap to travel faster through town.",
+          "The Starter Lightning Sorceress uses an Act 2 Holy Freeze Mercenary with Insight for Crowd Control and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Lightning Sorceress uses an Act 2 Holy Freeze Mercenary with Insight for Crowd Control and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact lightning-sorceress Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "lightning-strike-amazon-0-merc-bulwark-native",
+      "profile_sha256": "a3e9e106d4d6676b9e73556b502797b12ae9f8a49d5cd29142325d3f8e747977",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/lightning-strike-amazon/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/lightning-strike-amazon",
+        "quotes": [
+          "Bulwark Death Mask",
+          "Meets the minimum gear requirements for farming the Starter-tagged areas solo in Nightmare and Hell; Titan's Revenge and Thunderstroke are great starter weapons, aiming for 95% IAS (50% minimum).",
+          "Titan's Revenge and Thunderstroke are great starter weapons on this build. Prioritize Increased Attack Speed, Resistances, Faster Run/Walk, + to Skills, Life, and the Cannot Be Frozen stat on your gear.",
+          "Depending on the farm, use a Lower Resist Charge Wand, Teleport Charge Staff, or Harmony on Weapon-Swap (or a combination thereof).",
+          "The Starter Lightning Strike Amazon uses an Act 2 Holy Freeze Mercenary with Insight for Crowd Control and Mana Regeneration. You can also put a Hustle on your Mercenary for its Fanaticism Aura. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Lightning Strike Amazon uses an Act 2 Holy Freeze Mercenary with Insight for Crowd Control and Mana Regeneration. You can also put a Hustle on your Mercenary for its Fanaticism Aura. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact lightning-strike-amazon Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "nova-sorceress-guide-0-merc-bulwark-native",
+      "profile_sha256": "63398750250cf48e3063eaeefd81a0dd588d93a46183a7e9695afa2ed89961a0",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/nova-sorceress-guide/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/nova-sorceress-guide",
+        "quotes": [
+          "Bulwark Crown ('a Helmet with x% Life stolen per hit such as Bulwark Crown')",
+          "While the Nova Sorceress excels at the early stages of Leveling, it struggles to come online in Hell; with decent +x to Skills, at least 105% FCR and decent Mana you can start using it in the easier farm areas.",
+          "Spirit Sword, Stealth, Lore and Splendor Shield are easily farmable Runewords at Nightmare Countess. Combined with a Caster Crafted Belt and FCR on all your jewellery pieces you can reach the 105% Faster Cast Rate breakpoint.",
+          "With this setup you can easily start farming for Coven, Crescent Moon and Spirit Monarch. These items will dramatically increase your damage output and gets you towards the pure Nova build. Use lower resistance in your weapon swap to increase your damage as needed.",
+          "The Mercenary in this variant ensures massive Mana Regeneration with Insight Partizan in an Exceptional Base. Treachery Light Plate and a Helmet with x% Life stolen per hit such as Bulwark Crown keep your Mercenary alive. With Holy Freeze he can get rid of monsters Immune to Lightning on low player counts."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Mercenary in this variant ensures massive Mana Regeneration with Insight Partizan in an Exceptional Base. Treachery Light Plate and a Helmet with x% Life stolen per hit such as Bulwark Crown keep your Mercenary alive. With Holy Freeze he can get rid of monsters Immune to Lightning on low player counts.",
+      "reason": "The exact nova-sorceress-guide Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "poison-nova-necromancer-0-merc-bulwark-native",
+      "profile_sha256": "280fc8de9cedc166dc9d1b1c4a84e506c04468df5f922e1ab9d79654df74ca2a",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/poison-nova-necromancer/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/poison-nova-necromancer",
+        "quotes": [
+          "Bulwark (planner: Bulwark Death Mask) \u2014 'the cheapest Helmet that provides Life Leech and Damage Reduction'",
+          "The Starter variant meets the minimum gear requirements for farming the Starter-tagged areas; prioritize + to Skills, +x% Poison Skill Damage, FCR, Resistances, Cannot Be Frozen and Life/Attributes; achieves the 75% FCR breakpoint.",
+          "A Staff of Teleportation on Weapon-Swap allows this build to reposition. You can also use a Harmony on Weapon-Swap for faster move speed. The Starter build achieves the 75% Faster Cast Rate Breakpoint.",
+          "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "The Starter Poison Nova Necromancer uses an Act 2 Might Mercenary with Insight for Damage and Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Smoke is a cheap Body Armor option for Resistances, while Bulwark is the cheapest Helmet that provides Life Leech and Damage Reduction.",
+      "reason": "The exact poison-nova-necromancer Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "strafe-amazon-0-merc-bulwark-native",
+      "profile_sha256": "65fa0dea6df50fa02b0a8e75196ab7cd55d258155c7cbafb8bb09b16884398e7",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/strafe-amazon/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 18, 2026",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "quotes": [
+          "Bulwark Crown",
+          "Meets the minimum gear requirements for the Starter-tagged farming areas and looks for specific stats to transition into the endgame: 100% Pierce Chance, >80% IAS, >80% Chance to Hit Act 5 Hell Super Uniques, Cannot be Frozen, Movement Speed.",
+          "Buriza-Do Kyanon does a lot of the heavy lifting here and is nearly irreplaceable in the early game. Upgrade it for even more damage when your gear gets good enough. Death's Guard Demonhide Sash offers Cannot be Frozen. Upgrade it for more Potion slots. 3-Piece Sigon's and 2-Piece Angelic's offer tons of Attack Rating. The charms represent good stats to have at this progression point.",
+          "Act 2 Might with Insight Partizan for easy Mana management and a good base for him to deal damage. Bulwark Crown + Treachery Mage Plate give enough survivability for him to stand on his own two feet."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Act 2 Might with Insight Partizan for easy Mana management and a good base for him to deal damage. Bulwark Crown + Treachery Mage Plate give enough survivability for him to stand on his own two feet.",
+      "reason": "The exact strafe-amazon Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "wake-of-fire-assassin-0-merc-bulwark-native",
+      "profile_sha256": "ce2169d627bcddd6793b153dc20dbdd22f95513cd528c46add9e2e24768ab084",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/wake-of-fire-assassin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "May 22, 2026",
+        "url": "https://maxroll.gg/d2/guides/wake-of-fire-assassin",
+        "quotes": [
+          "Bulwark Tiara (planner)",
+          "The Starter Variant relies heavily on +x to Skills to deal damage: shop Anya in Act 5 for Cunning Greater Talons; Lore, Stealth, Spirit Crystal Sword and Ancients' Pledge are easily obtainable sources of Life, Resistances and FHR; a Rhyme provides Cannot Be Frozen.",
+          "Shop Anya in Act 5 for Cunning Greater Talons. Lore, Stealth, Spirit Crystal Sword, and Ancients' Pledge are easily obtainable sources of Life, Resistances, and Faster Hit Recovery. A Rhyme provides Cannot Be Frozen. Being frozen reduces your trap laying speed, so this feels very comfortable.",
+          "Equip your Mercenary with a Body Armor and Helmet that provides Resistances and Life. Insight is an easy Runeword to make that gives a great amount of damage and Quality of Life with Meditation. Hire the Might Aura Mercenary for extra damage against Fire Immunes."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Equip your Mercenary with a Body Armor and Helmet that provides Resistances and Life. Insight is an easy Runeword to make that gives a great amount of damage and Quality of Life with Meditation. Hire the Might Aura Mercenary for extra damage against Fire Immunes.",
+      "reason": "The exact wake-of-fire-assassin Starter component supplies ordinary early mercenary survival (leech/life/protection) alongside its progression weapon. The source establishes an accessible temporary setup, not an exceptional leveling item variant or a premium trade configuration. Exclude only this build-use walkthrough under the user's value-focused scope; retain Bulwark identity, Non-Ladder rolls, market/base/ethereal variants and all separately reviewed specialist uses."
+    },
+    {
+      "profile_id": "fire-warlock-guide-0-magic-skill-fcr-amulet",
+      "profile_sha256": "cf98fb4586f86e7eb78b830e9c181746804b15c64c51e18cea0578da9e713529",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fire-warlock-guide/variants/0",
+        "url": "https://maxroll.gg/d2/guides/fire-warlock-guide",
+        "source_date": "May 27, 2026",
+        "quotes": [
+          "Magic Amulet +1 Warlock Skills / 10% FCR (older EMBEDS planner: Caster Crafted Amulet 'Bitter Mark' +2 skills / 10% FCR / 30 Str / 60 Life / 110 Mana)",
+          "The Fire Warlock Starter variant meets the minimum gear requirements for farming the Starter tagged areas in the Farming Spots section; most of this gear can be acquired by early Nightmare.",
+          "Most of this gear can be acquired by early Nightmare. Use a [Staff of Teleportation] on Weapon-Swap to reposition and get past tricky areas fast. Keep a [Wand of Lower Resistance] in your inventory to break monster Fire Immunity/lower monster Fire Resistances.",
+          "Equip your Mercenary with an Insight in any Base to boost your Mana Regeneration. Mercenaries require Resistances, Life Leech, and/or Damage Reduction to stay alive. Treachery provides survivability and Attack Speed, while Bulwark provides the Life Leech needed to stay healthy.",
+          "Before Enigma, use Blade Warp for additional mobility."
+        ],
+        "review": "2026-09-25: Reviewed reusable magic skill-plus10FCR starter pattern on one amulet. Class/skill identity exact; rare/crafted variants require separate review. Illustrated secondary maxima do not become minimums; Fissure+2skills is target and general+skills priority admits+1. Total loadout breakpoint remains qualified where no explicit threshold is stated. Only observed required skill/FCR receives desirability. No price, arbitrary affix weights or pooled gear stats."
+      },
+      "quote": "The Fire Warlock Starter variant meets the minimum gear requirements for farming the Starter tagged areas in the Farming Spots section; most of this gear can be acquired by early Nightmare.",
+      "reason": "This exact Starter amulet is ordinary early-Nightmare progression: +1 class/tree skills and 10 FCR, with +2 Elemental Skills an illustrated Fissure target. The source does not establish exceptional leveling or premium trade value for this low-threshold configuration. Exclude this progression walkthrough only; retain magic amulet family assessment, stronger skill/FCR combinations, independently supported valuable uses and all named jewelry coverage. Do not classify other amulets or unknown demand as worthless."
+    },
+    {
+      "profile_id": "fissure-druid-0-magic-skill-fcr-amulet",
+      "profile_sha256": "ccdd5234bfb3257db1263733651f229d9fc5fe7b0d3564da80f80f2baae2f60b",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "locator": "/fissure-druid/variants/0",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Magic Amulet +2 Elemental Skills / 10% FCR",
+          "The Starter variant meets the minimum gear requirements for farming the Starter tagged areas; most of this gear can be acquired by early Nightmare with a standard progression.",
+          "Prioritize Resistances, + to Skills, Life, and Magic Find stats on your gear. Use a Staff of Teleportation on Weapon-Swap to reposition. You can also use a Harmony for faster travel. Keep a Lower Resist Charge Wand in your inventory and/or Horadric Cube to break monster Fire Immunity/lower monster Fire Resistances if necessary.",
+          "Early-game Helmet/Body Armor options for these stats include, but are not limited to, Bulwark, Undead Crown, Rockstopper, Smoke, Treachery, Duriel's Shell, or simply Helmet and Body Armor Bases socketed with Ral Runes, Ort Runes, and Thul Runes."
+        ],
+        "review": "2026-09-25: Reviewed reusable magic skill-plus10FCR starter pattern on one amulet. Class/skill identity exact; rare/crafted variants require separate review. Illustrated secondary maxima do not become minimums; Fissure+2skills is target and general+skills priority admits+1. Total loadout breakpoint remains qualified where no explicit threshold is stated. Only observed required skill/FCR receives desirability. No price, arbitrary affix weights or pooled gear stats."
+      },
+      "quote": "The Starter variant meets the minimum gear requirements for farming the Starter tagged areas; most of this gear can be acquired by early Nightmare with a standard progression.",
+      "reason": "This exact Starter amulet is ordinary early-Nightmare progression: +1 class/tree skills and 10 FCR, with +2 Elemental Skills an illustrated Fissure target. The source does not establish exceptional leveling or premium trade value for this low-threshold configuration. Exclude this progression walkthrough only; retain magic amulet family assessment, stronger skill/FCR combinations, independently supported valuable uses and all named jewelry coverage. Do not classify other amulets or unknown demand as worthless."
+    },
+    {
+      "profile_id": "double-throw-starter-crafted-weapon",
+      "profile_sha256": "7728a9c7545249b4bd91937d77ea7ea5cb98702b72634762eef9931a98d06fd0",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0/player/Weapon",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "source_date": "May 22, 2026"
+      },
+      "quote": "Blood Crafted Balanced Axe (+1 Barbarian Skills / 10% IAS / 80% ED / 4% Life Leech / +20 Life)",
+      "quote_source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "locator": "/variants/0/player/Weapon/0"
+      },
+      "reason": "Reviewed exact ordinary Starter Blood Crafted Balanced Axe illustration: +1 Barbarian skill, 10 IAS, 80 ED, 4 life leech and 20 life, with positive-stat-presence minima rather than a premium throwing-weapon combination. Exclude this modest early-progression walkthrough under the value-focused scope. Keep crafted weapon family appraisal, stronger crafting/affix combinations, elite ethereal sustain cases, cold-damage/Find Item checks and independently reviewed named throwing alternatives; this is not a whole-item or worthless-value judgment."
+    },
+    {
+      "profile_id": "double-throw-starter-crafted-offhand",
+      "profile_sha256": "4a2f98ffa72066df7abd14bb04f813cafaf80a6851675eff818770ed8b049d82",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0/player/Off-Hand",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "source_date": "May 22, 2026"
+      },
+      "quote": "Blood Crafted Balanced Axe (+1 Barbarian Skills / 10% IAS / 80% ED / 4% Life Leech / +20 Life)",
+      "quote_source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "locator": "/variants/0/player/Off-Hand/0"
+      },
+      "reason": "Reviewed exact ordinary Starter Blood Crafted Balanced Axe illustration: +1 Barbarian skill, 10 IAS, 80 ED, 4 life leech and 20 life, with positive-stat-presence minima rather than a premium throwing-weapon combination. Exclude this modest early-progression walkthrough under the value-focused scope. Keep crafted weapon family appraisal, stronger crafting/affix combinations, elite ethereal sustain cases, cold-damage/Find Item checks and independently reviewed named throwing alternatives; this is not a whole-item or worthless-value judgment."
+    },
+    {
+      "profile_id": "smite-paladin-0-merc-bulwark-native",
+      "profile_sha256": "090b9ad651ae6c714c1ec8859c04795e57e4ed32d0acb520b1bb8095a18b7869",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/smite-paladin/variants/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "source_date": "July 9, 2026",
+        "url": "https://maxroll.gg/d2/guides/smite-paladin",
+        "quotes": [
+          "Bulwark Crown (Shael Io Sol)",
+          "The Smite Paladin needs specific stats to become successful at fighting Ubers: a source of Life Tap for Life sustain, Cannot Be Frozen, x% Chance of Crushing Blow, x% Chance of Open Wounds, and a large amount of Resistance to counter Uber Mephisto's Conviction Aura.",
+          "Wand of Life Tap, Black Flail, Rhyme Targe, and Blood Crafted Belt are cheap sources for some of these Stats. Alternatively, in the helmet and shield slots you can use the new runeword Hearth and a paladin shield with 4 Perfect Diamonds.",
+          "Note: Prevent Monster Heal doesn't work on Uber Bosses.",
+          "Mercenaries are not worth trying to keep alive in Ubers. However, a Might Aura Mercenary is useful for basic farming. To keep your Mercenary alive outside Ubers, equip him with a Body Armor and Helmet that provides Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control."
+        ],
+        "review": "2026-09-26: Reviewed cited Bulwark mercenary component and exact base/context. Native Non-Ladder4\u20136life leech and10\u201315physical reduction desirable; maximum life and hit recovery supporting. Minimum rolls remain useful. Do not infer helmet IAS, player leech, best base, defense premium or complete survival. Named source conflicts remain separate; no numerical price from guide language.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14",
+            "locator": "/Bulwark"
+          }
+        ]
+      },
+      "quote": "Mercenaries are not worth trying to keep alive in Ubers. However, a Might Aura Mercenary is useful for basic farming. To keep your Mercenary alive outside Ubers, equip him with a Body Armor and Helmet that provides Resistances and Life. Insight is a fairly easy Runeword to find that gives a great amount of damage and Quality of Life with Meditation. Hire the Holy Freeze Aura Mercenary to gain extra Crowd Control.",
+      "reason": "The exact Holy Freeze/Crown component supplies ordinary mercenary survival outside Ubers; its source explicitly does not recommend retaining this mercenary for Ubers. Exclude only this basic-farming progression walkthrough, not player Smite Uber equipment, completed Bulwark identity/rolls/pricing or independently supported specialist mercenary configurations."
+    },
+    {
+      "profile_id": "zeal-paladin-early-merc-bulwark",
+      "profile_sha256": "530e6b222aba6d94d07b79dc634bbf098f717cd6cf808526df040d5adf83042f",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/229",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Bulwark"
+        ],
+        "review": "2026-09-27: Reviewed exact early-game mercenary table column in cached HTML: Act5Frenzy or Act2Might, not an endorsement of later-stage gear for Frenzy. Exact span229 and planner n8010616 item182. Native low rolls retain utility; planner perfect rolls are preferences, not minima. Ethereal durability is safe; requirements and full survival/IAS loadout remain separate. Mercenary benefits include leech, flat/percentage physical reduction, replenish, defense and maximum-life percentage; item Vitality is not mercenary life. This reviews an existing completed item, not current Non-Ladder creation availability.",
+        "corroborating": [
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/44",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/raw/mr/planners/n8010616.json",
+            "locator": "/data",
+            "sha256": "46a66db20b6be85e65ec88f95067704d3ebccbaae353dbfd195712e15abde63b"
+          }
+        ]
+      },
+      "quote": "Bulwark",
+      "reason": "The exact section44 Early-Game table and item span229 pair Bulwark with the temporary Act2Might/Act5Frenzy branch. This is basic early survival equipment, not a premium trade configuration or exceptional leveling setup. Exclude only this early mercenary walkthrough; retain native Bulwark and valuable variants, named alternatives and specialist Enchant FireRogue use."
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Visor",
+      "profile_sha256": "6f041ba78b87a8f02e5f4139337cbc8896819bd7e6fd83b77f4f8c4b7dda2cf7",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "quote": "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Visor has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Gage",
+      "profile_sha256": "8cb6d06df86bd78162ac08671c78ba795ea3948e9e3519aa56ebda3e69bb7c1e",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "quote": "Sigon's Gage (3-Piece Set)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Gage has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "strafe-amazon-starter-set-Sigon's Sabot",
+      "profile_sha256": "2e7a68180f76411181d2d27194cd0daab211dcda470b8298f4b362f2d91f14bc",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/strafe-amazon.json",
+        "locator": "/variants/0",
+        "sha256": "7652b84f1253a797bba29ceacd70aa256c00ed6cb6545196155f14d7a160eae6",
+        "url": "https://maxroll.gg/d2/guides/strafe-amazon",
+        "source_date": "July 18, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (3-Piece Set; Ort Rune in planner)",
+          "Sigon's Gage (3-Piece Set)",
+          "Sigon's Sabot (3-Piece Set)"
+        ]
+      },
+      "quote": "Sigon's Sabot (3-Piece Set)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Sabot has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Visor",
+      "profile_sha256": "75f2ed6cc958adcab155fc208de70c26f3abb4dfbfc2b81f16c3b7d3844a44bc",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Visor has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Gage",
+      "profile_sha256": "7fd19902de366b96fae5ffc4173308f78e11db7aa15fc675aa96c0bcbb519360",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Gage (Sigon's Complete Steel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Gage has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "double-throw-barbarian-guide-starter-set-Sigon's Sabot",
+      "profile_sha256": "df7f9db5db740590eebd22ff53c26bf94bfb10e1b23d307769471fb87ecb1333",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/double-throw-barbarian-guide.json",
+        "locator": "/variants/0",
+        "sha256": "d12a69782970c097989623283f025464255acb73f9dc16a671bea71cf9788a37",
+        "url": "https://maxroll.gg/d2/guides/double-throw-barbarian-guide",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Visor (Sigon's Complete Steel; 15% IAS Jewel)",
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Sabot (Sigon's Complete Steel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Sabot has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Gage",
+      "profile_sha256": "a117aafaf1bb9f0eb85415940f1b5ab089a2ff830cab0b0ee06917cb56e45aba",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Gage (Sigon's Complete Steel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Gage has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Wrap",
+      "profile_sha256": "d2ffff5c6073926c63dfa05d471dec7dea0d2ad7305ee1a3d15ff7be5ffa16c0",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Wrap (Sigon's Complete Steel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Wrap has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "berserk-barbarian-starter-set-Sigon's Sabot",
+      "profile_sha256": "22d6de09b4ab6030309e66a81822b419d7ed161d23dba777da55e51c057a62cb",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/berserk-barbarian.json",
+        "locator": "/variants/0",
+        "sha256": "0e439a91044cf88df3478f4b8331caa6587fb73b11317bc4a308e65e6f062e6f",
+        "url": "https://maxroll.gg/d2/guides/berserk-barbarian",
+        "source_date": "May 22, 2026",
+        "review": "2026-09-24: reviewed named equipment combination from the cited variant; player companions and socket/upgrade conditions remain explicit. Set activation is not inferred from a hover; no guide-derived numeric price.",
+        "quotes": [
+          "Sigon's Gage (Sigon's Complete Steel)",
+          "Sigon's Wrap (Sigon's Complete Steel)",
+          "Sigon's Sabot (Sigon's Complete Steel)"
+        ]
+      },
+      "quote": "Sigon's Sabot (Sigon's Complete Steel)",
+      "reason": "The exact Starter partial Sigon equipment combination is ordinary progression. Reviewed leveling recommendation leveling:d2data:setitems:Sigon's Sabot has priority3 (medium), including its conditional set benefit, rather than exceptional leveling priority. Exclude only this build-specific walkthrough under the user's value-focused scope. Preserve every set-piece/full-set trade tier, native stats and set activation mechanics, socket contents and independent jewel appraisal, named pricing and separately supported valuable or exceptional leveling combinations."
+    },
+    {
+      "profile_id": "nova-starter-boots",
+      "profile_sha256": "d8f6edee7fb8667dd245ec8439021a91e91b830a6d60a93e4e5d41e74416b032",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "locator": "/variants/0/player/Boots",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "review": "2026-09-24: positive source-specific stat combination is candidate eligibility. Planner magnitudes are preferences, not universal price thresholds. Non-ethereal for sustained player use; all cited variants are Softcore-compatible."
+      },
+      "quote": "Rare Heavy Boots (planner: 30 FRW / 40 FR)",
+      "quote_source": {
+        "path": "pricing/data/wp-a-variants/nova-sorceress-guide.json",
+        "sha256": "1fb7b95fa01a80dcad23b06c65256dd5047678e9004c41a1c4dc67de799a0a5d",
+        "locator": "/variants/0/player/Boots/0"
+      },
+      "reason": "The exact ordinary Starter boots illustrate movement and a single fire resistance (30 FRW / 40 FR), with only positive-presence eligibility. This is general progression, not a reviewed premium trade or exceptional leveling combination. Exclude only this walkthrough. Preserve rare boot family appraisal, multi-resistance, recovery, mana and other valuable combinations, independently supported Energy Shield uses, and all pricing/identity obligations. A Starter label alone is not the reason for exclusion."
+    },
+    {
+      "profile_id": "blood-boil-warlock-guide-smoke-merc-survival-gear",
+      "profile_sha256": "e6e20e06e1fc828f7080147eb39dbd152ed360c9dde0f74f73131bb65df297b2",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/blood-boil-warlock-guide",
+        "source_date": "2026-05-21",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__blood-boil-warlock-guide.html",
+        "sha256": "bdd3f7a95dcfe697ee9fdafdb4f816392c96a4179f2ff57971cf33fe1be0e2ac",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "blood-boil-warlock-guide-lionheart-merc-survival-gear",
+      "profile_sha256": "99ba42b10e76aefd6fdcd485bb6458d958465411dc403d6546ef4d7c13c08466",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/blood-boil-warlock-guide",
+        "source_date": "2026-05-21",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Lionheart",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r15",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r19",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Lionheart",
+      "reason": "The exact Body Armor row places Lionheart in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__blood-boil-warlock-guide.html",
+        "sha256": "bdd3f7a95dcfe697ee9fdafdb4f816392c96a4179f2ff57971cf33fe1be0e2ac",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "blood-boil-warlock-guide-temper-merc-survival-gear",
+      "profile_sha256": "e7beeea7a37b857ee412511ef5101c11acdf2883d18b02f8a25792dc6cdddc4a",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/blood-boil-warlock-guide",
+        "source_date": "2026-05-21",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__blood-boil-warlock-guide.html",
+        "sha256": "bdd3f7a95dcfe697ee9fdafdb4f816392c96a4179f2ff57971cf33fe1be0e2ac",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "blood-boil-warlock-guide-ground-merc-survival-gear",
+      "profile_sha256": "a75acc104505fa408c81f8f520bc1befae01cc8a2f6518491d69b00e925e4cd6",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/blood-boil-warlock-guide",
+        "source_date": "2026-05-21",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__blood-boil-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__blood-boil-warlock-guide.html",
+        "sha256": "bdd3f7a95dcfe697ee9fdafdb4f816392c96a4179f2ff57971cf33fe1be0e2ac",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "summoner-warlock-guide-smoke-merc-survival-gear",
+      "profile_sha256": "675a57f4485fab264da693edc7d7bae571927418709584496afc404f9f6a4ed5",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/summoner-warlock-guide",
+        "source_date": "2026-05-26",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__summoner-warlock-guide.html",
+        "sha256": "906053c5b8f76220864ce2d0d1cc91d61c68d8ecbb75f5fc66363e1b3f9b4478",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "summoner-warlock-guide-lionheart-merc-survival-gear",
+      "profile_sha256": "ed0402ac269950cfd27e8f1febdbeaee572c52712c3258fbe7f24900c8631376",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/summoner-warlock-guide",
+        "source_date": "2026-05-26",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Lionheart",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r15",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r19",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Lionheart",
+      "reason": "The exact Body Armor row places Lionheart in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__summoner-warlock-guide.html",
+        "sha256": "906053c5b8f76220864ce2d0d1cc91d61c68d8ecbb75f5fc66363e1b3f9b4478",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "summoner-warlock-guide-temper-merc-survival-gear",
+      "profile_sha256": "56d0520bbcc74ab249dc7a37ea549c814ff615e408a860f0db9163bbd98427b4",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/summoner-warlock-guide",
+        "source_date": "2026-05-26",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__summoner-warlock-guide.html",
+        "sha256": "906053c5b8f76220864ce2d0d1cc91d61c68d8ecbb75f5fc66363e1b3f9b4478",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "summoner-warlock-guide-ground-merc-survival-gear",
+      "profile_sha256": "f1af5d942d24f1dbbd1714c840e46a046f552fc421d77fa497618cc64c701521",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/summoner-warlock-guide",
+        "source_date": "2026-05-26",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__summoner-warlock-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__summoner-warlock-guide.html",
+        "sha256": "906053c5b8f76220864ce2d0d1cc91d61c68d8ecbb75f5fc66363e1b3f9b4478",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "fire-wall-sorceress-guide-smoke-merc-survival-gear",
+      "profile_sha256": "5777b3ea73b69a902f8ec68850b6751ed2547fd4c0784a78e451baf6fa1ba3e7",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/41",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/fire-wall-sorceress-guide",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/39",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__fire-wall-sorceress-guide.html",
+        "sha256": "0b2d0cd3dbfc00a2a1cd920ed80bcf1fd54bd9773cf76c7c9d4366808879cdd8",
+        "section_locator": "/sections/41",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "fire-wall-sorceress-guide-temper-merc-survival-gear",
+      "profile_sha256": "da7f08e1cbe6af6cf1a986e1e9908f8f81a772edb89fdf97d2c82e5542c0f2c0",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/41",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/fire-wall-sorceress-guide",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/39",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__fire-wall-sorceress-guide.html",
+        "sha256": "0b2d0cd3dbfc00a2a1cd920ed80bcf1fd54bd9773cf76c7c9d4366808879cdd8",
+        "section_locator": "/sections/41",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "fire-wall-sorceress-guide-ground-merc-survival-gear",
+      "profile_sha256": "af549b9f55b18622b7fe9f8e6d4b79e97151f7bf7c25d0582c4fe5b37175132b",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/41",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/fire-wall-sorceress-guide",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/39",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__fire-wall-sorceress-guide.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__fire-wall-sorceress-guide.html",
+        "sha256": "0b2d0cd3dbfc00a2a1cd920ed80bcf1fd54bd9773cf76c7c9d4366808879cdd8",
+        "section_locator": "/sections/41",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-meteor-sorceress-smoke-merc-survival-gear",
+      "profile_sha256": "fb1b7d3dea26cd2362e58dca9dbeb71b5b6e0654357fa019cae801573c9dcc80",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-meteor-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-meteor-sorceress.html",
+        "sha256": "84dbf677ed32f42f9e085fa45ebffd69aa7c4783827bd819b28b77ae4e470a10",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-meteor-sorceress-temper-merc-survival-gear",
+      "profile_sha256": "20058c5bfa83cd42cb4e9ccc8a745d52d3cd1ef5dd61bb9876c28d57f016a2cc",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-meteor-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-meteor-sorceress.html",
+        "sha256": "84dbf677ed32f42f9e085fa45ebffd69aa7c4783827bd819b28b77ae4e470a10",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-meteor-sorceress-ground-merc-survival-gear",
+      "profile_sha256": "952870304c395e481c8f5263bf41e52d091f166eb1ed40b9dc83148ebe63d0b6",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-meteor-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-meteor-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-meteor-sorceress.html",
+        "sha256": "84dbf677ed32f42f9e085fa45ebffd69aa7c4783827bd819b28b77ae4e470a10",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-sorceress-smoke-merc-survival-gear",
+      "profile_sha256": "091f51f99a3ba535ac0eda421ce56960bb7bf385ae33f0ac339ea1b580ec067f",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-sorceress.html",
+        "sha256": "60fcb4de09599b6e664c9ee7d6218bb5cc1d53e0fd5cdda63e7338c8ce4d7c7f",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-sorceress-temper-merc-survival-gear",
+      "profile_sha256": "28f7a73905c0326055ccb74fee108a6fa0583065baa2eec010821f1e0c7e2fec",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-sorceress.html",
+        "sha256": "60fcb4de09599b6e664c9ee7d6218bb5cc1d53e0fd5cdda63e7338c8ce4d7c7f",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "frozen-orb-sorceress-ground-merc-survival-gear",
+      "profile_sha256": "e7bbd1c201412c95c28a4daf8d45a2ed8332af12e10648a5cdd0f059e67b03e8",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/frozen-orb-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__frozen-orb-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__frozen-orb-sorceress.html",
+        "sha256": "60fcb4de09599b6e664c9ee7d6218bb5cc1d53e0fd5cdda63e7338c8ce4d7c7f",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "hydra-sorceress-smoke-merc-survival-gear",
+      "profile_sha256": "454042f67015f7e0c54cee1587d60cfb09b3dca38624e840080aac2596061c6f",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/hydra-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__hydra-sorceress.html",
+        "sha256": "042cf3d87f8f9ecebbffc1dff0bc9c5385f4da32f5bcf5299e458296a3fb7f83",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 2,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "hydra-sorceress-temper-merc-survival-gear",
+      "profile_sha256": "58b87109ed273b53bf35774d943e7f0da36292f97b6e6df3d1b0a9520683bcc1",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/hydra-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__hydra-sorceress.html",
+        "sha256": "042cf3d87f8f9ecebbffc1dff0bc9c5385f4da32f5bcf5299e458296a3fb7f83",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "hydra-sorceress-ground-merc-survival-gear",
+      "profile_sha256": "3ff0bb2da6f71bab23d893c6b0db717dc1a56ac8b285eadd2131cb170178ca40",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/40",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/hydra-sorceress",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Ground"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Ground",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/38",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__hydra-sorceress.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r09",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Ground",
+      "reason": "The exact Helmet row places Ground in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__hydra-sorceress.html",
+        "sha256": "042cf3d87f8f9ecebbffc1dff0bc9c5385f4da32f5bcf5299e458296a3fb7f83",
+        "section_locator": "/sections/40",
+        "table_index": 6,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-smoke-merc-survival-gear",
+      "profile_sha256": "95768300d55d92d5b29e9102b59b899a84a032fb26f966cfaa475e789b3bfc2a",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/44",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Smoke"
+        ],
+        "review": "2026-09-27: Reviewed exact mercenary gear-table alternative for the corroborated Act 2 Might branch. All listed stages are retained as alternatives; no stage-specific best-in-slot claim is inferred from flattened tables. Ethereal durability is safe; native low rolls retain utility. Item vitality, energy and player-class skill bonuses are excluded. Physical attack/leech and mercenary kill credit do not transfer to the player. No complete loadout, survival cap or numeric price inferred.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Smoke",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/42",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r04",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          }
+        ]
+      },
+      "quote": "Smoke",
+      "reason": "The exact Body Armor row places Smoke in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__zeal-paladin.html",
+        "sha256": "8eedfcbc0882f5195405dd0b4d67b09917aad11da38a9f550a3abd310a65a510",
+        "section_locator": "/sections/44",
+        "table_index": 7,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-lionheart-merc-survival-gear",
+      "profile_sha256": "de3bd996491b4b050b02cc8be52bdfbb28f55130d2fd1328c962857e13f3f6cd",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/44",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Lionheart"
+        ],
+        "review": "2026-09-27: Reviewed actual cached HTML Mercenary Gear Options table column Early-Game, not the flattened text alone. It explicitly lists Act 5 Frenzy or Act 2 Might. This Lionheart armor/helmet entry belongs to that column; permit both melee mercenary contexts. Preserve native low rolls, ethereal durability, item requirements and bearer-specific effects. No transfer of mercenary leech/kill credit to player, vitality or energy benefit, full breakpoint, price or later-stage endorsement inferred. Raw guide SHA256 8eedfcbc0882f5195405dd0b4d67b09917aad11da38a9f550a3abd310a65a510.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Lionheart",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/42",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r15",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r17",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r19",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/212",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          }
+        ]
+      },
+      "quote": "Lionheart",
+      "reason": "The exact Body Armor row places Lionheart in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__zeal-paladin.html",
+        "sha256": "8eedfcbc0882f5195405dd0b4d67b09917aad11da38a9f550a3abd310a65a510",
+        "section_locator": "/sections/44",
+        "table_index": 7,
+        "row_index": 3,
+        "column_index": 1
+      }
+    },
+    {
+      "profile_id": "zeal-paladin-temper-merc-survival-gear",
+      "profile_sha256": "466493ec6d33084203e2165ba9a81562662182d37bb0b12f9f0ed0721e5b5c83",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-03",
+      "source": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/44",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c",
+        "url": "https://maxroll.gg/d2/guides/zeal-paladin",
+        "source_date": "2026-05-22",
+        "quotes": [
+          "Temper"
+        ],
+        "review": "2026-09-27: Reviewed actual cached HTML Mercenary Gear Options table column Early-Game, not the flattened text alone. It explicitly lists Act 5 Frenzy or Act 2 Might. This Temper armor/helmet entry belongs to that column; permit both melee mercenary contexts. Preserve native low rolls, ethereal durability, item requirements and bearer-specific effects. No transfer of mercenary leech/kill credit to player, vitality or energy benefit, full breakpoint, price or later-stage endorsement inferred. Raw guide SHA256 8eedfcbc0882f5195405dd0b4d67b09917aad11da38a9f550a3abd310a65a510.",
+        "corroborating": [
+          {
+            "path": "third-parties/d2data/json/runes.json",
+            "locator": "/Temper",
+            "sha256": "796f1b87c129f424e51764eacce96bc67da3f26f5f336bd5b16bee3a147b6a14"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/42",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/sections/17",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r13",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r16",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "third-parties/d2data/json/gems.json",
+            "locator": "/r08",
+            "sha256": "8471e44185164052f2fe3564ad00519055450641c84e4a7830894d82be945670"
+          },
+          {
+            "path": "pricing/data/appraisal-guide-sections.json",
+            "locator": "/sources/pricing~1raw~1mr~1guides__zeal-paladin.html/item_spans/233",
+            "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+          }
+        ]
+      },
+      "quote": "Temper",
+      "reason": "The exact Helmet row places Temper in the Early-Game column of this guide's Mercenary Gear Options, rather than its Mid-Game or End-Game column. This profile describes that general survival alternative without a special encounter, premium roll, or exceptional leveling condition. Exclude only this ordinary progression use. Retain the recipe, base/socket outcomes, other player or mercenary uses, identity assessment and independently valuable configurations; this is not a worthless-item or price conclusion.",
+      "table_context": {
+        "path": "pricing/raw/mr/guides__zeal-paladin.html",
+        "sha256": "8eedfcbc0882f5195405dd0b4d67b09917aad11da38a9f550a3abd310a65a510",
+        "section_locator": "/sections/44",
+        "table_index": 7,
+        "row_index": 4,
+        "column_index": 1
+      }
     }
   ],
   "dimensions": [
@@ -12412,7 +14562,7 @@
     },
     {
       "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
-      "profile_sha256": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198",
+      "profile_sha256": "d2d19878381cb4281b038cad82f36363e87f50cc6af1886ad5c1336a91f4f379",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -12887,7 +15037,7 @@
     },
     {
       "profile_id": "lightning-fury-amazon-guide-ubers-shield-jmod-base",
-      "profile_sha256": "646a656071b93df8cb23958d51f93093983583ce878347c8920de99ffc1835b8",
+      "profile_sha256": "5d6e648db94b96d5acd9f4d5d0cbc07205c153baa09ea22418a89ca5154d5330",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -13353,7 +15503,7 @@
     },
     {
       "profile_id": "fissure-druid-magic-find-shield-jmod-base",
-      "profile_sha256": "2fe879be50b23e2ad574a4eef5dffc4508a62cefb34eb29d8f7a3e80ca7baea2",
+      "profile_sha256": "25f6ad0b7ceb33055ba293b260e22c6ca562cb25c8bc639156aba0337771b124",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -17406,7 +19556,7 @@
     },
     {
       "profile_id": "fissure-druid-magic-find-shield-ist-filled",
-      "profile_sha256": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473",
+      "profile_sha256": "b2d7ef28840b0286ba66646f9f3c75450476df4bf601a05bd335bcba5a01cc2d",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -26847,7 +28997,7 @@
     },
     {
       "profile_id": "blizzard-sorceress-standard-swap-jmod-base",
-      "profile_sha256": "001d1de6d987f8b7f67fcd2a790d754e2075fe7d40dbcc194755e9588fc78e7d",
+      "profile_sha256": "53e9551c3d0034269abc251beffd98d9584cffab5407389f29475963a24e82d2",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -29591,7 +31741,7 @@
     },
     {
       "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
-      "profile_sha256": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9",
+      "profile_sha256": "e2ca6235fe07a1745681cdaa6abd00f286ebe090df2bf9362460caada37b4d53",
       "dimension": "leveling",
       "classification": "non_leveling_use",
       "reviewed_at": "2026-09-30",
@@ -30028,7 +32178,7 @@
   "evidence": [
     {
       "row_id": "evidence:recommendations:patterns:0",
-      "row_sha256": "f6c773548d2d1d585f6a62bd037bcff48dac9ab62816ada03b6d35979811bc56",
+      "row_sha256": "e90de69621ce9cdf04209963fd15dca70bdd5d91cb97ad4edac1121fb1fc90d5",
       "classification": "generic_leveling",
       "reviewed_at": "2026-09-30",
       "quote": "Any early boots with faster run/walk; positioning and escaping mobs.",
@@ -30041,7 +32191,7 @@
     },
     {
       "row_id": "evidence:recommendations:patterns:1",
-      "row_sha256": "09e6ac3094c367e4528bec9309cde71634b1f663d3898eaddae2a8f30ed92c57",
+      "row_sha256": "2d824e7c5696ed11d3609854985b847683d6deb62e59af22965abac25f59e831",
       "classification": "generic_leveling",
       "reviewed_at": "2026-09-30",
       "quote": "Topazes in helm/body armor before Stealth; no exact sockets prescribed.",
@@ -30054,7 +32204,7 @@
     },
     {
       "row_id": "evidence:recommendations:patterns:2",
-      "row_sha256": "5bb2ac36a44be5e5cb3983f7e7004faa3dfcba4b4931a72878940dc90a579070",
+      "row_sha256": "baf1d5d96f1c04113de18ce9e1be0bded754fc6a8fb733800789313467373af2",
       "classification": "generic_leveling",
       "reviewed_at": "2026-09-30",
       "quote": "Modest magic find helps discover leveling uniques and sets.",
@@ -30067,7 +32217,7 @@
     },
     {
       "row_id": "evidence:recommendations:patterns:11",
-      "row_sha256": "01f4ae369ac1d5957f5499a25fa1f36ddeb98f0d66f9931e88a47e243f051ca8",
+      "row_sha256": "3f9fd4d9ee7dcc280060392febe008336f902847361c707054be5acec6c24e26",
       "classification": "generic_leveling",
       "reviewed_at": "2026-09-30",
       "quote": "Life, fire/lightning resistance, hit recovery as fallback.",
@@ -30077,6 +32227,19 @@
         "locator": "/generic_patterns/11"
       },
       "reason": "Shopped life/resistance/recovery belt is explicitly a fallback with no valuable combination or exceptional roll requirement. Exclude this exact generic recommendation only, per the user scope clarification. Keep all item identities, valuable bases/affixes, other source occurrences, build configurations, socket mechanics and exceptional-leveling reviews."
+    },
+    {
+      "row_id": "evidence:recommendations:patterns:5",
+      "row_sha256": "3f1eb8f2d638aab674d86e5aa607cb6d60e2938d25de1354ae0eadb5468bba6a",
+      "classification": "generic_leveling",
+      "reviewed_at": "2026-10-01",
+      "quote": "Three sockets with resistance runes for current survival gap.",
+      "source": {
+        "path": "pricing/data/appraisal-leveling-candidates-2026-09-23.json",
+        "sha256": "7a32a4ab275b78c862f485da9c53c3b3f74bace86967f99c8a9fe387b3233cd7",
+        "locator": "/generic_patterns/5"
+      },
+      "reason": "The exact recommendation fills a current survival gap with resistance runes in an unspecified three-socket helm. This is an ordinary progression fallback, not a valuable base or exceptional leveling combination. Exclude this recommendation only under the value-focused scope. Preserve helmet identities, valuable affixes and class staffmods, runeword eligibility, socket mechanics and contents, independently supported named socket uses, and pricing obligations."
     }
   ],
   "variants": [

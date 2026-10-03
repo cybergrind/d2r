@@ -198,6 +198,23 @@ capture and fixture export; the display lease and focus; iso and compass geometr
 and doorway table; the map payload and drawing; the route graph; Win+C dumps; handler discovery
 and validation.
 
+### Act 1/2 outdoor waypoints (checked 2026-10-01 against saved dumps)
+
+The Act 1/2 wilderness waypoint is not a LvlPrest. D2MOO DRLGOUTDOORS_SpawnAct12Waypoint only
+flags a grid cell, and the waypoint is an object placed in a generated room. Room2 +0x98
+points at the room's preset-unit list: +0x04 txt id, +0x08 x, +0x10 next, +0x20 type
+(1 monster, 2 object, 5 tile), +0x24 y. x and y are sub-tiles relative to the room. Checked in
+saved runs/level dumps:
+- Cold Plains 20260930T114651Z, 20260930T133331Z and Stony Field 20260930T121217Z: object 119,
+  the Act 1 waypoint.
+- Lower Kurast 20260930T124614Z: 237.
+- River of Flame 20260930T223435Z: 238.
+
+The list is set only on Room2s that have a loaded Room1. In 11 dumps no far room had one,
+including Black Marsh 20260930T091948Z and 20260930T120512Z. So the waypoint can't be found on
+level entry, only once the player is about a screen away, and Black Marsh gets no waypoint
+arrow.
+
 ## Phases
 
 Each phase ends green, with lint clean and the handler tests replaying real fixtures.
@@ -318,9 +335,20 @@ Status 2026-09-30 (user checked in game; fixtures from evidence/dumps):
 | Stony Field | unconfirmed (d2data/D2MOO, 2026-09-30): Tristram = 'Cairn Stones', Underground Passage = cave entrance, Cold Plains = the one border gap | — |
 | Dark Wood | unconfirmed (2026-09-30): Underground Passage = cave entrance (evidence 20260930T120851: cliff cave), Black Marsh = the one border gap | — |
 | Cave 1 | confirmed (user walked the whole level, 2026-09-30): Cave Down, Coldcrow, Cave Prev; all 54 rooms' walls learned; Cave 2 is one fixed preset (no handler) | cave_1 |
+| Lower Kurast exits (79) | 2026-10-01: 'Slums Gate N' = Kurast Bazaar, 'Slums Gate S' = Flayer Jungle (D2MOO BuildLowerKurast), 'Burbs Waypoint'; one of each present in both real fixtures; the direction labels are unconfirmed | lower_kurast_camp, lower_kurast_game2 |
+| Kurast Bazaar, Upper Kurast (80, 81) | unconfirmed (D2MOO + d2data, 2026-10-01): gate N ahead / gate S back, both sewer entrances, waypoint, temples by DS1 file (file 0 = Vis2, file 1 = Vis3: Ruined Temple/Disused Fane, Forgotten Reliquary/Forgotten Temple; inferred from the Temple2/3.ds1 names); `handlers/kurast.py`. Kurast Causeway = one 'Bridge' preset: no handler | — |
+| Travincal (83) | unconfirmed: Durance of Hate = the 32x32 'Travincal N' block (room-level only); `handlers/travincal.py` | — |
+| Spider Forest, Great Marsh, Flayer Jungle (76-78) | unconfirmed: every 'Clearing Webby/Boggy/Pygmy' is marked the same way; which DS1 file (0-2) holds which cave or the waypoint needs a Win+C dump in each clearing; `handlers/jungle.py` | — |
+| Spider Cave/Cavern (84, 85) | unconfirmed: 'Spider Chest NE' (Cave) / 'Spider Chest NW' (Cavern, Khalim's Eye); no way-back preset; `handlers/spider_caves.py` | — |
+| Swampy Pit 1-2, Flayer Dungeon 1-2 (86-89) | unconfirmed: `stairs_down('Act 3 - Dungeon')` + Prev; level 3s are whole-level 'Dungeon Treasure' presets (no handler); `handlers/act3_dungeons.py` | — |
+| Sewers 1 (92) | unconfirmed: 'Sewer Drain' (Sewers 2), 'Sewer Chest', all four 'Sewer Prev' ladders as 'Way up'; Sewers 2 and the six temples are whole-level presets (no handler); `handlers/sewers.py` | — |
+| Act 2 (42-65, 2026-10-01) | unconfirmed (D2MOO DrlgOutDesr/DrlgMaze): desert entrances (`desert.py`: Dry Hills, Far Oasis, Lost City + optional Dark Elder ruin, Valley of Snakes, Canyon's 7 King Tomb entrances + 'Desert Valley Warp' as waypoint); `act2_sewers.py` (Sewers 1-3 incl. Radament, Ancient Tunnels chest); `act2_tombs.py` (Halls of the Dead 1-3 incl. Horadric Cube, Claw Viper 1); `maggot_lair.py` (Coldworm = 'Lair Tight Spot S', confirmed by Win+C at Coldworm 2026-10-01, fixture maggot_lair_3_coldworm; the first version wrongly used 'Lair Treasure W', now an optional treasure room); `palace.py` (Palace Cellar 1 waypoint = 'Basement NW' file 2); Tal Rasha gained optional Kaa and false-tomb chests. No handler: Harem 1-2, Palace Cellar 2-3 (only diagonal presets), Claw Viper 2, Duriel's Lair. Act 1/2 outdoor waypoints are objects, not presets | — |
+| Act 1 (2, 8, 10, 11, 17-19; 2026-10-01) | unconfirmed (D2MOO DrlgOutWild/DrlgMaze): `blood_moor.py` (DOE Entrance + gaps), `burial_grounds.py` (Graveyard preset + gap), `act1_caves.py` (Den of Evil Corpsefire, Underground Passage 1 with Prev = Stony Field / Next = Dark Wood assumed from Vis order, Hole 1, Crypt Bonebreak, Mausoleum chest). No handler: fixed presets (Monastery, Cloisters, Cathedral, Forgotten Tower, level 2 caves, Tristram) and Moo Moo Farm | — |
+| Act 5 outdoors + Ancients' Way (110-112, 117, 118; 2026-10-01) | unconfirmed (D2MOO DrlgOutSiege/DrlgMaze): `act5_outdoors.py` (siege strip ends, 'Barricade To Siege/To Cave/From Cave', Entrance/Exit presets as plain exits, hell portals, dirt/snow waypoints); Ancients' Way in `ice_caves.py`. No handler: Frozen River/Drifter Cavern/Icy Cellar (fixed River/Pool presets), Arreat Summit, Nihlathak's Temple, Hell 1-3 | — |
 | Crystalline Passage, Glacial Trail (113, 115) | unconfirmed (d2data levels/lvlprest, 2026-10-01; no evidence yet): level ahead = 'Ice Next' (Glacial Trail / Frozen Tundra), side cave = 'Ice Down' (Frozen River, Anya / Drifter Cavern), 'Ice waypoint', way back = 'Ice Prev'; `handlers/ice_caves.py` | — |
 | Outer Steppes (104) | unconfirmed (D2MOO DrlgOutdoors/DrlgOutPlace + d2data, 2026-10-01; no evidence yet): Plains of Despair = the open 'Mesa Border 1-4' gap (file 3; named by elimination), way back = 'Act 4 - Fortress Transition'; no waypoint; `handlers/outer_steppes.py` | — |
 | Plains of Despair (105) | unconfirmed (D2MOO + d2data, 2026-10-01; no evidence yet): Izual = 'Act 4 - Mesa 2 Izual'; City of the Damned / Outer Steppes = open 'Mesa Border 1-4' gaps (`ACT4_GAP`); `handlers/plains_of_despair.py` | — |
+| City of the Damned (106) | unconfirmed (D2MOO DrlgOutdoors + d2data, 2026-10-01; no evidence yet): River of Flame = 'Act 4 - Mesa Warp', way back = the open Plains gap (`ACT4_GAP`); waypoint not marked (no named preset); `handlers/city_of_the_damned.py` | — |
 | River of Flame (107) | unconfirmed (D2MOO DRLGMAZE_PlaceAct4Lava, 2026-10-01; no evidence yet): Hephasto = 'Act 4 - Lava Forge [WE]', Chaos Sanctum = 'Bridge 1', way back = 'Lava Warp N'; waypoint not marked (no named preset); `handlers/river_of_flame.py` | — |
 | Tal Rasha's Tombs (66-72) | confirmed (dump 20260930T154636Z-55eebd5c, true tomb 70): Orifice = 'Tomb Talrasha [NSEW]' (optional, true tomb only), way back = 'Tomb Prev' | tal_rasha_true_tomb |
 
@@ -358,8 +386,8 @@ Durance 2 waypoint) is now skipped silently instead of logged as a problem.
 | Tower Cellar 1–4 | 21–24 | `tower_cellar.py` | `stairs_down('Act 1 - Crypt')` | Crypt family |
 | Tower Cellar 5 | 25 | `tower_cellar.py` | `Act 1 - Crypt Countess X` | — |
 | Durance of Hate 1–2 | 100, 101 | `durance_of_hate.py` | `stairs_down('Act 3 - Mephisto')` (+ waypoint dot on 101) | Mephisto family |
-| Black Marsh | 6 | `black_marsh.py` | `Act 1 - Tower 1` (tower entrance) | outdoor room lists |
-| Tamoe Highland, Pit 1 | 7, 12 | `pit.py` | `Act 1 - (Cave Entrance\|Wild Cliff Cave Left/Right)`; `stairs_down('Act 1 - Cave', word='Down')` + way back | Act 1 Cave family |
+| Black Marsh | 6 | `black_marsh.py` | `Act 1 - Tower 1` (tower entrance); exits Tamoe Highland + Dark Wood (ExitsHandler, unconfirmed 2026-10-01); waypoint not markable (object, loaded rooms only) | outdoor room lists |
+| Tamoe Highland, Pit 1 | 7, 12 | `pit.py` | exits Monastery Gate + Black Marsh (ExitsHandler, unconfirmed 2026-10-01); `Act 1 - (Cave Entrance\|Wild Cliff Cave Left/Right)`; `stairs_down('Act 1 - Cave', word='Down')` + way back | Act 1 Cave family |
 | Rocky Waste, Stony Tomb 1–2 | 41, 55, 59 | `stony_tomb.py` | `Act 2 - Desert Tomb 1`; `stairs_down('Act 2 - Tomb')`; Treasure + Creeping Feature (Leatherarm) on 59 | Act 2 Tomb family |
 | Lower Kurast | 79 | `lower_kurast.py` | every `Act 3 - Slums 16x16` of DS1 variant 1 (bonfire camp, a super chest in each of its two shacks); `PoiSpec(variants=…, each=True)`, none is fine | — |
 
@@ -412,6 +440,23 @@ Win+C dumps. Their exits are 16x16 presets in four 8x8 chunks, which exposed two
   chest (`Act 2 - Lair Tight Spot S`).
 - **Canyon of the Magi → the true Tal Rasha's Tomb:** research first. The room data doesn't say
   which tomb is real; it needs a confirmed ActMisc "real tomb" field.
+
+### Phase 8: marks on the warp itself — done 2026-10-03 (in-game check pending)
+
+User: pinpoint exits, teleports and entrances instead of the middle of a big room. The game's DS1
+preset files (2277 in the install, read with `terror_zones/game_files.py`) place warp tiles:
+special wall tiles (orientation 10/11) whose main index 0-7 is the level's Vis/Warp slot
+(`levels/ds1.py`). `build_warps.py` bundles slot -> tile centre per preset and DS1 variant in
+`data/preset_warps.json` (207 presets; 11 variants hold more than one warp: Graveyard, Act 2
+town, Harem, Act 3 Bridge, Baal Entrance, the Barricade caves' 3-tile warps are one slot).
+`spots.pinpoint` moves stairs, way back and exit POIs (and `PoiSpec(warp=True)` entrances: Frozen
+River / Drifter Cavern / Icy Cellar, the Kurast temples) onto the warp; the arrow and the map dot
+both use it. Origin: the whole preset (`Room.block`). Checked on the entry fixtures: the way back
+lands within 1.5 tiles of where the player arrived (Jail 2/3 0.1/0.7, Catacombs 3 0.1, WSK 3
+0.9). Moves: Halls of Pain down stairs 15 tiles, Act 1 cave stairs 6-10, 12x12 maze stairs 2-5.
+Unchanged: multi-warp presets, bosses/chests/waypoints (objects, not warps; Nihlathak's preset
+also holds the way back), outdoor gaps (8x8 border rooms, no warp tile), rooms without a DS1
+variant (older fixture rows). Temple files: file 0 = slot 2, file 1 = slot 3, as kurast.py says.
 
 ## Done when
 

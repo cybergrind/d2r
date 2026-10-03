@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from inventory_tracking.items.identity import SOCKETED_FLAG, resolve_identity
+from inventory_tracking.items.identity import RUNEWORD_FLAG, SOCKETED_FLAG, resolve_identity
 from inventory_tracking.items.metadata import item_base, metadata
 from inventory_tracking.items.socket_payload import decode_payload
 
@@ -102,6 +102,32 @@ def infer_nonsocketable(item, stats, arrays, flags):
         or flags & SOCKETED_FLAG
         or any(row.get('id') == 194 for row in stats)
         or arrays.get('socket_items', {}).get('children')
+        or item.get('sockets') not in (None, 0)
+        or item.get('socket_contents') not in (None, 'empty')
+    ):
+        return False
+    item.update(sockets=0, socket_contents='empty', socket_items=[], empty_sockets=0, filled_sockets=0)
+    return True
+
+
+def infer_unsocketed(item, stats, arrays, flags):
+    """A validated non-socketed item needs no inventory-child scan.
+
+    D2MOO Items.cpp ITEMS_AddSockets / ITEMS_SetSockets set IFLAG_SOCKETED
+    together with STAT_ITEM_NUMSOCKETS. Require complete totals and reject any
+    contrary count, runeword flag or captured child rather than overriding it.
+    """
+    totals = [row for row in arrays.get('arrays', []) if row.get('header_offset') == 0xE8]
+    if (
+        type(flags) is not int
+        or flags & (SOCKETED_FLAG | RUNEWORD_FLAG)
+        or arrays.get('complete') is not True
+        or len(totals) != 1
+        or not isinstance(totals[0].get('stats'), list)
+        or any(row.get('id') == 194 for row in stats)
+        or any(row.get('id') == 194 for row in totals[0]['stats'])
+        or arrays.get('socket_items', {}).get('children')
+        or item.get('socket_items')
         or item.get('sockets') not in (None, 0)
         or item.get('socket_contents') not in (None, 'empty')
     ):

@@ -24,16 +24,24 @@ def centre(room: Room) -> tuple[float, float]:
 
 
 def build_map(
-    snapshot: LevelSnapshot, pois: Iterable[Poi], location: Location | None = None, walkable: Iterable[Walkable] = ()
+    snapshot: LevelSnapshot,
+    pois: Iterable[Poi],
+    location: Location | None = None,
+    walkable: Iterable[Walkable] = (),
+    *,
+    visited: set | None = None,
+    dots: Iterable[MapPoi] = (),
 ) -> MapCard:
     """`location` overrides the snapshot's player position (live dot while the card is shown).
+    `visited` (bounds of the rooms ever loaded, terror/tracker.py) shades the rooms: the others
+    are drawn dimmer. `dots` are extra live marks in tiles (monsters, a Herald).
 
     The route leads to the first POI reachable through doorways (mazes only; levels/route.py).
     """
     where = location or snapshot.location
     player = (where.x / TILE_UNITS, where.y / TILE_UNITS)
     pois = tuple(pois)
-    marks = tuple(MapPoi(p.label, p.kind, *centre(p.room)) for p in pois)
+    marks = tuple(MapPoi(p.label, p.kind, *(p.spot or centre(p.room))) for p in pois)
     path: tuple[tuple[float, float], ...] = ()
     for poi, mark in zip(pois, marks, strict=True):
         rooms = route(snapshot.rooms, player, poi.room)
@@ -43,8 +51,9 @@ def build_map(
     return MapCard(
         rooms=tuple((r.x, r.y, r.width, r.height) for r in snapshot.rooms),
         player=player,
-        pois=marks,
+        pois=(*marks, *dots),
         route=path,
         room_kinds=tuple(room_kind(r) for r in snapshot.rooms),
         walkable=tuple((g.x, g.y, g.width, g.height, g.cells) for g in walkable),
+        visited=tuple(int((r.x, r.y, r.width, r.height) in visited) for r in snapshot.rooms) if visited else (),
     )

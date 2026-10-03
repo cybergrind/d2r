@@ -14,28 +14,40 @@ inventory_tracking/shop/README.md. With `--stash-auto` (default) it also runs a 
 collection by itself every time the stash panel is closed, and with `--identify-auto`
 (default) it assesses every inventory or cube item the moment it becomes identified (Cain's
 identify all, or a scroll) and shows the summary on the OSD. With `--level-guide` (default)
-entering a guided level (levels/handlers/) shows an arrow to its target.
+entering a guided level (levels/handlers/) shows an arrow to its target. With `--terror-probe`
+(default) it records monster sightings and kills to terror-probe.jsonl for Terror Zone research
+(inventory_tracking/terror/probe.py); Win+C also writes a mark there.
 """
 
 import argparse
 import fcntl
+import json
 import os
 import shutil
 import socket
 import sqlite3
 import subprocess
+import threading
 import time
+from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import nullcontext, suppress
+from contextlib import contextmanager, nullcontext, suppress
 from pathlib import Path
 from tempfile import mkdtemp
 from typing import Any
 
 from inventory_tracking.appraisal.cache import database_revision
-from inventory_tracking.appraisal.capture import AppraisalCapture, game_focused
+from inventory_tracking.appraisal.capture import AppraisalCapture, RecentFocus
+from inventory_tracking.appraisal.loop_timing import PassTimer
 from inventory_tracking.appraisal.owned import owned_copies
 from inventory_tracking.appraisal.presentation import ItemAssessment
-from inventory_tracking.appraisal.published_backend import PublishedAppraisal
+from inventory_tracking.appraisal.published_backend import (
+    PublicationRefresher,
+    PublishedAppraisal,
+    prepare_processes,
+    warm_publication,
+)
+from inventory_tracking.appraisal.retrieval_process import KeepWarm, RetrievalGroup, RetrievalProcess
 from inventory_tracking.appraisal.text import value_watch_lines
 from inventory_tracking.appraisal.worker import AppraisalWorker
 from inventory_tracking.collection.export import DEFAULT_HTML as COLLECTION_HTML
@@ -49,7 +61,7 @@ from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_D
 from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
 from inventory_tracking.config import APPRAISAL
-from inventory_tracking.hud.process import card_widgets, guide_widgets, hud_process, loot_widgets
+from inventory_tracking.hud.process import card_widgets, guide_widgets, hud_process, loot_widgets, terror_widgets
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.identify.service import IdentifyWorker
 from inventory_tracking.levels.dump import (
@@ -65,20 +77,14 @@ from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
-from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker
+from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
+from inventory_tracking.terror.probe import TerrorProbe
+from inventory_tracking.terror.tracker import ZoneTracker
 from inventory_tracking.tracking.panels import observe_panels
 from inventory_tracking.tracking.reader import LiveReader
-from pricing.knowledge.pipeline import retrieve_draft
 from pricing.knowledge.publication import DEFAULT_STORE
-
-
-def memory_evidence(observation, database):
-    result = retrieve_draft(observation, database)
-    result['decision'].update(
-        reason='Memory snapshot with limited stat decoding; local evidence requires review.',
-        next_step='Review observed stats and unresolved fields against the local appraisal evidence.',
-    )
-    return result
+from pricing.triage.engine import revision as triage_revision
+from pricing.triage.runtime import detail as triage_detail, guarded_retrieve as triage_retrieve, warm as triage_warm
 
 
 def owned_evidence(database):
@@ -99,6 +105,80 @@ def with_owned(retrieve, owned):
         return {**retrieve(observation), 'owned': owned(observation)}
 
     return retrieve_owned
+
+
+def process_retrieval(process, backend, database, recent=None):
+    """KB retrieval run in `process`; a published backend's request scope travels as plain values."""
+
+    def retrieve(observation):
+        if recent is not None:
+            recent.remember(observation)
+        if backend is None:
+            return process.call(triage_detail, observation, database)
+        return process.call(triage_detail, observation, database, backend.pinned())
+
+    return retrieve
+
+
+class RecentObservations:
+    """The last few looked-up items, replayed in turn to keep idle retrieval processes warm."""
+
+    def __init__(self, seed=(), *, size=8):
+        self.lock = threading.Lock()
+        self.items = deque(seed, maxlen=size)
+
+    def remember(self, observation):
+        with self.lock:
+            self.items.append(observation)
+
+    def next(self):
+        with self.lock:
+            if not self.items:
+                return None
+            self.items.rotate(-1)
+            return self.items[-1]
+
+
+def stored_observations(output, *, limit=8):
+    """Distinct items of the newest earlier Alt+D requests under `output`: warm-up lookups for a new service."""
+    found = {}
+    for path in sorted(output.glob('*/request-*/frozen.json'), reverse=True):
+        try:
+            observation = json.loads(path.read_text())['observation']
+            found.setdefault((observation['item'].get('rarity'), observation['item'].get('name')), observation)
+        except OSError, ValueError, KeyError, TypeError:
+            continue
+        if len(found) == limit:
+            break
+    return list(found.values())
+
+
+def warm_lookup(backend, database, recent):
+    """`touch` for `KeepWarm`: rerun a recent lookup in the given process and drop the result."""
+
+    def touch(process):
+        observation = recent.next()
+        if observation is None:
+            return
+        with backend.request_scope() if backend else nullcontext():
+            process_retrieval(process, backend, database)(observation)
+
+    return touch
+
+
+@contextmanager
+def refreshing(backend, processes, store):
+    """Adopt newly published KB generations in the background (none without a publication store)."""
+    if backend is None:
+        yield
+        return
+    stopped = threading.Event()
+    prepare = prepare_processes(processes, store, stopped=stopped)
+    try:
+        with PublicationRefresher(backend, prepare, interval=APPRAISAL.publication_poll_interval):
+            yield
+    finally:
+        stopped.set()
 
 
 def collection_revision(database):
@@ -156,7 +236,9 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
         notify('Appraisal unavailable', detail)
 
 
-def dispatch(data: bytes, now: float, worker, collector, shop=None, identify=None, level=None, guide=None) -> bool:
+def dispatch(
+    data: bytes, now: float, worker, collector, shop=None, identify=None, level=None, guide=None, terror=None
+) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
     An accepted Alt+D takes the OSD: a shop result or an identify summary still showing
@@ -171,6 +253,8 @@ def dispatch(data: bytes, now: float, worker, collector, shop=None, identify=Non
             requested = float(text[len(LEVEL_PREFIX) :])
             if not 0 <= now - requested <= 1:
                 return False
+            if terror is not None:
+                terror.mark(now)  # research: lets a Herald on screen be matched to its sighting
             shown = guide is not None and guide.press(requested)  # a double press toggles the pinned map
             dumped = level is not None and level.request(requested, now, announce=not shown)
             return shown or dumped
@@ -260,16 +344,20 @@ def run_service(args, directory, report):
                     return connection
 
                 backend = PublishedAppraisal(args.publication_store) if args.publication_store else None
+                warm = ()
                 if backend:
-                    loaded = backend.repository.load()
-                    if loaded.runtime is None:
+                    try:
+                        backend.start()
+                    except ValueError as error:
                         raise ValueError(
-                            'Offline publication unavailable; run uv run --offline python -m '
-                            'pricing.knowledge.publication. ' + '; '.join(loaded.issues)
-                        )
+                            f'{error}; run uv run --offline python -m pricing.knowledge.publication'
+                        ) from error
+                    startup_generation = backend.serving[0].runtime.generation
+                    warm = (warm_publication, (args.publication_store, startup_generation))
                 pid, images, capture = wait_for_game(connect, directory, report)
                 print(f'Ready for Alt+D. Reports: {directory}', flush=True)
                 source = AppraisalCapture(pid, images, capture, reconnect=connect)
+                recent = RecentObservations(stored_observations(args.output))
 
                 with (
                     hud_process(args.hud_scene, args.osd, directory / 'hud.log'),
@@ -277,6 +365,20 @@ def run_service(args, directory, report):
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='collection') as collection_pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='shop') as shop_pool,
                     ThreadPoolExecutor(max_workers=1, thread_name_prefix='identify') as identify_pool,
+                    ThreadPoolExecutor(
+                        max_workers=APPRAISAL.identify_lookup_processes, thread_name_prefix='identify-lookup'
+                    ) as identify_lookup_pool,
+                    # Separate processes: KB lookups would otherwise hold this process's GIL and stall the loop.
+                    RetrievalProcess(*warm) as appraisal_lookups,
+                    RetrievalGroup(
+                        APPRAISAL.identify_lookup_processes, triage_warm, (recent.next(),)
+                    ) as identify_lookups,
+                    refreshing(backend, [appraisal_lookups], args.publication_store),
+                    KeepWarm(
+                        [appraisal_lookups],
+                        warm_lookup(backend, args.database, recent),
+                        interval=APPRAISAL.retrieval_keep_warm_interval,
+                    ),
                 ):
                     shop = None
                     identify = None
@@ -289,7 +391,8 @@ def run_service(args, directory, report):
                             lines = ItemAssessment.from_record(record).to_osd() if record is not None else []
                             publish_layer(args.hud_scene, 'appraisal', card_widgets(lines))
 
-                    retrieve = backend.retrieve if backend else lambda o: memory_evidence(o, args.database)
+                    retrieve = process_retrieval(appraisal_lookups, backend, args.database, recent)
+                    focused = RecentFocus(seconds=APPRAISAL.focus_cache_seconds)
                     owned = owned_evidence(args.collection_database)
                     kb_revision = backend.cache_context if backend else lambda: database_revision(args.database)
                     worker = AppraisalWorker(
@@ -299,8 +402,13 @@ def run_service(args, directory, report):
                         pool,
                         display=display_appraisal if args.osd else None,
                         display_seconds=args.osd_seconds,
+                        recheck_seconds=APPRAISAL.display_recheck_interval,
                         cache_seconds=args.cache_seconds,
-                        cache_context=lambda: (kb_revision(), collection_revision(args.collection_database)),
+                        cache_context=lambda: (
+                            kb_revision(),
+                            collection_revision(args.collection_database),
+                            triage_revision(),
+                        ),
                         request_scope=backend.request_scope if backend else nullcontext,
                     )
                     collector = Collector(
@@ -310,7 +418,7 @@ def run_service(args, directory, report):
                         collection_pool,
                         html=args.collection_html,
                         capture_lock=worker.capture_lock,
-                        focused=game_focused,
+                        focused=focused,
                         notify=notify,
                     )
 
@@ -323,11 +431,18 @@ def run_service(args, directory, report):
                         if args.osd:
                             publish_layer(args.hud_scene, 'cards', card_widgets(lines))
 
+                    def display_identify(lines):
+                        # Its own layer: the shop card and the identify summary stack instead of
+                        # overwriting (and clearing) each other.
+                        if args.osd:
+                            publish_layer(args.hud_scene, 'identify', card_widgets(lines, 'identify'))
+
                     shop = ShopWorker(
                         source,
                         shop_pool,
+                        evaluate=lambda record: identify_lookups.call(triage_stock, record),
                         capture_lock=worker.capture_lock,
-                        focused=game_focused,
+                        focused=focused,
                         display=display_shop,
                         output=directory,
                         before_request=suspend_appraisal,
@@ -339,41 +454,64 @@ def run_service(args, directory, report):
                         source,
                         identify_pool,
                         capture_lock=worker.capture_lock,
-                        focused=game_focused,
-                        display=display_shop,
+                        focused=focused,
+                        display=display_identify,
                         output=directory,
-                        retrieve=retrieve,
-                        owned=owned,
+                        retrieve=lambda observation: identify_lookups.call(
+                            triage_retrieve, observation, args.database, backend.pinned() if backend else None
+                        ),
                         request_scope=backend.request_scope if backend else nullcontext,
+                        lookup_executor=identify_lookup_pool,
                         notify=notify,
                         auto=args.identify_auto,
                         poll_interval=args.identify_poll_seconds,
                         appraisal_active=lambda: worker.visible is not None or worker.pending(),
                     )
                     level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
+                    # Per-game monster/Herald state: the Terror card and the level map shading.
+                    zones = ZoneTracker() if args.terror_probe else None
                     if args.level_guide:
                         guide = LevelGuide(
                             source,
                             capture_lock=worker.capture_lock,
-                            focused=game_focused,
+                            focused=focused,
                             display=lambda lines: publish_layer(args.hud_scene, 'levels', guide_widgets(lines)),
                             seconds=APPRAISAL.level_guide_seconds,
                             poll_interval=APPRAISAL.level_guide_poll_interval,
                             evidence=EvidenceLog(args.level_evidence).save,
                             observe_walls=observe_walkable if APPRAISAL.level_walls else None,
                             library=WallLibrary() if APPRAISAL.level_walls else None,
+                            visited_rooms=zones.visited_rooms if zones is not None else None,
+                            map_dots=zones.map_dots if zones is not None else None,
                         )
                     runes = None
                     if args.rune_marks and args.osd:
                         runes = RuneWatcher(
                             source,
                             capture_lock=worker.capture_lock,
-                            focused=game_focused,
+                            focused=focused,
                             display=lambda lines: publish_layer(args.hud_scene, 'loot', loot_widgets(lines)),
                             poll_interval=APPRAISAL.rune_poll_interval,
                             minimum=APPRAISAL.rune_minimum,
                             shrine_types=frozenset(APPRAISAL.shrine_marks),
                             super_chests=APPRAISAL.super_chest_marks,
+                        )
+                    terror = None
+                    if args.terror_probe:
+                        terror = TerrorProbe(
+                            source,
+                            directory / 'terror-probe.jsonl',
+                            capture_lock=worker.capture_lock,
+                            poll_interval=APPRAISAL.terror_probe_interval,
+                            summary_seconds=APPRAISAL.terror_summary_seconds,
+                            tracker=zones,
+                            display=(
+                                (lambda lines: publish_layer(args.hud_scene, 'terror', terror_widgets(lines)))
+                                if APPRAISAL.terror_card and args.osd
+                                else None
+                            ),
+                            focused=focused,
+                            show_unconfirmed=APPRAISAL.terror_card_unconfirmed,
                         )
                     stash = None
                     if args.stash_auto:
@@ -390,32 +528,48 @@ def run_service(args, directory, report):
                         f'Collection database: {args.collection_database}',
                         flush=True,
                     )
+                    timer = PassTimer(APPRAISAL.slow_loop_seconds)
                     try:
                         while True:
-                            worker.tick()
-                            shop.tick()
-                            identify.tick()
-                            shop.poll(time.monotonic())
-                            identify.poll(time.monotonic())
+                            with timer.step('appraisal'):
+                                worker.tick()
+                            with timer.step('shop'):
+                                shop.tick()
+                                shop.poll(time.monotonic())
+                            with timer.step('identify'):
+                                identify.tick()
+                                identify.poll(time.monotonic())
                             if stash is not None:
-                                stash.poll(time.monotonic())
+                                with timer.step('stash'):
+                                    stash.poll(time.monotonic())
                             if guide is not None:
-                                guide.tick()
-                                guide.poll(time.monotonic())
+                                with timer.step('level map'):
+                                    guide.tick()
+                                    guide.poll(time.monotonic())
                             if runes is not None:
-                                runes.tick()
-                                runes.poll(time.monotonic())
+                                with timer.step('runes'):
+                                    runes.tick()
+                                    runes.poll(time.monotonic())
+                            if terror is not None:
+                                with timer.step('terror probe'):
+                                    terror.poll(time.monotonic())
+                                    terror.tick()
                             try:
                                 data = server.recv(256)
                             except TimeoutError:
-                                continue
-                            dispatch(data, time.monotonic(), worker, collector, shop, identify, level, guide)
+                                data = None
+                            if data is not None:
+                                with timer.step('hotkey'):
+                                    dispatch(
+                                        data, time.monotonic(), worker, collector, shop, identify, level, guide, terror
+                                    )
+                            timer.finish()
                     finally:
                         shop.dismiss()
                         identify.dismiss()
                         if guide is not None:
                             guide.dismiss()
-                        for producer in ('appraisal', 'cards', 'levels', 'loot'):
+                        for producer in ('appraisal', 'cards', 'identify', 'levels', 'loot', 'terror'):
                             publish_layer(args.hud_scene, producer, [])
                         for pending in (shop.future, identify.future):
                             if pending:
@@ -504,6 +658,12 @@ def main(argv=None):
         action=argparse.BooleanOptionalAction,
         default=APPRAISAL.level_guide,
         help='serve: on entering a guided level (levels/handlers/), show an arrow to its target for a few seconds',
+    )
+    parser.add_argument(
+        '--terror-probe',
+        action=argparse.BooleanOptionalAction,
+        default=APPRAISAL.terror_probe,
+        help='serve: record monster sightings and kills to terror-probe.jsonl (Terror Zone research)',
     )
     parser.add_argument('--identify-poll-seconds', type=positive_float, default=APPRAISAL.identify_poll_interval)
     args = parser.parse_args(argv)

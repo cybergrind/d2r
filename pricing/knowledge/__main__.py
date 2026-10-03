@@ -93,6 +93,7 @@ def main(argv=None):
                     'appraisal-legacy.json',
                     'appraisal-value-watch.json',
                     'appraisal-market.jsonl',
+                    'appraisal-commodity-market.json',
                     'appraisal-item-facts.json',
                     'appraisal-definitions.json',
                     'appraisal-runewords.json',

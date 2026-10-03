@@ -1,5 +1,6 @@
 """Map prepared semantic annotations only to unambiguous decoded native-stat lines."""
 
+from inventory_tracking.appraisal.price_rolls import deciding_specs, listed_roll_tone, native_keys
 from inventory_tracking.presentation import StyledLine, StyledSpan, Tone
 
 
@@ -7,12 +8,14 @@ ROLL_TONES = {'perfect': Tone.PERFECT, 'low': Tone.LOW}
 MARKER_TONES = {'desirable': Tone.STAT_DESIRABLE, 'supporting': Tone.STAT_SUPPORTING}
 
 
-def stat_line(stat, annotations):
+def stat_line(stat, annotations, *, comparison=None):
     text = '  ' + stat['text']
     tone = ROLL_TONES.get(stat.get('roll_quality'), Tone.DEFAULT)
-    native = [stat['memory_stat']] if stat.get('memory_stat') else []
-    native += list(stat.get('memory_stats', []))
-    keys = {f'{row.get("id")}:{row.get("layer")}' for row in native}
+    if comparison is not None:
+        tone = listed_roll_tone(stat, comparison)
+        if deciding_specs(stat, comparison):
+            return StyledLine('  [price roll] ' + stat['text'], tone)
+    keys = native_keys(stat)
     if stat.get('status') != 'decoded' or not keys:
         return StyledLine(text, tone)
     meaning = (

@@ -18,7 +18,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
         (398, {48: 17, 49: 45, 329: 5, 333: 4}, (199, 46, 29), {'750': 5, '735': 4, '787': 100}),
     ],
 )
-def test_facet_price_requires_rolls_and_event_but_listing_can_omit_verified_fixed_damage(
+def test_facet_price_requires_rolls_and_catalog_but_listing_can_omit_verified_intrinsics(
     table, values, trigger, required
 ):
     stat, skill, level = trigger
@@ -39,10 +39,13 @@ def test_facet_price_requires_rolls_and_event_but_listing_can_omit_verified_fixe
     }
     contract = assess(extraction, profiles=[])['contract']
     assert contract is not None
-    assert len(contract['intrinsic_properties']) == 2
+    assert len(contract['intrinsic_properties']) == 3
     rows = [
         {
-            **{k: contract[k] for k in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents')},
+            **{
+                k: contract[k]
+                for k in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents', 'catalog_id')
+            },
             'properties': required,
             'scope_status': 'verified',
             'evidence_kind': 'ask',
@@ -56,9 +59,10 @@ def test_facet_price_requires_rolls_and_event_but_listing_can_omit_verified_fixe
     ]
     assert price_from_comparables(evaluate(contract, rows), today=date(2026, 9, 24))['estimate_ist'] == 2
     event = next(k for k, v in required.items() if v == 100)
-    assert reject_reasons(contract, {**rows[0], 'properties': {k: v for k, v in required.items() if k != event}})
+    assert not reject_reasons(contract, {**rows[0], 'properties': {k: v for k, v in required.items() if k != event}})
+    assert reject_reasons(contract, {**rows[0], 'catalog_id': None})
     assert reject_reasons(contract, {**rows[0], 'properties': {**required, event: level}})
-    fixed = next(iter(contract['intrinsic_properties']))
+    fixed = next(k for k in contract['intrinsic_properties'] if k != event)
     assert reject_reasons(contract, {**rows[0], 'properties': {**required, fixed: 999}})
 
     missing_damage = {**extraction, 'decoded_stats': decoded[1:]}
@@ -99,7 +103,10 @@ def test_poison_facet_price_checks_rates_duration_and_single_source():
     assert contract['intrinsic_properties']['589'] == 37
     rows = [
         {
-            **{k: contract[k] for k in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents')},
+            **{
+                k: contract[k]
+                for k in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents', 'catalog_id')
+            },
             'properties': {'783': 5, '723': 4, '784': 100},
             'scope_status': 'verified',
             'evidence_kind': 'ask',
@@ -150,7 +157,10 @@ def test_poison_levelup_requires_catalog_variant_and_rejects_other_or_missing_ca
     assert contract is not None
     assert contract['catalog_id'] == '2188191106'
     row = {
-        **{key: contract[key] for key in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents')},
+        **{
+            key: contract[key]
+            for key in ('name', 'rarity', 'base_code', 'ethereal', 'sockets', 'socket_contents', 'catalog_id')
+        },
         'catalog_id': '2188191106',
         'properties': contract['properties'],
         'scope_status': 'verified',

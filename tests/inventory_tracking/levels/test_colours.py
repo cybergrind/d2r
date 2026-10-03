@@ -33,6 +33,9 @@ def test_map_dots_use_the_row_colours():
         'waypoint': Tone.WAYPOINT,
         'target': Tone.POI,
         'exit': Tone.EXIT,  # an exit whose destination is not known yet
+        'herald': Tone.HERALD,  # a live Terror Zone Herald
+        'mob': Tone.MOB,  # a hostile monster alive
+        'leader': Tone.MOB_LEADER,  # a unique, champion or super unique alive
     }
     assert {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()} == KIND_COLOURS
 

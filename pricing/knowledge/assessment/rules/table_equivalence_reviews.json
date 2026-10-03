@@ -11560,8 +11560,8 @@
       "occurrence_id": "67a6147f299e1e6713b9d38a",
       "profile_id": "fissure-druid-magic-find-shield-ist-filled",
       "occurrence_fingerprint": "d150025b5549431780fe488b29b91ec1f02a6c06cf207f12e25a3dd2e78c72d6",
-      "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473",
-      "use_fingerprint": "d267fbb3bee7536738e86980ccd5c19be2754ad9f78dcfc6b8348a5c41c21a0b",
+      "profile_fingerprint": "b2d7ef28840b0286ba66646f9f3c75450476df4bf601a05bd335bcba5a01cc2d",
+      "use_fingerprint": "dea81aa0ea8f055fa3c6ef4485fd98a939df715f86c9d51a2a116bc16aa799cd",
       "mirror": {
         "path": "pricing/data/wp-a-variants/fissure-druid.json",
         "sha256": "025612cc9770db93a2b11ad2294e7d43e04629addbe72e3557c77fb2deaed7e0"
@@ -11574,8 +11574,8 @@
       "occurrence_id": "12f134889066a72feb507b2a",
       "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
       "occurrence_fingerprint": "7cc42045b961e96bad11fa0c75fbc76a5c8ad8a7a743820856a3d8096178631d",
-      "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9",
-      "use_fingerprint": "3f075c2f94f82da2014ff97c015847a9b5de94ffd2e0cfd0be7b24d01fb54dbc",
+      "profile_fingerprint": "e2ca6235fe07a1745681cdaa6abd00f286ebe090df2bf9362460caada37b4d53",
+      "use_fingerprint": "8c92f94586f50d5eafcf346b255cecdf0867b7512b4143a7c597e7437b1e335d",
       "mirror": {
         "path": "pricing/data/wp-a-variants/blizzard-sorceress.json",
         "sha256": "e25a1b6cab809cd52e89bd78cd9da8a28050ac47dd9a7fee4f29c03319fe87ee"
@@ -11588,8 +11588,8 @@
       "occurrence_id": "73b5a2c90fa68bc3a200d9b7",
       "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
       "occurrence_fingerprint": "02e645c81cc40851ad9b6092ac3197c5baf6d0a659581941d74459c7d5af9e79",
-      "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198",
-      "use_fingerprint": "08d747823678894e494f7b33f7d5c93929d1be516a3512a0cba49ad717b881b3",
+      "profile_fingerprint": "d2d19878381cb4281b038cad82f36363e87f50cc6af1886ad5c1336a91f4f379",
+      "use_fingerprint": "4b51497302721577468da0cab5aec80b4502333cb30240d4bd281e8f3c1616c5",
       "mirror": {
         "path": "pricing/data/wp-a-variants/lightning-fury-amazon-guide.json",
         "sha256": "19fe0b24b7029bbe7bfa353bceba9fbaf28afb8f2c193392331b86a1cc2484c5"
@@ -28352,8 +28352,8 @@
       "occurrence_id": "438af5e9eafdac4b2c89697c",
       "occurrence_fingerprint": "6f0f21ae94fe62ac2e2d388e220ddbc721a402863c368f707ffd63108f29cc1e",
       "profile_id": "poison-nova-necromancer-0-rhyme",
-      "profile_fingerprint": "8b1806556e746b98eb554c3a156a8651fa90a7a6c20a9bd71762b033f9e60827",
-      "use_fingerprint": "2621292031eed9f2f7e8d991eaacc1cc34b8c64626875e41326d4bc454ee5896",
+      "profile_fingerprint": "641b7afb7184751a8d63de9fea9b594efd4b755bb55b5e90ad2cccfe3cd0f095",
+      "use_fingerprint": "63d1fe7c841b1ff3e88d1f342afa6737eb67d6e8c2483f1df309f843e63e16e9",
       "canonical_name": "Rhyme",
       "review_date": "2026-10-01",
       "reason": "Reviewed completed Shael/Eth class shield: retain exact base, nonethereal state and all cited staffmods together. Recipe resistance is separate from inherent Paladin resistance; swap utility requires that set active. Planner alternatives are not simultaneous equipment. Usefulness is not an exact price or a full-build resistance/block guarantee. Reviewed inferior-quality exclusion: the exact +2 Poison Nova staffmod cannot occur on inferior heads; normal/superior source configuration, predicates and conditions are unchanged.",
@@ -32848,6 +32848,877 @@
         "path": "third-parties/d2data/json/magicsuffix.json",
         "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
       }
+    },
+    {
+      "occurrence_id": "b1c059c9da5d1ec7f1600cd4",
+      "occurrence_fingerprint": "8637bc23c5aeb5d56c13b47a8eeca7bda0daedbda163fff64f26d2c04c6d9102",
+      "profile_id": "fissure-elemental-grand-charm-vita",
+      "profile_fingerprint": "55913b7bc5ec82ea02e51548110ce008e5e46d38b31fedc7ffc6363ebd2b89ab",
+      "use_fingerprint": "0602a74b465145a6d803ca22658e4bb55ecb1988c7035868bfc082f2ed96fa5e",
+      "review_date": "2026-10-01",
+      "reason": "Exact Fissure Elemental skiller table entry linked to its native prefix and optional suffix; planner maximum is not an activation minimum. Preserve class, tree, suffix and inventory conditions.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Natural Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__fissure-druid.html",
+        "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vf0106vk.json",
+        "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 492,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "8137f824b4aad4163cbf5276",
+      "occurrence_fingerprint": "be3dd8fc8556aaf6fc6dcc35e8afc0a8a1dfd27bf0e9148a1165fce9a87e97c2",
+      "profile_id": "fissure-elemental-grand-charm-balance",
+      "profile_fingerprint": "62a6958ce29ebf6a3f3041baacb921a2b32ac0524195eab066031103e0cda744",
+      "use_fingerprint": "da9aaffab46327e9aa9b4375961537952f073c55f6ad834afea1afd75d889c7b",
+      "review_date": "2026-10-01",
+      "reason": "Exact Fissure Elemental skiller table entry linked to its native prefix and optional suffix; planner maximum is not an activation minimum. Preserve class, tree, suffix and inventory conditions.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Natural Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__fissure-druid.html",
+        "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vf0106vk.json",
+        "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 492,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "447ce61cb5766c4ff1e3c354",
+      "occurrence_fingerprint": "791166ad3ebcd2919b2ad33c2a1dd796d22302afcf68afbd8127ccca65fd3872",
+      "profile_id": "fissure-elemental-grand-charm-inertia",
+      "profile_fingerprint": "8c7f91fe7ea7b8e5030e8beb48159f64fdeb3651fa9661fdd0a081a2afb3d03f",
+      "use_fingerprint": "960921ade09d9a627f48ca2b231f50c0f6a12ecc0c42d1632fb0df0706ac6cc6",
+      "review_date": "2026-10-01",
+      "reason": "Exact Fissure Elemental skiller table entry linked to its native prefix and optional suffix; planner maximum is not an activation minimum. Preserve class, tree, suffix and inventory conditions.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Natural Grand Charm of Inertia",
+      "guide": {
+        "path": "pricing/raw/mr/guides__fissure-druid.html",
+        "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vf0106vk.json",
+        "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 492,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        399
+      ]
+    },
+    {
+      "occurrence_id": "731032e0d6e28598c3d37463",
+      "occurrence_fingerprint": "ef60ba2c1ad1ecfe1a4093763931f598e9b55a893430b0ca9b1bbff7a466b2d1",
+      "profile_id": "fissure-elemental-grand-charm-plain",
+      "profile_fingerprint": "8a302ef2e4f1b8340f8691b2dc39a57c520dfe7efc9646ecd12c109b5c8a0d80",
+      "use_fingerprint": "fbe96feeefd44f5cab6030a41e8dd2adb9a13453a36af7147c82c2c5051905d2",
+      "review_date": "2026-10-01",
+      "reason": "Exact Fissure Elemental skiller table entry linked to its native prefix and optional suffix; planner maximum is not an activation minimum. Preserve class, tree, suffix and inventory conditions.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Natural Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__fissure-druid.html",
+        "sha256": "06da1b8944a6a7bdbb23d0cf35c94d6f73b9aafc7a73386e714654d708df4fe2"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vf0106vk.json",
+        "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 492,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "d6a2ed3a2eb9193e969dfa50",
+      "occurrence_fingerprint": "248d2e44c89dc5f45501c5a7a44b8772aef828810fbcdf249003a829f6f0a812",
+      "profile_id": "lightning-sentry-assassin-main-skiller-vita",
+      "profile_fingerprint": "1ed47250ced06cf892d9c0bd1d7a4d0cb9d0ba245bc44efd7c450f0f7335c5c3",
+      "use_fingerprint": "35896c086275202e7a695fdcebb02377f4490297067991d2763a9061a54bce0e",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Entrapping Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sentry-assassin.html",
+        "sha256": "26fd7c09a1c842a832b5989f4197c03c8e13e61393160dccbec7edefda7c2733"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/rj010607.json",
+        "sha256": "dd1809b97eac5e452bd37b4e65c4a81dc593703b9f3c415bb26ea30100efd20a"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 502,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "efcb766b7b5ccdd4a5173814",
+      "occurrence_fingerprint": "ff5cc8e33869c65807088186bfcfba6aa851a82ba7f1a8a65ecebca0f2d8a784",
+      "profile_id": "lightning-sorceress-main-skiller-vita",
+      "profile_fingerprint": "1902a61fd603b4208be19e8eb8943b5288088c6afea4eef89853f93d00cb4550",
+      "use_fingerprint": "6f719c8383f04a421c47b6e24bcb84ee53f29a40fbbb608923184ffacc062410",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Sparking Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sorceress.html",
+        "sha256": "88c557d20618da36c00a121058b3784ba3aa408fab0094b09ef5ca6c5c5ea1dc"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/uf0106rb.json",
+        "sha256": "9572285749aa27744624aa3d722dd8e56869273b03d71efb543dd9e9d4456dad"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 443,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "60e3eed751938f98bf396663",
+      "occurrence_fingerprint": "c9f014b068439f59ec32959654a64176e966d276065260a417fb8368b6f9554f",
+      "profile_id": "lightning-sorceress-main-skiller-balance",
+      "profile_fingerprint": "0e760ef4f876456d0f16d33df411b1e13c2d1a09b7e95ba076eee9e481b55a79",
+      "use_fingerprint": "d6e7a32639324fa4589f05276821f310324f60da16388be429c3bcdcece87dfb",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Sparking Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sorceress.html",
+        "sha256": "88c557d20618da36c00a121058b3784ba3aa408fab0094b09ef5ca6c5c5ea1dc"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/uf0106rb.json",
+        "sha256": "9572285749aa27744624aa3d722dd8e56869273b03d71efb543dd9e9d4456dad"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 443,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "81f215745fc7ebc57122ac10",
+      "occurrence_fingerprint": "f05c3211280e5fb77ae3dbe5f5f8fd3c153882b3dd880a7adee84fa8924b61d5",
+      "profile_id": "lightning-sorceress-main-skiller-plain",
+      "profile_fingerprint": "50fc4d8b6ba28cc0b027fc6ed9c372e27e03495bd83c5291f9c3bc5bf6497f98",
+      "use_fingerprint": "370f02776bc237081efc32d385b11968c59e8e0aba4f3bd6cb23c16685c710f6",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Sparking Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-sorceress.html",
+        "sha256": "88c557d20618da36c00a121058b3784ba3aa408fab0094b09ef5ca6c5c5ea1dc"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/uf0106rb.json",
+        "sha256": "9572285749aa27744624aa3d722dd8e56869273b03d71efb543dd9e9d4456dad"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 443,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "e4a406ce48fa943c49dd7da0",
+      "occurrence_fingerprint": "4c81895a64d73efd96585d6f0a566985f6dac627380c9f11ad252c3af5f8b773",
+      "profile_id": "lightning-strike-amazon-main-skiller-vita",
+      "profile_fingerprint": "5c238d2ef6788a9c9550c657f2bb61b680d01dc992847178a282b920eb8a5a33",
+      "use_fingerprint": "31a40d7f20e45506881040d054669b8e371722828fbd0507d75e293e98722122",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Harpoonist's Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+        "sha256": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vc0106wm.json",
+        "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 432,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "67a8c4b123729a28323dbcd0",
+      "occurrence_fingerprint": "a6f06cb893a0df132f582d6e937d7b3bf180134a503721805ca0669f8eaba9c2",
+      "profile_id": "lightning-strike-amazon-main-skiller-balance",
+      "profile_fingerprint": "fcbb795cbde3230085a2d1979cfcc1c842255196e3fd30cf854d2e2479d6da57",
+      "use_fingerprint": "ad8e2d2936af13b7208657ec861bc63fc39d8552d8721e5e444bb2f004a3fc91",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Harpoonist's Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+        "sha256": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vc0106wm.json",
+        "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 432,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "fc1a6f05afd3646cb2e25012",
+      "occurrence_fingerprint": "30d528985b61aa2101ea0fc7fae6f5f4efab021b0a4744601d0d6cbf77681771",
+      "profile_id": "lightning-strike-amazon-main-skiller-inertia",
+      "profile_fingerprint": "b82bf616f85643d24390ae2129537f9f166466177728ba72a11589e76d42cbb2",
+      "use_fingerprint": "3dddf4e94c5120800a8fa88bc753b523058ae2e9dc1f0c2adf2bc31a80d6244f",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Harpoonist's Grand Charm of Inertia",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+        "sha256": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vc0106wm.json",
+        "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 432,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        399
+      ]
+    },
+    {
+      "occurrence_id": "3818e059cc0cf78a9986ee5a",
+      "occurrence_fingerprint": "82eaf6b69923e2942401b93d44eb2cf62f45fb510b5fbefd052e72b46a9b894f",
+      "profile_id": "lightning-strike-amazon-main-skiller-plain",
+      "profile_fingerprint": "b0b39f9c876f6bc31830bddc5b60e3c41e124e8206fe54c512b5b7f5f2f9d665",
+      "use_fingerprint": "d0c44833c5164a7dbf75ad176a94fa3d12a0b3b3a87905846f45afebf8ca49a9",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Harpoonist's Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__lightning-strike-amazon.html",
+        "sha256": "1bcd102e0f96f545d556916f0f88f913b86ec7b3c45da6facdca55d34297eedd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/vc0106wm.json",
+        "sha256": "e9af8d91cfa604acc22dab4c870ab219f5d4cd3a804fa8be7ea4e291d9810a38"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 432,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "cad7b94638d7b355ec79e4d6",
+      "occurrence_fingerprint": "c28bf12ed99ca4f0e8814c7665b553c8f1e283635979545f664c19037154c744",
+      "profile_id": "poison-nova-necromancer-main-skiller-vita",
+      "profile_fingerprint": "7b3f5c64b5927a10f42b69ca883c0e45dc8c2d006af5aa9d739136663c472a23",
+      "use_fingerprint": "b2ca18aac68502c3398e87ea955b5ae03470ed4cffdf1de81593593fed6e3423",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Fungal Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+        "sha256": "d21a71304eea3a6be5152f97f3cee40e1c008315b20ec2b6e5d51a7cb086c0c8"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/fw0106lo.json",
+        "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 455,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "2612310fd36face302a11995",
+      "occurrence_fingerprint": "635feaa2e0cafce1e668fd736058d4e9aac2df147d92153b0a33b31deeead55e",
+      "profile_id": "poison-nova-necromancer-main-skiller-balance",
+      "profile_fingerprint": "1693b2b26c506a2e995a691f60bdf402372a149ac1564cd669b4097888b85b56",
+      "use_fingerprint": "05bc19ef3dd7f2539f32b957be164974ad954ea1aa0d557a3e882c1a0ccefef7",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Fungal Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+        "sha256": "d21a71304eea3a6be5152f97f3cee40e1c008315b20ec2b6e5d51a7cb086c0c8"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/fw0106lo.json",
+        "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 455,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "1a5c5d789ff6a2f41bb6717c",
+      "occurrence_fingerprint": "2ea91d2175c0c29b4564a8f4c938a377fc5b11c435f7313b22cdcc225aeaf197",
+      "profile_id": "poison-nova-necromancer-main-skiller-plain",
+      "profile_fingerprint": "abea47f701ed958933a8578d11c7abfb68171d10b5970b2e76a93e900a37d189",
+      "use_fingerprint": "28e1813e75fa847768f436631f1bf9a38be3048fef7b528175d515241cbe7867",
+      "review_date": "2026-10-01",
+      "reason": "Exact main skill-charm equipment-table entry, native tree/suffix and linked planner witness; preserve class and same-charm modifier conditions. Perfect planner values do not replace native attainable suffix minimums.",
+      "pattern_kind": "native_skill_grand_charm",
+      "pattern_label": "Fungal Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__poison-nova-necromancer.html",
+        "sha256": "d21a71304eea3a6be5152f97f3cee40e1c008315b20ec2b6e5d51a7cb086c0c8"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/fw0106lo.json",
+        "sha256": "2dfbc0c05eb34666ce01d22500b81410e072375791c30062da150d46e0edc097"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 455,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "305d1691bdcd07159dd87f34",
+      "occurrence_fingerprint": "ffffdf75a8969f760aa8d5e0e32e888d33dba8bfbae35f0b3d06c9df3bff6b9a",
+      "profile_id": "double-throw-barbarian-guide-main-sharp-vita",
+      "profile_fingerprint": "fd4d6bfd423f3341cb56d2c2833976edd5241da3f571eb69acc59bdecdce4b19",
+      "use_fingerprint": "6d29d3c4d805ba8db7e33aa5e8011a4d4b43bd9a188a5023e3cbb496b8500a75",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "073f894934b0464b159acc28",
+      "occurrence_fingerprint": "8708cf80776c9d622c16130fe7a7c6c38638bf0f66d530714e717fe7c9d41a95",
+      "profile_id": "double-throw-barbarian-guide-main-sharp-balance",
+      "profile_fingerprint": "6546a774c40f6378d962baedc45cc7b8cdb73b57f64712446d4bbfc943728872",
+      "use_fingerprint": "5d9595af48520011c51ad85e6b67dc5bdc0f002b7a273e85aaba691c1dbd8907",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "f45f75511ebc13ec97cd377d",
+      "occurrence_fingerprint": "f7eb3b95449e1b9c7be050813b53ff8c8d9375fdf9bd848d34ef7a8ecbf4e338",
+      "profile_id": "double-throw-barbarian-guide-main-sharp-inertia",
+      "profile_fingerprint": "3673dfeada80ea18610c3bf1b54b3e755a4e1064a31b1f95c427da9a52d571d1",
+      "use_fingerprint": "7d4144275837495350163071058985320cc52e4ecf7a049d935ab07d770feb8d",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Inertia",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        399
+      ]
+    },
+    {
+      "occurrence_id": "7d6ff38ac949bfe66bc2fd0d",
+      "occurrence_fingerprint": "1c36171d9b42bac82d3c4fd6e4706ab9a13d953f9db035e38257fb8a3e9442c5",
+      "profile_id": "double-throw-barbarian-guide-main-sharp-plain",
+      "profile_fingerprint": "63ccaa9c5a03c5a5689e5bb77a1e58ae36e2141e4493f964422d9cee8457d99d",
+      "use_fingerprint": "d1848d7216184e5bb0048a253896424ff650143d88445acfd7b6ee4a507b84ae",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "619bc91aeec6790fdeba3c53",
+      "occurrence_fingerprint": "0574bde95c349b9049359dddfb80f978b9b41cfaf367f2c90d1e4e740b590100",
+      "profile_id": "berserk-barbarian-main-sharp-vita",
+      "profile_fingerprint": "1f0a3d12dff80bdc511c9b52f6381d11508db425f75a295a42e0b7f5ed622aec",
+      "use_fingerprint": "5e6f0046fae96039274e06d969d2af215639d9e348dfa7c50ee8bd6fd148c6a8",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__berserk-barbarian.html",
+        "sha256": "365309b50167b15e5c4e4b1c2a35fb6fafd729403db28ebc1cb23e4be5ca9ecb"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/rk0106ln.json",
+        "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "b063a69eb487918971b9a9cd",
+      "occurrence_fingerprint": "273625e7050e1af7205c386ff1b211168f811e8567c2cfbcdc13b3c0c763771f",
+      "profile_id": "berserk-barbarian-main-sharp-balance",
+      "profile_fingerprint": "96d8d93480dd0cc387257cd844b714099bbe69bcd9344bd86292b6b5a9984d03",
+      "use_fingerprint": "2e1b09b424145d514c88453ee3dbfde471f5a15b471d6458b83e64a740bc70d3",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__berserk-barbarian.html",
+        "sha256": "365309b50167b15e5c4e4b1c2a35fb6fafd729403db28ebc1cb23e4be5ca9ecb"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/rk0106ln.json",
+        "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "1c40f7111a10601185dd2d11",
+      "occurrence_fingerprint": "ef34d686f4aa5ccafc7b406935f0134996876267a55614534c6a9bd1e7a8e42c",
+      "profile_id": "berserk-barbarian-main-sharp-plain",
+      "profile_fingerprint": "614c5e462f79c9f5d6cbac82f9d9396caf77bd2db0271908b47248165e9e1d63",
+      "use_fingerprint": "5ca434a4b24d6fd6ce6ee4811b9ebd95cc7124abf15dafe54c906bd8fec76628",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm",
+      "guide": {
+        "path": "pricing/raw/mr/guides__berserk-barbarian.html",
+        "sha256": "365309b50167b15e5c4e4b1c2a35fb6fafd729403db28ebc1cb23e4be5ca9ecb"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/rk0106ln.json",
+        "sha256": "e8fe8888da508b21f0e9a61065017c3360762bcb65faeb1a3b6f156a07eb0e6f"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": []
+    },
+    {
+      "occurrence_id": "c19b47dfec9ba2fb9ad21323",
+      "occurrence_fingerprint": "5d6affae9c901926c3c10feb70672b5a12405cafde2a823085f4680872279622",
+      "profile_id": "dream-paladin-main-sharp-vita",
+      "profile_fingerprint": "85f23874054b7766d7c7128ca3689cf6fae9cfd5a5e6541b96a07d505f829c8c",
+      "use_fingerprint": "8db03219e74a6c5d1be49cce38093fc39133a23edb9a447112ac69e2de299e7f",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Vita",
+      "guide": {
+        "path": "pricing/raw/mr/guides__dream-paladin.html",
+        "sha256": "0f7f0079b7f795b581a0c43f00153ca60c86c7d44b12ee3b1d72e6437d5eddf6"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/zb01066h.json",
+        "sha256": "449e7612d71c08ca65f4f4ef5eb285a5b95d97c827646f329c47a7c589de5018"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        338,
+        339
+      ]
+    },
+    {
+      "occurrence_id": "dc8eab79142da53122a84b83",
+      "occurrence_fingerprint": "743f1f243f9bb931c59e10a23df2ef89bed700dffb381b7b93067cd3264cb4fe",
+      "profile_id": "dream-paladin-main-sharp-balance",
+      "profile_fingerprint": "368b987c819e34495ba0159ab17d3adab3e314a0c0260c2a3b77861445e69bc7",
+      "use_fingerprint": "6330a5b30e028bdb2f19c3d16ebf064c651a5f678328f0dbe794ed6a7dd3a875",
+      "review_date": "2026-10-01",
+      "reason": "Exact Sharp grand-charm equipment entry, native damage/AR pair and suffix, checked against linked planner. Native minimum rolls qualify; perfect planner values are not mandatory.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Balance",
+      "guide": {
+        "path": "pricing/raw/mr/guides__dream-paladin.html",
+        "sha256": "0f7f0079b7f795b581a0c43f00153ca60c86c7d44b12ee3b1d72e6437d5eddf6"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/zb01066h.json",
+        "sha256": "449e7612d71c08ca65f4f4ef5eb285a5b95d97c827646f329c47a7c589de5018"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        265
+      ]
+    },
+    {
+      "occurrence_id": "a8d8405d325100bce3b14ca6",
+      "occurrence_fingerprint": "5efa5997bb3a550c651d1ff95a3e4bde69e89d3e42b75741468d9d35e301ee63",
+      "profile_id": "double-throw-barbarian-guide-main-sharp-maiming",
+      "profile_fingerprint": "c67fa2eeb69e20e40533b81b5054711745dafd7d90768d81c8966f09db3e9f81",
+      "use_fingerprint": "e3d576113571cebe8c91c6f4a018558cb52b0242cf00e279472cdddfa19b6d3d",
+      "review_date": "2026-10-01",
+      "reason": "Exact main Charms Maiming option, native additive damage and planner item62. Native affix guards distinguish plain Sharp with the same10 damage; perfect14 damage is optional.",
+      "pattern_kind": "native_sharp_grand_charm",
+      "pattern_label": "Sharp Grand Charm of Maiming",
+      "guide": {
+        "path": "pricing/raw/mr/guides__double-throw-barbarian-guide.html",
+        "sha256": "ac494c96d7e6bcb7af454eead251eb26c55825e472ad78548dea922e494022dd"
+      },
+      "cache": {
+        "path": "pricing/data/appraisal-guide-sections.json",
+        "sha256": "ab48445315bbbe23dd97d7b120ce0c3971eb25e6151c4b3f34ec28f82c9d251c"
+      },
+      "planner": {
+        "path": "pricing/raw/mr/planners/db0106mf.json",
+        "sha256": "0b71f19d6d959327ab9ff78873e5e2ddec4ab96d2f64d1314a72def2ee1830a8"
+      },
+      "prefixes": {
+        "path": "third-parties/d2data/json/magicprefix.json",
+        "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+      },
+      "prefix_id": 253,
+      "suffixes": {
+        "path": "third-parties/d2data/json/magicsuffix.json",
+        "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+      },
+      "suffix_ids": [
+        678
+      ]
     }
   ]
 }

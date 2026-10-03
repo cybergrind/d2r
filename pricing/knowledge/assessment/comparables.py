@@ -3,7 +3,10 @@
 from collections import Counter
 from datetime import UTC, date, datetime
 
+from pricing.knowledge.assessment.mechanics.market_named_defense import with_variant_evidence
 from pricing.knowledge.assessment.mechanics.sunder import listing_penalties
+from pricing.knowledge.assessment.mechanics.variable_triggers import listing_level_gaps
+from pricing.knowledge.assessment.mechanics.wisp import listing_absorb
 from pricing.knowledge.assessment.observations import superseded_rows
 from pricing.knowledge.assessment.property_equivalence import canonical_properties
 from pricing.knowledge.market import scope_status, summarize, valid_positive
@@ -21,10 +24,14 @@ MAX_AGE_DAYS = 30  # Conservative publication default; disclosed, not a market f
 MAX_DISPERSION = 5
 
 
-def reject_reasons(contract, row):
+def reject_reasons(contract, row, *, lot_quantity=1):
     if not contract:
         return ['No supported, complete item comparison contract.']
+    if lot_quantity != 1 and contract.get('policy') != 'socket_material':
+        return ['Bulk comparison requires a normalized rune/gem lot.']
     reasons = list(row.get('mechanics_conflicts', []))
+    if contract.get('trigger_levels'):
+        reasons.extend(listing_level_gaps(contract['trigger_levels'], contract['properties'], row))
     properties = {str(k): v for k, v in row.get('properties', {}).items()}
     if row.get('scope_status') != 'verified' or (
         SCOPE_PROPERTIES & properties.keys() and scope_status(properties) != 'verified'
@@ -71,7 +78,7 @@ def reject_reasons(contract, row):
         contract['policy'] == 'named'
         and type(properties.get('1216')) is bool
         and row.get('base_upgrade') is properties['1216']
-        and row.get('facet_basis', {}).get('base_code', {}).get('kind') == 'named_base_tier'
+        and row.get('facet_basis', {}).get('base_code', {}).get('kind') in ('named_base_tier', 'reviewed_named_defense')
     ):
         envelope = envelope | {'1216'}
     if '930' in properties:
@@ -83,6 +90,7 @@ def reject_reasons(contract, row):
     modifiers = {k: v for k, v in properties.items() if k not in envelope}
     try:
         expected_properties = canonical_properties(contract['properties'])
+        modifiers = listing_absorb(contract, row, modifiers)
         modifiers = canonical_properties(listing_penalties(contract, row, modifiers))
         if contract['policy'] in ('runeword', 'named'):
             intrinsic = canonical_properties(contract.get('intrinsic_properties', {}))
@@ -98,29 +106,38 @@ def reject_reasons(contract, row):
     if row.get('evidence_kind') != 'ask':
         reasons.append('Observation is not a normalized ask.')
     single_unit = row.get('unit_policy') == 'single_item'
+    if contract['policy'] == 'named' and 'amount' in row:
+        single_unit = single_unit and type(row['amount']) is int and row['amount'] == 1
     if contract['policy'] == 'socket_material':
         single_unit = (
             row.get('unit_policy') in ('single_item', 'stack_total')
             and type(row.get('amount')) is int
-            and row['amount'] == 1
+            and row['amount'] == lot_quantity
         )
-    if contract['policy'] in ('consumable', 'supply'):
+        if lot_quantity != 1 and row.get('unit_policy') != 'stack_total':
+            single_unit = False
+    elif lot_quantity != 1:
+        single_unit = False
+    if contract['policy'] in ('consumable', 'supply', 'quest_material'):
         single_unit = single_unit and type(row.get('amount')) is int and row['amount'] == 1
     if not single_unit or not row.get('seller_id') or not valid_positive(row.get('ask_ist')):
         reasons.append('Ambiguous unit, missing seller or invalid price.')
     return reasons
 
 
-def evaluate(contract, rows):
+def evaluate(contract, rows, *, lot_quantity=1):
+    if type(lot_quantity) is not int or lot_quantity < 1:
+        raise ValueError('Lot quantity must be a positive integer.')
     accepted, rejected = [], []
     seen = set()
     rows = list(rows)
     superseded = superseded_rows(rows)
     for index, row in enumerate(rows):
+        row = with_variant_evidence(contract, row)
         reasons = (
             ['Listing snapshot superseded by a later observation.']
             if index in superseded
-            else reject_reasons(contract, row)
+            else reject_reasons(contract, row, lot_quantity=lot_quantity)
         )
         identity = (row.get('listing_id'), row.get('observed_at'))
         if row.get('listing_id') and identity in seen:

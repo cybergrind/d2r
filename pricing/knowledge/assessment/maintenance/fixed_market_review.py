@@ -59,7 +59,7 @@ class FixedMarketReview:
         rows = []
         for code, native in sorted(self.definitions().items()):
             contract = self.template_contract(code, native)
-            candidates = grouped[normalize_name(native['name'])]
+            candidates = grouped[normalize_name(contract['name'])]
             compared = evaluate(contract, candidates)
             price = price_from_comparables(compared, today=as_of)
             if price.get('unavailable_reason') == 'unclassified':
@@ -87,7 +87,7 @@ class FixedMarketReview:
 
     def review_inputs(self, root, observations):
         paths = set(self.inputs)
-        names = {normalize_name(row['name']) for row in self.definitions().values()}
+        names = {normalize_name(row.get('market_name', row['name'])) for row in self.definitions().values()}
         sources = {row.get('source') for row in observations if normalize_name(row.get('name')) in names}
         manifest = json.loads((root / 'pricing/data/appraisal-market-manifest.json').read_text())
         for source in sources:

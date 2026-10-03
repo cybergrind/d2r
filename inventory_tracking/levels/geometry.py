@@ -52,7 +52,7 @@ class Pointer:
 
 def pointer(poi: Poi, location: Location) -> Pointer:
     room = poi.room
-    cx, cy = room.center
+    cx, cy = poi.point
     tx, ty = location.x / TILE_UNITS, location.y / TILE_UNITS
     here = room.x <= tx < room.x + room.width and room.y <= ty < room.y + room.height
     return Pointer(poi.label, room, cx - location.x, cy - location.y, here, poi.kind)

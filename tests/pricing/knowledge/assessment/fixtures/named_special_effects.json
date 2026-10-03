@@ -1,0 +1,1722 @@
+{
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260927T181819Z-8114d888/capture.json",
+      "sha256": "279ada326832c616853e066521603c69ab0b1348521aacf67d7243b237f08ba1",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195450Z-e585b44e/capture.json",
+      "sha256": "a7a037038a57483f4b8a1cc807c63f1d1d51a264af8e7d50bcf9896135d20d4f",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T210219Z-f5789919/capture.json",
+      "sha256": "2dd18b8d6757fb6d68d6a7adb0a45a87298fb85b04472f648b2bf2feea11186c",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195822Z-6d6a3a75/capture.json",
+      "sha256": "e8049f4efc0781c482010bfae0e87d63369836792068d942016287350701673c"
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20261002T180804Z-bbf88d5f/capture.json",
+      "sha256": "ae9d9fc7ebb633c32b3a68eaaf7b841e03acc5e603884a4e5ff4011109658221"
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "798493ce87b621b69e9bfbff12b6c661b4ad8a4bfb4273965ec41588aec3a7ca",
+      "name": "Gorefoot",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 107:132.",
+        "No verified market mapping for native stat 140:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Gorefoot",
+          "base_name": "Heavy Boots",
+          "base_code": "vbt",
+          "item_type": "boot",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "463",
+              "value": 2,
+              "label": "{{value}}% Mana stolen per hit",
+              "memory_stat": {
+                "layer": 0,
+                "id": 62,
+                "raw": 2
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "415",
+              "value": 2,
+              "label": "Attacker Takes Damage of {{value}}",
+              "memory_stat": {
+                "layer": 0,
+                "id": 78,
+                "raw": 2
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "480",
+              "value": 20,
+              "label": "+{{value}}% Faster Run/Walk",
+              "memory_stat": {
+                "layer": 0,
+                "id": 96,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 22,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 22
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 634659445,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 108,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 861972152,
+          "owner_id": 634659445,
+          "owner_type": 0,
+          "item_owner_id": 634659445,
+          "player_id": 634659445,
+          "position": [
+            8,
+            0
+          ],
+          "run_id": "20260927T181819Z-8114d888",
+          "captured_at": "2026-09-27T18:18:19.490961+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 20",
+            "value": 20
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 62,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "manadrainmindam",
+            "text": "2% Mana stolen per hit",
+            "value": 2,
+            "label": "{{value}}% Mana stolen per hit"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 10",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 14
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 14",
+            "value": 14
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 78,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_attackertakesdamage",
+            "text": "Attacker Takes Damage of 2",
+            "value": 2,
+            "label": "Attacker Takes Damage of {{value}}"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 96,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_fastermovevelocity",
+            "text": "+20% Faster Run/Walk",
+            "value": 20,
+            "label": "+{{value}}% Faster Run/Walk"
+          },
+          {
+            "memory_stat": {
+              "layer": 132,
+              "id": 107,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_singleskill",
+            "text": "+2 to Leap (Barbarian Only)",
+            "value": 2,
+            "range_label": "+{{value}} to Leap (Barbarian Only)"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 140,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "item_extrablood",
+            "text": "Extra blood visual effect: 4",
+            "value": 4,
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 22
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+22% (20-30%) Enhanced Defense",
+            "value": 22,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 20,
+              "max": 30,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "c14c2905f7393221200a50195c8b9d42d5bdd3112c7a03fd6b59b07fd2c5b2cc",
+      "name": "Tomb Reaver",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 155:1."
+      ],
+      "observation": {
+        "item": {
+          "name": "Tomb Reaver",
+          "base_name": "Cryptic Axe",
+          "base_code": "7pa",
+          "item_type": "pole",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "427",
+              "value": 42,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 42
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 42,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 42
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 42,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 42
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 42,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 42
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "461",
+              "value": 70,
+              "label": "{{value}}% Better Chance of Getting Magic Items",
+              "memory_stat": {
+                "layer": 0,
+                "id": 80,
+                "raw": 70
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "721",
+              "value": 11,
+              "label": "+{{value}} Life after each Kill",
+              "memory_stat": {
+                "layer": 0,
+                "id": 86,
+                "raw": 11
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "422",
+              "value": 4,
+              "label": "+{{value}} to Light Radius",
+              "memory_stat": {
+                "layer": 0,
+                "id": 89,
+                "raw": 4
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 60,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 60
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "538",
+              "value": 150,
+              "label": "+{{value}}% Damage to Undead",
+              "memory_stat": {
+                "layer": 0,
+                "id": 122,
+                "raw": 150
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "537",
+              "value": 317,
+              "label": "+{{value}} to Attack Rating against Undead",
+              "memory_stat": {
+                "layer": 0,
+                "id": 124,
+                "raw": 317
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 220,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 220
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 220
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 3,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 3,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144134977,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 298,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 576730785,
+          "owner_id": 3144134977,
+          "owner_type": 0,
+          "item_owner_id": 3144134977,
+          "player_id": 3144134977,
+          "position": [
+            2,
+            4
+          ],
+          "run_id": "20260930T195450Z-e585b44e",
+          "captured_at": "2026-09-30T19:54:51.096490+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 105
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 105",
+            "value": 105
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 480
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 480",
+            "value": 480
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +42% (30-50%)",
+            "value": 42,
+            "label": "Fire Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 39,
+              "min": 30,
+              "max": 50,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +42% (30-50%)",
+            "value": 42,
+            "label": "Lightning Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 41,
+              "min": 30,
+              "max": 50,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +42% (30-50%)",
+            "value": 42,
+            "label": "Cold Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 43,
+              "min": 30,
+              "max": 50,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +42% (30-50%)",
+            "value": 42,
+            "label": "Poison Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 45,
+              "min": 30,
+              "max": 50,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 44
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 44",
+            "value": 44
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 65
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 65",
+            "value": 65
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 80,
+              "raw": 70
+            },
+            "status": "decoded",
+            "name": "item_magicbonus",
+            "text": "70% (50-80%) Better Chance of Getting Magic Items",
+            "value": 70,
+            "label": "{{value}}% Better Chance of Getting Magic Items",
+            "roll_range": {
+              "stat_id": 80,
+              "min": 50,
+              "max": 80,
+              "property": "mag%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 86,
+              "raw": 11
+            },
+            "status": "decoded",
+            "name": "item_healafterkill",
+            "text": "+11 (10-14) Life after each Kill",
+            "value": 11,
+            "label": "+{{value}} Life after each Kill",
+            "roll_range": {
+              "stat_id": 86,
+              "min": 10,
+              "max": 14,
+              "property": "heal-kill",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 89,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "item_lightradius",
+            "text": "+4 to Light Radius",
+            "value": 4,
+            "label": "+{{value}} to Light Radius"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 60
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+60% Increased Attack Speed",
+            "value": 60,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 122,
+              "raw": 150
+            },
+            "status": "decoded",
+            "name": "item_undeaddamage_percent",
+            "text": "+150% (150-230%) Damage to Undead",
+            "value": 150,
+            "label": "+{{value}}% Damage to Undead",
+            "roll_range": {
+              "stat_id": 122,
+              "min": 150,
+              "max": 230,
+              "property": "dmg-undead",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 124,
+              "raw": 317
+            },
+            "status": "decoded",
+            "name": "item_undead_tohit",
+            "text": "+317 (250-350) to Attack Rating against Undead",
+            "value": 317,
+            "label": "+{{value}} to Attack Rating against Undead",
+            "roll_range": {
+              "stat_id": 124,
+              "min": 250,
+              "max": 350,
+              "property": "att-undead",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 1,
+              "id": 155,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "item_reanimate",
+            "text": "10% Reanimate as: Returned",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 194,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_numsockets",
+            "text": "Sockets: 3 (1-3) \u2014 3 empty",
+            "value": 3,
+            "roll_range": {
+              "stat_id": 194,
+              "min": 1,
+              "max": 3,
+              "property": "sock",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "perfect",
+            "socket_source": "complete_child_scan"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 220,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+220% (200-280%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 220
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 220
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 200,
+              "max": 280,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "c14d7f34dec04ddf7a4f6ed9d2e17dea14d642ed2aab56212ca7dd10a48a80bf",
+      "name": "M'avina's Caster",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 157:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "M'avina's Caster",
+          "set_name": "M'avina's Battle Hymn",
+          "base_name": "Grand Matron Bow",
+          "base_code": "amc",
+          "item_type": "abow",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "set",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "423",
+              "value": 50,
+              "label": "+{{value}} to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 19,
+                "raw": 50
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 40,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 40
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 188,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 188
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 188
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2782902488,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "set",
+            "table_id": 94,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 167149914,
+          "owner_id": 2782902488,
+          "owner_type": 0,
+          "item_owner_id": 2782902488,
+          "player_id": 2782902488,
+          "position": [
+            4,
+            0
+          ],
+          "run_id": "20260930T210219Z-f5789919",
+          "captured_at": "2026-09-30T21:02:20.246772+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 19,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "tohit",
+            "text": "+50 to Attack Rating",
+            "value": 50,
+            "label": "+{{value}} to Attack Rating"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 40",
+            "value": 40
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 207
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 207",
+            "value": 207
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 37
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 37",
+            "value": 37
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 55
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 55",
+            "value": 55
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+40% Increased Attack Speed",
+            "value": 40,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 157,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_magicarrow",
+            "text": "Fires Magic Arrows (Level 1)",
+            "value": 1,
+            "label": "Fires Magic Arrows"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 188,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+188% Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 188
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 188
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "a164524cc36ec8fa7515aa5e3ba19ae574a82b5fc15b215a872e86d4c74379ad",
+      "name": "Hellcast",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "label": "+{{value}} to Attack Rating",
+            "memory_stat": {
+              "id": 19,
+              "layer": 0,
+              "raw": 70
+            },
+            "name": "tohit",
+            "status": "decoded",
+            "text": "+70 to Attack Rating",
+            "value": 70
+          },
+          {
+            "memory_stat": {
+              "id": 23,
+              "layer": 0,
+              "raw": 24
+            },
+            "name": "secondary_mindamage",
+            "status": "decoded",
+            "text": "Secondary minimum damage: 24",
+            "value": 24
+          },
+          {
+            "memory_stat": {
+              "id": 24,
+              "layer": 0,
+              "raw": 44
+            },
+            "name": "secondary_maxdamage",
+            "status": "decoded",
+            "text": "Secondary maximum damage: 44",
+            "value": 44
+          },
+          {
+            "label": "Fire Resist +{{value}}%",
+            "memory_stat": {
+              "id": 39,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "fireresist",
+            "status": "decoded",
+            "text": "Fire Resist +15%",
+            "value": 15
+          },
+          {
+            "label": "+{{value}}% to Maximum Fire Resist",
+            "memory_stat": {
+              "id": 40,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "maxfireresist",
+            "status": "decoded",
+            "text": "+15% to Maximum Fire Resist",
+            "value": 15
+          },
+          {
+            "label": "+{{value}} to Minimum Fire Damage",
+            "memory_stat": {
+              "id": 48,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "firemindam",
+            "status": "decoded",
+            "text": "+15 to Minimum Fire Damage",
+            "value": 15
+          },
+          {
+            "label": "+{{value}} to Maximum Fire Damage",
+            "memory_stat": {
+              "id": 49,
+              "layer": 0,
+              "raw": 35
+            },
+            "name": "firemaxdam",
+            "status": "decoded",
+            "text": "+35 to Maximum Fire Damage",
+            "value": 35
+          },
+          {
+            "memory_stat": {
+              "id": 68,
+              "layer": 0,
+              "raw": -10
+            },
+            "name": "attackrate",
+            "status": "decoded",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "id": 72,
+              "layer": 0,
+              "raw": 31
+            },
+            "name": "durability",
+            "status": "decoded",
+            "text": "Durability: 31",
+            "value": 31
+          },
+          {
+            "memory_stat": {
+              "id": 73,
+              "layer": 0,
+              "raw": 50
+            },
+            "name": "maxdurability",
+            "status": "decoded",
+            "text": "Maximum durability: 50",
+            "value": 50
+          },
+          {
+            "label": "+{{value}}% Increased Attack Speed",
+            "memory_stat": {
+              "id": 93,
+              "layer": 0,
+              "raw": 20
+            },
+            "name": "item_fasterattackrate",
+            "status": "decoded",
+            "text": "+20% Increased Attack Speed",
+            "value": 20
+          },
+          {
+            "label": "Fires Explosive Arrows or Bolts",
+            "memory_stat": {
+              "id": 158,
+              "layer": 0,
+              "raw": 5
+            },
+            "name": "item_explosivearrow",
+            "status": "decoded",
+            "text": "Fires Explosive Arrows or Bolts (Level 5)",
+            "value": 5
+          },
+          {
+            "label": "+{{value}}% Enhanced Damage",
+            "memory_stats": [
+              {
+                "id": 17,
+                "layer": 0,
+                "raw": 73
+              },
+              {
+                "id": 18,
+                "layer": 0,
+                "raw": 73
+              }
+            ],
+            "modifier_head_offset": 208,
+            "name": "item_damage_percent",
+            "origin": "owned_modifier_list",
+            "roll_quality": "normal",
+            "roll_range": {
+              "better": "higher",
+              "max": 80,
+              "min": 70,
+              "property": "dmg%",
+              "scope": "item definition; not proof of contribution split",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "stat_id": 17
+            },
+            "status": "decoded",
+            "text": "+73% (70-80%) Enhanced Damage",
+            "value": 73
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Attack Rating",
+              "memory_stat": {
+                "id": 19,
+                "layer": 0,
+                "raw": 70
+              },
+              "property_id": "423",
+              "value": 70
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "id": 39,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "427",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}}% to Maximum Fire Resist",
+              "memory_stat": {
+                "id": 40,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "594",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "id": 48,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "458",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "id": 49,
+                "layer": 0,
+                "raw": 35
+              },
+              "property_id": "459",
+              "value": 35
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "id": 93,
+                "layer": 0,
+                "raw": 20
+              },
+              "property_id": "457",
+              "value": 20
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "Fires Explosive Arrows or Bolts",
+              "memory_stat": {
+                "id": 158,
+                "layer": 0,
+                "raw": 5
+              },
+              "property_id": "607",
+              "value": 5
+            },
+            {
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "id": 17,
+                  "layer": 0,
+                  "raw": 73
+                },
+                {
+                  "id": 18,
+                  "layer": 0,
+                  "raw": 73
+                }
+              ],
+              "modifier_head_offset": 208,
+              "origin": "owned_modifier_list",
+              "property_id": "510",
+              "value": 73
+            }
+          ],
+          "base_code": "hxb",
+          "base_name": "Heavy Crossbow",
+          "category": "weapons",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "xbow",
+          "name": "Hellcast",
+          "rarity": "unique",
+          "requirements": {},
+          "socket_contents": "empty",
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-09-30T19:58:23.004930+00:00",
+          "container": {
+            "name": "Main inventory",
+            "page": 0
+          },
+          "engine": "memory_snapshot",
+          "item_identity": {
+            "offset": 52,
+            "table": "unique",
+            "table_id": 69
+          },
+          "item_owner_id": 2778214828,
+          "owner_id": 2778214828,
+          "owner_type": 0,
+          "player_id": 2778214828,
+          "position": [
+            8,
+            0
+          ],
+          "run_id": "20260930T195822Z-6d6a3a75",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "unit_id": 4112890920,
+          "viewer_context": {
+            "level": 1,
+            "player_id": 2778214828
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "cf1bcf118ace3a16a36de2c96fa545d647516a93b4b6eece9c24fd3b7fa231bc",
+      "name": "Hellcast",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "label": "+{{value}} to Attack Rating",
+            "memory_stat": {
+              "id": 19,
+              "layer": 0,
+              "raw": 70
+            },
+            "name": "tohit",
+            "status": "decoded",
+            "text": "+70 to Attack Rating",
+            "value": 70
+          },
+          {
+            "memory_stat": {
+              "id": 23,
+              "layer": 0,
+              "raw": 24
+            },
+            "name": "secondary_mindamage",
+            "status": "decoded",
+            "text": "Secondary minimum damage: 24",
+            "value": 24
+          },
+          {
+            "memory_stat": {
+              "id": 24,
+              "layer": 0,
+              "raw": 45
+            },
+            "name": "secondary_maxdamage",
+            "status": "decoded",
+            "text": "Secondary maximum damage: 45",
+            "value": 45
+          },
+          {
+            "label": "Fire Resist +{{value}}%",
+            "memory_stat": {
+              "id": 39,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "fireresist",
+            "status": "decoded",
+            "text": "Fire Resist +15%",
+            "value": 15
+          },
+          {
+            "label": "+{{value}}% to Maximum Fire Resist",
+            "memory_stat": {
+              "id": 40,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "maxfireresist",
+            "status": "decoded",
+            "text": "+15% to Maximum Fire Resist",
+            "value": 15
+          },
+          {
+            "label": "+{{value}} to Minimum Fire Damage",
+            "memory_stat": {
+              "id": 48,
+              "layer": 0,
+              "raw": 15
+            },
+            "name": "firemindam",
+            "status": "decoded",
+            "text": "+15 to Minimum Fire Damage",
+            "value": 15
+          },
+          {
+            "label": "+{{value}} to Maximum Fire Damage",
+            "memory_stat": {
+              "id": 49,
+              "layer": 0,
+              "raw": 35
+            },
+            "name": "firemaxdam",
+            "status": "decoded",
+            "text": "+35 to Maximum Fire Damage",
+            "value": 35
+          },
+          {
+            "memory_stat": {
+              "id": 68,
+              "layer": 0,
+              "raw": -10
+            },
+            "name": "attackrate",
+            "status": "decoded",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "id": 72,
+              "layer": 0,
+              "raw": 32
+            },
+            "name": "durability",
+            "status": "decoded",
+            "text": "Durability: 32",
+            "value": 32
+          },
+          {
+            "memory_stat": {
+              "id": 73,
+              "layer": 0,
+              "raw": 50
+            },
+            "name": "maxdurability",
+            "status": "decoded",
+            "text": "Maximum durability: 50",
+            "value": 50
+          },
+          {
+            "label": "+{{value}}% Increased Attack Speed",
+            "memory_stat": {
+              "id": 93,
+              "layer": 0,
+              "raw": 20
+            },
+            "name": "item_fasterattackrate",
+            "status": "decoded",
+            "text": "+20% Increased Attack Speed",
+            "value": 20
+          },
+          {
+            "label": "Fires Explosive Arrows or Bolts",
+            "memory_stat": {
+              "id": 158,
+              "layer": 0,
+              "raw": 5
+            },
+            "name": "item_explosivearrow",
+            "status": "decoded",
+            "text": "Fires Explosive Arrows or Bolts (Level 5)",
+            "value": 5
+          },
+          {
+            "label": "+{{value}}% Enhanced Damage",
+            "memory_stats": [
+              {
+                "id": 17,
+                "layer": 0,
+                "raw": 76
+              },
+              {
+                "id": 18,
+                "layer": 0,
+                "raw": 76
+              }
+            ],
+            "modifier_head_offset": 208,
+            "name": "item_damage_percent",
+            "origin": "owned_modifier_list",
+            "roll_quality": "normal",
+            "roll_range": {
+              "better": "higher",
+              "max": 80,
+              "min": 70,
+              "property": "dmg%",
+              "scope": "item definition; not proof of contribution split",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "stat_id": 17
+            },
+            "status": "decoded",
+            "text": "+76% (70-80%) Enhanced Damage",
+            "value": 76
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Attack Rating",
+              "memory_stat": {
+                "id": 19,
+                "layer": 0,
+                "raw": 70
+              },
+              "property_id": "423",
+              "value": 70
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "id": 39,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "427",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}}% to Maximum Fire Resist",
+              "memory_stat": {
+                "id": 40,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "594",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "id": 48,
+                "layer": 0,
+                "raw": 15
+              },
+              "property_id": "458",
+              "value": 15
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "id": 49,
+                "layer": 0,
+                "raw": 35
+              },
+              "property_id": "459",
+              "value": 35
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "id": 93,
+                "layer": 0,
+                "raw": 20
+              },
+              "property_id": "457",
+              "value": 20
+            },
+            {
+              "descriptor_offset": 232,
+              "label": "Fires Explosive Arrows or Bolts",
+              "memory_stat": {
+                "id": 158,
+                "layer": 0,
+                "raw": 5
+              },
+              "property_id": "607",
+              "value": 5
+            },
+            {
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "id": 17,
+                  "layer": 0,
+                  "raw": 76
+                },
+                {
+                  "id": 18,
+                  "layer": 0,
+                  "raw": 76
+                }
+              ],
+              "modifier_head_offset": 208,
+              "origin": "owned_modifier_list",
+              "property_id": "510",
+              "value": 76
+            }
+          ],
+          "base_code": "hxb",
+          "base_name": "Heavy Crossbow",
+          "category": "weapons",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "xbow",
+          "name": "Hellcast",
+          "rarity": "unique",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Shared stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_identity": {
+            "offset": 52,
+            "table": "unique",
+            "table_id": 69
+          },
+          "item_owner_id": 2045686497,
+          "owner_id": 2045686497,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            8,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 3601402810,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    }
+  ]
+}

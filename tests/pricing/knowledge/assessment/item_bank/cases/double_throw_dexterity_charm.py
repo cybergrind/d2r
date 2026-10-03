@@ -58,7 +58,8 @@ def cases():
                 'pricing/data/wp-a-builds.json:/double-throw-barbarian-guide/slots/Charms/13',
                 'pricing/raw/mr/planners/db0106mf.json:/data/items/140',
                 'third-parties/d2data/json/magicprefix.json:/253',
-                'third-parties/d2data/json/magicsuffix.json:/255,/258',
+                'third-parties/d2data/json/magicsuffix.json:/255',
+                'third-parties/d2data/json/magicsuffix.json:/258',
             ),
         )
 

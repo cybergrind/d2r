@@ -7,6 +7,7 @@ import pytest
 from pricing.knowledge.assessment.maintenance.verification_scope import verification_inputs
 from pricing.knowledge.refresh import atomic_json
 from tests.pricing.knowledge.assessment.item_bank.receipts import RunReceipt
+from tests.pricing.knowledge.assessment.item_bank.trade_checks import trade_case
 
 
 RECEIPT = pytest.StashKey[RunReceipt]()
@@ -32,7 +33,17 @@ def pytest_collection_finish(session):
 
     session.config.stash[RECEIPT] = RunReceipt(
         {
-            case.id: {'covers': list(case.covers), 'scenario': case.scenario, 'evidence': list(case.evidence)}
+            case.id: {
+                'covers': list(case.covers),
+                'scenario': case.scenario,
+                'evidence': list(case.evidence),
+                **({'trade_case': trade_case(case)} if case.trade_checks is not None else {}),
+                **(
+                    {'quality': case.item.rarity, 'complete': case.item.complete, 'report_checks': case.report_checks}
+                    if case.report_checks is not None
+                    else {}
+                ),
+            }
             for case in CASES
         },
         verification_inputs(ROOT),
@@ -54,6 +65,7 @@ def pytest_runtest_makereport(item, call):
 def pytest_sessionfinish(session, exitstatus):
     receipt = session.config.stash.get(RECEIPT, None)
     if receipt is not None:
+        session.config.getoption('--item-bank-receipt').parent.mkdir(parents=True, exist_ok=True)
         atomic_json(
             session.config.getoption('--item-bank-receipt'), receipt.finish(exitstatus, verification_inputs(ROOT))
         )

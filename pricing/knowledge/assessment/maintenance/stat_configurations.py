@@ -29,7 +29,8 @@ def compile_stat_configurations(reviews, profiles, *, root=None):
                 raise ValueError('Changed stat source')
         date.fromisoformat(review['review_date'])
         advisory = review.get('advisory_conditions', [])
-        if not isinstance(advisory, list) or any(v not in role.get('conditions', ()) for v in advisory):
+        role_notes = [*role.get('conditions', ()), *role.get('advisory_conditions', ())]
+        if not isinstance(advisory, list) or any(v not in role_notes for v in advisory):
             raise ValueError('Advisory review must name exact role conditions')
         config = StatConfiguration(
             id=review['id'],

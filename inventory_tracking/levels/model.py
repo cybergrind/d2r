@@ -72,6 +72,14 @@ class Poi:
     label: str
     room: Room
     kind: str  # 'stairs' (next level) | 'previous' | 'waypoint' | 'target' (boss, chest)
+    spot: tuple[float, float] | None = None  # tiles: the warp itself (levels/spots.py); None = room centre
+
+    @property
+    def point(self) -> tuple[float, float]:
+        """Where the mark goes, in world units: the spot when known, else the room centre."""
+        if self.spot is None:
+            return self.room.center
+        return self.spot[0] * TILE_UNITS, self.spot[1] * TILE_UNITS
 
 
 @dataclass(frozen=True)

@@ -120,6 +120,24 @@ def cases():
             ('unread-recipe', 'unknown', replace(item, runeword=None), MIGHT),
             ('different-base', 'negative', replace(item, base='Mage Plate'), MIGHT),
         ]
+        if slug == 'treachery-mid':
+            rows.extend(
+                [
+                    ('low-quality', 'positive', replace(item, rarity='low_quality'), MIGHT),
+                    (
+                        'low-quality-wrong-merc',
+                        'negative',
+                        replace(item, rarity='low_quality'),
+                        {**MIGHT, 'mercenary_type': 'Act 5 Frenzy'},
+                    ),
+                    (
+                        'low-quality-unknown-merc',
+                        'unknown',
+                        replace(item, rarity='low_quality'),
+                        {'player_class': 'Paladin'},
+                    ),
+                ]
+            )
         if eth:
             rows.extend(
                 [

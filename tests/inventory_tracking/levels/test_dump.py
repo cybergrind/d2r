@@ -162,6 +162,20 @@ def test_stale_win_c_neither_shows_nor_dumps(tmp_path):
     assert guide.calls == 0
 
 
+def test_win_c_marks_the_terror_probe(tmp_path):
+    worker, _ = dumper(tmp_path, lambda *a: {'summary': SUMMARY})
+    marks = []
+
+    class Terror:
+        def mark(self, now):
+            marks.append(now)
+
+    assert appraisal_service.dispatch(b'level 10.0', 10.1, None, None, None, None, worker, None, Terror())
+    assert not appraisal_service.dispatch(b'level 10.0', 12.0, None, None, None, None, worker, None, Terror())
+
+    assert marks == [10.1]
+
+
 def test_headline_says_here_for_the_room_the_player_stands_in(tmp_path):
     def jail_1(pid, images, capture, rooms=False):
         snapshot = replay('jail_1')

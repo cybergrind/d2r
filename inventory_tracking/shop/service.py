@@ -27,11 +27,23 @@ HIT_SECONDS = 10  # OSD lease for a result with shopping targets
 QUIET_SECONDS = 5  # OSD lease for no-target results, status and failures
 
 
-def assess(record):
+def triage_stock(record):
+    from pricing.triage.runtime import shop_retrieve
+
+    return assess(record, retrieve=shop_retrieve)
+
+
+def assess(record, *, retrieve=None):
     observations, issues = decode_stock(record)
     hits = []
     for observation in observations:
-        reasons = match_item(observation)
+        triage = retrieve(observation).get('triage') if retrieve else None
+        if triage is not None:
+            from inventory_tracking.appraisal.triage import headline
+
+            reasons = [headline(triage)] if triage['verdict'] != 'vendor' else []
+        else:
+            reasons = match_item(observation)
         if reasons:
             hits.append(
                 {
@@ -40,6 +52,7 @@ def assess(record):
                     'position': observation['source']['position'],
                     'page': observation['source']['container']['page'],
                     'reasons': reasons,
+                    **({'triage': triage} if triage is not None else {}),
                 }
             )
         if observation.get('unresolved_stats'):
@@ -78,7 +91,10 @@ def result_lines(result):
             x, y = hit['position']
             position = f'({x + 1}, {y + 1})' if isinstance(x, int) and isinstance(y, int) else 'unknown cell'
             lines.append(StyledLine(f'{hit["vendor"]}: {hit["name"]} — tab {hit["page"] + 1}, {position}', Tone.MAGIC))
-            lines.append(StyledLine('; '.join(hit['reasons'][:3]), Tone.PREFERRED))
+            from inventory_tracking.appraisal.triage import TONES
+
+            tone = TONES[hit['triage']['verdict']] if 'triage' in hit else Tone.PREFERRED
+            lines.append(StyledLine('; '.join(hit['reasons'][:3]), tone))
         if len(hits) > 6:
             lines.append(StyledLine(f'+{len(hits) - 6} more; full list in shop-latest.json'))
     elif result['issues']:

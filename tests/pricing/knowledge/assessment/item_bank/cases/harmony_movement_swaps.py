@@ -75,7 +75,8 @@ def cases():
                     evidence=(
                         f'pricing/data/wp-a-builds.json:/{build}/slots/Weapon-Swap/{slot}',
                         'third-parties/d2data/json/runes.json:/Harmony',
-                        'third-parties/d2data/json/weapons.json:/6hb,/6hx',
+                        'third-parties/d2data/json/weapons.json:/6hb',
+                        'third-parties/d2data/json/weapons.json:/6hx',
                     ),
                 )
 

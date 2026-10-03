@@ -69,6 +69,7 @@ def cases():
             ('unread-ethereal', replace(item, ethereal=None), 'unknown'),
         ):
             reviewed = candidate.identified and candidate.ethereal is not True
+            specimen_tier = 'med' if name == "Trang-Oul's Girth" and label == 'intrinsic' else tier
             yield Case(
                 id=f'remaining-named-set/{name}/{label}',
                 item=candidate,
@@ -76,10 +77,12 @@ def cases():
                 scenario=scenario,
                 covers=('named:set:' + name,),
                 expected={
-                    'assessment': IsPartialDict(trade_tier=IsPartialDict(tier=tier if reviewed else None)),
+                    'assessment': IsPartialDict(trade_tier=IsPartialDict(tier=specimen_tier if reviewed else None)),
                     'price_estimate': IsPartialDict(estimate_ist=None),
                 },
-                report_contains=(name, 'Trade tier: ' + tier, *snippets) if reviewed else (name,),
+                report_contains=(name, 'Trade tier: ' + ('mid' if specimen_tier == 'med' else specimen_tier), *snippets)
+                if reviewed
+                else (name,),
                 report_absent=(('Trade tier:',) if not reviewed else ())
                 + (('10% Faster Cast Rate',) if name == "Tal Rasha's Adjudication" else ()),
                 evidence=(

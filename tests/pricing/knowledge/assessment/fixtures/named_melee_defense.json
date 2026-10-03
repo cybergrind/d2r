@@ -1,0 +1,1505 @@
+{
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260925T132342Z-e2e4cbf7/capture.json",
+      "sha256": "5ea0ddf85cd93c97f64689679cf8bc421b008f1fc596bd9b87d6e10032090532",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195410Z-a0c89e94/capture.json",
+      "sha256": "c1f0f838fac7181e29a18c3aec97a0ea6a04b10f8042b189a6fa109a58a645bd",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195450Z-e585b44e/capture.json",
+      "sha256": "a7a037038a57483f4b8a1cc807c63f1d1d51a264af8e7d50bcf9896135d20d4f",
+      "issues": []
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "6077ac25fa90fd869669908a8bfbb39883139bbf0d880d62ff5caf6d321e7137",
+      "name": "Swordguard",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 33:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Swordguard",
+          "base_name": "Executioner Sword",
+          "base_code": "9gd",
+          "item_type": "swor",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "446",
+              "value": 20,
+              "label": "{{value}}% Increased Chance of Blocking",
+              "memory_stat": {
+                "layer": 0,
+                "id": 20,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "612",
+              "value": 100,
+              "label": "+{{value}} Defense vs. Missile",
+              "memory_stat": {
+                "layer": 0,
+                "id": 32,
+                "raw": 100
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "427",
+              "value": 15,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 15,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 15,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 15,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "420",
+              "value": -50,
+              "label": "Requirements +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 91,
+                "raw": -50
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "430",
+              "value": 20,
+              "label": "+{{value}}% Faster Hit Recovery",
+              "memory_stat": {
+                "layer": 0,
+                "id": 99,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "440",
+              "value": 30,
+              "label": "+{{value}}% Damage Taken Goes To Mana",
+              "memory_stat": {
+                "layer": 0,
+                "id": 114,
+                "raw": 30
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 174,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 174
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 174
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2152409710,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 167,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 229319993,
+          "owner_id": 2152409710,
+          "owner_type": 0,
+          "item_owner_id": 2152409710,
+          "player_id": 2152409710,
+          "position": [
+            0,
+            3
+          ],
+          "run_id": "20260925T132342Z-e2e4cbf7",
+          "captured_at": "2026-09-25T13:23:42.248592+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 20,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "toblock",
+            "text": "20% Increased Chance of Blocking",
+            "value": 20,
+            "label": "{{value}}% Increased Chance of Blocking"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 21,
+              "raw": 65
+            },
+            "status": "decoded",
+            "name": "mindamage",
+            "text": "Minimum damage: 65",
+            "value": 65
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 22,
+              "raw": 109
+            },
+            "status": "decoded",
+            "name": "maxdamage",
+            "text": "Maximum damage: 109",
+            "value": 109
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 128
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 128",
+            "value": 128
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 219
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 219",
+            "value": 219
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 32,
+              "raw": 100
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_missile",
+            "text": "+100 Defense vs. Missile",
+            "value": 100,
+            "label": "+{{value}} Defense vs. Missile"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 33,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_hth",
+            "text": "+200 Defense vs. Melee",
+            "value": 200,
+            "label": "+{{value}} Defense vs. Melee"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +15% (10-20%)",
+            "value": 15,
+            "label": "Fire Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 39,
+              "min": 10,
+              "max": 20,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +15% (10-20%)",
+            "value": 15,
+            "label": "Lightning Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 41,
+              "min": 10,
+              "max": 20,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +15% (10-20%)",
+            "value": 15,
+            "label": "Cold Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 43,
+              "min": 10,
+              "max": 20,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +15% (10-20%)",
+            "value": 15,
+            "label": "Poison Resist +{{value}}%",
+            "roll_range": {
+              "stat_id": 45,
+              "min": 10,
+              "max": 20,
+              "property": "res-all",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 42",
+            "value": 42
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 50",
+            "value": 50
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 91,
+              "raw": -50
+            },
+            "status": "decoded",
+            "name": "item_req_percent",
+            "text": "Requirements -50%",
+            "value": -50,
+            "label": "Requirements +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 99,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_fastergethitrate",
+            "text": "+20% Faster Hit Recovery",
+            "value": 20,
+            "label": "+{{value}}% Faster Hit Recovery"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 114,
+              "raw": 30
+            },
+            "status": "decoded",
+            "name": "item_damagetomana",
+            "text": "+30% Damage Taken Goes To Mana",
+            "value": 30,
+            "label": "+{{value}}% Damage Taken Goes To Mana"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 214,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "item_armor_perlevel",
+            "text": "+5 Defense (Based on Character Level)",
+            "value": 5,
+            "range_label": "+{{value}} Defense (Based on Character Level)",
+            "viewer_level": 1,
+            "per_level": {
+              "numerator": 40,
+              "denominator": 8
+            },
+            "origin": "level_formula"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 174,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+174% (170-180%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 174
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 174
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 170,
+              "max": 180,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "0443a8562cf69d3f789e7df0387eeb4779b596b80d45c21d2dd3f15e97b26c27",
+      "name": "Darkglow",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 33:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Darkglow",
+          "base_name": "Ring Mail",
+          "base_code": "rng",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "423",
+              "value": 20,
+              "label": "+{{value}} to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 19,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "427",
+              "value": 10,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "594",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Fire Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 40,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 10,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "658",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Lightning Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 42,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 10,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "616",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Cold Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 44,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 10,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "592",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Poison Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 46,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "422",
+              "value": 3,
+              "label": "+{{value}} to Light Radius",
+              "memory_stat": {
+                "layer": 0,
+                "id": 89,
+                "raw": 3
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 94,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 94
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144123059,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 83,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 194518175,
+          "owner_id": 3144123059,
+          "owner_type": 0,
+          "item_owner_id": 3144123059,
+          "player_id": 3144123059,
+          "position": [
+            4,
+            0
+          ],
+          "run_id": "20260930T195410Z-a0c89e94",
+          "captured_at": "2026-09-30T19:54:10.920785+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 19,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "tohit",
+            "text": "+20 to Attack Rating",
+            "value": 20,
+            "label": "+{{value}} to Attack Rating"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 95
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 95",
+            "value": 95
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 33,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_hth",
+            "text": "+50 Defense vs. Melee",
+            "value": 50,
+            "label": "+{{value}} Defense vs. Melee"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +10%",
+            "value": 10,
+            "label": "Fire Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 40,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxfireresist",
+            "text": "+5% to Maximum Fire Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Fire Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +10%",
+            "value": 10,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 42,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxlightresist",
+            "text": "+5% to Maximum Lightning Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Lightning Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +10%",
+            "value": 10,
+            "label": "Cold Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 44,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxcoldresist",
+            "text": "+5% to Maximum Cold Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Cold Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +10%",
+            "value": 10,
+            "label": "Poison Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 46,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxpoisonresist",
+            "text": "+5% to Maximum Poison Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Poison Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 14
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 14",
+            "value": 14
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 26
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 26",
+            "value": 26
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 89,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_lightradius",
+            "text": "+3 to Light Radius",
+            "value": 3,
+            "label": "+{{value}} to Light Radius"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 94
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+94% (70-100%) Enhanced Defense",
+            "value": 94,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 70,
+              "max": 100,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "1edd2c0dd6894123b25fe90f889ec79dbfe53baea04db60032f52de30ff33100",
+      "name": "Haemosu's Adamant",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 33:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Haemosu's Adamant",
+          "set_name": "Heaven's Brethren",
+          "base_name": "Cuirass",
+          "base_code": "xrs",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "set",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "418",
+              "value": 75,
+              "label": "+{{value}} to Life",
+              "memory_stat": {
+                "layer": 0,
+                "id": 7,
+                "raw": 19200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "612",
+              "value": 35,
+              "label": "+{{value}} Defense vs. Missile",
+              "memory_stat": {
+                "layer": 0,
+                "id": 32,
+                "raw": 35
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "420",
+              "value": -20,
+              "label": "Requirements +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 91,
+                "raw": -20
+              },
+              "descriptor_offset": 232
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144134977,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "set",
+            "table_id": 102,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 1083706792,
+          "owner_id": 3144134977,
+          "owner_type": 0,
+          "item_owner_id": 3144134977,
+          "player_id": 3144134977,
+          "position": [
+            6,
+            7
+          ],
+          "run_id": "20260930T195450Z-e585b44e",
+          "captured_at": "2026-09-30T19:54:51.096490+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 7,
+              "raw": 19200
+            },
+            "status": "decoded",
+            "name": "maxhp",
+            "text": "+75 to Life",
+            "value": 75,
+            "label": "+{{value}} to Life"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 700
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 700",
+            "value": 700
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 32,
+              "raw": 35
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_missile",
+            "text": "+35 Defense vs. Missile",
+            "value": 35,
+            "label": "+{{value}} Defense vs. Missile"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 33,
+              "raw": 40
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_hth",
+            "text": "+40 Defense vs. Melee",
+            "value": 40,
+            "label": "+{{value}} Defense vs. Melee"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 26
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 26",
+            "value": 26
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 50",
+            "value": 50
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 91,
+              "raw": -20
+            },
+            "status": "decoded",
+            "name": "item_req_percent",
+            "text": "Requirements -20%",
+            "value": -20,
+            "label": "Requirements +{{value}}%"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "5bd459c9a75331265ad944f7d50ae2124af0f2f6aaa59adca8eeb5ac03875638",
+      "name": "Darkglow",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 33:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Darkglow",
+          "base_name": "Ring Mail",
+          "base_code": "rng",
+          "item_type": "tors",
+          "identified": true,
+          "category": "armor",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "423",
+              "value": 20,
+              "label": "+{{value}} to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 19,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "427",
+              "value": 10,
+              "label": "Fire Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 39,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "594",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Fire Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 40,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "428",
+              "value": 10,
+              "label": "Lightning Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 41,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "658",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Lightning Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 42,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "426",
+              "value": 10,
+              "label": "Cold Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 43,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "616",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Cold Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 44,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "401",
+              "value": 10,
+              "label": "Poison Resist +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 45,
+                "raw": 10
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "592",
+              "value": 5,
+              "label": "+{{value}}% to Maximum Poison Resist",
+              "memory_stat": {
+                "layer": 0,
+                "id": 46,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "422",
+              "value": 3,
+              "label": "+{{value}} to Light Radius",
+              "memory_stat": {
+                "layer": 0,
+                "id": 89,
+                "raw": 3
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "425",
+              "value": 79,
+              "label": "+{{value}}% Enhanced Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 16,
+                "raw": 79
+              },
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144134977,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 83,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 4116286113,
+          "owner_id": 3144134977,
+          "owner_type": 0,
+          "item_owner_id": 3144134977,
+          "player_id": 3144134977,
+          "position": [
+            8,
+            0
+          ],
+          "run_id": "20260930T195450Z-e585b44e",
+          "captured_at": "2026-09-30T19:54:51.096490+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 19,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "tohit",
+            "text": "+20 to Attack Rating",
+            "value": 20,
+            "label": "+{{value}} to Attack Rating"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 31,
+              "raw": 87
+            },
+            "status": "decoded",
+            "name": "armorclass",
+            "text": "Defense: 87",
+            "value": 87
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 33,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_hth",
+            "text": "+50 Defense vs. Melee",
+            "value": 50,
+            "label": "+{{value}} Defense vs. Melee"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 39,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "fireresist",
+            "text": "Fire Resist +10%",
+            "value": 10,
+            "label": "Fire Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 40,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxfireresist",
+            "text": "+5% to Maximum Fire Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Fire Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 41,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "lightresist",
+            "text": "Lightning Resist +10%",
+            "value": 10,
+            "label": "Lightning Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 42,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxlightresist",
+            "text": "+5% to Maximum Lightning Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Lightning Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 43,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "coldresist",
+            "text": "Cold Resist +10%",
+            "value": 10,
+            "label": "Cold Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 44,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxcoldresist",
+            "text": "+5% to Maximum Cold Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Cold Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 45,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "poisonresist",
+            "text": "Poison Resist +10%",
+            "value": 10,
+            "label": "Poison Resist +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 46,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "maxpoisonresist",
+            "text": "+5% to Maximum Poison Resist",
+            "value": 5,
+            "label": "+{{value}}% to Maximum Poison Resist"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 67,
+              "raw": -5
+            },
+            "status": "decoded",
+            "name": "velocitypercent",
+            "text": "Armor movement penalty: -5% (inherent base effect)",
+            "value": -5,
+            "presentation": "internal",
+            "origin": "base_type"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 13
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 13",
+            "value": 13
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 26
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 26",
+            "value": 26
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 89,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "item_lightradius",
+            "text": "+3 to Light Radius",
+            "value": 3,
+            "label": "+{{value}} to Light Radius"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 16,
+              "raw": 79
+            },
+            "status": "decoded",
+            "name": "item_armor_percent",
+            "text": "+79% (70-100%) Enhanced Defense",
+            "value": 79,
+            "label": "+{{value}}% Enhanced Defense",
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 16,
+              "min": 70,
+              "max": 100,
+              "property": "ac%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    }
+  ]
+}

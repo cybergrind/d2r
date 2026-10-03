@@ -157,10 +157,47 @@ def test_validated_collection_named_tier_applicability(monkeypatch, qualities, s
     monkeypatch.setattr(
         pattern_collections,
         'compile_collections',
-        lambda *args: {'x': {'qualities': qualities, 'reason': 'Reviewed members', 'review_index': 0}},
+        lambda *args, **kwargs: {'x': {'qualities': qualities, 'reason': 'Reviewed members', 'review_index': 0}},
     )
     result = build_matrix(*inputs(), pattern_reviews={}, uses={'uses': []}, table_reviews={})
     row = next(row for row in result['rows'] if row['id'] == 'identity:x')
     assert row['dimensions']['named_tiers']['state'] == state
     for key in ('market', 'report', 'leveling', 'socket_mechanics', 'stat_annotations'):
         assert row['dimensions'][key]['state'] == 'pending'
+
+
+@pytest.mark.parametrize(
+    ('quality', 'state'),
+    [
+        ('magic', 'excluded'),
+        ('rare', 'excluded'),
+        ('crafted', 'excluded'),
+        ('unique', 'pending'),
+        ('set', 'pending'),
+        (None, 'pending'),
+        ('unknown', 'pending'),
+    ],
+)
+def test_value_watch_named_tiers_follow_explicit_quality_without_closing_other_reviews(quality, state):
+    watch = {
+        'name': 'Grand Charm',
+        'rarity': quality,
+        'kind': 'affixed_value_watch',
+        'details': {'priority': 'valuable_candidate'},
+    }
+    result = build_matrix(*inputs(), valuable={'rows': [watch]})
+    row = next(r for r in result['rows'] if r['id'] == 'evidence:valuable:rows:0')
+    assert row['dimensions']['named_tiers']['state'] == state
+    assert row['evidence'] == watch
+    assert row['dimensions']['discovery']['state'] == 'blocked'
+    for key in ('desirability', 'market', 'report', 'leveling', 'socket_mechanics', 'stat_annotations'):
+        assert row['dimensions'][key]['state'] == 'pending'
+
+
+def test_build_utility_and_named_tiers_do_not_establish_trade_qualification():
+    result = build_matrix(*inputs())
+    rows = {r['id']: r for r in result['rows']}
+    assert rows['identity:u']['dimensions']['named_tiers']['state'] == 'reviewed'
+    assert rows['use:role:magic']['dimensions']['desirability']['state'] == 'reviewed'
+    for key in ('identity:u', 'base:base:normal', 'use:role:magic', 'use:role:rare'):
+        assert rows[key]['dimensions']['trade_qualification']['state'] == 'pending'

@@ -59,7 +59,10 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
         ]
         rows += [(base, replace(item, base=base), context, 'true') for base in upgrades]
         for label, candidate, loadout, truth in rows:
+            invalid_dwarf = candidate.name == 'Dwarf Star' and label in ('invalid-socket', 'ethereal')
             expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            if invalid_dwarf:
+                expected['trade_qualification'] = IsPartialDict(status='unresolved')
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -75,7 +78,10 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys(excluded, (role + '-stats',)),
-                report_contains=('Trade tier:',) if candidate.identified else (),
+                report_contains=('Trade tier:',) if candidate.identified and not invalid_dwarf else (),
+                report_absent=('Trade tier:', 'Trade: ordinary candidate', 'Trade: premium candidate')
+                if invalid_dwarf
+                else (),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/uniqueitems.json'),
             )
 

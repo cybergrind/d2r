@@ -47,7 +47,8 @@ def cases(build='blessed-hammer-paladin', player_class='Paladin', prefix='hammer
                 'true',
             ),
             ('empty-socket', replace(item, sockets=1), context, 'true'),
-            ('unknown-sockets', replace(item, sockets=None), context, 'true'),
+            # Skullder's native socket-count guard remains unproven when unread.
+            ('unknown-sockets', replace(item, sockets=None), context, 'true' if shako else 'unknown'),
             ('ethereal', replace(item, ethereal=True), context, 'false' if shako else 'true'),
             ('unknown-ethereal', replace(item, ethereal=None), context, 'unknown'),
             ('unidentified', replace(item, identified=False), context, 'false'),

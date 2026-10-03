@@ -25,11 +25,17 @@ class ComparableContract:
     socket_payload: tuple[str, ...] = ()
     required_level: int | None = None
     catalog_id: str | None = None
+    trigger_levels: dict = field(default_factory=dict)
 
     def __post_init__(self):
         object.__setattr__(self, 'properties', freeze(self.properties))
         object.__setattr__(self, 'intrinsic_properties', freeze(self.intrinsic_properties))
+        object.__setattr__(self, 'trigger_levels', freeze(self.trigger_levels))
         object.__setattr__(self, 'socket_payload', tuple(self.socket_payload))
 
     def to_dict(self):
-        return {f.name: thaw(getattr(self, f.name)) for f in fields(self)}
+        return {
+            f.name: thaw(getattr(self, f.name))
+            for f in fields(self)
+            if f.name != 'trigger_levels' or self.trigger_levels
+        }

@@ -126,6 +126,7 @@ def build_use_summary(roles, demand=None):
                 'dependencies',
                 'alternatives',
                 'missing',
+                'advisory_conditions',
                 'failed',
                 'equipment',
                 'socket_requirement',
@@ -139,22 +140,32 @@ def build_use_summary(roles, demand=None):
         key = json.dumps(signature, sort_keys=True)
         groups.setdefault(key, []).append(role)
     rank = {'matched': 0, 'partial': 1, 'unknown': 2, 'failed': 3}
-    stage_rank = {'Starter': 0, 'Budget': 1, 'Endgame': 2}
+    stage_rank = {'Endgame': 0, 'Ubers': 0, 'Budget': 2, 'Starter': 3}
     clusters = sorted(
         groups.values(),
-        key=lambda g: (rank[g[0]['status']], dependency_rank(g[0]), stage_rank.get(progression(g[0]), 3), g[0]['id']),
+        key=lambda g: (rank[g[0]['status']], dependency_rank(g[0]), stage_rank.get(progression(g[0]), 1), g[0]['id']),
     )
-    heading = 'Build use'
-    if demand:
-        qualifier = '' if demand.get('complete') else 'at least '
-        if demand.get('scope') == 'matched_patterns':
-            heading += ' · matching configurations'
-        heading += f' · {demand["grade"]} · {qualifier}{demand["distinct_builds"]} builds'
-    lines = [heading]
-    counts = {s: len({r['build'] for r in ordered if r['status'] == s}) for s in rank}
-    lines.append(f'  This item: {counts["matched"]} confirmed / {counts["partial"]} conditional builds')
+    # Count each build once at its strongest result, while retaining actionable
+    # conditions on other farming/endgame variants. A lesser Starter match for
+    # an already confirmed build adds no useful compact information.
+    best = {}
+    for role in ordered:
+        state = role['status']
+        if role['build'] not in best or rank[state] < rank[best[role['build']]]:
+            best[role['build']] = state
+    applicable = [role for role in ordered if role['status'] != 'failed']
+    compact_roles = [
+        r
+        for r in (applicable or ordered)
+        if not (progression(r) == 'Starter' and r['status'] != 'matched' and best[r['build']] == 'matched')
+    ]
+    compact_ids = {r['id'] for r in compact_roles}
+    compact_clusters = [[r for r in group if r['id'] in compact_ids] for group in clusters]
+    compact_clusters = [group for group in compact_clusters if group]
+    counts = {state: sum(value == state for value in best.values()) for state in rank}
+    lines = ['Build use', f'  This item: {counts["matched"]} confirmed / {counts["partial"]} conditional builds']
     remaining_labels = 3
-    visible = clusters[:3]
+    visible = compact_clusters[:3]
     shown_companions = set()
     for index, group in enumerate(visible):
         first = group[0]
@@ -177,7 +188,7 @@ def build_use_summary(roles, demand=None):
     targets = sorted(
         {
             p['label']
-            for r in ordered
+            for r in compact_roles
             if r['status'] in {'matched', 'partial'}
             for p in r.get('preferences', [])
             if p['status'] == 'false'
@@ -188,7 +199,7 @@ def build_use_summary(roles, demand=None):
     socket_items = sorted(
         {
             requirement['item'].removesuffix(' Rune')
-            for role in ordered
+            for role in compact_roles
             if role['status'] in {'matched', 'partial'}
             and (requirement := role.get('socket_requirement'))
             and requirement.get('applicable') is True
@@ -199,7 +210,7 @@ def build_use_summary(roles, demand=None):
         lines.append('  Socket requirement: ' + '; '.join(socket_items) + ' (not confirmed)')
     failed = sum(r['status'] == 'failed' for r in ordered)
     unknown = sum(r['status'] == 'unknown' for r in ordered)
-    if failed or unknown:
+    if not applicable and (failed or unknown):
         reasons = sorted(
             {
                 reason
@@ -211,13 +222,9 @@ def build_use_summary(roles, demand=None):
         if reasons:
             extra = f'; +{len(reasons) - 1} more restrictions' if len(reasons) > 1 else ''
             lines.append(f'  {reasons[0]}{extra} ({failed} failed / {unknown} unknown uses; see full details)')
-    elif not shown_companions and any(r.get('missing') for r in ordered):
-        lines.append('  Conditional on the listed base/loadout requirements; see full details')
-    omitted = max(0, len(clusters) - 3)
-    detail = f'  Details: {len(ordered)} uses'
+    omitted = max(0, len(compact_clusters) - len(visible))
     if omitted:
-        detail += f'; {omitted} more groups'
-    lines.append(detail)
+        lines.append(f'  Other matching configurations: {omitted}; see full details')
     # Broad family candidates with no applicable use should not clutter the overlay.
     # Preserve every failed evaluation for the detailed view and coverage audits.
     if not demand and all(role['status'] == 'failed' for role in ordered):
@@ -238,7 +245,12 @@ def detail_lines(summary):
             heading = {'true': 'Setup', 'false': 'Needs', 'unknown': 'Check'}.get(dependency.get('status'), 'Check')
             dependency_lines.append(f'    {heading}: {dependency["label"]}')
         lines.extend(dict.fromkeys(dependency_lines))
-        for key, label in [('failed', 'Failed'), ('missing', 'Needs'), ('alternatives', 'Alternatives')]:
+        for key, label in [
+            ('failed', 'Failed'),
+            ('missing', 'Needs'),
+            ('alternatives', 'Alternatives'),
+            ('advisory_conditions', 'Note'),
+        ]:
             for text in dict.fromkeys(role.get(key, ())):
                 line = f'    {label}: {text}'
                 if line not in dependency_lines:

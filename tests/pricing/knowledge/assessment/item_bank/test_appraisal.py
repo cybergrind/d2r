@@ -11,6 +11,8 @@ from pricing.knowledge.pipeline import retrieve_draft
 from pricing.knowledge.publication import current_generation
 from pricing.knowledge.published_runtime import load_runtime, published_snapshot
 from tests.pricing.knowledge.assessment.item_bank.cases import CASES
+from tests.pricing.knowledge.assessment.item_bank.report_checks import assert_report_checks
+from tests.pricing.knowledge.assessment.item_bank.trade_checks import assert_trade_checks
 
 
 @pytest.fixture(scope='module')
@@ -29,6 +31,10 @@ def test_constructed_item_through_published_appraisal(runtime, case):
             loadout=case.context,
             as_of=date(2026, 9, 27),
         )
+        if case.trade_checks is not None:
+            assert_trade_checks(result, case.trade_checks)
+        if case.report_checks is not None:
+            assert_report_checks(result, case.report_checks)
         text = format_appraisal({'state': 'complete', 'request_id': case.id, 'result': result})
     assert result == IsPartialDict(offline=True, **case.expected)
     if case.report_contains:

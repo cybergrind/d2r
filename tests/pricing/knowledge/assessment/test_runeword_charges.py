@@ -1,9 +1,7 @@
 from dataclasses import replace
-from datetime import date
 
 import pytest
 
-from pricing.knowledge.assessment.comparables import evaluate, price_from_comparables, reject_reasons
 from pricing.knowledge.assessment.handlers.runeword import RunewordHandler
 from tests.pricing.knowledge.assessment.test_family_contracts import facts
 
@@ -30,29 +28,20 @@ def harmony():
     )
 
 
-def test_harmony_fixed_revive_charges_are_comparable_by_skill_level():
+def test_harmony_revive_charges_decode_but_partial_item_cannot_be_priced():
+    from pricing.knowledge.assessment.handlers.runeword import definitions
+    from pricing.knowledge.assessment.mechanics.named_charges import fixed_charge_properties
+
     item = harmony()
+    properties, consumed, gaps = fixed_charge_properties(item, definitions()['Harmony'])
+    assert properties == {'741': 20}
+    assert consumed == {'204:6100'}
+    assert gaps == []
+    # This legacy fixture omits elemental damage and cannot establish a full
+    # Harmony price. Skill level20 remains distinct from15 remaining charges.
     contract, gaps = RunewordHandler().contract(item, 'weapon')
-    assert contract is not None, gaps
-    assert contract.properties['741'] == 20
-    assert contract.intrinsic_properties['741'] == 20
-    payload = contract.to_dict()
-    rows = [
-        {
-            **payload,
-            'properties': {'510': 240},
-            'scope_status': 'verified',
-            'evidence_kind': 'ask',
-            'unit_policy': 'single_item',
-            'seller_id': str(i),
-            'listing_id': str(i),
-            'ask_ist': 1,
-            'observed_at': '2026-09-25',
-        }
-        for i in range(3)
-    ]
-    assert price_from_comparables(evaluate(payload, rows), today=date(2026, 9, 25))['estimate_ist'] == 1
-    assert reject_reasons(payload, {**rows[0], 'properties': {'510': 240, '741': 15}})
+    assert contract is None
+    assert any('elemental' in gap.lower() for gap in gaps)
 
 
 @pytest.mark.parametrize('change', ['missing', 'capacity', 'level', 'projection'])

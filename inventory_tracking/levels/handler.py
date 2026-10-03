@@ -19,6 +19,7 @@ from dataclasses import dataclass
 
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
 from inventory_tracking.levels.presets import preset_name
+from inventory_tracking.levels.spots import pinpoint
 from inventory_tracking.native.layout import TILE_UNITS
 
 
@@ -33,6 +34,7 @@ class PoiSpec:
     inset: float | None = None  # how far inside that edge (fraction of the preset); None = SIDE_INSET
     variants: tuple[int, ...] = ()  # only these DS1 variants (file index) match; empty = any
     each: bool = False  # mark every matching instance (none is fine), e.g. Lower Kurast's camps
+    warp: bool = False  # an entrance of another kind (a side trip as 'target'): mark its warp tile too
 
     def matches(self, name: str) -> bool:
         return re.fullmatch(self.pattern, name) is not None
@@ -48,6 +50,7 @@ class Handler:
     def guide(self, snapshot: LevelSnapshot) -> Guidance:
         pois, problems = [], []
         for spec in self.pois:
+            start = len(pois)
             groups = instances(room for room in snapshot.rooms if spec.matches(preset_name(room.preset)))
             if spec.variants:
                 groups = [group for group in groups if group[0].variant in spec.variants]
@@ -78,6 +81,8 @@ class Handler:
                 problems.append(f'{spec.label}: {len(found)} {noun} match')
             elif not spec.optional:
                 problems.append(f'{spec.label}: no room matches')
+            if spec.warp:
+                pois[start:] = [pinpoint(poi, warp=True) for poi in pois[start:]]
         return Guidance(tuple(pois), tuple(problems))
 
 
@@ -116,7 +121,9 @@ def side_room(room: Room, side: str, inset: float = SIDE_INSET) -> Room:
     fx = {'E': 1 - inset, 'W': inset}.get(side, 0.5)
     fy = {'S': 1 - inset, 'N': inset}.get(side, 0.5)
     x, y = round(room.x + room.width * fx) - 4, round(room.y + room.height * fy) - 4
-    return Room(room.preset, x, y, 8, 8, room.variant, room.block)
+    # The block keeps the preset's origin, so a warp spot (levels/spots.py) still finds its tile.
+    block = room.block or (room.x, room.y, room.width, room.height)
+    return Room(room.preset, x, y, 8, 8, room.variant, block)
 
 
 def target(

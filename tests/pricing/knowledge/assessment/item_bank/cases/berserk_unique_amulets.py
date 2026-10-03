@@ -85,6 +85,9 @@ def cases():
             ]
         for label, candidate, loadout, truth in rows:
             expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
+            impossible = label in ('invalid-sockets', 'invalid-ethereal')
+            if impossible:
+                expected['trade_tier'] = IsPartialDict(status='pending_review', tier=None)
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
                     annotations=IsPartialDict(
@@ -100,7 +103,8 @@ def cases():
                 scenario={'true': 'positive', 'false': 'negative', 'unknown': 'unknown'}[truth],
                 absent_configurations=() if truth == 'true' else (role + '-stats',),
                 absent_stat_configurations=dict.fromkeys((f'204:{GOLEM}', f'204:{MAIDEN}'), (role + '-stats',)),
-                report_contains=('Trade tier:',) if candidate.identified else (),
+                report_contains=('Trade tier:',) if candidate.identified and not impossible else (),
+                report_absent=('Trade tier:',) if impossible else (),
                 evidence=(
                     'pricing/data/wp-a-builds.json:/berserk-barbarian/slots/Amulets',
                     'third-parties/d2data/json/uniqueitems.json',

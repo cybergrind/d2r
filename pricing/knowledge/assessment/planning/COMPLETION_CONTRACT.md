@@ -1,6 +1,9 @@
+> **FROZEN 2026-10-03 (user decision).** This document no longer drives work: its gates, queues and
+> stopping rules are suspended. The active plan is [PLAN.md](PLAN.md). Kept as technical reference only.
+
 # All-item assessment: end goal and completion contract
 
-Updated 2026-09-30 at the user's request. **Status: unfinished.**
+Updated 2026-10-01 at the user's request. **Status: unfinished.**
 This document governs completion and stopping. It supersedes older milestone,
 checkpoint and priority wording where that wording suggests stopping early.
 GUIDE_FIRST.md and IMPLEMENTATION_PLAN.md retain their technical architecture.
@@ -13,6 +16,10 @@ valuable rolls, bases, sockets, ethereal variants and relevant player/mercenary
 uses. Also highlight valuable or exceptional best-in-slot leveling items.
 The player is not leveling characters: generic leveling equipment, ordinary
 starter progression and exhaustive leveling-build walkthroughs are out of scope.
+Hardcore and Ladder-only build uses, market research and pricing are out of scope.
+Do not expand handlers or tests to complete those modes. Retain shared items and
+their applicable Softcore/Non-Ladder uses; mode-isolation checks remain necessary
+to prevent foreign-mode evidence from entering their assessments.
 “Exceptional leveling” is not restricted to the Rare quality; a unique, set,
 runeword, base or affixed item can qualify when evidence establishes that use.
 
@@ -70,6 +77,27 @@ must remain unresolved rather than silently defaulting to compatible evidence.
 Apply this filter before generating remaining-work and required-test counts;
 regenerate dependent manifests and gates after validating the exclusions.
 
+## Sellability and meaningful rolls (2026-10-01)
+
+The immediate review priority is valuable uniques and set items **one by one**,
+then the equivalent valuable configurations of other item families. Preserve
+universal baseline tiers, but do not treat baseline tier coverage, guide inclusion,
+build usefulness or a perfect stat as proof that this particular item is sellable.
+Follow [the roll-value review plan](ROLL_VALUE_REVIEW.md). This priority supersedes
+ordinary starter/build-profile expansion and incidental item-bank gap filling.
+
+Each valuable identity/configuration needs a reviewed distinction between useful
+gear, a trade candidate and a premium trade candidate. Record the material rolls,
+required combinations, ethereal/socket/base conditions, qualifying boundaries and
+what the captured item lacks. Some items remain trade candidates at minimum rolls;
+others need particular rolls to justify the highlight. Neither case is universal.
+Unknown facts or inadequate evidence must not silently qualify or disqualify it.
+
+Completion requires evidence-backed item-specific decisions, executable boundary
+tests and visible report checks. A generic percentage-of-perfect cutoff or a
+mechanical conversion of every mid/high baseline into "sellable" fails this gate.
+Asking prices establish asking segments, not completed sales or liquidity.
+
 ## Finite, auditable scope
 
 Create one versioned scope manifest from the union of enabled native definitions,
@@ -97,6 +125,7 @@ patches/source revisions after delivery are maintenance work against a new versi
 | Universal tiers | Every eligible unique, set piece and complete set has a rendered baseline trade tier high/mid/low/trash; premium conditions never suppress it. Leveling highlights and detailed reviews are required only for valuable or exceptional best-in-slot leveling items and combinations; generic leveling uses are excluded. |
 | Executable assessment | Every scoped member has a reviewed applicable decision rule or evidence-backed disposition. All known useful configurations match correctly, including alternatives, swaps/prebuffs, mercenary roles and companions. Generic routing/unknown fallbacks do not count as reviewed coverage. |
 | Variant quality | Relevant ethereal status, ED/defense, native and upgraded bases, staffmods/inherent mods, rolls/tiers, sockets and actual contents are supported. Base assessment explains eligible words, best/preferred bases where justified, deficiencies and legal socket outcomes without assuming unknown item level. |
+| Roll-dependent trade value | Every valuable named item and scoped valuable configuration has a reviewed trade qualification distinct from build utility; material rolls/combinations and ethereal/socket conditions, ordinary versus premium boundaries, unknown handling, source evidence, boundary item-bank tests and published report assertions are complete. Existing baseline tiers alone do not satisfy this gate. |
 | Pricing | Every family has tested comparison/valuation rules. Every pricing target has either a supported dated estimate or a reviewed evidence-unavailable disposition identifying the actual deficiency. Cached usable evidence is processed; source scope, facets, independent sellers and asks versus fills are preserved. No unfinished parser/rule/research task is disguised as absent market evidence. |
 | Reports | Published reports display the assessment, trade/leveling highlights, relevant ranges and actionable deficiencies concisely. No repeated generic disclaimers. Known unsupported inputs preserve uncertainty and produce a durable review record. |
 | Item bank | Every important/valuable item across every scoped build/use has independently authored positive, near-miss and unknown-fact scenarios. Constructed items run through native decoding and the full offline appraisal pipeline, with `dirty-equals` partial expectations for the specific build contribution, tiers, relevant stats and pricing/report behavior. Include mercenaries, alternatives, sockets/ethereal variants and valuable leveling uses. Case presence is not a test pass; retain a coverage manifest and passing run tied to the final generation. |
@@ -305,3 +334,42 @@ inventory with no guide or source issues. The audit no longer blanks every plann
 because one planner is missing or unsupported: guide references are keyed by planner
 id, so that gap stays its own. Reachable definitions, planners with issues and every
 item identity and downstream obligation stay in scope.
+
+## Valuable copies and modifier combinations (2026-10-02)
+
+A better owned copy is not a keep limit. Keep every independently valuable item;
+charms can occupy multiple inventory cells and jewels are used across socket
+setups. Owned comparison must remain informational and may not suppress trade
+qualification, a supported price, or a useful multi-copy configuration.
+
+Evaluate combinations rather than a mean roll percentage or isolated T1 label.
+Explicitly cover life + maximum damage + attack rating charms across their native
+sizes, skill/life and resistance/life charms, and useful multi-modifier jewels.
+Verify native legal ranges, interacting affixes, missing decisive stats, relevant
+uses and scoped evidence; distinguish build demand from actual trade qualification.
+Test positive, near-miss and unknown combinations with better/equal owned copies.
+Do not classify every T1 jewel or all charms as valuable merely to avoid a miss.
+
+
+## Resale outcome and shared combinations (2026-10-03)
+
+The user clarified that the main output is valuable-to-trade items with sufficient
+liquidity, and requested shared assessments combining good stat patterns with
+collections of suitable bases. Follow DELIVERY_APPROACH.md for the revised execution
+architecture. Reuse family/combination rules with explicit membership and exceptions;
+individual handlers or duplicated build-specific rules are not completion goals.
+
+Preserve the all-item scope, universal baseline tiers and exceptional leveling
+requirements. Main report priority is the specimen's resale recommendation, not
+exhaustive build utility. Keep numerical price, trade qualification and liquidity
+separate. Asking listings and guide mentions alone do not prove turnover. Unknown
+liquidity remains unknown; high asks cannot establish an easy sale. A final coverage
+claim must include the reviewed liquidity disposition and supporting evidence kind,
+including honest insufficiency where no defensible liquidity claim is possible.
+This clarification does not authorize new live collection or relax final gates.
+
+
+The user subsequently selected **broad demand and reasonable selling effort;
+mark niche items separately**, and explicitly asked to separate actually sellable
+items from nice/self-use items. This is the default resale policy, not a pending
+question. Do not impose a strict staples-only or slow-high-value default.

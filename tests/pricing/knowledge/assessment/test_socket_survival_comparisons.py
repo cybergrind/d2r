@@ -14,6 +14,13 @@ def socketed_item(base, rarity, name, fillers, bonuses):
     definition = catalog().named.get((rarity, name), {})
     values = {(s['stat_id'], s.get('layer', 0)): s['min'] for s in definition.get('roll_ranges', {}).values()}
     values[31, 0] = 150
+    # Native original-base defense: floor((maxac + 1) * (100 + ED) / 100).
+    if name == 'Rockstopper':
+        values[31, 0] = 163  # Sallet max62 and native minimum160ED.
+    elif name == "Moser's Blessed Circle":
+        values[31, 0] = 156  # Round Shield max55 and native minimum180ED.
+        values[20, 0] += 12  # Base blocking is in the captured total.
+        values[194, 0] = 2  # Parameter-only native socket property.
     # Native armor-table blocking is part of the captured total on these bases.
     if name is None and base in {'Large Shield', 'Sacred Targe', 'Monarch'}:
         values[20, 0] = {'Large Shield': 12, 'Sacred Targe': 30, 'Monarch': 22}[base]
@@ -135,16 +142,23 @@ def test_resistance_filler_stat_ids_match_pinned_properties():
     for family, prefix in [('helm', 'helm'), ('armor', 'helm'), ('shield', 'shield'), ('weapon', 'weapon')]:
         for name, effects in filler_effects(family).items():
             gem = gems[name]
-            prop = properties[gem[f'{prefix}Mod1Code']]
-            ids = {stats[prop[f'stat{i}']] for i in range(1, 8) if prop.get(f'stat{i}')}
-            if gem[f'{prefix}Mod1Code'] == 'indestruct':
-                assert prop['func1'] == 20
-                source = (root.parents[1] / 'D2MOO/source/D2Common/src/Items/ItemMods.cpp').read_text()
-                function = source.split('int __fastcall ITEMMODS_PropertyFunc20(', 1)[1].split('\n}', 1)[0]
-                assert 'STATLIST_AddStat(pStatList, STAT_ITEM_INDESCTRUCTIBLE, 1, 0)' in function
-                ids = {stats['item_indesctructible']}
-            assert set(effects) == ids
-            assert set(effects.values()) == {gem[f'{prefix}Mod1Min']} == {gem[f'{prefix}Mod1Max']}
+            expected = {}
+            for slot in range(1, 4):
+                field = f'{prefix}Mod{slot}'
+                if not gem.get(field + 'Code'):
+                    continue
+                prop = properties[gem[field + 'Code']]
+                ids = {stats[prop[f'stat{i}']] for i in range(1, 8) if prop.get(f'stat{i}')}
+                if gem[field + 'Code'] == 'indestruct':
+                    assert prop['func1'] == 20
+                    source = (root.parents[1] / 'D2MOO/source/D2Common/src/Items/ItemMods.cpp').read_text()
+                    function = source.split('int __fastcall ITEMMODS_PropertyFunc20(', 1)[1].split('\n}', 1)[0]
+                    assert 'STATLIST_AddStat(pStatList, STAT_ITEM_INDESCTRUCTIBLE, 1, 0)' in function
+                    ids = {stats['item_indesctructible']}
+                assert gem[field + 'Min'] == gem[field + 'Max']
+                assert not ids & expected.keys()
+                expected.update(dict.fromkeys(ids, gem[field + 'Min']))
+            assert effects == expected
 
 
 @pytest.mark.parametrize('rarity', ['normal', 'superior'])

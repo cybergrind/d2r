@@ -26,6 +26,7 @@ def legacy_payload(result: AssessmentResult):
         'base_uses': thaw(result.base_uses),
         'leveling': thaw(result.leveling),
         'trade_tier': thaw(result.trade_tier),
+        **({'trade_qualification': thaw(result.trade_qualification)} if result.trade_qualification else {}),
         'ethereal_preference': thaw(result.ethereal_preference),
         'coverage_gaps': thaw(result.coverage_gaps),
         'price_gaps': thaw(result.price_gaps),

@@ -596,7 +596,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -648,7 +648,8 @@
       "conditions": [
         "Empty preparation base: Jeweler's Sacred Targe of Deflecting (4x Ruby Jewels of Fervor). The four specified fillers are still needed; this is not the completed setup.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "zeal-paladin-specialist-shield-ruby-filled",
@@ -740,7 +741,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -856,9 +857,10 @@
         "93:0"
       ],
       "conditions": [
-        "Each Ruby jewel needs 31–40 enhanced damage and 15 IAS. Ruby fire-resistance jewels do not satisfy this setup. Off-weapon ED and IAS support Zeal; attack breakpoints depend on the complete loadout.",
+        "Each Ruby jewel needs 31\u201340 enhanced damage and 15 IAS. Ruby fire-resistance jewels do not satisfy this setup. Off-weapon ED and IAS support Zeal; attack breakpoints depend on the complete loadout.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "zeal-paladin-specialist-shield-ist-empty",
@@ -945,7 +947,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -997,7 +999,8 @@
       "conditions": [
         "Empty preparation base: Jeweler's Sacred Targe of Deflecting (4x Ist Runes). The four specified fillers are still needed; this is not the completed setup.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "zeal-paladin-specialist-shield-ist-filled",
@@ -1084,7 +1087,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -1155,7 +1158,8 @@
       "conditions": [
         "Four Ist runes supply 100% Magic Find in a shield. Verify block and survival in the complete Zeal loadout.",
         "The planner favors 45 inherent all resistances; lower native resistance rolls remain setup candidates."
-      ]
+      ],
+      "review_notes": " 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "zeal-paladin-socket-helm-cham",
@@ -1180,7 +1184,7 @@
         "quotes": [
           "Guillaume's Face (Cham Rune)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/gems.json",
@@ -1292,7 +1296,7 @@
         "quotes": [
           "Guillaume's Face (Um Rune)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/gems.json",
@@ -1424,7 +1428,7 @@
         "quotes": [
           "Guillaume's Face (Ber Rune)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/gems.json",
@@ -1535,7 +1539,7 @@
         "quotes": [
           "Guillaume's Face (Ruby Jewel of Fervor)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/setitems.json",
@@ -1644,7 +1648,7 @@
       ],
       "conditions": [
         "The specified fillers and helmet must be used together. Balance clear speed, survival and Magic Find in the full Zeal loadout.",
-        "Off-weapon enhanced damage and IAS support Zeal. Ruby ED31–40 and Fervor15 IAS must belong to the same jewel; 40/15 is the preferred roll.",
+        "Off-weapon enhanced damage and IAS support Zeal. Ruby ED31\u201340 and Fervor15 IAS must belong to the same jewel; 40/15 is the preferred roll.",
         "Crushing Blow and Deadly Strike support eligible Zeal attacks; no additional Orphan's Call companion bonus is assumed."
       ],
       "names": [
@@ -1689,7 +1693,7 @@
         "quotes": [
           "Gemmed Mask (3x Perfect Topazes)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/gems.json",
@@ -1784,7 +1788,7 @@
         "quotes": [
           "Gemmed Mask (Ral Rune, Ort Rune, Thul Rune)"
         ],
-        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31–40 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
+        "review": "2026-09-27: Reviewed exact Zeal helm and socket payload. Fillers are actual linked items, not inferred from socket count or total stat. Native helmet rune/gem effects differ from weapon/shield effects. Ruby means ED31\u201340 with IAS15, not the separate fire-resistance prefix. No full loadout, resistance cap, speed breakpoint or price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/gems.json",
@@ -5089,7 +5093,7 @@
         "quotes": [
           "Any Items with specialized or niche uses have a superscript that refers here. 1) A Life Tap Charge Wand on Weapon-Swap is used for applying Life Tap to Uber Bosses when options such as Dracul's Grasp, Exile, or Last Wish are not available. 2) Treachery and Demon Limb are mostly used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating. 3) Wizardspike is used for the Faster Cast Rate it provides on Weapon-Swap prior to acquiring a Call to Arms, or if Barbarian-granted Battle Orders is available. 4) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you are not using Enigma. "
         ],
-        "review": "2026-09-27: Reviewed Zeal gear footnotes2–4 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
+        "review": "2026-09-27: Reviewed Zeal gear footnotes2\u20134 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/uniqueitems.json",
@@ -5157,7 +5161,7 @@
         "quotes": [
           "Any Items with specialized or niche uses have a superscript that refers here. 1) A Life Tap Charge Wand on Weapon-Swap is used for applying Life Tap to Uber Bosses when options such as Dracul's Grasp, Exile, or Last Wish are not available. 2) Treachery and Demon Limb are mostly used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating. 3) Wizardspike is used for the Faster Cast Rate it provides on Weapon-Swap prior to acquiring a Call to Arms, or if Barbarian-granted Battle Orders is available. 4) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you are not using Enigma. "
         ],
-        "review": "2026-09-27: Reviewed Zeal gear footnotes2–4 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
+        "review": "2026-09-27: Reviewed Zeal gear footnotes2\u20134 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/setitems.json",
@@ -5239,7 +5243,7 @@
         "quotes": [
           "Any Items with specialized or niche uses have a superscript that refers here. 1) A Life Tap Charge Wand on Weapon-Swap is used for applying Life Tap to Uber Bosses when options such as Dracul's Grasp, Exile, or Last Wish are not available. 2) Treachery and Demon Limb are mostly used for pre-buffing, usually prior to taking down the Ubers. Treachery pre-buffs Fade for All Resistances, Curse Length Reduction, and Damage Reduction, while Demon Limb pre-buffs Enchant for increased Attack Rating. 3) Wizardspike is used for the Faster Cast Rate it provides on Weapon-Swap prior to acquiring a Call to Arms, or if Barbarian-granted Battle Orders is available. 4) Only use Naj's Puzzler, a Staff of Teleportation, or a Teleport Charge Amulet for Teleport Charges if you are not using Enigma. "
         ],
-        "review": "2026-09-27: Reviewed Zeal gear footnotes2–4 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
+        "review": "2026-09-27: Reviewed Zeal gear footnotes2\u20134 as conditional prebuff/swap uses. Preserve available charges, native base and class constraints. No combat weapon endorsement, active buff, current loadout availability or numerical price inferred.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/uniqueitems.json",
@@ -5622,7 +5626,7 @@
       "conditions": [
         "Verify equipment requirements before equipping this charged-skill utility item.",
         "Available charges do not prove Life Tap is currently applied. Ethereal copies cannot be recharged by repair; their remaining charges are finite.",
-        "Zeal guide footnote1: apply Life Tap to Uber bosses when Dracul’s Grasp, Exile and Last Wish are unavailable."
+        "Zeal guide footnote1: apply Life Tap to Uber bosses when Dracul\u2019s Grasp, Exile and Last Wish are unavailable."
       ],
       "source": {
         "path": "pricing/data/appraisal-guide-sections.json",
@@ -6094,7 +6098,7 @@
       ],
       "conditions": [
         "Source-specific Zeal alternative; compare the complete loadout and equipment requirements. Legal upgraded bases are accepted without assuming higher trade value or a perfect defense premium.",
-        "Native added15–25physical damage supports conventional Zeal weapon attacks. Magic Find is a farming benefit; it does not improve combat damage or rune drop quality."
+        "Native added15\u201325physical damage supports conventional Zeal weapon attacks. Magic Find is a farming benefit; it does not improve combat damage or rune drop quality."
       ]
     },
     {
@@ -15700,7 +15704,7 @@
         "45:0"
       ],
       "conditions": [
-        "The 50–70 recipe resistance roll is separate from inherent Paladin shield resistance. Recovery, faster blocking, Dexterity and defense provide different survival benefits.",
+        "The 50\u201370 recipe resistance roll is separate from inherent Paladin shield resistance. Recovery, faster blocking, Dexterity and defense provide different survival benefits.",
         "Slow Missiles charges require deliberate use and remaining charges; the effect is not assumed active. This recipe supplies no Cannot Be Frozen.",
         "Only the active shield set supplies these benefits. Blocking depends on base, Dexterity, character level and stance; no maximum block is inferred. Native resistance or damage/AR automods are separate from recipe rolls. The guide does not mandate a particular base."
       ]

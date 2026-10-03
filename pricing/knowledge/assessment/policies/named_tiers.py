@@ -8,7 +8,11 @@ from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.handlers.definitions import named_definitions, resolve_named_definition
 from pricing.knowledge.assessment.handlers.random_skills import comparison_gaps
 from pricing.knowledge.assessment.mechanics.intrinsic_socket_rolls import SUPPORTED, intrinsic_socket_rolls
+from pricing.knowledge.assessment.mechanics.named_variant_legality import impossible_named_variant
 from pricing.knowledge.assessment.policies.sources import source_error
+from pricing.knowledge.assessment.policies.trade_facets import validate_variant_reviews
+from pricing.knowledge.assessment.policies.trade_qualification import validate_review
+from pricing.knowledge.assessment.policies.trade_rolls import valid_compounds
 from pricing.knowledge.assessment.roles.predicates import Truth, evaluate, native_keys, validate
 from pricing.knowledge.definition_store import catalog
 
@@ -33,6 +37,8 @@ def _policies(raw):
         if policy.get('basis_kind') not in (None, 'qualitative'):
             raise ValueError('Invalid named tier evidence kind')
         validate(policy['valid_if'])
+        if review := policy.get('trade_qualification'):
+            validate_review(review, key, policy['valid_if'])
         socket_keys = policy.get('intrinsic_socket_stats', [])
         if not isinstance(socket_keys, list) or any(
             not isinstance(key, str) or key not in SUPPORTED for key in socket_keys
@@ -62,6 +68,7 @@ def _policies(raw):
                 validate(override['when'])
         if variants and (seen_ids != known_ids or socket_keys):
             raise ValueError('Variant tiers must cover the native records and cannot mix intrinsic socket rules')
+        validate_variant_reviews(policy, key)
         if socket_keys:
             required = set(native_keys(policy['valid_if']))
             for override in policy['overrides']:
@@ -82,11 +89,25 @@ def assess_tier(facts):
         return pending
     if not policy:
         return pending
+    trade_rolls = dict(policy.get('trade_qualification', {}))
+    tier_keys = set(native_keys(policy['valid_if']))
+    for override in policy['overrides']:
+        tier_keys.update(native_keys(override['when']))
+    # Trade-only total-defense proof cannot suppress an independent life/MF tier.
+    # Tiers that actually depend on total defense retain its representation guard.
+    if '31:0' not in tier_keys:
+        trade_rolls.pop('total_defense', None)
+    if not valid_compounds(trade_rolls, facts):
+        return pending
     error = source_error(policy['source'], (facts.rarity, facts.name), ROOT)
     if error:
         return {**pending, 'source_error': error}
     definition, _ = resolve_named_definition(facts, identity_only=True)
-    if definition is None or comparison_gaps(facts, definition, require_projection=False):
+    if (
+        definition is None
+        or impossible_named_variant(facts, definition)
+        or comparison_gaps(facts, definition, require_projection=False)
+    ):
         return pending
     if policy.get('variant_rules'):
         variant = next(v for v in policy['variant_rules'] if definition['table_id'] in v['table_ids'])
@@ -102,8 +123,21 @@ def assess_tier(facts):
         if facts is None:
             return pending
     validity = evaluate(policy['valid_if'], facts)
+    roll_evidence = (
+        {
+            'intrinsic_rolls': intrinsic,
+            'intrinsic_roll_ranges': {
+                key: dict(definition['roll_ranges'].get(key, definition['roll_ranges'].get(key.split(':')[0], {})))
+                for key in intrinsic
+            },
+        }
+        if intrinsic
+        else {}
+    )
     if validity.truth == Truth.FALSE:
-        return pending
+        # A missed premium predicate does not invalidate independently decoded
+        # socket contributions or the definition's native roll interval.
+        return {**pending, **roll_evidence}
     possible = []
     reasons = []
     for rule in policy['overrides']:
@@ -125,15 +159,5 @@ def assess_tier(facts):
         'source': dict(policy['source']),
         'basis': policy['review'],
         **({'basis_kind': policy['basis_kind']} if policy.get('basis_kind') else {}),
-        **({'intrinsic_rolls': intrinsic} if intrinsic else {}),
-        **(
-            {
-                'intrinsic_roll_ranges': {
-                    key: dict(definition['roll_ranges'].get(key, definition['roll_ranges'].get(key.split(':')[0], {})))
-                    for key in intrinsic
-                }
-            }
-            if intrinsic
-            else {}
-        ),
+        **roll_evidence,
     }

@@ -38,6 +38,10 @@ def test_reviewed_unique_baseline_uses_exact_identity_and_variant_scope(name, ti
     definition = named_definitions()['unique', name]
     base = next(b for b in metadata()['bases'].values() if b['code'] == definition['base_codes'][0])
     item = facts(base['name'], 'unique', name)
+    if name == "Protector's Stone":
+        # Its shared ED roll must be captured before the refinement can apply.
+        assert assess_tier(item)['tier'] is None
+        item = replace(item, stats={key: {'status': 'decoded', 'value': 30} for key in ('17:0', '18:0')})
     assert assess_tier(item)['tier'] == tier
     assert assess_tier(replace(item, ethereal=True))['tier'] is None
     assert assess_tier(replace(item, socket_contents='filled'))['tier'] is None

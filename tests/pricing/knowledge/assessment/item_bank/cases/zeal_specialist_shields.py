@@ -10,7 +10,7 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, Sock
 BASE = Item(
     'Sacred Targe',
     'magic',
-    raw_stats=((20, 0, 20), (102, 0, 30), (39, 0, 27), (41, 0, 27), (43, 0, 27), (45, 0, 27)),
+    raw_stats=((20, 0, 50), (102, 0, 30), (39, 0, 27), (41, 0, 27), (43, 0, 27), (45, 0, 27)),
     sockets=4,
 )
 RUBY = SocketItem('Jewel', ((17, 0, 31), (18, 0, 31), (93, 0, 15)), complete=True)
@@ -32,6 +32,12 @@ def cases():
             rows = [
                 ('positive', 'candidate', item, {'player_class': 'Paladin'}),
                 ('negative', 'wrong-class', item, {'player_class': 'Sorceress'}),
+                (
+                    'negative',
+                    'insufficient-bonus',
+                    replace(item, raw_stats=((20, 0, 49), *item.raw_stats[1:])),
+                    {'player_class': 'Paladin'},
+                ),
                 ('unknown', 'unknown-class', item, {}),
             ]
             if state == 'filled':

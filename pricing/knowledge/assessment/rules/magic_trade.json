@@ -1,0 +1,14 @@
+{
+  "id": "jmod-shell",
+  "scope": "SC / Non-Ladder / PC / RotW",
+  "reviewed_at": "2026-10-02",
+  "guide_sha256": "b0ac2a03d66598dcc85040690666cf50f1218a1a925d166cfa584725f7011388",
+  "market_sha256": "00512f592fa45f3524748c142407e37745fe1ebdeaa2c6ce3dbbee1ef691adc4",
+  "evidence_ids": [
+    "8c86b893dd02ed1b3370be81",
+    "cc31ab44a33702456af4f938",
+    "82cb35231ccb6ace45b55ed9",
+    "bcbf60808bef9d9ca5817d2a"
+  ],
+  "review_notes": "Fixed Jeweler/Deflecting combination; reviewed endgame demand and four independent dated SC/NL/PC/RotW shell listings. Current payloads remain unknown. This is a trade candidate, not a numeric empty-base quote, premium-defense tier, or confirmed sale."
+}

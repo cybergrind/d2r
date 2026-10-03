@@ -20,6 +20,14 @@ from pricing.knowledge.assessment.maintenance.prose_socket_links import (
 )
 from pricing.knowledge.assessment.maintenance.qualified_table_context import require_qualification
 from pricing.knowledge.assessment.maintenance.resistance_armor_links import KIND as RESISTANCE_KIND, validate_link
+from pricing.knowledge.assessment.maintenance.sharp_charm_table import (
+    KIND as SHARP_CHARM_KIND,
+    validate_pattern as validate_sharp_charm_pattern,
+)
+from pricing.knowledge.assessment.maintenance.skill_charm_table import (
+    KIND as SKILL_CHARM_KIND,
+    validate_pattern as validate_skill_charm_pattern,
+)
 from pricing.knowledge.assessment.maintenance.socketed_table_pattern import KINDS, validate_pattern
 from pricing.knowledge.assessment.maintenance.source_matching import requires_eq
 from pricing.knowledge.assessment.maintenance.structured_main_tables import (
@@ -70,7 +78,11 @@ def compile_table_equivalence(document, occurrences, profiles, uses, root):
 
     for review in document['rows']:
         oid = review['occurrence_id']
-        pattern = review.get('pattern_kind') in KINDS or review.get('pattern_kind') == CHARM_KIND
+        pattern = review.get('pattern_kind') in KINDS or review.get('pattern_kind') in (
+            CHARM_KIND,
+            SKILL_CHARM_KIND,
+            SHARP_CHARM_KIND,
+        )
         if oid in seen:
             raise ValueError('Duplicate table equivalence review')
         seen.add(oid)
@@ -205,7 +217,11 @@ def compile_table_equivalence(document, occurrences, profiles, uses, root):
             raise ValueError('Table equivalence span is missing')
         require_player_table(parser, sections, index)
         if pattern:
-            validator = validate_charm_pattern if review.get('pattern_kind') == CHARM_KIND else validate_pattern
+            validator = {
+                CHARM_KIND: validate_charm_pattern,
+                SKILL_CHARM_KIND: validate_skill_charm_pattern,
+                SHARP_CHARM_KIND: validate_sharp_charm_pattern,
+            }.get(review.get('pattern_kind'), validate_pattern)
             validator(review, role, occurrence, parser, index, read_json)
         if qualified is not None and not pattern and parser.entry_labels[index] != qualified:
             raise ValueError('Table qualification differs from the complete HTML entry')

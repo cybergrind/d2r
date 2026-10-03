@@ -5,6 +5,7 @@ from pricing.knowledge.market_base_catalog import equipment_base
 from pricing.knowledge.market_named_bases import resolve_equipment_base
 from pricing.knowledge.market_named_sockets import fixed_native_socket_count, single_socket_payload
 from pricing.knowledge.named_ethereal import intrinsic_ethereal
+from pricing.knowledge.non_equipment_mechanics import CATALOGS, EXPECTED
 
 
 # Verified pricing/raw/d2data/misc.json (nodurability=1) and itemtypes.json
@@ -58,16 +59,6 @@ def cannot_socket(item_type, capacity):
     return item_type in ('glov', 'boot', 'belt') and type(capacity) is int and capacity == 0
 
 
-CATALOGS = {
-    ('Ring', 'misc'),
-    ('Amulet', 'misc'),
-    ('Small Charm', 'charms'),
-    ('Large Charm', 'charms'),
-    ('Grand Charm', 'charms'),
-    ('Crafted Sunder Charm', 'charms'),
-    ('Jewel', 'jewels'),
-    ('Colossal Jewel', 'jewels'),
-}
 SOURCE = {
     'kind': 'base_mechanics',
     'paths': ['pricing/raw/d2data/misc.json', 'pricing/raw/d2data/itemtypes.json'],
@@ -125,6 +116,10 @@ def apply_mechanics(row):
 
     if apply_scroll_facts(row):
         return
+    from pricing.knowledge.market_quest_materials import apply_quest_material_facts
+
+    if apply_quest_material_facts(row):
+        return
     if row.get('category') == 'crafted':
         from pricing.knowledge.market_crafted import apply_crafted_facts
 
@@ -155,8 +150,7 @@ def apply_mechanics(row):
                 'kind': 'ordinary_charm_catalog',
                 'catalog_path': 'pricing/data/appraisal-traderie-catalog.json',
             }
-    expected = [('sockets', '402', 0), ('ethereal', '738', False), ('socket_contents', '934', 'empty')]
-    apply_expected(row, expected, SOURCE, 'non-equipment base mechanics')
+    apply_expected(row, EXPECTED, SOURCE, 'non-equipment base mechanics')
 
 
 def apply_expected(row, expected, source, reason):

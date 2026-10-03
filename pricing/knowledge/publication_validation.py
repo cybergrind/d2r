@@ -10,11 +10,18 @@ from pricing.knowledge.assessment import base_use
 from pricing.knowledge.assessment.adapters import market_projection
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 from pricing.knowledge.assessment.mechanics import base_tiers
-from pricing.knowledge.assessment.policies import generic_leveling, leveling, named_baselines, named_tiers
+from pricing.knowledge.assessment.policies import (
+    generic_leveling,
+    leveling,
+    named_baselines,
+    named_leveling,
+    named_tiers,
+)
 from pricing.knowledge.assessment.policies.sources import source_error
 from pricing.knowledge.assessment.profile_sources import validate_profile_sources
 from pricing.knowledge.assessment.repository import ProfileRepository
 from pricing.knowledge.assessment.roles.predicates import native_keys
+from pricing.knowledge.documented_cache_dates import validate_records
 from pricing.knowledge.named_upgrades import named_upgrade_variants
 
 
@@ -90,6 +97,19 @@ def validate_definition_metadata(definitions, item_metadata, base_catalog):
 
 def validate_runtime_inputs():
     """Run inside a supplied artifact/definition/metadata snapshot; no live reads."""
+    from pricing.knowledge.assessment.policies.crown_trade import reviewed_date as crown_reviewed_date
+
+    crown_reviewed_date()
+    validate_records(named_tiers.ROOT)
+    from pricing.knowledge.assessment.policies.magic_trade import reviewed_date
+
+    reviewed_date()
+    from pricing.knowledge.assessment.policies.shako_trade import reviewed_date as shako_reviewed_date
+
+    shako_reviewed_date()
+    from pricing.knowledge.assessment.policies.stormshield_trade import reviewed_date as stormshield_reviewed_date
+
+    stormshield_reviewed_date()
     definitions = json.loads(read_artifact(definition_store.STORE.path))
     item_metadata = metadata()
     validate_definition_metadata(definitions, item_metadata, json.loads(read_artifact(base_tiers.CATALOG)))
@@ -126,6 +146,7 @@ def validate_runtime_inputs():
         read_artifact(leveling.DATA / 'appraisal-recommendations.json'),
         read_artifact(leveling.DATA / 'appraisal-item-facts.json'),
     )
+    named_leveling.reviews()
     if hashlib.sha256(read_artifact(generic_leveling.SOURCE)).hexdigest() != generic_leveling.SOURCE_SHA256:
         raise ValueError('Generic leveling evidence requires review')
     return {'profiles': len(profiles.bundle.profiles), 'named_policies': len(policies)}

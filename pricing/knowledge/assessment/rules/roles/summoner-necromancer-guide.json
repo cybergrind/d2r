@@ -2094,6 +2094,20 @@
             "op": "fact_eq",
             "field": "ethereal",
             "value": false
+          },
+          {
+            "any": [
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 0
+              },
+              {
+                "op": "fact_eq",
+                "field": "sockets",
+                "value": 1
+              }
+            ]
           }
         ]
       },
@@ -2115,7 +2129,7 @@
         "quotes": [
           "Thespiritshroud"
         ],
-        "review": "2026-09-26: Reviewed named weapon/armor alternative for Summoner. Native skill priorities intersect the guide skill plan: Raise Skeleton, Skeleton Mastery, Corpse Explosion and Decrepify. No automatic value assigned to every skill on the item: unused Mage/Terror bonuses and hit-flee are not highlighted. Original and valid upgraded bases retain use; minimum rolls do not need perfect defense. Numeric price and full loadout fit remain separate.",
+        "review": "2026-09-26: Reviewed named weapon/armor alternative for Summoner. Native skill priorities intersect the guide skill plan: Raise Skeleton, Skeleton Mastery, Corpse Explosion and Decrepify. No automatic value assigned to every skill on the item: unused Mage/Terror bonuses and hit-flee are not highlighted. Original and valid upgraded bases retain use; minimum rolls do not need perfect defense. Numeric price and full loadout fit remain separate. 2026-10-01: Native armor has no socket modifier; accept zero or one socket on native/upgraded armor. Impossible counts fail and unread counts remain unknown, matching the independently reviewed caster-armor rule.",
         "corroborating": [
           {
             "path": "third-parties/d2data/json/uniqueitems.json",

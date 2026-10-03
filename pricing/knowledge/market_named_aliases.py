@@ -1,5 +1,8 @@
 """Reviewed market-catalog aliases, never generic article or variant stripping."""
 
+from pricing.knowledge.market_facet_catalog import canonicalize_facet_catalog
+
+
 # Cached Traderie catalog IDs/names checked against local unique definitions.
 # Renewed and Latent Sunders have their own IDs and must remain distinct.
 ORIGINAL_SUNDERS = {
@@ -13,6 +16,8 @@ ORIGINAL_SUNDERS = {
 
 
 def canonicalize_named_catalog(row):
+    if canonicalize_facet_catalog(row):
+        return
     if row.get('category') not in ('unique', 'uniques'):
         return
     catalog_id = row.get('catalog_id')

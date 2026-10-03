@@ -8,7 +8,7 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, Sock
 
 
 PREFIX = 'frozen-orb-sorceress-specialist-shield-cold-'
-RAW = ((20, 0, 20), (102, 0, 30), (194, 0, 4))
+RAW = ((20, 0, 42), (102, 0, 30), (194, 0, 4))
 EMPTY = Item('Monarch', 'magic', raw_stats=RAW, sockets=4, affix_records=(('prefix', 422), ('suffix', 173)))
 
 
@@ -43,7 +43,7 @@ def cases():
                 replace(
                     item,
                     raw_stats=tuple(
-                        (stat, layer, 10 if stat == 20 else 15 if stat == 102 else value)
+                        (stat, layer, 32 if stat == 20 else 15 if stat == 102 else value)
                         for stat, layer, value in item.raw_stats
                     ),
                     affix_records=None,

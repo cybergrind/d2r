@@ -61,6 +61,12 @@ def cases():
             ('minimum-defense', item, context, 'true'),
             ('maximum-defense', shield(148), context, 'true'),
             ('blocking-suffix', shield(blocking=False), context, 'false'),
+            (
+                'insufficient-bonus',
+                replace(item, raw_stats=((20, 0, 41), *item.raw_stats[1:]), affix_records=None),
+                context,
+                'false',
+            ),
             ('three-sockets', shield(sockets=3), context, 'false'),
             ('ethereal', replace(shield(199), ethereal=True), context, 'false'),
             (

@@ -3,8 +3,8 @@
   "scope": "SC / Non-Ladder / PC / RotW",
   "reviewed_at": "2026-09-26",
   "inputs": {
-    "pricing/data/appraisal-item-facts.json": "9033a8b40839a9012a5177e302a4899e060617cf703b9774cd4f4beee323b66d",
-    "pricing/data/appraisal-recommendations.json": "5aa59eeee4b0a391347d1dc828ee71e08bd7ed31837f605acad4cc1f6a8325a3",
+    "pricing/data/appraisal-item-facts.json": "fc38221843b2fa5d5d2198746c4738e853a51094cd4c4a9f135a5568252debc4",
+    "pricing/data/appraisal-recommendations.json": "201ab62d7faa26c0c2e51a0b3313a463fd8ee1cb9fd778dfe48a9dd2b342ab78",
     "pricing/knowledge/assessment/rules/complete_sets.json": "322a7bf4c934cf23f69c405e8b4e10eb95bcb55d603c72e2e85b6d0948728213"
   },
   "rows": [

@@ -10,7 +10,7 @@ from tests.pricing.knowledge.assessment.test_family_contracts import facts
     ('base', 'name', 'stats', 'tier'),
     [
         ('Spiderweb Sash', 'Arachnid Mesh', {'16:0': 109}, 'med'),
-        ('Spiderweb Sash', 'Arachnid Mesh', {'16:0': 110}, 'high'),
+        ('Spiderweb Sash', 'Arachnid Mesh', {'16:0': 110}, 'med'),
         ('Ring', "Bul-Kathos' Wedding Band", {'60:0': 4}, 'med'),
         ('Ring', "Bul-Kathos' Wedding Band", {'60:0': 5}, 'high'),
         ('Chain Gloves', 'Chance Guards', {'80:0': 39}, 'low'),

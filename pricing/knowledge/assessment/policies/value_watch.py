@@ -2,6 +2,8 @@
 
 import math
 
+from inventory_tracking.items.metadata import metadata
+
 
 # Explicit scope markers in cached setup labels. Do not treat arbitrary mention
 # of Hardcore (including mixed-mode labels) as an exclusion.
@@ -24,21 +26,60 @@ def matching_watches(rows, facts):
             or facts.sockets != 0
             or facts.socket_contents != 'empty'
             or not conditions
+            or (row['details'].get('require_complete_capture') and facts.capture_complete is not True)
         ):
+            continue
+        required = row['details'].get('required_affix_records')
+        if required is not None and not matching_affix_records(required, facts.native_affixes):
+            continue
+        if not matching_raw_conditions(row['details'].get('raw_conditions', {}), facts.stats):
             continue
         for key, limits in conditions.items():
             stat = facts.stats.get(key, {})
+            if (
+                key not in facts.stats
+                and key in row['details'].get('missing_zero_stats', ())
+                and facts.capture_complete is True
+            ):
+                stat = {'status': 'decoded', 'value': 0}
             value = stat.get('value')
             if (
                 stat.get('status') != 'decoded'
                 or type(value) not in (int, float)
                 or not math.isfinite(value)
+                or value != int(value)
                 or not limits['min'] <= value <= limits['max']
             ):
                 break
         else:
-            matched.append(row)
+            if all(
+                len({facts.stats[key]['value'] for key in group}) == 1
+                for group in row['details'].get('equal_stat_groups', ())
+            ):
+                matched.append(row)
     return softcore_watches(matched)
+
+
+def matching_raw_conditions(conditions, stats):
+    """Scaled rates are matched in native units, never rounded semantic values."""
+    for key, limits in conditions.items():
+        stat = stats.get(key, {})
+        value = stat.get('raw')
+        if stat.get('status') != 'decoded' or type(value) is not int or not limits['min'] <= value <= limits['max']:
+            return False
+    return True
+
+
+def matching_affix_records(required, captured):
+    """Resolve runtime table IDs to pinned source rows; totals cannot prove level."""
+    if captured is None:
+        return False
+    entries = metadata()['affixes']
+    actual = {
+        table: sorted(entries[table][str(ident)]['source']['record_key'] for ident in ids)
+        for table, ids in captured.items()
+    }
+    return actual == required
 
 
 def softcore_watches(rows):

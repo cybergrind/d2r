@@ -20,7 +20,7 @@ def test_andariel_ethereal_and_joint_perfect_premium():
     assert assess_tier(replace(base, ethereal=None))['tier'] is None
 
 
-@pytest.mark.parametrize(('res', 'tier'), [(26, 'med'), (27, 'high'), (30, 'high')])
+@pytest.mark.parametrize(('res', 'tier'), [(26, 'med'), (27, 'med'), (29, 'med'), (30, 'high')])
 def test_mara_all_resistance_roll(res, tier):
     base = item('Amulet', "Mara's Kaleidoscope", {f'{s}:0': res for s in (39, 41, 43, 45)})
     assert assess_tier(base)['tier'] == tier

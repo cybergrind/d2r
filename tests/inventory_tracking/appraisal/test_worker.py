@@ -29,6 +29,9 @@ class Capture:
     def still_selected(self, frozen):
         return True
 
+    def still_hovered(self, frozen):
+        return self.still_selected(frozen)
+
 
 def test_new_request_cannot_be_replaced_by_old_result():
     pool = Deferred()

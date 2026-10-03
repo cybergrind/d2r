@@ -24,10 +24,17 @@ HANDS = Item(
 MEMBERS = (
     ('summoner-necromancer-guide-2-trang-claws', TRANG, 'Necromancer', False, 75),
     ('summoner-necromancer-guide-1-trang-claws', TRANG, 'Necromancer', False, 125),
+    ('poison-nova-necromancer-0-trang-claws', TRANG, 'Necromancer', True, 75),
     ('poison-nova-necromancer-1-trang-claws', TRANG, 'Necromancer', True, 125),
     ('poison-nova-necromancer-2-trang-claws', TRANG, 'Necromancer', True, 125),
     ('strafe-amazon-1-laying-hands', HANDS, 'Amazon', False, None),
 )
+TRANG_LINES = {
+    '105:0': '+20% Faster Cast Rate',
+    '43:0': 'Cold Resist +30%',
+    '188:16': '+2 to Curses (Necromancer Only)',
+    '332:0': '+25% to Poison Skill Damage',
+}
 
 
 def cases():
@@ -108,8 +115,17 @@ def cases():
                 else 'negative',
                 absent_configurations=() if active else (config,),
                 absent_stat_configurations=absent,
-                report_contains=(original.name, 'Trade tier:') if item.identified and item.ethereal is not True else (),
-                report_absent=('Trade tier:',) if item.ethereal is True else (),
+                report_contains=(
+                    original.name,
+                    'Trade tier:',
+                    *(line for key, line in TRANG_LINES.items() if original == TRANG and key in captured),
+                )
+                if item.identified and item.ethereal is not True
+                else (),
+                report_absent=(
+                    *(('Trade tier:',) if item.ethereal is True else ()),
+                    *(line for key, line in TRANG_LINES.items() if original == TRANG and key not in captured),
+                ),
                 evidence=('pricing/data/wp-a-builds.json', 'third-parties/d2data/json/setitems.json'),
             )
 

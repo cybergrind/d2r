@@ -2,9 +2,13 @@
 
 import math
 
+from pricing.knowledge.seasonal_skill_variants import select_skill_candidates
+
 
 def select_scalar_candidates(candidates, stats):
     """Shared scalar comparison after each caller verifies capture completeness."""
+    if (selected := select_skill_candidates(candidates, stats)) is not None:
+        return selected
     left, right = candidates
     ranges = [c.get('roll_ranges', {}) for c in candidates]
     keys = {k for k in ranges[0].keys() | ranges[1].keys() if ranges[0].get(k) != ranges[1].get(k)}

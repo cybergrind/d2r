@@ -128,3 +128,19 @@ def test_cache_is_bounded_and_hit_does_not_extend_expiration():
     assert cache.get('b', 3) is None
     assert cache.get('a', 9) == {'value': 1}
     assert cache.get('a', 10) is None
+
+
+def test_visible_card_rereads_hover_only_every_recheck_interval(monkeypatch):
+    worker, capture, pool, _, frames, now = make_worker(recheck_seconds=0.5)
+    probes = []
+    worker.request(1, 1)
+    pool.run(0)
+    monkeypatch.setattr(capture, 'still_hovered', lambda frozen: probes.append(now[0]) or False)
+    now[0] = 10.2
+    worker.tick()
+    assert not probes
+    assert frames[-1] is not None  # republished between probes
+    now[0] = 10.5
+    worker.tick()
+    assert probes == [10.5]
+    assert frames[-1] is None

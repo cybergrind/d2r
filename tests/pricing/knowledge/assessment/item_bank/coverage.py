@@ -42,10 +42,14 @@ def audit_cases(
     consumables=(),
     socket_materials=(),
     supplies=(),
+    quest_materials=(),
     value_scope=None,
     source_root=None,
     named_leveling=(),
     recommendations=(),
+    magic_trade=(),
+    named_policies=(),
+    named_trade=(),
 ):
     from pricing.knowledge.assessment.maintenance.value_scope import use_exclusions
 
@@ -59,6 +63,20 @@ def audit_cases(
         for row in watches
         if row.get('rarity') in ('unique', 'set') and row.get('details', {}).get('priority') == 'valuable_candidate'
     )
+    eligible_named = {f'named:{row["quality"]}:{row["name"]}' for row in tiers['rows']}
+    valuable_named.update(
+        f'named:{quality}:{name}' for quality, name in named_trade if f'named:{quality}:{name}' in eligible_named
+    )
+    for policy in named_policies:
+        target = f'named:{policy["quality"]}:{policy["name"]}'
+        branches = (policy, *policy.get('variant_rules', []))
+        if target in eligible_named and any(
+            'trade_qualification' in branch
+            or branch.get('default_tier') in {'high', 'med', 'mid'}
+            or any(override['tier'] in {'high', 'med', 'mid'} for override in branch.get('overrides', []))
+            for branch in branches
+        ):
+            valuable_named.add(target)
     optional.update(ordinary_leveling_targets(named_leveling, recommendations) - valuable_named)
     required = {f'role:{row["id"]}:{quality}' for row in profiles for quality in row['qualities']}
     required.update(valuable_named)
@@ -76,6 +94,8 @@ def audit_cases(
     required.update('consumable:' + code for code in consumables)
     required.update('socket_material:' + code for code in socket_materials)
     required.update('supply:' + code for code in supplies)
+    required.update('quest_material:' + code for code in quest_materials)
+    required.update('trade:magic:' + identifier for identifier in magic_trade)
     required -= optional
     present = defaultdict(set)
     ids = set()
@@ -92,14 +112,19 @@ def audit_cases(
                 raise ValueError('Different target quality is valid only for a negative scenario')
             key = (
                 target
-                if target.startswith(('named:', 'consumable:', 'socket_material:', 'supply:', 'role:'))
+                if target.startswith(
+                    ('named:', 'consumable:', 'socket_material:', 'supply:', 'quest_material:', 'role:', 'trade:')
+                )
                 else f'{target}:{case.item.rarity}'
                 if target.startswith('watch:')
                 else f'role:{target}:{case.item.rarity}'
             )
             present[key].add(case.scenario)
     missing = {key: sorted(SCENARIOS - present[key]) for key in sorted(required) if SCENARIOS - present[key]}
-    orphaned = sorted(set(present) - required - optional)
+    # Retain extra known-identity regressions without turning ordinary items into
+    # new mandatory leveling work or claiming that their identities are excluded.
+    supplemental = set(present) & (eligible_named - required - optional)
+    orphaned = sorted(set(present) - required - optional - supplemental)
     return {
         'schema_version': 1,
         'case_coverage_complete': not missing and not orphaned,
@@ -107,6 +132,7 @@ def audit_cases(
         'counts': {'cases': len(cases), 'required_targets': len(required), 'targets_missing_cases': len(missing)},
         'missing': missing,
         'orphaned_case_targets': orphaned,
+        'supplemental_case_targets': sorted(supplemental),
         'optional_case_targets': sorted(set(present) & optional),
         'scope_excluded_targets': sorted(optional),
         'builds': sorted({row['build'] for row in profiles}),
@@ -121,10 +147,13 @@ def main():
         Path('pricing/knowledge/assessment/rules/value_scope_reviews.json'),
         Path('pricing/data/appraisal-recommendations.json'),
         Path('pricing/knowledge/assessment/rules/named_leveling_reviews.json'),
+        Path('pricing/knowledge/assessment/rules/magic_trade.json'),
+        Path('pricing/knowledge/assessment/rules/named_tiers.json'),
     ]
     raw = [path.read_bytes() for path in paths]
     from pricing.knowledge.assessment.policies.consumables import REVIEWED_CODES
     from pricing.knowledge.assessment.policies.named_leveling import reviews
+    from pricing.knowledge.assessment.policies.quest_materials import definitions as quest_material_definitions
     from pricing.knowledge.assessment.policies.supplies import definitions as supply_definitions
     from pricing.knowledge.socket_materials import SOURCE, definitions
 
@@ -136,10 +165,14 @@ def main():
         consumables=REVIEWED_CODES,
         socket_materials=definitions(),
         supplies=supply_definitions(),
+        quest_materials=quest_material_definitions(),
         value_scope=json.loads(raw[3]),
         source_root=Path.cwd(),
         named_leveling=reviews().values(),
         recommendations=json.loads(raw[4])['rows'],
+        magic_trade=[json.loads(raw[6])['id']],
+        named_policies=json.loads(raw[7])['policies'],
+        named_trade=(('unique', 'Crown of Ages'), ('unique', 'Harlequin Crest'), ('unique', 'Stormshield')),
     )
     result['inputs'] = {
         str(path): hashlib.sha256(content).hexdigest() for path, content in zip(paths, raw, strict=True)
@@ -150,10 +183,14 @@ def main():
         ).hexdigest()
     for path in (
         Path('pricing/knowledge/assessment/maintenance/value_scope.py'),
+        Path('pricing/knowledge/assessment/maintenance/early_merc_table_scope.py'),
+        Path('pricing/knowledge/assessment/policies/trade_qualification.py'),
+        *(Path(f'pricing/knowledge/assessment/rules/{name}_trade.json') for name in ('crown', 'shako', 'stormshield')),
         Path('pyproject.toml'),
         Path('uv.lock'),
         SOURCE.relative_to(Path.cwd()),
         Path('pricing/knowledge/assessment/policies/supplies.py'),
+        Path('pricing/knowledge/assessment/policies/quest_materials.py'),
     ):
         result['inputs'][str(path)] = hashlib.sha256(path.read_bytes()).hexdigest()
     target = Path('pricing/data/appraisal-item-bank-coverage.json')

@@ -2,15 +2,26 @@
 
 import json
 from copy import deepcopy
+from functools import lru_cache
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.build_profiles import OUTPUT
 
 
+@lru_cache(maxsize=2)
+def _prepared_summaries(raw):
+    """Retain only demand summaries, keyed by the exact pinned source bytes."""
+    return json.loads(raw).get('guide_demand', {}).get('summaries', {})
+
+
+def _summaries(document):
+    if document is not None:
+        return document.get('guide_demand', {}).get('summaries', {})
+    return _prepared_summaries(read_artifact(OUTPUT))
+
+
 def demand_for(name, document=None):
-    if document is None:
-        document = json.loads(read_artifact(OUTPUT))
-    return deepcopy(document.get('guide_demand', {}).get('summaries', {}).get(name))
+    return deepcopy(_summaries(document).get(name))
 
 
 def demand_for_item(name, roles, document=None):
@@ -21,9 +32,8 @@ def demand_for_item(name, roles, document=None):
     """
     from pricing.knowledge.assessment.demand_counts import summarize_demand
 
-    if document is None:
-        document = json.loads(read_artifact(OUTPUT))
-    named = demand_for(name, document)
+    summaries = _summaries(document)
+    named = deepcopy(summaries.get(name))
     if named is not None:
         return named
     eligible = {
@@ -32,8 +42,8 @@ def demand_for_item(name, roles, document=None):
         if (r.get('rule_trace') or {}).get('truth') == 'true' and r.get('status') in {'matched', 'partial'}
     }
     patterns = {
-        key: value
-        for key, value in document.get('guide_demand', {}).get('summaries', {}).items()
+        key: deepcopy(value)
+        for key, value in summaries.items()
         if value.get('scope') == 'pattern' and eligible.intersection(value['profile_ids']) and value['distinct_builds']
     }
     if not patterns:

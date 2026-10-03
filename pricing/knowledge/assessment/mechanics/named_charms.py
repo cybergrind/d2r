@@ -1,4 +1,4 @@
-"""Roll integrity for reviewed unique charms without socket/base contributions."""
+"""Shared named rolls and reviewed unique charms without affix contributions."""
 
 import math
 
@@ -12,6 +12,7 @@ STANDALONE_CHARMS = frozenset(ORIGINAL_SUNDERS.values()) | {
     'Hellfire Torch',
     "Gheed's Fortune",
 }
+CHARM_TYPES = frozenset({'scha', 'mcha', 'lcha'})
 SHARED_ROLLS = {'all-stats': {0, 1, 2, 3}, 'res-all': {39, 41, 43, 45}}
 
 
@@ -20,7 +21,7 @@ def is_standalone_charm(facts):
 
 
 def shared_roll_gaps(facts, definition):
-    if not is_standalone_charm(facts):
+    if facts.item_type in CHARM_TYPES and not is_standalone_charm(facts):
         return []
     gaps = []
     # Local properties.json: func1=1 rolls once; subsequent func3 entries reuse

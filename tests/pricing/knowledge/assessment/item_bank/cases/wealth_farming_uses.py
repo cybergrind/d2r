@@ -96,7 +96,9 @@ def cases():
                     evidence=(
                         source,
                         'third-parties/d2data/json/runes.json:/Wealth',
-                        'third-parties/d2data/json/gems.json:/r20,/r18,/r03',
+                        'third-parties/d2data/json/gems.json:/r20',
+                        'third-parties/d2data/json/gems.json:/r18',
+                        'third-parties/d2data/json/gems.json:/r03',
                     ),
                 )
 

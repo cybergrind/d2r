@@ -23,6 +23,7 @@ from pricing.knowledge.native_socket_counts import native_socket_range
 from pricing.knowledge.per_level_effects import fixed_per_level_effects, variable_per_level_effects
 from pricing.knowledge.property_groups import SOURCE as GROUP_SOURCE, compile_groups
 from pricing.knowledge.rune_effects import socket_compound_effects
+from pricing.knowledge.set_properties import has_partial_enhanced_defense, standalone_set_record
 
 
 SOURCE_DATE = '2026-09-23'
@@ -104,7 +105,18 @@ def scalar_ranges(record, properties, stat_ids, *, runeword=False, skill_ids=Non
         return f'{row["stat_id"]}:{row["layer"]}' if 'layer' in row else str(row['stat_id'])
 
     counts = Counter(key(row) for row in ranges)
-    return {key(row): row for row in ranges if counts[key(row)] == 1}
+    result = {key(row): row for row in ranges if counts[key(row)] == 1}
+    if runeword:
+        # Recipe resistance properties add. Only fixed contributions may be
+        # collapsed: variable res-all must retain its shared-roll constraint.
+        for stat, code in ((39, 'res-fire'), (41, 'res-ltng'), (43, 'res-cold'), (45, 'res-pois')):
+            parts = [row for row in ranges if key(row) == str(stat)]
+            if len(parts) > 1 and all(
+                row['property'] in (code, 'res-all') and row['min'] == row['max'] for row in parts
+            ):
+                total = sum(row['min'] for row in parts)
+                result[str(stat)] = {**parts[0], 'min': total, 'max': total, 'property': code}
+    return result
 
 
 def socket_bonus_ranges(runes, gems, properties, stat_ids):
@@ -251,16 +263,18 @@ def build_definitions(root):
     rows: list[dict[str, Any]] = []
 
     def compile_named(record, quality, code_key, source_path, set_definitions=None):
+        effects = standalone_set_record(record) if quality == 'set' else record
         code = record.get(code_key)
         base_defense = bases.get(code, {})
         plain_defense = type(base_defense.get('minac')) is int and not any(
-            str(record.get(f'prop{i}', '')).startswith('ac') for i in range(1, 13)
+            str(effects.get(f'prop{i}', '')).startswith('ac') for i in range(1, 13)
         )
+        fixed_base_defense = quality == 'set' and has_partial_enhanced_defense(record)
         return {
             'base_defense_range': (
                 {
-                    'min': base_defense['minac'],
-                    'max': base_defense['maxac'],
+                    'min': base_defense['maxac'] + 1 if fixed_base_defense else base_defense['minac'],
+                    'max': base_defense['maxac'] + 1 if fixed_base_defense else base_defense['maxac'],
                     'source': {'path': raw + 'armor.json', 'source_date': SOURCE_DATE},
                 }
                 if plain_defense
@@ -273,24 +287,24 @@ def build_definitions(root):
             'set_definition': (sets if set_definitions is None else set_definitions).get(record.get('set')),
             'game_definition': dict(record),
             'base_definition': dict(bases.get(code, {})),
-            'native_socket_range': native_socket_range(record, bases.get(code, {}), types),
+            'native_socket_range': native_socket_range(effects, bases.get(code, {}), types),
             'base_code': code,
             'base_codes': [code] if code in bases else [],
             'base_name': bases.get(code, {}).get('name'),
             'set_name': strings.get(record.get('set'), record.get('set')),
-            'roll_ranges': scalar_ranges(record, properties, stat_ids, skill_ids=skill_ids),
+            'roll_ranges': scalar_ranges(effects, properties, stat_ids, skill_ids=skill_ids),
             'property_groups': compile_groups(
-                record,
+                effects,
                 property_groups,
                 lambda row: scalar_ranges(row, properties, stat_ids, skill_ids=skill_ids),
                 inputs[GROUP_SOURCE],
             ),
-            'fixed_elemental_effects': fixed_elemental_effects(record, properties),
-            'fixed_poison_effect': fixed_poison_effect(record, properties),
-            'fixed_triggers': fixed_triggers(record, properties, stat_ids, skill_ids),
-            'fixed_per_level_effects': fixed_per_level_effects(record, properties, stats),
-            'variable_per_level_effects': variable_per_level_effects(record, properties, stats),
-            'enhanced_damage_expected': any(record.get(f'prop{i}') == 'dmg%' for i in range(1, 13)),
+            'fixed_elemental_effects': fixed_elemental_effects(effects, properties),
+            'fixed_poison_effect': fixed_poison_effect(effects, properties),
+            'fixed_triggers': fixed_triggers(effects, properties, stat_ids, skill_ids),
+            'fixed_per_level_effects': fixed_per_level_effects(effects, properties, stats),
+            'variable_per_level_effects': variable_per_level_effects(effects, properties, stats),
+            'enhanced_damage_expected': any(effects.get(f'prop{i}') == 'dmg%' for i in range(1, 13)),
             'source': {'path': source_path, 'source_date': SOURCE_DATE},
         }
 

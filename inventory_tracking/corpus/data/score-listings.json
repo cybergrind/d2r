@@ -1,0 +1,1058 @@
+{
+  "overall": {
+    "priced": 32051,
+    "valuable": 30446,
+    "flagged_valuable": 11520,
+    "checks": 2703,
+    "checks_valuable": 2698,
+    "cheap": 482,
+    "recall": 0.37837482756355517,
+    "cheap_false_positive_rate": 0.0
+  },
+  "categories": {
+    "base": {
+      "priced": 5926,
+      "checks": 0,
+      "valuable": 5811,
+      "flagged_valuable": 3,
+      "checks_valuable": 0,
+      "recall": 0.0005162622612287042,
+      "cheap_false_positive_rate": null
+    },
+    "crafted": {
+      "priced": 842,
+      "checks": 188,
+      "valuable": 842,
+      "flagged_valuable": 0,
+      "checks_valuable": 188,
+      "recall": 0.0,
+      "cheap_false_positive_rate": null
+    },
+    "gems": {
+      "priced": 475,
+      "checks": 0,
+      "cheap": 260,
+      "flagged_cheap": 0,
+      "checks_cheap": 0,
+      "valuable": 15,
+      "flagged_valuable": 0,
+      "checks_valuable": 0,
+      "recall": 0.0,
+      "cheap_false_positive_rate": 0.0
+    },
+    "magic": {
+      "priced": 1930,
+      "checks": 196,
+      "valuable": 1912,
+      "flagged_valuable": 80,
+      "checks_valuable": 196,
+      "recall": 0.04184100418410042,
+      "cheap_false_positive_rate": null
+    },
+    "misc": {
+      "priced": 257,
+      "checks": 0,
+      "valuable": 256,
+      "flagged_valuable": 241,
+      "checks_valuable": 0,
+      "recall": 0.94140625,
+      "cheap_false_positive_rate": null
+    },
+    "rare": {
+      "priced": 6978,
+      "checks": 1930,
+      "valuable": 6966,
+      "flagged_valuable": 0,
+      "checks_valuable": 1930,
+      "recall": 0.0,
+      "cheap_false_positive_rate": null
+    },
+    "runes": {
+      "priced": 1210,
+      "checks": 0,
+      "valuable": 818,
+      "flagged_valuable": 651,
+      "checks_valuable": 0,
+      "cheap": 222,
+      "flagged_cheap": 0,
+      "checks_cheap": 0,
+      "recall": 0.7958435207823961,
+      "cheap_false_positive_rate": 0.0
+    },
+    "runewords": {
+      "priced": 3769,
+      "checks": 0,
+      "valuable": 3730,
+      "flagged_valuable": 1322,
+      "checks_valuable": 0,
+      "recall": 0.3544235924932976,
+      "cheap_false_positive_rate": null
+    },
+    "sets": {
+      "priced": 1409,
+      "checks": 6,
+      "valuable": 1279,
+      "flagged_valuable": 1192,
+      "checks_valuable": 6,
+      "recall": 0.9319781078967944,
+      "cheap_false_positive_rate": null
+    },
+    "uniques": {
+      "priced": 9255,
+      "checks": 383,
+      "valuable": 8817,
+      "flagged_valuable": 8031,
+      "checks_valuable": 378,
+      "recall": 0.9108540319836679,
+      "cheap_false_positive_rate": null
+    }
+  },
+  "roll_validation": {
+    "models": [
+      {
+        "name": "Sazabi's Ghost Liberator",
+        "ethereal": false,
+        "socket_contents": "unknown",
+        "deciding": {
+          "418": {
+            "min": 50,
+            "max": 75,
+            "better": "higher",
+            "label": "to Life",
+            "native_key": "7:0",
+            "sample_size": 22,
+            "top_count": 18,
+            "observed_min": 51,
+            "observed_max": 75
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 21,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 3.0081126457873197,
+          "name_median_error": 3.0407171229073464,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": true
+        }
+      },
+      {
+        "name": "Tal Rasha's Fine-Spun Cloth",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "461": {
+            "min": 10,
+            "max": 15,
+            "better": "higher",
+            "label": "Better Chance of Getting Magic Items",
+            "native_key": "80:0",
+            "sample_size": 19,
+            "top_count": 17,
+            "observed_min": 10,
+            "observed_max": 15
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 18,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.3071206188756612,
+          "name_median_error": 0.34190279464862844,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": true
+        }
+      },
+      {
+        "name": "Tal Rasha's Lidless Eye",
+        "ethereal": false,
+        "socket_contents": "unknown",
+        "deciding": {
+          "1050": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "Fire Mastery",
+            "native_key": "107:61",
+            "sample_size": 19,
+            "top_count": 19,
+            "observed_min": 2,
+            "observed_max": 2
+          },
+          "1051": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "Lightning Mastery",
+            "native_key": "107:63",
+            "sample_size": 19,
+            "top_count": 17,
+            "observed_min": 1,
+            "observed_max": 2
+          },
+          "1053": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "Cold Mastery",
+            "native_key": "107:65",
+            "sample_size": 19,
+            "top_count": 18,
+            "observed_min": 1,
+            "observed_max": 2
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 19,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.5089165462817439,
+          "name_median_error": 0.34190279464862844,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rusthandle",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "577": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "Vengeance",
+            "native_key": "107:111",
+            "sample_size": 15,
+            "top_count": 13,
+            "observed_min": 1,
+            "observed_max": 3
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 0,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": null,
+          "name_median_error": null,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Chance Guards",
+        "ethereal": null,
+        "socket_contents": "empty",
+        "deciding": {
+          "461": {
+            "min": 25,
+            "max": 40,
+            "better": "higher",
+            "label": "Better Chance of Getting Magic Items",
+            "native_key": "80:0",
+            "sample_size": 16,
+            "top_count": 14,
+            "observed_min": 25,
+            "observed_max": 40
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 15,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.0814552189255582,
+          "name_median_error": 0.5691795034802285,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Frostburn",
+        "ethereal": null,
+        "socket_contents": "empty",
+        "deciding": {
+          "425": {
+            "min": 10,
+            "max": 20,
+            "better": "higher",
+            "label": "Enhanced Defense",
+            "native_key": "16:0",
+            "sample_size": 118,
+            "top_count": 96,
+            "observed_min": 10,
+            "observed_max": 20
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 116,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.5691795034802285,
+          "name_median_error": 0.34190279464862844,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Nagelring",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "461": {
+            "min": 15,
+            "max": 30,
+            "better": "higher",
+            "label": "Better Chance of Getting Magic Items",
+            "native_key": "80:0",
+            "sample_size": 17,
+            "top_count": 17,
+            "observed_min": 29,
+            "observed_max": 30
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 16,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.34190279464862844,
+          "name_median_error": 0.3419027946486284,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "The Meat Scraper",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "510": {
+            "min": 150,
+            "max": 200,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 32,
+            "top_count": 26,
+            "observed_min": 161,
+            "observed_max": 200
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 31,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.7502512849164314,
+          "name_median_error": 0.34190279464862844,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Riphook",
+        "ethereal": false,
+        "socket_contents": "unknown",
+        "deciding": {
+          "510": {
+            "min": 180,
+            "max": 220,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 17,
+            "top_count": 14,
+            "observed_min": 181,
+            "observed_max": 220
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 16,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.186201445697615,
+          "name_median_error": 1.7120670751888383,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Stealskull",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "461": {
+            "min": 30,
+            "max": 50,
+            "better": "higher",
+            "label": "Better Chance of Getting Magic Items",
+            "native_key": "80:0",
+            "sample_size": 16,
+            "top_count": 12,
+            "observed_min": 31,
+            "observed_max": 50
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 3,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.22727670883159998,
+          "name_median_error": 0.5691795034802285,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": true
+        }
+      },
+      {
+        "name": "Duriel's Shell",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "425": {
+            "min": 160,
+            "max": 200,
+            "better": "higher",
+            "label": "Enhanced Defense",
+            "native_key": "16:0",
+            "sample_size": 18,
+            "top_count": 15,
+            "observed_min": 169,
+            "observed_max": 200
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 17,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.8160371651574051,
+          "name_median_error": 0.34190279464862844,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "War Traveler",
+        "ethereal": null,
+        "socket_contents": "empty",
+        "deciding": {
+          "461": {
+            "min": 30,
+            "max": 50,
+            "better": "higher",
+            "label": "Better Chance of Getting Magic Items",
+            "native_key": "80:0",
+            "sample_size": 31,
+            "top_count": 27,
+            "observed_min": 32,
+            "observed_max": 50
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 30,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.0812214827329374,
+          "name_median_error": 1.3461398949448644,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Doombringer",
+        "ethereal": false,
+        "socket_contents": "unknown",
+        "deciding": {
+          "510": {
+            "min": 180,
+            "max": 250,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 17,
+            "top_count": 14,
+            "observed_min": 180,
+            "observed_max": 250
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 14,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.1897136009345886,
+          "name_median_error": 1.0931007228488074,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Titan's Revenge",
+        "ethereal": true,
+        "socket_contents": "empty",
+        "deciding": {
+          "510": {
+            "min": 150,
+            "max": 200,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 19,
+            "top_count": 15,
+            "observed_min": 155,
+            "observed_max": 200
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 18,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.9565746553576118,
+          "name_median_error": 1.0,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Shadow Dancer",
+        "ethereal": null,
+        "socket_contents": "empty",
+        "deciding": {
+          "409": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "skilltab",
+            "native_key": "188:49",
+            "sample_size": 30,
+            "top_count": 29,
+            "observed_min": 1,
+            "observed_max": 2
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 29,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.5570424152637194,
+          "name_median_error": 0.9720799145425634,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Darkforce Spawn",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "499": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "skilltab",
+            "native_key": "188:16",
+            "sample_size": 19,
+            "top_count": 16,
+            "observed_min": 1,
+            "observed_max": 3
+          },
+          "500": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "skilltab",
+            "native_key": "188:17",
+            "sample_size": 19,
+            "top_count": 19,
+            "observed_min": 3,
+            "observed_max": 3
+          },
+          "501": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "skilltab",
+            "native_key": "188:18",
+            "sample_size": 17,
+            "top_count": 14,
+            "observed_min": 1,
+            "observed_max": 3
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 16,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.2932871157417756,
+          "name_median_error": 0.6466435578708878,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Widowmaker",
+        "ethereal": false,
+        "socket_contents": "unknown",
+        "deciding": {
+          "510": {
+            "min": 150,
+            "max": 200,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 18,
+            "top_count": 14,
+            "observed_min": 159,
+            "observed_max": 200
+          }
+        },
+        "unmapped_variable_stats": [
+          "97:22"
+        ],
+        "validation": {
+          "evaluated": 17,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.6352252754170977,
+          "name_median_error": 0.9565746553576118,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Boneflame",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "498": {
+            "min": 2,
+            "max": 3,
+            "better": "higher",
+            "label": "nec",
+            "native_key": "83:2",
+            "sample_size": 15,
+            "top_count": 15,
+            "observed_min": 3,
+            "observed_max": 3
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 0,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": null,
+          "name_median_error": null,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Ormus' Robes",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "743": {
+            "min": 10,
+            "max": 15,
+            "better": "higher",
+            "label": "to Lightning Skill Damage",
+            "native_key": "330:0",
+            "sample_size": 23,
+            "top_count": 21,
+            "observed_min": 12,
+            "observed_max": 15
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 22,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.790611462456469,
+          "name_median_error": 2.956574655357612,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": true
+        }
+      },
+      {
+        "name": "Halaberd's Reign",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "417": {
+            "min": 15,
+            "max": 23,
+            "better": "higher",
+            "label": "Replenish Life",
+            "native_key": "74:0",
+            "sample_size": 21,
+            "top_count": 16,
+            "observed_min": 15,
+            "observed_max": 23
+          },
+          "765": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "Battle Orders",
+            "native_key": "107:149",
+            "sample_size": 21,
+            "top_count": 20,
+            "observed_min": 1,
+            "observed_max": 2
+          },
+          "1001": {
+            "min": 1,
+            "max": 2,
+            "better": "higher",
+            "label": "Battle Command",
+            "native_key": "107:155",
+            "sample_size": 21,
+            "top_count": 19,
+            "observed_min": 1,
+            "observed_max": 2
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 17,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.37016428054021,
+          "name_median_error": 1.3219280948873622,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Eschuta's Temper",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "514": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "sor",
+            "native_key": "83:1",
+            "sample_size": 25,
+            "top_count": 25,
+            "observed_min": 3,
+            "observed_max": 3
+          },
+          "743": {
+            "min": 10,
+            "max": 20,
+            "better": "higher",
+            "label": "to Lightning Skill Damage",
+            "native_key": "330:0",
+            "sample_size": 24,
+            "top_count": 18,
+            "observed_min": 10,
+            "observed_max": 20
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 19,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.5570424152637194,
+          "name_median_error": 1.2932871157417756,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Steelrend",
+        "ethereal": null,
+        "socket_contents": "empty",
+        "deciding": {
+          "437": {
+            "min": 15,
+            "max": 20,
+            "better": "higher",
+            "label": "to Strength",
+            "native_key": "0:0",
+            "sample_size": 16,
+            "top_count": 12,
+            "observed_min": 16,
+            "observed_max": 20
+          },
+          "510": {
+            "min": 30,
+            "max": 60,
+            "better": "higher",
+            "label": "Enhanced Minimum Damage",
+            "native_key": "18:0",
+            "sample_size": 16,
+            "top_count": 12,
+            "observed_min": 34,
+            "observed_max": 60
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 3,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 0.5691795034802285,
+          "name_median_error": 5.752561285753012,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": true
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "743": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "to Lightning Skill Damage",
+            "native_key": "330:0",
+            "sample_size": 45,
+            "top_count": 39,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 27,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.3419027946486284,
+          "name_median_error": 1.1868781347235096,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "735": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "-% to Enemy Fire Resistance",
+            "native_key": "333:0",
+            "sample_size": 54,
+            "top_count": 41,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 39,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.5570424152637194,
+          "name_median_error": 1.7296358628592055,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "783": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "to Poison Skill Damage",
+            "native_key": "332:0",
+            "sample_size": 56,
+            "top_count": 44,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 47,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.7759597257820696,
+          "name_median_error": 1.37016428054021,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "743": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "to Lightning Skill Damage",
+            "native_key": "330:0",
+            "sample_size": 45,
+            "top_count": 39,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 27,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.3419027946486284,
+          "name_median_error": 1.1868781347235096,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "735": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "-% to Enemy Fire Resistance",
+            "native_key": "333:0",
+            "sample_size": 54,
+            "top_count": 41,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 39,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 2.5570424152637194,
+          "name_median_error": 1.7296358628592055,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Rainbow Facet",
+        "ethereal": false,
+        "socket_contents": "empty",
+        "deciding": {
+          "783": {
+            "min": 3,
+            "max": 5,
+            "better": "higher",
+            "label": "to Poison Skill Damage",
+            "native_key": "332:0",
+            "sample_size": 56,
+            "top_count": 44,
+            "observed_min": 3,
+            "observed_max": 5
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 47,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.7759597257820696,
+          "name_median_error": 1.37016428054021,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Measured Wrath",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "1575": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "Flame Wave",
+            "native_key": "107:398",
+            "sample_size": 20,
+            "top_count": 18,
+            "observed_min": 2,
+            "observed_max": 3
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 20,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.477563390630683,
+          "name_median_error": 1.37016428054021,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      },
+      {
+        "name": "Bloodpact Shard",
+        "ethereal": null,
+        "socket_contents": "unknown",
+        "deciding": {
+          "1555": {
+            "min": 2,
+            "max": 3,
+            "better": "higher",
+            "label": "Blood Oath",
+            "native_key": "107:378",
+            "sample_size": 30,
+            "top_count": 26,
+            "observed_min": 2,
+            "observed_max": 3
+          },
+          "1559": {
+            "min": 1,
+            "max": 3,
+            "better": "higher",
+            "label": "Bind Demon",
+            "native_key": "107:382",
+            "sample_size": 30,
+            "top_count": 24,
+            "observed_min": 1,
+            "observed_max": 3
+          }
+        },
+        "unmapped_variable_stats": [],
+        "validation": {
+          "evaluated": 29,
+          "seller_exclusion": true,
+          "selection_recomputed": true,
+          "roll_median_error": 1.0862031755448092,
+          "name_median_error": 0.5691795034802285,
+          "error_unit": "absolute log2 price ratio",
+          "use_roll_model": false
+        }
+      }
+    ],
+    "drafts": 30,
+    "beat_name_median": 5,
+    "live_enabled": false
+  }
+}

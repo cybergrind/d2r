@@ -132,7 +132,7 @@ Leveling is independent of trade tier. “Indexed” means a separate reviewed l
 | set | Tancred's Weird | low |  |  |
 | set | Telling of Beads | low |  | Indexed |
 | set | Trang-Oul's Claws | low |  | Indexed |
-| set | Trang-Oul's Girth | low |  |  |
+| set | Trang-Oul's Girth | low | med: 50 mana: higher asking segment within this set belt. |  |
 | set | Trang-Oul's Guise | low |  |  |
 | set | Trang-Oul's Scales | low |  |  |
 | set | Trang-Oul's Wing | low |  |  |
@@ -271,7 +271,7 @@ Leveling is independent of trade tier. “Indexed” means a separate reviewed l
 | unique | Frostwind | low |  |  |
 | unique | Gargoyle's Bite | low |  |  |
 | unique | Gerke's Sanctuary | low |  |  |
-| unique | Gheed's Fortune | med | high: At least 38% magic find: higher cached asking segment |  |
+| unique | Gheed's Fortune | med | high: 40% magic find: reviewed perfect-MF asking segment |  |
 | unique | Gheed's Wager | high |  |  |
 | unique | Ghostflame | low |  |  |
 | unique | Ghoulhide | low |  |  |
@@ -369,7 +369,7 @@ Leveling is independent of trade tier. “Indexed” means a separate reviewed l
 | unique | Magewrath | low |  |  |
 | unique | Manald Heal | low |  |  |
 | unique | Mang Song's Lesson | low |  |  |
-| unique | Mara's Kaleidoscope | med | high: Perfect all resistances; high: 27–29 all resistances; cached asks dominated by one seller | Indexed |
+| unique | Mara's Kaleidoscope | med | high: Perfect all resistances | Indexed |
 | unique | Marrowwalk | low |  |  |
 | unique | Measured Wrath | med |  |  |
 | unique | Medusa's Gaze | low |  |  |
@@ -427,7 +427,7 @@ Leveling is independent of trade tier. “Indexed” means a separate reviewed l
 | unique | Rotting Fissure | low |  |  |
 | unique | Rune Master | trash | low: 5 open sockets support the intended specialist payload. |  |
 | unique | Rusthandle | low |  |  |
-| unique | Sandstorm Trek | med | high: Perfect strength and vitality: premium asking segment |  |
+| unique | Sandstorm Trek | med | high: Ethereal with 15 Strength and 15 Vitality: premium asking segment |  |
 | unique | Saracen's Chance | low |  |  |
 | unique | Schaefer's Hammer | low |  |  |
 | unique | Seraph's Hymn | low |  |  |

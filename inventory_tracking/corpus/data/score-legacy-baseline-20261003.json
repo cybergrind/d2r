@@ -1,0 +1,4425 @@
+{
+ "summary": {
+  "mode": "legacy",
+  "labelled": 0,
+  "worth": 0,
+  "recall": null,
+  "keeps": 0,
+  "precision": null,
+  "priced": 0,
+  "sell_band_coverage": null,
+  "confusion": {},
+  "missed": [],
+  "false_keeps": []
+ },
+ "results": [
+  {
+   "id": "037cbcb6eef7",
+   "name": "Clasped Orb",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0392654b1b47",
+   "name": "Gheed's Fortune",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: MF% (461); 20-40 base",
+   "estimate_ist": null
+  },
+  {
+   "id": "03aa682ff393",
+   "name": "The General's Tan Do Li Ga",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful attack leveling modifiers; optional alternative to readily available leveling runewords, with weapon damage and requirements checked",
+   "estimate_ist": null
+  },
+  {
+   "id": "03c2739e0d05",
+   "name": "Mage Plate",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "03fb542e12c1",
+   "name": "Hellplague",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "04688d4cad68",
+   "name": "Blade of Ali Baba",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "055bef43b692",
+   "name": "Vampirefang Belt",
+   "rarity": "crafted",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "05ebfb31975c",
+   "name": "Ring",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0663f173d651",
+   "name": "Brimstone Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "06964ac0f912",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "keep",
+   "reason": "valuable: Druid Summoning skiller with 30-45 Life",
+   "estimate_ist": null
+  },
+  {
+   "id": "07adfe5fa829",
+   "name": "Mancatcher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "07c3e88a3cbe",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "08014a80f34f",
+   "name": "Dusk Shroud",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "084849b546dd",
+   "name": "Treads of Cthon",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Movement and life for early progression",
+   "estimate_ist": null
+  },
+  {
+   "id": "08e21cfb9fce",
+   "name": "Blood Finger",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0996f75769fd",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "09ddaaee1e8d",
+   "name": "Flail",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0a49e3aa2675",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0a71192a4d67",
+   "name": "Rockstopper",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: Lightning Resist +x% Fire Resist +x% Cold Resist +x%",
+   "estimate_ist": null
+  },
+  {
+   "id": "0ad0aee53b96",
+   "name": "Ceremonial Javelin",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0ad8881f7c55",
+   "name": "Frostwind",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "0b2ead4da49b",
+   "name": "Leviathan",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "0b685bd34d3f",
+   "name": "Que-Hegan's Wisdom",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "0c5b1b14017a",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (48 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0c779065363e",
+   "name": "Military Pick",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0fab6c837fca",
+   "name": "Havoc Eye",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "0fe3bcf49af4",
+   "name": "Immortal King's Stone Crusher",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "1087fa765ff4",
+   "name": "The Dragon Chang",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "115784ee3843",
+   "name": "Berserker's Headgear",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Fire resistance for early survival",
+   "estimate_ist": null
+  },
+  {
+   "id": "1172c4e388ab",
+   "name": "Rune Beads",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (12 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "122437e53ad5",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "126054bd9328",
+   "name": "Cruel Touch",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "1294fa6db3b3",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "12c287714c41",
+   "name": "Ghoulri Grasp",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "130584da1d24",
+   "name": "Milabrega's Orb",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "1331a9109b13",
+   "name": "Cryptic Axe",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "138f39e2c938",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "13da2c7047a7",
+   "name": "Death Master",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "141f0385c852",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "14255beb0b58",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "14431cf1c327",
+   "name": "Hellplague",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "14a27d2db162",
+   "name": "Sigon's Sabot",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "157a0fe7be42",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "15b4f77b4bbc",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "15eca35e8107",
+   "name": "Howltusk",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "161faf04303e",
+   "name": "Demon Emblem",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "17ac53727c7e",
+   "name": "Naj's Circlet",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "17e9df68ba4b",
+   "name": "Circlet",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "18032228a0e0",
+   "name": "Blacktongue",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "190dd0ad04d8",
+   "name": "Loath Heart",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "1942b8720a3c",
+   "name": "Gloom's Trap",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "19468a3d27f7",
+   "name": "Hellrack",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "197c6af6a442",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "1ab9caba05d3",
+   "name": "Aldur's Stony Gaze",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "1b0ec7c4846b",
+   "name": "Hand of Blessed Light",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "1b8edc9426ab",
+   "name": "Lion Helm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "1c543d132d6c",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "1c8d9b414a3a",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "1edc20898a0f",
+   "name": "Vidala's Snare",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "1f37064fdf52",
+   "name": "Milabrega's Orb",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "1f59ddf0dd09",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "2161ed0aaccb",
+   "name": "Manald Heal",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "218d14b0dca3",
+   "name": "Greater Talons",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "22172bc1f52a",
+   "name": "Cathan's Visage",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "222d91980903",
+   "name": "Ginther's Rift",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful attack leveling modifiers; optional alternative to readily available leveling runewords, with weapon damage and requirements checked",
+   "estimate_ist": null
+  },
+  {
+   "id": "22a0cbc2eb59",
+   "name": "Mesh Boots",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "22a2011e5663",
+   "name": "Bramble Mitts",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "241b8dc06bf0",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "246333027354",
+   "name": "Langer Briser",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "249c6d0b6fd8",
+   "name": "Baranar's Star",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "257c375adabb",
+   "name": "Que-Hegan's Wisdom",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "2591f86329c1",
+   "name": "Bone Wand",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "25ce63c9c3cb",
+   "name": "Infernostride",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: x% Extra Gold from Monsters",
+   "estimate_ist": null
+  },
+  {
+   "id": "2622a7f1f1fa",
+   "name": "Raven Frost",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: dex (429) 15-20 / AR (423) 150-250",
+   "estimate_ist": null
+  },
+  {
+   "id": "265c13e51583",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "26908fcba1f5",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2720db699a67",
+   "name": "Venom Ward",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "275a94f8fe31",
+   "name": "Horazon's Dominion",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "276e46263c9c",
+   "name": "Stormstrike",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "277902358a19",
+   "name": "Storm Gyre",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "27f51da2e911",
+   "name": "Gleamscythe",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "288c944232b4",
+   "name": "Vampirefang Belt",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "29525bdcedc5",
+   "name": "M'avina's Caster",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "2a7370bb804b",
+   "name": "The Dragon Chang",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2b428c5f363b",
+   "name": "Zakarum's Hand",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2b73b1e1174d",
+   "name": "Natalya's Totem",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "2b9eff8bfdf8",
+   "name": "Iratha's Collar",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable resistance and pierce leveling set, particularly ranged attacks; full-set maximum-resistance benefits require all four pieces",
+   "estimate_ist": null
+  },
+  {
+   "id": "2c4842412bbc",
+   "name": "Hellcast",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "2c8f13dc9c63",
+   "name": "Natalya's Soul",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: Lightning Resist +x% Cold Resist +x%",
+   "estimate_ist": null
+  },
+  {
+   "id": "2ce95cffa665",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2d217f207066",
+   "name": "Blade of Ali Baba",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "2d289b42b674",
+   "name": "Corruption Knot",
+   "rarity": "rare",
+   "verdict": "check",
+   "reason": "possible: Lightning Sorceress player caster resistance and resource support [Ubers] +2; needs review: Compare both ring slots and the complete loadout with this variant\u2019s cast-rate, resistance and resource requirements; candidate fit is not a price estimate.; Uber setup assumes stacked lightning resistance, Thundergod\u2019s Vigor and Treachery Fade prebuff; this ring alone does not establish survival.",
+   "estimate_ist": null
+  },
+  {
+   "id": "2d870358314d",
+   "name": "Spineripper",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2f104a49eb78",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2f2503d65cd5",
+   "name": "Cinquedeas",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2f8b8a020d0b",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "2fb56cadf9bf",
+   "name": "Storm Goad",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3189ac11cfff",
+   "name": "Phase Blade",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "328611bdb9d0",
+   "name": "Sazabi's Ghost Liberator",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "3304fa8c8a74",
+   "name": "Eldritch Orb",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "33b14615deda",
+   "name": "Hwanin's Justice",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "33db8ccf8510",
+   "name": "Beast Spiral",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "34786a56af61",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "35553a24106a",
+   "name": "Flail",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3595816e5c6f",
+   "name": "Flail",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "35e23eb03ac7",
+   "name": "Humongous",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "361e8d2d3ace",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "36252c0e2734",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "keep",
+   "reason": "valuable: Gold find: 10% (Small Charm; Travincal guide priority: low)",
+   "estimate_ist": null
+  },
+  {
+   "id": "362f2aee51be",
+   "name": "Steeldriver",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling high: Strong early physical damage or crushing-blow progression option; check weapon speed and equip requirements",
+   "estimate_ist": null
+  },
+  {
+   "id": "36312dac08a1",
+   "name": "Gheed's Fortune",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: MF% (461); 20-40 base",
+   "estimate_ist": null
+  },
+  {
+   "id": "36913f8c0e40",
+   "name": "Death Heart",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "374a12ac1045",
+   "name": "Civerb's Ward",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "37abbeafd1f0",
+   "name": "Insight",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Nova Sorceress merc Insight Meditation and mercenary damage [Endgame] +8; needs review: Not confirmed: Mercenary type: Act 2 Might or Act 2 Holy Freeze; Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.; Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Cure Diadem (ethereal) \u2014 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'.",
+   "estimate_ist": null
+  },
+  {
+   "id": "384d982130dd",
+   "name": "Demonhide Sash",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "38c61e380cac",
+   "name": "Natalya's Soul",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: Lightning Resist +x% Cold Resist +x%",
+   "estimate_ist": null
+  },
+  {
+   "id": "3918931dc95b",
+   "name": "Peasant Crown",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "397908f72f07",
+   "name": "Ichorsting",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "39f5ed1ba043",
+   "name": "Mummified Trophy",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3bacd1242e24",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3c03fc6d9dd2",
+   "name": "Civerb's Ward",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "3cd50395de4c",
+   "name": "Trang-Oul's Claws",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "valuable: no roll",
+   "estimate_ist": null
+  },
+  {
+   "id": "3ce72c4e5e1c",
+   "name": "Sharkskin Belt",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3d62b3673d3c",
+   "name": "Duriel's Shell",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: Ethereal (for Mercenary)",
+   "estimate_ist": null
+  },
+  {
+   "id": "3e6b8931fdef",
+   "name": "Iratha's Cuff",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable resistance and pierce leveling set, particularly ranged attacks; full-set maximum-resistance benefits require all four pieces",
+   "estimate_ist": null
+  },
+  {
+   "id": "3ea1b0c13905",
+   "name": "Entropy Noose",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (12 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3ef306e342be",
+   "name": "Monarch",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3f2371fbd120",
+   "name": "Shadowfang",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "3f9ce32ed05a",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "3f9db81cee9a",
+   "name": "Arctic Mitts",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable early bow-Amazon set with attack speed, damage and partial bonuses; replace as stronger bow damage becomes available",
+   "estimate_ist": null
+  },
+  {
+   "id": "4010f94feceb",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "402a1a101397",
+   "name": "Glyph Circlet",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4071078cf1ee",
+   "name": "Gauntlets",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "40f1afee79ce",
+   "name": "Ripsaw",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4114b10ca409",
+   "name": "Cathan's Mesh",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "41f16d2a22f1",
+   "name": "Grand Matron Bow",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "420262d76ca7",
+   "name": "Wall of the Eyeless",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Optional mana/casting/skill progression equipment; compare with available Spirit, Stealth or Lore options and relevant casting breakpoints",
+   "estimate_ist": null
+  },
+  {
+   "id": "425db996a425",
+   "name": "Dangoon's Teaching",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "428ae743e8df",
+   "name": "Cinquedeas",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "42c4c7f5051b",
+   "name": "Tancred's Spine",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "44a7296a11e3",
+   "name": "Cliffkiller",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "44b627b26c7a",
+   "name": "Dread Edge",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "44c65cf44b9e",
+   "name": "Phase Blade",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "44d5cd4f7e5e",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4506c32982f5",
+   "name": "Dread Edge",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "452bc28eefef",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4531b0ced0af",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "463992b0f47f",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4655cef94b97",
+   "name": "Verdungo's Hearty Cord",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: vitality (582) 30-40 / PDR (1865 or 413) 10-15",
+   "estimate_ist": null
+  },
+  {
+   "id": "4659d63f56d3",
+   "name": "Guardian Angel",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "468bcff989b5",
+   "name": "Grimoire",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "46b4af39ea04",
+   "name": "Eagle Song",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "473b0f5fcee1",
+   "name": "Legend Spike",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4767b7af1ed1",
+   "name": "Carrion Song",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "476e65846379",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "47a3eb730ea0",
+   "name": "Warlord's Trust",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "4804a8c9f54f",
+   "name": "Runic Talons",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "48c08140737a",
+   "name": "Bone Wand",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4914964428c2",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4924f6c08de9",
+   "name": "Kriss",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4972d76f0b9e",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4983d3c6232c",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "49c57984c5bf",
+   "name": "Wormskull",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "49e3755d11ca",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no farming alert reason (starter-only build use); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4a9d7841ceef",
+   "name": "Pain Crest",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4aa4362971b0",
+   "name": "Stone Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (8 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4bcc04ae9e9a",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "4bcf2d0f5eb6",
+   "name": "Iratha's Cord",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable resistance and pierce leveling set, particularly ranged attacks; full-set maximum-resistance benefits require all four pieces",
+   "estimate_ist": null
+  },
+  {
+   "id": "4c26120c97ef",
+   "name": "Wizardspike",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: no roll",
+   "estimate_ist": null
+  },
+  {
+   "id": "4c6a3dfad87e",
+   "name": "Flawless Diamond",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4d3c243b939f",
+   "name": "Magefist",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "4dc6c00c5b22",
+   "name": "Arctic Binding",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable early bow-Amazon set with attack speed, damage and partial bonuses; replace as stronger bow damage becomes available",
+   "estimate_ist": null
+  },
+  {
+   "id": "4e2a2df94644",
+   "name": "Rattlecage",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful attack leveling modifiers; optional alternative to readily available leveling runewords, with weapon damage and requirements checked",
+   "estimate_ist": null
+  },
+  {
+   "id": "4e93cc069986",
+   "name": "Snowclash",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "4eb666197904",
+   "name": "Spirit",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4ed98f7efb34",
+   "name": "Thresher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "4ef318eb3853",
+   "name": "Chaos Noose",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (12 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5052ac110801",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "513b12ffdcb5",
+   "name": "Doom Cord",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "515f27df203f",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "51848c8f218d",
+   "name": "Compendium",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "51e99801d357",
+   "name": "Brimstone Aegis",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "51f972fff120",
+   "name": "Amulet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (27 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "527fa84cf694",
+   "name": "Darkglow",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful resistance, life or defensive progression equipment; match the current resistance shortfall and requirements rather than replacing stronger equipment automatically",
+   "estimate_ist": null
+  },
+  {
+   "id": "531b5992ccce",
+   "name": "Kriss",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no farming alert reason (starter-only build use); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "53972cda5609",
+   "name": "Soul Nails",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (10 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "54ba99a7e20e",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (48 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "57387a478e2f",
+   "name": "Civerb's Icon",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "57ee901c8ebd",
+   "name": "The Impaler",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "58c7bd790943",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "59f5ca714d46",
+   "name": "Blacktongue",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5a1cfabc2622",
+   "name": "Ironstone",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5a39a7b6f0ff",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "5abbf02bf16e",
+   "name": "The Meat Scraper",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Budget mercenary progression option",
+   "estimate_ist": null
+  },
+  {
+   "id": "5aef1e799b52",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5bd26ed96f02",
+   "name": "Mancatcher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5ce6c7951e70",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5da35a78cd01",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "5e853eab7485",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "5ed110e224f0",
+   "name": "Arkaine's Valor",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: +x to All Skills",
+   "estimate_ist": null
+  },
+  {
+   "id": "5f18b62d0873",
+   "name": "Wall of the Eyeless",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Optional mana/casting/skill progression equipment; compare with available Spirit, Stealth or Lore options and relevant casting breakpoints",
+   "estimate_ist": null
+  },
+  {
+   "id": "5f75538c90c5",
+   "name": "Raven Frost",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: dex (429) 15-20 / AR (423) 150-250",
+   "estimate_ist": null
+  },
+  {
+   "id": "5f8beb4cf77c",
+   "name": "Gheed's Fortune",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: MF% (461); 20-40 base",
+   "estimate_ist": null
+  },
+  {
+   "id": "5fa11a122f24",
+   "name": "Death Song",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6006a7fae153",
+   "name": "Razortail",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "600b4140bebc",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "612a39ec954d",
+   "name": "Dusk Shroud",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "61f4f7454409",
+   "name": "Milabrega's Diadem",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "621fd858d793",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "626d8dc520b8",
+   "name": "Gale Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "62d28afa0baa",
+   "name": "Warlord's Trust",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "63a7fcc2e0ad",
+   "name": "Carrion Song",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6405229f8903",
+   "name": "Haemosu's Adamant",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "64f34022d101",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Fire Warlock player Fire Warlock skill armor alternative [Main alternatives] +1; needs review: Required role properties are not fully known.; Warlock levels support the fire skills. Off-weapon Enhanced Damage does not multiply fire spell damage. Miasma Chains and Psychic Ward require their triggering events; no permanent proc effect is assumed.",
+   "estimate_ist": null
+  },
+  {
+   "id": "65811628bb71",
+   "name": "Razortail",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "66d2ab4534c5",
+   "name": "Isenhart's Case",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "66e63ab6193d",
+   "name": "Tomb Reaver",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: Socketed [3] required Ethereal +x% Enhanced Damage All Resistances +x x% Better Chance of Getting Magic Items +x to Life after each Kill +x% Damage to Undead",
+   "estimate_ist": null
+  },
+  {
+   "id": "66f314f77b80",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6787bb564a00",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6984cfec98a6",
+   "name": "Great Helm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (4 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "698ef064230e",
+   "name": "Skull Coil",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6a24c1a7eff8",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6ad54b1d8bf7",
+   "name": "Long Staff",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6afe347c3856",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6b7a7bf0ca07",
+   "name": "Griswold's Heart",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "6ba4bc28516c",
+   "name": "Spirit",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Blood Boil Warlock player Caster recipe weapon alternative [Gear alternatives] +7; needs review: Required role properties are not fully known.; Spirit shield runes grant cold, lightning and poison resistance, not fire resistance. Sword rune attack damage and leech do not increase spells or summons. Casting and recovery breakpoints require the complete loadout.; Ethereal spell casting and prebuffing do not consume weapon durability; melee attacks are a separate concern. No ethereal price premium is inferred.",
+   "estimate_ist": null
+  },
+  {
+   "id": "6bf642aae3a0",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6c0dae431b8d",
+   "name": "Sazabi's Mental Sheath",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "6c593d15d30c",
+   "name": "Rainbow Facet",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: -x% to Enemy xx Resistance +x% to xx Skill Damage",
+   "estimate_ist": null
+  },
+  {
+   "id": "6c6b7965cece",
+   "name": "Battle Staff",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (35 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6ca0227b15e3",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "6cba55e28a16",
+   "name": "Dangoon's Teaching",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6f416f795f98",
+   "name": "Flail",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "6fca9350848d",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "70085e162ab1",
+   "name": "Sparking Mail",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7031f44501c1",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "70407a9866ec",
+   "name": "Snowclash",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "7040cdd988cb",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Fire Warlock player Fire Warlock skill armor alternative [Main alternatives] +1; needs review: Required role properties are not fully known.; Warlock levels support the fire skills. Off-weapon Enhanced Damage does not multiply fire spell damage. Miasma Chains and Psychic Ward require their triggering events; no permanent proc effect is assumed.",
+   "estimate_ist": null
+  },
+  {
+   "id": "708812a00aef",
+   "name": "Matriarchal Javelin",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "70a23612bbbc",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "70cc81d4798c",
+   "name": "Wizardspike",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: no roll",
+   "estimate_ist": null
+  },
+  {
+   "id": "71ad82e8e04b",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "71ea217c8c77",
+   "name": "Insight",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Nova Sorceress merc Insight Meditation and mercenary damage [Endgame] +8; needs review: Not confirmed: Mercenary type: Act 2 Might or Act 2 Holy Freeze; Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.; Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Cure Diadem (ethereal) \u2014 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'.",
+   "estimate_ist": null
+  },
+  {
+   "id": "720b45cf1982",
+   "name": "Isenhart's Parry",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7249f714df16",
+   "name": "Cathan's Rule",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "73b07ce6a2cf",
+   "name": "Sander's Superstition",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Sander's low-level movement/attack-speed equipment is reusable for leveling; full completion is optional and the wand is a caster-specific slot",
+   "estimate_ist": null
+  },
+  {
+   "id": "73b493499ef5",
+   "name": "Sacred Rondache",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "740c7ac6e79c",
+   "name": "Tancred's Crowbill",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "74d55691d6c7",
+   "name": "Circlet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "74ee06a9028d",
+   "name": "Matriarchal Spear",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "756258ce7ad2",
+   "name": "Shaftstop",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Ethereal (for Mercenaries)",
+   "estimate_ist": null
+  },
+  {
+   "id": "75798f6b65a7",
+   "name": "Dark Adherent",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7631163329d9",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "763395556727",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "765a251dc903",
+   "name": "Tomb Reaver",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: Socketed [3] required Ethereal +x% Enhanced Damage All Resistances +x x% Better Chance of Getting Magic Items +x to Life after each Kill +x% Damage to Undead",
+   "estimate_ist": null
+  },
+  {
+   "id": "76a784d25998",
+   "name": "Milabrega's Diadem",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "76fd5fb4f2ad",
+   "name": "Taebaek's Glory",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7826403a1036",
+   "name": "Magefist",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "7878cf0fa1f8",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "7894359cf0c9",
+   "name": "Berserker's Hauberk",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "794def5c4f76",
+   "name": "Archon Plate",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7999c04ca593",
+   "name": "Headstriker",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling high: Strong early physical damage or crushing-blow progression option; check weapon speed and equip requirements",
+   "estimate_ist": null
+  },
+  {
+   "id": "79f1f7e577d7",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "79faa956f0dc",
+   "name": "Cinquedeas",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7d1b93227af6",
+   "name": "Sigon's Wrap",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "7db1b9c41704",
+   "name": "Shadow Fist",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7deea2d1cada",
+   "name": "Annihilus",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: +x to all Attributes All Resistances +x +x% to Experience Gained",
+   "estimate_ist": null
+  },
+  {
+   "id": "7e0d6ab6c70d",
+   "name": "Rune Brogues",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7e3a1446dd72",
+   "name": "Isenhart's Parry",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7ef62c1c73d0",
+   "name": "Milabrega's Orb",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "7f1e1d42b6d6",
+   "name": "Battle Boots",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7fd2605bd598",
+   "name": "Wirt's Leg",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "7fd71c6584a1",
+   "name": "Guardian Angel",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "8191d95af507",
+   "name": "Iceblink",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful resistance, life or defensive progression equipment; match the current resistance shortfall and requirements rather than replacing stronger equipment automatically",
+   "estimate_ist": null
+  },
+  {
+   "id": "81b4984437e7",
+   "name": "Matriarchal Spear",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "81cffb91735b",
+   "name": "Matriarchal Spear",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "81d6e9d790b4",
+   "name": "Tal Rasha's Horadric Crest",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "valuable: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "820e8d049149",
+   "name": "Heavy Gloves",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8213cd9e1b59",
+   "name": "Wire Fleece",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8242c78f50c1",
+   "name": "Spirit",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Blizzard Sorceress player Full Tal Rasha caster shield [Endgame] +19; needs review: Required role properties are not fully known.; Not confirmed: Wear Tal Rasha's Lidless Eye; Not confirmed: Wear Tal Rasha's Horadric Crest; Not confirmed: Wear Tal Rasha's Guardianship; Not confirmed: Wear Tal Rasha's Fine-Spun Cloth; Not confirmed: Wear Tal Rasha's Adjudication; Not confirmed: Retain at least 105% total Faster Cast Rate in the assessed loadout.; Not confirmed: Retain at least 86% total Faster Hit Recovery in the assessed loadout.; Check base equip requirements and repairability for sustained use.",
+   "estimate_ist": null
+  },
+  {
+   "id": "83103ed3abb6",
+   "name": "Bone Wand",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "840d709aa98c",
+   "name": "Treads of Cthon",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Movement and life for early progression",
+   "estimate_ist": null
+  },
+  {
+   "id": "85087e808d17",
+   "name": "Shadow Strap",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "851bd75f4f07",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "855b9f9a4c04",
+   "name": "Ondal's Wisdom",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "8600acb23d7a",
+   "name": "Soulflay",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "8765ab49b71b",
+   "name": "Shadow Mar",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8830596f5c0a",
+   "name": "Suicide Branch",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "896cb3ec0b06",
+   "name": "Halaberd's Reign",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "899887c1c9c8",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8aa3248b7d85",
+   "name": "Imp Hold",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8ac94cc44d3c",
+   "name": "Goblin Toe",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "8c19319d412b",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8c776ee29d20",
+   "name": "Jawbone Visor",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8c85f238e538",
+   "name": "Deathspade",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "8d207f44a373",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8dede5ac4ada",
+   "name": "Gut Siphon",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8e7a358000dd",
+   "name": "Mithral Point",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "8f253bdb76c5",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "90c2421a9873",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no farming alert reason (starter-only build use); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "914989e7deb7",
+   "name": "Isenhart's Horns",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "91cd984d3c5b",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "91e1e62de37e",
+   "name": "Demonhide Boots",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "924e3fa64647",
+   "name": "Infernostride",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: x% Extra Gold from Monsters",
+   "estimate_ist": null
+  },
+  {
+   "id": "9298af0ad8f0",
+   "name": "Amulet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (27 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "92e318a6c4fd",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "94d72766cb6c",
+   "name": "Rune Brogues",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (10 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "94f52484d14a",
+   "name": "Doomslinger",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "95cbcbdfc7d5",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "96956eb58770",
+   "name": "Blasphemous Grimoire",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "96b68d4a44b3",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "975e136d77fc",
+   "name": "Dimoak's Hew",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "979fe7bdcf2f",
+   "name": "Razorswitch",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "97e844195deb",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Fire Warlock player Fire Warlock skill armor alternative [Main alternatives] +1; needs review: Required role properties are not fully known.; Warlock levels support the fire skills. Off-weapon Enhanced Damage does not multiply fire spell damage. Miasma Chains and Psychic Ward require their triggering events; no permanent proc effect is assumed.",
+   "estimate_ist": null
+  },
+  {
+   "id": "9879367e26e1",
+   "name": "Shadow Strap",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "98c9d814bcd2",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "98fa1c7d6ac8",
+   "name": "Razortine",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "990052675132",
+   "name": "Archon Plate",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9965747f2ecd",
+   "name": "Blade",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "99cbe7f28718",
+   "name": "Cleglaw's Claw",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Deadly strike, slow/knockback and partial attack bonuses support early attacks and specialist use; the complete set is not an endgame weapon substitute",
+   "estimate_ist": null
+  },
+  {
+   "id": "99fea9726bf6",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9a21ed4b21ca",
+   "name": "M'avina's Icy Clutch",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "9afb05f8864c",
+   "name": "Gleamscythe",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9c50f71ed9b8",
+   "name": "Halaberd's Reign",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "9c83596dc061",
+   "name": "Pain Touch",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9e042ba00bbf",
+   "name": "Bloodrise",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful attack leveling modifiers; optional alternative to readily available leveling runewords, with weapon damage and requirements checked",
+   "estimate_ist": null
+  },
+  {
+   "id": "9e05599309fb",
+   "name": "Steelgoad",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9e4bd530b220",
+   "name": "Immortal King's Stone Crusher",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "9e93633a51f2",
+   "name": "Ring",
+   "rarity": "crafted",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9f08f223138d",
+   "name": "Pain Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (8 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "9f4ee0b421d9",
+   "name": "M'avina's Caster",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "9fc18133541f",
+   "name": "Rondel",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a0d255bcb79d",
+   "name": "Gorefoot",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Movement speed for early progression",
+   "estimate_ist": null
+  },
+  {
+   "id": "a1061b8399c1",
+   "name": "Radament's Sphere",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a1385a1cb2ec",
+   "name": "Doom Cord",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a145080e34e1",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a1fb24b29fdd",
+   "name": "M'avina's Embrace",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "a2048f448617",
+   "name": "Bramble Mitts",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a2188c2f6828",
+   "name": "Tarnhelm",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "a462c367290e",
+   "name": "Cleglaw's Tooth",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a4f10cb0cc75",
+   "name": "Tancred's Spine",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a503d7384fba",
+   "name": "Sigon's Wrap",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "a5224c4d52c5",
+   "name": "Archon Plate",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a591dbe6791f",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "a5daac633c3b",
+   "name": "Hawkmail",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful resistance, life or defensive progression equipment; match the current resistance shortfall and requirements rather than replacing stronger equipment automatically",
+   "estimate_ist": null
+  },
+  {
+   "id": "a631f33f3574",
+   "name": "Vampire Gaze",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Damage Reduced by x% x% Life stolen per hit x% Mana stolen per hit Magic Damage Reduced by x",
+   "estimate_ist": null
+  },
+  {
+   "id": "a98107fbc388",
+   "name": "Stormchaser",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "a9b009aa79f0",
+   "name": "Magefist",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "aad2a7a0d098",
+   "name": "Brainhew",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "abcd67736ebb",
+   "name": "Bverrit Keep",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ace29ba6059f",
+   "name": "Insight",
+   "rarity": "normal",
+   "verdict": "check",
+   "reason": "possible: Nova Sorceress merc Insight Meditation and mercenary damage [Endgame] +8; needs review: Not confirmed: Mercenary type: Act 2 Might or Act 2 Holy Freeze; Verify mercenary equip requirements, attack speed, life leech and survivability with the cited armor/helmet; matching the recipe does not make every polearm equally good.; Cited armor: Chains of Honor Archon Plate (ethereal). Cited helmet: Cure Diadem (ethereal) \u2014 'grants some much needed Life Regeneration and the Cleansing Aura to remove Poison Damage and Curses quickly'.",
+   "estimate_ist": null
+  },
+  {
+   "id": "acef7bc9f539",
+   "name": "Wraithra Whorl",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ad49eeab6418",
+   "name": "Cryptic Axe",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ad6cb24f1560",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ae132c437b56",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "ae2ceb563c7f",
+   "name": "Wizardspike",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: no roll",
+   "estimate_ist": null
+  },
+  {
+   "id": "aead51fb9071",
+   "name": "Vambraces",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "aec6418fb1f2",
+   "name": "Sigon's Guard",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable attack-leveling set with strong partial attack-speed/leech combinations",
+   "estimate_ist": null
+  },
+  {
+   "id": "afa8b8bff8e7",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "affc5a337b43",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "b0561ec23a95",
+   "name": "Raven Grasp",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b0bfcf262a63",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b1d4fb4b9bcf",
+   "name": "Ring",
+   "rarity": "crafted",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b1d714b6cde5",
+   "name": "Greater Claws",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b2151fc160ca",
+   "name": "Civerb's Ward",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "b235d6be46da",
+   "name": "Death's Hand",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "b3f337e508b4",
+   "name": "Tancred's Crowbill",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b43598f4f8c0",
+   "name": "Bladebone",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b43758be27e7",
+   "name": "Rakescar",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b47fab088b54",
+   "name": "Blastbark",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b49460b947da",
+   "name": "Natalya's Soul",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: Lightning Resist +x% Cold Resist +x%",
+   "estimate_ist": null
+  },
+  {
+   "id": "b65493d5f7c4",
+   "name": "Giant Thresher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b6632d9abcae",
+   "name": "Grim Wand",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (23 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b67a5c2de13b",
+   "name": "Sander's Taboo",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "b6e031c536ec",
+   "name": "Goldstrike Arch",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful bow progression through skill bonuses, damage, speed or resistance reduction; compare against the current bow before replacing it",
+   "estimate_ist": null
+  },
+  {
+   "id": "b733a82b8c33",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b785f6c50178",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b7b4c04767b0",
+   "name": "Maiden Javelin",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b7bf842a7197",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "b8322dfc3a82",
+   "name": "Soul Nails",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b8620a3c2a3d",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b8bdd5511852",
+   "name": "Uber Ancient Summon Material Act 1",
+   "rarity": "normal",
+   "verdict": "keep",
+   "reason": "asks ~1 Ist",
+   "estimate_ist": 1.0
+  },
+  {
+   "id": "b93a5e016771",
+   "name": "Silks of the Victor",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Optional mana/casting/skill progression equipment; compare with available Spirit, Stealth or Lore options and relevant casting breakpoints",
+   "estimate_ist": null
+  },
+  {
+   "id": "b945e4b3d681",
+   "name": "Monarch",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b97967f93187",
+   "name": "Raven Grip",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "b9bfda4ed535",
+   "name": "Lion Helm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ba712d4985bc",
+   "name": "Arctic Mitts",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable early bow-Amazon set with attack speed, damage and partial bonuses; replace as stronger bow damage becomes available",
+   "estimate_ist": null
+  },
+  {
+   "id": "bb79b1a10f50",
+   "name": "Bul-Kathos' Sacred Charge",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "bbe60412bced",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "bbe616088302",
+   "name": "Lycander's Flank",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "bbfe817dbe2c",
+   "name": "Sigon's Guard",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable attack-leveling set with strong partial attack-speed/leech combinations",
+   "estimate_ist": null
+  },
+  {
+   "id": "bc4a666c3a02",
+   "name": "Tancred's Crowbill",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "bcd282134bc1",
+   "name": "Cerebus' Bite",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "bd60b11d0216",
+   "name": "Shaftstop",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Ethereal (for Mercenaries)",
+   "estimate_ist": null
+  },
+  {
+   "id": "bde0868e0bca",
+   "name": "Crushflange",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Crushing blow for attacking bosses",
+   "estimate_ist": null
+  },
+  {
+   "id": "be1845fba685",
+   "name": "Viperfork",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "be97c0b015a1",
+   "name": "Nord's Tenderizer",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "bee5c69e2e3c",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c046e9b1b6ef",
+   "name": "Phase Blade",
+   "rarity": "superior",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c0cf974763ce",
+   "name": "Runic Talons",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c0d540cb4907",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "c188337e51d1",
+   "name": "Cryptic Axe",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c1bc912210c9",
+   "name": "Hsarus' Iron Heel",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Movement speed and fire resistance; attack-rating set bonus is conditional",
+   "estimate_ist": null
+  },
+  {
+   "id": "c1cb25e2e2e7",
+   "name": "Skull Mask",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c2cc58697836",
+   "name": "Wilhelm's Pride",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "c386457fb45f",
+   "name": "Milabrega's Rod",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c3a6054f918e",
+   "name": "Dusk Shroud",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use (16 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c3b2fe6e6e49",
+   "name": "Lidless Wall",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "c3d355611a9c",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c460b3ab1cbe",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c4e620f20f7f",
+   "name": "The Ward",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful resistance, life or defensive progression equipment; match the current resistance shortfall and requirements rather than replacing stronger equipment automatically",
+   "estimate_ist": null
+  },
+  {
+   "id": "c5b1d66dd5f3",
+   "name": "Isenhart's Lightbrand",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c65899cf0e8e",
+   "name": "Havoc Eye",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c724105847df",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c738fcd62547",
+   "name": "Natalya's Mark",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "c7c28e1540ab",
+   "name": "Goldwrap",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "c7e6718222c1",
+   "name": "Annihilus",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: +x to all Attributes All Resistances +x +x% to Experience Gained",
+   "estimate_ist": null
+  },
+  {
+   "id": "c852f752f244",
+   "name": "Isenhart's Lightbrand",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c89f5505b7fc",
+   "name": "Guardian Angel",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "c8f930811eb8",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c9a8e574f314",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "c9cf2df1328f",
+   "name": "The Reaper's Toll",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Ethereal +x% Enhanced Damage x% Life stolen per hit",
+   "estimate_ist": null
+  },
+  {
+   "id": "ca4c0cf8d4c0",
+   "name": "The Impaler",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ca51770c1e7b",
+   "name": "Authority",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ca618df4a849",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cab972dde0cb",
+   "name": "Raven Talisman",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cac5ba620bb9",
+   "name": "Horazon's Legacy",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "cb31fb33d90a",
+   "name": "Islestrike",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Druid skill progression alternative; skill-tree restrictions and occupied weapon slots matter",
+   "estimate_ist": null
+  },
+  {
+   "id": "cb525922fc82",
+   "name": "Whitstan's Guard",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "cbd8e80b37f8",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cd406fc889a9",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cd68405faf55",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cd9eeeb59802",
+   "name": "Bloodfist",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "cdaf59fb9439",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  },
+  {
+   "id": "cebfa99daeb8",
+   "name": "Grim Wand",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (23 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cf2e31d65a5e",
+   "name": "M'avina's Embrace",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "cf6895a7ab62",
+   "name": "The Tannr Gorerod",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cfadb3015789",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (48 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "cfeabd22c0ed",
+   "name": "Brainhew",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d01704ba151b",
+   "name": "Arctic Horn",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d16326120209",
+   "name": "The Chieftain",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d184c9463ab3",
+   "name": "Soulflay",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "d2f6db492d08",
+   "name": "Cranebeak",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "d32f8bc38144",
+   "name": "The Chieftain",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d399ad9fbca6",
+   "name": "Milabrega's Robe",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d3abc8aeb499",
+   "name": "Tancred's Crowbill",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d3f4a7a5d65f",
+   "name": "Vampirefang Belt",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d46e37856850",
+   "name": "Dangoon's Teaching",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d4a9bb0c0fa6",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d4d8711cf79a",
+   "name": "Warlord's Trust",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "d66467c999e6",
+   "name": "Tome of Identify",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d6b5bdaa4a91",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d6d3da3c217b",
+   "name": "M'avina's Tenet",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "d6e8c8839baf",
+   "name": "Deathbit",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "d736d16af008",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d751a5986506",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d791999f2837",
+   "name": "Sigon's Visor",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "d8c3709ff9a8",
+   "name": "Greater Talons",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "d9ec2357565d",
+   "name": "Light Belt",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "da33e668f776",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "da391d2c9df9",
+   "name": "Atma's Scarab",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "da50a66a2122",
+   "name": "Bitter Greave",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (10 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "da7be5ae69f3",
+   "name": "Hawk Helm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "dae880e88560",
+   "name": "Stormspike",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "db23194e3e95",
+   "name": "Ring",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "db9e9ceb7eac",
+   "name": "Death Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "dbe757f7cacd",
+   "name": "Stormstrike",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "dd44b03b0ae2",
+   "name": "Dark Clan Crusher",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Druid skill progression alternative; skill-tree restrictions and occupied weapon slots matter",
+   "estimate_ist": null
+  },
+  {
+   "id": "dddc07686538",
+   "name": "Fortitude",
+   "rarity": "superior",
+   "verdict": "check",
+   "reason": "possible: Fissure Druid merc Mercenary physical damage and survival [Standard] +1; needs review: Required role properties are not fully known.; Not confirmed: Act 2 mercenary: Might in prose; Holy Freeze in the planner; Not confirmed: Infinity equipped on the mercenary; Verify mercenary equipment requirements and the complete survival loadout. Standard/Magic Find prose and planner disagree on the mercenary aura; retain both source alternatives.",
+   "estimate_ist": null
+  },
+  {
+   "id": "ddfc70579367",
+   "name": "Mithral Point",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "de4f3e799a7e",
+   "name": "Spirit",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "de6ff5f32f5f",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "dea7fec8bf2f",
+   "name": "Blade of Ali Baba",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "dec0590f480e",
+   "name": "Wizardspike",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: no roll",
+   "estimate_ist": null
+  },
+  {
+   "id": "dff76dd5adcf",
+   "name": "Hsarus' Iron Stay",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Life and cold resistance for early survival",
+   "estimate_ist": null
+  },
+  {
+   "id": "e02201034360",
+   "name": "Avenger Guard",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e0624da39cbe",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e1ca3b5798ea",
+   "name": "Skullder's Ire",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED (425) 160-200",
+   "estimate_ist": null
+  },
+  {
+   "id": "e241806ebc1f",
+   "name": "Matriarchal Javelin",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e2546f31b3e3",
+   "name": "Civerb's Ward",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling mid: Early attack weapon with scaling damage; shield and amulet complete a reusable low-level set without making every piece equally valuable",
+   "estimate_ist": null
+  },
+  {
+   "id": "e26f2d8c5a86",
+   "name": "Lidless Wall",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "e2b8c8da015a",
+   "name": "Wyrmhide Boots",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e34486b7cd70",
+   "name": "The Jade Tan Do",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "e39c737b59ed",
+   "name": "Bladebone",
+   "rarity": "unique",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e3c4b9ce23c9",
+   "name": "Death's Touch",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable attack-leveling set",
+   "estimate_ist": null
+  },
+  {
+   "id": "e4396c06d0ec",
+   "name": "Gauntlets",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e43ded76dfd6",
+   "name": "Sigon's Guard",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable attack-leveling set with strong partial attack-speed/leech combinations",
+   "estimate_ist": null
+  },
+  {
+   "id": "e460884af079",
+   "name": "Tancred's Hobnails",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "e530d73b0e53",
+   "name": "Amulet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (27 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e5921c591ca8",
+   "name": "Magefist",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "e651702409b2",
+   "name": "Flail",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e70ed36ecbc9",
+   "name": "Demonhide Gloves",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e75c90ad5359",
+   "name": "Raven Grasp",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (3 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e79137af2757",
+   "name": "Amulet",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e7fb485dbfb3",
+   "name": "Dire Song",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e848c1a43cb7",
+   "name": "Atma's Scarab",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "e901d433faa3",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (37 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e922e3ad9aca",
+   "name": "Maiden Javelin",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (1 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "e940cbb2123b",
+   "name": "Guardian Angel",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "ea2ac94547c4",
+   "name": "Jewel",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (7 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ea39283b9383",
+   "name": "Stone Necklace",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (12 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "eaa7f07ca3e4",
+   "name": "Bane's Wraithskin",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "ebd663e8aaac",
+   "name": "Earthshaker",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "ec081f3f8576",
+   "name": "Bul-Kathos' Sacred Charge",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "ec97d76debea",
+   "name": "Mancatcher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ecbda0dbe084",
+   "name": "Sigon's Shelter",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "leveling high: Reusable attack-leveling set with strong partial attack-speed/leech combinations",
+   "estimate_ist": null
+  },
+  {
+   "id": "ed00693950cb",
+   "name": "Amulet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (27 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ed3721aefb94",
+   "name": "Milabrega's Orb",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "edd2783cfbbe",
+   "name": "Raven Loop",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ee8579b51320",
+   "name": "Giant Thresher",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "eeb7935ed86a",
+   "name": "Hellcast",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "ef0f1aa0c71e",
+   "name": "Venom Ward",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "f0518c72da27",
+   "name": "Berserker's Hatchet",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f0736d5ce9c7",
+   "name": "Sazabi's Mental Sheath",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "f1722c42d3db",
+   "name": "Crystal Sword",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f206d2d98c57",
+   "name": "Isenhart's Parry",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f260bdbcf2b4",
+   "name": "Shadow Shell",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f36dd4c9e860",
+   "name": "Grand Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (48 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f3865d26cba1",
+   "name": "Naj's Circlet",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f3a4d05b6ca4",
+   "name": "Immortal King's Will",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "f3d90ada3897",
+   "name": "Long Staff",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no supported farming build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f407f6157ad1",
+   "name": "Ginther's Rift",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling mid: Useful attack leveling modifiers; optional alternative to readily available leveling runewords, with weapon damage and requirements checked",
+   "estimate_ist": null
+  },
+  {
+   "id": "f444e5fb3974",
+   "name": "Spectral Shard",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "f5162b0650c1",
+   "name": "Silkweave",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "f5b91c33e3df",
+   "name": "Tiara",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f62e5057f8c8",
+   "name": "War Scepter",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f638c979a368",
+   "name": "Flail",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f665f8670cf1",
+   "name": "Small Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f669a769f77f",
+   "name": "The Diggler",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "f680fe2dbaf7",
+   "name": "Colossus Voulge",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f6af6bde686c",
+   "name": "Amulet",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (27 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f6d3e8754562",
+   "name": "Griswold's Heart",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "f7244dda127d",
+   "name": "War Scepter",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f78ebe615b97",
+   "name": "Tal Rasha's Fine-Spun Cloth",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "valuable: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "f7b17e09e4b1",
+   "name": "The Eye of Etlich",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "leveling high: All skills benefits casters too; leech and cold damage apply to attacks",
+   "estimate_ist": null
+  },
+  {
+   "id": "f7df4080d9c6",
+   "name": "Arachnid Mesh",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: ED% (425); max 120",
+   "estimate_ist": null
+  },
+  {
+   "id": "f88cc6a47f38",
+   "name": "Snowclash",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "f8b48b444099",
+   "name": "Blackbog's Sharp",
+   "rarity": "unique",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "f8f650f842d6",
+   "name": "War Scepter",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f9540ed13194",
+   "name": "Cryptic Axe",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f99357b952de",
+   "name": "Isenhart's Lightbrand",
+   "rarity": "set",
+   "verdict": "vendor",
+   "reason": "no build rules for this item; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "f9afc2225b5c",
+   "name": "Suicide Branch",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "fb50f1e6d345",
+   "name": "The Reaper's Toll",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Ethereal +x% Enhanced Damage x% Life stolen per hit",
+   "estimate_ist": null
+  },
+  {
+   "id": "fd3d5b0f3896",
+   "name": "Insight",
+   "rarity": "normal",
+   "verdict": "vendor",
+   "reason": "no build use; no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "fdcb9eb19f3e",
+   "name": "Cathan's Seal",
+   "rarity": "set",
+   "verdict": "check",
+   "reason": "trade tier low",
+   "estimate_ist": null
+  },
+  {
+   "id": "fe9463600e5f",
+   "name": "Large Charm",
+   "rarity": "magic",
+   "verdict": "vendor",
+   "reason": "no build use (2 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "fea19f6b2585",
+   "name": "Undead Crown",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand",
+   "estimate_ist": null
+  },
+  {
+   "id": "fef722ffde3a",
+   "name": "Aldur's Advance",
+   "rarity": "set",
+   "verdict": "keep",
+   "reason": "build demand: no roll bucket",
+   "estimate_ist": null
+  },
+  {
+   "id": "ff20b2b76fb7",
+   "name": "Cruel Tread",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (10 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ff7cf20700e4",
+   "name": "Pain Slippers",
+   "rarity": "rare",
+   "verdict": "vendor",
+   "reason": "no build use (10 rules failed); no supported estimate",
+   "estimate_ist": null
+  },
+  {
+   "id": "ff8a58e89108",
+   "name": "String of Ears",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "build demand: Damage Reduced by x% x% Life stolen per hit Magic Damage Reduced by x",
+   "estimate_ist": null
+  },
+  {
+   "id": "ff913346706d",
+   "name": "Harlequin Crest",
+   "rarity": "unique",
+   "verdict": "keep",
+   "reason": "valuable: Defense total (1855) or +def (399); page range 98-141",
+   "estimate_ist": null
+  }
+ ]
+}

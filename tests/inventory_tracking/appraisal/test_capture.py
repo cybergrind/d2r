@@ -334,3 +334,35 @@ def test_failed_discovery_preserves_original_panel_evidence(monkeypatch):
         source.freeze()
     assert caught.value.diagnostics['initial'] == sample
     assert caught.value.diagnostics['discovery_error'] == 'Process changed'
+
+
+def test_hover_recheck_skips_stat_reread_that_selection_check_keeps(monkeypatch):
+    token = {'pid': 1, 'start_ticks': '2'}
+    capture = AppraisalCapture(1, {'identity': token}, {})
+    item = {'address': 1, 'unit_id': 2, 'data_pointer': 3, 'stats_pointer': 4, 'details': {'inventory_page': 0}}
+    reads = []
+    monkeypatch.setattr(appraisal_capture, 'game_focused', lambda _: True)
+    monkeypatch.setattr(appraisal_capture, 'identity', lambda _: token)
+    monkeypatch.setattr(appraisal_capture, 'verify_item', lambda *args, **kwargs: reads.append(args))
+    monkeypatch.setattr(capture, 'selection', lambda: ({'snapshot': {}}, {'item': copy.deepcopy(item)}))
+    frozen = {'identity': token, 'selection': {'item': item}, 'arrays': {}}
+    assert capture.still_hovered(frozen)
+    assert not reads
+    assert capture.still_selected(frozen)
+    assert len(reads) == 1
+
+
+def test_recent_focus_reuses_an_answer_briefly_and_per_game():
+    now, probes = [0.0], []
+    focus = appraisal_capture.RecentFocus(
+        lambda images: probes.append(images) or True, seconds=0.15, clock=lambda: now[0]
+    )
+    game = {'identity': {'pid': 1}}
+    assert focus(game)
+    assert focus(game)
+    assert len(probes) == 1
+    focus({'identity': {'pid': 2}})
+    assert len(probes) == 2
+    now[0] = 0.2
+    focus({'identity': {'pid': 2}})
+    assert len(probes) == 3

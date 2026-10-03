@@ -6,6 +6,7 @@ from collections import Counter
 from pathlib import Path
 
 from pricing.knowledge.definitions import build_definitions
+from pricing.knowledge.set_properties import extra_properties_are_unconditional
 
 
 def audit_ranges(root):
@@ -32,7 +33,7 @@ def audit_ranges(root):
                     continue
                 low, high = record.get(low_key), record.get(high_key)
                 function = properties.get(code, {}).get('func1')
-                if conditional:
+                if conditional and not (rarity == 'set' and extra_properties_are_unconditional(record)):
                     status = 'conditional_set_bonus_review'
                 elif code in supported:
                     status = 'covered_scalar_range' if low != high else 'fixed_scalar'

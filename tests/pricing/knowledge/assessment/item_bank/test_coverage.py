@@ -4,6 +4,16 @@ from tests.pricing.knowledge.assessment.item_bank.cases.zeal import CASES
 from tests.pricing.knowledge.assessment.item_bank.coverage import audit_cases
 
 
+def test_magic_trade_bank_requires_boundaries_and_unknowns():
+    from tests.pricing.knowledge.assessment.item_bank.cases.jmod_trade import CASES as JMOD
+
+    options = {'magic_trade': ['jmod-shell']}
+    result = audit_cases(JMOD[:1], [], {'rows': []}, **options)
+    assert result['missing']['trade:magic:jmod-shell'] == ['negative', 'unknown']
+    result = audit_cases(JMOD, [], {'rows': []}, **options)
+    assert result['case_coverage_complete'] is True
+
+
 def test_bank_coverage_retains_unrepresented_builds_and_valuable_named_items():
     profile = {'id': CASES[0].covers[0], 'build': 'zeal-paladin', 'qualities': ['unique']}
     unseen = {'id': 'unseen-mercenary-use', 'build': 'other-build', 'qualities': ['rare']}
@@ -148,6 +158,98 @@ def test_supply_case_inventory_requires_all_scenarios_per_exact_native_identity(
     assert result['counts']['required_targets'] == 7
     missing = audit_cases(SUPPLIES[:2], [], {'rows': []}, supplies=['isc'])
     assert missing['missing'] == {'supply:isc': ['unknown']}
+
+
+def test_recipe_material_inventory_requires_every_native_identity_and_scenario():
+    from tests.pricing.knowledge.assessment.item_bank.cases.quest_materials import CASES as MATERIALS, EXAMPLES
+
+    codes = [code for code, _, _ in EXAMPLES]
+    result = audit_cases(MATERIALS, [], {'rows': []}, quest_materials=codes)
+    assert result['case_coverage_complete']
+    assert result['counts']['required_targets'] == 22
+    assert result['orphaned_case_targets'] == []
+    missing = audit_cases(MATERIALS[:2], [], {'rows': []}, quest_materials=codes)
+    assert missing['missing']['quest_material:pk1'] == ['unknown']
+    assert missing['missing']['quest_material:box'] == ['negative', 'positive', 'unknown']
+
+
+def test_plain_resistance_and_gold_watches_have_individual_boundary_cases():
+    from tests.pricing.knowledge.assessment.item_bank.cases.collectible_combinations import CASES as COLLECTIBLES
+    from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_charms import CASES as GOLD
+
+    identifiers = {
+        'plain-res-3',
+        'plain-res-4',
+        'plain-res-5',
+        'grand-gold',
+        'small-gold',
+        'lucky-gold',
+        'warcries-gold',
+        'sharp-gold',
+        'shimmering-gold',
+        'ruby-gold',
+    }
+    targets = {f'watch:{key}' for key in identifiers}
+    cases = [case for case in (*COLLECTIBLES, *GOLD) if targets.intersection(case.covers)]
+    watches = [
+        {
+            'kind': 'affixed_value_watch',
+            'rarity': 'magic',
+            'details': {'watch_id': key, 'priority': 'valuable_candidate'},
+        }
+        for key in identifiers
+    ]
+    result = audit_cases(cases, [], {'rows': []}, watches=watches)
+    assert result['missing'] == {}
+    assert result['orphaned_case_targets'] == []
+
+
+def test_intrinsic_socket_roll_regressions_count_toward_their_named_items():
+    from tests.pricing.knowledge.assessment.item_bank.cases.andariel_intrinsic_rolls import CASES as ANDARIEL
+    from tests.pricing.knowledge.assessment.item_bank.cases.guardian_intrinsic_rolls import CASES as GUARDIAN
+
+    tiers = {
+        'rows': [
+            {'quality': 'unique', 'name': name, 'tier': 'high'} for name in ("Andariel's Visage", 'Guardian Angel')
+        ]
+    }
+    result = audit_cases((*ANDARIEL, *GUARDIAN), [], tiers)
+    assert result['orphaned_case_targets'] == []
+    assert result['missing'] == {
+        "named:unique:Andariel's Visage": ['negative'],
+        'named:unique:Guardian Angel': ['negative', 'unknown'],
+    }
+
+
+def test_low_baselines_with_valuable_rolls_still_require_named_cases():
+    policies = [
+        {'quality': 'unique', 'name': 'Perfect roll', 'default_tier': 'low', 'overrides': [{'tier': 'med'}]},
+        {
+            'quality': 'unique',
+            'name': 'Valuable variant',
+            'default_tier': 'trash',
+            'overrides': [],
+            'variant_rules': [{'default_tier': 'low', 'overrides': [{'tier': 'high'}]}],
+        },
+        {'quality': 'unique', 'name': 'Excluded identity', 'default_tier': 'high', 'overrides': []},
+    ]
+    tiers = {
+        'rows': [
+            {'quality': 'unique', 'name': name, 'tier': 'low'}
+            for name in ('Perfect roll', 'Valuable variant', 'Ordinary')
+        ]
+    }
+    result = audit_cases([], [], tiers, named_policies=policies)
+    assert set(result['missing']) == {'named:unique:Perfect roll', 'named:unique:Valuable variant'}
+
+
+def test_conditional_weapon_and_resistance_variants_have_named_boundary_cases():
+    from tests.pricing.knowledge.assessment.item_bank.cases import CASES as BANK
+
+    names = ('Death Cleaver', "Demon's Arch", 'Tomb Reaver', "Kira's Guardian")
+    tiers = {'rows': [{'quality': 'unique', 'name': name, 'tier': 'med'} for name in names]}
+    result = audit_cases(BANK, [], tiers)
+    assert result['missing'] == {}
 
 
 def test_abyss_insight_bank_covers_bearer_boundaries_in_each_legal_base_quality():
@@ -2028,3 +2130,74 @@ def test_treachery_shared_and_zeal_uses_have_all_quality_boundaries():
                 'negative',
                 'unknown',
             }
+
+
+def test_low_tier_trade_rules_require_all_three_named_scenarios():
+    tiers = {
+        'rows': [
+            {'quality': 'unique', 'name': name, 'tier': 'low'}
+            for name in ('Stormshield', 'Reviewed candidate', 'Ordinary')
+        ]
+    }
+    policies = [
+        {
+            'quality': 'unique',
+            'name': 'Reviewed candidate',
+            'default_tier': 'low',
+            'trade_qualification': {'default_status': 'candidate'},
+        }
+    ]
+    result = audit_cases(
+        [], [], tiers, named_policies=policies, named_trade=(('unique', 'Stormshield'), ('unique', 'Excluded identity'))
+    )
+    assert result['missing'] == {
+        'named:unique:Stormshield': ['negative', 'positive', 'unknown'],
+        'named:unique:Reviewed candidate': ['negative', 'positive', 'unknown'],
+    }
+
+
+def test_stormshield_trade_bank_distinguishes_unknown_facts_from_illegal_variants():
+    from tests.pricing.knowledge.assessment.item_bank.cases.stormshield_trade import CASES as STORMSHIELD
+
+    tiers = {'rows': [{'quality': 'unique', 'name': 'Stormshield', 'tier': 'low'}]}
+    result = audit_cases(STORMSHIELD, [], tiers, named_trade=(('unique', 'Stormshield'),))
+    assert result['missing'] == {}
+    assert result['orphaned_case_targets'] == []
+
+
+def test_ordinary_named_trade_candidates_have_invalid_and_unknown_boundaries():
+    from tests.pricing.knowledge.assessment.item_bank.cases import CASES as BANK
+
+    identities = [
+        ('set', "Horazon's Legacy"),
+        ('set', "Immortal King's Pillar"),
+        ('unique', "Defender's Bile"),
+        ('unique', "Protector's Frost"),
+        ('unique', 'Rotting Fissure'),
+    ]
+    tiers = {'rows': [{'quality': q, 'name': n, 'tier': 'low'} for q, n in identities]}
+    result = audit_cases(BANK, [], tiers, named_trade=identities)
+    assert result['missing'] == {}
+
+
+def test_known_low_tier_regressions_are_supplemental_not_orphaned_or_scope_excluded():
+    item = replace(CASES[0].item, name='Ordinary', rarity='unique')
+    case = replace(CASES[0], item=item, covers=('named:unique:Ordinary',), scenario='positive')
+    tiers = {'rows': [{'quality': 'unique', 'name': 'Ordinary', 'tier': 'low'}]}
+    result = audit_cases([case], [], tiers)
+    assert result['case_coverage_complete']
+    assert result['supplemental_case_targets'] == ['named:unique:Ordinary']
+    assert result['scope_excluded_targets'] == []
+    assert result['counts']['required_targets'] == 0
+    typo = replace(case, covers=('named:unique:Ordniary',))
+    assert audit_cases([typo], [], tiers)['orphaned_case_targets'] == ['named:unique:Ordniary']
+
+
+def test_supplemental_regressions_cannot_hide_conditional_trade_requirements():
+    item = replace(CASES[0].item, name='Conditional', rarity='unique')
+    case = replace(CASES[0], item=item, covers=('named:unique:Conditional',), scenario='positive')
+    tiers = {'rows': [{'quality': 'unique', 'name': 'Conditional', 'tier': 'low'}]}
+    result = audit_cases([case], [], tiers, named_trade=(('unique', 'Conditional'),))
+    assert result['supplemental_case_targets'] == []
+    assert result['missing'] == {'named:unique:Conditional': ['negative', 'unknown']}
+    assert not result['case_coverage_complete']

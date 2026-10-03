@@ -2,13 +2,15 @@
 
 This storage layer validates byte/index consistency. Callers supply policy/schema
 validation before promotion and must include non-indexed runtime inputs explicitly.
-Generation directories are never overwritten or removed by publication.
+Generation directories are never overwritten by publication; `prune` removes all but the
+current and newest few (a running appraisal service pins at most the current and previous one).
 """
 
 import hashlib
 import json
 import os
 import re
+import shutil
 import sqlite3
 import tempfile
 from dataclasses import dataclass
@@ -69,16 +71,25 @@ def _load(directory, expected=None):
     )
 
 
-def current_generation(store):
-    store = Path(store)
-    pointer = json.loads((store / 'current.json').read_bytes())
+def pointer_generation(store):
+    """The generation `current.json` names (one small file read; nothing is hashed)."""
+    pointer = json.loads((Path(store) / 'current.json').read_bytes())
     generation = pointer.get('generation')
     if not isinstance(generation, str) or not re.fullmatch(r'[0-9a-f]{64}', generation):
         raise ValueError('Invalid publication generation pointer')
+    return generation
+
+
+def published_generation(store, generation):
+    store = Path(store)
     directory = store / 'generations' / generation
     if not directory.resolve().is_relative_to(store.resolve()):
         raise ValueError('Publication generation escapes store')
     return _load(directory, generation)
+
+
+def current_generation(store):
+    return published_generation(store, pointer_generation(store))
 
 
 def publish(database, *, repository, store, extra_paths=(), validate=None):
@@ -130,6 +141,22 @@ def publish(database, *, repository, store, extra_paths=(), validate=None):
     return _load(destination, generation)
 
 
+def prune(store, *, keep=3):
+    """Delete generation directories except the pointer's and the `keep` newest; returns the removed."""
+    store = Path(store)
+    current = pointer_generation(store)
+    generations = sorted(
+        (path for path in (store / 'generations').iterdir() if re.fullmatch(r'[0-9a-f]{64}', path.name)),
+        key=lambda path: path.stat().st_mtime_ns,
+        reverse=True,
+    )
+    kept = {current, *(path.name for path in generations[:keep])}
+    removed = [path for path in generations if path.name not in kept]
+    for path in removed:
+        shutil.rmtree(path)
+    return [path.name for path in removed]
+
+
 def main():
     import argparse
 
@@ -140,13 +167,24 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--database', type=Path, default=DEFAULT_DATABASE)
     parser.add_argument('--store', type=Path, default=DEFAULT_STORE)
+    parser.add_argument('--keep', type=int, default=3, help='generations kept besides the current one')
+    parser.add_argument('--prune-only', action='store_true', help='only remove old generations')
     args = parser.parse_args()
+    if args.prune_only:
+        print(json.dumps({'removed': len(prune(args.store, keep=args.keep))}))
+        return
     bundle = publish(
         args.database, repository=repository, store=args.store, extra_paths=runtime_inputs(), validate=load_runtime
     )
+    removed = prune(args.store, keep=args.keep)
     print(
         json.dumps(
-            {'generation': bundle.generation, 'artifacts': len(bundle.artifacts), 'database': str(bundle.database)}
+            {
+                'generation': bundle.generation,
+                'artifacts': len(bundle.artifacts),
+                'database': str(bundle.database),
+                'pruned': len(removed),
+            }
         )
     )
 

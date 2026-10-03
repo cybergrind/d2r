@@ -77,6 +77,7 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
                 ),
             ]
         for label, candidate, loadout, truth in rows:
+            impossible_ring = candidate.base == 'Ring' and label in {'invalid-socket', 'ethereal'}
             expected = {'roles': Contains(IsPartialDict(id=role, rule_trace=IsPartialDict(truth=truth)))}
             if truth == 'true':
                 expected['stat_evaluation'] = IsPartialDict(
@@ -95,7 +96,8 @@ def cases(build='berserk-barbarian', player_class='Barbarian', prefix='berserk',
                 absent_stat_configurations=dict.fromkeys(
                     (f'204:{skill * 64 + level}' for skill, level, _ in CHARGES), (role + '-stats',)
                 ),
-                report_contains=('Trade tier:',) if candidate.identified else (),
+                report_contains=('Trade tier:',) if candidate.identified and not impossible_ring else (),
+                report_absent=('Trade tier:',) if impossible_ring else (),
                 evidence=(
                     f'pricing/data/wp-a-builds.json:/{build}/slots',
                     'third-parties/d2data/json/uniqueitems.json',

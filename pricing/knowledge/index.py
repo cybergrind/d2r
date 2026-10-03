@@ -11,6 +11,7 @@ from contextlib import nullcontext
 from pathlib import Path
 
 from pricing.knowledge.names import normalize_name
+from pricing.knowledge.numeric_search import build_numeric_index, candidate_clauses
 
 
 SCHEMA_VERSION = 1
@@ -164,6 +165,8 @@ def build_index(paths, database):
                 matches = [entry for entry in report['sources'] if Path(entry['path']).name == Path(dependency).name]
                 if matches and (len(matches) != 1 or matches[0]['sha256'] != expected_hash):
                     raise ValueError(f'Stale portable dependency: {dependency}; regenerate its dependent artifact')
+            build_numeric_index(connection)
+
             from pricing.knowledge.retrieval import publish
 
             report['retrieval'] = publish(connection, prepared_rows)
@@ -268,8 +271,11 @@ def search(database, query='', *, limit=20, **facets):
             else:
                 where.append(f'e.{key}=?')
                 args.append(value)
-    clause = ' WHERE ' + ' AND '.join(where) if where else ''
     with _connect(database) as connection:
+        numeric_clauses, numeric_args = candidate_clauses(connection, facets)
+        where.extend(numeric_clauses)
+        args.extend(numeric_args)
+        clause = ' WHERE ' + ' AND '.join(where) if where else ''
         rows = connection.execute(
             f'SELECT e.payload FROM {tables}{clause} ORDER BY {ordering} LIMIT ?',
             (*args, max(1, min(limit, 1000))),

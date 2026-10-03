@@ -8,6 +8,7 @@ from inventory_tracking.items.ranges import annotate_roll_ranges
 from pricing.knowledge.assessment.adapters.capture import normalize
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
 from pricing.knowledge.assessment.handlers.socket_fillers import compare_named_sockets
+from pricing.knowledge.assessment.policies.trade_defense import girth_bounds
 from pricing.knowledge.assessment.registry import classify
 from pricing.knowledge.market_base_catalog import equipment_base
 
@@ -17,7 +18,14 @@ def display_flat_defense(extraction, rows):
     if len(candidates) != 1:
         return rows
     facts = normalize(extraction)
-    if facts.rarity != 'unique' or facts.identified is not True or type(facts.ethereal) is not bool or facts.gaps:
+    if (
+        facts.rarity not in ('unique', 'set')
+        or facts.identified is not True
+        or type(facts.ethereal) is not bool
+        or facts.gaps
+    ):
+        return rows
+    if facts.rarity == 'set' and girth_bounds(facts) is None:
         return rows
     definition, errors = resolve_named_definition(facts)
     if errors or definition is None:
@@ -82,7 +90,7 @@ def display_flat_defense(extraction, rows):
                 }
             },
             'source': {'definition': definition['source'], 'base': base[1]},
-            'scope': 'unique total defense from base and flat bonus; verified unchanged by sockets',
+            'scope': f'{facts.rarity} total defense from base and flat bonus; verified unchanged by sockets',
         },
     )
     return [row if r is original else r for r in rows]

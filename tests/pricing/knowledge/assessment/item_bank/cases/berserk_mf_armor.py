@@ -43,7 +43,7 @@ def cases():
                 'true',
             ),
             ('socketed-empty', replace(item, sockets=1), context, 'true'),
-            ('unknown-sockets', replace(item, sockets=None), context, 'true'),
+            ('unknown-sockets', replace(item, sockets=None), context, 'unknown' if repairable else 'true'),
             ('ethereal', replace(item, ethereal=True), context, 'true' if repairable else 'false'),
             ('unknown-ethereal', replace(item, ethereal=None), context, 'unknown'),
             ('unidentified', replace(item, identified=False), context, 'false'),

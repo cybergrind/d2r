@@ -10,6 +10,7 @@ from functools import lru_cache
 
 from pricing.knowledge.artifacts import read_artifact
 from pricing.knowledge.assessment.handlers.definitions import resolve_named_definition
+from pricing.knowledge.assessment.mechanics.named_variant_legality import impossible_named_variant
 from pricing.knowledge.assessment.policies import named_tiers
 from pricing.knowledge.assessment.policies.complete_sets import assess_complete_set
 from pricing.knowledge.assessment.policies.sources import source_error
@@ -45,7 +46,7 @@ def assess_tier(facts):
     if facts.rarity == 'set' and facts.ethereal is True:
         return pending
     definition, _ = resolve_named_definition(facts, identity_only=True)
-    if definition is None:
+    if definition is None or impossible_named_variant(facts, definition):
         return pending
     identity = facts.rarity, facts.name
     try:
@@ -69,6 +70,9 @@ def assess_tier(facts):
     variant = named_tiers.assess_tier(facts)
     selected = variant if variant.get('tier') is not None else baseline
     result = {**selected, 'baseline': baseline, 'variant': variant}
+    for key in ('intrinsic_rolls', 'intrinsic_roll_ranges'):
+        if key in variant:
+            result[key] = variant[key]
     if facts.rarity == 'set':
         result['set_context'] = assess_complete_set(definition['game_definition']['set'])
     return result

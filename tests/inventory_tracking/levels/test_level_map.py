@@ -91,3 +91,26 @@ def test_the_map_carries_the_walkable_tiles_it_is_given():
     card = build_map(snapshot, (), walkable=[Walkable(0, 0, 2, 1, '10')])
 
     assert card.walkable == ((0, 0, 2, 1, '10'),)
+
+
+def test_visited_rooms_follow_the_room_order():
+    from inventory_tracking.levels.level_map import build_map
+    from inventory_tracking.levels.model import LevelSnapshot, Location, Room
+
+    snapshot = LevelSnapshot(Location(6, 0, 20, 20), (Room(0, 0, 0, 8, 8), Room(0, 8, 0, 8, 8)))
+
+    card = build_map(snapshot, (), visited={(8, 0, 8, 8)})
+
+    assert card.visited == (0, 1)
+    assert build_map(snapshot, ()).visited == ()
+
+
+def test_extra_dots_are_added_after_the_handler_pois():
+    from inventory_tracking.levels.level_map import build_map
+    from inventory_tracking.levels.model import LevelSnapshot, Location, Room
+    from inventory_tracking.osd.level_map import MapPoi
+
+    snapshot = LevelSnapshot(Location(6, 0, 20, 20), (Room(0, 0, 0, 8, 8),))
+    dot = MapPoi('Herald T1', 'herald', 3.0, 4.0)
+
+    assert build_map(snapshot, (), dots=[dot]).pois == (dot,)

@@ -1,0 +1,17 @@
+{
+  "id": "crown-two-socket-shell",
+  "scope": "SC / Non-Ladder / PC / RotW",
+  "reviewed_at": "2026-10-02",
+  "guide_sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+  "market_sha256": "00512f592fa45f3524748c142407e37745fe1ebdeaa2c6ce3dbbee1ef691adc4",
+  "guide_entries": {
+    "/meteor-sorceress/variants/4/player/Helmet/0": "Crown of Ages (2 sockets: 2x Jewel 7% FHR / 15 All Res)",
+    "/smite-paladin/variants/2/player/Helmet/0": "Crown of Ages (Ber Rune + Protector's Stone Colossal Jewel per planner)"
+  },
+  "evidence_ids": [
+    "a89bb4ef703b5b91f7282e86",
+    "3389b5c466d093bd866eabc3",
+    "0dd14c1bdfb691451bd65a8a"
+  ],
+  "review_notes": "Reviewed two-socket shell utility and three independent scoped dated asks. Contents remain filled/unknown. No numeric empty-shell estimate, intrinsic premium or claim that one-socket items are worthless. See appraisal-crown-of-ages-roll-review-2026-10-02.json."
+}

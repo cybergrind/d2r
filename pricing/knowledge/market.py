@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pricing.knowledge.assessment.observations import superseded_rows
 from pricing.knowledge.cache_dates import collection_day_evidence
+from pricing.knowledge.documented_cache_dates import documented_day, load_reviews
 from pricing.knowledge.market_mechanics import apply_mechanics
 from pricing.knowledge.market_named_aliases import canonicalize_named_catalog
 
@@ -238,6 +239,7 @@ def import_cache(root, catalog=None):
                 lookup.setdefault(iid, {'name': row['name'], 'type': row.get('type', 'base')})
     rows = []
     seen = set()
+    date_reviews, date_registry = load_reviews(root)
     manifest = {
         'schema_version': 1,
         'files': [],
@@ -246,7 +248,8 @@ def import_cache(root, catalog=None):
     }
     for path in sorted((root / 'pricing/raw/traderie').glob('*.json')):
         try:
-            data = json.loads(path.read_text())
+            raw = path.read_bytes()
+            data = json.loads(raw)
         except (ValueError, OSError) as error:
             manifest['files'].append({'path': str(path.relative_to(root)), 'error': str(error)})
             continue
@@ -254,10 +257,16 @@ def import_cache(root, catalog=None):
         observed_at, date_error, date_field = collection_day_evidence(data)
         file_info = {
             'path': str(path.relative_to(root)),
-            'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+            'sha256': hashlib.sha256(raw).hexdigest(),
             'observed_at': observed_at,
             'listing_count': len(listings),
         }
+        date_proof = None
+        if review := date_reviews.get(file_info['path']):
+            observed_at, date_error, date_proof = documented_day(root, data, file_info['sha256'], review, date_registry)
+            file_info['observed_at'] = observed_at
+            if date_proof:
+                file_info['observation_date_source'] = date_proof
         if date_error:
             file_info['observation_date_error'] = date_error
         manifest['files'].append(file_info)
@@ -279,9 +288,9 @@ def import_cache(root, catalog=None):
                 currencies=currencies,
             )
             if observed_at:
-                row['observation_date_basis'] = 'cache_pulled'
+                row['observation_date_basis'] = 'documented_collection' if date_proof else 'cache_pulled'
                 row['observation_date_precision'] = 'day'
-                row['observation_date_source'] = {
+                row['observation_date_source'] = date_proof or {
                     'path': file_info['path'],
                     'sha256': file_info['sha256'],
                     'field': date_field,

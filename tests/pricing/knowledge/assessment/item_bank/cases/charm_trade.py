@@ -24,7 +24,7 @@ CASES = tuple(
             else []
         },
         scenario='positive' if valuable else 'unknown' if not complete or not identified else 'negative',
-        report_contains=('VALUABLE CANDIDATE', 'Druid Summoning skiller with 30-45 Life') if valuable else (),
+        report_contains=('TRADE CANDIDATE', 'Druid Summoning skiller with 30-45 Life') if valuable else (),
         evidence=("pricing/raw/mr/items__valuable-magic-items.html:Trainer's Grand Charm of Vita",),
     )
     for label, stats, rarity, identified, complete, valuable in (

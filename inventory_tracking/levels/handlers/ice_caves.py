@@ -4,7 +4,9 @@ Unconfirmed (from d2data levels/lvlprest, 2026-10-01; no evidence yet). Both are
 mazes of 16x16 presets. levels.json: Vis0 is the way back, Vis1 (Warp 74, 'Ice Next') the level
 ahead and Vis2 (Warp 75, 'Ice Down') the side cave: Frozen River (114, Anya) off Crystalline
 Passage (113), Drifter Cavern (116) off Glacial Trail (115). Both place 'Ice waypoint …'. The
-side caves themselves (one 'Ice Prev' plus the River/Pool presets) have no handler yet.
+side caves are single fixed presets ('Ice River A/B', 'Ice Pool A/B'): no handler.
+Ancients' Way (118, Glacial Caves 1; 2026-10-01, same DRLGMAZE_PlaceAct5IceStuff) places 'Ice
+Next' (Arreat Summit), 'Ice Down' (the Icy Cellar), 'Ice waypoint' and 'Ice Prev'.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous, waypoint
@@ -18,7 +20,7 @@ def ahead(label: str) -> PoiSpec:
 
 
 def side_cave(label: str, kind: str) -> PoiSpec:
-    return PoiSpec(label, rf'{ICE} Down [NSEW]', kind, family=ICE)
+    return PoiSpec(label, rf'{ICE} Down [NSEW]', kind, family=ICE, warp=True)
 
 
 HANDLERS = [
@@ -41,5 +43,10 @@ HANDLERS = [
             waypoint(ICE),
             previous(ICE, 'Crystalline Passage'),
         ),
+    ),
+    Handler(
+        "Ancients' Way",
+        frozenset({118}),
+        (ahead('Arreat Summit'), side_cave('Icy Cellar', 'stairs'), waypoint(ICE), previous(ICE, 'Frozen Tundra')),
     ),
 ]

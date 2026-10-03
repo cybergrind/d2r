@@ -14,7 +14,6 @@ from inventory_tracking.items.identity import (
     ETHEREAL_FLAG,
     IDENTIFIED_FLAG,
     RUNEWORD_FLAG,
-    SOCKETED_FLAG,
     identity_issues,
     identity_review,
     item_flags,
@@ -25,7 +24,7 @@ from inventory_tracking.items.metadata import decode_stats, item_base, metadata
 from inventory_tracking.items.modifiers import owned_flat_damage_modifiers
 from inventory_tracking.items.owners import require_mercenary_owner
 from inventory_tracking.items.ranges import annotate_roll_ranges
-from inventory_tracking.items.sockets import annotate_sockets, infer_nonsocketable
+from inventory_tracking.items.sockets import annotate_sockets, infer_nonsocketable, infer_unsocketed
 from inventory_tracking.items.staffmods import annotate_staffmods
 from inventory_tracking.native.layout import SUPPORTED_SHA256
 from inventory_tracking.tracking.state import select_player
@@ -235,15 +234,8 @@ def decode_items(
         annotate_sockets(results[-1]['item'], decoded, arrays, identity)
         if infer_nonsocketable(results[-1]['item'], stats, arrays, flags):
             results[-1]['source']['socket_mechanics'] = 'item_type_cannot_socket'
-        children = arrays.get('socket_items', {})
-        if (
-            flags is not None
-            and not flags & SOCKETED_FLAG
-            and not any(s['id'] == 194 for s in stats)
-            and children.get('complete') is True
-            and children.get('children') == []
-        ):
-            results[-1]['item'].update(sockets=0, empty_sockets=0, filled_sockets=0, socket_contents='empty')
+        elif infer_unsocketed(results[-1]['item'], stats, arrays, flags):
+            results[-1]['source']['socket_mechanics'] = 'unsocketed_flags_and_complete_stats'
         item = results[-1]['item']
         issues = results[-1]['issues']
         if flags is None:

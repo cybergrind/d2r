@@ -97,7 +97,7 @@ def apply_named_dimensions(rows, named_gate):
         if exclusion and (quality, row['name']) not in baselines:
             row['dimensions']['named_tiers'] = exclusion
             continue
-        if kind in ('base_quality', 'use_quality') and quality in (
+        if kind in ('base_quality', 'use_quality', 'evidence') and quality in (
             'normal',
             'superior',
             'low_quality',

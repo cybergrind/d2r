@@ -19,9 +19,11 @@ def guardian():
 def test_saved_guardian_fixed_per_level_coefficient_is_not_a_market_roll():
     result = assess(guardian(), profiles=[])
     assert not any('native stat 245:0' in gap for gap in result['price_gaps'])
-    # This fixture still lacks reliable socket occupancy; no price is invented.
+    # Native flags now establish empty sockets; this direct decoder fixture
+    # still lacks the owned enhanced-defense modifier supplied by saved replay.
     assert result['contract'] is None
-    assert any('socket' in gap.lower() for gap in result['price_gaps'])
+    assert not any('socket' in gap.lower() for gap in result['price_gaps'])
+    assert 'Named property 16:0 was not captured.' in result['price_gaps']
 
 
 def test_per_level_native_and_display_evidence_must_agree():

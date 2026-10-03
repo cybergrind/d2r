@@ -75,14 +75,18 @@ def test_complete_ordinary_bane_capture_selects_its_damage_range():
         {'socket_contents': 'unknown'},
     ],
 )
-def test_bane_factory_does_not_prove_version_without_clean_unsocketed_capture(changes):
+def test_bane_factory_retains_non_ladder_range_without_claiming_complete_capture(changes):
     from tests.pricing.knowledge.assessment.item_bank.models import Item
 
     item = Item('Short Staff', 'unique', 'Bane Ash', ((17, 0, 55), (18, 0, 55), (93, 0, 20)), complete=True)
-    damage = next(
-        row for row in replace(item, **changes).capture()['decoded_stats'] if row.get('name') == 'item_damage_percent'
-    )
-    assert 'roll_range' not in damage
+    capture = replace(item, **changes).capture()
+    damage = next(row for row in capture['decoded_stats'] if row.get('name') == 'item_damage_percent')
+    # Ordinary table 54 retains ED on Non-Ladder; only the Ladder overlay removes it.
+    # Unknown socket/capture facts must remain unknown, not be filled by that scope choice.
+    assert damage == IsPartialDict(roll_range=IsPartialDict(min=50, max=60))
+    assert capture['source']['stat_capture_complete'] is changes.get('complete', True)
+    assert capture['item']['sockets'] == changes.get('sockets', 0)
+    assert 'mode_eligibility' not in capture['source']['item_identity']
 
 
 @pytest.mark.parametrize(

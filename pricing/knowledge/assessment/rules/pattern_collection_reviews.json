@@ -319,13 +319,13 @@
           "occurrence_id": "05f633d15dd1f256f6220402",
           "occurrence_fingerprint": "610f0917bbcc8a2f5b3b09c82ec3c688b90a905359834164eaa61ccc89a642f1",
           "profile_id": "fissure-druid-magic-find-shield-ist-filled",
-          "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473"
+          "profile_fingerprint": "b2d7ef28840b0286ba66646f9f3c75450476df4bf601a05bd335bcba5a01cc2d"
         },
         {
           "occurrence_id": "67a6147f299e1e6713b9d38a",
           "occurrence_fingerprint": "d150025b5549431780fe488b29b91ec1f02a6c06cf207f12e25a3dd2e78c72d6",
           "profile_id": "fissure-druid-magic-find-shield-ist-filled",
-          "profile_fingerprint": "c92cb000a9f25dfc64a5b63ae2558a7dfde7cf82a666e81809de0d24b86c8473"
+          "profile_fingerprint": "b2d7ef28840b0286ba66646f9f3c75450476df4bf601a05bd335bcba5a01cc2d"
         }
       ]
     },
@@ -339,7 +339,7 @@
           "occurrence_id": "f8630c7bde42beded681954f",
           "occurrence_fingerprint": "edc9dc54e93d8ac99fb42ef8ebc52ed0d23f7d5cc10a97cbe440c78455f6fbff",
           "profile_id": "lightning-fury-amazon-guide-main-shield-facet-shield-filled",
-          "profile_fingerprint": "25fa78606f4647b9d55e103d471f14bef4800df3a30a2c34e115cdee3b77f7dc"
+          "profile_fingerprint": "5f0f6aba886c0f27c5e591fb4f4439bbcc5bfb6c610d999bf286a99ddb34b6c7"
         }
       ]
     },
@@ -353,13 +353,13 @@
           "occurrence_id": "c1824eee42199d201e3c97bb",
           "occurrence_fingerprint": "02aa03f8458d3ccbc28f159bb0112c465fabcaabc448336d38f40242a6ae04db",
           "profile_id": "blizzard-sorceress-main-swap-facet-shield-filled",
-          "profile_fingerprint": "3a591763e3960a54c52aa261aead162dbff7172f860c2464ae2e01ea5577fe5b"
+          "profile_fingerprint": "4ce6f9a12e5cda50741ac46113c5d047b8daf82df333be501217918fec9cc298"
         },
         {
           "occurrence_id": "e14e1ec34ae1937b092049ea",
           "occurrence_fingerprint": "22043a298d72c67c0658cab629c137926f8a493943dbc8482915e17817555637",
           "profile_id": "blizzard-sorceress-main-shield-facet-shield-filled",
-          "profile_fingerprint": "7ca98b7728a45a5101f3def0cdaa7628b27c8d6a5abf80a76d218ac447613c90"
+          "profile_fingerprint": "fe883bf5e5b4c050ab0b5cf515ff1f2504a53a912d4a8ebc0db0ecb37d3926b2"
         }
       ]
     },
@@ -373,13 +373,13 @@
           "occurrence_id": "8a367ac3f701448c86ab8137",
           "occurrence_fingerprint": "6ba4564f51d21eab39108fc37481b2b335d1b5b768d1ed619dfd8c1e7516a1c1",
           "profile_id": "lightning-strike-amazon-main-shield-facet-shield-filled",
-          "profile_fingerprint": "78454102815dfcc7f998cd26a745b5e4625b7c9e2962fbe7a40eedc4a55738ff"
+          "profile_fingerprint": "86eec35de491b679be060d79e1265d6c7eca08d6505649a017284b0b81703a07"
         },
         {
           "occurrence_id": "cea53ddf4354f3c2836a4a7e",
           "occurrence_fingerprint": "f8708114f1f9b8f18271b915454b9cc1f26f9a7bdbbe8c826993d18406aba802",
           "profile_id": "lightning-sorceress-main-shield-facet-shield-filled",
-          "profile_fingerprint": "cd05a6dc7af34343946fc28b2fd2b76f145899d05a982c5a6dc813cd5d1d08d0"
+          "profile_fingerprint": "b772d010cacdc43b0ffbab017f11e4b49c2925870b9207023078d253fa0141de"
         }
       ]
     },
@@ -393,13 +393,13 @@
           "occurrence_id": "47046543c3518ff259973252",
           "occurrence_fingerprint": "39b9fbe8b4216f07200fa2e3a812f798747b8a16e23949fddd1515fa517793e1",
           "profile_id": "lightning-sentry-assassin-main-shield-facet-shield-filled",
-          "profile_fingerprint": "060b22d1b392fe51f75b4341c312ecf26f2d0435c60dde991bb43964e5de7a32"
+          "profile_fingerprint": "d69e96911398c28e667030290888ecca364cb2d5f36b121084d961f613ebc0fd"
         },
         {
           "occurrence_id": "82ef628604d3740c9187a17f",
           "occurrence_fingerprint": "42f16d5e0662840bc69796d3938ad251c4bf970f941d883e052a8f2ab9f24f8c",
           "profile_id": "lightning-sentry-assassin-main-swap-facet-shield-filled",
-          "profile_fingerprint": "34c7322e8ae4ad22b8a7e89355970db950f90989ff66420feeedf69157cdcb4d"
+          "profile_fingerprint": "00e851052c676e41f41234bee5b51de41200cb481e5035f5a6b684b371d7a980"
         }
       ]
     },
@@ -413,7 +413,7 @@
           "occurrence_id": "3430805bb22a092bde942f42",
           "occurrence_fingerprint": "fd9ddf151d886d96ea9dd8811f077640ea24c2b89e10a4717b7995b984ad5b51",
           "profile_id": "fissure-druid-main-shield-facet-shield-filled",
-          "profile_fingerprint": "194260b4e93d7372b4d1d673934ce063f06f6c14a4325e8dbf8a02063707eaf0"
+          "profile_fingerprint": "e90729c90f52e703da04dff86655609388fc2830b153b59cf180f1daba5dfd9d"
         }
       ]
     },
@@ -427,13 +427,13 @@
           "occurrence_id": "73b5a2c90fa68bc3a200d9b7",
           "occurrence_fingerprint": "02e645c81cc40851ad9b6092ac3197c5baf6d0a659581941d74459c7d5af9e79",
           "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
-          "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198"
+          "profile_fingerprint": "d2d19878381cb4281b038cad82f36363e87f50cc6af1886ad5c1336a91f4f379"
         },
         {
           "occurrence_id": "78065e918f6807cc81928851",
           "occurrence_fingerprint": "cbbbf776c8762169fdf6c3a6c1eea67011e73eb16656439607c56f887e48a405",
           "profile_id": "lightning-fury-amazon-guide-ubers-shield-facet-shield-filled",
-          "profile_fingerprint": "f3da5787a5ce15717ebfbdf8cc8d028f4e472e77e4d15c76932253110ca50198"
+          "profile_fingerprint": "d2d19878381cb4281b038cad82f36363e87f50cc6af1886ad5c1336a91f4f379"
         }
       ]
     },
@@ -447,7 +447,7 @@
           "occurrence_id": "c3d76b27012a8ab68f89f443",
           "occurrence_fingerprint": "241e8af3b0336ea0326b2ee25306a2bc638158833fb1e3d335a623f42fdd7839",
           "profile_id": "poison-nova-necromancer-main-shield-facet-shield-filled",
-          "profile_fingerprint": "d5c808acf57e934fb1ffc567551334bb5e8970cd57da19f2e9058636cfc652a3"
+          "profile_fingerprint": "99ab3088787e5b484a6cfc928f244df39ae50452f822547703556600c82597eb"
         }
       ]
     },
@@ -461,13 +461,13 @@
           "occurrence_id": "12f134889066a72feb507b2a",
           "occurrence_fingerprint": "7cc42045b961e96bad11fa0c75fbc76a5c8ad8a7a743820856a3d8096178631d",
           "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
-          "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9"
+          "profile_fingerprint": "e2ca6235fe07a1745681cdaa6abd00f286ebe090df2bf9362460caada37b4d53"
         },
         {
           "occurrence_id": "75ac3c148b75bf437ee9b511",
           "occurrence_fingerprint": "b5979d694d4d77a20ee91b45581574932fc57888411e1851086e7bb468001c21",
           "profile_id": "blizzard-sorceress-standard-swap-facet-shield-filled",
-          "profile_fingerprint": "72a576c990171baaf233d302502887b5492a1748c868b27be6480f7802be60a9"
+          "profile_fingerprint": "e2ca6235fe07a1745681cdaa6abd00f286ebe090df2bf9362460caada37b4d53"
         }
       ]
     },
@@ -493,7 +493,7 @@
       "members": [
         {
           "occurrence_id": "83e40df646dc65e7b0406bfe",
-          "occurrence_fingerprint": "db24f272516338eab2cd3cbade1d929c6c854c8e0c484f9ad28ebe1139ad0a8b",
+          "occurrence_fingerprint": "1dc9d233b0e2bb6a8deb0f84c59a8acb1febc5fc261fa1ad1124cb4557c18f49",
           "profile_id": "double-throw-sharp-dexterity-grand-charm",
           "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f"
         },
@@ -502,6 +502,529 @@
           "occurrence_fingerprint": "4259ae3d4714bf3d4a89210ffd179af3fe6f1d8155bdd9c95af79c724f9fabdb",
           "profile_id": "double-throw-sharp-dexterity-grand-charm",
           "profile_fingerprint": "f238941a4a28bb11c66ce8b7890e3765169262c25d6380aa9d1a6c296064511f"
+        }
+      ]
+    },
+    {
+      "identity_id": "0566c4a446ba6101737cce5d97cef72a4ae12ae32baa5c92068ac3987f870832",
+      "identity_fingerprint": "39a3d726c96722de7544aadc1cba2a5e62e68a57f2897de7bed144db52cf5b08",
+      "review_date": "2026-10-01",
+      "reason": "The sole Zeal guide span59 links planner n8010616/item108: ethereal rare Berserker Axe with the reviewed six-affix combination, self repair and two actual Lo runes. Resolve this source label to that exact configuration, not every ethereal weapon. No price, market completeness or universal rare-weapon suitability is inferred.",
+      "members": [
+        {
+          "occurrence_id": "e9345294154cd2c06f6449b7",
+          "occurrence_fingerprint": "9d775b66c7cad3302d91318e970953492cd8d9e415af786b9aaaaeb668208297",
+          "profile_id": "zeal-paladin-ethereal-rare-axe",
+          "profile_fingerprint": "504b2a17923e455c7e7def9b852a25e77e60f9db78667978e78a276e9a85e9bc"
+        }
+      ]
+    },
+    {
+      "identity_id": "2f0185f080b3c289dcbf642b702f2f97cc65b04d820d07a1663c823807f2f267",
+      "identity_fingerprint": "beac0b61c42845f338f3117ec943e24df147fc2bf511ac6ef0ddabf5aeedd9e6",
+      "review_date": "2026-10-01",
+      "reason": "The sole Zeal guide span99 links the Blood-crafted helmet alternative: native Blood life/leech/Deadly Strike and separate Visionary affix, with Cham/Ber a qualified optional socket setup. Keep the exact source and crafted-helmet rule. This label discovery does not establish a guaranteed craft result, an exact price or every crafted-helm variant.",
+      "members": [
+        {
+          "occurrence_id": "9e4874f44c6863ccc41ab579",
+          "occurrence_fingerprint": "1a1b72da6207627b5ffe8e0e39a48d7bf2af54f0cb07a539473a8d6169ff9351",
+          "profile_id": "zeal-paladin-blood-helm-alternative",
+          "profile_fingerprint": "58246ab1bbd72e94f7f22836b93461724fd8a06cb270533a8af2f52dd392c4a7"
+        }
+      ]
+    },
+    {
+      "identity_id": "dba47e0f4f292dc7ed1cd5e58275ed2abce329313ba862bf3170d7572049997f",
+      "identity_fingerprint": "9bd100a74ff7420ef0e7c46bbe066330a1f13fc865b80aab739925c96c27f701",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Natural Grand Charm of Vita: both primary Fissure equipment entry and exact raw-guide/planner witness retain the same native Elemental skill and suffix configuration. Discovery only; pricing, broader variant and report obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "b1c059c9da5d1ec7f1600cd4",
+          "occurrence_fingerprint": "8637bc23c5aeb5d56c13b47a8eeca7bda0daedbda163fff64f26d2c04c6d9102",
+          "profile_id": "fissure-elemental-grand-charm-vita",
+          "profile_fingerprint": "55913b7bc5ec82ea02e51548110ce008e5e46d38b31fedc7ffc6363ebd2b89ab"
+        },
+        {
+          "occurrence_id": "eb5e27c7e143e93baad8219b",
+          "occurrence_fingerprint": "f1cf7c2362c6f13d3b4f23530f6d41605d1f00e2af91df709b2324e6e9ad3910",
+          "profile_id": "fissure-elemental-grand-charm-vita",
+          "profile_fingerprint": "55913b7bc5ec82ea02e51548110ce008e5e46d38b31fedc7ffc6363ebd2b89ab"
+        }
+      ]
+    },
+    {
+      "identity_id": "69249954a1f20c8ce2d4f638d8a192d07ddcbc96ea63883e4f1ebca744bf9835",
+      "identity_fingerprint": "80fd23896d544917a37db20f4a75c5daf2dd048fdf7397b05710a020bb51a696",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Natural Grand Charm of Balance: both primary Fissure equipment entry and exact raw-guide/planner witness retain the same native Elemental skill and suffix configuration. Discovery only; pricing, broader variant and report obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "3dde64b8a19c4171cbc88e0d",
+          "occurrence_fingerprint": "ba778f7c774739dd5302a3e8dd418a33a2067af8f2a3bafb0d1375bac78f1653",
+          "profile_id": "fissure-elemental-grand-charm-balance",
+          "profile_fingerprint": "62a6958ce29ebf6a3f3041baacb921a2b32ac0524195eab066031103e0cda744"
+        },
+        {
+          "occurrence_id": "8137f824b4aad4163cbf5276",
+          "occurrence_fingerprint": "be3dd8fc8556aaf6fc6dcc35e8afc0a8a1dfd27bf0e9148a1165fce9a87e97c2",
+          "profile_id": "fissure-elemental-grand-charm-balance",
+          "profile_fingerprint": "62a6958ce29ebf6a3f3041baacb921a2b32ac0524195eab066031103e0cda744"
+        }
+      ]
+    },
+    {
+      "identity_id": "0102e87069b0dbc6d5001f833ed33a1fdf1bb6764bca66a55b04b4f43055cad0",
+      "identity_fingerprint": "d4f6d16a97b870e17964efe7a40c7edcc4f403ec101b2b3893627ccb933901ae",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Natural Grand Charm of Inertia: both primary Fissure equipment entry and exact raw-guide/planner witness retain the same native Elemental skill and suffix configuration. Discovery only; pricing, broader variant and report obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "2c531760754bfec40330756f",
+          "occurrence_fingerprint": "61dde9285f47cc6d5d0da4e5c0beb44a2a7a9c0f7ed0ceaefe235c9e94556fb6",
+          "profile_id": "fissure-elemental-grand-charm-inertia",
+          "profile_fingerprint": "8c7f91fe7ea7b8e5030e8beb48159f64fdeb3651fa9661fdd0a081a2afb3d03f"
+        },
+        {
+          "occurrence_id": "447ce61cb5766c4ff1e3c354",
+          "occurrence_fingerprint": "791166ad3ebcd2919b2ad33c2a1dd796d22302afcf68afbd8127ccca65fd3872",
+          "profile_id": "fissure-elemental-grand-charm-inertia",
+          "profile_fingerprint": "8c7f91fe7ea7b8e5030e8beb48159f64fdeb3651fa9661fdd0a081a2afb3d03f"
+        }
+      ]
+    },
+    {
+      "identity_id": "9a4205513163971bd226cfaf943087a3e15cf2cd3d9ac57efbde7e098acc8b1c",
+      "identity_fingerprint": "949777fc08513fc945b8972e14cb6d041495acf1a1970ad65a81f23ff8c30948",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Natural Grand Charm: both primary Fissure equipment entry and exact raw-guide/planner witness retain the same native Elemental skill and suffix configuration. Discovery only; pricing, broader variant and report obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "731032e0d6e28598c3d37463",
+          "occurrence_fingerprint": "ef60ba2c1ad1ecfe1a4093763931f598e9b55a893430b0ca9b1bbff7a466b2d1",
+          "profile_id": "fissure-elemental-grand-charm-plain",
+          "profile_fingerprint": "8a302ef2e4f1b8340f8691b2dc39a57c520dfe7efc9646ecd12c109b5c8a0d80"
+        },
+        {
+          "occurrence_id": "f50a2e00844ea03311e4c991",
+          "occurrence_fingerprint": "d4a79aa11fbf9898964e80c224b5c7607d4a453c3fce53acb223475d8db4289c",
+          "profile_id": "fissure-elemental-grand-charm-plain",
+          "profile_fingerprint": "8a302ef2e4f1b8340f8691b2dc39a57c520dfe7efc9646ecd12c109b5c8a0d80"
+        }
+      ]
+    },
+    {
+      "identity_id": "0b616c7982305509c2659f6c8a61d22dd8a3e01364fd96672f47c31c400651fe",
+      "identity_fingerprint": "9ffc7d61c23ce6a96d925ba7ffc7b6100f50c254faff9057935d75ea3ec926fb",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Sparking Grand Charm of Vita: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "16a0c73034452f8d8701abbf",
+          "occurrence_fingerprint": "c368729c380612bdfd528b4359e1431a63a3375e54b2263b829d3b5176e5c280",
+          "profile_id": "lightning-sorceress-main-skiller-vita",
+          "profile_fingerprint": "1902a61fd603b4208be19e8eb8943b5288088c6afea4eef89853f93d00cb4550"
+        },
+        {
+          "occurrence_id": "efcb766b7b5ccdd4a5173814",
+          "occurrence_fingerprint": "ff5cc8e33869c65807088186bfcfba6aa851a82ba7f1a8a65ecebca0f2d8a784",
+          "profile_id": "lightning-sorceress-main-skiller-vita",
+          "profile_fingerprint": "1902a61fd603b4208be19e8eb8943b5288088c6afea4eef89853f93d00cb4550"
+        }
+      ]
+    },
+    {
+      "identity_id": "1866a11e84ebfbbd25a2dd34ca31a6fd640a8e39b84cf9f8848985fad899e64b",
+      "identity_fingerprint": "4f0b2be587a03175aee880571aa2a4e3995c0784d7ac6dfbcdc16b01326b2676",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Sparking Grand Charm of Balance: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "60e3eed751938f98bf396663",
+          "occurrence_fingerprint": "c9f014b068439f59ec32959654a64176e966d276065260a417fb8368b6f9554f",
+          "profile_id": "lightning-sorceress-main-skiller-balance",
+          "profile_fingerprint": "0e760ef4f876456d0f16d33df411b1e13c2d1a09b7e95ba076eee9e481b55a79"
+        },
+        {
+          "occurrence_id": "850613e650afdb28b12bd757",
+          "occurrence_fingerprint": "cc2c5289cce5b668aef037c925dcdb28b1fa978a18fcc25452bc34296059770c",
+          "profile_id": "lightning-sorceress-main-skiller-balance",
+          "profile_fingerprint": "0e760ef4f876456d0f16d33df411b1e13c2d1a09b7e95ba076eee9e481b55a79"
+        }
+      ]
+    },
+    {
+      "identity_id": "37f78c18c4f36bf8f288fb4df8dad428e39c2e8ff5e8d0367413fb78194f489f",
+      "identity_fingerprint": "bd74c1b80dfa5247ef1960543840f07edf46b0661325b08b97155b5e59b2d9b1",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Sparking Grand Charm: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "81f215745fc7ebc57122ac10",
+          "occurrence_fingerprint": "f05c3211280e5fb77ae3dbe5f5f8fd3c153882b3dd880a7adee84fa8924b61d5",
+          "profile_id": "lightning-sorceress-main-skiller-plain",
+          "profile_fingerprint": "50fc4d8b6ba28cc0b027fc6ed9c372e27e03495bd83c5291f9c3bc5bf6497f98"
+        },
+        {
+          "occurrence_id": "a226e8c0a9163dc7ae9fce08",
+          "occurrence_fingerprint": "c4695a70d0718c4bbc63c61e30dbc4261941a0ea75b51044ee3f3236a723cffa",
+          "profile_id": "lightning-sorceress-main-skiller-plain",
+          "profile_fingerprint": "50fc4d8b6ba28cc0b027fc6ed9c372e27e03495bd83c5291f9c3bc5bf6497f98"
+        }
+      ]
+    },
+    {
+      "identity_id": "294b0a6c05bce90762610b73ed7b5912c7b3488bb214bfdf5c2d3c77299f0d2d",
+      "identity_fingerprint": "15c91c31867a0ea06aedd228f371db8e63c29891de55c82bfbce87fcd3a4a5e8",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Harpoonist's Grand Charm of Vita: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "7af5cc7f200bca9c47825618",
+          "occurrence_fingerprint": "99385426a30e849b2f067f639706e31affa36e0e1a8533e25559f6e18a565407",
+          "profile_id": "lightning-strike-amazon-main-skiller-vita",
+          "profile_fingerprint": "5c238d2ef6788a9c9550c657f2bb61b680d01dc992847178a282b920eb8a5a33"
+        },
+        {
+          "occurrence_id": "e4a406ce48fa943c49dd7da0",
+          "occurrence_fingerprint": "4c81895a64d73efd96585d6f0a566985f6dac627380c9f11ad252c3af5f8b773",
+          "profile_id": "lightning-strike-amazon-main-skiller-vita",
+          "profile_fingerprint": "5c238d2ef6788a9c9550c657f2bb61b680d01dc992847178a282b920eb8a5a33"
+        }
+      ]
+    },
+    {
+      "identity_id": "61c1610e1f9757f015c3116cb8dd50ca26872786a34a92a38ec2d0ca77d65a9f",
+      "identity_fingerprint": "de07304d6ea9649dc48d1d48288916b9fbea67967e54cbb413162168a7412cd1",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Harpoonist's Grand Charm of Balance: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "062e7fe8e054e456ba61c5fe",
+          "occurrence_fingerprint": "5642729b118e4561c4297cbe09b4d9005c5d21bb111a2636c0c77d80814ae5bb",
+          "profile_id": "lightning-strike-amazon-main-skiller-balance",
+          "profile_fingerprint": "fcbb795cbde3230085a2d1979cfcc1c842255196e3fd30cf854d2e2479d6da57"
+        },
+        {
+          "occurrence_id": "67a8c4b123729a28323dbcd0",
+          "occurrence_fingerprint": "a6f06cb893a0df132f582d6e937d7b3bf180134a503721805ca0669f8eaba9c2",
+          "profile_id": "lightning-strike-amazon-main-skiller-balance",
+          "profile_fingerprint": "fcbb795cbde3230085a2d1979cfcc1c842255196e3fd30cf854d2e2479d6da57"
+        }
+      ]
+    },
+    {
+      "identity_id": "d7c4b8917dac32baaece81e05230006aefb511c5fcebb08257443531f0584e91",
+      "identity_fingerprint": "d8ce70481ab0474bbdf7570ba5132f2d392d9dbedfd21a4a45831db850996a8b",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Harpoonist's Grand Charm of Inertia: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "d8fb0093c4f9f4dc093bb693",
+          "occurrence_fingerprint": "de732891e8003f3a10e17ba47a4736a9f17ba6a6d9eb81ed64a8e2be88fb2f67",
+          "profile_id": "lightning-strike-amazon-main-skiller-inertia",
+          "profile_fingerprint": "b82bf616f85643d24390ae2129537f9f166466177728ba72a11589e76d42cbb2"
+        },
+        {
+          "occurrence_id": "fc1a6f05afd3646cb2e25012",
+          "occurrence_fingerprint": "30d528985b61aa2101ea0fc7fae6f5f4efab021b0a4744601d0d6cbf77681771",
+          "profile_id": "lightning-strike-amazon-main-skiller-inertia",
+          "profile_fingerprint": "b82bf616f85643d24390ae2129537f9f166466177728ba72a11589e76d42cbb2"
+        }
+      ]
+    },
+    {
+      "identity_id": "fb3defe86379d5d24d4df660cf55160281d7b62d67cf240fdad7b502157098bf",
+      "identity_fingerprint": "5ddcaab1c6fadc9b95bf1963f536820ed25149931d9f6d44f8c65f82f1787362",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Harpoonist's Grand Charm: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "3818e059cc0cf78a9986ee5a",
+          "occurrence_fingerprint": "82eaf6b69923e2942401b93d44eb2cf62f45fb510b5fbefd052e72b46a9b894f",
+          "profile_id": "lightning-strike-amazon-main-skiller-plain",
+          "profile_fingerprint": "b0b39f9c876f6bc31830bddc5b60e3c41e124e8206fe54c512b5b7f5f2f9d665"
+        },
+        {
+          "occurrence_id": "df9138e9ff84645cf3a8fa27",
+          "occurrence_fingerprint": "017f331feafbf04983a22ee09d40427b946e602e10db983f5ece973dd51c3181",
+          "profile_id": "lightning-strike-amazon-main-skiller-plain",
+          "profile_fingerprint": "b0b39f9c876f6bc31830bddc5b60e3c41e124e8206fe54c512b5b7f5f2f9d665"
+        }
+      ]
+    },
+    {
+      "identity_id": "91726fcfc938e1bbe1b32c5ec9519459717ad26cb5a5463ce457fd4252cd9d9c",
+      "identity_fingerprint": "c2a5e6e3259aa8c4407541665ad479a22a954893d9cfdafa60e198a176332a13",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Fungal Grand Charm of Vita: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "bfc51d20330749492a53a6f3",
+          "occurrence_fingerprint": "03412cdd356b49546dad81f004cd4e562c942e4547bde34a655ae0f319972567",
+          "profile_id": "poison-nova-necromancer-main-skiller-vita",
+          "profile_fingerprint": "7b3f5c64b5927a10f42b69ca883c0e45dc8c2d006af5aa9d739136663c472a23"
+        },
+        {
+          "occurrence_id": "cad7b94638d7b355ec79e4d6",
+          "occurrence_fingerprint": "c28bf12ed99ca4f0e8814c7665b553c8f1e283635979545f664c19037154c744",
+          "profile_id": "poison-nova-necromancer-main-skiller-vita",
+          "profile_fingerprint": "7b3f5c64b5927a10f42b69ca883c0e45dc8c2d006af5aa9d739136663c472a23"
+        }
+      ]
+    },
+    {
+      "identity_id": "9fc8d6dc2fd3f395ec659aadd4430610353625930a07d9201216bd43bfddb5ce",
+      "identity_fingerprint": "1c3f3478b80af6ca93d74dc20db7b6460b63b054af5a213f48ef0863e4edb3a2",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Fungal Grand Charm of Balance: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "0e0d28423b7b1b97fbf37db1",
+          "occurrence_fingerprint": "1536be6e9e8efab0b2670d0e1eadd9a039d7b5650514358f9d658d9ef9a0c4ae",
+          "profile_id": "poison-nova-necromancer-main-skiller-balance",
+          "profile_fingerprint": "1693b2b26c506a2e995a691f60bdf402372a149ac1564cd669b4097888b85b56"
+        },
+        {
+          "occurrence_id": "2612310fd36face302a11995",
+          "occurrence_fingerprint": "635feaa2e0cafce1e668fd736058d4e9aac2df147d92153b0a33b31deeead55e",
+          "profile_id": "poison-nova-necromancer-main-skiller-balance",
+          "profile_fingerprint": "1693b2b26c506a2e995a691f60bdf402372a149ac1564cd669b4097888b85b56"
+        }
+      ]
+    },
+    {
+      "identity_id": "0fbf43bf24d18abb7a322f1f3512250667011109d8a89b34a4a14cbd53c6ed32",
+      "identity_fingerprint": "fe123e3fb8ce10faa8bd03d15de3589fe9d4cd09981ec5c45dce42ca6217d936",
+      "review_date": "2026-10-01",
+      "reason": "Reviewed Fungal Grand Charm: exact primary equipment entry and raw-guide/native planner witness support the same skill-tree and suffix configuration. Discovery only; price, report and broader variant obligations remain separate.",
+      "members": [
+        {
+          "occurrence_id": "1a5c5d789ff6a2f41bb6717c",
+          "occurrence_fingerprint": "2ea91d2175c0c29b4564a8f4c938a377fc5b11c435f7313b22cdcc225aeaf197",
+          "profile_id": "poison-nova-necromancer-main-skiller-plain",
+          "profile_fingerprint": "abea47f701ed958933a8578d11c7abfb68171d10b5970b2e76a93e900a37d189"
+        },
+        {
+          "occurrence_id": "4dfa6a788d4d2706e065456a",
+          "occurrence_fingerprint": "0a8f009c66cd413d9d189aeda816431b1619d0bd87a5b16855628777a26b8c85",
+          "profile_id": "poison-nova-necromancer-main-skiller-plain",
+          "profile_fingerprint": "abea47f701ed958933a8578d11c7abfb68171d10b5970b2e76a93e900a37d189"
+        }
+      ]
+    },
+    {
+      "identity_id": "65fdad010b76eea58e171508782752374f4c1617a97a896f896978309b9a3d6d",
+      "identity_fingerprint": "568c3bdc5f143e5b2f765bd6809f2e00e8af8e156b519222e016b90cc6ab949b",
+      "review_date": "2026-10-01",
+      "reason": "All three Entrapping Vita occurrences reviewed: main equipment table and consolidated entry retain the general skiller alternative; Magic Find prose has a separate explicit high-player-count activity requirement. Collection discovery does not imply all variants are unconditional or establish market/report completion.",
+      "members": [
+        {
+          "occurrence_id": "2df8d057f31dec606c710b56",
+          "occurrence_fingerprint": "87f604cc847d6a650b6bd2dde5329e54b6dfd3afb8498ff0ac1c97cd4fac0509",
+          "profile_id": "lightning-sentry-assassin-main-skiller-vita",
+          "profile_fingerprint": "1ed47250ced06cf892d9c0bd1d7a4d0cb9d0ba245bc44efd7c450f0f7335c5c3"
+        },
+        {
+          "occurrence_id": "649cc48d1235a7b1a9b02343",
+          "occurrence_fingerprint": "788dd534c36a31b2f123cbde60359858fc67b2b604b165e8e115d6986ed46b4f",
+          "profile_id": "lightning-sentry-assassin-mf-high-player-skiller",
+          "profile_fingerprint": "21668bdb7fb05daf08f50f7b5212960f593a9ff713ca81a7dc52e7355d3fc844"
+        },
+        {
+          "occurrence_id": "d6a2ed3a2eb9193e969dfa50",
+          "occurrence_fingerprint": "248d2e44c89dc5f45501c5a7a44b8772aef828810fbcdf249003a829f6f0a812",
+          "profile_id": "lightning-sentry-assassin-main-skiller-vita",
+          "profile_fingerprint": "1ed47250ced06cf892d9c0bd1d7a4d0cb9d0ba245bc44efd7c450f0f7335c5c3"
+        }
+      ]
+    },
+    {
+      "identity_id": "2b88e5cb36630308f3807121399009d24abb510583b45b3c2df18a84273af954",
+      "identity_fingerprint": "026515319c2b89b4ff0ac69797f13111b33e736dd04289f1ae824e7c827ebe5b",
+      "review_date": "2026-10-01",
+      "reason": "Every scoped Sharp charm occurrence retains its exact build/suffix configuration. Strafe Life-charms are only recommended inside a verified Hardcore section and that occurrence is explicitly excluded; shared Softcore uses remain included. Discovery does not certify numeric prices, all variants or full reports.",
+      "members": [
+        {
+          "occurrence_id": "305d1691bdcd07159dd87f34",
+          "occurrence_fingerprint": "ffffdf75a8969f760aa8d5e0e32e888d33dba8bfbae35f0b3d06c9df3bff6b9a",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-vita",
+          "profile_fingerprint": "fd4d6bfd423f3341cb56d2c2833976edd5241da3f571eb69acc59bdecdce4b19"
+        },
+        {
+          "occurrence_id": "619bc91aeec6790fdeba3c53",
+          "occurrence_fingerprint": "0574bde95c349b9049359dddfb80f978b9b41cfaf367f2c90d1e4e740b590100",
+          "profile_id": "berserk-barbarian-main-sharp-vita",
+          "profile_fingerprint": "1f0a3d12dff80bdc511c9b52f6381d11508db425f75a295a42e0b7f5ed622aec"
+        },
+        {
+          "occurrence_id": "62584cc9866a37009c0c7193",
+          "occurrence_fingerprint": "efd08f496066a36f33289d4bb23f66494b030745e29f13dfe473543e44f9dc5e",
+          "excluded_by": "strafe-amazon-hardcore-corpus-span-135"
+        },
+        {
+          "occurrence_id": "66f980b09c468332081bc77d",
+          "occurrence_fingerprint": "fd0be2cc67c51c414c2b38d9f10a051ae0cb8baa8a2288eb1e8d5f8145460648",
+          "profile_id": "berserk-barbarian-main-sharp-vita",
+          "profile_fingerprint": "1f0a3d12dff80bdc511c9b52f6381d11508db425f75a295a42e0b7f5ed622aec"
+        },
+        {
+          "occurrence_id": "759fe51d1cb35a2abcf3512f",
+          "occurrence_fingerprint": "bb53526e35b24554b96fb27dd18495a357c590b42da563faa557d0cd7d3d5962",
+          "profile_id": "zeal-paladin-charm-grand-sharp-vita",
+          "profile_fingerprint": "b017069437a590cde3a16dca62f5a01f3cb972e11e6d5a948fb568b0c4b58525"
+        },
+        {
+          "occurrence_id": "c19b47dfec9ba2fb9ad21323",
+          "occurrence_fingerprint": "5d6affae9c901926c3c10feb70672b5a12405cafde2a823085f4680872279622",
+          "profile_id": "dream-paladin-main-sharp-vita",
+          "profile_fingerprint": "85f23874054b7766d7c7128ca3689cf6fae9cfd5a5e6541b96a07d505f829c8c"
+        },
+        {
+          "occurrence_id": "d5eaf13f3684f3d1ddb6df76",
+          "occurrence_fingerprint": "d263117516ef387e81788a9cd57b312e4c05b970f5c4c15bd57348e31d193050",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-vita",
+          "profile_fingerprint": "fd4d6bfd423f3341cb56d2c2833976edd5241da3f571eb69acc59bdecdce4b19"
+        },
+        {
+          "occurrence_id": "e07334d1f2470063e6816851",
+          "occurrence_fingerprint": "7172d563585d461df188904e665b1cfbc2ae6b1aa11c293f3f5bf5ba6ea0aa7f",
+          "profile_id": "dream-paladin-main-sharp-vita",
+          "profile_fingerprint": "85f23874054b7766d7c7128ca3689cf6fae9cfd5a5e6541b96a07d505f829c8c"
+        }
+      ]
+    },
+    {
+      "identity_id": "5a4732a0b6e8a55a64183f6030132f861912a25b28de5cf6b874a05b8421fb35",
+      "identity_fingerprint": "0b1f4d0c6868f92a9ce89e54fe8c8e5201b77f887e1041fc7362058d66f20090",
+      "review_date": "2026-10-01",
+      "reason": "Every scoped Sharp charm occurrence retains its exact build/suffix configuration. Strafe Life-charms are only recommended inside a verified Hardcore section and that occurrence is explicitly excluded; shared Softcore uses remain included. Discovery does not certify numeric prices, all variants or full reports.",
+      "members": [
+        {
+          "occurrence_id": "073f894934b0464b159acc28",
+          "occurrence_fingerprint": "8708cf80776c9d622c16130fe7a7c6c38638bf0f66d530714e717fe7c9d41a95",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-balance",
+          "profile_fingerprint": "6546a774c40f6378d962baedc45cc7b8cdb73b57f64712446d4bbfc943728872"
+        },
+        {
+          "occurrence_id": "0f99b8197c56bd170a275d2c",
+          "occurrence_fingerprint": "355d45137baa9be2ea791c8d7f7b4ae1606ddfb4f6e3d1b763daf72bc2166608",
+          "profile_id": "dream-paladin-main-sharp-balance",
+          "profile_fingerprint": "368b987c819e34495ba0159ab17d3adab3e314a0c0260c2a3b77861445e69bc7"
+        },
+        {
+          "occurrence_id": "4d51d79fd62b98768ef3d36a",
+          "occurrence_fingerprint": "159530286fc8ecbf60627d15d1357ba3fbc3842a0a8a807fe7edb31e36a7af3b",
+          "profile_id": "zeal-paladin-charm-grand-sharp-balance",
+          "profile_fingerprint": "bc4b09aec017342f368703eb5bd50125892373661fd49c2f68f0a994dd00d19e"
+        },
+        {
+          "occurrence_id": "9423d47a8eefda2431803642",
+          "occurrence_fingerprint": "e83539c5801a12a6174554871aaab0389c7a4a36a75665eb52305b813fef6a05",
+          "profile_id": "berserk-barbarian-main-sharp-balance",
+          "profile_fingerprint": "96d8d93480dd0cc387257cd844b714099bbe69bcd9344bd86292b6b5a9984d03"
+        },
+        {
+          "occurrence_id": "b063a69eb487918971b9a9cd",
+          "occurrence_fingerprint": "273625e7050e1af7205c386ff1b211168f811e8567c2cfbcdc13b3c0c763771f",
+          "profile_id": "berserk-barbarian-main-sharp-balance",
+          "profile_fingerprint": "96d8d93480dd0cc387257cd844b714099bbe69bcd9344bd86292b6b5a9984d03"
+        },
+        {
+          "occurrence_id": "dc8eab79142da53122a84b83",
+          "occurrence_fingerprint": "743f1f243f9bb931c59e10a23df2ef89bed700dffb381b7b93067cd3264cb4fe",
+          "profile_id": "dream-paladin-main-sharp-balance",
+          "profile_fingerprint": "368b987c819e34495ba0159ab17d3adab3e314a0c0260c2a3b77861445e69bc7"
+        },
+        {
+          "occurrence_id": "e87b6343aa519b4ceb38e257",
+          "occurrence_fingerprint": "34c374cb39bdee2454cbf1b028e54e05d993841b2f1804c50bc8e45c8cbfed7b",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-balance",
+          "profile_fingerprint": "6546a774c40f6378d962baedc45cc7b8cdb73b57f64712446d4bbfc943728872"
+        }
+      ]
+    },
+    {
+      "identity_id": "728eed424ec471b1e78d249e1aa1ae2bbf9904ed773c84fd7af6a7bcc519f47c",
+      "identity_fingerprint": "46621a526f3f07f03a70b9ae164ccc6e38e9d0e0e06b6e72f180eaa2cddb2a14",
+      "review_date": "2026-10-01",
+      "reason": "Every scoped Sharp charm occurrence retains its exact build/suffix configuration. Strafe Life-charms are only recommended inside a verified Hardcore section and that occurrence is explicitly excluded; shared Softcore uses remain included. Discovery does not certify numeric prices, all variants or full reports.",
+      "members": [
+        {
+          "occurrence_id": "ea7d05afd3713f0588ffbdf3",
+          "occurrence_fingerprint": "31a0ea0ae6cb715d7610f91c45f1e74f3ea0d113147f610cd6c044a599a68d21",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-inertia",
+          "profile_fingerprint": "3673dfeada80ea18610c3bf1b54b3e755a4e1064a31b1f95c427da9a52d571d1"
+        },
+        {
+          "occurrence_id": "f45f75511ebc13ec97cd377d",
+          "occurrence_fingerprint": "f7eb3b95449e1b9c7be050813b53ff8c8d9375fdf9bd848d34ef7a8ecbf4e338",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-inertia",
+          "profile_fingerprint": "3673dfeada80ea18610c3bf1b54b3e755a4e1064a31b1f95c427da9a52d571d1"
+        }
+      ]
+    },
+    {
+      "identity_id": "fd8d357d905678470b0656640fbfa3b2d394221db56a9999a2a07d7312a3e9cd",
+      "identity_fingerprint": "3317dd54a0991cd7019f1e802b3eb555b2a2c809c2cf96315f8a07ece598b3d9",
+      "review_date": "2026-10-01",
+      "reason": "Every scoped Sharp charm occurrence retains its exact build/suffix configuration. Strafe Life-charms are only recommended inside a verified Hardcore section and that occurrence is explicitly excluded; shared Softcore uses remain included. Discovery does not certify numeric prices, all variants or full reports.",
+      "members": [
+        {
+          "occurrence_id": "1c40f7111a10601185dd2d11",
+          "occurrence_fingerprint": "ef34d686f4aa5ccafc7b406935f0134996876267a55614534c6a9bd1e7a8e42c",
+          "profile_id": "berserk-barbarian-main-sharp-plain",
+          "profile_fingerprint": "614c5e462f79c9f5d6cbac82f9d9396caf77bd2db0271908b47248165e9e1d63"
+        },
+        {
+          "occurrence_id": "7d6ff38ac949bfe66bc2fd0d",
+          "occurrence_fingerprint": "1c36171d9b42bac82d3c4fd6e4706ab9a13d953f9db035e38257fb8a3e9442c5",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-plain",
+          "profile_fingerprint": "63ccaa9c5a03c5a5689e5bb77a1e58ae36e2141e4493f964422d9cee8457d99d"
+        },
+        {
+          "occurrence_id": "a6b8e1f3ac4364c443621d35",
+          "occurrence_fingerprint": "0340981a30fa8a90b742055ff15eb92dc6f95b3a1e3a36f86d0825133aa715d7",
+          "profile_id": "berserk-barbarian-main-sharp-plain",
+          "profile_fingerprint": "614c5e462f79c9f5d6cbac82f9d9396caf77bd2db0271908b47248165e9e1d63"
+        },
+        {
+          "occurrence_id": "ae8502a961b7a4fe9ac9bd33",
+          "occurrence_fingerprint": "9454d57da1e8334cb6b7278e6418441e8fa7c12be62801ddccf58b371f4b526f",
+          "profile_id": "zeal-paladin-charm-grand-sharp",
+          "profile_fingerprint": "5b9c734892c2a0c0833f6888421d0b284eabae3128b3334e7ebade48e4a37752"
+        },
+        {
+          "occurrence_id": "dd1dc1f48024c0d39f4c613d",
+          "occurrence_fingerprint": "e40a502e645360d89be08dbc71a79f19243486d68441245cee369c1c704124d8",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-plain",
+          "profile_fingerprint": "63ccaa9c5a03c5a5689e5bb77a1e58ae36e2141e4493f964422d9cee8457d99d"
+        }
+      ]
+    },
+    {
+      "identity_id": "d806c692737047b8079bebd49e3e52e151ea314b0c83ccf351a3df27678b6750",
+      "identity_fingerprint": "e8e3dd7c8fe665c46f19580c1c90b7b387e108c318d165bc0a6d8d0de4ccda68",
+      "review_date": "2026-10-01",
+      "reason": "Both Softcore guide uses retain exact native Sharp/Maiming identity and combined modifier conditions. Discovery closure alone does not certify market prices or full report coverage.",
+      "members": [
+        {
+          "occurrence_id": "14c6861b66e4cef0f39bb7f2",
+          "occurrence_fingerprint": "4b37f01a091daa8eb00e7e8b9fa43c7ec941afff7c7657c041ce311651c7bbb0",
+          "profile_id": "zeal-paladin-charm-grand-sharp-maiming",
+          "profile_fingerprint": "fd1499a9c11c614ce701de4e3874c5dbe7603a046a485d7a9f75141452ea97e4"
+        },
+        {
+          "occurrence_id": "a8d8405d325100bce3b14ca6",
+          "occurrence_fingerprint": "5efa5997bb3a550c651d1ff95a3e4bde69e89d3e42b75741468d9d35e301ee63",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-maiming",
+          "profile_fingerprint": "c67fa2eeb69e20e40533b81b5054711745dafd7d90768d81c8966f09db3e9f81"
+        },
+        {
+          "occurrence_id": "dab1454427e729c588067114",
+          "occurrence_fingerprint": "78c2f9224271823aabaeb1ce6c5eee8d86589404dbf414ca1dfc674045fbab16",
+          "profile_id": "double-throw-barbarian-guide-main-sharp-maiming",
+          "profile_fingerprint": "c67fa2eeb69e20e40533b81b5054711745dafd7d90768d81c8966f09db3e9f81"
         }
       ]
     }

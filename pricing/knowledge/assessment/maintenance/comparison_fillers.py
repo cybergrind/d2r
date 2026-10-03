@@ -24,10 +24,21 @@ REVIEWED = {
     'helm': ARMOR,
     'armor': ARMOR,
     'shield': (*ATTRIBUTE_RUNES, *DEFENSIVE_RUNES, *RESIST_RUNES, 'Ist Rune', 'Lem Rune', *grades('Diamond')),
-    'weapon': (*ATTRIBUTE_RUNES, 'Zod Rune', 'Shael Rune', 'Ber Rune', 'Um Rune', 'Ist Rune', 'Lem Rune'),
+    'weapon': (
+        *ATTRIBUTE_RUNES,
+        'Zod Rune',
+        'Shael Rune',
+        'Ber Rune',
+        'Um Rune',
+        'Ist Rune',
+        'Lem Rune',
+        'Amn Rune',
+        'Vex Rune',
+        *grades('Skull'),
+    ),
 }
 # Comparison code handles direct integer values plus fixed-point maxhp7 and flags152/153.
-SUPPORTED_STATS = frozenset({0, 1, 2, 3, 7, 36, 39, 41, 43, 45, 79, 80, 93, 99, 102, 135, 136, 152, 153})
+SUPPORTED_STATS = frozenset({0, 1, 2, 3, 7, 36, 39, 41, 43, 45, 60, 62, 79, 80, 93, 99, 102, 135, 136, 152, 153})
 
 
 def compile_fillers(gems, properties, stats, reviewed=REVIEWED):

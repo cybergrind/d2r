@@ -363,3 +363,10 @@ def test_planner_validation_changes_invalidate_completion_policy(monkeypatch, mo
 
     monkeypatch.setattr(Path, 'read_bytes', changed)
     assert policy_fingerprint() != before
+
+
+def test_legacy_complete_dimensions_cannot_omit_trade_qualification():
+    matrix, inventory = inputs()
+    matrix['rows'][0]['dimensions'].pop('trade_qualification', None)
+    result = compile_completion(matrix, inventory, {'complete': True})
+    assert any(row['id'] == 'identity:a/trade_qualification' and row['state'] == 'pending' for row in result['queue'])

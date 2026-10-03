@@ -561,7 +561,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -593,7 +593,7 @@
         "url": "https://maxroll.gg/d2/guides/fissure-druid",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Fire Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x 5/5 Fire Rainbow Facets ). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "fissure-druid-magic-find-shield-jmod-base",
@@ -634,7 +634,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -666,7 +666,7 @@
         "url": "https://maxroll.gg/d2/guides/fissure-druid",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Gemmed Monarch (4x Ist Rune; planner: magic Monarch 30% FBR / 20% block = Jeweler's Monarch of Deflecting base). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Gemmed Monarch (4x Ist Rune; planner: magic Monarch 30% FBR / 20% block = Jeweler's Monarch of Deflecting base). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "fissure-starter-merc-rockstopper",
@@ -1502,7 +1502,7 @@
           }
         },
         {
-          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31–40 enhanced damage; 40 is the planner preference.",
+          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31\u201340 enhanced damage; 40 is the planner preference.",
           "when": {
             "all": [
               {
@@ -1579,7 +1579,7 @@
           "Andariel's Visage Demonhead (ethereal; planner jewel 15% IAS / 40% ED)",
           "The Standard Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance from its Conviction Aura. Fortitude provides damage and survivability."
         ],
-        "review": "2026-09-25: reviewed compound damage Ruby Jewel of Fervor family. Standard planner40ED is a preference, not a prose minimum; accepting native31–40 is a reviewed family inference. MF names Ruby explicitly and planner disambiguates damage versus fire-resistance prefix. One actual jewel must supply IAS and both ED components. Ethereal remains preferred; no defense priority, whole-loadout guarantee or market claim."
+        "review": "2026-09-25: reviewed compound damage Ruby Jewel of Fervor family. Standard planner40ED is a preference, not a prose minimum; accepting native31\u201340 is a reviewed family inference. MF names Ruby explicitly and planner disambiguates damage versus fire-resistance prefix. One actual jewel must supply IAS and both ED components. Ethereal remains preferred; no defense priority, whole-loadout guarantee or market claim."
       },
       "types": [
         "helm"
@@ -1639,7 +1639,7 @@
           }
         },
         {
-          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31–40 enhanced damage, not the fire-resistance Ruby prefix.",
+          "label": "One damage Ruby Jewel of Fervor: 15 IAS and 31\u201340 enhanced damage, not the fire-resistance Ruby prefix.",
           "when": {
             "all": [
               {
@@ -1705,7 +1705,7 @@
           "Andariel's Visage Demonhead (ethereal) socketed with a Ruby Jewel of Fervor (prose; planner jewel 15% IAS / 40% ED)",
           "The Magic Find Fissure Druid uses an Act 2 Might Mercenary with Infinity for -85% to Enemy Fire Resistance. Fortitude and Andariel's Visage socketed with a Ruby Jewel of Fervor maximize this Mercenary's damage and survivability."
         ],
-        "review": "2026-09-25: reviewed compound damage Ruby Jewel of Fervor family. Standard planner40ED is a preference, not a prose minimum; accepting native31–40 is a reviewed family inference. MF names Ruby explicitly and planner disambiguates damage versus fire-resistance prefix. One actual jewel must supply IAS and both ED components. Ethereal remains preferred; no defense priority, whole-loadout guarantee or market claim."
+        "review": "2026-09-25: reviewed compound damage Ruby Jewel of Fervor family. Standard planner40ED is a preference, not a prose minimum; accepting native31\u201340 is a reviewed family inference. MF names Ruby explicitly and planner disambiguates damage versus fire-resistance prefix. One actual jewel must supply IAS and both ED components. Ethereal remains preferred; no defense priority, whole-loadout guarantee or market claim."
       },
       "types": [
         "helm"
@@ -1754,7 +1754,7 @@
       "required_socket_item": "Defender's Fire",
       "depends_on": [
         {
-          "label": "Two sockets with a Fire Rainbow Facet alongside Defender’s Fire",
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
           "when": {
             "all": [
               {
@@ -1881,7 +1881,7 @@
       "required_socket_item": "Defender's Fire",
       "depends_on": [
         {
-          "label": "Two sockets with a Fire Rainbow Facet alongside Defender’s Fire",
+          "label": "Two sockets with a Fire Rainbow Facet alongside Defender\u2019s Fire",
           "when": {
             "all": [
               {
@@ -6759,7 +6759,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -6836,7 +6836,7 @@
         ],
         "review": "2026-09-28: Completed Magic Find shield explicitly specified by the cached Fissure variant. Four actual Ist runes supply 100% Magic Find in shields; native Deflecting still supplies 20% increased blocking and 30% faster block rate. Empty preparation remains separate. No defense premium or numerical price inferred."
       },
-      "review_notes": "2026-09-28: Completed Magic Find shield explicitly specified by the cached Fissure variant. Four actual Ist runes supply 100% Magic Find in shields; native Deflecting still supplies 20% increased blocking and 30% faster block rate. Empty preparation remains separate. No defense premium or numerical price inferred."
+      "review_notes": "2026-09-28: Completed Magic Find shield explicitly specified by the cached Fissure variant. Four actual Ist runes supply 100% Magic Find in shields; native Deflecting still supplies 20% increased blocking and 30% faster block rate. Empty preparation remains separate. No defense premium or numerical price inferred. 2026-10-02: blocking threshold includes the verified native base plus 20 Deflecting."
     },
     {
       "id": "fissure-druid-main-shield-facet-shield-filled",
@@ -6877,7 +6877,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -6961,7 +6961,7 @@
         ],
         "review": "2026-09-28: Completed fire shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed fire shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed fire shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 5% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "preferences": [
         {
           "label": "Four perfect 5/5 facets",
@@ -6975,6 +6975,366 @@
             }
           }
         }
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-vita",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Charms/0",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Natural Grand Charm of Vita"
+        ],
+        "review": "2026-10-01: Reviewed Fissure main Charm option0 and planner vf0106vk item23. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/vf0106vk.json",
+            "locator": "/data",
+            "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/492",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/338",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/339",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Fissure Elemental skiller with life",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "7:0",
+            "value": 36,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:42",
+        "7:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Both attainable Vita tiers qualify: 36-40 and 41-45 life. Lower-life skillers can still match the separate plain Elemental skiller use; no price premium is assumed."
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-balance",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Charms/1",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Natural Grand Charm of Balance"
+        ],
+        "review": "2026-10-01: Reviewed Fissure main Charm option1 and planner vf0106vk item21. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/vf0106vk.json",
+            "locator": "/data",
+            "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/492",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/265",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Fissure Elemental skiller with hit recovery",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "99:0",
+            "value": 12,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:42",
+        "99:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Hit recovery is valuable only with the complete loadout breakpoint; 12% on this charm does not by itself establish a faster recovery animation."
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-inertia",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Charms/2",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Natural Grand Charm of Inertia"
+        ],
+        "review": "2026-10-01: Reviewed Fissure main Charm option2 and planner vf0106vk item107. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The cited suffix uses its attainable native minimum, not only the perfect planner roll; level110 Vita is outside item-level99 availability. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/vf0106vk.json",
+            "locator": "/data",
+            "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/492",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          },
+          {
+            "path": "third-parties/d2data/json/magicsuffix.json",
+            "locator": "/399",
+            "sha256": "d7060a8a19c2772747f0cd5d82b1571a774f953789d3ade1f7cac426df97e415"
+          }
+        ]
+      },
+      "role": "Fissure Elemental skiller with run/walk",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          },
+          {
+            "op": "stat_at_least",
+            "key": "96:0",
+            "value": 7,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:42",
+        "96:0"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price.",
+        "Run/walk supports movement; it does not increase Faster Cast Rate or teleport speed."
+      ]
+    },
+    {
+      "id": "fissure-elemental-grand-charm-plain",
+      "build": "fissure-druid",
+      "variant": "Main alternatives",
+      "side": "player",
+      "slot": "Charms",
+      "source": {
+        "path": "pricing/data/wp-a-builds.json",
+        "locator": "/fissure-druid/slots/Charms/3",
+        "sha256": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
+        "url": "https://maxroll.gg/d2/guides/fissure-druid",
+        "source_date": "May 22, 2026",
+        "quotes": [
+          "Natural Grand Charm"
+        ],
+        "review": "2026-10-01: Reviewed Fissure main Charm option3 and planner vf0106vk item108. Native prefix492 (Nature's, displayed Natural) grants +1 Druid Elemental skills. The plain skiller requires no secondary affix; optional suffixes do not invalidate the Elemental skill contribution. Require the correct tree and same charm. No full-build breakpoint, numerical price, or inventory ownership is inferred.",
+        "corroborating": [
+          {
+            "path": "pricing/raw/mr/planners/vf0106vk.json",
+            "locator": "/data",
+            "sha256": "6477e855ced9033d50720befab36d713d6145b71dd2748646ce7d598a44563d7"
+          },
+          {
+            "path": "third-parties/d2data/json/magicprefix.json",
+            "locator": "/492",
+            "sha256": "9e7c42d608768e7f1dd1332345a258e4d5e4347ff48a16e8f9d1e974db39787d"
+          }
+        ]
+      },
+      "role": "Fissure Elemental skiller",
+      "review_status": "reviewed_candidate_rule",
+      "types": [
+        "lcha"
+      ],
+      "qualities": [
+        "magic"
+      ],
+      "must": {
+        "all": [
+          {
+            "op": "context_eq",
+            "field": "player_class",
+            "value": "Druid"
+          },
+          {
+            "op": "fact_eq",
+            "field": "identified",
+            "value": true
+          },
+          {
+            "op": "fact_eq",
+            "field": "ethereal",
+            "value": false
+          },
+          {
+            "op": "fact_eq",
+            "field": "sockets",
+            "value": 0
+          },
+          {
+            "op": "fact_eq",
+            "field": "socket_contents",
+            "value": "empty"
+          },
+          {
+            "op": "stat_at_least",
+            "key": "188:42",
+            "value": 1,
+            "absent_is_zero": true
+          }
+        ]
+      },
+      "important_stats": [
+        "188:42"
+      ],
+      "advisory_conditions": [
+        "Keep the charm in the active inventory for its bonuses. Compare benefit per inventory cell and the complete build; this match alone does not establish a trade price."
       ]
     }
   ]

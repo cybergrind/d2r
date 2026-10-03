@@ -18,8 +18,9 @@ import time
 from contextlib import nullcontext
 from typing import Any
 
-from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, owned_summary
+from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_use, owned_summary
 from inventory_tracking.appraisal.presentation import item_tone
+from inventory_tracking.appraisal.triage import LABELS, TONES, description
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.identify.attention import actionable_roles, role_reason, starter_only
 from inventory_tracking.identify.capture import capture_inventory_state, capture_records, decode_records
@@ -33,6 +34,8 @@ HIT_SECONDS = 20  # OSD lease when something valuable or in demand was identifie
 QUIET_SECONDS = 10
 PROGRESS_SECONDS = 1  # the "Assessing…" line is a blink, not a status
 SLOW_PROBE_MS = 250  # a poll slower than this is logged at INFO instead of DEBUG
+CAPTURE_RETRIES = 2  # rereads when the game changed memory mid-read; the items are lost otherwise
+CHANGED_DURING_READ = ('Unstable item snapshot', 'changed during read')
 
 
 STAT_ABBREVIATIONS = (
@@ -60,7 +63,7 @@ STAT_ABBREVIATIONS = (
 )
 ANNOTATION = re.compile(r'\s*\([^)]*\)|\s*\[[^\]]*\]')
 CLASS_SKILLS = re.compile(r'\+(\d+) to (\w+) Skill Levels')
-VERDICT_TONES = {'keep': Tone.VALUABLE, 'check': Tone.DEMAND, 'vendor': Tone.LOW}
+VERDICT_TONES = {**TONES, 'keep': Tone.VALUABLE, 'check': Tone.DEMAND}
 KEEP_IST = 1.0  # an estimate at or above one Ist is worth keeping on its own
 CHECK_IST = 0.25
 
@@ -139,6 +142,8 @@ def verdict_for(result, owned=None) -> tuple[str, str]:
     A build use is only a check when an owned copy already rolls at least as well;
     trade reasons stay keep, since a second copy still sells.
     """
+    if triage := result.get('triage'):
+        return triage['verdict'], description(triage)
     assessment = result.get('assessment', {})
     roles = assessment.get('roles', [])
     estimate = (result.get('price_estimate') or {}).get('estimate_ist')
@@ -149,15 +154,18 @@ def verdict_for(result, owned=None) -> tuple[str, str]:
         return 'keep', f'{label}: {extra}' if extra and extra != '-' else label
     actionable = actionable_roles(result)
     matched = [r for r in actionable if r['status'] == 'matched']
-    if matched:
-        if owned and owned['count'] and owned['relation'] in AT_LEAST_AS_GOOD:
-            return 'check', role_reason(matched, result)
-        return 'keep', role_reason(matched, result)
+    qualification = assessment.get('trade_qualification', {})
+    if qualification.get('status') in ('candidate', 'premium'):
+        return 'keep', qualification['reason']
     tier = assessment.get('trade_tier', {})
     if tier.get('status') in ('reviewed', 'conditional', 'market_supported') and tier.get('tier') in ('high', 'med'):
         return 'keep', f'trade tier {"mid" if tier["tier"] == "med" else tier["tier"]}'
     if estimate is not None and estimate >= KEEP_IST:
         return 'keep', f'asks ~{estimate:g} Ist'
+    if matched:
+        if owned and owned['count'] and owned['relation'] in AT_LEAST_AS_GOOD and not multiple_copy_use(result):
+            return 'check', role_reason(matched, result)
+        return 'keep', role_reason(matched, result)
     partial = [r for r in actionable if r['status'] == 'partial']
     if partial:
         return 'check', role_reason(partial, result, conditional=True)
@@ -196,6 +204,7 @@ def item_summary(observation, result, owned=None) -> dict[str, Any]:
     if clause := owned_summary(owned):
         reason += f'; {clause}'
     return {
+        **({'triage': result['triage']} if 'triage' in result else {}),
         'name': name,
         'rarity': item.get('rarity'),
         'tone': item_tone(item).value,
@@ -211,24 +220,35 @@ def item_summary(observation, result, owned=None) -> dict[str, Any]:
 VERDICT_ORDER = ('keep', 'check', 'vendor')
 
 
+def verdict_order(items):
+    return ('sell', 'slow', 'check', 'self', 'vendor') if any('triage' in i for i in items) else VERDICT_ORDER
+
+
 def counts(items) -> dict[str, int]:
-    return {verdict: sum(1 for i in items if i['verdict'] == verdict) for verdict in VERDICT_ORDER}
+    return {verdict: sum(1 for i in items if i['verdict'] == verdict) for verdict in verdict_order(items)}
 
 
 def result_lines(result) -> list[StyledLine]:
     if result['state'] == 'failed':
         return [StyledLine('Identify assessment unavailable', Tone.WARNING), StyledLine(result['error'])]
-    items = sorted(result['items'], key=lambda i: VERDICT_ORDER.index(i['verdict']))
+    order = verdict_order(result['items'])
+    items = sorted(result['items'], key=lambda i: order.index(i['verdict']))
     tally = counts(items)
-    tone = Tone.VALUABLE if tally['keep'] else Tone.DEMAND if tally['check'] else Tone.METADATA
-    summary = ' · '.join(f'{tally[v]} {v}' for v in VERDICT_ORDER)
+    tone = next((VERDICT_TONES[v] for v in order if v != 'vendor' and tally[v]), Tone.METADATA)
+    summary = ' · '.join(f'{tally[v]} {v}' for v in order)
     lines = [StyledLine(f'Identified {len(items)} — {summary}', tone)]
     # Only items with something particular get a row; vendor items are just counted.
     shown = [i for i in items if i['verdict'] != 'vendor']
     for item in shown[:SHOWN_ITEMS]:
         stats = ' · '.join(item['stats']) or 'no decoded stats'
-        lines.append(StyledLine(f'{item["verdict"].upper():6s} {item["name"]}: {stats}', Tone(item['tone'])))
-        lines.append(StyledLine(f'       {item["reason"]}', VERDICT_TONES[item['verdict']]))
+        lines.append(
+            StyledLine(
+                f'{LABELS.get(item["verdict"], item["verdict"].upper()):6s} {item["name"]}: {stats}', Tone(item['tone'])
+            )
+        )
+        lines.append(
+            StyledLine(f'       {item["reason"]}', (TONES if 'triage' in item else VERDICT_TONES)[item['verdict']])
+        )
     if len(shown) > SHOWN_ITEMS:
         lines.append(StyledLine(f'+{len(shown) - SHOWN_ITEMS} more; full list in identify-latest.json'))
     if result['issues']:
@@ -238,12 +258,13 @@ def result_lines(result) -> list[StyledLine]:
 
 def describe(result) -> tuple[str, str] | None:
     """Desktop notification for the keep/check items; None when there is nothing particular."""
-    items = sorted(result['items'], key=lambda i: VERDICT_ORDER.index(i['verdict']))
+    order = verdict_order(result['items'])
+    items = sorted(result['items'], key=lambda i: order.index(i['verdict']))
     worth = [f'{i["verdict"].upper()} {i["name"]} — {i["reason"]}' for i in items if i['verdict'] != 'vendor']
     if not worth:
         return None
     tally = counts(items)
-    title = f'Identified {len(items)}: ' + ' · '.join(f'{tally[v]} {v}' for v in VERDICT_ORDER)
+    title = f'Identified {len(items)}: ' + ' · '.join(f'{tally[v]} {v}' for v in order)
     return title, '\n'.join(worth[:6])
 
 
@@ -304,6 +325,8 @@ class IdentifyWorker:
         appraisal_active=lambda: False,
         hit_seconds=HIT_SECONDS,
         quiet_seconds=QUIET_SECONDS,
+        retry_delay=0.1,
+        lookup_executor=None,
     ):
         self.source, self.executor = source, executor
         self.capture_lock, self.focused, self.display, self.output = capture_lock, focused, display, output
@@ -312,6 +335,8 @@ class IdentifyWorker:
         self.probe, self.capture, self.decode = probe, capture, decode
         self.auto, self.poll_interval, self.appraisal_active = auto, poll_interval, appraisal_active
         self.hit_seconds, self.quiet_seconds = hit_seconds, quiet_seconds
+        self.retry_delay = retry_delay
+        self.lookup_executor = lookup_executor  # runs one pass's KB lookups in parallel; None = one by one
         self.lock = threading.Lock()
         self.busy = False
         self.visible = None
@@ -389,6 +414,40 @@ class IdentifyWorker:
 
     # -- assessment -----------------------------------------------------------------------------
 
+    def _read(self, unit_ids, timing, requested):
+        """Capture and decode; read again when the game changed memory during the read."""
+        for attempt in range(1 + CAPTURE_RETRIES):
+            with self.capture_lock:
+                timing.lock_wait_ms += elapsed_ms(self.clock, requested)
+                self.source.ensure_connected()
+                phase = self.clock()
+                record = self.capture(self.source.pid, self.source.images, self.source.capture, unit_ids)
+                timing.capture_ms += elapsed_ms(self.clock, phase)
+            phase = self.clock()
+            observations, issues = self.decode(record)
+            timing.decode_ms += elapsed_ms(self.clock, phase)
+            changed = [issue for issue in issues if any(marker in issue for marker in CHANGED_DURING_READ)]
+            if not changed or attempt == CAPTURE_RETRIES:
+                return record, observations, issues
+            LOG.info('Identify read changed under it (%s); reading again', changed[0])
+            time.sleep(self.retry_delay)
+            requested = self.clock()
+        raise AssertionError('unreachable')
+
+    def _lookup(self, observation):
+        """(evidence, error, ms) of one KB lookup; runs on a lookup thread, so it owns its request scope."""
+        started = self.clock()
+        try:
+            with self.request_scope():
+                return self.retrieve(observation), None, elapsed_ms(self.clock, started)
+        except Exception as exc:
+            return None, exc, elapsed_ms(self.clock, started)
+
+    def _lookups(self, observations):
+        if self.lookup_executor is None:
+            return map(self._lookup, observations)
+        return self.lookup_executor.map(self._lookup, observations)
+
     def _assess(self, unit_ids):
         started = self.clock()
         timing = PhaseTiming(len(unit_ids))
@@ -399,28 +458,28 @@ class IdentifyWorker:
             self.expires = self.clock() + PROGRESS_SECONDS
         result: dict[str, Any]
         try:
-            with self.capture_lock:
-                timing.lock_wait_ms = elapsed_ms(self.clock, started)
-                self.source.ensure_connected()
-                phase = self.clock()
-                record = self.capture(self.source.pid, self.source.images, self.source.capture, unit_ids)
-                timing.capture_ms = elapsed_ms(self.clock, phase)
-            phase = self.clock()
-            observations, issues = self.decode(record)
-            timing.decode_ms = elapsed_ms(self.clock, phase)
-            items = []
+            record, observations, issues = self._read(unit_ids, timing, started)
+            from inventory_tracking.corpus.store import persist
+
             for observation in observations:
+                try:
+                    persist(self.output, observation)
+                except (OSError, TypeError, ValueError) as exc:
+                    LOG.warning('Could not retain identified observation: %s', exc)
+                    issues.append(f'Corpus persistence failed: {exc}')
+            items = []
+            for observation, (evidence, error, ms) in zip(observations, self._lookups(observations), strict=True):
                 name = observation['item'].get('name', 'item')
                 phase = self.clock()
                 try:
-                    with self.request_scope():
-                        evidence = self.retrieve(observation)
-                        items.append(item_summary(observation, evidence, self.owned(observation)))
+                    if error is not None:
+                        raise error
+                    items.append(item_summary(observation, evidence, self.owned(observation)))
                 except Exception as exc:
                     LOG.warning('Identify assessment of %s failed: %s', name, exc)
                     issues.append(f'{name}: {exc}')
                 finally:
-                    timing.retrieved(name, elapsed_ms(self.clock, phase))
+                    timing.retrieved(name, round(ms + elapsed_ms(self.clock, phase), 1))
             result = {'state': 'complete' if not issues else 'partial', 'items': items, 'issues': issues}
             if issues:
                 publish(self.output / 'identify-diagnostics.json', {'record': record, 'result': result})
@@ -452,7 +511,7 @@ class IdentifyWorker:
     # -- OSD ------------------------------------------------------------------------------------
 
     def dismiss(self):
-        """Hide and cancel: a result that finishes afterwards is not shown (Alt+D, shutdown, focus loss)."""
+        """Hide and cancel: a result that finishes afterwards is not shown (Alt+D, shutdown)."""
         with self.lock:
             self.generation += 1
             self.visible = None
@@ -467,14 +526,15 @@ class IdentifyWorker:
         except Exception:
             LOG.exception('Identify OSD focus check failed')
             focused = False
-        if not focused:
-            self.dismiss()
-            self.display([])
-        elif self.clock() >= expires:
+        if self.clock() >= expires:
             # Expiry only hides: the progress blink must not cancel the result it announces.
             with self.lock:
                 if self.visible is lines:
                     self.visible = None
+            self.display([])
+        elif not focused:
+            # Focus loss only hides too: a failed focus probe during the progress blink used to
+            # cancel the whole pass. The card returns with the focus while its lease lasts.
             self.display([])
         else:
             self.display(lines)

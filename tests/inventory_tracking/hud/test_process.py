@@ -1,7 +1,7 @@
 """HUD process plumbing: slot config, guide widgets from display lines, one canvas per scene."""
 
 from inventory_tracking.config import HUD
-from inventory_tracking.hud.process import acquire_instance, card_widgets, guide_widgets
+from inventory_tracking.hud.process import acquire_instance, card_widgets, guide_widgets, terror_widgets
 from inventory_tracking.osd.level_map import MapCard
 from inventory_tracking.presentation import StyledLine
 
@@ -53,6 +53,12 @@ def test_card_lines_become_one_text_widget_in_the_assessment_slot():
     assert card_widgets([]) == []
 
 
+def test_identify_card_has_its_own_widget_id_so_it_stacks_with_the_shop_card():
+    [widget] = card_widgets(['Identified 1'], 'identify')
+
+    assert (widget.id, widget.kind, widget.slot) == ('identify', 'text', 'assessment')
+
+
 def test_assessment_slot_sits_right_of_the_guide_and_is_width_capped():
     guide, card = HUD.slots['guide'], HUD.slots['assessment']
     assert card.x > guide.x + 0.12  # the guide card is ~0.11 of a 2560 px window wide
@@ -84,3 +90,12 @@ def test_rune_marks_default_to_io_and_up():
     assert APPRAISAL.rune_minimum == 'r16'  # Io and up (user, 2026-09-30); loot/data/runes.json: 640 = r16 Io
     assert is_valuable_rune(640, minimum=APPRAISAL.rune_minimum)  # Io
     assert not is_valuable_rune(639, minimum=APPRAISAL.rune_minimum)  # Hel
+
+
+def test_terror_card_is_a_text_widget_in_its_own_right_hand_slot():
+    [widget] = terror_widgets(['Terror · Black Marsh'])
+
+    assert (widget.id, widget.kind, widget.slot) == ('terror', 'text', 'terror')
+    assert terror_widgets([]) == []
+    slot = HUD.slots['terror']
+    assert slot.x > HUD.slots['assessment'].x + HUD.slots['assessment'].max_width  # never under an Alt+D card

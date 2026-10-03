@@ -65,6 +65,7 @@ def test_saved_sazabi_upgrade_prices_only_matching_defense_and_keeps_current_pri
 
 def test_guardian_upgrade_does_not_quote_unreachable_defense_or_unknown_sockets():
     extraction = replay('guardian_angel')['extraction']
+    extraction['item'].update(sockets=None, socket_contents='unknown', filled_sockets=None, empty_sockets=None)
     assert not armor_requests(assess_result(extraction, profiles=[]))
     extraction['item'].update(sockets=0, socket_contents='empty', filled_sockets=0, empty_sockets=0, socket_items=[])
     result = assess_result(extraction, profiles=[])

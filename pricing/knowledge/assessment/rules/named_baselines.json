@@ -896,7 +896,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/19",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },
@@ -1130,7 +1130,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/82",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },
@@ -1142,8 +1142,8 @@
       "basis": "Maximum-resistance and blocking armor for specialist survivability and mercenary setups. Ordinary specimens are low trade priority; ethereal perfect-defense specimens have a separate reviewed premium.",
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
-        "locator": "/rows/102",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "locator": "/rows/151",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },
@@ -1156,7 +1156,7 @@
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
         "locator": "/rows/36",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },
@@ -1168,8 +1168,8 @@
       "basis": "Life leech and gold find give this helm budget mercenary and Gold Find Barbarian utility. Ordinary specimens are low; perfect gold/leech and high ethereal defense are separately reviewed.",
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
-        "locator": "/rows/116",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "locator": "/rows/165",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },
@@ -1207,8 +1207,8 @@
       "basis": "Cannot Be Frozen and resistances make this a useful progression armor for mercenaries and attack characters. Ordinary specimens are low; reviewed ethereal asking segments can refine this baseline.",
       "source": {
         "path": "pricing/data/appraisal-value-watch.json",
-        "locator": "/rows/114",
-        "sha256": "ef8025d88380d98a27e5bd71157c20038d8474c488bdfeae656aac3a43e0e601",
+        "locator": "/rows/163",
+        "sha256": "e8e9f77dc464dd01c733648cc57532d9ae57747e0a3949f9f5c4050e368ae0a1",
         "date": "2026-09-26"
       }
     },

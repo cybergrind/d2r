@@ -386,3 +386,22 @@ def test_auto_disabled_keeps_the_manual_lease(watcher):
     state['clock'] = 105
     check.tick()
     assert check.visible is None
+
+
+def test_triage_shop_only_shows_sell_slow_and_self(monkeypatch):
+    from inventory_tracking.shop import service
+    from inventory_tracking.presentation import Tone
+
+    observations = [
+        {'item': {'name': name}, 'vendor': 'Anya', 'source': {'position': [0, 0], 'container': {'page': 0}}}
+        for name in ('sell', 'slow', 'self', 'vendor')
+    ]
+    monkeypatch.setattr(service, 'decode_stock', lambda _: (observations, []))
+    monkeypatch.setattr(service, 'match_item', lambda _: pytest.fail('Old shop rules called'))
+    result = service.assess(
+        {'stock_count': 4, 'timing': {}},
+        retrieve=lambda o: {'triage': {'verdict': o['item']['name'], 'reason': 'test', 'band': None}},
+    )
+    assert [h['name'] for h in result['hits']] == ['sell', 'slow', 'self']
+    tones = {line.tone for line in service.result_lines(result)}
+    assert {Tone.TIER_HIGH, Tone.TIER_MED, Tone.TIER_LOW} <= tones

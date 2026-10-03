@@ -3,10 +3,12 @@
 import hashlib
 import json
 from copy import deepcopy
+from pathlib import Path
 
 import pytest
 
 from pricing.knowledge.assessment.maintenance.completion import compile_completion
+from pricing.knowledge.assessment.maintenance.evidence_scope import evidence_exclusions
 from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from tests.pricing.knowledge.assessment.maintenance.test_completion import inputs
 from tests.pricing.knowledge.assessment.maintenance.test_value_scope_manifest import POLICY
@@ -93,3 +95,17 @@ def test_changed_or_incompatible_evidence_cannot_be_excluded(tmp_path, change):
         review['evidence'].append(deepcopy(entry))
     with pytest.raises(ValueError, match='evidence scope'):
         compile_completion(matrix, inventory, {}, value_scope=review, source_root=tmp_path)
+
+
+def test_ordinary_resistance_helm_does_not_remove_valuable_pattern_candidates():
+    root = Path(__file__).resolve().parents[5]
+    rows = json.loads((root / 'pricing/data/appraisal-coverage-matrix.json').read_text())['rows']
+    review = json.loads((root / 'pricing/knowledge/assessment/rules/value_scope_reviews.json').read_text())
+    excluded = evidence_exclusions(rows, review, root)
+    assert excluded['evidence:recommendations:patterns:5']['state'] == 'excluded'
+    # IAS affixes, caster crafts, named sockets and resistance charms need their
+    # own value review; a generic helm recommendation cannot exclude them.
+    retained = {f'evidence:recommendations:patterns:{index}' for index in (3, 4, 10, 12)}
+    assert retained <= {row['id'] for row in rows}
+    assert not retained.intersection(excluded)
+    assert all(key.startswith('evidence:recommendations:patterns:') for key in excluded)

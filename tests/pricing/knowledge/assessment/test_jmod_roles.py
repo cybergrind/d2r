@@ -25,7 +25,7 @@ CASES = [
 ]
 
 
-def monarch(block=20, fbr=30):
+def monarch(block=42, fbr=30):
     decoded, _, _ = decode_stats([{'id': 20, 'layer': 0, 'raw': block}, {'id': 102, 'layer': 0, 'raw': fbr}])
     return normalize(
         {
@@ -44,7 +44,7 @@ def test_empty_jmod_role_requires_both_affixes_and_four_empty_sockets(build_name
     context = {'player_class': wearer}
     assert assess_roles(item, [profile], context)[0]['status'] == 'partial'
     bad = [
-        monarch(19),
+        monarch(41),
         monarch(fbr=29),
         replace(item, sockets=3),
         replace(item, ethereal=True),

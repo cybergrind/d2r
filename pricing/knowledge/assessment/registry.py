@@ -44,6 +44,7 @@ FAMILIES = (
         ),
     ),
     Family('socket_material', SOCKET_MATERIAL_TYPES),
+    Family('quest_material', frozenset({'ques'})),
     Family('supply', frozenset({'scro', 'book', 'key', 'bowq', 'xboq'})),
     Family('consumable', frozenset({'hpot', 'apot', 'wpot', 'mpot', 'rpot', 'spot'})),
     Family('jewelry', frozenset({'ring', 'amul'})),
@@ -61,7 +62,9 @@ def classify(facts, families=FAMILIES):
     if len(matches) > 1:
         raise ValueError(f'Ambiguous family dispatch: {matches}')
     policy = (
-        'socket_material'
+        'quest_material'
+        if matches == ['quest_material']
+        else 'socket_material'
         if matches == ['socket_material']
         else 'supply'
         if matches == ['supply']

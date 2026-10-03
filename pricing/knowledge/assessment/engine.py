@@ -21,7 +21,9 @@ from pricing.knowledge.assessment.mechanics.upgrades import upgrade_paths
 from pricing.knowledge.assessment.policies.consumables import assess_consumable
 from pricing.knowledge.assessment.policies.leveling import assess_leveling
 from pricing.knowledge.assessment.policies.named_baselines import assess_tier
+from pricing.knowledge.assessment.policies.quest_materials import assess_material
 from pricing.knowledge.assessment.policies.supplies import assess_supply
+from pricing.knowledge.assessment.policies.trade_qualification import assess_trade_qualification
 from pricing.knowledge.assessment.profiles import (
     assess_role_results,
     load_candidates,
@@ -84,7 +86,9 @@ def _assess(extraction, *, profiles=None, loadout=None):
     upgrades = with_defense_outcomes(facts, contract, upgrade_paths(facts))
     roles = assess_role_results(facts, profiles, loadout, upgrades=upgrades)
     base_uses = assess_runeword_base(facts)
-    utility = {'consumable': assess_consumable, 'supply': assess_supply}.get(family, lambda facts: None)(facts)
+    utility = {'consumable': assess_consumable, 'supply': assess_supply, 'quest_material': assess_material}.get(
+        family, lambda facts: None
+    )(facts)
     if not roles and not utility:
         coverage_gaps.append('No reviewed build-role profile applies; absence is not evidence of no demand.')
     requests = (
@@ -116,6 +120,7 @@ def _assess(extraction, *, profiles=None, loadout=None):
         base_uses=base_uses,
         leveling=assess_leveling(facts, loadout=loadout),
         trade_tier=assess_tier(facts),
+        trade_qualification=assess_trade_qualification(facts),
         ethereal_preference=ethereal_preference(facts, roles=roles, base_uses=base_uses),
         coverage_gaps=coverage_gaps,
         price_gaps=gaps,

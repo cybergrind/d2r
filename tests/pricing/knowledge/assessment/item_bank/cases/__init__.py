@@ -76,15 +76,20 @@ from tests.pricing.knowledge.assessment.item_bank.cases.andariel_damage_variants
     CASES as ANDARIEL_DAMAGE_VARIANTS,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.andariel_fire_variants import CASES as ANDARIEL_FIRE_VARIANTS
+from tests.pricing.knowledge.assessment.item_bank.cases.andariel_intrinsic_rolls import (
+    CASES as ANDARIEL_INTRINSIC_ROLLS,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.andariel_native_variants import (
     CASES as ANDARIEL_NATIVE_VARIANTS,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.angelic import CASES as ANGELIC
 from tests.pricing.knowledge.assessment.item_bank.cases.annihilus_tables import CASES as ANNIHILUS_TABLES
+from tests.pricing.knowledge.assessment.item_bank.cases.annihilus_trade import CASES as ANNIHILUS_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.annihilus_variants import CASES as ANNIHILUS_VARIANTS
 from tests.pricing.knowledge.assessment.item_bank.cases.arachnid_caster_alternatives import (
     CASES as ARACHNID_CASTER_ALTERNATIVES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.arachnid_trade import CASES as ARACHNID_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.arctic_leveling import CASES as ARCTIC_LEVELING
 from tests.pricing.knowledge.assessment.item_bank.cases.arm_king_leoric import CASES as ARM_KING_LEORIC
 from tests.pricing.knowledge.assessment.item_bank.cases.armor_progression_baselines import (
@@ -95,6 +100,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.attack_survival_baseline
     CASES as ATTACK_SURVIVAL_BASELINES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.attack_unique_baselines import CASES as ATTACK_UNIQUE_BASELINES
+from tests.pricing.knowledge.assessment.item_bank.cases.bane_authority_trade import CASES as BANE_AUTHORITY_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.bartuc_trap_alternatives import (
     CASES as BARTUC_TRAP_ALTERNATIVES,
 )
@@ -145,6 +151,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.berserk_utility_words im
 from tests.pricing.knowledge.assessment.item_bank.cases.berserker_magus_circlets import (
     CASES as BERSERKER_MAGUS_CIRCLETS,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.bk_trade import CASES as BK_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.bk_utility_alternatives import CASES as BK_UTILITY_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.black_attack_modes import CASES as BLACK_ATTACK_MODES
 from tests.pricing.knowledge.assessment.item_bank.cases.blizzard_accessories import CASES as BLIZZARD_ACCESSORIES
@@ -187,20 +194,31 @@ from tests.pricing.knowledge.assessment.item_bank.cases.chance_guards_alternativ
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.chaos_enigma import CASES as CHAOS_ENIGMA
 from tests.pricing.knowledge.assessment.item_bank.cases.chaos_gloves import CASES as CHAOS_GLOVES
+from tests.pricing.knowledge.assessment.item_bank.cases.charged_utility_choices import CASES as CHARGED_UTILITY_CHOICES
 from tests.pricing.knowledge.assessment.item_bank.cases.charged_weapon_alternatives import (
     CASES as CHARGED_WEAPON_ALTERNATIVES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.charm_trade import CASES as CHARM_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.circlet_candidates import CASES as CIRCLET_CANDIDATES
 from tests.pricing.knowledge.assessment.item_bank.cases.civerb_cleglaw_leveling import CASES as CIVERB_CLEGLAW_LEVELING
+from tests.pricing.knowledge.assessment.item_bank.cases.class_armor_alternatives import (
+    CASES as CLASS_ARMOR_ALTERNATIVES,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.class_unique_progression import (
     CASES as CLASS_UNIQUE_PROGRESSION,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.class_weapon_baselines import CASES as CLASS_WEAPON_BASELINES
+from tests.pricing.knowledge.assessment.item_bank.cases.claws_trade import CASES as CLAWS_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.coh_caster_roles import CASES as COH_CASTER_ROLES
 from tests.pricing.knowledge.assessment.item_bank.cases.coh_variant_roles import CASES as COH_VARIANT_ROLES
+from tests.pricing.knowledge.assessment.item_bank.cases.collectible_combinations import (
+    CASES as COLLECTIBLE_COMBINATIONS,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.combat_boot_belt_alternatives import (
     CASES as COMBAT_BOOT_BELT_ALTERNATIVES,
+)
+from tests.pricing.knowledge.assessment.item_bank.cases.conditional_named_variants import (
+    CASES as CONDITIONAL_NAMED_VARIANTS,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.consumables import CASES as CONSUMABLES
 from tests.pricing.knowledge.assessment.item_bank.cases.coven_diadem import CASES as COVEN_DIADEM
@@ -208,11 +226,15 @@ from tests.pricing.knowledge.assessment.item_bank.cases.crafted_glove_candidates
     CASES as CRAFTED_GLOVE_CANDIDATES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.crescent_moon_casters import CASES as CRESCENT_MOON_CASTERS
+from tests.pricing.knowledge.assessment.item_bank.cases.crown_trade import CASES as CROWN_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.cta_caster_swaps import CASES as CTA_CASTER_SWAPS
 from tests.pricing.knowledge.assessment.item_bank.cases.cta_prebuff_variants import CASES as CTA_PREBUFF_VARIANTS
 from tests.pricing.knowledge.assessment.item_bank.cases.cunning_assassin_magic import CASES as CUNNING_ASSASSIN_MAGIC
+from tests.pricing.knowledge.assessment.item_bank.cases.cure_early_alternatives import CASES as CURE_EARLY_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.cure_gear_alternatives import CASES as CURE_GEAR_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.deaths_guard_upgrade import CASES as DEATHS_GUARD_UPGRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.defender_bile_trade import CASES as DEFENDER_BILE_TRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.defender_fire_trade import CASES as DEFENDER_FIRE_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.defensive_caster_belts import CASES as DEFENSIVE_CASTER_BELTS
 from tests.pricing.knowledge.assessment.item_bank.cases.defensive_unique_baselines import (
     CASES as DEFENSIVE_UNIQUE_BASELINES,
@@ -226,10 +248,12 @@ from tests.pricing.knowledge.assessment.item_bank.cases.double_throw_filled_diad
 from tests.pricing.knowledge.assessment.item_bank.cases.double_throw_imbue_examples import (
     CASES as DOUBLE_THROW_IMBUE_EXAMPLES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.double_throw_maiming import CASES as DOUBLE_THROW_MAIMING
 from tests.pricing.knowledge.assessment.item_bank.cases.double_throw_premium_rares import (
     CASES as DOUBLE_THROW_PREMIUM_RARES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.dracul_alternatives import CASES as DRACUL_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.draculs_trade import CASES as DRACULS_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.dragon_talon_budget import CASES as DRAGON_TALON_BUDGET
 from tests.pricing.knowledge.assessment.item_bank.cases.dragon_talon_cbf import CASES as DRAGON_TALON_CBF
 from tests.pricing.knowledge.assessment.item_bank.cases.dragon_talon_guillaume import CASES as DRAGON_TALON_GUILLAUME
@@ -239,7 +263,9 @@ from tests.pricing.knowledge.assessment.item_bank.cases.duress_endgame_merc impo
 from tests.pricing.knowledge.assessment.item_bank.cases.duress_gear_alternatives import (
     CASES as DURESS_GEAR_ALTERNATIVES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.duress_mid_alternatives import CASES as DURESS_MID_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.dwarf_star_alternatives import CASES as DWARF_STAR_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.dwarf_trade import CASES as DWARF_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.early_survival_uniques import CASES as EARLY_SURVIVAL_UNIQUES
 from tests.pricing.knowledge.assessment.item_bank.cases.early_unique_baselines import CASES as EARLY_UNIQUE_BASELINES
 from tests.pricing.knowledge.assessment.item_bank.cases.echoing_cure import CASES as ECHOING_CURE
@@ -264,6 +290,8 @@ from tests.pricing.knowledge.assessment.item_bank.cases.elemental_colossal_recip
 from tests.pricing.knowledge.assessment.item_bank.cases.elemental_named_alternatives import (
     CASES as ELEMENTAL_NAMED_ALTERNATIVES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.enchant_bulwark import CASES as ENCHANT_BULWARK
+from tests.pricing.knowledge.assessment.item_bank.cases.enchant_death_pair import CASES as ENCHANT_DEATH_PAIR
 from tests.pricing.knowledge.assessment.item_bank.cases.enchant_demon_machine import CASES as ENCHANT_DEMON_MACHINE
 from tests.pricing.knowledge.assessment.item_bank.cases.enchant_kuko import CASES as ENCHANT_KUKO
 from tests.pricing.knowledge.assessment.item_bank.cases.enchant_raven_claw import CASES as ENCHANT_RAVEN_CLAW
@@ -273,6 +301,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.endgame_charges import C
 from tests.pricing.knowledge.assessment.item_bank.cases.endgame_gloves import CASES as ENDGAME_GLOVES
 from tests.pricing.knowledge.assessment.item_bank.cases.enigma_quality import CASES as ENIGMA_QUALITY
 from tests.pricing.knowledge.assessment.item_bank.cases.entropy_locket import CASES as ENTROPY_LOCKET
+from tests.pricing.knowledge.assessment.item_bank.cases.entropy_trade import CASES as ENTROPY_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.eschuta_alternatives import CASES as ESCHUTA_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.ethereal_leveling_requirements import (
     CASES as ETHEREAL_LEVELING_REQUIREMENTS,
@@ -281,6 +310,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.ethereal_throwing import
 from tests.pricing.knowledge.assessment.item_bank.cases.face_horror_mercenaries import CASES as FACE_HORROR_MERCENARIES
 from tests.pricing.knowledge.assessment.item_bank.cases.facet_recipients import CASES as FACET_RECIPIENTS
 from tests.pricing.knowledge.assessment.item_bank.cases.facet_shields import CASES as FACET_SHIELDS
+from tests.pricing.knowledge.assessment.item_bank.cases.facet_trade import CASES as FACET_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.faith_rogues import CASES as FAITH_ROGUES
 from tests.pricing.knowledge.assessment.item_bank.cases.farming_accessories import CASES as FARMING_ACCESSORIES
 from tests.pricing.knowledge.assessment.item_bank.cases.farming_nagelring import CASES as FARMING_NAGELRING
@@ -288,6 +318,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.farming_specialist_uniqu
     CASES as FARMING_SPECIALIST_UNIQUES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.fathom_alternatives import CASES as FATHOM_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.fathom_roll_bounds import CASES as FATHOM_ROLL_BOUNDS
 from tests.pricing.knowledge.assessment.item_bank.cases.fire_ars_diabolos import CASES as FIRE_ARS_DIABOLOS
 from tests.pricing.knowledge.assessment.item_bank.cases.fire_blast_companions import CASES as FIRE_BLAST_COMPANIONS
 from tests.pricing.knowledge.assessment.item_bank.cases.fire_warlock_books import CASES as FIRE_WARLOCK_BOOKS
@@ -301,8 +332,10 @@ from tests.pricing.knowledge.assessment.item_bank.cases.fissure_merc_words impor
 from tests.pricing.knowledge.assessment.item_bank.cases.fissure_pelts import CASES as FISSURE_PELTS
 from tests.pricing.knowledge.assessment.item_bank.cases.fissure_player_words import CASES as FISSURE_PLAYER_WORDS
 from tests.pricing.knowledge.assessment.item_bank.cases.fissure_rockstopper import CASES as FISSURE_ROCKSTOPPER
+from tests.pricing.knowledge.assessment.item_bank.cases.fissure_skill_charms import CASES as FISSURE_SKILL_CHARMS
 from tests.pricing.knowledge.assessment.item_bank.cases.fissure_starter_leech import CASES as FISSURE_STARTER_LEECH
 from tests.pricing.knowledge.assessment.item_bank.cases.fissure_table_words import CASES as FISSURE_TABLE_WORDS
+from tests.pricing.knowledge.assessment.item_bank.cases.fixed_jewelry_trade import CASES as FIXED_JEWELRY_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.flayed_mercenaries import CASES as FLAYED_MERCENARIES
 from tests.pricing.knowledge.assessment.item_bank.cases.flickering_casters import CASES as FLICKERING_CASTERS
 from tests.pricing.knowledge.assessment.item_bank.cases.foh_heavens_light import CASES as FOH_HEAVENS_LIGHT
@@ -310,29 +343,41 @@ from tests.pricing.knowledge.assessment.item_bank.cases.foh_lawbringer import CA
 from tests.pricing.knowledge.assessment.item_bank.cases.foh_topaz import CASES as FOH_TOPAZ
 from tests.pricing.knowledge.assessment.item_bank.cases.fortitude_native_ranges import CASES as FORTITUDE_NATIVE_RANGES
 from tests.pricing.knowledge.assessment.item_bank.cases.fortitude_variant_roles import CASES as FORTITUDE_VARIANT_ROLES
+from tests.pricing.knowledge.assessment.item_bank.cases.frost_trade import CASES as FROST_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.frozen_orb_facet_shield import CASES as FROZEN_ORB_FACET_SHIELD
 from tests.pricing.knowledge.assessment.item_bank.cases.gerke_lightning import CASES as GERKE_LIGHTNING
+from tests.pricing.knowledge.assessment.item_bank.cases.gheed_trade import CASES as GHEED_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.gheeds_inventory_variants import (
     CASES as GHEEDS_INVENTORY_VARIANTS,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.gheeds_table_roles import CASES as GHEEDS_TABLE_ROLES
 from tests.pricing.knowledge.assessment.item_bank.cases.giant_skull import CASES as GIANT_SKULL
+from tests.pricing.knowledge.assessment.item_bank.cases.girth_trade import CASES as GIRTH_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.gladiator_mercenaries import CASES as GLADIATOR_MERCENARIES
 from tests.pricing.knowledge.assessment.item_bank.cases.glove_boot_progression import CASES as GLOVE_BOOT_PROGRESSION
 from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_boot_candidates import (
     CASES as GOLD_FIND_BOOT_CANDIDATES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_charms import CASES as GOLD_FIND_CHARMS
 from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_ik_will import CASES as GOLD_FIND_IK_WILL
 from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_lem_sword import CASES as GOLD_FIND_LEM_SWORD
 from tests.pricing.knowledge.assessment.item_bank.cases.gold_find_unbending import CASES as GOLD_FIND_UNBENDING
 from tests.pricing.knowledge.assessment.item_bank.cases.goldskin import CASES as GOLDSKIN
 from tests.pricing.knowledge.assessment.item_bank.cases.goldwrap_slot_roles import CASES as GOLDWRAP_SLOT_ROLES
+from tests.pricing.knowledge.assessment.item_bank.cases.gore_rider_trade import CASES as GORE_RIDER_TRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.gore_rider_upgraded_trade import (
+    CASES as GORE_RIDER_UPGRADED_TRADE,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.griffon_facets import CASES as GRIFFON_FACETS
 from tests.pricing.knowledge.assessment.item_bank.cases.griffon_thunder import CASES as GRIFFON_THUNDER
 from tests.pricing.knowledge.assessment.item_bank.cases.guardian_angel_mercenaries import (
     CASES as GUARDIAN_ANGEL_MERCENARIES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.guardian_angel_players import CASES as GUARDIAN_ANGEL_PLAYERS
+from tests.pricing.knowledge.assessment.item_bank.cases.guardian_intrinsic_rolls import (
+    CASES as GUARDIAN_INTRINSIC_ROLLS,
+)
+from tests.pricing.knowledge.assessment.item_bank.cases.guardian_jewel_trade import CASES as GUARDIAN_JEWEL_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.guardian_light_helms import CASES as GUARDIAN_LIGHT_HELMS
 from tests.pricing.knowledge.assessment.item_bank.cases.guardian_light_recipients import (
     CASES as GUARDIAN_LIGHT_RECIPIENTS,
@@ -392,8 +437,14 @@ from tests.pricing.knowledge.assessment.item_bank.cases.holy_bolt_vipermagi impo
 from tests.pricing.knowledge.assessment.item_bank.cases.horazon_fire_alternatives import (
     CASES as HORAZON_FIRE_ALTERNATIVES,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.horazon_legacy_trade import CASES as HORAZON_LEGACY_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.hoto_caster_roles import CASES as HOTO_CASTER
 from tests.pricing.knowledge.assessment.item_bank.cases.hoto_variants import CASES as HOTO_VARIANTS
+from tests.pricing.knowledge.assessment.item_bank.cases.hustle_armor_choices import CASES as HUSTLE_ARMOR_CHOICES
+from tests.pricing.knowledge.assessment.item_bank.cases.hustle_weapon_choices import CASES as HUSTLE_WEAPON_CHOICES
+from tests.pricing.knowledge.assessment.item_bank.cases.ik_detail_trade import CASES as IK_DETAIL_TRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.ik_forge_trade import CASES as IK_FORGE_TRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.ik_pillar_trade import CASES as IK_PILLAR_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.indestructible_word_alternatives import (
     CASES as INDESTRUCTIBLE_WORD_ALTERNATIVES,
 )
@@ -403,10 +454,12 @@ from tests.pricing.knowledge.assessment.item_bank.cases.javelin_glove_candidates
     CASES as JAVELIN_GLOVE_CANDIDATES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.jmod_bases import CASES as JMOD_BASES
+from tests.pricing.knowledge.assessment.item_bank.cases.jmod_trade import CASES as JMOD_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.lancers_javelins import CASES as LANCERS_JAVELINS
 from tests.pricing.knowledge.assessment.item_bank.cases.late_named_sets import CASES as LATE_NAMED_SETS
 from tests.pricing.knowledge.assessment.item_bank.cases.late_unique_weapons import CASES as LATE_UNIQUE_WEAPONS
 from tests.pricing.knowledge.assessment.item_bank.cases.lava_gout_strafe import CASES as LAVA_GOUT_STRAFE
+from tests.pricing.knowledge.assessment.item_bank.cases.leaf_fire_choices import CASES as LEAF_FIRE_CHOICES
 from tests.pricing.knowledge.assessment.item_bank.cases.leveling_sets import CASES as LEVELING_SETS
 from tests.pricing.knowledge.assessment.item_bank.cases.leveling_uniques import CASES as LEVELING_UNIQUES
 from tests.pricing.knowledge.assessment.item_bank.cases.lidless_alternatives import CASES as LIDLESS_ALTERNATIVES
@@ -422,13 +475,17 @@ from tests.pricing.knowledge.assessment.item_bank.cases.magic_diadem_preparation
     CASES as MAGIC_DIADEM_PREPARATION,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.magic_find_uniques import CASES as MAGIC_FIND_UNIQUES
+from tests.pricing.knowledge.assessment.item_bank.cases.main_sharp_charms import CASES as MAIN_SHARP_CHARMS
+from tests.pricing.knowledge.assessment.item_bank.cases.main_skill_charms import CASES as MAIN_SKILL_CHARMS
 from tests.pricing.knowledge.assessment.item_bank.cases.mang_song import CASES as MANG_SONG
+from tests.pricing.knowledge.assessment.item_bank.cases.mara_trade import CASES as MARA_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.maras import CASES as MARAS
 from tests.pricing.knowledge.assessment.item_bank.cases.mavina_strafe import CASES as MAVINA_STRAFE
 from tests.pricing.knowledge.assessment.item_bank.cases.measured_wrath import CASES as MEASURED_WRATH
 from tests.pricing.knowledge.assessment.item_bank.cases.melee_utility_baselines import CASES as MELEE_UTILITY_BASELINES
 from tests.pricing.knowledge.assessment.item_bank.cases.memory_caster_swaps import CASES as MEMORY_CASTER_SWAPS
 from tests.pricing.knowledge.assessment.item_bank.cases.mephisto_vampire_gaze import CASES as MEPHISTO_GAZE
+from tests.pricing.knowledge.assessment.item_bank.cases.merc_control_weapons import CASES as MERC_CONTROL_WEAPONS
 from tests.pricing.knowledge.assessment.item_bank.cases.merc_resistance_armor import CASES as MERC_RESISTANCE_ARMOR
 from tests.pricing.knowledge.assessment.item_bank.cases.merc_word_quality import CASES as MERC_WORD_QUALITY
 from tests.pricing.knowledge.assessment.item_bank.cases.mercenary_farming_helmets import (
@@ -446,6 +503,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.mercenary_resistance_jew
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.mercenary_unique_tail import CASES as MERCENARY_UNIQUE_TAIL
 from tests.pricing.knowledge.assessment.item_bank.cases.metalgrid_alternatives import CASES as METALGRID_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.metalgrid_trade import CASES as METALGRID_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.meteor_crown import CASES as METEOR_CROWN
 from tests.pricing.knowledge.assessment.item_bank.cases.mirrored_experimental_words import (
     CASES as MIRRORED_EXPERIMENTAL_WORDS,
@@ -453,13 +511,32 @@ from tests.pricing.knowledge.assessment.item_bank.cases.mirrored_experimental_wo
 from tests.pricing.knowledge.assessment.item_bank.cases.mist_strafe import CASES as MIST_STRAFE
 from tests.pricing.knowledge.assessment.item_bank.cases.mosaic_offhand import CASES as MOSAIC_OFFHAND
 from tests.pricing.knowledge.assessment.item_bank.cases.mosers_alternatives import CASES as MOSERS_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.nagel_trade import CASES as NAGEL_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.naj_puzzler_swaps import CASES as NAJ_PUZZLER_SWAPS
 from tests.pricing.knowledge.assessment.item_bank.cases.named import CASES as NAMED
 from tests.pricing.knowledge.assessment.item_bank.cases.named_caster_premiums import CASES as NAMED_CASTER_PREMIUMS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_combat_bounds import CASES as NAMED_COMBAT_BOUNDS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_durability_bounds import CASES as NAMED_DURABILITY_BOUNDS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_elemental_bounds import CASES as NAMED_ELEMENTAL_BOUNDS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_enhanced_defense_totals import (
+    CASES as NAMED_ENHANCED_DEFENSE_TOTALS,
+)
+from tests.pricing.knowledge.assessment.item_bank.cases.named_fixed_bonuses import CASES as NAMED_FIXED_BONUSES
+from tests.pricing.knowledge.assessment.item_bank.cases.named_flat_defense_bounds import (
+    CASES as NAMED_FLAT_DEFENSE_BOUNDS,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.named_glove_variants import CASES as NAMED_GLOVE_VARIANTS
 from tests.pricing.knowledge.assessment.item_bank.cases.named_original_sunders import CASES as NAMED_ORIGINAL_SUNDERS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_oskill_bounds import CASES as NAMED_OSKILL_BOUNDS
 from tests.pricing.knowledge.assessment.item_bank.cases.named_premium_rolls import CASES as NAMED_PREMIUM_ROLLS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_resistance_bounds import CASES as NAMED_RESISTANCE_BOUNDS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_resource_bounds import CASES as NAMED_RESOURCE_BOUNDS
 from tests.pricing.knowledge.assessment.item_bank.cases.named_rotw_sunders import CASES as NAMED_ROTW_SUNDERS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_single_skill_bounds import (
+    CASES as NAMED_SINGLE_SKILL_BOUNDS,
+)
+from tests.pricing.knowledge.assessment.item_bank.cases.named_skill_bounds import CASES as NAMED_SKILL_BOUNDS
+from tests.pricing.knowledge.assessment.item_bank.cases.named_socket_bounds import CASES as NAMED_SOCKET_BOUNDS
 from tests.pricing.knowledge.assessment.item_bank.cases.named_socket_preparation import (
     CASES as NAMED_SOCKET_PREPARATION,
 )
@@ -473,13 +550,16 @@ from tests.pricing.knowledge.assessment.item_bank.cases.nightwing_alternatives i
 from tests.pricing.knowledge.assessment.item_bank.cases.obsession_caster_uses import CASES as OBSESSION_CASTER_USES
 from tests.pricing.knowledge.assessment.item_bank.cases.oculus_alternatives import CASES as OCULUS_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.ondal import CASES as ONDAL
+from tests.pricing.knowledge.assessment.item_bank.cases.opal_trade import CASES as OPAL_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.opalvein import CASES as OPALVEIN
 from tests.pricing.knowledge.assessment.item_bank.cases.optional_leveling_sets import CASES as OPTIONAL_LEVELING_SETS
+from tests.pricing.knowledge.assessment.item_bank.cases.original_set_trade import CASES as ORIGINAL_SET_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.original_sunder_remainder import (
     CASES as ORIGINAL_SUNDER_REMAINDER,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.original_sunder_tables import CASES as ORIGINAL_SUNDER_TABLES
 from tests.pricing.knowledge.assessment.item_bank.cases.ormus_alternatives import CASES as ORMUS_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.partial_jewelry_trade import CASES as PARTIAL_JEWELRY_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.phoenix_casters import CASES as PHOENIX_CASTERS
 from tests.pricing.knowledge.assessment.item_bank.cases.plague_doom_casters import CASES as PLAGUE_DOOM_CASTERS
 from tests.pricing.knowledge.assessment.item_bank.cases.player_topaz_armor import CASES as PLAYER_TOPAZ_ARMOR
@@ -508,10 +588,13 @@ from tests.pricing.knowledge.assessment.item_bank.cases.prose_named_alternatives
 from tests.pricing.knowledge.assessment.item_bank.cases.protector_stone_recipients import (
     CASES as PROTECTOR_STONE_RECIPIENTS,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.protector_trade import CASES as PROTECTOR_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.qualified_tables import CASES as QUALIFIED_TABLES
 from tests.pricing.knowledge.assessment.item_bank.cases.que_hegan_alternatives import CASES as QUE_HEGAN_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.quest_materials import CASES as QUEST_MATERIALS
 from tests.pricing.knowledge.assessment.item_bank.cases.ranged_unique_baselines import CASES as RANGED_UNIQUE_BASELINES
 from tests.pricing.knowledge.assessment.item_bank.cases.raven import CASES as RAVEN
+from tests.pricing.knowledge.assessment.item_bank.cases.raven_trade import CASES as RAVEN_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.ravenlore import CASES as RAVENLORE
 from tests.pricing.knowledge.assessment.item_bank.cases.razortail_alternatives import CASES as RAZORTAIL_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.reaper_mercenary_alternatives import (
@@ -521,20 +604,27 @@ from tests.pricing.knowledge.assessment.item_bank.cases.remaining_named_sets imp
 from tests.pricing.knowledge.assessment.item_bank.cases.remaining_word_quality import CASES as REMAINING_WORD_QUALITY
 from tests.pricing.knowledge.assessment.item_bank.cases.renewed_sunder_builds import CASES as RENEWED_SUNDER_BUILDS
 from tests.pricing.knowledge.assessment.item_bank.cases.rhyme_class_shields import CASES as RHYME_CLASS_SHIELDS
+from tests.pricing.knowledge.assessment.item_bank.cases.rhyme_shared_shields import CASES as RHYME_SHARED_SHIELDS
 from tests.pricing.knowledge.assessment.item_bank.cases.rockfleece_mercenaries import CASES as ROCKFLEECE_MERCENARIES
 from tests.pricing.knowledge.assessment.item_bank.cases.rockstopper_mercenaries import CASES as ROCKSTOPPER_MERCENARIES
 from tests.pricing.knowledge.assessment.item_bank.cases.rotw_named_baselines import CASES as ROTW_NAMED_BASELINES
 from tests.pricing.knowledge.assessment.item_bank.cases.sanctuary_native_shields import (
     CASES as SANCTUARY_NATIVE_SHIELDS,
 )
+from tests.pricing.knowledge.assessment.item_bank.cases.sander_mobility import CASES as SANDER_MOBILITY
 from tests.pricing.knowledge.assessment.item_bank.cases.sandstorm_caster_alternatives import (
     CASES as SANDSTORM_CASTER_ALTERNATIVES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.scalper import CASES as SCALPER
+from tests.pricing.knowledge.assessment.item_bank.cases.scalper_throwing import CASES as SCALPER_THROWING
 from tests.pricing.knowledge.assessment.item_bank.cases.seasonal_named_versions import CASES as SEASONAL_NAMED_VERSIONS
+from tests.pricing.knowledge.assessment.item_bank.cases.sentry_high_player_charm import (
+    CASES as SENTRY_HIGH_PLAYER_CHARM,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.seraph_paladin_uses import CASES as SERAPH_PALADIN_USES
 from tests.pricing.knowledge.assessment.item_bank.cases.shadow_dancer import CASES as SHADOW_DANCER
 from tests.pricing.knowledge.assessment.item_bank.cases.shaftstop_mercenaries import CASES as SHAFTSTOP_MERCENARIES
+from tests.pricing.knowledge.assessment.item_bank.cases.shako_trade import CASES as SHAKO_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.silkweave_alternatives import CASES as SILKWEAVE_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.skill_charge_combinations import (
     CASES as SKILL_CHARGE_COMBINATIONS,
@@ -543,8 +633,11 @@ from tests.pricing.knowledge.assessment.item_bank.cases.skill_combination_candid
     CASES as SKILL_COMBINATION_CANDIDATES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.skullder_alternatives import CASES as SKULLDER_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.sling_trade import CASES as SLING_TRADE
+from tests.pricing.knowledge.assessment.item_bank.cases.smite_blood_belt import CASES as SMITE_BLOOD_BELT
 from tests.pricing.knowledge.assessment.item_bank.cases.smite_crown import CASES as SMITE_CROWN
 from tests.pricing.knowledge.assessment.item_bank.cases.smite_fleshripper import CASES as SMITE_FLESHRIPPER
+from tests.pricing.knowledge.assessment.item_bank.cases.smite_kingslayer import CASES as SMITE_KINGSLAYER
 from tests.pricing.knowledge.assessment.item_bank.cases.smite_native_exile import CASES as SMITE_NATIVE_EXILE
 from tests.pricing.knowledge.assessment.item_bank.cases.smite_shared_treachery import CASES as SMITE_SHARED_TREACHERY
 from tests.pricing.knowledge.assessment.item_bank.cases.socket_materials import CASES as SOCKET_MATERIALS
@@ -569,10 +662,16 @@ from tests.pricing.knowledge.assessment.item_bank.cases.specialist_unique_charge
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_caster_roles import CASES as SPIRIT_CASTER
 from tests.pricing.knowledge.assessment.item_bank.cases.spirit_endgame import CASES as SPIRIT_ENDGAME
+from tests.pricing.knowledge.assessment.item_bank.cases.spirit_progression_roles import (
+    CASES as SPIRIT_PROGRESSION_ROLES,
+)
+from tests.pricing.knowledge.assessment.item_bank.cases.spirit_shroud import CASES as SPIRIT_SHROUD
+from tests.pricing.knowledge.assessment.item_bank.cases.splendor_shield_choices import CASES as SPLENDOR_SHIELD_CHOICES
 from tests.pricing.knowledge.assessment.item_bank.cases.standalone_set_accessories import (
     CASES as STANDALONE_SET_ACCESSORIES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.stone_of_jordan_roles import CASES as STONE_OF_JORDAN_ROLES
+from tests.pricing.knowledge.assessment.item_bank.cases.stormshield_trade import CASES as STORMSHIELD_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.strafe_magic_armor import CASES as STRAFE_MAGIC_ARMOR
 from tests.pricing.knowledge.assessment.item_bank.cases.strafe_nagelring import CASES as STRAFE_NAGELRING
 from tests.pricing.knowledge.assessment.item_bank.cases.strafe_unique_ranged import CASES as STRAFE_UNIQUE_RANGED
@@ -581,10 +680,12 @@ from tests.pricing.knowledge.assessment.item_bank.cases.string_ears_alternatives
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.suicide_branch import CASES as SUICIDE_BRANCH
 from tests.pricing.knowledge.assessment.item_bank.cases.summoner_andariel import CASES as SUMMONER_ANDARIEL
+from tests.pricing.knowledge.assessment.item_bank.cases.sunder_trade import CASES as SUNDER_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.supplies import CASES as SUPPLIES
 from tests.pricing.knowledge.assessment.item_bank.cases.survival_leveling_sets import CASES as SURVIVAL_LEVELING_SETS
 from tests.pricing.knowledge.assessment.item_bank.cases.tal_armor_amulet import CASES as TAL_ARMOR_AMULET
 from tests.pricing.knowledge.assessment.item_bank.cases.tal_belt_orb import CASES as TAL_BELT_ORB
+from tests.pricing.knowledge.assessment.item_bank.cases.tal_belt_trade import CASES as TAL_BELT_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.tal_caster import CASES as TAL_CASTER
 from tests.pricing.knowledge.assessment.item_bank.cases.tal_merc import CASES as TAL_MERC
 from tests.pricing.knowledge.assessment.item_bank.cases.teleport_amulet_alternatives import (
@@ -593,19 +694,25 @@ from tests.pricing.knowledge.assessment.item_bank.cases.teleport_amulet_alternat
 from tests.pricing.knowledge.assessment.item_bank.cases.throw_arreat import CASES as THROW_ARREAT
 from tests.pricing.knowledge.assessment.item_bank.cases.throwing_sustain import CASES as THROWING_SUSTAIN
 from tests.pricing.knowledge.assessment.item_bank.cases.thundergod_alternatives import CASES as THUNDERGOD_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.titan_trade import CASES as TITAN_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.tomb_reaver import CASES as TOMB_REAVER
 from tests.pricing.knowledge.assessment.item_bank.cases.torch_caster_tables import CASES as TORCH_CASTER_TABLES
+from tests.pricing.knowledge.assessment.item_bank.cases.torch_trade import CASES as TORCH_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.torch_variants import CASES as TORCH_VARIANTS
 from tests.pricing.knowledge.assessment.item_bank.cases.trang_caster_upgrades import CASES as TRANG_CASTER_UPGRADES
 from tests.pricing.knowledge.assessment.item_bank.cases.trang_standalone_uses import CASES as TRANG_STANDALONE_USES
 from tests.pricing.knowledge.assessment.item_bank.cases.treachery_endgame_mercs import CASES as TREACHERY_ENDGAME_MERCS
 from tests.pricing.knowledge.assessment.item_bank.cases.treachery_shared_zeal import CASES as TREACHERY_SHARED_ZEAL
 from tests.pricing.knowledge.assessment.item_bank.cases.trek_alternatives import CASES as TREK_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.trek_trade import CASES as TREK_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.tri_resist_boot_candidates import (
     CASES as TRI_RESIST_BOOT_CANDIDATES,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.tribrid_raven import CASES as TRIBRID_RAVEN
 from tests.pricing.knowledge.assessment.item_bank.cases.uber_charged_wands import CASES as UBER_CHARGED_WANDS
+from tests.pricing.knowledge.assessment.item_bank.cases.unconditional_set_properties import (
+    CASES as UNCONDITIONAL_SET_PROPERTIES,
+)
 from tests.pricing.knowledge.assessment.item_bank.cases.unique_jewelry_progression import (
     CASES as UNIQUE_JEWELRY_PROGRESSION,
 )
@@ -617,6 +724,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.valuable_small_charms im
 from tests.pricing.knowledge.assessment.item_bank.cases.vampire_gaze_native import CASES as VAMPIRE_GAZE_NATIVE
 from tests.pricing.knowledge.assessment.item_bank.cases.vampire_gaze_setups import CASES as VAMPIRE_GAZE_SETUPS
 from tests.pricing.knowledge.assessment.item_bank.cases.venom_ward_mercenaries import CASES as VENOM_WARD_MERCENARIES
+from tests.pricing.knowledge.assessment.item_bank.cases.venomous_amulet import CASES as VENOMOUS_AMULET
 from tests.pricing.knowledge.assessment.item_bank.cases.verdungo_alternatives import CASES as VERDUNGO_ALTERNATIVES
 from tests.pricing.knowledge.assessment.item_bank.cases.vipermagi_caster_alternatives import (
     CASES as VIPERMAGI_CASTER_ALTERNATIVES,
@@ -626,12 +734,16 @@ from tests.pricing.knowledge.assessment.item_bank.cases.vipermagi_variant_compon
     CASES as VIPERMAGI_VARIANT_COMPONENTS,
 )
 from tests.pricing.knowledge.assessment.item_bank.cases.war_traveler_casters import CASES as WAR_TRAVELER_CASTERS
+from tests.pricing.knowledge.assessment.item_bank.cases.war_traveler_trade import CASES as WAR_TRAVELER_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.warlock_native_weapons import CASES as WARLOCK_NATIVE_WEAPONS
 from tests.pricing.knowledge.assessment.item_bank.cases.warlock_socketed_helms import CASES as WARLOCK_SOCKETED_HELMS
 from tests.pricing.knowledge.assessment.item_bank.cases.warlord_leveling import CASES as WARLORD_LEVELING
 from tests.pricing.knowledge.assessment.item_bank.cases.waterwalk_alternatives import CASES as WATERWALK_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.waterwalk_defense import CASES as WATERWALK_DEFENSE
 from tests.pricing.knowledge.assessment.item_bank.cases.wealth_farming_uses import CASES as WEALTH_FARMING_USES
+from tests.pricing.knowledge.assessment.item_bank.cases.wisdom_helm_choices import CASES as WISDOM_HELM_CHOICES
 from tests.pricing.knowledge.assessment.item_bank.cases.wisp_alternatives import CASES as WISP_ALTERNATIVES
+from tests.pricing.knowledge.assessment.item_bank.cases.wisp_trade import CASES as WISP_TRADE
 from tests.pricing.knowledge.assessment.item_bank.cases.witchwild_strafe import CASES as WITCHWILD_STRAFE
 from tests.pricing.knowledge.assessment.item_bank.cases.wizardspike_roles import CASES as WIZARDSPIKE_ROLES
 from tests.pricing.knowledge.assessment.item_bank.cases.wraithstep import CASES as WRAITHSTEP
@@ -649,6 +761,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.zeal_charms import CASES
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_combat_words import CASES as ZEAL_COMBAT_WORDS
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_death import CASES as ZEAL_DEATH
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_dual_lawbringer import CASES as ZEAL_DUAL_LAWBRINGER
+from tests.pricing.knowledge.assessment.item_bank.cases.zeal_duress_examples import CASES as ZEAL_DURESS_EXAMPLES
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_early_merc import CASES as ZEAL_EARLY_MERC
 from tests.pricing.knowledge.assessment.item_bank.cases.zeal_existing_alternatives import (
     CASES as ZEAL_EXISTING_ALTERNATIVES,
@@ -684,6 +797,67 @@ from tests.pricing.knowledge.assessment.item_bank.cases.zeal_utility_belts impor
 
 
 CASES = (
+    *NAMED_SINGLE_SKILL_BOUNDS,
+    *NAMED_DURABILITY_BOUNDS,
+    *NAMED_ENHANCED_DEFENSE_TOTALS,
+    *NAMED_FLAT_DEFENSE_BOUNDS,
+    *NAMED_SOCKET_BOUNDS,
+    *NAMED_ELEMENTAL_BOUNDS,
+    *NAMED_OSKILL_BOUNDS,
+    *NAMED_COMBAT_BOUNDS,
+    *NAMED_FIXED_BONUSES,
+    *NAMED_RESISTANCE_BOUNDS,
+    *NAMED_RESOURCE_BOUNDS,
+    *NAMED_SKILL_BOUNDS,
+    *GOLD_FIND_CHARMS,
+    *BANE_AUTHORITY_TRADE,
+    *JMOD_TRADE,
+    *IK_FORGE_TRADE,
+    *IK_DETAIL_TRADE,
+    *DRACULS_TRADE,
+    *GORE_RIDER_TRADE,
+    *GORE_RIDER_UPGRADED_TRADE,
+    *SHAKO_TRADE,
+    *WAR_TRAVELER_TRADE,
+    *TITAN_TRADE,
+    *BK_TRADE,
+    *MARA_TRADE,
+    *GIRTH_TRADE,
+    *SLING_TRADE,
+    *ENTROPY_TRADE,
+    *OPAL_TRADE,
+    *DEFENDER_FIRE_TRADE,
+    *DEFENDER_BILE_TRADE,
+    *FACET_TRADE,
+    *TORCH_TRADE,
+    *FROST_TRADE,
+    *GUARDIAN_JEWEL_TRADE,
+    *PROTECTOR_TRADE,
+    *SUNDER_TRADE,
+    *ANNIHILUS_TRADE,
+    *ARACHNID_TRADE,
+    *HORAZON_LEGACY_TRADE,
+    *ORIGINAL_SET_TRADE,
+    *METALGRID_TRADE,
+    *DWARF_TRADE,
+    *NAGEL_TRADE,
+    *GHEED_TRADE,
+    *TREK_TRADE,
+    *RAVEN_TRADE,
+    *WISP_TRADE,
+    *FIXED_JEWELRY_TRADE,
+    *SMITE_BLOOD_BELT,
+    *ENCHANT_BULWARK,
+    *ENCHANT_DEATH_PAIR,
+    *SANDER_MOBILITY,
+    *SCALPER_THROWING,
+    *CHARGED_UTILITY_CHOICES,
+    *VENOMOUS_AMULET,
+    *SPLENDOR_SHIELD_CHOICES,
+    *LEAF_FIRE_CHOICES,
+    *CLASS_ARMOR_ALTERNATIVES,
+    *WISDOM_HELM_CHOICES,
+    *MERC_CONTROL_WEAPONS,
     *DOUBLE_THROW_DEXTERITY_CHARM,
     *SANCTUARY_NATIVE_SHIELDS,
     *WEALTH_FARMING_USES,
@@ -699,6 +873,13 @@ CASES = (
     *MOSAIC_OFFHAND,
     *POISON_NATIVE_ALTERNATIVES,
     *POISON_RHYME_STAFFMODS,
+    *FISSURE_SKILL_CHARMS,
+    *MAIN_SKILL_CHARMS,
+    *MAIN_SHARP_CHARMS,
+    *HUSTLE_ARMOR_CHOICES,
+    *HUSTLE_WEAPON_CHOICES,
+    *DOUBLE_THROW_MAIMING,
+    *SENTRY_HIGH_PLAYER_CHARM,
     *CRESCENT_MOON_CASTERS,
     *FARMING_SPECIALIST_UNIQUES,
     *MAVINA_STRAFE,
@@ -726,7 +907,9 @@ CASES = (
     *FOH_LAWBRINGER,
     *DURESS_ENDGAME_MERC,
     *DURESS_GEAR_ALTERNATIVES,
+    *DURESS_MID_ALTERNATIVES,
     *CURE_GEAR_ALTERNATIVES,
+    *CURE_EARLY_ALTERNATIVES,
     *BLACK_ATTACK_MODES,
     *DRAGON_TALON_CBF,
     *DRAGON_TALON_GUILLAUME,
@@ -885,6 +1068,7 @@ CASES = (
     *FLAYED_MERCENARIES,
     *FISSURE_ANDARIEL,
     *ANDARIEL_NATIVE_VARIANTS,
+    *ANDARIEL_INTRINSIC_ROLLS,
     *ROCKFLEECE_MERCENARIES,
     *ROCKSTOPPER_MERCENARIES,
     *VAMPIRE_GAZE_NATIVE,
@@ -975,6 +1159,7 @@ CASES = (
     *TOMB_REAVER,
     *MANG_SONG,
     *GUARDIAN_ANGEL_PLAYERS,
+    *GUARDIAN_INTRINSIC_ROLLS,
     *ONDAL,
     *FIRE_WARLOCK_BOOKS,
     *WRAITHSTEP,
@@ -1031,6 +1216,7 @@ CASES = (
     *ZEAL_BLOOD_RING,
     *ZEAL_CHARMS,
     *ZEAL_MAIMING,
+    *ZEAL_DURESS_EXAMPLES,
     *ZEAL_RESISTANCE_CHARMS,
     *ZEAL_CASTER_AMULETS,
     *ZEAL_AFFIXED_ACCESSORIES,
@@ -1123,6 +1309,8 @@ CASES = (
     *NAMED_GLOVE_VARIANTS,
     *HOTO_VARIANTS,
     *SPIRIT_ENDGAME,
+    *SPIRIT_PROGRESSION_ROLES,
+    *SPIRIT_SHROUD,
     *SPIRIT_CASTER,
     *HOTO_CASTER,
     *HOLY_BOLT_HAND,
@@ -1141,6 +1329,7 @@ CASES = (
     *RAVENLORE,
     *LORE_FISSURE,
     *RHYME_CLASS_SHIELDS,
+    *RHYME_SHARED_SHIELDS,
     *MERC_RESISTANCE_JEWELS,
     *MERCENARY_NAMED_TIERS,
     *SORCERESS_MF_GLOVES,
@@ -1165,4 +1354,19 @@ CASES = (
     *ZEAL_ARMOR_WORDS,
     *ZEAL_NAMED_REMAINDER,
     *ZEAL_EXISTING_ALTERNATIVES,
+    *IK_PILLAR_TRADE,
+    *UNCONDITIONAL_SET_PROPERTIES,
+    *CLAWS_TRADE,
+    *TAL_BELT_TRADE,
+    *PARTIAL_JEWELRY_TRADE,
+    *SMITE_KINGSLAYER,
+    *COLLECTIBLE_COMBINATIONS,
+    *CROWN_TRADE,
+    *WATERWALK_DEFENSE,
+    *STORMSHIELD_TRADE,
+    *FATHOM_ROLL_BOUNDS,
 )
+
+
+CASES += QUEST_MATERIALS
+CASES += CONDITIONAL_NAMED_VARIANTS

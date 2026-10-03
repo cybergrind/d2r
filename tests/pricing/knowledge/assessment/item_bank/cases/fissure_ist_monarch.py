@@ -8,7 +8,7 @@ from tests.pricing.knowledge.assessment.item_bank.models import Case, Item, Sock
 
 
 ROLE = 'fissure-druid-magic-find-shield-ist-filled'
-RAW = ((20, 0, 20), (102, 0, 30), (80, 0, 100), (194, 0, 4))
+RAW = ((20, 0, 42), (102, 0, 30), (80, 0, 100), (194, 0, 4))
 ITEM = Item(
     'Monarch', 'magic', raw_stats=RAW, sockets=4, socket_contents='filled', socket_items=(SocketItem('Ist Rune'),) * 4
 )
@@ -32,7 +32,7 @@ def cases():
         ('unknown-ethereal', replace(ITEM, ethereal=None), 'Druid', False),
         ('wrong-class', ITEM, 'Sorceress', False),
         ('wrong-base', replace(ITEM, base='Aegis'), 'Druid', False),
-        ('low-block', replace(ITEM, raw_stats=((20, 0, 19), *RAW[1:])), 'Druid', False),
+        ('low-block', replace(ITEM, raw_stats=((20, 0, 41), *RAW[1:])), 'Druid', False),
         ('low-fbr', replace(ITEM, raw_stats=tuple((s, p, 29 if s == 102 else n) for s, p, n in RAW)), 'Druid', False),
         ('low-mf', replace(ITEM, raw_stats=tuple((s, p, 99 if s == 80 else n) for s, p, n in RAW)), 'Druid', False),
     ):

@@ -23,7 +23,9 @@ def test_specialist_shield_preparation_and_verified_completed_setup(payload):
     assert set(roles) == {'empty', 'filled'}
     klass = 'Sorceress' if payload == 'cold' else 'Paladin'
     base = 'Monarch' if payload == 'cold' else 'Sacred Targe'
-    empty = replace(facts(base, 'magic'), sockets=4, stats=decoded({'20:0': 20, '102:0': 30}))
+    # Native captured block contains base block plus Deflecting's 20 bonus.
+    base_block = 22 if base == 'Monarch' else 30
+    empty = replace(facts(base, 'magic'), sockets=4, stats=decoded({'20:0': base_block + 20, '102:0': 30}))
     values = {'331:0': 3, '335:0': 3} if payload == 'cold' else {'17:0': 31, '18:0': 31, '93:0': 15}
     filler = next(b for b in metadata()['bases'].values() if b['name'] == ('Ist Rune' if payload == 'ist' else 'Jewel'))
     children = [
@@ -50,6 +52,7 @@ def test_specialist_shield_preparation_and_verified_completed_setup(payload):
         return StatsEvaluator().evaluate(item, configs, ctx, role_outcomes=assess_role_results(item, [role], ctx))
 
     assert evaluate(empty, 'empty').annotations
+    assert not evaluate(replace(empty, stats=decoded({'20:0': base_block + 19, '102:0': 30})), 'empty').annotations
     assert not evaluate(empty, 'filled').annotations
     assert evaluate(filled, 'filled').annotations
     assert not evaluate(filled, 'empty').annotations

@@ -1,0 +1,2293 @@
+{
+  "generation": "8e3563f47d2004edd9f155a031fdb34cd717033b2cc335f10c74c7901f4d6486",
+  "sources": [
+    {
+      "path": "inventory_tracking/runs/collection/20260925T132355Z-61b58493/capture.json",
+      "sha256": "5af31a4a2b67ec37c6d035827ba852ba363af8ad490d4ee102a5e1f44c3ea954",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195450Z-e585b44e/capture.json",
+      "sha256": "a7a037038a57483f4b8a1cc807c63f1d1d51a264af8e7d50bcf9896135d20d4f",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20260930T195711Z-61aacf85/capture.json",
+      "sha256": "a5332d1dc5bcfa0309a7d1bf2e55cc360a8bfbb5f7b22a4d06ec1bc9cbd1840b",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20261001T142149Z-901c5872/capture.json",
+      "sha256": "b302ab2bd31509f9963166eff5d54ef6aec0156284b00f0c704ab40d9c34351b",
+      "issues": []
+    },
+    {
+      "path": "inventory_tracking/runs/collection/20261002T180804Z-bbf88d5f/capture.json",
+      "sha256": "ae9d9fc7ebb633c32b3a68eaaf7b841e03acc5e603884a4e5ff4011109658221",
+      "issues": []
+    }
+  ],
+  "records": [
+    {
+      "fingerprint": "60d55ba47cc84144e702d579952f6e857fde9d66641a97831bd797c4fac4b84d",
+      "name": "The Reaper's Toll",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "The Reaper's Toll",
+          "base_name": "Thresher",
+          "base_code": "7s8",
+          "item_type": "pole",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "482",
+              "value": 4,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 4
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 44,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 44
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "462",
+              "value": 15,
+              "label": "{{value}}% Life stolen per hit",
+              "memory_stat": {
+                "layer": 0,
+                "id": 60,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "420",
+              "value": -25,
+              "label": "Requirements +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 91,
+                "raw": -25
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "553",
+              "value": 1,
+              "label": "Ignore Target's Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 115,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "1864",
+              "value": 33,
+              "label": "+{{value}}% Deadly Strike",
+              "memory_stat": {
+                "layer": 0,
+                "id": 141,
+                "raw": 33
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 192,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 192
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 192
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2152444850,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 326,
+            "offset": 52
+          },
+          "container": {
+            "page": 0,
+            "name": "Main inventory"
+          },
+          "unit_id": 3774322461,
+          "owner_id": 2152444850,
+          "owner_type": 0,
+          "item_owner_id": 2152444850,
+          "player_id": 2152444850,
+          "position": [
+            4,
+            0
+          ],
+          "run_id": "20260925T132355Z-61b58493",
+          "captured_at": "2026-09-25T13:23:55.440422+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 35
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 35",
+            "value": 35
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 411
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 411",
+            "value": 411
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+4 to Minimum Cold Damage",
+            "value": 4,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 44
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+44 to Maximum Cold Damage",
+            "value": 44,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 0.4 seconds (before target/difficulty modifiers)",
+            "value": 0.4,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 60,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "lifedrainmindam",
+            "text": "15% (11-15%) Life stolen per hit",
+            "value": 15,
+            "label": "{{value}}% Life stolen per hit",
+            "roll_range": {
+              "stat_id": 60,
+              "min": 11,
+              "max": 15,
+              "property": "lifesteal",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "perfect"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: -10 (lower is faster; not increased attack speed)",
+            "value": -10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 38
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 38",
+            "value": 38
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 65
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 65",
+            "value": 65
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 91,
+              "raw": -25
+            },
+            "status": "decoded",
+            "name": "item_req_percent",
+            "text": "Requirements -25%",
+            "value": -25,
+            "label": "Requirements +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 115,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_ignoretargetac",
+            "text": "Ignore Target's Defense",
+            "value": 1,
+            "label": "Ignore Target's Defense"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 141,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "item_deadlystrike",
+            "text": "+33% Deadly Strike",
+            "value": 33,
+            "label": "+{{value}}% Deadly Strike"
+          },
+          {
+            "memory_stat": {
+              "layer": 5569,
+              "id": 198,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "item_skillonhit",
+            "text": "33% Chance to cast level 1 Decrepify on striking",
+            "value": 33,
+            "unit": "percent_chance"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 192,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+192% (190-240%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 192
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 192
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 190,
+              "max": 240,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "0e021cb0b54892c06e56bc50039dc7269a6026eb1b6eec84f5358b4cb6f89fc4",
+      "name": "Baranar's Star",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Baranar's Star",
+          "base_name": "Devil Star",
+          "base_code": "7mt",
+          "item_type": "mace",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "437",
+              "value": 15,
+              "label": "+{{value}} to Strength",
+              "memory_stat": {
+                "layer": 0,
+                "id": 0,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "429",
+              "value": 15,
+              "label": "+{{value}} to Dexterity",
+              "memory_stat": {
+                "layer": 0,
+                "id": 2,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "458",
+              "value": 1,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 48,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "459",
+              "value": 200,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 49,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "478",
+              "value": 1,
+              "label": "+{{value}} to Minimum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 50,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "479",
+              "value": 200,
+              "label": "+{{value}} to Maximum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 51,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 1,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 200,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 50,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 50
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "424",
+              "value": 200,
+              "label": "{{value}}% Bonus to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 119,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 200,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 200
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 200
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2152444850,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 256,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 1910487208,
+          "owner_id": 2152444850,
+          "owner_type": 0,
+          "item_owner_id": 2152444850,
+          "player_id": 2152444850,
+          "position": [
+            4,
+            2
+          ],
+          "run_id": "20260925T132355Z-61b58493",
+          "captured_at": "2026-09-25T13:23:55.440422+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 0,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "strength",
+            "text": "+15 to Strength",
+            "value": 15,
+            "label": "+{{value}} to Strength"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 2,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "dexterity",
+            "text": "+15 to Dexterity",
+            "value": 15,
+            "label": "+{{value}} to Dexterity"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 21,
+              "raw": 129
+            },
+            "status": "decoded",
+            "name": "mindamage",
+            "text": "Minimum damage: 129",
+            "value": 129
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 22,
+              "raw": 159
+            },
+            "status": "decoded",
+            "name": "maxdamage",
+            "text": "Maximum damage: 159",
+            "value": 159
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 48,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "firemindam",
+            "text": "+1 to Minimum Fire Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 49,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "firemaxdam",
+            "text": "+200 to Maximum Fire Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 50,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "lightmindam",
+            "text": "+1 to Minimum Lightning Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 51,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "lightmaxdam",
+            "text": "+200 to Maximum Lightning Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+1 to Minimum Cold Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+200 to Maximum Cold Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 136
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 5.44 seconds (before target/difficulty modifiers)",
+            "value": 5.44,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 65
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 65",
+            "value": 65
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 172
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 172",
+            "value": 172
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+50% Increased Attack Speed",
+            "value": 50,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 119,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "item_tohit_percent",
+            "text": "200% Bonus to Attack Rating",
+            "value": 200,
+            "label": "{{value}}% Bonus to Attack Rating"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 200,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+200% Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 200
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 200
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208
+          },
+          {
+            "status": "decoded",
+            "origin": "base_type",
+            "value": 50,
+            "text": "+50% Damage to Undead (inherent base-type bonus)"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "0523d9102c86c922202f9eef2d7c557f720e1f8f682d96d02079db49a836b883",
+      "name": "The Reaper's Toll",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "The Reaper's Toll",
+          "base_name": "Thresher",
+          "base_code": "7s8",
+          "item_type": "pole",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "482",
+              "value": 4,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 4
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 44,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 44
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "462",
+              "value": 15,
+              "label": "{{value}}% Life stolen per hit",
+              "memory_stat": {
+                "layer": 0,
+                "id": 60,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "420",
+              "value": -25,
+              "label": "Requirements +{{value}}%",
+              "memory_stat": {
+                "layer": 0,
+                "id": 91,
+                "raw": -25
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "553",
+              "value": 1,
+              "label": "Ignore Target's Defense",
+              "memory_stat": {
+                "layer": 0,
+                "id": 115,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "1864",
+              "value": 33,
+              "label": "+{{value}}% Deadly Strike",
+              "memory_stat": {
+                "layer": 0,
+                "id": 141,
+                "raw": 33
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 220,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 220
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 220
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": true,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 3144134977,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 326,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 3088787529,
+          "owner_id": 3144134977,
+          "owner_type": 0,
+          "item_owner_id": 3144134977,
+          "player_id": 3144134977,
+          "position": [
+            8,
+            3
+          ],
+          "run_id": "20260930T195450Z-e585b44e",
+          "captured_at": "2026-09-30T19:54:51.096490+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 57
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 57",
+            "value": 57
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 675
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 675",
+            "value": 675
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 4
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+4 to Minimum Cold Damage",
+            "value": 4,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 44
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+44 to Maximum Cold Damage",
+            "value": 44,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 9
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 0.36 seconds (before target/difficulty modifiers)",
+            "value": 0.36,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 60,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "lifedrainmindam",
+            "text": "15% (11-15%) Life stolen per hit",
+            "value": 15,
+            "label": "{{value}}% Life stolen per hit",
+            "roll_range": {
+              "stat_id": 60,
+              "min": 11,
+              "max": 15,
+              "property": "lifesteal",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "perfect"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": 10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: -10 (lower is faster; not increased attack speed)",
+            "value": -10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 33",
+            "value": 33
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 33",
+            "value": 33
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 91,
+              "raw": -25
+            },
+            "status": "decoded",
+            "name": "item_req_percent",
+            "text": "Requirements -25%",
+            "value": -25,
+            "label": "Requirements +{{value}}%"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 115,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_ignoretargetac",
+            "text": "Ignore Target's Defense",
+            "value": 1,
+            "label": "Ignore Target's Defense"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 141,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "item_deadlystrike",
+            "text": "+33% Deadly Strike",
+            "value": 33,
+            "label": "+{{value}}% Deadly Strike"
+          },
+          {
+            "memory_stat": {
+              "layer": 5569,
+              "id": 198,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "item_skillonhit",
+            "text": "33% Chance to cast level 1 Decrepify on striking",
+            "value": 33,
+            "unit": "percent_chance"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 220,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+220% (190-240%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 220
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 220
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 190,
+              "max": 240,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "15670f3f08bb9c7dd5e821e8b2b8d25bdfd8818c177be5c0dd60fba27fe0655e",
+      "name": "Baranar's Star",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Baranar's Star",
+          "base_name": "Devil Star",
+          "base_code": "7mt",
+          "item_type": "mace",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "437",
+              "value": 15,
+              "label": "+{{value}} to Strength",
+              "memory_stat": {
+                "layer": 0,
+                "id": 0,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "429",
+              "value": 15,
+              "label": "+{{value}} to Dexterity",
+              "memory_stat": {
+                "layer": 0,
+                "id": 2,
+                "raw": 15
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "458",
+              "value": 1,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 48,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "459",
+              "value": 200,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 49,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "478",
+              "value": 1,
+              "label": "+{{value}} to Minimum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 50,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "479",
+              "value": 200,
+              "label": "+{{value}} to Maximum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 51,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 1,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 200,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 50,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 50
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "424",
+              "value": 200,
+              "label": "{{value}}% Bonus to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 119,
+                "raw": 200
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 200,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 200
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 200
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2778214828,
+            "level": 1
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 256,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Personal stash"
+          },
+          "unit_id": 4114720085,
+          "owner_id": 2778214828,
+          "owner_type": 0,
+          "item_owner_id": 2778214828,
+          "player_id": 2778214828,
+          "position": [
+            3,
+            4
+          ],
+          "run_id": "20260930T195711Z-61aacf85",
+          "captured_at": "2026-09-30T19:57:11.874726+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "unsocketed_flags_and_complete_stats"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 0,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "strength",
+            "text": "+15 to Strength",
+            "value": 15,
+            "label": "+{{value}} to Strength"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 2,
+              "raw": 15
+            },
+            "status": "decoded",
+            "name": "dexterity",
+            "text": "+15 to Dexterity",
+            "value": 15,
+            "label": "+{{value}} to Dexterity"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 21,
+              "raw": 129
+            },
+            "status": "decoded",
+            "name": "mindamage",
+            "text": "Minimum damage: 129",
+            "value": 129
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 22,
+              "raw": 159
+            },
+            "status": "decoded",
+            "name": "maxdamage",
+            "text": "Maximum damage: 159",
+            "value": 159
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 48,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "firemindam",
+            "text": "+1 to Minimum Fire Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 49,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "firemaxdam",
+            "text": "+200 to Maximum Fire Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 50,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "lightmindam",
+            "text": "+1 to Minimum Lightning Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 51,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "lightmaxdam",
+            "text": "+200 to Maximum Lightning Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+1 to Minimum Cold Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+200 to Maximum Cold Damage",
+            "value": 200,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 19
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 0.76 seconds (before target/difficulty modifiers)",
+            "value": 0.76,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 44
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 44",
+            "value": 44
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 172
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 172",
+            "value": 172
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+50% Increased Attack Speed",
+            "value": 50,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 119,
+              "raw": 200
+            },
+            "status": "decoded",
+            "name": "item_tohit_percent",
+            "text": "200% Bonus to Attack Rating",
+            "value": 200,
+            "label": "{{value}}% Bonus to Attack Rating"
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 200,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+200% Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 200
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 200
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208
+          },
+          {
+            "status": "decoded",
+            "origin": "base_type",
+            "value": 50,
+            "text": "+50% Damage to Undead (inherent base-type bonus)"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "29d3c934845024757b4dc4cc449c557c4f410c6f9c583ed6caafd14156b6848a",
+      "name": "Hellrack",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "Hellrack",
+          "base_name": "Colossus Crossbow",
+          "base_code": "6hx",
+          "item_type": "xbow",
+          "identified": true,
+          "category": "weapons",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "458",
+              "value": 63,
+              "label": "+{{value}} to Minimum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 48,
+                "raw": 63
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "459",
+              "value": 324,
+              "label": "+{{value}} to Maximum Fire Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 49,
+                "raw": 324
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "478",
+              "value": 63,
+              "label": "+{{value}} to Minimum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 50,
+                "raw": 63
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "479",
+              "value": 324,
+              "label": "+{{value}} to Maximum Lightning Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 51,
+                "raw": 324
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 63,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 63
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 324,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 324
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "457",
+              "value": 20,
+              "label": "+{{value}}% Increased Attack Speed",
+              "memory_stat": {
+                "layer": 0,
+                "id": 93,
+                "raw": 20
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "424",
+              "value": 117,
+              "label": "{{value}}% Bonus to Attack Rating",
+              "memory_stat": {
+                "layer": 0,
+                "id": 119,
+                "raw": 117
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "510",
+              "value": 193,
+              "label": "+{{value}}% Enhanced Damage",
+              "memory_stats": [
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 193
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 193
+                }
+              ],
+              "origin": "owned_modifier_list",
+              "modifier_head_offset": 208
+            }
+          ],
+          "sockets": 2,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 2,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 4192371632,
+            "level": 93
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 328,
+            "offset": 52
+          },
+          "container": {
+            "page": 3,
+            "name": "Horadric Cube"
+          },
+          "unit_id": 3747854634,
+          "owner_id": 4192371632,
+          "owner_type": 0,
+          "item_owner_id": 4192371632,
+          "player_id": 4192371632,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261001T142149Z-901c5872",
+          "captured_at": "2026-10-01T14:21:49.556974+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 23,
+              "raw": 93
+            },
+            "status": "decoded",
+            "name": "secondary_mindamage",
+            "text": "Secondary minimum damage: 93",
+            "value": 93
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 24,
+              "raw": 266
+            },
+            "status": "decoded",
+            "name": "secondary_maxdamage",
+            "text": "Secondary maximum damage: 266",
+            "value": 266
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 48,
+              "raw": 63
+            },
+            "status": "decoded",
+            "name": "firemindam",
+            "text": "+63 to Minimum Fire Damage",
+            "value": 63,
+            "label": "+{{value}} to Minimum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 49,
+              "raw": 324
+            },
+            "status": "decoded",
+            "name": "firemaxdam",
+            "text": "+324 to Maximum Fire Damage",
+            "value": 324,
+            "label": "+{{value}} to Maximum Fire Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 50,
+              "raw": 63
+            },
+            "status": "decoded",
+            "name": "lightmindam",
+            "text": "+63 to Minimum Lightning Damage",
+            "value": 63,
+            "label": "+{{value}} to Minimum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 51,
+              "raw": 324
+            },
+            "status": "decoded",
+            "name": "lightmaxdam",
+            "text": "+324 to Maximum Lightning Damage",
+            "value": 324,
+            "label": "+{{value}} to Maximum Lightning Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 63
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+63 to Minimum Cold Damage",
+            "value": 63,
+            "label": "+{{value}} to Minimum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 324
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+324 to Maximum Cold Damage",
+            "value": 324,
+            "label": "+{{value}} to Maximum Cold Damage"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 33
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 1.32 seconds (before target/difficulty modifiers)",
+            "value": 1.32,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 68,
+              "raw": -10
+            },
+            "status": "decoded",
+            "name": "attackrate",
+            "text": "Base weapon speed: 10 (lower is faster; not increased attack speed)",
+            "value": 10
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 72,
+              "raw": 42
+            },
+            "status": "decoded",
+            "name": "durability",
+            "text": "Durability: 42",
+            "value": 42
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 73,
+              "raw": 50
+            },
+            "status": "decoded",
+            "name": "maxdurability",
+            "text": "Maximum durability: 50",
+            "value": 50
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 93,
+              "raw": 20
+            },
+            "status": "decoded",
+            "name": "item_fasterattackrate",
+            "text": "+20% Increased Attack Speed",
+            "value": 20,
+            "label": "+{{value}}% Increased Attack Speed"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 119,
+              "raw": 117
+            },
+            "status": "decoded",
+            "name": "item_tohit_percent",
+            "text": "117% (100-150%) Bonus to Attack Rating",
+            "value": 117,
+            "label": "{{value}}% Bonus to Attack Rating",
+            "roll_range": {
+              "stat_id": 119,
+              "min": 100,
+              "max": 150,
+              "property": "att%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 194,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_numsockets",
+            "text": "Sockets: 2 \u2014 2 empty",
+            "value": 2,
+            "socket_source": "complete_child_scan"
+          },
+          {
+            "memory_stat": {
+              "layer": 1746,
+              "id": 204,
+              "raw": 38474
+            },
+            "status": "decoded",
+            "name": "item_charged_skill",
+            "text": "Level 18 Immolation Arrow (74/150 Charges)",
+            "value": 74,
+            "unit": "charges_remaining",
+            "charges": {
+              "remaining": 74,
+              "maximum": 150
+            }
+          },
+          {
+            "status": "decoded",
+            "name": "item_damage_percent",
+            "value": 193,
+            "label": "+{{value}}% Enhanced Damage",
+            "text": "+193% (180-230%) Enhanced Damage",
+            "memory_stats": [
+              {
+                "layer": 0,
+                "id": 17,
+                "raw": 193
+              },
+              {
+                "layer": 0,
+                "id": 18,
+                "raw": 193
+              }
+            ],
+            "origin": "owned_modifier_list",
+            "modifier_head_offset": 208,
+            "roll_range": {
+              "stat_id": 17,
+              "min": 180,
+              "max": 230,
+              "property": "dmg%",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    },
+    {
+      "fingerprint": "ce763a3bd947413334796152c0e6d76a048c78a64c75ed619bd1b8e5601ac039",
+      "name": "The Eye of Etlich",
+      "identified": true,
+      "contract": null,
+      "gaps": [
+        "No verified market mapping for native stat 56:0."
+      ],
+      "observation": {
+        "item": {
+          "name": "The Eye of Etlich",
+          "base_name": "Amulet",
+          "base_code": "amu",
+          "item_type": "amul",
+          "identified": true,
+          "category": "misc",
+          "rarity": "unique",
+          "requirements": {},
+          "affixes": [
+            {
+              "property_id": "612",
+              "value": 23,
+              "label": "+{{value}} Defense vs. Missile",
+              "memory_stat": {
+                "layer": 0,
+                "id": 32,
+                "raw": 23
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "482",
+              "value": 1,
+              "label": "+{{value}} to Minimum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 54,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "483",
+              "value": 3,
+              "label": "+{{value}} to Maximum Cold Damage",
+              "memory_stat": {
+                "layer": 0,
+                "id": 55,
+                "raw": 3
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "462",
+              "value": 5,
+              "label": "{{value}}% Life stolen per hit",
+              "memory_stat": {
+                "layer": 0,
+                "id": 60,
+                "raw": 5
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "422",
+              "value": 2,
+              "label": "+{{value}} to Light Radius",
+              "memory_stat": {
+                "layer": 0,
+                "id": 89,
+                "raw": 2
+              },
+              "descriptor_offset": 232
+            },
+            {
+              "property_id": "587",
+              "value": 1,
+              "label": "+{{value}} to All Skills",
+              "memory_stat": {
+                "layer": 0,
+                "id": 127,
+                "raw": 1
+              },
+              "descriptor_offset": 232
+            }
+          ],
+          "sockets": 0,
+          "ethereal": false,
+          "socket_contents": "empty",
+          "socket_items": [],
+          "empty_sockets": 0,
+          "filled_sockets": 0
+        },
+        "source": {
+          "engine": "memory_snapshot",
+          "viewer_context": {
+            "player_id": 2943817483,
+            "level": 93
+          },
+          "item_identity": {
+            "table": "unique",
+            "table_id": 118,
+            "offset": 52
+          },
+          "container": {
+            "page": 4,
+            "name": "Shared stash"
+          },
+          "unit_id": 2611788297,
+          "owner_id": 4091389378,
+          "owner_type": 0,
+          "item_owner_id": 4091389378,
+          "player_id": 2943817483,
+          "position": [
+            4,
+            6
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "snapshot_only": true,
+          "stat_capture_complete": true,
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "socket_mechanics": "item_type_cannot_socket"
+        },
+        "unresolved_stats": [],
+        "decoded_stats": [
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 32,
+              "raw": 23
+            },
+            "status": "decoded",
+            "name": "armorclass_vs_missile",
+            "text": "+23 (10-40) Defense vs. Missile",
+            "value": 23,
+            "label": "+{{value}} Defense vs. Missile",
+            "roll_range": {
+              "stat_id": 32,
+              "min": 10,
+              "max": 40,
+              "property": "ac-miss",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 54,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "coldmindam",
+            "text": "+1 (1-2) to Minimum Cold Damage",
+            "value": 1,
+            "label": "+{{value}} to Minimum Cold Damage",
+            "roll_range": {
+              "stat_id": 54,
+              "min": 1,
+              "max": 2,
+              "property": "cold-min",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 55,
+              "raw": 3
+            },
+            "status": "decoded",
+            "name": "coldmaxdam",
+            "text": "+3 (3-5) to Maximum Cold Damage",
+            "value": 3,
+            "label": "+{{value}} to Maximum Cold Damage",
+            "roll_range": {
+              "stat_id": 55,
+              "min": 3,
+              "max": 5,
+              "property": "cold-max",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "low"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 56,
+              "raw": 222
+            },
+            "status": "decoded",
+            "name": "coldlength",
+            "text": "Base cold duration: 8.88 seconds (before target/difficulty modifiers)",
+            "value": 8.88,
+            "unit": "seconds",
+            "presentation": "internal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 60,
+              "raw": 5
+            },
+            "status": "decoded",
+            "name": "lifedrainmindam",
+            "text": "5% (3-7%) Life stolen per hit",
+            "value": 5,
+            "label": "{{value}}% Life stolen per hit",
+            "roll_range": {
+              "stat_id": 60,
+              "min": 3,
+              "max": 7,
+              "property": "lifesteal",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 89,
+              "raw": 2
+            },
+            "status": "decoded",
+            "name": "item_lightradius",
+            "text": "+2 (1-5) to Light Radius",
+            "value": 2,
+            "label": "+{{value}} to Light Radius",
+            "roll_range": {
+              "stat_id": 89,
+              "min": 1,
+              "max": 5,
+              "property": "light",
+              "better": "higher",
+              "source": {
+                "path": "pricing/raw/d2data/uniqueitems.json",
+                "source_date": "2026-09-23"
+              },
+              "scope": "item definition; not proof of contribution split"
+            },
+            "roll_quality": "normal"
+          },
+          {
+            "memory_stat": {
+              "layer": 0,
+              "id": 127,
+              "raw": 1
+            },
+            "status": "decoded",
+            "name": "item_allskills",
+            "text": "+1 to All Skills",
+            "value": 1,
+            "label": "+{{value}} to All Skills"
+          }
+        ],
+        "issues": [],
+        "review": [
+          "Requirements are unverified; socket contents are labeled by evidence source.",
+          "Ranges describe item definitions; totals can include socket or set contributions.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "appraisal_ready": false,
+        "offline": true,
+        "status": "needs_review"
+      }
+    }
+  ]
+}

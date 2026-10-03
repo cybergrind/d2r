@@ -731,7 +731,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -763,7 +763,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Rainbow Facets (Jeweler's Monarch of Deflecting (4x )). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred."
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Rainbow Facets (Jeweler's Monarch of Deflecting (4x )). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total."
     },
     {
       "id": "lightning-fury-amazon-guide-ubers-shield-jmod-base",
@@ -804,7 +804,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -836,7 +836,7 @@
         "url": "https://maxroll.gg/d2/guides/lightning-fury-amazon-guide",
         "source_date": "May 22, 2026"
       },
-      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Lightning Rainbow Facets; planner: 1x -5/+5 'die' + 3x 'up'). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred.",
+      "review_notes": "2026-09-24: empty preparation candidate for the cited socketed item: Jeweler's Monarch of Deflecting (4x Lightning Rainbow Facets; planner: 1x -5/+5 'die' + 3x 'up'). Native Jeweler sockets and Deflecting block/FBR verified. Filled sockets deliberately excluded because total block stats may include inserted items. No market price or completed socket payload inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "alternatives": [
         "Stormshield (the guide offers this until acquiring the Monarch setup)"
       ]
@@ -5083,7 +5083,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -5167,7 +5167,7 @@
         ],
         "review": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "preferences": [
         {
           "label": "Four perfect 5/5 facets",
@@ -5222,7 +5222,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -5327,7 +5327,7 @@
         ],
         "review": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred."
       },
-      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred.",
+      "review_notes": "2026-09-28: Completed lightning shield configuration for the cited build and slot. Require four distinct linked Rainbow Facets, each with at least 3% matching skill damage and enemy resistance reduction, plus observed totals. Explicit 5/5 labels retain that requirement; unspecified rolls use native 3-5 range. Preserve empty preparation rule and native Deflecting. No numerical price or full-loadout breakpoint inferred. 2026-10-02: native blocking threshold is 42 total (22 Monarch base + 20 Deflecting), not 20 total.",
       "alternatives": [
         "Stormshield (the guide offers this until acquiring the Monarch setup)"
       ],

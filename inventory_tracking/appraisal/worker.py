@@ -19,6 +19,7 @@ class AppraisalWorker:
         *,
         display=None,
         display_seconds=30,
+        recheck_seconds=0.0,
         cache_seconds=300,
         clock=time.monotonic,
         cache_context=lambda: None,
@@ -31,12 +32,14 @@ class AppraisalWorker:
         self.future = None
         self.display = display
         self.display_seconds, self.clock = display_seconds, clock
+        self.recheck_seconds = recheck_seconds
         self.cache = ResultCache(cache_seconds)
         self.cache_context = cache_context
         self.request_scope = request_scope
         self.visible = None
         self.visible_context = None
         self.expires = 0.0
+        self.next_check = 0.0
         self.capture_lock = threading.Lock()
 
     def pending(self):
@@ -93,6 +96,7 @@ class AppraisalWorker:
                 self.visible = record
                 self.visible_context = copy_context()
                 self.expires = self.clock() + self.display_seconds
+                self.next_check = self.clock() + self.recheck_seconds  # complete() just verified it
                 self.display(record)
             return True
 
@@ -103,19 +107,25 @@ class AppraisalWorker:
             self.display(None)
 
     def tick(self):
-        """Fail closed on hover/focus loss; never re-arm without a new hotkey."""
+        """Fail closed on hover/focus loss; never re-arm without a new hotkey.
+
+        The hover probe reads game memory, so it runs every `recheck_seconds`; between probes
+        the card is only republished (or hidden once it expires).
+        """
         with self.lock:
             record = self.visible
             context = self.visible_context
         if record is None:
             return
-        try:
-            with self.capture_lock:
-                selected = self.clock() < self.expires and context.copy().run(
-                    self.capture.still_selected, record['frozen']
-                )
-        except Exception:
-            selected = False
+        now = self.clock()
+        selected = now < self.expires
+        if selected and now >= self.next_check:
+            self.next_check = now + self.recheck_seconds
+            try:
+                with self.capture_lock:
+                    selected = context.copy().run(self.capture.still_hovered, record['frozen'])
+            except Exception:
+                selected = False
         with self.lock:
             if self.visible is not record:
                 return

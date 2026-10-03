@@ -1,0 +1,1154 @@
+{
+  "source": "inventory_tracking/runs/collection/collection.sqlite",
+  "rows": [
+    {
+      "fingerprint": "0353d5f10f7bf62d922165895de5cba14ec57206db9cdb381f399fab755b2b12",
+      "observation_sha256": "b87035595245a482a3a311ecac3e65f5889b695203b5a35cd0fb80e5b7ab5544",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 2"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "ua3",
+          "base_name": "Uber Ancient Summon Material Act 3",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Uber Ancient Summon Material Act 3",
+          "quantity": 2,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 1733209642,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "1912c2240487a6a2609653efe69bc4a3a2bf69bec5743e4a22c98c6401123b7a",
+      "observation_sha256": "1ed5f9f79161eb80872e7ceda18c5b38f604b134bec63edcfc7e879466d18001",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 2"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "bet",
+          "base_name": "Burning Essence of Terror",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Burning Essence of Terror",
+          "quantity": 2,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 2024379422,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "371e3da50ca933f34352e72a34f5ee20074d73d629889044997643a6ef6c3467",
+      "observation_sha256": "e7dc81f461dc33ffb6787c90f4fb61f462a0c4b28654d42b103bcdac2c5ca5dd",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 31"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "xa5",
+          "base_name": "Northern Worldstone Shard",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Northern Worldstone Shard",
+          "quantity": 31,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 1517728083,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "3d4606efa9d801a4b007c9e28423179c96e97b15a274172dbbe001d8f30577d4",
+      "observation_sha256": "5c4bd39140fdf5add4c0f78c3198d803355591ba0308b9ca1c3448e19d0ed2d3",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 4"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "pk1",
+          "base_name": "Key of Terror",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Key of Terror",
+          "quantity": 4,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 2773295347,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "3dc197faf752d7f9ab598ec3ad47be777275e96073eff4b3bda14edcd4bc480e",
+      "observation_sha256": "a63bf787059f6a35541f6133b647c6136ef36c2405f33ed247eb182bfeda679a",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 4"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "pk3",
+          "base_name": "Key of Destruction",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Key of Destruction",
+          "quantity": 4,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 2385130759,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "4ef8034cdb9294ec66900311002bd6deda9c9d63d2a3d2325d6152d7bbf6b8c4",
+      "observation_sha256": "f6eb8a3bf1fb2ea9a7a007259f989d9da0921468bb158ac235fab8eee235c6cc",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 1"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "fed",
+          "base_name": "Festering Essence of Destruction",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Festering Essence of Destruction",
+          "quantity": 1,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 2613684699,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "5a4ae43b20f862403d8b44e286f3ff6979e0e97ea2254159d1e1b80862441e69",
+      "observation_sha256": "9ac16ebbb211c76d47939ecbade25677234414ad3b153aae73f218ae6ec6623f",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 1"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "toa",
+          "base_name": "Token of Absolution",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Token of Absolution",
+          "quantity": 1,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 3722753261,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "648173221ae531326d4341a411ba380254d743d81e12c86950f8942db81053d1",
+      "observation_sha256": "e687611ede151b6035d17bf329a2b14bdad3f7ed5b30518a686080cb2e443ea3",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 14"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "tes",
+          "base_name": "Twisted Essence of Suffering",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Twisted Essence of Suffering",
+          "quantity": 14,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 249309802,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "6485d157ed63592f8dd42a9e83f5c3253bc7ccab547d7eab41189c3766a72a47",
+      "observation_sha256": "d3ebb31cc0d944ec3c062cdca37fe74d8a0672649e482ad107c694df5c96cc63",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "box",
+          "base_name": "Horadric Cube",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Horadric Cube",
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Main inventory",
+            "page": 0
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 2943817483,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            1,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 286595516,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "6d7f72b19cc95a778f2bb787bfe1c5684fa9bd0e10f135549d4e74b965a991cb",
+      "observation_sha256": "dfc073342201abeaf8073e22553d7a952822bec0768ef138a80c8ae0f1a4fbba",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 36"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "xa1",
+          "base_name": "Western Worldstone Shard",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Western Worldstone Shard",
+          "quantity": 36,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 1012181519,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "831ae22002ae4058b2a2095bab928b493f30b7cf9c7ec23f0069afa063cd8c9b",
+      "observation_sha256": "e7ff2a7cc44e4b2581aab8356e3d679f44ccd9b109f8f1fbebcc0756ce78a018",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 2"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "ua5",
+          "base_name": "Uber Ancient Summon Material Act5",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Uber Ancient Summon Material Act5",
+          "quantity": 2,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 3989120672,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "c9526373550441daa52cb390244b044062bec90c3ed7f8830eaed1a706a75c7e",
+      "observation_sha256": "0eec9f4311685230c6ee41046e3a458b4da583eb69c72b3d276c7841c9417347",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 0"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "ceh",
+          "base_name": "Charged Essense of Hatred",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Charged Essense of Hatred",
+          "quantity": 0,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 2312346506,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "d1aef4017a7d495b8854c346a36d292a96648def0eb39c2c129d4770f241ae63",
+      "observation_sha256": "ff9e941a249e0428ceba7e4b89605d93663af9b636272a5a6c20236a09cb2f00",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 36"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "xa4",
+          "base_name": "Deep Worldstone Shard",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Deep Worldstone Shard",
+          "quantity": 36,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 866596629,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "d4b9b5c372120effe241921ce97971ec3854b198d4bb649bf9db47d5b0c10dcb",
+      "observation_sha256": "48235f94c74aeb4b400f820b0a87ec71b6b7e1e18089a59a430e207320f72c34",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 7"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "pk2",
+          "base_name": "Key of Hate",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Key of Hate",
+          "quantity": 7,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 3164413368,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "d6ad939954944ed5bc79cdcae23fe3a292bddacf53e7ea2667aac73ac85d6222",
+      "observation_sha256": "6de310be4f8c322dc27936a25d012df12463148da6044335f8903b1ad6cc70d7",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 33"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "xa2",
+          "base_name": "Eastern Worldstone Shard",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Eastern Worldstone Shard",
+          "quantity": 33,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 498635988,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "df4637d83dd31b0c4bf3f65a07861a5444c46a8dcc3608cd28d9192335cc24c3",
+      "observation_sha256": "a67f40aacf12da7a190d599ea6bca2eda1aaecdae5f86d1e68120e8c39582219",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 25"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "xa3",
+          "base_name": "Southern Worldstone Shard",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Southern Worldstone Shard",
+          "quantity": 25,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 4220161345,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    },
+    {
+      "fingerprint": "e136662f01e47639ba2c12c6740137160d315bef5901ca788617dfd61ced8361",
+      "observation_sha256": "9b160a3c92d445a700d85df0c33cbd4734f1d56215bde20ed09dd3b217f21c60",
+      "observation": {
+        "appraisal_ready": false,
+        "decoded_stats": [
+          {
+            "name": "stack",
+            "status": "decoded",
+            "text": "Quantity: 5"
+          }
+        ],
+        "issues": [],
+        "item": {
+          "affixes": [],
+          "base_code": "ua1",
+          "base_name": "Uber Ancient Summon Material Act 1",
+          "category": "misc",
+          "empty_sockets": 0,
+          "ethereal": false,
+          "filled_sockets": 0,
+          "identified": true,
+          "item_type": "ques",
+          "name": "Uber Ancient Summon Material Act 1",
+          "quantity": 5,
+          "rarity": "normal",
+          "requirements": {},
+          "socket_contents": "empty",
+          "socket_items": [],
+          "sockets": 0
+        },
+        "offline": true,
+        "review": [
+          "Item title, unique/set/runeword identity, identification flags, socket contents and requirements are unverified.",
+          "Tooltip attack-speed category is not reconstructed; base-type bonuses are labeled separately.",
+          "Values are from the captured total stat array; socket/set contributions are not separated.",
+          "Snapshot evidence is historical; it does not establish current inventory state."
+        ],
+        "source": {
+          "build_sha256": "1e2ac459feb3f4bbfa818cdff49800480502beae9f90cfa4cba9e7e1f8bfa3b7",
+          "captured_at": "2026-10-02T18:08:04.992673+00:00",
+          "container": {
+            "name": "Materials stash",
+            "page": 4
+          },
+          "engine": "memory_snapshot",
+          "item_owner_id": 4294967295,
+          "owner_id": 2943817483,
+          "owner_type": 0,
+          "player_id": 2943817483,
+          "position": [
+            0,
+            0
+          ],
+          "run_id": "20261002T180804Z-bbf88d5f",
+          "snapshot_only": true,
+          "socket_mechanics": "unsocketed_flags_and_complete_stats",
+          "stat_capture_complete": true,
+          "unit_id": 3608484483,
+          "viewer_context": {
+            "level": 93,
+            "player_id": 2943817483
+          }
+        },
+        "status": "needs_review",
+        "unresolved_stats": []
+      }
+    }
+  ]
+}

@@ -27,6 +27,18 @@ AT_LEAST_AS_GOOD = frozenset(('worse', 'equal', 'same'))
 SHOWN_COPIES = 3
 
 
+def multiple_copy_use(result: dict[str, Any]) -> bool:
+    """Charms fill multiple inventory cells; jewels are consumed in socket setups."""
+    item = result.get('extraction', {}).get('item', {})
+    return item.get('base_name', item.get('name')) in {
+        'Small Charm',
+        'Large Charm',
+        'Grand Charm',
+        'Jewel',
+        'Colossal Jewel',
+    }
+
+
 def stat_key(row: dict[str, Any]) -> str | None:
     stats = [row['memory_stat']] if row.get('memory_stat') else row.get('memory_stats', [])
     keys = [f'{s["id"]}:{s["layer"]}' for s in stats if 'id' in s and 'layer' in s]
@@ -240,14 +252,16 @@ def owned_summary(owned: dict[str, Any] | None) -> str | None:
     return f'owned {owned["count"]}: {RELATION_TEXT[owned["relation"]]}'
 
 
-def owned_lines(owned: dict[str, Any] | None) -> list[str]:
+def owned_lines(owned: dict[str, Any] | None, *, comparison_only: bool = False) -> list[str]:
     """Alt+D section: the count, the overall relation, then the closest copies with stat differences."""
     if owned is None:
         return []
     if not owned['count']:
         return [f'Owned: none ({owned["kind"]})']
-    lines = [f'Owned: {owned["count"]} x {owned["kind"]} — {RELATION_TEXT[owned["relation"]]}']
-    if owned['perfection'] is not None:
+    lines = [f'Owned: {owned["count"]} x {owned["kind"]}']
+    if not comparison_only:
+        lines[0] += f' — {RELATION_TEXT[owned["relation"]]}'
+    if not comparison_only and owned['perfection'] is not None:
         lines[0] += f'; rolls {round(owned["perfection"] * 100)}% of max'
     ranked = sorted(owned['copies'], key=lambda c: -(c['perfection'] or 0))
     for copy in ranked[:SHOWN_COPIES]:

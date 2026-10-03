@@ -13,6 +13,7 @@ from pricing.knowledge.assessment.maintenance.guide_inventory import fingerprint
 from pricing.knowledge.assessment.maintenance.inventory import ROOT
 from pricing.knowledge.assessment.maintenance.material_market_review import apply_material_market_reviews
 from pricing.knowledge.assessment.maintenance.potion_market_review import apply_potion_market_reviews
+from pricing.knowledge.assessment.maintenance.quest_material_market_review import apply_quest_material_market_reviews
 from pricing.knowledge.assessment.maintenance.recipe_applicability import apply_recipe_applicability
 from pricing.knowledge.assessment.maintenance.scroll_market_review import apply_scroll_market_reviews
 from pricing.knowledge.assessment.maintenance.stat_dispositions import validate_stat_dispositions
@@ -27,6 +28,7 @@ DIMENSIONS = (
     'stat_desirability',
     'stat_annotations',
     'named_tiers',
+    'trade_qualification',
     'leveling',
     'report',
     'market',
@@ -60,11 +62,20 @@ def build_matrix(
     pattern_reviews=None,
     uses=None,
     table_reviews=None,
+    source_context_reviews=None,
+    hardcore_reviews=None,
     material_market_reviews=None,
     potion_market_reviews=None,
     scroll_market_reviews=None,
+    quest_material_market_reviews=None,
     fixed_jewelry_market_reviews=None,
     variable_jewelry_market_reviews=None,
+    report_reviews=None,
+    report_receipts=None,
+    report_generation=None,
+    report_inputs=None,
+    trade_reviews=None,
+    trade_context=None,
 ):
     validate_stat_bundle(profiles)
     exclusions = validate_stat_dispositions(stat_dispositions, profiles, root=source_root)
@@ -84,7 +95,14 @@ def build_matrix(
         from pricing.knowledge.assessment.maintenance.pattern_collections import compile_collections
 
         collections = compile_collections(
-            pattern_reviews, inventory, profiles['profiles'], uses['uses'], table_reviews, source_root
+            pattern_reviews,
+            inventory,
+            profiles['profiles'],
+            uses['uses'],
+            table_reviews,
+            source_root,
+            context_reviews=source_context_reviews,
+            hardcore_reviews=hardcore_reviews,
         )
     rows = []
     for index, identity in enumerate(identities.values()):
@@ -274,18 +292,35 @@ def build_matrix(
     apply_material_market_reviews(rows, material_market_reviews, source_root)
     apply_potion_market_reviews(rows, potion_market_reviews, source_root)
     apply_scroll_market_reviews(rows, scroll_market_reviews, source_root)
+    apply_quest_material_market_reviews(rows, quest_material_market_reviews, source_root)
     from pricing.knowledge.assessment.maintenance.fixed_jewelry_market_review import apply_reviews
 
     apply_reviews(rows, fixed_jewelry_market_reviews, source_root)
     from pricing.knowledge.assessment.maintenance.variable_jewelry_market_review import apply_reviews as apply_variable
 
     apply_variable(rows, variable_jewelry_market_reviews, source_root)
+    accepted_report_receipts = set()
+    if report_reviews is not None:
+        from pricing.knowledge.assessment.maintenance.report_reviews import apply_report_reviews
+
+        accepted_report_receipts = apply_report_reviews(
+            rows, report_reviews, profiles, report_receipts or {}, report_generation, report_inputs or {}
+        )
+    accepted_trade_receipts = set()
+    if trade_reviews is not None:
+        from pricing.knowledge.assessment.maintenance.trade_reviews import apply_trade_reviews
+
+        if trade_context is None:
+            raise ValueError('Trade reviews require a published execution context')
+        accepted_trade_receipts = apply_trade_reviews(rows, trade_reviews, **trade_context)
     rows.sort(key=lambda r: r['id'])
     if len({r['id'] for r in rows}) != len(rows):
         raise ValueError('Duplicate coverage row')
     dimensions = sorted({key for r in rows for key in r['dimensions']})
     return {
         'schema_version': 1,
+        'report_receipts': sorted(accepted_report_receipts),
+        'trade_receipts': sorted(accepted_trade_receipts),
         'complete': False,
         'limitations': [
             'Identity, base-quality and use-quality rows are separate denominators, not additive item counts.',
@@ -365,6 +400,7 @@ def main():
         'material_market_reviews': ROOT / 'pricing/data/appraisal-material-market-review.json',
         'potion_market_reviews': ROOT / 'pricing/data/appraisal-potion-market-review.json',
         'scroll_market_reviews': ROOT / 'pricing/data/appraisal-scroll-market-review.json',
+        'quest_material_market_reviews': ROOT / 'pricing/data/appraisal-quest-material-market-review.json',
         'fixed_jewelry_market_reviews': ROOT / 'pricing/data/appraisal-fixed-jewelry-market-review.json',
         'variable_jewelry_market_reviews': ROOT / 'pricing/data/appraisal-variable-jewelry-market-review.json',
         'stat_dispositions': ROOT / 'pricing/knowledge/assessment/rules/stat_dispositions.json',
@@ -372,17 +408,40 @@ def main():
         'pattern_reviews': ROOT / 'pricing/knowledge/assessment/rules/pattern_collection_reviews.json',
         'uses': ROOT / 'pricing/knowledge/assessment/rules/guide_use_reviews.json',
         'table_reviews': ROOT / 'pricing/knowledge/assessment/rules/table_equivalence_reviews.json',
+        'source_context_reviews': ROOT / 'pricing/knowledge/assessment/rules/source_context_reviews.json',
+        'hardcore_reviews': ROOT / 'pricing/knowledge/assessment/rules/hardcore_reviews.json',
     }
+    report_path = ROOT / 'pricing/knowledge/assessment/rules/report_reviews.json'
+    if report_path.is_file():
+        paths['report_reviews'] = report_path
+    trade_path = ROOT / 'pricing/knowledge/assessment/rules/trade_qualification_reviews.json'
+    if trade_path.is_file():
+        paths['trade_reviews'] = trade_path
     raw = {key: path.read_bytes() for key, path in paths.items()}
     docs = {key: json.loads(value) for key, value in raw.items()}
     validate_inputs(docs, ROOT)
     from pricing.knowledge.assessment.maintenance.leveling_links import compile_leveling_links
 
-    result = build_matrix(**docs, leveling_links=compile_leveling_links(docs['recommendations']))
+    report_context = {}
+    if 'report_reviews' in docs:
+        from pricing.knowledge.assessment.maintenance.report_reviews import load_review_context
+
+        receipts, generation, inputs = load_review_context(ROOT, docs['report_reviews'], docs['profiles'])
+        report_context = {'report_receipts': receipts, 'report_generation': generation, 'report_inputs': inputs}
+    if 'trade_reviews' in docs:
+        from pricing.knowledge.assessment.maintenance.trade_reviews import load_context
+
+        report_context['trade_context'] = load_context(ROOT, docs['trade_reviews'])
+    result = build_matrix(**docs, **report_context, leveling_links=compile_leveling_links(docs['recommendations']))
     result['sources'] = {
         key: {'path': str(path.relative_to(ROOT)), 'sha256': hashlib.sha256(raw[key]).hexdigest()}
         for key, path in paths.items()
     }
+    for relative in sorted(set(result['report_receipts']) | set(result['trade_receipts'])):
+        result['sources']['receipt:' + relative] = {
+            'path': relative,
+            'sha256': hashlib.sha256((ROOT / relative).read_bytes()).hexdigest(),
+        }
     print(json.dumps(result, indent=2))
 
 

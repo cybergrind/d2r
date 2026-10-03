@@ -185,3 +185,6 @@ class Case:
     report_absent: tuple[str, ...] = ()
     absent_roles: tuple[str, ...] = ()
     detail_contains: tuple[str, ...] = ()
+
+    report_checks: dict | None = None
+    trade_checks: dict | None = None

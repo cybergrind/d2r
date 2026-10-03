@@ -5,6 +5,9 @@ area 70): the true tomb holds 'Act 2 - Tomb Talrasha S' (16x16), and the orifice
 (objects.json 152) stood in it. D2MOO DrlgMaze places the Talrasha room only in the staff tomb
 (so the Orifice is optional: the six false tombs are quiet), and a 'Tomb Prev' room, the way back
 to the Canyon of the Magi, in every tomb.
+
+2026-10-01 (D2MOO DRLGMAZE_PlaceAct2TombStuff, unconfirmed): the boss tomb holds 'Tomb Kaa'
+(Ancient Kaa the Soulless) and every other false tomb a 'Tomb Chest'; both are optional.
 """
 
 from inventory_tracking.levels.handler import Handler, PoiSpec, previous
@@ -18,6 +21,8 @@ HANDLERS = [
         frozenset(range(66, 73)),
         (
             PoiSpec('Orifice', rf'{TOMB} Talrasha [NSEW]', optional=True, family=TOMB),
+            PoiSpec('Ancient Kaa', rf'{TOMB} Kaa [NSEW]', optional=True, family=TOMB),
+            PoiSpec('Chest', rf'{TOMB} Chest [NSEW]', optional=True, family=TOMB),
             previous(TOMB, 'Canyon of the Magi'),
         ),
         confirmed=True,

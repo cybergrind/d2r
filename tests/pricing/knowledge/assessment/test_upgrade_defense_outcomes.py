@@ -33,7 +33,9 @@ def test_guardian_upgrade_uses_captured_ed_with_random_target_base():
 def test_unverified_socket_or_ethereal_outcome_does_not_get_a_defense_range():
     from pricing.knowledge.assessment.mechanics.upgrade_defense import with_defense_outcomes
 
-    result = assess_result(replay('guardian_angel')['extraction'], profiles=[])
+    extraction = replay('guardian_angel')['extraction']
+    extraction['item'].update(sockets=None, socket_contents='unknown', filled_sockets=None, empty_sockets=None)
+    result = assess_result(extraction, profiles=[])
     assert all(path.defense_outcome is None for path in result.upgrades)
     known = assess_result(replay('sazabi_mental_sheath')['extraction'], profiles=[])
     bare = tuple(replace(path, defense_outcome=None) for path in known.upgrades)

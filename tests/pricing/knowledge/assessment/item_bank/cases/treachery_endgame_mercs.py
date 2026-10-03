@@ -10,11 +10,17 @@ from tests.pricing.knowledge.assessment.item_bank.native_runeword import NativeR
 
 
 USES = (
+    ('enchant-sorceress', 0, 'Sorceress', 'Act 1 Fire', 'Mage Plate', True),
+    ('gold-find-barbarian', 0, 'Barbarian', 'Act 2 Might', 'Mage Plate', False),
     ('dream-paladin', 0, 'Paladin', 'Act 2 Might', 'Archon Plate', True),
     ('lightning-fury-amazon-guide', 3, 'Amazon', 'Act 5 Frenzy', 'Mage Plate', True),
     ('lightning-sorceress', 3, 'Sorceress', 'Act 5 Frenzy', 'Archon Plate', False),
     ('lightning-strike-amazon', 2, 'Amazon', 'Act 5 Frenzy', 'Archon Plate', True),
     ('meteor-sorceress', 4, 'Sorceress', 'Act 2 Might', 'Archon Plate', False),
+    ('fire-warlock-guide', 0, 'Warlock', 'Act 2 Might', 'Mage Plate', True),
+    ('nova-sorceress-guide', 0, 'Sorceress', 'Act 2 Holy Freeze', 'Light Plate', True),
+    ('strafe-amazon', 0, 'Amazon', 'Act 2 Might', 'Mage Plate', True),
+    ('summoner-necromancer-guide', 0, 'Necromancer', 'Act 2 Might', 'Breast Plate', True),
 )
 RUNES = tuple(SocketItem(n + ' Rune') for n in ('Shael', 'Thul', 'Lem'))
 
@@ -54,8 +60,13 @@ def cases():
                 ('native', item, context, 'true'),
                 ('nonethereal', replace(item, ethereal=False), context, 'false' if requires_eth else 'true'),
                 ('unknown-ethereal', observation(item, ethereal=None), context, 'unknown'),
-                ('wrong-class', item, dict(context, player_class='Warlock'), 'false'),
-                ('wrong-merc', item, dict(context, mercenary_type='Act 1 Fire'), 'false'),
+                ('wrong-class', item, dict(context, player_class='Assassin'), 'false'),
+                (
+                    'wrong-merc',
+                    item,
+                    dict(context, mercenary_type='Act 2 Might' if merc == 'Act 1 Fire' else 'Act 1 Fire'),
+                    'false',
+                ),
                 ('unknown-merc', item, {k: v for k, v in context.items() if k != 'mercenary_type'}, 'unknown'),
                 ('wrong-recipe', replace(item, socket_items=RUNES[::-1]), context, 'false'),
                 ('empty', replace(item, socket_items=(), socket_contents='empty'), context, 'false'),
@@ -78,16 +89,30 @@ def cases():
                 keys = ['201:17103', '99:0', '43:0']
                 if merc != 'Act 5 Frenzy':
                     keys.append('93:0')
+                if guide == 'gold-find-barbarian':
+                    keys.append('79:0')
                 if truth == 'true':
                     assessment['stat_evaluation'] = IsPartialDict(
                         annotations=IsPartialDict(
-                            {key: IsPartialDict(configuration_ids=Contains(config)) for key in keys}
+                            {
+                                key: IsPartialDict(
+                                    contributions=Contains(
+                                        IsPartialDict(
+                                            configuration_id=config,
+                                            desirability='supporting' if key in ('99:0', '43:0') else 'desirable',
+                                        )
+                                    )
+                                )
+                                for key in keys
+                            }
                         )
                     )
                 expected = {'assessment': IsPartialDict(**assessment)}
                 if bad_identity:
                     expected['extraction'] = IsPartialDict(item=IsPartialDict(runeword=None))
                 excluded = {'83:6': (config,), '198:17807': (config,), '79:0': (config,)}
+                if guide == 'gold-find-barbarian':
+                    del excluded['79:0']
                 if merc == 'Act 5 Frenzy':
                     excluded['93:0'] = (config,)
                 yield Case(
@@ -99,7 +124,16 @@ def cases():
                     expected=expected,
                     absent_configurations=() if truth == 'true' else (config,),
                     absent_stat_configurations=excluded,
-                    report_contains=('Treachery', 'Sockets: 3 — Shael, Thul, Lem', 'Fade') if label == 'native' else (),
+                    report_contains=(
+                        'Treachery',
+                        'Sockets: 3 — Shael, Thul, Lem',
+                        '5% Chance to cast level 15 Fade when struck',
+                        '45% Increased Attack Speed',
+                        '20% Faster Hit Recovery',
+                        'Cold Resist +30%',
+                    )
+                    if label == 'native'
+                    else (),
                     evidence=(
                         'third-parties/d2data/json/runes.json:/Treachery',
                         f'pricing/data/wp-a-builds.json:/{guide}/variants/{variant}',

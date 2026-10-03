@@ -2,6 +2,7 @@
 
 from pricing.knowledge.assessment.mechanics.base_tiers import base_at_tier, base_tier
 from pricing.knowledge.definition_store import catalog
+from pricing.knowledge.market_named_defense import defense_conflict
 
 
 def resolve_equipment_base(row):
@@ -56,6 +57,10 @@ def resolve_equipment_base(row):
         'definition_generation': definitions.generation,
         'catalog_path': 'pricing/data/appraisal-catalog.json',
     }
+    if issue := defense_conflict(row, variants):
+        conflicts = row.setdefault('mechanics_conflicts', [])
+        if issue not in conflicts:
+            conflicts.append(issue)
 
 
 def tier_from_upgrade_flag(original, upgraded):

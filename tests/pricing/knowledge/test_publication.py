@@ -3,7 +3,7 @@ import json
 import pytest
 
 from pricing.knowledge.index import build_index, index_status
-from pricing.knowledge.publication import current_generation, publish
+from pricing.knowledge.publication import current_generation, prune, publish
 
 
 def fixture(tmp_path, value):
@@ -58,3 +58,18 @@ def test_tampered_generation_and_unsafe_pointer_fail_closed(tmp_path):
     (store / 'current.json').write_text('{"generation": "../outside"}')
     with pytest.raises(ValueError, match='generation'):
         current_generation(store)
+
+
+def test_prune_keeps_the_pointer_and_newest_generations(tmp_path):
+    import os
+
+    names = [f'{index:064x}' for index in range(5)]
+    for age, name in enumerate(reversed(names)):  # names[-1] oldest ... names[0] newest
+        (tmp_path / 'generations' / name).mkdir(parents=True)
+        os.utime(tmp_path / 'generations' / name, ns=(age, age))
+    (tmp_path / 'generations' / 'not-a-generation').mkdir()
+    (tmp_path / 'current.json').write_text(json.dumps({'generation': names[4]}))  # pointer on the oldest
+    assert sorted(prune(tmp_path, keep=2)) == sorted(names[2:4])
+    assert sorted(p.name for p in (tmp_path / 'generations').iterdir()) == sorted(
+        [*names[:2], names[4], 'not-a-generation']
+    )

@@ -82,7 +82,7 @@ def cases():
     fixed = ((127, 0, 2), (0, 0, 5), (1, 0, 5), (2, 0, 5), (3, 0, 5))
     for label, rolls, scenario, tier in (
         ('perfect', all_res(30), 'positive', 'high'),
-        ('reviewed-band-boundary', all_res(27), 'positive', 'high'),
+        ('reviewed-band-boundary', all_res(27), 'positive', 'med'),
         ('below-reviewed-band', all_res(26), 'negative', 'med'),
         ('missing-poison-resistance', all_res(30)[:3], 'unknown', 'med'),
     ):

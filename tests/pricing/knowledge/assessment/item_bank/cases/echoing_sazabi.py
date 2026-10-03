@@ -88,7 +88,27 @@ def cases():
                 scenario='positive' if active else 'unknown' if 'unknown' in label else 'negative',
                 absent_configurations=() if active else (role + '-stats',),
                 # Impossible ethereal set identities are rejected by the tier policy.
-                report_contains=() if label == 'impossible-ethereal' else ('Trade tier:',),
+                report_contains=()
+                if label == 'impossible-ethereal'
+                else (
+                    'Trade tier:',
+                    *(
+                        ('    Check: ' + '; '.join(sorted(context['mercenary_items'])),)
+                        if label == 'unknown-companions'
+                        else ()
+                    ),
+                    *(('    Needs: ' + context['mercenary_items'][1],) if label == 'missing-companion' else ()),
+                    *(
+                        ('    Needs: ' + '; '.join(sorted(context['mercenary_items'])),)
+                        if label == 'player-only-companions'
+                        else ()
+                    ),
+                    *(
+                        ('    Setup: ' + '; '.join(sorted(context['mercenary_items'])),)
+                        if label == 'complete-component'
+                        else ()
+                    ),
+                ),
             )
 
 
