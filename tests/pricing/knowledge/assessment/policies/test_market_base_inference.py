@@ -23,7 +23,7 @@ def test_explicit_low_total_uniquely_identifies_original_base(name, total):
         'socket_contents': 'empty',
         'properties': {'1855': total},
     }
-    assert original_base_code(row) == named_definitions()[('set', name)]['base_code']
+    assert original_base_code(row) == named_definitions()['set', name]['base_code']
 
 
 @pytest.mark.parametrize(

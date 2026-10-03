@@ -1,0 +1,1857 @@
+{
+  "validated": false,
+  "atomic_snapshot": false,
+  "snapshot": {
+    "status": "research",
+    "validated": false,
+    "identity": {
+      "pid": 169518,
+      "start_ticks": "381010589"
+    },
+    "table_address": 5400876144,
+    "sample_monotonic": 3722783.905469076,
+    "atomic_snapshot": false,
+    "groups": {
+      "players": {
+        "units": [
+          {
+            "address": 1565970048,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 1353691279,
+            "mode": 0,
+            "data_pointer": 1450953536,
+            "path_pointer": 4198174208,
+            "stats_pointer": 430869136,
+            "inventory_pointer": 1450953248,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 2474732512,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 2474732576,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1566067264,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 2707398942,
+            "mode": 0,
+            "data_pointer": 1450943360,
+            "path_pointer": 4198153232,
+            "stats_pointer": 431437648,
+            "inventory_pointer": 1450943072,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 2474731232,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 2474731296,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1565884032,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 3425418275,
+            "mode": 0,
+            "data_pointer": 1450781904,
+            "path_pointer": 4198186976,
+            "stats_pointer": 430354768,
+            "inventory_pointer": 1450781616,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 2276797360,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 2276797424,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1565917184,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 1656717885,
+            "mode": 0,
+            "data_pointer": 1451037632,
+            "path_pointer": 4198172384,
+            "stats_pointer": 430505168,
+            "inventory_pointer": 1451037344,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 3236881472,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 3236881536,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1566036800,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 3092756551,
+            "mode": 0,
+            "data_pointer": 1450776944,
+            "path_pointer": 4198238960,
+            "stats_pointer": 431452688,
+            "inventory_pointer": 1450963328,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 2276796912,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 2276796976,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1565831616,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 2868775157,
+            "mode": 5,
+            "data_pointer": 1460337024,
+            "path_pointer": 4198221632,
+            "stats_pointer": 430508176,
+            "inventory_pointer": 1456831760,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 12832,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 0,
+                  "raw": 156
+                },
+                {
+                  "layer": 0,
+                  "id": 1,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 2,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 3,
+                  "raw": 279
+                },
+                {
+                  "layer": 0,
+                  "id": 6,
+                  "raw": 458752
+                },
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 271616
+                },
+                {
+                  "layer": 0,
+                  "id": 8,
+                  "raw": 127744
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 40448
+                },
+                {
+                  "layer": 0,
+                  "id": 10,
+                  "raw": 124160
+                },
+                {
+                  "layer": 0,
+                  "id": 11,
+                  "raw": 110592
+                },
+                {
+                  "layer": 0,
+                  "id": 12,
+                  "raw": 93
+                },
+                {
+                  "layer": 0,
+                  "id": 13,
+                  "raw": -2119854663
+                },
+                {
+                  "layer": 0,
+                  "id": 14,
+                  "raw": 47180
+                },
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2241336
+                },
+                {
+                  "layer": 0,
+                  "id": 39,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 41,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 43,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 45,
+                  "raw": 30
+                },
+                {
+                  "layer": 0,
+                  "id": 67,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 328,
+                  "raw": 6106
+                }
+              ],
+              "base_stats_hp_candidate": {
+                "current": 1792.0,
+                "max": 1061.0
+              },
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 0,
+                  "raw": 172
+                },
+                {
+                  "layer": 0,
+                  "id": 1,
+                  "raw": 36
+                },
+                {
+                  "layer": 0,
+                  "id": 2,
+                  "raw": 126
+                },
+                {
+                  "layer": 0,
+                  "id": 3,
+                  "raw": 317
+                },
+                {
+                  "layer": 0,
+                  "id": 6,
+                  "raw": 458752
+                },
+                {
+                  "layer": 0,
+                  "id": 7,
+                  "raw": 458808
+                },
+                {
+                  "layer": 0,
+                  "id": 8,
+                  "raw": 127744
+                },
+                {
+                  "layer": 0,
+                  "id": 9,
+                  "raw": 127769
+                },
+                {
+                  "layer": 0,
+                  "id": 10,
+                  "raw": 124160
+                },
+                {
+                  "layer": 0,
+                  "id": 11,
+                  "raw": 124160
+                },
+                {
+                  "layer": 0,
+                  "id": 12,
+                  "raw": 93
+                },
+                {
+                  "layer": 0,
+                  "id": 13,
+                  "raw": -2119854663
+                },
+                {
+                  "layer": 0,
+                  "id": 14,
+                  "raw": 47180
+                },
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2241336
+                },
+                {
+                  "layer": 0,
+                  "id": 17,
+                  "raw": 41
+                },
+                {
+                  "layer": 0,
+                  "id": 18,
+                  "raw": 41
+                },
+                {
+                  "layer": 0,
+                  "id": 19,
+                  "raw": 72
+                },
+                {
+                  "layer": 0,
+                  "id": 20,
+                  "raw": 22
+                },
+                {
+                  "layer": 0,
+                  "id": 21,
+                  "raw": 4
+                },
+                {
+                  "layer": 0,
+                  "id": 22,
+                  "raw": 27
+                },
+                {
+                  "layer": 0,
+                  "id": 23,
+                  "raw": 3
+                },
+                {
+                  "layer": 0,
+                  "id": 24,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 28,
+                  "raw": 23
+                },
+                {
+                  "layer": 0,
+                  "id": 31,
+                  "raw": 889
+                },
+                {
+                  "layer": 0,
+                  "id": 32,
+                  "raw": 250
+                },
+                {
+                  "layer": 0,
+                  "id": 35,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 36,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 39,
+                  "raw": 179
+                },
+                {
+                  "layer": 0,
+                  "id": 41,
+                  "raw": 179
+                },
+                {
+                  "layer": 0,
+                  "id": 43,
+                  "raw": 189
+                },
+                {
+                  "layer": 0,
+                  "id": 45,
+                  "raw": 195
+                },
+                {
+                  "layer": 0,
+                  "id": 54,
+                  "raw": 3
+                },
+                {
+                  "layer": 0,
+                  "id": 55,
+                  "raw": 14
+                },
+                {
+                  "layer": 0,
+                  "id": 56,
+                  "raw": 75
+                },
+                {
+                  "layer": 0,
+                  "id": 57,
+                  "raw": 128
+                },
+                {
+                  "layer": 0,
+                  "id": 58,
+                  "raw": 128
+                },
+                {
+                  "layer": 0,
+                  "id": 59,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 62,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 67,
+                  "raw": 137
+                },
+                {
+                  "layer": 0,
+                  "id": 68,
+                  "raw": 140
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 130
+                },
+                {
+                  "layer": 0,
+                  "id": 71,
+                  "raw": 67
+                },
+                {
+                  "layer": 0,
+                  "id": 72,
+                  "raw": 282
+                },
+                {
+                  "layer": 0,
+                  "id": 73,
+                  "raw": 282
+                },
+                {
+                  "layer": 0,
+                  "id": 74,
+                  "raw": 24
+                },
+                {
+                  "layer": 0,
+                  "id": 76,
+                  "raw": 18
+                },
+                {
+                  "layer": 0,
+                  "id": 77,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 78,
+                  "raw": 14
+                },
+                {
+                  "layer": 0,
+                  "id": 79,
+                  "raw": 159
+                },
+                {
+                  "layer": 0,
+                  "id": 80,
+                  "raw": 94
+                },
+                {
+                  "layer": 7,
+                  "id": 83,
+                  "raw": 4
+                },
+                {
+                  "layer": 0,
+                  "id": 85,
+                  "raw": 9
+                },
+                {
+                  "layer": 0,
+                  "id": 87,
+                  "raw": 13
+                },
+                {
+                  "layer": 0,
+                  "id": 91,
+                  "raw": -15
+                },
+                {
+                  "layer": 0,
+                  "id": 96,
+                  "raw": 46
+                },
+                {
+                  "layer": 0,
+                  "id": 99,
+                  "raw": 75
+                },
+                {
+                  "layer": 0,
+                  "id": 105,
+                  "raw": 127
+                },
+                {
+                  "layer": 0,
+                  "id": 119,
+                  "raw": 317
+                },
+                {
+                  "layer": 0,
+                  "id": 121,
+                  "raw": 75
+                },
+                {
+                  "layer": 0,
+                  "id": 123,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 127,
+                  "raw": 9
+                },
+                {
+                  "layer": 0,
+                  "id": 147,
+                  "raw": 5
+                },
+                {
+                  "layer": 0,
+                  "id": 150,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 159,
+                  "raw": 3
+                },
+                {
+                  "layer": 0,
+                  "id": 160,
+                  "raw": 2
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                },
+                {
+                  "layer": 16,
+                  "id": 188,
+                  "raw": 2
+                },
+                {
+                  "layer": 57,
+                  "id": 188,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 194,
+                  "raw": 12
+                },
+                {
+                  "layer": 25551,
+                  "id": 198,
+                  "raw": 10
+                },
+                {
+                  "layer": 24778,
+                  "id": 201,
+                  "raw": 2
+                },
+                {
+                  "layer": 16429,
+                  "id": 203,
+                  "raw": -30
+                },
+                {
+                  "layer": 6469,
+                  "id": 204,
+                  "raw": 8224
+                },
+                {
+                  "layer": 14158,
+                  "id": 204,
+                  "raw": 15420
+                },
+                {
+                  "layer": 14468,
+                  "id": 204,
+                  "raw": 6425
+                },
+                {
+                  "layer": 17795,
+                  "id": 204,
+                  "raw": 2827
+                },
+                {
+                  "layer": 0,
+                  "id": 326,
+                  "raw": 1
+                },
+                {
+                  "layer": 0,
+                  "id": 328,
+                  "raw": 6106
+                },
+                {
+                  "layer": 0,
+                  "id": 332,
+                  "raw": 25
+                },
+                {
+                  "layer": 16429,
+                  "id": 342,
+                  "raw": 110
+                },
+                {
+                  "layer": 16429,
+                  "id": 343,
+                  "raw": 81
+                },
+                {
+                  "layer": 16429,
+                  "id": 344,
+                  "raw": 27
+                },
+                {
+                  "layer": 0,
+                  "id": 349,
+                  "raw": 63
+                },
+                {
+                  "layer": 0,
+                  "id": 350,
+                  "raw": 2292
+                },
+                {
+                  "layer": 0,
+                  "id": 351,
+                  "raw": 119
+                },
+                {
+                  "layer": 0,
+                  "id": 357,
+                  "raw": 20
+                },
+                {
+                  "layer": 0,
+                  "id": 358,
+                  "raw": 10
+                },
+                {
+                  "layer": 0,
+                  "id": 361,
+                  "raw": 47360
+                },
+                {
+                  "layer": 0,
+                  "id": 362,
+                  "raw": 47360
+                }
+              ],
+              "full_stats_hp_candidate": {
+                "current": 1792.0,
+                "max": 1792.21875
+              },
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 3406588688,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 0,
+                      "raw": 156
+                    },
+                    {
+                      "layer": 0,
+                      "id": 1,
+                      "raw": 20
+                    },
+                    {
+                      "layer": 0,
+                      "id": 2,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 3,
+                      "raw": 279
+                    },
+                    {
+                      "layer": 0,
+                      "id": 6,
+                      "raw": 458752
+                    },
+                    {
+                      "layer": 0,
+                      "id": 7,
+                      "raw": 271616
+                    },
+                    {
+                      "layer": 0,
+                      "id": 8,
+                      "raw": 127744
+                    },
+                    {
+                      "layer": 0,
+                      "id": 9,
+                      "raw": 40448
+                    },
+                    {
+                      "layer": 0,
+                      "id": 10,
+                      "raw": 124160
+                    },
+                    {
+                      "layer": 0,
+                      "id": 11,
+                      "raw": 110592
+                    },
+                    {
+                      "layer": 0,
+                      "id": 12,
+                      "raw": 93
+                    },
+                    {
+                      "layer": 0,
+                      "id": 13,
+                      "raw": -2119854663
+                    },
+                    {
+                      "layer": 0,
+                      "id": 14,
+                      "raw": 47180
+                    },
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2241336
+                    },
+                    {
+                      "layer": 0,
+                      "id": 39,
+                      "raw": 30
+                    },
+                    {
+                      "layer": 0,
+                      "id": 41,
+                      "raw": 30
+                    },
+                    {
+                      "layer": 0,
+                      "id": 43,
+                      "raw": 30
+                    },
+                    {
+                      "layer": 0,
+                      "id": 45,
+                      "raw": 30
+                    },
+                    {
+                      "layer": 0,
+                      "id": 67,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 68,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 328,
+                      "raw": 6106
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 4214691280,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 0,
+                      "raw": 172
+                    },
+                    {
+                      "layer": 0,
+                      "id": 1,
+                      "raw": 36
+                    },
+                    {
+                      "layer": 0,
+                      "id": 2,
+                      "raw": 126
+                    },
+                    {
+                      "layer": 0,
+                      "id": 3,
+                      "raw": 317
+                    },
+                    {
+                      "layer": 0,
+                      "id": 6,
+                      "raw": 458752
+                    },
+                    {
+                      "layer": 0,
+                      "id": 7,
+                      "raw": 458808
+                    },
+                    {
+                      "layer": 0,
+                      "id": 8,
+                      "raw": 127744
+                    },
+                    {
+                      "layer": 0,
+                      "id": 9,
+                      "raw": 127769
+                    },
+                    {
+                      "layer": 0,
+                      "id": 10,
+                      "raw": 124160
+                    },
+                    {
+                      "layer": 0,
+                      "id": 11,
+                      "raw": 124160
+                    },
+                    {
+                      "layer": 0,
+                      "id": 12,
+                      "raw": 93
+                    },
+                    {
+                      "layer": 0,
+                      "id": 13,
+                      "raw": -2119854663
+                    },
+                    {
+                      "layer": 0,
+                      "id": 14,
+                      "raw": 47180
+                    },
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2241336
+                    },
+                    {
+                      "layer": 0,
+                      "id": 17,
+                      "raw": 41
+                    },
+                    {
+                      "layer": 0,
+                      "id": 18,
+                      "raw": 41
+                    },
+                    {
+                      "layer": 0,
+                      "id": 19,
+                      "raw": 72
+                    },
+                    {
+                      "layer": 0,
+                      "id": 20,
+                      "raw": 22
+                    },
+                    {
+                      "layer": 0,
+                      "id": 21,
+                      "raw": 4
+                    },
+                    {
+                      "layer": 0,
+                      "id": 22,
+                      "raw": 27
+                    },
+                    {
+                      "layer": 0,
+                      "id": 23,
+                      "raw": 3
+                    },
+                    {
+                      "layer": 0,
+                      "id": 24,
+                      "raw": 2
+                    },
+                    {
+                      "layer": 0,
+                      "id": 28,
+                      "raw": 23
+                    },
+                    {
+                      "layer": 0,
+                      "id": 31,
+                      "raw": 889
+                    },
+                    {
+                      "layer": 0,
+                      "id": 32,
+                      "raw": 250
+                    },
+                    {
+                      "layer": 0,
+                      "id": 35,
+                      "raw": 1
+                    },
+                    {
+                      "layer": 0,
+                      "id": 36,
+                      "raw": 10
+                    },
+                    {
+                      "layer": 0,
+                      "id": 39,
+                      "raw": 179
+                    },
+                    {
+                      "layer": 0,
+                      "id": 41,
+                      "raw": 179
+                    },
+                    {
+                      "layer": 0,
+                      "id": 43,
+                      "raw": 189
+                    },
+                    {
+                      "layer": 0,
+                      "id": 45,
+                      "raw": 195
+                    },
+                    {
+                      "layer": 0,
+                      "id": 54,
+                      "raw": 3
+                    },
+                    {
+                      "layer": 0,
+                      "id": 55,
+                      "raw": 14
+                    },
+                    {
+                      "layer": 0,
+                      "id": 56,
+                      "raw": 75
+                    },
+                    {
+                      "layer": 0,
+                      "id": 57,
+                      "raw": 128
+                    },
+                    {
+                      "layer": 0,
+                      "id": 58,
+                      "raw": 128
+                    },
+                    {
+                      "layer": 0,
+                      "id": 59,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 62,
+                      "raw": 10
+                    },
+                    {
+                      "layer": 0,
+                      "id": 67,
+                      "raw": 137
+                    },
+                    {
+                      "layer": 0,
+                      "id": 68,
+                      "raw": 140
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 130
+                    },
+                    {
+                      "layer": 0,
+                      "id": 71,
+                      "raw": 67
+                    },
+                    {
+                      "layer": 0,
+                      "id": 72,
+                      "raw": 282
+                    },
+                    {
+                      "layer": 0,
+                      "id": 73,
+                      "raw": 282
+                    },
+                    {
+                      "layer": 0,
+                      "id": 74,
+                      "raw": 24
+                    },
+                    {
+                      "layer": 0,
+                      "id": 76,
+                      "raw": 18
+                    },
+                    {
+                      "layer": 0,
+                      "id": 77,
+                      "raw": 20
+                    },
+                    {
+                      "layer": 0,
+                      "id": 78,
+                      "raw": 14
+                    },
+                    {
+                      "layer": 0,
+                      "id": 79,
+                      "raw": 159
+                    },
+                    {
+                      "layer": 0,
+                      "id": 80,
+                      "raw": 94
+                    },
+                    {
+                      "layer": 7,
+                      "id": 83,
+                      "raw": 4
+                    },
+                    {
+                      "layer": 0,
+                      "id": 85,
+                      "raw": 9
+                    },
+                    {
+                      "layer": 0,
+                      "id": 87,
+                      "raw": 13
+                    },
+                    {
+                      "layer": 0,
+                      "id": 91,
+                      "raw": -15
+                    },
+                    {
+                      "layer": 0,
+                      "id": 96,
+                      "raw": 46
+                    },
+                    {
+                      "layer": 0,
+                      "id": 99,
+                      "raw": 75
+                    },
+                    {
+                      "layer": 0,
+                      "id": 105,
+                      "raw": 127
+                    },
+                    {
+                      "layer": 0,
+                      "id": 119,
+                      "raw": 317
+                    },
+                    {
+                      "layer": 0,
+                      "id": 121,
+                      "raw": 75
+                    },
+                    {
+                      "layer": 0,
+                      "id": 123,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 127,
+                      "raw": 9
+                    },
+                    {
+                      "layer": 0,
+                      "id": 147,
+                      "raw": 5
+                    },
+                    {
+                      "layer": 0,
+                      "id": 150,
+                      "raw": 10
+                    },
+                    {
+                      "layer": 0,
+                      "id": 159,
+                      "raw": 3
+                    },
+                    {
+                      "layer": 0,
+                      "id": 160,
+                      "raw": 2
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    },
+                    {
+                      "layer": 16,
+                      "id": 188,
+                      "raw": 2
+                    },
+                    {
+                      "layer": 57,
+                      "id": 188,
+                      "raw": 1
+                    },
+                    {
+                      "layer": 0,
+                      "id": 194,
+                      "raw": 12
+                    },
+                    {
+                      "layer": 25551,
+                      "id": 198,
+                      "raw": 10
+                    },
+                    {
+                      "layer": 24778,
+                      "id": 201,
+                      "raw": 2
+                    },
+                    {
+                      "layer": 16429,
+                      "id": 203,
+                      "raw": -30
+                    },
+                    {
+                      "layer": 6469,
+                      "id": 204,
+                      "raw": 8224
+                    },
+                    {
+                      "layer": 14158,
+                      "id": 204,
+                      "raw": 15420
+                    },
+                    {
+                      "layer": 14468,
+                      "id": 204,
+                      "raw": 6425
+                    },
+                    {
+                      "layer": 17795,
+                      "id": 204,
+                      "raw": 2827
+                    },
+                    {
+                      "layer": 0,
+                      "id": 326,
+                      "raw": 1
+                    },
+                    {
+                      "layer": 0,
+                      "id": 328,
+                      "raw": 6106
+                    },
+                    {
+                      "layer": 0,
+                      "id": 332,
+                      "raw": 25
+                    },
+                    {
+                      "layer": 16429,
+                      "id": 342,
+                      "raw": 110
+                    },
+                    {
+                      "layer": 16429,
+                      "id": 343,
+                      "raw": 81
+                    },
+                    {
+                      "layer": 16429,
+                      "id": 344,
+                      "raw": 27
+                    },
+                    {
+                      "layer": 0,
+                      "id": 349,
+                      "raw": 63
+                    },
+                    {
+                      "layer": 0,
+                      "id": 350,
+                      "raw": 2292
+                    },
+                    {
+                      "layer": 0,
+                      "id": 351,
+                      "raw": 119
+                    },
+                    {
+                      "layer": 0,
+                      "id": 357,
+                      "raw": 20
+                    },
+                    {
+                      "layer": 0,
+                      "id": 358,
+                      "raw": 10
+                    },
+                    {
+                      "layer": 0,
+                      "id": 361,
+                      "raw": 47360
+                    },
+                    {
+                      "layer": 0,
+                      "id": 362,
+                      "raw": 47360
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 312,
+                  "array_address": 2878443584,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 57,
+                      "raw": 128
+                    },
+                    {
+                      "layer": 0,
+                      "id": 58,
+                      "raw": 128
+                    },
+                    {
+                      "layer": 0,
+                      "id": 59,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 326,
+                      "raw": 1
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          },
+          {
+            "address": 1565763072,
+            "type": 0,
+            "txt_id": 7,
+            "unit_id": 3313435770,
+            "mode": 0,
+            "data_pointer": 1460338256,
+            "path_pointer": 4198213424,
+            "stats_pointer": 431332368,
+            "inventory_pointer": 1460337968,
+            "next_pointer": 0,
+            "details": {
+              "name": "CybergrindAA",
+              "inventory_marker_30": 7,
+              "inventory_marker_70": 0,
+              "base_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                }
+              ],
+              "full_stats": [
+                {
+                  "layer": 0,
+                  "id": 15,
+                  "raw": 2500000
+                },
+                {
+                  "layer": 0,
+                  "id": 69,
+                  "raw": 100
+                },
+                {
+                  "layer": 0,
+                  "id": 172,
+                  "raw": 2
+                }
+              ],
+              "stat_array_candidates": [
+                {
+                  "header_offset": 48,
+                  "array_address": 3236880512,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    }
+                  ]
+                },
+                {
+                  "header_offset": 232,
+                  "array_address": 3236880576,
+                  "stats": [
+                    {
+                      "layer": 0,
+                      "id": 15,
+                      "raw": 2500000
+                    },
+                    {
+                      "layer": 0,
+                      "id": 69,
+                      "raw": 100
+                    },
+                    {
+                      "layer": 0,
+                      "id": 172,
+                      "raw": 2
+                    }
+                  ]
+                }
+              ]
+            },
+            "identity_stable": true
+          }
+        ],
+        "errors": [],
+        "complete": true,
+        "heads_stable": true
+      },
+      "items": {
+        "units": [
+          {
+            "address": 1566114304,
+            "type": 4,
+            "txt_id": 682,
+            "unit_id": 1776519725,
+            "mode": 0,
+            "data_pointer": 1456097472,
+            "path_pointer": 1452765376,
+            "stats_pointer": 712181072,
+            "inventory_pointer": 0,
+            "next_pointer": 1566108032,
+            "details": {
+              "quality": 2,
+              "owner_id": 4294967295,
+              "inventory_page": 4,
+              "body_location": 0,
+              "x": 0,
+              "y": 0
+            },
+            "identity_stable": true
+          }
+        ],
+        "errors": [],
+        "complete": true,
+        "heads_stable": true
+      }
+    },
+    "sample_finished_monotonic": 3722783.913241986,
+    "mappings_stable": true,
+    "bytes_requested": 463624
+  },
+  "after": {
+    "validated": false,
+    "stable": true,
+    "anchors": [
+      {
+        "address": 5401106320,
+        "before_hex": "401cbb3800000000",
+        "after_hex": "401cbb3800000000"
+      },
+      {
+        "address": 951786768,
+        "before_hex": "8012bc3800000000",
+        "after_hex": "8012bc3800000000"
+      },
+      {
+        "address": 951849976,
+        "before_hex": "d090cc3800000000",
+        "after_hex": "d090cc3800000000"
+      },
+      {
+        "address": 951850000,
+        "before_hex": "0000000000000000",
+        "after_hex": "0000000000000000"
+      }
+    ],
+    "widgets": {
+      "mouse": {
+        "address": 952930512,
+        "vtable": 5392904072,
+        "vtable_in_image": true,
+        "methods": {
+          "0x58": 5370937392,
+          "0x90": 5370552688,
+          "0xb8": 5370552688,
+          "0xc0": 5370940256,
+          "0xf0": 5370730496,
+          "0xf8": 5370940608,
+          "0x100": 5370941264,
+          "0x110": 5370736272
+        },
+        "bytes_stable": true,
+        "vtable_stable": true
+      },
+      "controller": null
+    },
+    "errors": [],
+    "manager": 951786560,
+    "context": 951849600,
+    "native": {
+      "blocks": [
+        {
+          "address": 5400992845,
+          "label": "mouse_gate_and_position",
+          "raw_hex": "000000d202000060010000",
+          "after_hex": "000000d202000060010000"
+        },
+        {
+          "address": 5400993612,
+          "label": "carried_item_state",
+          "raw_hex": "000000000000000000000000",
+          "after_hex": "000000000000000000000000"
+        },
+        {
+          "address": 952930512,
+          "label": "mouse_widget",
+          "raw_hex": "882f714101000000f090cc380000000003000000000000000f0000000000008075613400000000000000000000000000605ecc380000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000005a030000e800000062000000c40000000000803f000000007091cc380000000000000000000000000f000000000000800085cc380000000000000000000000000000000024000000f0000000f0000000f0000000ff000000ff000000ff000000ff000000ff00000001000000010000000000803f0000803f0200000000000000ffffffff00010000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000000000ff000000000000000000000000000000010000000200000008000000140000000c000000140000000c000000070000000100000007000000010000000100000000000000940000009400000094000000ff0000000000000000000000000000000000403f0000000000000000000000009a99193f000000000000803e0000003f0000803f52b89e3e00000000000000000000803f2731883e2731883e2731883e0000803f01000000000000000000000000000000f0000000f0000000f0000000ff000000c7000000b300000077000000ff000000ff000000ff00000064000000ff000000ff000000a800000000000000ff000000000000008000000000000000ff0000006e0000006e000000ff000000ff00000000000000fc00000000000000ff000000c7000000b300000077000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000630000006300000063000000ff000000630000006300000063000000ff000000ff000000a800000000000000ff000000ff000000a800000000000000ff0000009a00000048000000fc000000ff0000000000000001000000f893cc380000000000000000000000000f00000000000080000000000100000007000000010000002094cc380000000000000000000000000f000000000000800000000000000000000000000000403f00000000000000005094cc380000000000000000000000000f0000000000008000b89e3e00000000000000000000803f0031883e010000008094cc380000000000000000000000000f0000000000008000000000f0000000f0000000ff0000000000000002000000b094cc380000000000000000000000000f0000000000008000000000a800000000000000ff0000000000000003000000e094cc380000000000000000000000000f0000000000008000000000fc00000000000000ff00000000000000040000001095cc380000000000000000000000000f0000000000008000000000f0000000f0000000ff000000000000000500000000000000ff0000004895cc380000000000000000000000000f0000000000008000000000ff00000063000000630000007095cc380000000000000000000000000f0000000000008000000000a800000000000000ff0000009895cc380000000000000000000000000f000000000000800095cc38000000000000000000000000c095cc380000000000000000000000000f000000000000800095cc38000000000000000000000000e895cc380000000000000000000000000f0000000000008000000000000000000896cc3800000000000000000000000000000000000000000000000000000000000000000000000000000000010000004058ca38000000004096cc380000000000000000000000000f00000000000080000000000000000000000000020000006896cc380000000000000000000000000f00000000000080000000000000000000000000000000000000000000000000000000000000000062000000620000000000000023bc2bcc00000000000000000000000000000000c096cc380000000003000000000000000f00000000000080756134000000008000ea724101000000c04c535d000000000002595d00000000cdcc4c3e00000080e0307141010000000897cc380000000009000000000000000f00000000000080636f756e745465787400cc3800000000d090cc38000000000000000000000000000000000000000000000000000000000101013800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000803f000000008897cc380000000001000000000000000f000000000000803100cc380000000000000000000000000e0000000000000018000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff00000002000000020000000000803f",
+          "after_hex": "882f714101000000f090cc380000000003000000000000000f0000000000008075613400000000000000000000000000605ecc380000000000000000000000000000000000000000000000000000000001010000000000000000000000000000000000000000000000000000000000005a030000e800000062000000c40000000000803f000000007091cc380000000000000000000000000f000000000000800085cc380000000000000000000000000000000024000000f0000000f0000000f0000000ff000000ff000000ff000000ff000000ff00000001000000010000000000803f0000803f0200000000000000ffffffff00010000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c8000000000000000000000000000000ff000000000000000000000000000000010000000200000008000000140000000c000000140000000c000000070000000100000007000000010000000100000000000000940000009400000094000000ff0000000000000000000000000000000000403f0000000000000000000000009a99193f000000000000803e0000003f0000803f52b89e3e00000000000000000000803f2731883e2731883e2731883e0000803f01000000000000000000000000000000f0000000f0000000f0000000ff000000c7000000b300000077000000ff000000ff000000ff00000064000000ff000000ff000000a800000000000000ff000000000000008000000000000000ff0000006e0000006e000000ff000000ff00000000000000fc00000000000000ff000000c7000000b300000077000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000f0000000f0000000f0000000ff000000630000006300000063000000ff000000630000006300000063000000ff000000ff000000a800000000000000ff000000ff000000a800000000000000ff0000009a00000048000000fc000000ff0000000000000001000000f893cc380000000000000000000000000f00000000000080000000000100000007000000010000002094cc380000000000000000000000000f000000000000800000000000000000000000000000403f00000000000000005094cc380000000000000000000000000f0000000000008000b89e3e00000000000000000000803f0031883e010000008094cc380000000000000000000000000f0000000000008000000000f0000000f0000000ff0000000000000002000000b094cc380000000000000000000000000f0000000000008000000000a800000000000000ff0000000000000003000000e094cc380000000000000000000000000f0000000000008000000000fc00000000000000ff00000000000000040000001095cc380000000000000000000000000f0000000000008000000000f0000000f0000000ff000000000000000500000000000000ff0000004895cc380000000000000000000000000f0000000000008000000000ff00000063000000630000007095cc380000000000000000000000000f0000000000008000000000a800000000000000ff0000009895cc380000000000000000000000000f000000000000800095cc38000000000000000000000000c095cc380000000000000000000000000f000000000000800095cc38000000000000000000000000e895cc380000000000000000000000000f0000000000008000000000000000000896cc3800000000000000000000000000000000000000000000000000000000000000000000000000000000010000004058ca38000000004096cc380000000000000000000000000f00000000000080000000000000000000000000020000006896cc380000000000000000000000000f00000000000080000000000000000000000000000000000000000000000000000000000000000062000000620000000000000023bc2bcc00000000000000000000000000000000c096cc380000000003000000000000000f00000000000080756134000000008000ea724101000000c04c535d000000000002595d00000000cdcc4c3e00000080e0307141010000000897cc380000000009000000000000000f00000000000080636f756e745465787400cc3800000000d090cc38000000000000000000000000000000000000000000000000000000000101013800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000803f000000008897cc380000000001000000000000000f000000000000803100cc380000000000000000000000000e0000000000000018000000ff000000ff000000ff000000ff000000ff000000ff000000ff000000ff00000002000000020000000000803f"
+        },
+        {
+          "address": 952917600,
+          "label": "mouse_parent",
+          "raw_hex": "30ea724101000000102505e4000000001700000000000000170000000000000000000000f0000000f0000000ff0000004058ca380000000000000000000000000000000000000000000000000000000001010000f0000000105f0ccb0000000017000000000000001c00000000000000000000000000000000000000000000000000803f000000004808000000000000",
+          "after_hex": "30ea724101000000102505e4000000001700000000000000170000000000000000000000f0000000f0000000ff0000004058ca380000000000000000000000000000000000000000000000000000000001010000f0000000105f0ccb0000000017000000000000001c00000000000000000000000000000000000000000000000000803f000000004808000000000000"
+        },
+        {
+          "address": 952784960,
+          "label": "mouse_parent",
+          "raw_hex": "e811714101000000a038a1f5000000001300000000000000160000000000000000656d706c61746547656d0001000000401cbb380000000000000000000000000000000000000000000000009643cb3e0101000000000080b029f187000000000c000000000000000d00000000000000ec00000075fdffff8a040000e30500000000803f000000000500000000000000",
+          "after_hex": "e811714101000000a038a1f5000000001300000000000000160000000000000000656d706c61746547656d0001000000401cbb380000000000000000000000000000000000000000000000009643cb3e0101000000000080b029f187000000000c000000000000000d00000000000000ec00000075fdffff8a040000e30500000000803f000000000500000000000000"
+        },
+        {
+          "address": 951786560,
+          "label": "mouse_parent",
+          "raw_hex": "9813734101000000601cbb38000000000c000000000000000f0000000000008050616e656c4d616e616765720000000000000000000000000000000000000000000000000000000000000000000000000101000000000000c07cfa88000000001f000000000000002a000000000000000000000000000000400f000070080000cf95273f00000000e0abd97900000000",
+          "after_hex": "9813734101000000601cbb38000000000c000000000000000f0000000000008050616e656c4d616e616765720000000000000000000000000000000000000000000000000000000000000000000000000101000000000000c07cfa88000000001f000000000000002a000000000000000000000000000000400f000070080000cf95273f00000000e0abd97900000000"
+        },
+        {
+          "address": 1565884032,
+          "label": "mouse_owner",
+          "raw_hex": "000000000700000023bc2bcc00000000d02c795600000000000000000000000000000000000000005f93c66a00000000149a732400000000e03f3bfa0000000000000000000000000000000000000000000000000000000000000000001a0000201a0000001b000000000000000000001c1c3b64000000006029fa2a00000000000000000000000050b1a61900000000b02b7956000000000000000000000000000000000000000080a7cf8d00000000",
+          "after_hex": "000000000700000023bc2bcc00000000d02c795600000000000000000000000000000000000000005f93c66a00000000149a732400000000e03f3bfa0000000000000000000000000000000000000000000000000000000000000000001a0000201a0000001b000000000000000000001c1c3b64000000006029fa2a00000000000000000000000050b1a61900000000b02b7956000000000000000000000000000000000000000080a7cf8d00000000"
+        },
+        {
+          "address": 1450781616,
+          "label": "mouse_inventory_90",
+          "raw_hex": "0403020100000000807e555d00000000806f575d00000000a0a871e000000000a0c4aae4000000000700000000000000070000000000000000000000000000000000000000000000",
+          "after_hex": "0403020100000000807e555d00000000806f575d00000000a0a871e000000000a0c4aae4000000000700000000000000070000000000000000000000000000000000000000000000"
+        }
+      ],
+      "owners": [
+        {
+          "address": 1565884032,
+          "type": 0,
+          "unit_id": 3425418275
+        }
+      ],
+      "errors": [],
+      "validated": false,
+      "stable": true
+    },
+    "mouse_position_hex": "000000d202000060010000",
+    "mappings_stable": true,
+    "process_stable": true,
+    "started_monotonic": 3722783.931665858,
+    "finished_monotonic": 3722783.943667137,
+    "identity": {
+      "pid": 169518,
+      "start_ticks": "381010589"
+    }
+  },
+  "ui_path_stable": true,
+  "note": "Path stability is not item selection or ownership validation; raw records require comparison.",
+  "fixture_projection": {
+    "source": "inventory_tracking/runs/alt-d/20261003T202202Z-82a8f89c/request-16/panel-diagnostics.json",
+    "note": "Initial snapshot; retained selected item and full player records. Widget/native bytes unchanged."
+  }
+}

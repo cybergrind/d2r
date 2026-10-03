@@ -389,8 +389,8 @@ def test_auto_disabled_keeps_the_manual_lease(watcher):
 
 
 def test_triage_shop_only_shows_sell_slow_and_self(monkeypatch):
-    from inventory_tracking.shop import service
     from inventory_tracking.presentation import Tone
+    from inventory_tracking.shop import service
 
     observations = [
         {'item': {'name': name}, 'vendor': 'Anya', 'source': {'position': [0, 0], 'container': {'page': 0}}}

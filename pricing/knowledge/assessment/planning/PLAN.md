@@ -118,11 +118,16 @@ Asks are asks; where diablo2.io fills exist they are shown next to the band.
 
 Computed per band from data a guest can pull:
 
-- **liquid**: at least 10 priced sellers, and the newest 50 listings span less than about two weeks;
-- **thin**: 3–9 priced sellers, or listings spread over a long period;
+- **liquid**: at least 10 independent priced sellers with a listing updated within 14 days
+  of the cohort evidence date;
+- **thin**: at least 3 priced sellers, but fewer than 10 establish recent activity;
 - **none**: fewer than 3 priced sellers.
 
-The exact cut-offs are calibrated against the user's labels (section 5), not argued in documents.
+The activity rule is provisional pending the user's labels (section 5). The Steering 2 audit
+found that old inventory and undated rows incorrectly vetoed independently dated activity.
+Unknown/future dates cannot establish activity; fetching old listings today cannot either.
+Keep the newest-50 span as a diagnostic, not a veto. Historical bands describe activity at
+their evidence date and retain the stale marker.
 The weekly page-0 pull gives a second signal over time: how many of last week's listings are gone.
 Guide demand (number of builds that name the item) is shown as a hint next to the class; it
 does not change the class.
@@ -263,7 +268,117 @@ or describe this copy as below every listed roll. The validation requirement abo
 
 ## 4. Work packages
 
-### Steering (progress check, 2026-10-03 afternoon) — takes precedence over the order below
+### Steering 3 (progress check, 2026-10-04 02:00) — takes precedence over everything below
+
+Done since Steering 2: every observed type routes to triage (185 routes); explained VENDOR
+corrections and the liquidity audit are written; live identify passes of six and four items
+took 91 ms and 308 ms with triage lookups of 2–9 ms (speed target met when warm; cold start
+after a restart is still about 18 s of background warm-up). Listing attention 52.2% → 57.9%.
+Corpus (746 items): 446 VENDOR / 203 CHECK / 95 slow / 24 SELL. Labels: 1. `own.json`: empty.
+
+1. **CHECK has become the catch-all for named items — cut it.** 178 of the 333 unique and set
+   drops are CHECK (53%); before Steering 2 it was 8. Steering 2 item 2 ("no exact cohort →
+   CHECK, never VENDOR") was too blunt and is replaced by this ladder, applied in order:
+   - exact variant cohort with at least three sellers → its Q1 decides (as now);
+   - otherwise drop the socket facet, then the base facet, keeping ethereal status; the first
+     level with at least three sellers decides SELL / slow / VENDOR. Rockstopper has 31
+     sellers at Q1 0.39 Ist and must not end as "no priced listings matching base, ethereal
+     status and sockets" (57 drops end there today);
+   - if only the name band has three sellers and its Q1 is under the keep price, and the drop
+     is not an ethereal or socketed copy of an item whose ethereal/socketed cohort asks more
+     → VENDOR. 87 of the 178 are in this group (Death's Touch 0.10 Ist, 10 sellers);
+   - CHECK remains only for: fewer than three sellers at every level, a reference at or above
+     the keep price that cannot be placed, or a capture that lacks a flag the price depends on.
+   A complete paid-roll pattern on a liquid item is a price verdict, not CHECK (six Harlequin
+   Crest drops, 30 sellers, Q1 0.67 Ist, are CHECK today).
+   Target: at most 15% of named corpus drops are CHECK. The score report prints the CHECK
+   share per rarity; a change that raises it is explained.
+2. **Bands are over-split.** 15,927 of 19,566 bands have one or two sellers. Build coarse to
+   fine: split a cohort by a facet (sockets, base, roll bucket) only when each part keeps at
+   least three sellers and the Q1 values differ by 1.5× or more; ethereal is always split.
+   Otherwise the merged cohort is the band. This removes most "none" bands and most of the
+   CHECKs in item 1 at the source.
+3. **Stop the micro-batches.** About twenty rule batches since Steering 2 each recovered
+   20–110 listings and together moved attention by under six points; each added tests, a
+   replay log and a status paragraph (287 `tmp/triage-*` artifacts). Remaining misses:
+   bases 4,742, rares 4,160, magic 1,155, uniques 1,154, runewords 855. From now on a rule
+   batch is taken from one miss-cause table per category, sorted by distinct sellers, and is
+   worth doing only when it recovers at least 300 valuable listings or fixes a corpus drop.
+4. **Count sellers, not listings.** 419 of 513 rejected rare-amulet listings come from two
+   sellers. Listing recall and the cheap-flag rates are reported with one vote per seller per
+   cohort or pattern; the section 5 targets apply to that figure. The per-listing figure stays
+   as a secondary line.
+5. **Bases: settle the missing socket property with data, once.** 1,585 valuable base listings
+   carry no socket property. Compare their asks, per base, with listings that state 0 sockets
+   and with those that state the usual runeword count; adopt whichever they match and record
+   the result in the table. If neither, they stay excluded and the base target is measured
+   without them.
+6. **Fill `own.json` in one pass** from `guides/warlock.html` §0–§1 and the mercenary section
+   (scope: Echoing Strike Warlock and its mercenary, the default until the user says
+   otherwise). SELF-USE has never been shown.
+7. **Section 8 is rewritten, not appended.** It is 340 lines of per-batch narrative. Replace it
+   with at most 30 lines: current numbers, live-run facts, next three steps. History is in git.
+   No status paragraph, replay log file or evidence file per batch.
+8. Open rates to bring inside limits after items 1–4: cheap CHECK 29.7% (limit 25%), cheap
+   SELL/slow 10.14% (limit 10%, 14 listings, audited as gem-paid asks — leave as measured).
+
+Order: 1 → 2 → 7 → 4 → 5 → 6 → 3.
+
+User actions outstanding: label the dispute page (`inventory_tracking/corpus/data/label.html`,
+one label so far); skim `inventory_tracking/corpus/data/vendor-corrections.md`.
+
+### Steering 2 (progress check, 2026-10-03 19:00) — items 1, 3, 4, 6 done; item 2 replaced by Steering 3 item 1
+
+Measured since the afternoon check: listing attention 37.8% → 52.2% (SELL/slow 41.8%); bases
+0.05% → 17.9%, rares 0% → 35.3% (all CHECK), magic 4% → 33.9%, runewords 35% → 69%; uniques
+91% → 79% and sets 93% → 71% after listings were made to arrive like drops (the earlier figures
+were inflated). Twelve types live, all niche (charms, jewels, rare boots, unique jewels/charms,
+set sceptres, Amazon spears, magic Barbarian helms). Named drops: 109 "attention losses" against
+legacy. Nothing has been verified in the running game.
+
+1. **Legacy is not the truth: an evidence-backed VENDOR is a correction, not a loss.** Of the
+   109 losses, 67 have real asks under the keep price (Vidala's Snare Q1 0.12 Ist, 6 sellers;
+   Iratha's Collar 0.10 Ist, 5 sellers) and 6 are "below listed rolls" — legacy flagged them
+   from build-list mentions, which is the false keep this plan set out to remove. This answers
+   the pending question: **yes, accept them.** The routing guard becomes "no *unexplained*
+   loss". A loss is explained when triage shows a cohort of at least three sellers whose Q1 is
+   under the keep price, or a below-listed-rolls result with its cheapest ask. Explained losses
+   are written to one review table (name, legacy verdict, triage reason, Q1, sellers) for the
+   user to skim; they do not block routing.
+2. **About 36 losses are real; fix those, then route uniques and sets.** 26 "no priced
+   listings matching base, ethereal status and socket", 4 runewords without a base/variant
+   band (Insight, Spirit), 5 captures missing the ethereal/socket flag, 1 without listings.
+   For these the fallback of section 3.4 applies: no exact cohort → the name band as
+   *reference* → CHECK, never VENDOR. The same holds for high asks on thin evidence
+   (Fortitude, Q1 131 Ist, 2 sellers → CHECK, not VENDOR): VENDOR needs evidence that the item
+   is cheap, not absence of evidence that it is dear.
+3. **The 85% listing target does not fit named items as defined.** 30,956 of 34,058 priced
+   listings (91%) ask at or above 0.25 Ist: the practical minimum ask is one mid rune, so "ask
+   at or above the keep price" marks nearly every listing as valuable, including optimistic
+   asks on items whose cohort Q1 is 0.1–0.2 Ist. For uniques, sets and runewords, measure
+   recall over listings whose own cohort (name + variant) has Q1 at or above the keep price;
+   report the remaining listings separately as "asks above a cheap cohort". Do not add rules
+   or loosen thresholds to chase the old number (the Frostburn audit in section 8 was right).
+4. **Liquidity carries the SELL verdict, so check it.** Only 626 of 11,473 bands are liquid and
+   the corpus replay gives 13 SELL against 95 slow. List the 30 highest-Q1 named cohorts that
+   are classed thin or none and the 30 most-listed ones; if well-known liquid items (Harlequin
+   Crest was "thin" with 28 sellers) are misclassed, fix the class rule before anything else
+   in this list — detecting liquid items is the first goal in section 1.
+5. **Bases are now the largest miss**: 4,845 valuable base listings unflagged, more than all
+   named misses together (about 2,300). After items 1–2, bases come before any further
+   affixed work.
+6. **Verify live today.** Restart the service once uniques and sets are routed, identify ten
+   items, and record the timing and the HUD lines in section 8. Offline replay numbers do not
+   replace this.
+7. **Labels: use the disputes.** The most useful labelling set is no longer the 158 sampled
+   items but the 109 losses plus the 48 CHECK and 13 SELL results. Rebuild `label.html` from
+   those so the user's labels settle exactly the cases where legacy and triage disagree.
+8. **Detail-engine edits stay minimal.** Changes under `pricing/knowledge/` are limited to
+   shared normalization that triage reads; no new reviews, receipts or bank cases there.
+
+Order: 1 → 2 → 4 → 6 → 3 → 5 → 7.
+
+### Steering (progress check, 2026-10-03 afternoon) — done or superseded by Steering 2
 
 Measured: listing replay flags 37.8% of listings at or above the keep price (target 85%);
 uniques 91%, sets 93%, misc 94%, runes 80%, runewords 35%, magic 4%, bases 0.05%, rares 0%
@@ -512,39 +627,288 @@ Decisions needed from the user:
 
 ## 8. Status
 
-2026-10-03 — implementation continues; this is not completed assessment or verified live behavior.
+2026-10-03 — incomplete; §4 Steering 2 governs execution.
 
-- P0 baseline: 551 captures, 115 KEEP / 111 CHECK / 325 VENDOR, one numeric price.
-  Full auto-identify observations are persisted. User labels are still absent, so label
-  recall/precision/price-coverage targets cannot yet be measured.
-- Current candidate replay: {'vendor': 463, 'slow': 58, 'check': 15, 'sell': 15}; 139 price bands.
-  Scoped listing SELL/slow recall 37.84% (11520/30446);
-  2698 additional CHECK listings; cheap false positives 0/482.
-  Report time 50.69s; warm triage remains below 1 ms. Cold startup and
-  full live ten-item capture/decode/identify timing remain unverified against the target.
-- Implemented: reloadable three-table triage, Q1 decisions, separate CHECK, per-type legacy
-  comparison and guarded routing; 50 charm/jewel watches, 409 clean base buckets across
-  28 bases, 80 initial class-rule rows and 44 wearable-rule rows. Family bands preserve
-  roll values; unknown socket/ethereal variants never substitute for known variants.
-- Five validated named roll models compile comparable-or-worse price cells offline.
-  Validation excludes the held seller from both stat selection and price prediction.
-  Models split ethereal/socket states; below-listed rolls never SELL. Shared terminal/OSD
-  colors mark deciding rolls and leave unrelated minima neutral when a model applies.
-- Enabled types: magic/jewl, magic/lcha, magic/mcha, magic/scha, rare/boot, misc/ques, uniques/amul. Other types retain the legacy path;
-  Alt+D stores their triage candidate for evaluation. Python changes require worker restart;
-  table changes reload automatically. No host restart or live end-to-end verification done.
-- Latest fix: drops and listings share verified non-equipment mechanics. Missing jewelry,
-  charm and jewel flags normalize to non-ethereal, zero sockets and empty contents;
-  unknown armor flags remain unknown and explicit capture flags are preserved.
-  Validation: 84 selected tests pass; Ruff clean; final replay has no enabled-type attention losses.
-  All three saved unique amulets retain attention (SELL slow); amulet triage is restored.
-  Unique bands still separate unknown/true/false ethereal states; mixed bands remain
-  reference-only. Coverage gains are from mechanics parity, not borrowed variants.
-- Next: finish guide-derived class/affixed rules and worked-example labels, roll-aware named
-  coverage and family pricing, base/runeword coverage, own-build rules, then expand guarded
-  rollout and verify live timing. Low base recall reflects missing source socket/ethereal
-  fields as well as unfinished rules. Rusthandle's acceptance case is resolved: comparable-or-worse Q1 governs, giving CHECK
-  with two sellers; focused regression preserves the worse-roll ask in that comparison.
-- Keep working only under this plan. No item-bank expansion, publication/receipt loop,
-  unrequested collection or destructive housekeeping. The old shop-catalog predicate test
-  mismatch (20 versus 42) is unrelated; historical detail-engine edits remain untouched.
+- Corpus: 746 items: 426 VENDOR / 93 slow / 203 CHECK / 24 SELL; 248 numeric bands.
+  Replay now merges new captures and retains archived cases and labels; 138
+  additional captures are explicitly marked without a legacy baseline. Original
+  551-item cohort verdict counts and listing metrics remain unchanged.
+  185 routes enabled: all previously checked 744 saved captures use triage. The four final cases
+  were compared with actual identify results in host run
+  `20261003T160844Z-ce388f78`: magic head/armor stay VENDOR, Bane’s Oathmaker
+  moves VENDOR → CHECK; no attention loss.
+  User labelled Corruption Knot CHECK. Its FCR/two-resistance/MF combination
+  now matches CHECK; all 14 rare-ring captures route without legacy calls. Observed unique/set types have
+  no unexplained legacy losses. Named missing/thin comparisons remain CHECK;
+  evidence-backed VENDOR corrections and liquidity audit are in the corpus data.
+- Listing attention recall **57.91%**; SELL/slow recall 45.94%; cheap SELL/slow
+  false positives **10.14% (14/138)** after quantity-correct scoring (see below). Named cohort recall: uniques 86.86%, sets 89.91%,
+  runewords 75.22%. Base SELL/slow 19.61% (1157/5899); CHECK is separate.
+  Rare attention 39.35%, crafted 42.64%, magic 40.22%. These remain below §5.
+- Bases: 221 names / 913 generated base rules, including 170 market-backed
+  variants with legal non-starter recipes. Of these, 108 newly admitted variants
+  have two independent priced sellers: CHECK with reference asks. SELL still
+  requires three. +229 base CHECK listings (214 above keep), no cheap flags or
+  saved-corpus changes. Two Glorious Axe listings also become slow through
+  three comparable-or-worse sellers (ethereal, six sockets, 15 ED, +2 AR).
+  Native shield stats, superior modifiers, staffmods, full Void dagger line
+  and possible socket preparation preserve their material distinctions.
+  Unsocketed BO/trap/ES/Abyss/Bone Spear candidates never borrow socketed prices.
+  Latest cause audit before the two caster additions: 2,168 missing-facet
+  listings, 1,353 without matched bands, 1,172 CHECK and 66 cheap matched bands.
+  No additional clean unsocketed cohort had three matched sellers above keep.
+  Source recheck: 1,585 valuable base rows lack a socket property; the only
+  present-but-rejected socket value is impossible (10 on a Heraldic Shield).
+  These are source gaps, not a dropped parser field; do not replace them with zero.
+- Rare-amulet source audit: 419/513 rejected listings belong to two sellers;
+  310 lack +2 class skills and 145 lack 10 FCR (overlap). Do not relax gates
+  to chase this concentration. Listings with the full 15–20 FCR / 10+ mana /
+  4–10 mana-regeneration caster recipe now normalize as recipe-inferred crafted;
+  preserve reported rarity and never alter captured item quality.
+  128 listings reclassified; +24 valuable CHECK, unchanged corpus and cheap flags.
+- Magic caster-tree circlets: seven scoped paid +3-tree/20-FCR combinations
+  added as CHECK; +39 valuable listings, no corpus or cheap-flag changes.
+  Magic-circlet recall 14.39% → 43.94%. Lower rolls and unreviewed trees excluded.
+- Affixed additions: stacked Amazon javelins (6/40, 5/40, 6/30), Echoing throwing
+  weapons, and Fist of the Heavens scepters. These routes are enabled. Javelin
+  and Echoing prices preserve base/ethereal/additional-modifier facets; scepter
+  evidence supports CHECK only. Three saved magic-scepter cases agree with
+  legacy; no saved Echoing-family captures exist, so host verification is pending.
+- Rare physical weapons: separate Fool’s pattern requires both level-scaling
+  stats, 200% ED, 30 IAS, elite ethereal sword/axe/mace and durability solution.
+  +21 valuable CHECK listings; ordinary damage-only thresholds unchanged.
+  Enabled these three routes: one saved sword case agrees with legacy VENDOR,
+  no axe/mace captures exist. Full-gate tests and scoped asks support the new
+  pattern; numerical rare prices and host verification remain outstanding.
+  Extended physical Fool’s recognition to class claws: +35 CHECK listings.
+  Lower tiers mention upgrade costs; ethereal copies without proven repair or
+  indestructibility mention repair/Zod review. No ready-to-use value is inferred.
+  Two rare-claw routes enabled; one saved case agrees with legacy VENDOR.
+- Supporting-roll handling now follows §3.9: required primary gates, distinct
+  supporting categories and structural conditions remain strict; positive low
+  supporting rolls give CHECK with readable shortfalls. +45 rare and +21 crafted
+  valuable listings recovered; no SELL, cheap-flag or saved-corpus verdict changes.
+  Commodity VENDOR headlines label unsupported high asks as reference evidence.
+- Validation: **536 triage/appraisal/corpus tests pass**, Ruff clean. Reusing
+  the existing artifact snapshot per ingestion batch reduces catalog reads and
+  hashes: market ingestion 53.71 → 15.93 s. All 101,010 normalized rows and the
+  catalog have identical digests before/after; next-batch freshness tested.
+  Full replay **27.35 s**, `tmp/triage-throwing-replay.log`; cheap false
+  positives unchanged. User ring correction is the only saved verdict change.
+  All 700 captures from that replay pass guarded runtime replay with zero legacy calls; warm
+  median 0.65 ms, maximum 1.23 ms.
+- Host run `20261003T160844Z-ce388f78`: 53 identify passes / 93 items, median
+  275 ms, first pass 17.128 s, warm maximum 1.075 s (five items). Warm named
+  triage examples took 2.4–2.6 ms. Restarted run `20261003T180934Z-2b9d5565`
+  exposed an 18.489 s cold Greater Talons legacy lookup. Service wiring now
+  warms and refreshes all identify children. Real-process captured replay:
+  background warm-up 18.406 s, subsequent lookup 142.4 ms. Host restart and
+  ten-item verification are still pending; offline replay is not live proof.
+  User-confirmed run now contains 19 identified items over seven passes, no
+  assessment errors. Latest four-item pass: 1.177 s; Amulet legacy 1089 ms
+  versus Horned Helm triage 2.5 ms. All 19 now route to triage in offline replay
+  with unchanged verdicts (warm 0.8–1.6 ms). No new service run or ten-item pass
+  is recorded. HUD log has one earlier surface warning; rendering not confirmed.
+  New host run `20261003T202202Z-82a8f89c` records ten items in two passes:
+  six in 91.0 ms, four in 308.2 ms, no assessment errors. Nine triage lookups
+  took 1.8–8.7 ms; newly captured magic Sacred Rondache used legacy (183 ms).
+  Its VENDOR agrees with triage; magic/ashd is now enabled. A single ten-item
+  pass and actual HUD rendering remain unverified.
+- 2026-10-04: fixed commodity routing beyond previously observed diamonds.
+  All rune/gem families are enabled (134 total routes). A regression test
+  constructs every one of the 68 local rune/gem definitions and forbids both
+  legacy backends; all pass. Seven runtime tests pass, Ruff clean. This is a
+  reloadable rule-table change; the earlier Python changes still need restart.
+  Audit also found 52 real item-family routes with positive listing evidence
+  still disabled (distinct from catalog-name/bundle rows that are not families).
+  Review these next: `tmp/triage-unrouted-family-evidence.json`.
+- 2026-10-04: supported fungible rune/gem lots now compare total sale value
+  against 0.25 Ist; the HUD shows lot and unit asks. Singles and unmatched lot
+  sizes do not borrow a bulk quote. Mixed bundles remain separate. Source
+  audit: 71 qualifying lot sizes across 27 types. User chose CHECK/save toward
+  a lot for single drops. Implemented with dated lot/unit asks and target
+  quantity; prefer liquid evidence, then smaller supported lots. No single-unit
+  sale estimate is inferred. +330 listing CHECKs, including 11 cheap units
+  intended for accumulation; SELL/slow scores unchanged. 548 tests pass,
+  replay 22.11 s (`tmp/triage-save-lots-replay.log`).
+  Like-for-like lot-based replay: old attention 55.53%, new 56.50%; +300
+  SELL/slow listings. Cheap flags unchanged at 14, but correcting quantity
+  reduces the cheap denominator 634 → 138, exposing 10.14% (above target).
+  This is not a new false-positive regression. Audit of all 14 found gem-paid
+  asks across seven sellers on named items whose matched cohort Q1 is higher.
+  Scope/status and currency conversion are valid; no parser correction proved.
+  Retain these measured misses rather than altering rules just to pass the score.
+  Evidence: `tmp/triage-cheap-flags-audit.json`.
+  547 triage/appraisal/corpus tests pass, Ruff clean; replay 26.64 s,
+  `tmp/triage-commodity-lot-replay.log`, baseline
+  `tmp/triage-commodity-lot-counterfactual.json`. All 724 captures route.
+- 2026-10-04: rare skill-glove bands now compare equal-or-lower lightning
+  resistance (5–30, verified local prefix table), preserving skill, IAS, leech,
+  base, ethereal and every other modifier. Bulk audit: 14 same-modifier-set
+  affixed groups with three sellers; three groups support this one-roll
+  comparison. Ten listings move CHECK → slow; no cheap flags or existing
+  saved-item regressions. 224 triage tests pass; Ruff clean. Replay 25.04 s,
+  `tmp/triage-rare-glove-replay.log`; scoped examples saved in
+  `tmp/triage-rare-glove-priced-examples.json`. Bands total 19,271.
+- 2026-10-04: captured Echoing Throwing Spear `60d2656bbc2c` (+3 Warcries,
+  10 IAS) now uses same-base/ethereal comparable-or-worse IAS, with all other
+  modifiers separate: slow, 0.789 Ist Q1, 11 sellers, evidence 2026-10-03.
+  Missing IAS means no suffix for this explicit comparison only; unreadable
+  values remain unknown. Runtime headline verified on the actual saved capture.
+  New Jade Talon capture is SELL; enabled unique elite-claw route (no possible
+  attention loss; no historical legacy baseline for this capture).
+  Python change requires host restart. Also priced +2-Amazon/+3-Javelin/40-IAS
+  Maiden and Matriarchal cohorts, separately from stacked Javelin prefixes.
+  +8 valuable SELL/slow listing results, no extra cheap flags. Full replay
+  25.68 s, `tmp/triage-echoing-ias-replay.log`; 545 triage/appraisal/corpus tests
+  pass, Ruff clean. Broad magic-pattern audit found no other complete cohorts
+  of three sellers with all material facets known.
+- Magic +3-skill/20-IAS gloves now have exact family bands: skill, base,
+  ethereal status, sockets/contents and full modifiers remain distinct.
+  Gauntlets cohorts: Martial Arts 4.053 Ist Q1 (9 sellers), Bow 4.053 (10),
+  Javelin 11.421 (3), cached asks reviewed 2026-10-03; all currently thin/slow.
+  23 listings move CHECK → slow, unchanged attention recall and cheap flags.
+  Existing saved verdicts unchanged; two new captures merged separately.
+  Bands rebuilt (16,037 total); 221 triage tests pass, Ruff clean, replay
+  23.79 s (`tmp/triage-glove-bands-replay.log`). Different bases/skills/ethereal
+  status/additional modifiers cannot borrow these prices.
+- Shared support groups now include mana on caster circlets and life leech on
+  skill gloves. Seven and twelve independent scoped sellers respectively
+  support these combinations; primary skill/speed gates remain unchanged.
+  +69 valuable CHECK listings, no cheap flags or saved-corpus verdict changes.
+  220 triage tests pass, Ruff clean; replay 23.50 s,
+  `tmp/triage-support-affixes-replay.log`. Source audit:
+  `tmp/triage-support-affix-evidence.json`. No numerical family band inferred.
+- Crafted boots/belts now share reviewed rare-item combinations: 30 FRW and
+  two resistances; or 24 FHR, 40 life, strength and resistance. Ten and three
+  independent sellers respectively support CHECK; no pooled numerical prices.
+  +28 valuable listing CHECKs, no cheap flags or existing corpus changes.
+  218 triage tests pass (including four new shared-pattern cases), Ruff clean;
+  replay 23.46 s, `tmp/triage-crafted-utility-replay.log`. Crafted boots enabled,
+  belt already enabled; saved belt verdict remains VENDOR. Latest host pass:
+  four items in 83.6 ms, all triage retrievals 1.8–2.9 ms, no errors.
+- Physical throwing weapons: six shared rare patterns require ethereal,
+  300 ED and 30 IAS, with upgrade review for lower-tier bases. Cached Double
+  Throw guide verifies mastery replenishment; no replenish affix required for
+  this Barbarian use. +40 valuable CHECK listings, no cheap flags or changes
+  to existing saved verdicts. Three throwing-family routes enabled; no saved
+  rare throwing captures yet. Pure CHECK rules add no numerical prices.
+- `label.html` now offers CHECK and seeds saved labels. The one supplied CHECK
+  label agrees (1/1); SELL recall/precision/price coverage remain unestablished.
+  `own.json` remains empty.
+
+- 2026-10-04: enabled 33 additional named-item families after replaying 4,489
+  eligible listings through synthetic capture normalization without verdict or
+  decision-price differences. All 66 representative synthetic examples now use
+  fast triage with legacy retrieval forbidden; all 728 saved captures still do.
+  Warm synthetic retrieval median 0.481 ms, maximum 0.641 ms. These are offline
+  checks, not live capture proof. Evidence: `tmp/triage-named-route-review.json`.
+  Enabled a further 17 base/affixed families after 3,564 matching listing/capture
+  results (`tmp/triage-other-route-review.json`). Before/after runtime verification:
+  all 34 examples previously called legacy; now all use triage with unchanged
+  verdicts. No saved affected captures exist; all 728 corpus entries still route.
+  Seven runtime tests pass; preceding combined suite: 549 pass. Both score reports
+  regenerated in `tmp/triage-family-routing-replay.log`; listing attention remains
+  56.50%, cheap SELL/slow 14/138 (10.14%). Routing adds no price evidence.
+
+- 2026-10-04: fungible holdings can now supply a smaller supported sale lot.
+  Reports explicitly say sell in lots of the supported quantity and quote one
+  lot; no extrapolated whole-holding price. Singles retain accumulation CHECK.
+  Offline audit found 248 missed splittable listings; +240 valuable SELL/slow
+  results, no extra cheap flags or saved-corpus verdict changes. Rune detection
+  90.62%, gems 62.14%; total attention 57.27%. Red/green regression covers larger
+  holdings, insufficient/unknown quantities, mixed gems and sparse sellers.
+  Replay 27.15 s (`tmp/triage-split-lots-replay.log`), 550 combined tests pass,
+  Ruff clean. Python changes require host restart.
+
+- 2026-10-04: market-backed base admission now permits the same equal-or-better
+  modifiers already supported by compiled comparison bands. Exact modifier-set,
+  base, quality, ethereal and socket distinctions remain. Previously exact rule
+  conditions blocked superior bonuses even when a valid lower-roll band existed.
+  Shared comparison bounds prevent rule/band divergence. Red/green regression;
+  551 combined tests pass, Ruff clean. Rebuilt 19,273 bands; replay 26.22 s
+  (`tmp/triage-base-comparison-replay.log`). Two additional valuable SELL/slow
+  listings, no extra cheap flags. Four new captures merged; all 732 use fast
+  retrieval with legacy forbidden. Broader cause audit retained in
+  `tmp/triage-base-misses-current.json`: many missing socket/quality fields and
+  unsupported combinations remain; this fix does not fill those evidence gaps.
+  Latest host identify at 00:51 Minsk: four items in 78.1 ms; lookups average
+  2.1 ms, maximum 2.5 ms. Same host process, no recent Python restart observed;
+  single ten-item pass remains unverified.
+
+- 2026-10-04: base importer now counts independent sellers across supported
+  equal-or-lower modifier rolls before admitting a variant. Previously each
+  exact roll needed two sellers, defeating the existing comparison policy.
+  Comparison-pool conditions are separate from runtime CHECK patterns, so
+  lower rolls cannot borrow higher-roll prices or become CHECK accidentally.
+  228 market variants (+58), 234 covered base names, 19,531 bands. Listing
+  replay: +13 valuable SELL/slow, +43 CHECK, no added cheap flags. 552 tests
+  pass, Ruff clean; reports 25.34 s (`tmp/triage-base-cohort-replay.log`).
+  Enabled base/h2h using a source-backed synthetic 15-ED/three-socket Claws
+  CHECK example; all saved captures still avoid legacy retrieval.
+
+- 2026-10-04: added magic trap-claw socket alternative: +2 Assassin or +3
+  Traps, +3 Lightning Sentry and two sockets. Nine independent scoped priced
+  sellers per prefix in cached 2026-10-03 data; guide body/review log updated.
+  No pooled numerical price, unrelated skills and weak prefixes remain excluded.
+  +29 valuable CHECK listings, no cheap flags or saved-item verdict changes.
+  All 44 matching cached observations also pass through synthetic capture/fast
+  retrieval. 553 tests pass, Ruff clean; reports 26.04 s
+  (`tmp/triage-socket-claws-replay.log`). Magic elite-claw attention rises from
+  0/84 to 29/84; other missed affixed families remain queued.
+
+- 2026-10-04: rare caster amulets now count mana as one useful supporting
+  category, retaining +2 class skills, 10 FCR and a second supporting category.
+  Ten independent scoped sellers support the previously missed combinations;
+  +44 valuable CHECK listings, no additional SELL/cheap flags. Caster crafts
+  retain separate support rules because their recipe grants mana. Guide body
+  and review log updated. 554 tests pass, Ruff clean; reports 26.66 s
+  (`tmp/triage-amulet-mana-replay.log`). Eight new live captures retained.
+
+- 2026-10-04: crafted +2 class / 15–19 FCR amulets now retain CHECK with the
+  shortfall from 20 FCR. Local recipe confirms stacked 5–10 + 10 FCR; at least
+  two priced scoped sellers per class support lower rolls. +111 valuable CHECK
+  listings, no cheap flags. 562 combined tests pass; reports 24.95 s
+  (`tmp/triage-crafted-fcr-replay.log`); guide updated.
+- 2026-10-04: fixed Alt+D request-16's unsupported material widget. Runtime
+  getter RVA 220b60 returns widget+608 directly; the ordinary grid selector
+  cannot handle it. Added build-specific widget recognition, stable pointer and
+  item-code/location checks, and existing ownerless-material decoder wiring.
+  Saved initial capture resolves unit 1776519725 (`ua4`). 759 hover/appraisal/item
+  tests pass; Ruff clean. Evidence and regression fixture are recorded in
+  `inventory_tracking/hover_research.md`. Restart `make serve` for live verification.
+
+- 2026-10-04: Alt+D now reads/rechecks currency-tab stack counts using the
+  existing verified item-data offset. Shared decoding preserves quantity for
+  collection and hover; triage retains commodity counts without treating weapon
+  ammunition as a sale lot. Regression covers one/15/32 Perfect Rubies against
+  a supported 15-gem lot, plus count changes during revalidation. 1,078 combined
+  hover/appraisal/item/collection/triage tests pass, plus 11 focused adapter tests
+  (four added after the combined run started); Ruff clean. Replay 25.21 s,
+  unchanged listing metrics (`tmp/material-stack-replay.log`). Live stack capture
+  still requires the host restart; no new live verification claimed.
+
+- 2026-10-04: corrected an unreachable physical-weapon exception: Phase Blade
+  intrinsically supplies durability, so the outer ethereal requirement must not
+  exclude non-ethereal copies. Other melee bases still require ethereal status
+  and repair/indestructibility/socket support. Required damage/IAS and Fool's
+  pair are unchanged. Cached non-ethereal 288-ED/30-IAS/Fool's example now CHECK;
+  one seller is not a price. +1 valuable CHECK listing, no SELL/cheap changes.
+  570 combined tests pass; Ruff clean; replay 26.08 s
+  (`tmp/triage-phase-replay.log`). Guide body/review log updated.
+  Audit artifacts: `tmp/triage-phase-blade-audit.json`,
+  `tmp/triage-circ-misses.json`. Next normalization gap identified: market names
+  Mithril Point / Griffon Headdress differ from metadata Mithral Point / Griffon
+  Headress, leaving those listings without a family. Verify aliases from local
+  definitions before changing comparison identities and rebuilding bands.
+
+Next:
+1. Inspect the requested restart/ten-item identify run and HUD results. Allow
+   roughly a minute for background warm-up; verify rather than infer success.
+2. All observed types now route to triage. Continue source-led family coverage
+   without inventing socket, rarity or ED values; test unseen families against
+   their paid patterns. Keep both reports below one minute.
+3. Then continue affixed coverage, runeword thin evidence, commodity handling
+   and own-use rules; retain required primary gates.
+4. Apply user labels to the dispute page and measure every §5 target, including
+   live performance. Intermediate batches and green tests do not finish the goal.

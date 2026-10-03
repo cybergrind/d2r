@@ -251,16 +251,21 @@ def test_panel_selection_reaches_decoder_with_correct_owner_and_mode(fixture, in
 
 
 @pytest.mark.parametrize('local_damage', [False, True])
-def test_revalidation_ignores_research_candidates_but_checks_stat_values(monkeypatch, local_damage):
+@pytest.mark.parametrize('stack', [False, True])
+def test_revalidation_ignores_research_candidates_but_checks_stat_values(monkeypatch, local_damage, stack):
     token = {'pid': 1, 'start_ticks': '2'}
     item = {'data_pointer': 100, 'stats_pointer': 200, 'details': {}}
     arrays = {'complete': True, 'arrays': [{'header_offset': 232, 'stats': [{'id': 19, 'layer': 0, 'raw': 75}]}]}
+
+    counts = [15]
 
     class Reader:
         def __init__(self, *_):
             self.ranges = []
 
         def read(self, address, size):
+            if address == 100 + 0x9C:
+                return counts[0].to_bytes(4, 'little')
             return bytes(size)
 
     monkeypatch.setattr(appraisal_capture, 'identity', lambda _: token)
@@ -274,10 +279,14 @@ def test_revalidation_ignores_research_candidates_but_checks_stat_values(monkeyp
     damage = [{'id': 17, 'layer': 0, 'raw': 80}, {'id': 18, 'layer': 0, 'raw': 80}]
     if local_damage:
         monkeypatch.setattr(appraisal_capture, 'owned_damage_modifiers', lambda *_: copy.deepcopy(damage))
-    frozen = appraisal_capture.verify_item(1, {'identity': token}, item)
+    frozen = appraisal_capture.verify_item(1, {'identity': token}, item, stack=stack)
+    if stack:
+        assert frozen['stack_count'] == 15
     assert frozen['stat_diagnostics']['validated'] is False
     appraisal_capture.verify_item(1, {'identity': token}, item, frozen)
-    if local_damage:
+    if stack:
+        counts[0] = 14
+    elif local_damage:
         damage[0]['raw'] = 81
     else:
         arrays['arrays'][0]['stats'][0]['raw'] = 76

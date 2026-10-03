@@ -1,12 +1,13 @@
 """Conservative offline replay of the observed native inventory hit-test.
 
-Only normal mouse layout, no carried item, no alternate inventory, and the
-observed inventory widget vtable are supported. Results remain research candidates.
+Supports observed grid, equipment and material-stack mouse widgets without a
+carried item or alternate inventory. Results remain research candidates.
 """
 
 import math
 import struct
 
+from inventory_tracking.hover.materials import ITEM_POINTER, material_widget, validate_material_item
 from inventory_tracking.items.containers import container_for_page
 from inventory_tracking.items.owners import require_mercenary_owner
 from inventory_tracking.tracking.state import select_player
@@ -60,15 +61,21 @@ def _resolve(sample, base):
     if widget_info is None or ui['widgets']['controller'] is not None:
         raise ValueError('Unsupported focus state')
     equipment = widget_info['vtable'] == base + 0x17129D0 and widget_info['methods']['0xc0'] == base + 0x2178E0
-    if not equipment and (
-        widget_info['vtable'] != base + 0x1712DE8 or widget_info['methods']['0xc0'] != base + 0x21A6D0
+    materials = material_widget(widget_info, base)
+    if (
+        not equipment
+        and not materials
+        and (widget_info['vtable'] != base + 0x1712DE8 or widget_info['methods']['0xc0'] != base + 0x21A6D0)
     ):
         raise ValueError('Unsupported inventory widget')
     widget = block(widget_info['address'], 0x700)
     mouse = block(base + 0x1EC9C4D, 11)
     if mouse[0] or any(block(base + 0x1EC9F4C, 12)):
         raise ValueError('Unsupported mouse/carried-item state')
-    if equipment:
+    if materials:
+        gx = gy = 0
+        origin = None
+    elif equipment:
         gx, gy = unpack('<i', widget, 0x5D8), 0
         if not 0 <= gx <= 12:
             raise ValueError('Invalid equipment slot')
@@ -126,7 +133,7 @@ def _resolve(sample, base):
         raise ValueError('Inventory owner mismatch')
     if unpack('<Q', inventory, 0x40):
         raise ValueError('Carried item unsupported')
-    page = 255 if equipment else widget[0x630]
+    page = 4 if materials else 255 if equipment else widget[0x630]
     if not equipment and page == 255:
         raise ValueError('Unsupported inventory container')
     container = container_for_page(page, owner_type=owner_type)
@@ -141,27 +148,32 @@ def _resolve(sample, base):
         if equipment and owner_type == 0 and owner_id != player_id:
             raise ValueError('Equipment is not owned by the local player')
         if page == 4:
-            container['name'] = 'Personal stash' if owner_id == player_id else 'Shared stash'
-    array, count = struct.unpack_from('<QQ', inventory, 0x20)
-    grid_index = 0 if equipment else page + 2
-    if not grid_index < count <= 32:
-        raise ValueError('Invalid inventory page')
-    grid = block(array + grid_index * 32, 32)
-    width, height = grid[0x10:0x12]
-    if not 1 <= width <= 16 or not 1 <= height <= 16:
-        raise ValueError('Invalid grid dimensions')
-    if equipment and (width, height) != (13, 1):
-        raise ValueError('Unexpected equipment grid dimensions')
-    if owner_type == 1 and not equipment and (width, height) != (10, 10):
-        raise ValueError('Unexpected shop grid dimensions')
-    if owner_type == 0 and page == 3 and (width, height) != (3, 4):
-        raise ValueError('Unexpected Cube grid dimensions')
-    if page == 4 and (width, height) != (10, 10):
-        raise ValueError('Unexpected stash grid dimensions')
-    if not 0 <= gx < width or not 0 <= gy < height:
-        raise ValueError('Outside supported inventory grid')
-    cells = block(unpack('<Q', grid, 0x18), width * height * 8)
-    pointer = unpack('<Q', cells, (gy * width + gx) * 8)
+            container['name'] = (
+                'Materials stash' if materials else 'Personal stash' if owner_id == player_id else 'Shared stash'
+            )
+    if materials:
+        pointer = unpack('<Q', widget, ITEM_POINTER)
+    else:
+        array, count = struct.unpack_from('<QQ', inventory, 0x20)
+        grid_index = 0 if equipment else page + 2
+        if not grid_index < count <= 32:
+            raise ValueError('Invalid inventory page')
+        grid = block(array + grid_index * 32, 32)
+        width, height = grid[0x10:0x12]
+        if not 1 <= width <= 16 or not 1 <= height <= 16:
+            raise ValueError('Invalid grid dimensions')
+        if equipment and (width, height) != (13, 1):
+            raise ValueError('Unexpected equipment grid dimensions')
+        if owner_type == 1 and not equipment and (width, height) != (10, 10):
+            raise ValueError('Unexpected shop grid dimensions')
+        if owner_type == 0 and page == 3 and (width, height) != (3, 4):
+            raise ValueError('Unexpected Cube grid dimensions')
+        if page == 4 and (width, height) != (10, 10):
+            raise ValueError('Unexpected stash grid dimensions')
+        if not 0 <= gx < width or not 0 <= gy < height:
+            raise ValueError('Outside supported inventory grid')
+        cells = block(unpack('<Q', grid, 0x18), width * height * 8)
+        pointer = unpack('<Q', cells, (gy * width + gx) * 8)
     result = {
         'validated': False,
         'cell': [gx, gy],
@@ -169,6 +181,7 @@ def _resolve(sample, base):
         'origin': origin,
         'container': container,
         'owner_type': owner_type,
+        **({'materials': True} if materials else {}),
     }
     if not pointer:
         return dict(result, status='no_item')
@@ -176,7 +189,7 @@ def _resolve(sample, base):
     if len(items) != 1 or not items[0]['identity_stable']:
         raise ValueError('No unique stable item at native pointer')
     item = items[0]
-    expected_item_owner = 0xFFFFFFFF if owner_type == 1 else owner_id
+    expected_item_owner = 0xFFFFFFFF if owner_type == 1 or materials else owner_id
     if equipment and item['details']['body_location'] != gx:
         raise ValueError('Equipment slot mismatch')
     if (
@@ -185,6 +198,8 @@ def _resolve(sample, base):
         or item['mode'] != (1 if equipment else 0)
     ):
         raise ValueError('Item ownership/location mismatch')
+    if materials:
+        validate_material_item(item, widget)
     return dict(result, status='candidate', item=item)
 
 

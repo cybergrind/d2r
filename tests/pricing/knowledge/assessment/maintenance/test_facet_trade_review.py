@@ -13,7 +13,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.facet_trade import CASES
 
 def inputs():
     policy = next(p for p in json.loads(RULES.read_bytes())['policies'] if p['name'] == 'Rainbow Facet')
-    variants = thaw(catalog().named_variants[('unique', 'Rainbow Facet')])
+    variants = thaw(catalog().named_variants['unique', 'Rainbow Facet'])
     spec = trade_facets.specification(policy, variants, metadata()['stats'])
     assert spec is not None
     cases = [

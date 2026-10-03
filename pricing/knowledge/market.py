@@ -75,6 +75,10 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
             ask /= amount
         else:
             ask = None
+    # In-stock amount is available inventory, not a verified priced lot.
+    # Traderie getting-started/seller: offers may request a subset of stock.
+    if listing.get('stock') is True and amount != 1:
+        unit, ask = 'ambiguous', None
     identity = f'{source}:{listing.get("id")}:{observed_at}'
     row = {
         'id': hashlib.sha256(identity.encode()).hexdigest()[:24],
@@ -101,6 +105,7 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
         'socket_contents': socket_contents(properties),
         'raw_properties': listing.get('properties') or [],
         'amount': amount,
+        'listing_stock': listing.get('stock'),
         'unit_policy': unit,
         'prices': listing.get('prices') or [],
         'ask_ist': ask,

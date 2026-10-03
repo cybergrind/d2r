@@ -233749,7 +233749,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "403": {
     "name": "Jawbone Cap",
@@ -233757,7 +233758,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "404": {
     "name": "Fanged Helm",
@@ -233765,7 +233767,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "405": {
     "name": "Horned Helm",
@@ -233773,7 +233776,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "406": {
     "name": "Assault Helmet",
@@ -233781,7 +233785,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "407": {
     "name": "Avenger Guard",
@@ -233789,7 +233794,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "473": {
     "name": "Jawbone Visor",
@@ -233797,7 +233803,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "474": {
     "name": "Lion Helm",
@@ -233805,7 +233812,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "475": {
     "name": "Rage Mask",
@@ -233813,7 +233821,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "476": {
     "name": "Savage Helmet",
@@ -233821,7 +233830,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "477": {
     "name": "Slayer Guard",
@@ -233829,7 +233839,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "493": {
     "name": "Carnage Helm",
@@ -233837,7 +233848,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "494": {
     "name": "Fury Visor",
@@ -233845,7 +233857,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "495": {
     "name": "Destroyer Helm",
@@ -233853,7 +233866,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "496": {
     "name": "Conqueror Crown",
@@ -233861,7 +233875,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "497": {
     "name": "Guardian Crown",
@@ -233869,7 +233884,8 @@
     "category": "armor",
     "type": "phlm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "349": {
     "name": "Bone Helm",
@@ -233877,7 +233893,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "320": {
     "name": "Breast Plate",
@@ -233885,7 +233902,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "350": {
     "name": "Bone Shield",
@@ -233893,7 +233911,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "328": {
     "name": "Buckler",
@@ -233901,7 +233920,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 1,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "306": {
     "name": "Cap",
@@ -233909,7 +233929,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "319": {
     "name": "Chain Mail",
@@ -233917,7 +233938,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "418": {
     "name": "Circlet",
@@ -233925,7 +233947,8 @@
     "category": "armor",
     "type": "circ",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "419": {
     "name": "Coronet",
@@ -233933,7 +233956,8 @@
     "category": "armor",
     "type": "circ",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "420": {
     "name": "Tiara",
@@ -233941,7 +233965,8 @@
     "category": "armor",
     "type": "circ",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "421": {
     "name": "Diadem",
@@ -233949,7 +233974,8 @@
     "category": "armor",
     "type": "circ",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "311": {
     "name": "Crown",
@@ -233957,7 +233983,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "398": {
     "name": "Wolf Head",
@@ -233965,7 +233992,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "399": {
     "name": "Hawk Helm",
@@ -233973,7 +234001,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "400": {
     "name": "Antlers",
@@ -233981,7 +234010,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "401": {
     "name": "Falcon Mask",
@@ -233989,7 +234019,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "402": {
     "name": "Spirit Mask",
@@ -233997,7 +234028,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "468": {
     "name": "Alpha Helm",
@@ -234005,7 +234037,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "469": {
     "name": "Griffon Headress",
@@ -234013,7 +234046,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "470": {
     "name": "Hunter's Guise",
@@ -234021,7 +234055,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "471": {
     "name": "Sacred Feathers",
@@ -234029,7 +234064,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "472": {
     "name": "Totemic Mask",
@@ -234037,7 +234073,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "488": {
     "name": "Blood Spirit",
@@ -234045,7 +234082,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "489": {
     "name": "Sun Spirit",
@@ -234053,7 +234091,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "490": {
     "name": "Earth Spirit",
@@ -234061,7 +234100,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "491": {
     "name": "Sky Spirit",
@@ -234069,7 +234109,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "492": {
     "name": "Dream Spirit",
@@ -234077,7 +234118,8 @@
     "category": "armor",
     "type": "pelt",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "309": {
     "name": "Full Helm",
@@ -234085,7 +234127,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "323": {
     "name": "Field Plate",
@@ -234093,7 +234136,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "325": {
     "name": "Full Plate Mail",
@@ -234101,7 +234145,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "310": {
     "name": "Great Helm",
@@ -234109,7 +234154,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "324": {
     "name": "Gothic Plate",
@@ -234117,7 +234163,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "333": {
     "name": "Gothic Shield",
@@ -234125,7 +234172,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 16
   },
   "348": {
     "name": "Plated Belt",
@@ -234133,7 +234181,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "343": {
     "name": "Greaves",
@@ -234141,7 +234190,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "338": {
     "name": "Gauntlets",
@@ -234149,7 +234199,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "315": {
     "name": "Hard Leather Armor",
@@ -234157,7 +234208,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "308": {
     "name": "Helm",
@@ -234165,7 +234217,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "331": {
     "name": "Kite Shield",
@@ -234173,7 +234226,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "344": {
     "name": "Sash",
@@ -234181,7 +234235,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "339": {
     "name": "Boots",
@@ -234189,7 +234244,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "314": {
     "name": "Leather Armor",
@@ -234197,7 +234253,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "334": {
     "name": "Leather Gloves",
@@ -234205,7 +234262,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "330": {
     "name": "Large Shield",
@@ -234213,7 +234271,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 12
   },
   "327": {
     "name": "Light Plate",
@@ -234221,7 +234280,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "346": {
     "name": "Belt",
@@ -234229,7 +234289,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "341": {
     "name": "Chain Boots",
@@ -234237,7 +234298,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "336": {
     "name": "Chain Gloves",
@@ -234245,7 +234307,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "312": {
     "name": "Mask",
@@ -234253,7 +234316,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "413": {
     "name": "Preserved Head",
@@ -234261,7 +234325,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "414": {
     "name": "Zombie Head",
@@ -234269,7 +234334,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "415": {
     "name": "Unraveller Head",
@@ -234277,7 +234343,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "416": {
     "name": "Gargoyle Head",
@@ -234285,7 +234352,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "417": {
     "name": "Demon Head",
@@ -234293,7 +234361,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "483": {
     "name": "Mummified Trophy",
@@ -234301,7 +234370,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "484": {
     "name": "Fetish Trophy",
@@ -234309,7 +234379,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "485": {
     "name": "Sexton Trophy",
@@ -234317,7 +234388,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "486": {
     "name": "Cantor Trophy",
@@ -234325,7 +234397,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "487": {
     "name": "Heirophant Trophy",
@@ -234333,7 +234406,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "503": {
     "name": "Minion Skull",
@@ -234341,7 +234415,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "505": {
     "name": "Overseer Skull",
@@ -234349,7 +234424,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "506": {
     "name": "Succubus Skull",
@@ -234357,7 +234433,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "507": {
     "name": "Bloodlord Skull",
@@ -234365,7 +234442,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "504": {
     "name": "Hellspawn Skull",
@@ -234373,7 +234451,8 @@
     "category": "armor",
     "type": "head",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "408": {
     "name": "Targe",
@@ -234381,7 +234460,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "409": {
     "name": "Rondache",
@@ -234389,7 +234469,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 15
   },
   "410": {
     "name": "Heraldic Shield",
@@ -234397,7 +234478,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "411": {
     "name": "Aerin Shield",
@@ -234405,7 +234487,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 22
   },
   "412": {
     "name": "Crown Shield",
@@ -234413,7 +234496,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 25
   },
   "478": {
     "name": "Akaran Targe",
@@ -234421,7 +234505,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "479": {
     "name": "Akaran Rondache",
@@ -234429,7 +234514,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 15
   },
   "480": {
     "name": "Protector Shield",
@@ -234437,7 +234523,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "481": {
     "name": "Gilded Shield",
@@ -234445,7 +234532,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 22
   },
   "482": {
     "name": "Royal Shield",
@@ -234453,7 +234541,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 25
   },
   "498": {
     "name": "Sacred Targe",
@@ -234461,7 +234550,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 30
   },
   "499": {
     "name": "Sacred Rondache",
@@ -234469,7 +234559,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 28
   },
   "500": {
     "name": "Ancient Shield",
@@ -234477,7 +234568,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 25
   },
   "501": {
     "name": "Zakarum Shield",
@@ -234485,7 +234577,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 22
   },
   "502": {
     "name": "Vortex Shield",
@@ -234493,7 +234586,8 @@
     "category": "armor",
     "type": "ashd",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 19
   },
   "322": {
     "name": "Plate Mail",
@@ -234501,7 +234595,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "313": {
     "name": "Quilted Armor",
@@ -234509,7 +234604,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "317": {
     "name": "Ring Mail",
@@ -234517,7 +234613,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "318": {
     "name": "Scale Mail",
@@ -234525,7 +234622,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "307": {
     "name": "Skull Cap",
@@ -234533,7 +234631,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "329": {
     "name": "Small Shield",
@@ -234541,7 +234640,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "351": {
     "name": "Spiked Shield",
@@ -234549,7 +234649,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "321": {
     "name": "Splint Mail",
@@ -234557,7 +234658,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "316": {
     "name": "Studded Leather",
@@ -234565,7 +234667,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "347": {
     "name": "Heavy Belt",
@@ -234573,7 +234676,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "342": {
     "name": "Light Plated Boots",
@@ -234581,7 +234685,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "337": {
     "name": "Light Gauntlets",
@@ -234589,7 +234694,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "332": {
     "name": "Tower Shield",
@@ -234597,7 +234703,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 24
   },
   "422": {
     "name": "Shako",
@@ -234605,7 +234712,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "442": {
     "name": "Sacred Armor",
@@ -234613,7 +234721,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "434": {
     "name": "Loricated Mail",
@@ -234621,7 +234730,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "430": {
     "name": "Wyrmhide",
@@ -234629,7 +234739,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "465": {
     "name": "Bone Visage",
@@ -234637,7 +234748,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "459": {
     "name": "Myrmidon Greaves",
@@ -234645,7 +234757,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "464": {
     "name": "Colossus Girdle",
@@ -234653,7 +234766,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "454": {
     "name": "Ogre Gauntlets",
@@ -234661,7 +234775,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "425": {
     "name": "Giant Conch",
@@ -234669,7 +234784,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "426": {
     "name": "Spired Helm",
@@ -234677,7 +234793,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "435": {
     "name": "Boneweave",
@@ -234685,7 +234802,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "447": {
     "name": "Monarch",
@@ -234693,7 +234811,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 22
   },
   "423": {
     "name": "Hydraskull",
@@ -234701,7 +234820,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "431": {
     "name": "Scarab Husk",
@@ -234709,7 +234829,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "455": {
     "name": "Wyrmhide Boots",
@@ -234717,7 +234838,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "460": {
     "name": "Spiderweb Sash",
@@ -234725,7 +234847,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "439": {
     "name": "Kraken Shell",
@@ -234733,7 +234856,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "450": {
     "name": "Bramble Mitts",
@@ -234741,7 +234865,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "424": {
     "name": "Armet",
@@ -234749,7 +234874,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "438": {
     "name": "Hellforge Plate",
@@ -234757,7 +234883,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "457": {
     "name": "Boneweave Boots",
@@ -234765,7 +234892,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "462": {
     "name": "Mithril Coil",
@@ -234773,7 +234901,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "452": {
     "name": "Vambraces",
@@ -234781,7 +234910,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "445": {
     "name": "Luna",
@@ -234789,7 +234919,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "433": {
     "name": "Diamond Mail",
@@ -234797,7 +234928,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "448": {
     "name": "Aegis",
@@ -234805,7 +234937,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 24
   },
   "467": {
     "name": "Blade Barrier",
@@ -234813,7 +234946,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "437": {
     "name": "Balrog Skin",
@@ -234821,7 +234955,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "446": {
     "name": "Hyperion",
@@ -234829,7 +234964,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 24
   },
   "427": {
     "name": "Corona",
@@ -234837,7 +234973,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "436": {
     "name": "Great Hauberk",
@@ -234845,7 +234982,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "466": {
     "name": "Troll Nest",
@@ -234853,7 +234991,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "428": {
     "name": "Demonhead",
@@ -234861,7 +235000,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "458": {
     "name": "Mirrored Boots",
@@ -234869,7 +235009,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "463": {
     "name": "Troll Belt",
@@ -234877,7 +235018,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "453": {
     "name": "Crusader Gauntlets",
@@ -234885,7 +235027,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "440": {
     "name": "Lacquered Plate",
@@ -234893,7 +235036,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "443": {
     "name": "Archon Plate",
@@ -234901,7 +235045,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "449": {
     "name": "Ward",
@@ -234909,7 +235054,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 24
   },
   "432": {
     "name": "Wire Fleece",
@@ -234917,7 +235063,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "444": {
     "name": "Heater",
@@ -234925,7 +235072,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 22
   },
   "429": {
     "name": "Dusk Shroud",
@@ -234933,7 +235081,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "441": {
     "name": "Shadow Plate",
@@ -234941,7 +235090,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "456": {
     "name": "Scarabshell Boots",
@@ -234949,7 +235099,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "461": {
     "name": "Vampirefang Belt",
@@ -234957,7 +235108,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "451": {
     "name": "Vampirebone Gloves",
@@ -234965,7 +235117,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "345": {
     "name": "Light Belt",
@@ -234973,7 +235126,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "340": {
     "name": "Heavy Boots",
@@ -234981,7 +235135,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "335": {
     "name": "Heavy Gloves",
@@ -234989,7 +235144,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "508": {
     "name": "Old Book",
@@ -234997,7 +235153,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "509": {
     "name": "Tome",
@@ -235005,7 +235162,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "510": {
     "name": "Codex",
@@ -235013,7 +235171,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "511": {
     "name": "Compendium",
@@ -235021,7 +235180,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "512": {
     "name": "Grimoire",
@@ -235029,7 +235189,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "513": {
     "name": "Burnt Text",
@@ -235037,7 +235198,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "514": {
     "name": "Dark Tome",
@@ -235045,7 +235207,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "515": {
     "name": "Dark Codex",
@@ -235053,7 +235216,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "516": {
     "name": "Possessed Compendium",
@@ -235061,7 +235225,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "517": {
     "name": "Possessed Grimoire",
@@ -235069,7 +235234,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "518": {
     "name": "Forgotten Volume",
@@ -235077,7 +235243,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 3
   },
   "519": {
     "name": "Occult Tome",
@@ -235085,7 +235252,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 5
   },
   "520": {
     "name": "Occult Codex",
@@ -235093,7 +235261,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 8
   },
   "521": {
     "name": "Blasphemous Compendium",
@@ -235101,7 +235270,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "522": {
     "name": "Blasphemous Grimoire",
@@ -235109,7 +235279,8 @@
     "category": "armor",
     "type": "grim",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "352": {
     "name": "War Hat",
@@ -235117,7 +235288,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "372": {
     "name": "Ornate Armor",
@@ -235125,7 +235297,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "364": {
     "name": "Tigulated Mail",
@@ -235133,7 +235306,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "360": {
     "name": "Serpentskin Armor",
@@ -235141,7 +235315,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "395": {
     "name": "Grim Helm",
@@ -235149,7 +235324,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "389": {
     "name": "War Boots",
@@ -235157,7 +235333,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "384": {
     "name": "War Gauntlets",
@@ -235165,7 +235342,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "355": {
     "name": "Basinet",
@@ -235173,7 +235351,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "356": {
     "name": "Winged Helm",
@@ -235181,7 +235360,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "365": {
     "name": "Mesh Armor",
@@ -235189,7 +235369,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "377": {
     "name": "Dragon Shield",
@@ -235197,7 +235378,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 18
   },
   "353": {
     "name": "Sallet",
@@ -235205,7 +235387,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "361": {
     "name": "Demonhide Armor",
@@ -235213,7 +235396,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "385": {
     "name": "Demonhide Boots",
@@ -235221,7 +235405,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "369": {
     "name": "Sharktooth Armor",
@@ -235229,7 +235414,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "380": {
     "name": "Demonhide Gloves",
@@ -235237,7 +235423,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "354": {
     "name": "Casque",
@@ -235245,7 +235432,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "368": {
     "name": "Templar Coat",
@@ -235253,7 +235441,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "387": {
     "name": "Mesh Boots",
@@ -235261,7 +235450,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "382": {
     "name": "Heavy Bracers",
@@ -235269,7 +235459,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "375": {
     "name": "Round Shield",
@@ -235277,7 +235468,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 12
   },
   "363": {
     "name": "Linked Mail",
@@ -235285,7 +235477,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "378": {
     "name": "Pavise",
@@ -235293,7 +235486,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 24
   },
   "397": {
     "name": "Barbed Shield",
@@ -235301,7 +235495,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 17
   },
   "367": {
     "name": "Russet Armor",
@@ -235309,7 +235504,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "376": {
     "name": "Scutum",
@@ -235317,7 +235513,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 14
   },
   "357": {
     "name": "Grand Crown",
@@ -235325,7 +235522,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "366": {
     "name": "Cuirass",
@@ -235333,7 +235531,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "396": {
     "name": "Grim Shield",
@@ -235341,7 +235540,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 20
   },
   "358": {
     "name": "Death Mask",
@@ -235349,7 +235549,8 @@
     "category": "armor",
     "type": "helm",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "388": {
     "name": "Battle Boots",
@@ -235357,7 +235558,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "383": {
     "name": "Battle Gauntlets",
@@ -235365,7 +235567,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "370": {
     "name": "Embossed Plate",
@@ -235373,7 +235576,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 0
   },
   "373": {
     "name": "Mage Plate",
@@ -235381,7 +235585,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 3,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "379": {
     "name": "Ancient Shield",
@@ -235389,7 +235594,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 3,
-    "movement_penalty": 5
+    "movement_penalty": 5,
+    "native_block": 16
   },
   "362": {
     "name": "Trellised Armor",
@@ -235397,7 +235603,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "374": {
     "name": "Defender",
@@ -235405,7 +235612,8 @@
     "category": "armor",
     "type": "shie",
     "max_sockets": 1,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 10
   },
   "359": {
     "name": "Ghost Armor",
@@ -235413,7 +235621,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 2,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "371": {
     "name": "Chaos Armor",
@@ -235421,7 +235630,8 @@
     "category": "armor",
     "type": "tors",
     "max_sockets": 4,
-    "movement_penalty": 10
+    "movement_penalty": 10,
+    "native_block": 0
   },
   "386": {
     "name": "Sharkskin Boots",
@@ -235429,7 +235639,8 @@
     "category": "armor",
     "type": "boot",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "381": {
     "name": "Sharkskin Gloves",
@@ -235437,7 +235648,8 @@
     "category": "armor",
     "type": "glov",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "394": {
     "name": "War Belt",
@@ -235445,7 +235657,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "390": {
     "name": "Demonhide Sash",
@@ -235453,7 +235666,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "392": {
     "name": "Mesh Belt",
@@ -235461,7 +235675,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "393": {
     "name": "Battle Belt",
@@ -235469,7 +235684,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "391": {
     "name": "Sharkskin Belt",
@@ -235477,7 +235693,8 @@
     "category": "armor",
     "type": "belt",
     "max_sockets": 0,
-    "movement_penalty": 0
+    "movement_penalty": 0,
+    "native_block": 0
   },
   "660": {
     "name": "Scroll of Knowledge",

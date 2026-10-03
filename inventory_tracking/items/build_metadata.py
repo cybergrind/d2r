@@ -125,6 +125,7 @@ def build(stats_path, skills_path, output):
             bases[cid]['max_sockets'] = r.get('gemsockets', 0) if category in ('weapons', 'armor') else 0
             if category == 'armor':
                 bases[cid]['movement_penalty'] = r.get('speed')
+                bases[cid]['native_block'] = r.get('block')
             if category == 'weapons':
                 bases[cid]['speed'] = r.get('speed')
                 bases[cid]['undead_damage_bonus'] = 50 if is_blunt(r.get('type')) else 0

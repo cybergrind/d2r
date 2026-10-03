@@ -22,3 +22,16 @@ def scoped_bucket(bucket, item, facets):
             return None
         values[facet] = value
     return bucket + '|facets:' + json.dumps(values, sort_keys=True, separators=(',', ':')) if facets else bucket
+
+
+def socket_bucket(bucket, item):
+    """Known and unknown socket variants remain distinct, including fallback bands."""
+    if bucket is None:
+        return None
+    values = [item.get('sockets'), item.get('socket_contents')]
+    return bucket + '|sockets:' + json.dumps(values, separators=(',', ':'))
+
+
+def base_bucket(bucket, item):
+    """An upgrade and an unknown base cannot set the original base's price."""
+    return None if bucket is None else bucket + '|base:' + json.dumps(item.get('base_code'))

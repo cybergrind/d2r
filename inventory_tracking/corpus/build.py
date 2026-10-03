@@ -12,13 +12,14 @@ import html
 import json
 import random
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 
 
 DATA = Path(__file__).parent / 'data'
 RUNS = Path('inventory_tracking/runs/alt-d')
 # Items of each rarity offered for labelling; named items first because rolls decide them.
 SAMPLE = {'unique': 45, 'set': 25, 'rare': 35, 'magic': 35, 'crafted': 5, 'normal': 10, 'superior': 5}
-LABELS = ('sell', 'slow', 'self', 'vendor')
+LABELS = ('sell', 'slow', 'self', 'vendor', 'check')
 
 
 def stat_lines(observation) -> list[str]:
@@ -49,6 +50,25 @@ def collect(runs: Path) -> dict[str, dict]:
     return items
 
 
+def merge(runs: Path, data: Path) -> dict[str, dict]:
+    """Retain archived/labelled cases and add live captures without touching labels."""
+    path = data / 'items.jsonl'
+    previous = path.read_text() if path.exists() else ''
+    records = [json.loads(line) for line in previous.splitlines() if line.strip()]
+    items = {row['id']: row['observation'] for row in records}
+    items.update(collect(runs))
+    contents = ''.join(
+        json.dumps({'id': key, 'observation': items[key]}, separators=(',', ':')) + '\n' for key in sorted(items)
+    )
+    if contents != previous or not path.exists():
+        data.mkdir(parents=True, exist_ok=True)
+        with NamedTemporaryFile(mode='w', dir=data, prefix='.items-', delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(contents)
+        temporary.replace(path)
+    return items
+
+
 def sample(items: dict[str, dict], seed=20261003) -> list[str]:
     """A fixed stratified sample; per rarity, distinct names before repeats of one name."""
     chosen = []
@@ -64,7 +84,7 @@ def sample(items: dict[str, dict], seed=20261003) -> list[str]:
     return chosen
 
 
-def label_page(items: dict[str, dict], ids: list[str]) -> str:
+def label_page(items: dict[str, dict], ids: list[str], *, labels=None) -> str:
     cards = []
     for identifier in ids:
         observation = items[identifier]
@@ -85,7 +105,9 @@ def label_page(items: dict[str, dict], ids: list[str]) -> str:
             f'<section id="{identifier}" class="{html.escape(item.get("rarity", ""))}"><h2>{html.escape(title)}</h2>'
             f'<p>{html.escape(" · ".join(flags))}</p><ul>{stats}</ul><div>{buttons}</div></section>'
         )
-    return PAGE.replace('{{cards}}', '\n'.join(cards))
+    return PAGE.replace('{{cards}}', '\n'.join(cards)).replace(
+        '{{labels}}', json.dumps(labels or {}).replace('<', '\\u003c')
+    )
 
 
 PAGE = """<!doctype html><meta charset="utf-8"><title>D2R drop labels</title>
@@ -104,15 +126,15 @@ button.on{background:#e0c060;color:#000}
 <h1>Label drops</h1>
 <p>Softcore / Non-Ladder. <b>sell</b>: I would keep it to trade and it sells easily · <b>slow</b>: valuable but
 few buyers · <b>self</b>: keep for my own characters only · <b>vendor</b>: not worth stash space.<br>
-Keys 1-4 label the highlighted item and move on; arrows move. Labels are kept in this browser until exported.</p>
+Keys 1-5 label the highlighted item and move on; arrows move. Labels are kept in this browser until exported.</p>
 {{cards}}
 <div id="bar"><span id="count"></span> <button id="save">Download labels.json</button>
 <button id="copy">Copy JSON</button></div>
 <script>
-const KEY = 'd2r-drop-labels', LABELS = ['sell', 'slow', 'self', 'vendor'];
+const KEY = 'd2r-drop-labels', LABELS = ['sell', 'slow', 'self', 'vendor', 'check'];
 const cards = [...document.querySelectorAll('section')];
-let labels = {};
-try { labels = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+let labels = {{labels}};
+try { labels = {...labels, ...JSON.parse(localStorage.getItem(KEY) || '{}')}; } catch (e) {}
 let current = Math.max(0, cards.findIndex(c => !labels[c.id]));
 function paint() {
   cards.forEach((card, index) => {
@@ -136,7 +158,7 @@ cards.forEach((card, index) => card.addEventListener('click', event => {
   if (event.target.dataset.label) setLabel(index, event.target.dataset.label); else { current = index; paint(); }
 }));
 document.addEventListener('keydown', event => {
-  if ('1234'.includes(event.key)) setLabel(current, LABELS[+event.key - 1]);
+  if ('12345'.includes(event.key)) setLabel(current, LABELS[+event.key - 1]);
   if (event.key === 'ArrowDown') { event.preventDefault(); move(current + 1); }
   if (event.key === 'ArrowUp') { event.preventDefault(); move(current - 1); }
 });
@@ -157,13 +179,12 @@ def main(argv=None):
     parser.add_argument('--runs', type=Path, default=RUNS)
     parser.add_argument('--data', type=Path, default=DATA)
     args = parser.parse_args(argv)
-    items = collect(args.runs)
+    items = merge(args.runs, args.data)
     args.data.mkdir(parents=True, exist_ok=True)
-    with (args.data / 'items.jsonl').open('w') as stream:
-        for identifier in sorted(items):
-            stream.write(json.dumps({'id': identifier, 'observation': items[identifier]}, separators=(',', ':')) + '\n')
     ids = sample(items)
-    (args.data / 'label.html').write_text(label_page(items, ids))
+    labels_path = args.data / 'labels.json'
+    labels = json.loads(labels_path.read_text()) if labels_path.exists() else {}
+    (args.data / 'label.html').write_text(label_page(items, ids, labels=labels))
     print(
         f'{len(items)} distinct items → {args.data / "items.jsonl"}; {len(ids)} to label → {args.data / "label.html"}'
     )

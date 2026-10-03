@@ -4,7 +4,13 @@ from pricing.knowledge.market_mechanics import apply_mechanics
 
 
 @pytest.mark.parametrize(
-    ('name', 'payload'), [('Vampire Gaze', 'Um Rune'), ('Stealskull', 'Perfect Topaz'), ('Shaftstop', 'Ber Rune')]
+    ('name', 'payload'),
+    [
+        ('Vampire Gaze', 'Um Rune'),
+        ('Stealskull', 'Perfect Topaz'),
+        ('Shaftstop', 'Ber Rune'),
+        ('Vampire Gaze', 'Jewel'),
+    ],
 )
 def test_explicit_filler_proves_one_socket_only_for_named_single_socket_mechanics(name, payload):
     row = {'name': name, 'category': 'uniques', 'properties': {'934': payload}}
@@ -22,7 +28,6 @@ def test_explicit_filler_proves_one_socket_only_for_named_single_socket_mechanic
         ('Tomb Reaver', 'Um Rune'),
         ('Crown of Ages', 'Ber Rune'),
         ('Unknown Unique', 'Um Rune'),
-        ('Vampire Gaze', 'Jewel'),
         ('Vampire Gaze', ''),
         ('Vampire Gaze', None),
         ('Vampire Gaze', 'None'),

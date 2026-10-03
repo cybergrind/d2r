@@ -1,5 +1,28 @@
 # Inventory hover research — 2026-09-23
 
+## Materials stack widget — 2026-10-04
+
+Alt+D request `20261003T202202Z-82a8f89c/request-16/panel-diagnostics.json`
+captures vtable RVA `0x1712f88`, virtual +c0 getter RVA `0x220b60`.
+Captured runtime code in
+`runs/show-items/new-game-on/20260921T134152Z-eb24a8c4/capture.json` covers the
+getter: bytes `48 8b 81 08 06 00 00 c3`, i.e. `mov rax,[rcx+0x608]; ret`.
+The older analysis-runtime derivative has a missing page here and is not evidence.
+
+Both initial and expanded request snapshots retain pointer `0x5d590200` at
+widget+608, matching stable item unit 1776519725, class 682 (`ua4`). The widget
+code matches the local item definition. The item is an ownerless material stack:
+owner FFFFFFFF, page 4, cell (0,0), mode 0. The stash owner is still independently
+validated through the widget's typed owner and inventory header.
+
+Selection now handles this direct-pointer getter separately from grid/equipment
+selection, and passes the existing materials flag to item decoding. Native capture
+does not interpret widget+630 (part of a text object here) as a grid page. The saved
+fixture tests selection, empty/changed pointers, item-code/location mismatch and
+the selected-observation decoding path. Live verification requires a server restart.
+
+## Historical research
+
 Selection remains unvalidated. No Alt+D listener or automatic appraisal is enabled.
 The former table at RVA `0x1e010a0` returned zero in correctly performed host runs.
 Do not repeat that probe unchanged.

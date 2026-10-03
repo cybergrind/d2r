@@ -28,7 +28,7 @@ def single_socket_payload(row, variants):
     fillers = {
         b['name']
         for b in metadata()['bases'].values()
-        if b.get('type') == 'rune' or b.get('type', '').startswith('gem')
+        if b.get('type') in ('rune', 'jewl') or b.get('type', '').startswith('gem')
     }
     if payload not in fillers:
         return None

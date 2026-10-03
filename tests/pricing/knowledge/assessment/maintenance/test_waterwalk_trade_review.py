@@ -16,7 +16,7 @@ from tests.pricing.knowledge.assessment.item_bank.cases.waterwalk_defense import
 @pytest.fixture
 def inputs():
     policy = next(p for p in json.loads(read_artifact(RULES))['policies'] if p['name'] == 'Waterwalk')
-    definitions = thaw(catalog().named_variants[('unique', 'Waterwalk')])
+    definitions = thaw(catalog().named_variants['unique', 'Waterwalk'])
     specs = deepcopy(metadata()['stats'])
     cases = [
         (
@@ -93,7 +93,7 @@ def test_current_source_bound_reports_can_satisfy_the_trade_review_gate():
 
     document, context = review_inputs()
     dimensions, accepted = review_dimensions(document, **context)
-    assert dimensions[('unique', 'Waterwalk')]['state'] == 'reviewed'
+    assert dimensions['unique', 'Waterwalk']['state'] == 'reviewed'
     assert accepted
 
 
@@ -104,7 +104,7 @@ def test_invalid_integration_evidence_stays_pending(mutation):
 
     document, context = review_inputs()
     receipt = next(iter(context['receipts'].values()))
-    evidence = context['partial_evidence'][('unique', 'Waterwalk')]
+    evidence = context['partial_evidence']['unique', 'Waterwalk']
     if mutation == 'census':
         evidence['original']['rows'].pop()
     elif mutation == 'dense-cohort':
@@ -120,5 +120,5 @@ def test_invalid_integration_evidence_stays_pending(mutation):
     else:
         receipt['generation'] = 'old'
     dimensions, accepted = review_dimensions(document, **context)
-    assert dimensions[('unique', 'Waterwalk')]['state'] == 'pending'
+    assert dimensions['unique', 'Waterwalk']['state'] == 'pending'
     assert not accepted

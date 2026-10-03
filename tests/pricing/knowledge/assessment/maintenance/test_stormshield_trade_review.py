@@ -17,7 +17,7 @@ def inputs():
     policy = trade_stormshield.bind_policy(
         next(p for p in json.loads(RULES.read_bytes())['policies'] if p['name'] == 'Stormshield')
     )
-    variants = thaw(catalog().named_variants[('unique', 'Stormshield')])
+    variants = thaw(catalog().named_variants['unique', 'Stormshield'])
     specs = deepcopy(metadata()['stats'])
     cases = [
         (
@@ -88,7 +88,7 @@ def test_trade_registry_accepts_current_independent_contracts():
 
     document, context = gate_data()
     dimensions, accepted = review_dimensions(document, **context)
-    assert dimensions[('unique', 'Stormshield')]['state'] == 'reviewed'
+    assert dimensions['unique', 'Stormshield']['state'] == 'reviewed'
     assert accepted
 
 
@@ -105,7 +105,7 @@ def test_registry_does_not_accept_missing_execution_or_stale_bindings(change):
     elif change == 'generation':
         receipt['generation'] = 'old'
     else:
-        context['policies'][('unique', 'Stormshield')]['underlying_trade']['reviewed_at'] = '2025-01-01'
+        context['policies']['unique', 'Stormshield']['underlying_trade']['reviewed_at'] = '2025-01-01'
     dimensions, accepted = review_dimensions(document, **context)
-    assert dimensions[('unique', 'Stormshield')]['state'] == 'pending'
+    assert dimensions['unique', 'Stormshield']['state'] == 'pending'
     assert not accepted

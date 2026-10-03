@@ -43,6 +43,20 @@ def test_allies_never_count():
     assert tracker.count('Black Marsh').seen == set()
 
 
+def test_a_revived_monster_counts_one_kill():
+    # Fallen Shamans revive their Fallen: same unit id, dead again (Blood Moor, 2026-10-03 logs).
+    tracker = ZoneTracker()
+    tracker.apply([at(seen(7, 6, data_hex=PLAIN_DATA), 5000, 5000), died(7, 6)])
+    tracker.track([Monster(7, 19, 1, 5000, 5000, 6, None)])  # revived
+
+    assert [dot.kind for dot in tracker.map_dots(6)] == ['mob']
+
+    tracker.apply([died(7, 6)])
+
+    assert tracker.count('Black Marsh').killed == 1
+    assert tracker.map_dots(6) == []
+
+
 def test_a_herald_sets_the_next_tier_and_stores_its_group_completion():
     tracker = ZoneTracker()
     kill(tracker, 6, 10)

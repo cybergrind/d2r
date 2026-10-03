@@ -125,3 +125,18 @@ def test_named_unique_catalog_supplies_quality_without_guessing_scope():
     assert row['rarity'] == 'unique'
     assert row['rarity_basis'] == 'named_catalog_category'
     assert row['scope_status'] == 'unknown'
+
+
+def test_stock_marker_is_preserved_for_quantity_semantics_review():
+    row = norm(listing(amount=155, stock=True))
+    assert row['listing_stock'] is True
+    assert norm(listing(stock=False))['listing_stock'] is False
+    assert norm(listing())['listing_stock'] is None
+
+
+def test_available_stock_is_not_assumed_to_be_the_priced_lot():
+    row = normalize_listing(
+        listing(amount=155, stock=True), name='Vex Rune', category='runes', source='fixture', currencies={'ist': 1}
+    )
+    assert row['unit_policy'] == 'ambiguous'
+    assert row['ask_ist'] is None

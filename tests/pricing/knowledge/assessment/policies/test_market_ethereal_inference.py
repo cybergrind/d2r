@@ -74,7 +74,7 @@ def test_native_schema_changes_invalidate_the_proof(monkeypatch, mutation):
     from pricing.knowledge.assessment.handlers.definitions import named_definitions
 
     rows = dict(named_definitions())
-    row = thaw(rows[('unique', 'Arachnid Mesh')])
+    row = thaw(rows['unique', 'Arachnid Mesh'])
     if mutation == 'base':
         row['base_definition']['maxac'] = 64
     elif mutation == 'sockets':
@@ -85,7 +85,7 @@ def test_native_schema_changes_invalidate_the_proof(monkeypatch, mutation):
         row['game_definition']['max1'] = 130
     else:
         row['game_definition']['prop1'] = 'ac'
-    rows[('unique', 'Arachnid Mesh')] = row
+    rows['unique', 'Arachnid Mesh'] = row
     monkeypatch.setattr(inference, 'named_definitions', lambda: rows)
     assert inference.arachnid_ethereal(listing()) is None
 

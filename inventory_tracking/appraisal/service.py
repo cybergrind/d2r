@@ -373,9 +373,12 @@ def run_service(args, directory, report):
                     RetrievalGroup(
                         APPRAISAL.identify_lookup_processes, triage_warm, (recent.next(),)
                     ) as identify_lookups,
-                    refreshing(backend, [appraisal_lookups], args.publication_store),
+                    refreshing(backend, [appraisal_lookups, *identify_lookups.processes], args.publication_store),
+                    # Unrouted types still use legacy detail in identify children. Warm and
+                    # refresh those caches too; triage-only initialization left the first
+                    # legacy identify lookup taking 18 seconds on the host.
                     KeepWarm(
-                        [appraisal_lookups],
+                        [appraisal_lookups, *identify_lookups.processes],
                         warm_lookup(backend, args.database, recent),
                         interval=APPRAISAL.retrieval_keep_warm_interval,
                     ),

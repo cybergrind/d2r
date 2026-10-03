@@ -82,9 +82,8 @@ def compare(properties, rows, deciding, *, keep_ist):
     label = ', '.join(f'{spec.get("label", prop)} {properties[prop]:g}' for prop, spec in deciding.items())
     result.update(q1_ist=price, sellers=len(selected))
     if price is not None:
-        # A directly comparable cheap ask is actionable even when the cohort is thin.
-        # Thin expensive cohorts cannot establish SELL.
-        result['verdict'] = 'vendor' if price < keep_ist else 'check' if len(selected) < 3 else 'priced'
+        # Within the listed range, sparse evidence cannot establish either price disposition.
+        result['verdict'] = 'check' if len(selected) < 3 else 'vendor' if price < keep_ist else 'priced'
         result['reason'] = f'asks {price:g} Ist lower quartile; {len(selected)} comparable-or-worse sellers ({label})'
     else:
         known = seller_rows(
@@ -122,12 +121,12 @@ def compare(properties, rows, deciding, *, keep_ist):
     return result
 
 
-def leave_one_out(rows, deciding, *, ranges=None):
+def leave_one_out(rows, deciding, *, ranges=None, minimum_sellers=15):
     """Compare both predictors on the same held-out sellers using absolute log2 price error."""
     roll_errors, name_errors = [], []
     for held in seller_rows(rows):
         training = [r for r in rows if str(r.get('seller_id')) != str(held['seller_id'])]
-        selected = deciding_stats(training, ranges) if ranges is not None else deciding
+        selected = deciding_stats(training, ranges, minimum_sellers=minimum_sellers) if ranges is not None else deciding
         if not selected:
             continue
         result = compare(held.get('properties', {}), training, selected, keep_ist=0)
@@ -148,4 +147,31 @@ def leave_one_out(rows, deciding, *, ranges=None):
         'name_median_error': name,
         'error_unit': 'absolute log2 price ratio',
         'use_roll_model': roll is not None and roll < name,
+        'paired_errors': list(zip(roll_errors, name_errors, strict=True)),
+    }
+
+
+def fallback_required(validation):
+    roll, name = validation.get('roll_median_error'), validation.get('name_median_error')
+    return roll is not None and name is not None and roll > name
+
+
+def validation_summary(reports):
+    pairs = [pair for report in reports for pair in report['validation'].get('paired_errors', [])]
+    deployed = [
+        pair[1] if fallback_required(report['validation']) else pair[0]
+        for report in reports
+        for pair in report['validation'].get('paired_errors', [])
+    ]
+    return {
+        'evaluated': len(pairs),
+        'roll_median_error': median(p[0] for p in pairs) if pairs else None,
+        'name_median_error': median(p[1] for p in pairs) if pairs else None,
+        'deployed_median_error': median(deployed) if deployed else None,
+        'error_unit': 'absolute log2 price ratio',
+        'fallbacks': [
+            {k: report[k] for k in ('name', 'ethereal', 'socket_contents')}
+            for report in reports
+            if fallback_required(report['validation'])
+        ],
     }

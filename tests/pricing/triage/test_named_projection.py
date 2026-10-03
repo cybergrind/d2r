@@ -50,4 +50,4 @@ def test_recognized_named_pattern_without_a_price_remains_check():
     tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': rules}, 'own': {'rows': []}}
     item = {'category': 'uniques', 'name': "Verdungo's Hearty Cord", 'properties': {'582': 31, '1865': 12}}
     assert assess(item, tables)['verdict'] == 'check'
-    assert assess(item | {'properties': {}}, tables)['verdict'] == 'vendor'
+    assert assess(item | {'properties': {}}, tables)['verdict'] == 'check'

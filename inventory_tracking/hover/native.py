@@ -2,6 +2,8 @@
 
 import struct
 
+from inventory_tracking.hover.materials import material_widget
+
 
 def collect_native(read, base, ui, snapshot, *, all_grids=False):
     result = {'blocks': [], 'owners': [], 'errors': [], 'validated': False, 'stable': False}
@@ -54,7 +56,7 @@ def collect_native(read, base, ui, snapshot, *, all_grids=False):
                 raise ValueError('UI owner identity changed')
             # Native getter may use +98 via a reference object at +a0, otherwise +90.
             # Preserve both candidates; never choose based on a plausible-looking grid.
-            page = raw[0x630]
+            page = 4 if material_widget(widget, base) else raw[0x630]
             if page > 15 and not all_grids and widget.get('vtable') != base + 0x17129D0:
                 raise ValueError('UI page exceeds research bound')
             for offset in (0x90, 0x98):
@@ -64,6 +66,8 @@ def collect_native(read, base, ui, snapshot, *, all_grids=False):
                 inventory = capture(address, 0x48, f'{label}_inventory_{offset:x}')
                 if struct.unpack_from('<I', inventory)[0] != 0x1020304:
                     continue
+                if material_widget(widget, base):
+                    continue  # The native getter uses the widget pointer, not an inventory grid.
                 grid_array, count = struct.unpack_from('<QQ', inventory, 0x20)
                 if count > 32:
                     raise ValueError('Inventory grid count exceeds bound')

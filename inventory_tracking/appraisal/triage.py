@@ -13,7 +13,7 @@ TONES = {
 }
 
 
-def description(triage):
+def price_description(triage):
     if triage['verdict'] == 'check':
         return triage['reason']
     band = triage.get('band') or {}
@@ -24,9 +24,42 @@ def description(triage):
     observed = band.get('observed_at') or 'undated'
     stale = ' · stale' if triage.get('stale') else ''
     quantity = band.get('quantity', 1)
-    lot = f' each in lots of {quantity}' if quantity > 1 else ''
+    if triage.get('sale_mode') in ('bulk', 'split_bulk'):
+        sellers = band['sellers']
+        preparation = f'sell in lots of {quantity} · ' if triage['sale_mode'] == 'split_bulk' else ''
+        return (
+            f'{preparation}asks {price * quantity:.3g} Ist {statistic} per lot of {quantity} '
+            f'({price:.3g} Ist each) · {sellers} sellers · {observed}{stale}'
+        )
+    lot = (
+        ' each; sell individually'
+        if triage.get('sale_mode') == 'individual'
+        else f' each in lots of {quantity}'
+        if quantity > 1
+        else ''
+    )
     comparison = f' · {triage["reason"]}' if triage.get('roll_comparison') else ''
-    return f'asks {price:g} Ist {statistic}{lot} · {band["sellers"]} sellers · {observed}{stale}{comparison}'
+    if label := band.get('comparison', {}).get('label'):
+        comparison = f' · comparable-or-worse {label}'
+    unsupported = (
+        triage['verdict'] == 'vendor' and price >= triage.get('keep_ist', 0.25) and band.get('liquidity') == 'none'
+    )
+    prefix = f'{triage["reason"]} · reference ' if unsupported else ''
+    sellers = band['sellers']
+    seller_label = 'seller' if sellers == 1 else 'sellers'
+    return f'{prefix}asks {price:g} Ist {statistic}{lot} · {sellers} {seller_label} · {observed}{stale}{comparison}'
+
+
+def description(triage):
+    text = price_description(triage)
+    if options := triage.get('preparation'):
+        counts = '/'.join(str(n) for n in options['larzuk'])
+        conditional = ' (item level unknown)' if options['conditional'] else ''
+        text += f' · Larzuk: {counts} sockets{conditional}'
+        if cube := options['cube']:
+            count = str(cube[-1]) if len(cube) == 1 else f'1-{cube[-1]}'
+            text += f' · cube: {count} sockets'
+    return text
 
 
 def headline(triage):

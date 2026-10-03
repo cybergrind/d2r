@@ -4,14 +4,24 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from pricing.knowledge.artifacts import artifact_snapshot
+from pricing.knowledge.assessment.mechanics.base_tiers import CATALOG as BASE_CATALOG
 from pricing.knowledge.market import normalize_listing
 from pricing.triage.bands import build_bands
+from pricing.triage.listing_defaults import normalize as listing_defaults
 
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def market_rows(root=ROOT):
+    # Immutable bytes for this batch only: avoid re-reading and hashing the
+    # same catalog for every listing while seeing changes on the next run.
+    with artifact_snapshot([BASE_CATALOG]):
+        return _market_rows(root)
+
+
+def _market_rows(root):
     data = root / 'pricing/data'
     catalog = json.loads((data / 'appraisal-traderie-catalog.json').read_text())['items']
     by_id = {str(r['id']): r for r in catalog}
@@ -40,7 +50,10 @@ def market_rows(root=ROOT):
                     currencies=currencies,
                 )
             )
-    return rows, catalog
+    from pricing.triage.currencies import apply_gem_quotes
+    from pricing.triage.stock_evidence import restore
+
+    return [listing_defaults(row) for row in apply_gem_quotes(restore(rows, root), currencies)], catalog
 
 
 def main():

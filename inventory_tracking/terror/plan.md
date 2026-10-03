@@ -141,6 +141,12 @@ is real/big varies per game).
      level not entered yet counts at 0 with its weight, and its population for the kills ahead
      is its article share. Replay of the 2026-10-02 Black Marsh runs: the Tier 1 Herald came at
      99.5% (186 kills of an extrapolated 187; 179 seen in 90 of 94 rooms).
+   - **Revives count once (user, 2026-10-03)**: Fallen Shamans (and others) raise a corpse as the
+     same unit id, and the probe logs a `died` each time it dies. The tracker counts a unit's
+     first death only (`ZoneTracker.dead`), and a revived unit gets its map dot back while it is alive.
+     In the 17:34 game of run 20261003T160844Z, 46 of 1283 deaths were repeats, mostly Fallen in
+     the Cold Plains and Black Marsh. In the Dark One rooms of the Catacombs (area 37), up to 10
+     of the 99 deaths in a game were repeats.
 7. **Later / open**: the 90+ monster level (base stat list logged since 17:30, unanalysed;
    config says level = character + 2 within 70-96); Nightmare Terror Zones;
    guides/terror_zones.html §2/§4 still use flattened populations. Herald and minion kills

@@ -135,3 +135,45 @@ def test_saved_triage_scoring_never_invokes_the_detail_engine(tmp_path, monkeypa
     output = capsys.readouterr().out
     assert '1 items assessed; 1 with a price' in output
     assert '"sell_band_coverage": 1.0' in output
+
+
+def test_merge_retains_archived_cases_and_labels_while_ingesting_identified_drops(tmp_path):
+    from inventory_tracking.corpus.build import merge
+    from inventory_tracking.corpus.score import load
+
+    data, runs = tmp_path / 'data', tmp_path / 'runs'
+    data.mkdir()
+    archived = observation('Archived Ring', rarity='rare')
+    old_id = item_id(archived)
+    (data / 'items.jsonl').write_text(json.dumps({'id': old_id, 'observation': archived}) + '\n')
+    label_text = json.dumps({old_id: 'sell'})
+    (data / 'labels.json').write_text(label_text)
+    fresh = observation('Fresh Wand', rarity='magic')
+    folder = runs / 'session' / 'identified'
+    folder.mkdir(parents=True)
+    for name in ('first', 'repeat'):
+        (folder / f'{name}.json').write_text(json.dumps({'observation': fresh}))
+    merge(runs, data)
+    items, labels = load(data)
+    assert {r['id'] for r in items} == {old_id, item_id(fresh)}
+    assert labels == {old_id: 'sell'}
+    assert (data / 'labels.json').read_text() == label_text
+    before = (data / 'items.jsonl').stat().st_mtime_ns
+    merge(runs, data)
+    assert (data / 'items.jsonl').stat().st_mtime_ns == before
+
+
+def test_merge_initializes_an_empty_corpus(tmp_path):
+    from inventory_tracking.corpus.build import merge
+    from inventory_tracking.corpus.score import load
+
+    data = tmp_path / 'data'
+    assert merge(tmp_path / 'absent-runs', data) == {}
+    assert load(data) == ([], {})
+
+
+def test_label_page_offers_check_and_seeds_saved_user_labels():
+    page = label_page({'ring': observation('Ring')}, ['ring'], labels={'ring': 'check'})
+    assert '<button data-label="check">5 check</button>' in page
+    assert 'let labels = {"ring": "check"};' in page
+    assert "'12345'.includes(event.key)" in page

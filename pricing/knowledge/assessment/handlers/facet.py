@@ -16,6 +16,7 @@ TRIGGERS = {
     399: (199, 278, None, 'Venom'),
 }
 
+
 def facet_trigger(facts, definition):
     if facts.name != 'Rainbow Facet':
         return {}, set(), []

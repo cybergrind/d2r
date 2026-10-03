@@ -197,3 +197,40 @@ def test_keep_warm_lookup_without_any_item_does_nothing(tmp_path):
     process = RecordingProcess()
     appraisal_service.warm_lookup(None, tmp_path / 'index.sqlite', appraisal_service.RecentObservations())(process)
     assert process.calls == []
+
+
+def test_service_keeps_identify_fallback_processes_warm(tmp_path, monkeypatch):
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+
+    primary = object()
+    identify = [object(), object(), object()]
+    seen = []
+    monkeypatch.setattr(appraisal_service, 'wait_for_game', lambda *_: (123, {}, {}))
+    monkeypatch.setattr(appraisal_service, 'hud_process', lambda *_: nullcontext())
+    monkeypatch.setattr(appraisal_service, 'RetrievalProcess', lambda *_: nullcontext(primary))
+    monkeypatch.setattr(
+        appraisal_service, 'RetrievalGroup', lambda *_: nullcontext(SimpleNamespace(processes=identify))
+    )
+
+    def keep_warm(processes, touch, *, interval):
+        seen.extend(processes)
+        # Stop after service setup, before any game-memory reads or background jobs.
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(appraisal_service, 'KeepWarm', keep_warm)
+    assert (
+        appraisal_service.main(
+            [
+                'serve',
+                '--socket',
+                str(tmp_path / 'sock'),
+                '--output',
+                str(tmp_path / 'runs'),
+                '--database',
+                str(tmp_path / 'unused.sqlite3'),
+            ]
+        )
+        == 0
+    )
+    assert seen == [primary, *identify]

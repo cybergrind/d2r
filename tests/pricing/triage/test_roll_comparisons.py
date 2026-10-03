@@ -1,6 +1,6 @@
 import pytest
 
-from pricing.triage.roll_comparisons import compare, deciding_stats, leave_one_out
+from pricing.triage.roll_comparisons import compare, deciding_stats, leave_one_out, validation_summary
 
 
 def rows():
@@ -39,7 +39,7 @@ def test_selection_detects_paid_skill_not_evenly_distributed_ed():
     assert selected['skill']['top_count'] == 18
     assert selected['skill']['sample_size'] == 19
     low = compare({'skill': 2, 'ed': 50}, rows(), selected, keep_ist=0.25)
-    assert low['verdict'] == 'vendor'
+    assert low['verdict'] == 'check'
     assert low['q1_ist'] == 0.2
     assert low['sellers'] == 1
     assert 'Vengeance' in low['reason']
@@ -104,3 +104,34 @@ def test_held_out_seller_cannot_supply_the_stat_selection_sample():
     assert report['selection_recomputed'] is True
     assert report['evaluated'] == 0
     assert report['use_roll_model'] is False
+
+
+def test_aggregate_validation_weights_held_out_sellers_and_lists_fallbacks():
+    reports = [
+        {
+            'name': 'A',
+            'ethereal': False,
+            'socket_contents': 'empty',
+            'validation': {'paired_errors': [(1, 2)] * 3, 'roll_median_error': 1, 'name_median_error': 2},
+        },
+        {
+            'name': 'B',
+            'ethereal': False,
+            'socket_contents': 'empty',
+            'validation': {'paired_errors': [(10, 3)], 'roll_median_error': 10, 'name_median_error': 3},
+        },
+    ]
+    result = validation_summary(reports)
+    assert result['evaluated'] == 4
+    assert result['roll_median_error'] == 1
+    assert result['name_median_error'] == 2
+    assert [row['name'] for row in result['fallbacks']] == ['B']
+
+
+@pytest.mark.parametrize(('sellers', 'expected'), [(1, 'check'), (2, 'check'), (3, 'vendor')])
+def test_cheap_comparable_rolls_need_three_sellers_before_vendor(sellers, expected):
+    listings = [{'seller_id': str(i), 'ask_ist': 0.2, 'properties': {'skill': 2}} for i in range(sellers)]
+    result = compare({'skill': 2}, listings, {'skill': RANGES['skill']}, keep_ist=0.25)
+    assert result['verdict'] == expected
+    assert result['sellers'] == sellers
+    assert result['q1_ist'] == pytest.approx(0.2)

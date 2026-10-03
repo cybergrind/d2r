@@ -35,6 +35,7 @@ def test_plain_superior_does_not_overlap_perfect_and_paladin_resists_are_require
         'sockets': 3,
         'ethereal': False,
         'empty_sockets': True,
+        'base_ed_grade': 'ordinary',
         'base_ed': 14,
     }
     assert matches(item, plain)
@@ -61,10 +62,30 @@ def test_ambiguous_affixed_and_filled_buckets_are_not_empty_base_rules():
 def test_listing_and_drop_base_facets_keep_unknown_contents_unknown():
     from pricing.triage.adapters import base_facets
 
-    assert base_facets({}, 'normal', 0, None) == {'base_ed': 0, 'empty_sockets': True}
-    assert base_facets({}, 'superior', 3, None) == {'base_ed': None, 'empty_sockets': None}
-    assert base_facets({'425': 15}, 'superior', 3, []) == {'base_ed': 15, 'empty_sockets': True}
-    assert base_facets({'510': 14}, 'superior', 3, ['rune']) == {'base_ed': 14, 'empty_sockets': False}
+    assert base_facets({}, 'normal', 0, None) == {
+        'base_ed_grade': 'ordinary',
+        'base_modifiers': {},
+        'base_ed': 0,
+        'empty_sockets': True,
+    }
+    assert base_facets({}, 'superior', 3, None) == {
+        'base_ed_grade': None,
+        'base_modifiers': {},
+        'base_ed': None,
+        'empty_sockets': None,
+    }
+    assert base_facets({'425': 15}, 'superior', 3, []) == {
+        'base_ed_grade': 'perfect',
+        'base_modifiers': {},
+        'base_ed': 15,
+        'empty_sockets': True,
+    }
+    assert base_facets({'510': 14}, 'superior', 3, ['rune']) == {
+        'base_modifiers': {},
+        'base_ed_grade': 'ordinary',
+        'base_ed': 14,
+        'empty_sockets': False,
+    }
 
 
 def test_clean_base_band_is_rebuilt_from_matching_scoped_sellers_only():

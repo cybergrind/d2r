@@ -26,7 +26,7 @@ def row(identity, label):
 @pytest.mark.parametrize(('table_id', 'identity', 'label'), VARIANTS)
 def test_verified_facet_alias_retains_variant_and_supplies_shared_jewel_mechanics(table_id, identity, label):
     result = row(identity, label)
-    definition = next(v for v in catalog().named_variants[('unique', 'Rainbow Facet')] if v['table_id'] == table_id)
+    definition = next(v for v in catalog().named_variants['unique', 'Rainbow Facet'] if v['table_id'] == table_id)
     assert result['name'] == 'Rainbow Facet'
     assert result['catalog_name'] == 'Rainbow Facet: ' + label
     assert result['catalog_id'] == identity
@@ -75,7 +75,7 @@ def test_facet_catalog_refuses_changed_native_discriminators(field, value):
     from pricing.knowledge.assessment.domain.facts import thaw
     from pricing.knowledge.market_facet_catalog import facet_catalog
 
-    definition = thaw(next(v for v in catalog().named_variants[('unique', 'Rainbow Facet')] if v['table_id'] == 392))
+    definition = thaw(next(v for v in catalog().named_variants['unique', 'Rainbow Facet'] if v['table_id'] == 392))
     definition['game_definition'][field] = value
     assert facet_catalog(definition) is None
 

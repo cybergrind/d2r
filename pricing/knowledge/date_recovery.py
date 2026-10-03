@@ -31,7 +31,7 @@ def _material(row, generation, *, fresh):
     base = result.get('facet_basis', {}).get('base_code', {})
     if base.get('kind') == 'named_definition' and base.get('path') == 'pricing/data/appraisal-definitions.json':
         origin = base.get('generation')
-        if not isinstance(origin, str) or not re.fullmatch('[0-9a-f]{64}', origin) or (fresh and origin != generation):
+        if not isinstance(origin, str) or not re.fullmatch(r'[0-9a-f]{64}', origin) or (fresh and origin != generation):
             raise ValueError('Unverified definition generation in recovered observation')
         # Preserve the historical derivation, after current normalization proves
         # all actual fields and the other provenance semantics unchanged.

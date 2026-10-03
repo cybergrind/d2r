@@ -14,16 +14,19 @@ def tables(rows, rules=()):
 
 def test_non_ethereal_drop_never_borrows_ethereal_or_unknown_asks():
     rows = [
-        {**listing(i, price), 'ethereal': eth}
+        {**listing(i, price), 'ethereal': eth, 'properties': {**listing(i)['properties'], '738': eth}}
         for i, (price, eth) in enumerate(
             [(0.674, None), (0.789, None), (2.585, None), (11.421, True), (11.421, True), (79.947, True)]
         )
     ]
     result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows))
-    assert result['verdict'] == 'vendor'
+    assert result['verdict'] == 'check'
     assert result['band'] is None or result['band']['median_ist'] is None
     assert result['reference_band']['median_ist'] == 7.003
-    assert 'non-ethereal' in result['reason']
+    assert (
+        result['reason']
+        == 'capture missing base, sockets, socket contents; variant price unavailable; name band is reference only'
+    )
     assert assess({'category': 'uniques', 'name': 'Example', 'ethereal': True}, tables(rows))['verdict'] == 'slow'
 
 
@@ -42,15 +45,15 @@ def test_roll_bands_are_disjoint_and_take_precedence_over_name():
         for i, (price, roll) in enumerate([(0.1, 100)] * 3 + [(10, 120)] * 3)
     ]
     data = tables(rows, rules)
-    low = assess({'category': 'uniques', 'name': 'Example', 'properties': {'425': 100}}, data)
+    low = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 100}}, data)
     assert low['verdict'] == 'vendor'
     assert low['band']['median_ist'] == 0.1
     assert low['band']['sellers'] == 3
-    high = assess({'category': 'uniques', 'name': 'Example', 'properties': {'425': 120}}, data)
+    high = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 120}}, data)
     assert high['verdict'] == 'slow'
     assert high['band']['median_ist'] == 10
     missing = assess({'category': 'uniques', 'name': 'Example'}, data)
-    assert missing['bucket'] == 'name|ethereal:unknown'
+    assert missing['bucket'] == 'name|ethereal:unknown|sockets:[null,null]|base:null'
 
 
 def test_runeword_base_and_ethereal_are_both_required_for_price():
@@ -66,7 +69,7 @@ def test_runeword_base_and_ethereal_are_both_required_for_price():
     assert assess(good, data)['verdict'] == 'slow'
     for change in [{'base_code': 'base-b'}, {'base_code': None}, {'ethereal': False}, {'ethereal': None}]:
         result = assess({**good, **change}, data)
-        assert result['verdict'] == 'vendor'
+        assert result['verdict'] == 'check'
         assert result['band'] is None
 
 
@@ -80,10 +83,15 @@ def test_required_roll_bucket_cannot_fall_back_to_mixed_name_price():
         'rules': {'keep_ist': 0.25, 'rows': rules, 'policies': policies},
         'own': {'rows': []},
     }
-    assert assess({'category': 'uniques', 'name': 'Example', 'properties': {'425': 120}}, data)['verdict'] == 'slow'
+    assert (
+        assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 120}}, data)[
+            'verdict'
+        ]
+        == 'slow'
+    )
     for props in ({}, {'425': 100}):
-        result = assess({'category': 'uniques', 'name': 'Example', 'properties': props}, data)
-        assert result['verdict'] == 'vendor'
+        result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': props}, data)
+        assert result['verdict'] == 'check'
         assert result['band'] is None
 
 
@@ -101,7 +109,10 @@ def test_thin_premium_roll_bucket_does_not_borrow_ordinary_roll_band():
         'rules': {'keep_ist': 0.25, 'rows': rules, 'policies': policies},
         'own': {'rows': []},
     }
-    assert assess({'category': 'uniques', 'name': 'Example', 'properties': {'425': 120}}, data)['band'] is None
+    assert (
+        assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 120}}, data)['band']
+        is None
+    )
 
 
 def test_base_socket_contents_quality_and_count_cannot_cross_price_bands():
@@ -137,10 +148,65 @@ def test_base_socket_contents_quality_and_count_cannot_cross_price_bands():
 
 
 def test_unknown_ethereal_never_prices_known_noneth_even_without_ethereal_sellers():
-    rows = [listing(i, 10) for i in range(3)]
+    rows = [{**listing(i, 10), 'properties': {**listing(i)['properties'], '738': None}} for i in range(3)]
     result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False}, tables(rows))
     assert result['band'] is None or result['band']['median_ist'] is None
-    assert result['verdict'] == 'vendor'
+    assert result['verdict'] == 'check'
     assert result['reference_band']['median_ist'] == 10
     unknown = assess({'category': 'uniques', 'name': 'Example', 'ethereal': None}, tables(rows))
     assert unknown['band']['median_ist'] == 10
+
+
+def test_named_fallback_bands_never_pool_socket_counts_or_contents():
+    for category, name in [('uniques', 'Tomb Reaver'), ('sets', "Griswold's Heart")]:
+        rows = []
+        for count, contents, price in [(1, 'empty', 0.1), (3, 'empty', 10), (3, 'filled', 50)]:
+            for i in range(3):
+                rows.append(
+                    listing(f'{count}-{contents}-{i}', price)
+                    | {
+                        'category': category,
+                        'name': name,
+                        'ethereal': False,
+                        'sockets': count,
+                        'socket_contents': contents,
+                    }
+                )
+        item = {'category': category, 'name': name, 'ethereal': False, 'sockets': 1, 'socket_contents': 'empty'}
+        for policies in ([], [{'category': category, 'name': name, 'facets': ['ethereal']}]):
+            doc = build_bands(rows, [], policies=policies)
+            data = {
+                'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in doc['bands']},
+                'rules': {'keep_ist': 0.25, 'rows': [], 'policies': policies},
+                'own': {'rows': []},
+            }
+            low = assess(item, data)
+            assert low['verdict'] == 'vendor'
+            assert low['band']['q1_ist'] == 0.1
+            high = assess(item | {'sockets': 3}, data)
+            assert high['verdict'] == 'slow'
+            assert high['band']['q1_ist'] == 10
+            assert high['band']['sellers'] == 3
+            for change in ({'sockets': 2}, {'sockets': None}, {'socket_contents': 'unknown'}):
+                assert assess(item | change, data)['band'] is None
+
+
+def test_named_fallback_cannot_pool_original_upgraded_or_unknown_bases():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.bands import build_bands
+    from pricing.triage.engine import assess
+    from tests.pricing.triage.test_bands import listing
+
+    rows = [
+        listing(f'{base}-{i}', price, base_code=base)
+        for base, price in [('original', 0.1), ('upgraded', 10), (None, 100)]
+        for i in range(3)
+    ]
+    doc = build_bands(rows, [])
+    tables = {
+        'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in doc['bands']},
+        'rules': {'keep_ist': 0.25, 'rows': []},
+        'own': {'rows': []},
+    }
+    for i, price in [(0, 0.1), (3, 10), (6, 100)]:
+        assert assess(from_listing(rows[i]), tables)['band']['q1_ist'] == price

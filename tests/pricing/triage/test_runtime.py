@@ -22,9 +22,15 @@ def test_table_reload_changes_threshold_without_publication(tmp_path):
     tables = Tables(tmp_path)
     original = tables.load()
     assert tables.load() is original
-    (tmp_path / 'rules.json').write_text(json.dumps({'keep_ist': 12.5, 'rows': []}))
+    rule = {'category': 'base', 'name': 'Example', 'premium': True}
+    (tmp_path / 'rules.json').write_text(json.dumps({'keep_ist': 12.5, 'rows': [rule]}))
     assert tables.load()['rules']['keep_ist'] == 12.5
     assert original['rules']['keep_ist'] == 0.25
+    from pricing.triage.engine import assess
+
+    item = {'category': 'base', 'name': 'Example'}
+    assert assess(item, original)['verdict'] == 'vendor'
+    assert assess(item, tables.load())['verdict'] == 'sell'
 
 
 def test_alt_d_card_starts_with_same_dated_triage_band():
@@ -94,3 +100,36 @@ def test_quest_material_uses_fast_path_without_legacy_assessment(monkeypatch):
     result = runtime.guarded_retrieve(observation, None)
     assert result['triage']['band']['name'] == "Talic's Anguish"
     assert result['triage']['decision_ist'] is not None
+
+
+def test_all_rune_and_gem_families_use_fast_triage_including_unseen_drops(monkeypatch):
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.socket_materials import TYPES
+    from pricing.triage import runtime
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError('Rune or gem fell back to the detail engine')
+
+    monkeypatch.setattr('inventory_tracking.appraisal.memory_backend.memory_evidence', forbidden)
+    monkeypatch.setattr('inventory_tracking.appraisal.published_backend.retrieve_pinned', forbidden)
+    seen = set()
+    for base in metadata()['bases'].values():
+        if base['type'] not in TYPES | {'rune'}:
+            continue
+        observation = {
+            'item': {
+                'name': base['name'],
+                'base_code': base['code'],
+                'rarity': 'normal',
+                'ethereal': False,
+                'identified': True,
+                'sockets': 0,
+                'socket_contents': 'empty',
+                'affixes': [],
+            },
+            'source': {'stat_capture_complete': True},
+            'decoded_stats': [],
+        }
+        assert 'triage' in runtime.guarded_retrieve(observation, None), base['name']
+        seen.add(base['type'])
+    assert seen == TYPES | {'rune'}

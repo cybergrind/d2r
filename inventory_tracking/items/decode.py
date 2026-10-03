@@ -153,9 +153,13 @@ def decode_items(
         annotate_roll_ranges(decoded, range_context)
         annotate_roll_ranges(decoded, defense_range_context(arrays, identity))
         annotate_staffmods(decoded, details, arrays, base)
+        quantity = arrays.get('stack_count') if materials else None
+        if quantity is not None:
+            decoded.append({'status': 'decoded', 'name': 'stack', 'text': f'Quantity: {quantity}'})
         results.append(
             {
                 'item': {
+                    **({'quantity': quantity} if quantity is not None else {}),
                     'name': identity['name'] if identity else base['name'],
                     **({'set_name': identity['set_name']} if identity and identity.get('set_name') else {}),
                     **({'runeword': identity['name']} if identity and identity['table'] == 'runeword' else {}),

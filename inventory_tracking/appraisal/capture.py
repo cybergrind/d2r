@@ -21,6 +21,7 @@ from inventory_tracking.native.layout import SUPPORTED_SHA256
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import read_item_arrays
 from inventory_tracking.native.socket_items import read_socket_items
+from inventory_tracking.native.stack_items import read_stack_count
 from inventory_tracking.native.unit_probe import ResearchReader, sample_units
 from inventory_tracking.native.units import describe_item, unit_matches
 
@@ -32,6 +33,7 @@ def selected_observation(snapshot, report, unit_id, *, inventory_page=0, selecti
         raise ValueError('Selected item missing or ambiguous in stat snapshot')
     owner_id = None
     owner_type = 0
+    materials = False
     if selection_sample is not None:
         if selection_sample['snapshot'] != snapshot:
             raise ValueError('Selection snapshot mismatch')
@@ -47,8 +49,16 @@ def selected_observation(snapshot, report, unit_id, *, inventory_page=0, selecti
             raise ValueError('Selected item provenance mismatch')
         owner_id = selection['owner_id']
         owner_type = selection['owner_type']
+        materials = selection.get('materials', False)
+        if materials:
+            owner_id = None  # The material stack has no player-unit owner.
     observations = decode_items(
-        frozen, report, inventory_page=inventory_page, inventory_owner_id=owner_id, inventory_owner_type=owner_type
+        frozen,
+        report,
+        inventory_page=inventory_page,
+        inventory_owner_id=owner_id,
+        inventory_owner_type=owner_type,
+        materials=materials,
     )
     if len(observations) != 1 or observations[0]['source']['unit_id'] != unit_id:
         raise ValueError('Selected item does not belong to the verified inventory owner')
@@ -88,7 +98,7 @@ class RecentFocus:
         return focused
 
 
-def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=None) -> dict[str, Any]:
+def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=None, stack=False) -> dict[str, Any]:
     """Recheck selected header, location and all recorded stats through fresh reads."""
     if identity(pid) != images['identity']:
         raise ValueError('Game process changed')
@@ -97,6 +107,8 @@ def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=No
     try:
         reader = ResearchReader(fd, before)
         item_data = reader.read(item['data_pointer'], 0x60)
+        stack = stack or 'stack_count' in (expected_arrays or {})
+        quantity = read_stack_count(reader.read, item) if stack else None
         if not unit_matches(reader.read, item) or describe_item(reader.read, item) != item['details']:
             raise ValueError('Selected item changed')
         arrays: dict[str, Any] = (
@@ -115,6 +127,8 @@ def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=No
         if defense:
             arrays['defense_modifiers'] = defense
         arrays['item_data_hex'] = item_data.hex()
+        if stack:
+            arrays['stack_count'] = quantity
         if (
             not arrays['complete']
             or (
@@ -129,6 +143,8 @@ def verify_item(pid, images, item, expected_arrays=None, *, socket_candidates=No
             raise ValueError('Selected item moved')
         if reader.read(item['data_pointer'], 0x60) != item_data:
             raise ValueError('Selected item metadata changed')
+        if stack and read_stack_count(reader.read, item) != quantity:
+            raise ValueError('Selected item stack changed')
         previous_sockets = (expected_arrays or {}).get('socket_items')
         if socket_candidates is None and previous_sockets and 'candidate_units' in previous_sockets:
             socket_candidates = previous_sockets['candidate_units']
@@ -228,7 +244,8 @@ class AppraisalCapture:
         item = selection['item']
         snapshot = sample['snapshot']
         arrays = verify_item(
-            self.pid, self.images, item, socket_candidates=snapshot.get('groups', {}).get('items', {}).get('units', [])
+            self.pid, self.images, item, socket_candidates=snapshot.get('groups', {}).get('items', {}).get('units', []),
+            **({'stack': True} if selection.get('materials') else {}),
         )
         row = {key: copy.deepcopy(item[key]) for key in ('unit_id', 'txt_id', 'mode', 'details')}
         row['resource_stats'] = arrays

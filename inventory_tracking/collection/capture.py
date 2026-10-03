@@ -32,6 +32,7 @@ from inventory_tracking.native.layout import HIRELING_CLASS_ID, SUPPORTED_SHA256
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.resource_probe import read_item_arrays, read_location
 from inventory_tracking.native.socket_items import read_socket_items
+from inventory_tracking.native.stack_items import STACK_COUNT_OFFSET as STACK_COUNT_OFFSET, read_stack_count
 from inventory_tracking.native.unit_probe import ResearchReader, sample_units
 from inventory_tracking.native.units import describe_item, unit_matches
 from inventory_tracking.tracking.state import select_player
@@ -55,9 +56,6 @@ STATES_OFFSET = 0xAF0
 STATES_WORDS = 6
 SHARED_STASH_STATE = 186
 INVENTORY_MAGIC = 0x1020304
-# Currency-tab stacks: u32 count at item data +0x9C, verified against 43 in-game
-# counts (runes, shards, potions, every gem cell) in run 20260925T124336Z (research.md).
-STACK_COUNT_OFFSET = 0x9C
 CLASS_NAMES = {
     0: 'Amazon',
     1: 'Sorceress',
@@ -245,10 +243,6 @@ def find_mercenary(snapshot, player_id) -> dict[str, Any] | None:
         and m['details']['monster_data_u32'][21] == player_id
     ]
     return matches[0] if len(matches) == 1 and monsters.get('complete') else None
-
-
-def read_stack_count(read, unit) -> int:
-    return struct.unpack('<I', read(unit['data_pointer'] + STACK_COUNT_OFFSET, 4))[0]
 
 
 def read_item_record(read, unit, candidates, *, stack: bool = False) -> dict[str, Any]:
@@ -565,12 +559,6 @@ def build_sightings(record, *, run_id=None, captured_at=None) -> CollectionBuild
         single = dict(snapshot, resources={'complete': True, 'items': [row]})
         try:
             [observation] = decode_items(single, report, **options)
-            quantity = row['resource_stats'].get('stack_count')
-            if quantity is not None:
-                observation['item']['quantity'] = quantity
-                observation['decoded_stats'].append(
-                    {'status': 'decoded', 'name': 'stack', 'text': f'Quantity: {quantity}'}
-                )
             item = ItemRecord.from_observation(observation)
             location = Location.from_source(observation['source'], character.name, tab=tab)
         except (ValueError, KeyError, TypeError) as exc:

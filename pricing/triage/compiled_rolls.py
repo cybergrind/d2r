@@ -4,8 +4,9 @@ import json
 from bisect import bisect_right
 from itertools import product
 
+from pricing.triage.adapters import expanded_properties
 from pricing.triage.bands import band_for, eligible
-from pricing.triage.roll_comparisons import comparable, compare, numeric
+from pricing.triage.roll_comparisons import comparable, compare, fallback_required, numeric
 
 
 def key(values):
@@ -13,15 +14,17 @@ def key(values):
 
 
 def compile_model(report, rows):
-    if not report['validation']['use_roll_model']:
+    if not report['deciding'] or fallback_required(report['validation']):
         return None
     cohort = [
-        r
+        r | {'properties': expanded_properties(r.get('properties', {}))}
         for r in rows
         if eligible(r)
         and r['name'].casefold() == report['name'].casefold()
         and r.get('ethereal') is report['ethereal']
         and r.get('socket_contents') == report.get('socket_contents')
+        and r.get('sockets') == report.get('sockets')
+        and r.get('base_code') == report.get('base_code')
         and r['amount'] == 1
     ]
     if not cohort:
@@ -67,6 +70,8 @@ def lookup(item, models, *, keep_ist):
             and m['category'] == item.get('category')
             and m['ethereal'] is item.get('ethereal')
             and m.get('socket_contents') == item.get('socket_contents')
+            and m.get('sockets') == item.get('sockets')
+            and m.get('base_code') == item.get('base_code')
         ),
         None,
     )
@@ -82,6 +87,8 @@ def lookup(item, models, *, keep_ist):
     values, labels = [], []
     for prop, points in model['axes'].items():
         spec = model['deciding'][prop]
+        if spec.get('base_code') and item.get('base_code') != spec['base_code']:
+            return result | {'reason': 'unverified base for deciding roll: ' + spec.get('label', prop)}
         value = item.get('properties', {}).get(prop)
         if not numeric(value) or not spec['min'] <= value <= spec['max']:
             return result | {'reason': 'unreadable or out-of-range deciding roll: ' + spec.get('label', prop)}
@@ -95,10 +102,10 @@ def lookup(item, models, *, keep_ist):
     if band is not None:
         price = band['q1_ist']
         verdict = (
-            'vendor'
-            if price < keep_ist
-            else 'check'
+            'check'
             if band['sellers'] < 3
+            else 'vendor'
+            if price < keep_ist
             else ('sell' if band['liquidity'] == 'liquid' else 'slow')
         )
         return result | {'verdict': verdict, 'reason': f'comparable-or-worse asks for {comparison}'}

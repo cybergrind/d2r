@@ -18,6 +18,9 @@ none (monster data +0x20, the first modifier; plain = type flags +0x1A == 0). Af
 17:30 UTC rotation, sewer monsters seen anew had none. The last few plain sightings per
 Terror Zone decide; a Herald marks its zone when no plain monster was seen.
 
+A revived monster (Fallen Shamans raise their Fallen: same unit id, 2026-10-03 logs) is one
+kill however often it dies (user, 2026-10-03), and gets its map dot back while alive.
+
 Leaving the game resets everything; a service started mid-game assumes Tier 1 until it sees
 a Herald.
 """
@@ -90,6 +93,7 @@ class ZoneTracker:
         self.loaded: dict[int, int] = {}  # area -> rooms ever loaded, as the probe counts them
         self.positions: dict[int, tuple[int, int, int]] = {}  # hostile unit id -> (area, x, y), alive
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
+        self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
         self.votes: dict[str, deque[bool]] = {}  # Terror Zone -> recent plain sightings: forced modifier?
         self.live_heralds: dict[int, tuple[int, int, int, int]] = {}  # unit id -> (tier, area, x, y), alive
         self.offsets: dict[str, float] = {}  # group -> completion % when its last Herald appeared
@@ -134,8 +138,10 @@ class ZoneTracker:
                 unit_id = event['unit_id']
                 self.live_heralds.pop(unit_id, None)
                 self.positions.pop(unit_id, None)
-                if group and unit_id not in self.allies:
+                if group and unit_id not in self.allies and unit_id not in self.dead:
                     self.area_count(event['area']).killed += 1
+                if unit_id not in self.allies:
+                    self.dead.setdefault(unit_id, event['area'])
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
@@ -165,6 +171,9 @@ class ZoneTracker:
     def track(self, monsters):
         """Follow live monsters: `monsters` are the units present this pass (terror/monsters.py)."""
         for monster in monsters:
+            revived = monster.unit_id in self.dead and monster.unit_id not in self.positions
+            if revived and monster.mode not in DEAD_MODES:
+                self.positions[monster.unit_id] = (monster.area or self.dead[monster.unit_id], monster.x, monster.y)
             if monster.unit_id in self.positions:
                 area = self.positions[monster.unit_id][0]
                 self.positions[monster.unit_id] = (monster.area or area, monster.x, monster.y)

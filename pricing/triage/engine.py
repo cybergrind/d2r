@@ -5,10 +5,13 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 
 from pricing.triage.bands import ethereal_bucket, quantity_bucket
+from pricing.triage.commodity_lots import accumulation, compile_lots, fungible, sale_lot, sale_value, saving_reason
 from pricing.triage.compiled_rolls import lookup as roll_model
 from pricing.triage.family_bands import lookup as family_band
 from pricing.triage.patterns import check_reason, matched_patterns
-from pricing.triage.variants import profile_for, scoped_bucket
+from pricing.triage.rule_index import candidates as rule_candidates, compile_index
+from pricing.triage.socket_potential import preparation
+from pricing.triage.variants import base_bucket, profile_for, scoped_bucket, socket_bucket
 
 
 DATA = Path(__file__).resolve().parents[1] / 'data/triage'
@@ -52,15 +55,33 @@ def matches(item, rule):
     return True
 
 
+def variant_name_band(item, tables):
+    category, name = item.get('category'), str(item.get('name', '')).casefold()
+    bucket = quantity_bucket(item.get('quantity', 1))
+    reference = tables['bands'].get((category, name, bucket)) or {}
+    facets = profile_for(item, tables['rules'].get('policies', [])).get('facets', [])
+    if not facets and reference.get('separate_ethereal'):
+        bucket = ethereal_bucket(bucket, item.get('ethereal'))
+    bucket = scoped_bucket(bucket, item, facets)
+    if reference.get('separate_sockets'):
+        bucket = socket_bucket(bucket, item)
+    if reference.get('separate_base'):
+        bucket = base_bucket(bucket, item)
+    return tables['bands'].get((category, name, bucket))
+
+
 def assess(item, tables, *, today=None):
     today = today or datetime.now(UTC).date()
-    rules = [r for r in tables['rules']['rows'] if matches(item, r)]
+    rows = rule_candidates(item, tables['rule_index']) if 'rule_index' in tables else tables['rules']['rows']
+    rules = [r for r in rows if matches(item, r)]
     category, name = item.get('category'), str(item.get('name', '')).casefold()
     name_bucket = quantity_bucket(item.get('quantity', 1))
     reference = tables['bands'].get((category, name, name_bucket))
     policy = profile_for(item, tables['rules'].get('policies', []))
     facets = policy.get('facets', [])
     separate = not facets and (reference or {}).get('separate_ethereal', False)
+    separate_sockets = (reference or {}).get('separate_sockets', False)
+    separate_base = (reference or {}).get('separate_base', False)
     candidates = [r['bucket'] for r in rules if r.get('bucket')]
     if policy.get('require_bucket'):
         candidates = candidates[:1]
@@ -70,13 +91,23 @@ def assess(item, tables, *, today=None):
     for candidate in candidates:
         bucket = ethereal_bucket(candidate, item.get('ethereal')) if separate else candidate
         bucket = scoped_bucket(bucket, item, facets)
+        if separate_sockets:
+            bucket = socket_bucket(bucket, item)
+        if separate_base:
+            bucket = base_bucket(bucket, item)
         found = tables['bands'].get((category, name, bucket)) if bucket is not None else None
-        # A specific roll band needs three sellers; otherwise use the broader
-        # name band, retaining the ethereal distinction whenever it is material.
+        # Keep sparse base-variant bands for CHECK; never borrow another variant.
+        # Other specific bands require three sellers or an explicit comparison,
+        # otherwise fall back through the remaining compatible candidates.
         if (
             found is not None
             and found.get('median_ist') is not None
-            and (candidate == name_bucket or found.get('sellers', 0) >= 3)
+            and (
+                candidate == name_bucket
+                or found.get('sellers', 0) >= 3
+                or found.get('comparison')
+                or category == 'base'
+            )
         ):
             band = found
             break
@@ -84,9 +115,29 @@ def assess(item, tables, *, today=None):
     if category in ('magic', 'rare', 'crafted'):
         band, reference = family_band(item, rules, tables['bands'])
         bucket = band['bucket'] if band else None
+    sale_mode = None
+    quantity = item.get('quantity', 1)
+    if (
+        fungible(item)
+        and type(quantity) is int
+        and quantity > 1
+        and (band or {}).get('liquidity') not in ('liquid', 'thin')
+    ):
+        single = tables['bands'].get((category, name, 'name'))
+        if single and single.get('liquidity') in ('liquid', 'thin') and single.get('q1_ist') is not None:
+            # Fungible units can be sold separately. Keep the lot's band as
+            # reference; never label the single-unit quote a bulk estimate.
+            reference, band, bucket, sale_mode = reference, single, 'name', 'individual'
     premium = any(r.get('premium') is True for r in rules)
-    patterns = matched_patterns(item, tables['rules']['rows'])
+    pattern_rows = (
+        rule_candidates(item, tables['pattern_index']) if 'pattern_index' in tables else tables['rules']['rows']
+    )
+    socket_preparation = preparation(item, tables['rules'])
+    patterns = matched_patterns(item, pattern_rows, socket_preparation=socket_preparation)
     price = (band or {}).get('q1_ist', (band or {}).get('median_ist'))
+    if fungible(item) and type(quantity) is int and quantity > 1 and (band or {}).get('quantity') == quantity:
+        price = sale_value(item, price)
+        sale_mode = 'bulk'
     liquidity = (band or {}).get('liquidity', 'none')
     if premium:
         verdict, reason = 'sell', 'premium rule combination'
@@ -94,26 +145,56 @@ def assess(item, tables, *, today=None):
         verdict, reason = ('sell' if liquidity == 'liquid' else 'slow'), f'asks {price:g} Ist lower quartile'
     elif patterns:
         verdict, reason = 'check', min((check_reason(item, r) for r in patterns), key=len)
+    elif price is not None and price >= tables['rules']['keep_ist'] and (band or {}).get('comparison'):
+        verdict, reason = 'check', 'fewer than three comparable-or-worse sellers'
+    elif (
+        category == 'base'
+        and any(r.get('bucket') for r in rules)
+        and price is not None
+        and price >= tables['rules']['keep_ist']
+    ):
+        verdict, reason = 'check', 'fewer than three sellers for the matched base variant; price is reference only'
     elif any(matches(item, r) for r in tables['own']['rows']):
         verdict, reason = 'self', 'own-build rule'
     else:
         verdict, reason = (
             'vendor',
-            'no listings' if price is None else 'below keep price or insufficient market interest',
+            'no listings'
+            if price is None
+            else 'below keep price'
+            if price < tables['rules']['keep_ist']
+            else 'insufficient price evidence',
         )
     if verdict == 'vendor' and price is None and (facets or policy.get('require_bucket')):
         reason = 'no priced band for the required base, variant or roll combination'
-    if verdict == 'vendor' and price is None and separate:
-        variant = (
-            'ethereal'
-            if item.get('ethereal') is True
-            else 'non-ethereal'
-            if item.get('ethereal') is False
-            else 'unknown-ethereal'
+    if verdict == 'vendor' and price is None and (separate or separate_sockets or separate_base):
+        required = [
+            (field, label)
+            for enabled, field, label in (
+                (separate_base, 'base_code', 'base'),
+                (separate, 'ethereal', 'ethereal status'),
+                (separate_sockets, 'sockets', 'sockets'),
+                (separate_sockets, 'socket_contents', 'socket contents'),
+            )
+            if enabled
+        ]
+        missing = [label for field, label in required if item.get(field) in (None, 'unknown')]
+        reason = (
+            f'capture missing {", ".join(missing)}; variant price unavailable'
+            if missing
+            else 'no priced listings matching base, ethereal status and sockets'
         )
-        reason = f'no {variant} listings; mixed-variant asks excluded'
     if verdict == 'vendor':
         reason = next((r['default_reason'] for r in rules if r.get('default_reason')), reason)
+        if lot := sale_lot(item, tables):
+            reference, band = band, lot
+            price, liquidity = lot['q1_ist'] * lot['quantity'], lot['liquidity']
+            bucket, sale_mode = quantity_bucket(lot['quantity']), 'split_bulk'
+            verdict = 'sell' if liquidity == 'liquid' else 'slow'
+            reason = f'sell in lots of {lot["quantity"]}'
+        elif lot := accumulation(item, tables):
+            verdict, reason, sale_mode = 'check', saving_reason(lot), 'accumulate'
+            reference, band, price, bucket, liquidity = lot, None, None, None, 'none'
     comparison = roll_model(item, tables.get('roll_models', []), keep_ist=tables['rules']['keep_ist'])
     if comparison is not None:
         verdict, reason = comparison['verdict'], comparison['reason']
@@ -121,6 +202,14 @@ def assess(item, tables, *, today=None):
         bucket = 'roll-comparison'
         price = band['q1_ist'] if band else None
         liquidity = band['liquidity'] if band else 'none'
+    if category in ('uniques', 'sets', 'runewords') and comparison is None and verdict == 'vendor':
+        if price is None:
+            verdict = 'check'
+            reason += '; name band is reference only' if reference else '; no cached price evidence'
+        elif (band or {}).get('sellers', 0) < 3:
+            verdict, reason = 'check', 'fewer than three comparable sellers; price is reference only'
+    if label := (band or {}).get('comparison', {}).get('label'):
+        reason += f' · comparable-or-worse {label}'
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:
@@ -130,9 +219,11 @@ def assess(item, tables, *, today=None):
         'reason': reason,
         'band': band,
         'reference_band': reference
-        if comparison is not None
+        if sale_mode
+        or comparison is not None
         or category in ('magic', 'rare', 'crafted')
         or separate
+        or separate_sockets
         or facets
         or policy.get('require_bucket')
         else None,
@@ -142,6 +233,8 @@ def assess(item, tables, *, today=None):
         'keep_ist': tables['rules']['keep_ist'],
         'decision_ist': price,
         'roll_comparison': comparison,
+        'preparation': socket_preparation,
+        'sale_mode': sale_mode,
     }
 
 
@@ -168,6 +261,9 @@ class Tables:
                 'rules': rules,
                 'own': own,
                 'roll_models': bands.get('roll_models', []),
+                'rule_index': compile_index(rules['rows']),
+                'pattern_index': compile_index(rules['rows'], patterns=True),
             }
+            self.data['commodity_lots'] = compile_lots(self.data['bands'], rules['keep_ist'])
             self.stamp = stamp
         return self.data

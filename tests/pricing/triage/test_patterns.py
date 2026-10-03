@@ -25,7 +25,7 @@ def test_keep_price_uses_q1_instead_of_high_median():
     tables = {
         'rules': {'keep_ist': 0.25, 'rows': []},
         'own': {'rows': []},
-        'bands': {('sets', 'example', 'name'): {'q1_ist': 0.2, 'median_ist': 7, 'liquidity': 'liquid'}},
+        'bands': {('sets', 'example', 'name'): {'q1_ist': 0.2, 'median_ist': 7, 'liquidity': 'liquid', 'sellers': 10}},
     }
     assert assess({'category': 'sets', 'name': 'Example'}, tables)['verdict'] == 'vendor'
 

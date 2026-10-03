@@ -31,7 +31,7 @@ def test_all_native_variable_proc_identities_preserve_level_requirement(
     decoded, _, unresolved = decode_stats(raw)
     assert not unresolved
     facts = normalize({'item': {'item_level': 90}, 'decoded_stats': decoded})
-    props, levels, consumed, gaps = variable_trigger_properties(facts, catalog().named[('unique', name)])
+    props, levels, consumed, gaps = variable_trigger_properties(facts, catalog().named['unique', name])
     if market and mutation == 'unchanged':
         assert props == {market: chance}
         assert levels == {market: level}

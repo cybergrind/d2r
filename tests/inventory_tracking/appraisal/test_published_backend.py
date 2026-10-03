@@ -127,10 +127,10 @@ def test_process_side_loads_in_background_and_reports_failure_once(tmp_path, mon
     assert not published_backend.prepare_publication(tmp_path, 'g2', True)
     assert not published_backend.prepare_publication(tmp_path, 'g2', True)
     release.set()
-    published_backend._LOADING[(tmp_path, 'g2')].result(timeout=5)
+    published_backend._LOADING[tmp_path, 'g2'].result(timeout=5)
     assert published_backend.prepare_publication(tmp_path, 'g2', True)
     assert not published_backend.prepare_publication(tmp_path, 'bad', True)
-    published_backend._LOADING[(tmp_path, 'bad')].exception(timeout=5)
+    published_backend._LOADING[tmp_path, 'bad'].exception(timeout=5)
     with pytest.raises(ValueError, match='bad invalid'):
         published_backend.prepare_publication(tmp_path, 'bad', True)
     assert not published_backend.prepare_publication(tmp_path, 'bad', True)  # a later poll retries
