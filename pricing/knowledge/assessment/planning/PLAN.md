@@ -278,8 +278,9 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 **The user does not label or assess items. Progress comes solely from the guides and from
 Traderie.** Do not ask for labels, skims, reviews of lists or verdict confirmations, and do not
-report work as blocked on them. `label.html`, `labels.json`, the "disagree" hotkey proposal and
-the label score are retired; the one existing label stays as a regression case only.
+report work as blocked on them. `label.html`, `labels.json` and the label score are retired as
+measures; the Alt+Shift+D flag built just before this directive stays as an optional tool that
+is never requested; the one existing label stays as a regression case only.
 
 Ground truth is now two sources, both already in the repo's rules of evidence:
 
@@ -786,28 +787,33 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-04 — Steering 5 offline items 1/3/5 implemented; live ten-item pass and user decisions pending.
-- No new families/audits/refactors queued; future changes require live findings or user labels.
-- Demand union now 167 named items: resolved endgame variants, qualifying value-watch entries,
-  explicit named socket inserts and mercenary contexts. Floor-only watches do not qualify.
-- 149 sub-1-Ist cohorts with ≥10 sellers still lack demand evidence. The full list is printed
-  by replay and stored in score-listings.json under sub_ist_without_demand, with scope/category,
-  ethereal, bucket, dated Q1 and seller count. No lack-of-demand VENDOR rule was introduced.
-- Identify HUD lists SELL, SELF-USE and CHECK; slow is one count/ask-range line with Alt+D detail.
-  Full item records remain in identify-latest.json. Requires host restart for Python changes.
-- Gheed's Fortune own-use conditions matched; verdict precedence was wrong. Own-use now beats
-  slow, but not liquid SELL. All three saved Gheed captures replay as SELF-USE.
-- Corpus grew to 832: 587 VENDOR, 127 slow, 67 CHECK, 40 SELL, 11 SELF-USE; 366 bands.
-  Named CHECK 49/350 (14%); one CHECK label, SELL precision still unavailable.
-- Seller-weighted attention 70.05%, SELL/slow 63.07%; cheap SELL/slow 16/129 (12.40%),
-  cheap CHECK 27/129 (20.93%). Recall reduction is explained by own-use precedence: SELF-USE
-  is excluded from trade hits; those items still receive a visible blue HUD line.
-- 706 triage/identify/appraisal/corpus tests pass; Ruff and diff checks clean.
-  Both reports complete in 23.78 seconds. Triage remains table-only at runtime.
-- Preserved Rusthandle CHECK and filled unique/set bare-item pricing; runewords unchanged.
-- Latest live run 20261004T102533Z-884da476: eight identified items over five passes
-  (2/1/2/1/2), 55.6–80.6 ms/pass, retrieval 1.8–2.6 ms/item, no assessment issues.
-  Main inventory/Cube detection verified. A single ten-item pass remains unmeasured.
-- Next: host restart for the HUD change, ten-item identify timing/HUD check; review new labels
-  or disagreements. Second market pull and disagree hotkey still await user decision 6.
-- No new live market collection, commits, staging or cleanup performed.
+2026-10-04 — Steering 5 changes and local disagreement action implemented; live checks pending.
+- Offline family expansion stays closed. Future rule fixes come from saved disagreements/labels.
+- Demand union: 167 named items; 149 sub-1-Ist cohorts with ≥10 sellers lack evidence, listed
+  under sub_ist_without_demand in score-listings.json. They stay slow, never vendor for that reason.
+- Identify HUD groups slow into one count/price-range line; SELL/SELF-USE/CHECK retain item lines.
+- Own-use now precedes slow, but not liquid SELL. All three Gheed captures replay SELF-USE.
+- User go-ahead continued local feedback work: Alt+Shift+D flags the displayed Alt+D verdict.
+  Niri binding installed and validated; request --disagree routes through the existing socket.
+  Restart make serve, inspect via Alt+D, then Alt+Shift+D; confirmation uses a desktop notification.
+- Pending flags go to corpus/data/disagreements.json with capture ID, observation, triage,
+  timestamp and request source. Duplicate pending flags collapse; labels.json is never guessed.
+  No displayed item cannot flag an old result. Corpus merge retains flagged snapshots, and
+  replay puts pending disagreements first on label.html. No user feedback has been manufactured.
+- Corpus 839: 594 VENDOR, 127 slow, 67 CHECK, 40 SELL, 11 SELF-USE. One CHECK label.
+- Seller-weighted attention 70.05%, SELL/slow 63.07%; cheap SELL/slow 12.40%, cheap CHECK 20.93%.
+  Scores unchanged by feedback work; seven newly captured vendor items were merged.
+  SELF-USE is excluded from trade hits, explaining the earlier own-use precedence reduction.
+- 734 relevant tests pass; Ruff/diff checks and niri validation clean. Both score reports 28.81 s.
+- Preserved Rusthandle CHECK, socket-content price correction, commodity and routing behavior.
+- Live run 20261004T102533Z-884da476: eight items over five identify passes (2/1/2/1/2),
+  55.6–80.6 ms/pass; retrieval 1.8–2.6 ms/item, no assessment issues. Inventory/Cube verified.
+- Next (Steering 6 governs; nothing here waits for the user):
+  1. build the guide acceptance-case file from the guides and score it;
+  2. run the second page-0 pull (authorized) with `pricing/tools/market_pull.py`, compute turnover
+     per cohort, test whether the Traderie API returns buy-side listings;
+  3. apply the decision-5 rule to the 149 sub-1-Ist cohorts without demand evidence;
+  4. fix what guide cases and turnover expose.
+- The Alt+Shift+D flag exists and stays as an optional tool; it is never requested, and no step
+  depends on flags or labels. Live timing is read from logs of normal play.
+- No commits or cleanup performed.

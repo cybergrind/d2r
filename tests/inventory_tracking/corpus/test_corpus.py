@@ -177,3 +177,18 @@ def test_label_page_offers_check_and_seeds_saved_user_labels():
     assert '<button data-label="check">5 check</button>' in page
     assert 'let labels = {"ring": "check"};' in page
     assert "'12345'.includes(event.key)" in page
+
+
+def test_disagreement_retains_capture_even_without_original_run(tmp_path):
+    from inventory_tracking.corpus.build import merge, review_order
+
+    capture = observation('Example')
+    identifier = item_id(capture)
+    data = tmp_path / 'data'
+    data.mkdir()
+    feedback = {identifier: {'status': 'pending', 'observation': capture}}
+    (data / 'disagreements.json').write_text(json.dumps(feedback))
+    assert merge(tmp_path / 'missing-runs', data) == {identifier: capture}
+    assert review_order(['other', identifier], feedback) == [identifier, 'other']
+    feedback[identifier]['status'] = 'resolved'
+    assert review_order(['other'], feedback) == ['other']

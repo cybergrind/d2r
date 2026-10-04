@@ -237,7 +237,16 @@ def publish_request(directory, record: dict[str, Any], *, notifications=True):
 
 
 def dispatch(
-    data: bytes, now: float, worker, collector, shop=None, identify=None, level=None, guide=None, terror=None
+    data: bytes,
+    now: float,
+    worker,
+    collector,
+    shop=None,
+    identify=None,
+    level=None,
+    guide=None,
+    terror=None,
+    disagree=None,
 ) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
@@ -246,6 +255,9 @@ def dispatch(
     """
     try:
         text = data.decode('ascii').strip()
+        if text.startswith('disagree '):
+            requested = float(text[len('disagree ') :])
+            return bool(disagree and 0 <= now - requested <= 1 and disagree())
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
@@ -425,6 +437,28 @@ def run_service(args, directory, report):
                         notify=notify,
                     )
 
+                    def disagree():
+                        from inventory_tracking.appraisal.feedback import flag
+                        from inventory_tracking.corpus.build import DATA
+
+                        with worker.lock:
+                            record = worker.visible
+                            if not record:
+                                notify('Flag a verdict', 'Show the item with Alt+D first.')
+                                return False
+                            try:
+                                saved = flag(record, DATA, str(directory / f'request-{record["request_id"]}'))
+                            except (OSError, ValueError, TypeError) as error:
+                                LOG.warning('Cannot save verdict disagreement: %s', error)
+                                notify('Verdict not saved', str(error))
+                                return False
+                        notify(
+                            'Verdict flagged' if saved else 'Already flagged',
+                            'Saved for review; your expected verdict is not assumed.',
+                        )
+                        LOG.info('Verdict disagreement: request %s, saved=%s', record['request_id'], saved)
+                        return True
+
                     def suspend_appraisal():
                         with worker.lock:
                             worker.generation += 1
@@ -564,7 +598,16 @@ def run_service(args, directory, report):
                             if data is not None:
                                 with timer.step('hotkey'):
                                     dispatch(
-                                        data, time.monotonic(), worker, collector, shop, identify, level, guide, terror
+                                        data,
+                                        time.monotonic(),
+                                        worker,
+                                        collector,
+                                        shop,
+                                        identify,
+                                        level,
+                                        guide,
+                                        terror,
+                                        disagree=disagree,
                                     )
                             timer.finish()
                     finally:
@@ -623,6 +666,9 @@ def main(argv=None):
     requests.add_argument(
         '--equipped', action='store_true', help='request: record only worn character/mercenary items instead'
     )
+    requests.add_argument(
+        '--disagree', action='store_true', help='request: flag the displayed Alt+D verdict for review'
+    )
     requests.add_argument('--shop', action='store_true', help='request: send a Win+D shop check instead')
     requests.add_argument(
         '--level',
@@ -679,7 +725,9 @@ def main(argv=None):
         with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as client:
             client.settimeout(0.25)
             prefix = (
-                SHOP_PREFIX
+                'disagree '
+                if args.disagree
+                else SHOP_PREFIX
                 if args.shop
                 else LEVEL_PREFIX
                 if args.level

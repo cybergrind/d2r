@@ -22,9 +22,9 @@
         "share": 0.0
       },
       "magic": {
-        "items": 300,
+        "items": 303,
         "checks": 4,
-        "share": 0.013333333333333334
+        "share": 0.013201320132013201
       },
       "normal": {
         "items": 57,
@@ -32,9 +32,9 @@
         "share": 0.12280701754385964
       },
       "rare": {
-        "items": 113,
+        "items": 117,
         "checks": 6,
-        "share": 0.05309734513274336
+        "share": 0.05128205128205128
       },
       "set": {
         "items": 137,
@@ -10915,6 +10915,25 @@
       "demand": []
     },
     {
+      "id": "2e0929d32cf0",
+      "name": "Cruel Aegis",
+      "rarity": "rare",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
       "id": "2eae5b3c0c61",
       "name": "Brimstone Hold",
       "rarity": "rare",
@@ -20652,6 +20671,25 @@
       ]
     },
     {
+      "id": "4ed2cc70d4ca",
+      "name": "Shadow Chain",
+      "rarity": "rare",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
       "id": "4ed98f7efb34",
       "name": "Thresher",
       "rarity": "normal",
@@ -23219,6 +23257,25 @@
       "id": "5ce6c7951e70",
       "name": "Small Charm",
       "rarity": "magic",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
+      "id": "5d0cdeefc709",
+      "name": "Viper Blazer",
+      "rarity": "rare",
       "verdict": "vendor",
       "reason": "no listings",
       "band": null,
@@ -35175,6 +35232,25 @@
       "demand": []
     },
     {
+      "id": "7e366ede48c4",
+      "name": "Matriarchal Javelin",
+      "rarity": "magic",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
       "id": "7e3a1446dd72",
       "name": "Isenhart's Parry",
       "rarity": "set",
@@ -39834,6 +39910,25 @@
     {
       "id": "95cbcbdfc7d5",
       "name": "Small Charm",
+      "rarity": "magic",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
+      "id": "9679036c51d5",
+      "name": "Ring",
       "rarity": "magic",
       "verdict": "vendor",
       "reason": "no listings",
@@ -61964,6 +62059,25 @@
       "demand": []
     },
     {
+      "id": "e4f8e3ace02c",
+      "name": "Bone Knife",
+      "rarity": "magic",
+      "verdict": "vendor",
+      "reason": "needs +2 Warlock, a paid staffmod and supporting affix; staffmods alone are not paid",
+      "band": null,
+      "reference_band": null,
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
       "id": "e530d73b0e53",
       "name": "Amulet",
       "rarity": "magic",
@@ -63029,6 +63143,25 @@
           }
         ]
       },
+      "bucket": null,
+      "stale": null,
+      "liquidity": "none",
+      "keep_ist": 0.25,
+      "decision_ist": null,
+      "roll_comparison": null,
+      "preparation": null,
+      "sale_mode": null,
+      "own_use": null,
+      "demand": []
+    },
+    {
+      "id": "e94b89c8a7e5",
+      "name": "Skull Clasp",
+      "rarity": "rare",
+      "verdict": "vendor",
+      "reason": "no listings",
+      "band": null,
+      "reference_band": null,
       "bucket": null,
       "stale": null,
       "liquidity": "none",
@@ -70047,11 +70180,12 @@
         "vendor": 5
       },
       "triage": {
-        "vendor": 7
+        "vendor": 8
       },
       "lost_attention": [],
       "accepted_corrections": [],
       "without_legacy": [
+        "7e366ede48c4",
         "98f0ec0bb307",
         "c1b21d8d5188"
       ]
@@ -70268,7 +70402,7 @@
         "vendor": 6
       },
       "triage": {
-        "vendor": 22
+        "vendor": 23
       },
       "lost_attention": [],
       "accepted_corrections": [],
@@ -70287,6 +70421,7 @@
         "ca70c2cbe89e",
         "da11c608759f",
         "e1e7fff1c2aa",
+        "e4f8e3ace02c",
         "f657d2e9e947",
         "fbabca53dcba"
       ]
@@ -70389,7 +70524,7 @@
         "vendor": 13
       },
       "triage": {
-        "vendor": 43
+        "vendor": 44
       },
       "lost_attention": [],
       "accepted_corrections": [],
@@ -70409,6 +70544,7 @@
         "790c52631a2a",
         "7dc6b7e8aeb5",
         "92ed0e8ace0b",
+        "9679036c51d5",
         "99d66499f917",
         "a004c8b8fb5c",
         "a47c60144f0e",
@@ -70514,14 +70650,15 @@
         "vendor": 5
       },
       "triage": {
-        "vendor": 8
+        "vendor": 9
       },
       "lost_attention": [],
       "accepted_corrections": [],
       "without_legacy": [
         "0bc979346efe",
         "5e117969fc54",
-        "6018a7bdc073"
+        "6018a7bdc073",
+        "e94b89c8a7e5"
       ]
     },
     "rare/belt": {
@@ -70529,13 +70666,14 @@
         "vendor": 4
       },
       "triage": {
-        "vendor": 11
+        "vendor": 12
       },
       "lost_attention": [],
       "accepted_corrections": [],
       "without_legacy": [
         "08fa2ea528af",
         "483062b5fcc3",
+        "4ed2cc70d4ca",
         "53a5fa564206",
         "56e6fdcd61d6",
         "600caae914da",
@@ -70548,7 +70686,7 @@
         "vendor": 9
       },
       "triage": {
-        "vendor": 14,
+        "vendor": 15,
         "check": 1
       },
       "lost_attention": [],
@@ -70557,6 +70695,7 @@
         "0ebbc5857cd1",
         "2efa773ac953",
         "3f453ae47c74",
+        "5d0cdeefc709",
         "ac7af8a5277e",
         "b1468c9811df",
         "ba6dff679bb0"
@@ -70631,12 +70770,13 @@
         "vendor": 3
       },
       "triage": {
-        "vendor": 5
+        "vendor": 6
       },
       "lost_attention": [],
       "accepted_corrections": [],
       "without_legacy": [
         "1e4d54ba20fe",
+        "2e0929d32cf0",
         "43f6249a5d7c"
       ]
     },

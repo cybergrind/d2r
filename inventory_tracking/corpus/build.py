@@ -50,6 +50,16 @@ def collect(runs: Path) -> dict[str, dict]:
     return items
 
 
+def disagreements(data):
+    path = data / 'disagreements.json'
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
+def review_order(ids, feedback):
+    pending = [identifier for identifier, row in feedback.items() if row.get('status') == 'pending']
+    return list(dict.fromkeys([*pending, *ids]))
+
+
 def merge(runs: Path, data: Path) -> dict[str, dict]:
     """Retain archived/labelled cases and add live captures without touching labels."""
     path = data / 'items.jsonl'
@@ -57,6 +67,7 @@ def merge(runs: Path, data: Path) -> dict[str, dict]:
     records = [json.loads(line) for line in previous.splitlines() if line.strip()]
     items = {row['id']: row['observation'] for row in records}
     items.update(collect(runs))
+    items.update({identifier: row['observation'] for identifier, row in disagreements(data).items()})
     contents = ''.join(
         json.dumps({'id': key, 'observation': items[key]}, separators=(',', ':')) + '\n' for key in sorted(items)
     )

@@ -234,3 +234,22 @@ def test_service_keeps_identify_fallback_processes_warm(tmp_path, monkeypatch):
         == 0
     )
     assert seen == [primary, *identify]
+
+
+def test_disagree_request_routes_only_fresh_messages(tmp_path):
+    endpoint = tmp_path / 'request.sock'
+    with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:
+        server.bind(str(endpoint))
+        server.settimeout(1)
+        assert appraisal_service.main(['request', '--disagree', '--socket', str(endpoint)]) == 0
+        assert server.recv(256).startswith(b'disagree ')
+    calls = []
+
+    def handler():
+        calls.append(True)
+        return True
+
+    assert appraisal_service.dispatch(b'disagree 10', 10.2, None, None, disagree=handler)
+    assert not appraisal_service.dispatch(b'disagree 10', 12, None, None, disagree=handler)
+    assert not appraisal_service.dispatch(b'disagree nan', 12, None, None, disagree=handler)
+    assert calls == [True]

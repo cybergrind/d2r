@@ -5,7 +5,7 @@ import time
 from collections import Counter
 from statistics import median
 
-from inventory_tracking.corpus.build import DATA, RUNS, label_page, merge
+from inventory_tracking.corpus.build import DATA, RUNS, disagreements, label_page, merge, review_order
 from inventory_tracking.corpus.score import load, score
 from pricing.triage.adapters import from_drop, from_listing
 from pricing.triage.analyze_rolls import analyze
@@ -190,6 +190,7 @@ def main():
         if r['verdict'] in ('check', 'sell')
         or (r['verdict'] == 'vendor' and old.get(r['id'], {}).get('verdict') in ('keep', 'check'))
     )
+    disputes = review_order(disputes, disagreements(DATA))
     observations = {r['id']: r['observation'] for r in items}
     (DATA / 'label.html').write_text(label_page(observations, disputes, labels=labels))
     rows, _ = market_rows()
