@@ -23,10 +23,7 @@ def test_non_ethereal_drop_never_borrows_ethereal_or_unknown_asks():
     assert result['verdict'] == 'check'
     assert result['band'] is None or result['band']['median_ist'] is None
     assert result['reference_band']['median_ist'] == 7.003
-    assert (
-        result['reason']
-        == 'capture missing base, sockets, socket contents; variant price unavailable; name band is reference only'
-    )
+    assert 'name band is reference only' in result['reason']
     assert assess({'category': 'uniques', 'name': 'Example', 'ethereal': True}, tables(rows))['verdict'] == 'slow'
 
 
@@ -53,10 +50,11 @@ def test_roll_bands_are_disjoint_and_take_precedence_over_name():
     assert high['verdict'] == 'slow'
     assert high['band']['median_ist'] == 10
     missing = assess({'category': 'uniques', 'name': 'Example'}, data)
-    assert missing['bucket'] == 'name|ethereal:unknown|sockets:[null,null]|base:null'
+    assert missing['verdict'] == 'vendor'
+    assert missing['bucket'] == 'name'  # Supported cheap name; no premium ethereal/socket variant.
 
 
-def test_runeword_base_and_ethereal_are_both_required_for_price():
+def test_runeword_ethereal_stays_separate_when_base_has_no_supported_split():
     policies = [{'category': 'runewords', 'facets': ['base_code', 'ethereal']}]
     rows = [{**listing(i, 8), 'category': 'runewords', 'base_code': 'base-a', 'ethereal': True} for i in range(3)]
     doc = build_bands(rows, [], policies=policies)
@@ -67,13 +65,15 @@ def test_runeword_base_and_ethereal_are_both_required_for_price():
     }
     good = {'category': 'runewords', 'name': 'Example', 'base_code': 'base-a', 'ethereal': True}
     assert assess(good, data)['verdict'] == 'slow'
-    for change in [{'base_code': 'base-b'}, {'base_code': None}, {'ethereal': False}, {'ethereal': None}]:
+    for base in ('base-b', None):
+        assert assess(good | {'base_code': base}, data)['verdict'] == 'slow'
+    for change in [{'ethereal': False}, {'ethereal': None}]:
         result = assess({**good, **change}, data)
         assert result['verdict'] == 'check'
         assert result['band'] is None
 
 
-def test_required_roll_bucket_cannot_fall_back_to_mixed_name_price():
+def test_single_roll_group_uses_merged_price_until_a_supported_split_exists():
     rules = [{'category': 'uniques', 'name': 'Example', 'bucket': 'perfect', 'properties': {'425': 120}}]
     policies = [{'category': 'uniques', 'name': 'Example', 'require_bucket': True}]
     rows = [{**listing(i, 10), 'properties': {**listing(i)['properties'], '425': 120}} for i in range(3)]
@@ -91,11 +91,11 @@ def test_required_roll_bucket_cannot_fall_back_to_mixed_name_price():
     )
     for props in ({}, {'425': 100}):
         result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': props}, data)
-        assert result['verdict'] == 'check'
-        assert result['band'] is None
+        assert result['verdict'] == 'slow'
+        assert result['band']['sellers'] == 3
 
 
-def test_thin_premium_roll_bucket_does_not_borrow_ordinary_roll_band():
+def test_thin_premium_roll_group_keeps_merged_cohort():
     rules = [
         {'category': 'uniques', 'name': 'Example', 'bucket': 'perfect', 'properties': {'425': 120}},
         {'category': 'uniques', 'name': 'Example', 'bucket': 'other', 'properties': {'425': {'min': 90, 'max': 120}}},
@@ -109,10 +109,10 @@ def test_thin_premium_roll_bucket_does_not_borrow_ordinary_roll_band():
         'rules': {'keep_ist': 0.25, 'rows': rules, 'policies': policies},
         'own': {'rows': []},
     }
-    assert (
-        assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 120}}, data)['band']
-        is None
-    )
+    result = assess({'category': 'uniques', 'name': 'Example', 'ethereal': False, 'properties': {'425': 120}}, data)
+    assert result['verdict'] == 'slow'
+    assert result['band']['sellers'] == 4
+    assert result['band']['q1_ist'] == 1
 
 
 def test_base_socket_contents_quality_and_count_cannot_cross_price_bands():
@@ -187,7 +187,8 @@ def test_named_fallback_bands_never_pool_socket_counts_or_contents():
             assert high['verdict'] == 'slow'
             assert high['band']['q1_ist'] == 10
             assert high['band']['sellers'] == 3
-            for change in ({'sockets': 2}, {'sockets': None}, {'socket_contents': 'unknown'}):
+            assert assess(item | {'sockets': 2}, data)['verdict'] == 'vendor'
+            for change in ({'sockets': None}, {'socket_contents': 'unknown'}):
                 assert assess(item | change, data)['band'] is None
 
 
@@ -208,5 +209,6 @@ def test_named_fallback_cannot_pool_original_upgraded_or_unknown_bases():
         'rules': {'keep_ist': 0.25, 'rows': []},
         'own': {'rows': []},
     }
-    for i, price in [(0, 0.1), (3, 10), (6, 100)]:
+    for i, price in [(0, 0.1), (3, 10)]:
         assert assess(from_listing(rows[i]), tables)['band']['q1_ist'] == price
+    assert assess(from_listing(rows[6]), tables)['verdict'] == 'check'

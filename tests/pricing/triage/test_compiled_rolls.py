@@ -162,3 +162,148 @@ def test_named_roll_models_separate_original_upgraded_and_unknown_bases():
     assert lookup(item, models, keep_ist=0.25)['band']['q1_ist'] == 0.1
     assert lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25)['band']['q1_ist'] == 10
     assert lookup(item | {'base_code': None}, models, keep_ist=0.25)['band']['q1_ist'] == 100
+
+
+def test_production_coarse_policy_discards_unproven_roll_split():
+    assert compile_model(MODEL, cohort(), require_supported_split=True) is None
+    rows = cohort()
+    low = rows[0]
+    rows += [low | {'seller_id': f'low-{i}', 'listing_id': f'low-{i}'} for i in range(2)]
+    model = compile_model(MODEL, rows, require_supported_split=True)
+    assert model is not None
+    assert list(model['deciding']) == ['skill']
+
+
+def test_captured_deciding_skill_uses_native_identity_without_market_mapping():
+    from pricing.triage.adapters import from_drop
+
+    observation = {
+        'item': {
+            'name': 'Example',
+            'rarity': 'unique',
+            'ethereal': False,
+            'sockets': 0,
+            'socket_contents': 'empty',
+            'affixes': [],
+        },
+        'decoded_stats': [{'memory_stat': {'id': 107, 'layer': 111, 'raw': 2}, 'status': 'decoded', 'value': 2}],
+    }
+    item = from_drop(observation)
+    rows = [r | {'sockets': 0} for r in cohort()]
+    report = MODEL | {'sockets': 0, 'deciding': {'skill': MODEL['deciding']['skill'] | {'native_key': '107:111'}}}
+    model = compile_model(report, rows)
+    result = lookup(item, [model], keep_ist=0.25)
+    assert result['band']['sellers'] == 1
+    assert result['band']['q1_ist'] == 0.2
+    assert 'Skill 2' in result['reason']
+    # An all-class skill is a different stat, even with the same skill parameter.
+    observation['decoded_stats'][0]['memory_stat']['id'] = 97
+    assert lookup(from_drop(observation), [model], keep_ist=0.25)['band'] is None
+    observation['decoded_stats'][0]['memory_stat']['id'] = 107
+    observation['decoded_stats'][0]['status'] = 'unresolved'
+    assert lookup(from_drop(observation), [model], keep_ist=0.25)['band'] is None
+
+
+def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
+    from pricing.triage.analyze_rolls import analyze
+
+    rows = []
+    for i in range(19):
+        row = listing(
+            i,
+            0.789 if i != 1 else 0.2,
+            ethereal=False,
+            socket_contents='empty',
+            sockets=0,
+            base_code='original' if i % 2 else None,
+        )
+        row['properties']['skill'] = i + 1 if i < 2 else 3
+        rows.append(row)
+    definitions = [
+        {'name': 'Example', 'roll_ranges': {'1': {'min': 1, 'max': 3, 'better': 'higher', 'property': 'Skill'}}}
+    ]
+    reports = analyze(
+        rows,
+        [*definitions, {'name': 'Unlisted'}],
+        {'stats': {'1': {'property_id': 'skill'}}, 'skills': {}},
+        coarse=True,
+    )
+    assert len(reports) == 1
+    assert compile_model(reports[0], rows, require_supported_split=True) is None
+    # Offline diagnostic comparisons remain available, but cannot set a live price.
+    models = [compile_model(reports[0], rows)]
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'sockets': 0,
+        'base_code': 'original',
+        'properties': {'skill': 2},
+    }
+    result = lookup(item, models, keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['band']['sellers'] == 2
+    assert abs(result['band']['q1_ist'] - 0.34725) < 1e-9
+    assert lookup(item | {'ethereal': True}, models, keep_ist=0.25) is None
+
+
+def test_coarse_models_preserve_supported_base_premiums_and_reject_socket_contents():
+    from pricing.triage.analyze_rolls import analyze
+
+    rows = []
+    for base, price in [('original', 0.1), ('upgraded', 10)]:
+        for i in range(3):
+            row = listing(f'{base}-{i}', price, ethereal=False, socket_contents='empty', sockets=0, base_code=base)
+            row['properties']['skill'] = 3
+            rows.append(row)
+    definitions = [
+        {'name': 'Example', 'roll_ranges': {'1': {'min': 1, 'max': 3, 'better': 'higher', 'property': 'Skill'}}}
+    ]
+    reports = analyze(
+        rows,
+        [*definitions, {'name': 'Unlisted'}],
+        {'stats': {'1': {'property_id': 'skill'}}, 'skills': {}},
+        coarse=True,
+    )
+    models = [compile_model(r, rows) for r in reports]
+    assert len(models) == 2
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'sockets': 0,
+        'base_code': 'original',
+        'properties': {'skill': 3},
+    }
+    assert lookup(item, models, keep_ist=0.25)['band']['q1_ist'] == 0.1
+    assert lookup(item | {'base_code': 'upgraded'}, models, keep_ist=0.25)['band']['q1_ist'] == 10
+    assert lookup(item | {'base_code': None}, models, keep_ist=0.25) is None
+    for contents in ('filled', 'unknown', None):
+        assert lookup(item | {'socket_contents': contents}, models, keep_ist=0.25) is None
+
+
+def test_failed_validation_keeps_sparse_deciding_roll_check_with_reference_only():
+    rows = cohort()
+    rows.extend(rows[-1] | {'seller_id': f'extra-{i}', 'listing_id': f'extra-{i}'} for i in range(15))
+    report = MODEL | {
+        'coarse_facets': [],
+        'deciding': {'skill': MODEL['deciding']['skill'] | {'sample_size': 19, 'top_count': 18}},
+        'validation': {'roll_median_error': 0.556, 'name_median_error': 0.342},
+    }
+    model = compile_model(report, rows, require_supported_split=True)
+    assert model is not None
+    item = {'category': 'uniques', 'name': 'Example', 'ethereal': False,
+            'socket_contents': 'empty', 'properties': {'skill': 2}}
+    result = lookup(item, [model], keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    assert result['reference_band']['sellers'] == 19
+    assert '1 comparable-or-worse seller' in result['reason']
+    # The rejected model cannot price supported, below-range, or unknown rolls.
+    for props in ({'skill': 3}, {'skill': 1}, {}):
+        assert lookup(item | {'properties': props}, [model], keep_ist=0.25) is None
+    # A sparse draft without a robust selection signal cannot create this guard.
+    weak = report | {'deciding': {'skill': MODEL['deciding']['skill'] | {'sample_size': 2, 'top_count': 2}}}
+    assert compile_model(weak, rows, require_supported_split=True) is None

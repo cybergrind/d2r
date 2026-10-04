@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from statistics import median, quantiles
 
 from pricing.knowledge.market import scope_status, valid_positive
-from pricing.triage.family_bands import compile_comparisons, family_name, roll_bucket
+from pricing.triage.family_bands import compile_comparisons, compile_pattern, family_name, pattern_bucket, roll_bucket
 from pricing.triage.listing_defaults import normalize as listing_defaults
 from pricing.triage.variants import base_bucket, profile_for, scoped_bucket, socket_bucket
 
@@ -120,6 +120,7 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
             groups[key].append(row)
     bands = []
     families = defaultdict(list)
+    patterns = {}
     family_specs = {}
     affixed_rules = [r for r in rules if r.get('category') in ('magic', 'rare', 'crafted') and r.get('bucket')]
     for category, name, amount in sorted(names):
@@ -129,6 +130,7 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
         separate = not facets and category == 'uniques'
         separate_sockets = category in ('uniques', 'sets')
         buckets = {quantity_bucket(amount): members}
+        coarse_index = {}
         staffmod_cohorts = defaultdict(list)
         staffmod_rules = (
             [r for r in rules if r.get('bucket') and r.get('category') == category and r.get('name') == name]
@@ -141,6 +143,10 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
             if amount == 1 and item['category'] in ('magic', 'rare', 'crafted'):
                 for family_rule in affixed_rules:
                     if matches(item, family_rule):
+                        if not family_rule.get('compare_property'):
+                            pattern = patterns.setdefault(pattern_bucket(family_rule), (family_rule, []))
+                            pattern[1].append(row)
+                            continue
                         key = family_name(family_rule), roll_bucket(family_rule, item)
                         if key[1] is not None:
                             families[key].append(row)
@@ -159,7 +165,26 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
             rule = next((r for r in rules if r.get('bucket') and matches(item, r)), None)
             if rule and amount == 1:
                 buckets.setdefault(rule['bucket'], []).append(row)
+        if category in ('uniques', 'sets', 'runewords') and amount == 1:
+            from pricing.triage.named_cohorts import compile_named
+
+            bands.extend(compile_named(category, name, members, rules))
+            continue
         for bucket, selected in buckets.items():
+            cohort_properties = next(
+                (
+                    r.get('properties', {})
+                    for r in rules
+                    if r.get('category') == category and r.get('name') == name and r.get('bucket') == bucket
+                ),
+                {},
+            )
+            if category == 'base' and amount == 1 and bucket != 'name':
+                from pricing.triage.base_cohorts import compile_bands as compile_base_cohorts
+
+                coarse = compile_base_cohorts(name, bucket, selected, policy, cohort_properties)
+                bands.extend(coarse)
+                coarse_index.update({(b['category'], b['name'].casefold(), b['bucket']): b for b in coarse})
             band = band_for(category, name, selected, quantity=amount)
             band.update(
                 bucket=bucket,
@@ -168,6 +193,9 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
                 separate_base=separate_sockets,
             )
             bands.append(band)
+            from pricing.triage.named_fallback import compile_bands
+
+            bands.extend(compile_bands(category, name, bucket, selected, amount))
             if facets or separate or separate_sockets:
                 partitions = defaultdict(list)
                 for row in selected:
@@ -179,11 +207,24 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
                     if key is not None:
                         partitions[key].append(row)
                 for key, cohort in partitions.items():
+                    if coarse_index:
+                        from pricing.triage.base_cohorts import band as base_cohort
+
+                        replacement = base_cohort(
+                            from_listing(cohort[0]), bucket, policy, coarse_index, cohort_properties
+                        )
+                        if replacement and replacement['sellers'] >= 3:
+                            continue
                     variant = band_for(category, name, cohort, quantity=amount)
                     variant.update(bucket=key, facets=facets)
                     bands.append(variant)
         for bucket, selected in staffmod_cohorts.items():
-            bands.extend(compile_modifiers(category, name, bucket, selected, policy))
+            props = next((r.get('properties', {}) for r in staffmod_rules if r['bucket'] == bucket), {})
+            bands.extend(
+                compile_modifiers(
+                    category, name, bucket, selected, policy, coarse_index=coarse_index, coarse_properties=props
+                )
+            )
     for (name, bucket), members in families.items():
         band = band_for('family', name, members)
         band.update(bucket=bucket, roll_properties=family_specs.get((name, bucket)))
@@ -191,4 +232,6 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
         rule = next((r for r in affixed_rules if family_name(r) == name and r['bucket'] == bucket), None)
         if rule:
             bands.extend(compile_comparisons(rule, members))
+    for rule, members in patterns.values():
+        bands.extend(compile_pattern(rule, members))
     return {'schema_version': 1, 'bands': bands}

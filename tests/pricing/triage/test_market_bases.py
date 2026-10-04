@@ -162,7 +162,8 @@ def test_market_base_better_superior_bonus_can_use_no_better_comparisons():
     result = assess(item, tables)
     assert result['verdict'] == 'slow'
     assert result['decision_ist'] == 1.5
-    assert result['band']['comparison']['rolls'] == {'423': 3}
+    assert result['band']['sellers'] == 3
+    assert result['band']['cohort_depth'] == 0
     for change in ({'base_modifiers': {}}, {'base_modifiers': {'423': 3, '937': 15}}, {'ethereal': False}):
         assert assess(item | change, tables)['band'] is None
 
@@ -201,3 +202,39 @@ def test_market_base_combines_different_no_better_rolls_before_counting_sellers(
     assert not compile_market_bases(
         [r | {'seller_id': 'one'} for r in rows], [], policies, utility, keep_ist=0.25, excluded_words=set()
     )
+
+
+def test_native_all_resistance_projection_does_not_block_shield_base_admission():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.market_bases import clean_modifiers
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Gilded Shield')
+    rows = [
+        listing(str(i), 1)
+        | {
+            'category': 'base',
+            'name': base['name'],
+            'base_code': base['code'],
+            'rarity': 'normal',
+            'ethereal': False,
+            'sockets': 4,
+        }
+        for i in range(3)
+    ]
+    for r in rows:
+        r['properties']['441'] = 40
+    item = from_listing(rows[0])
+    assert item['base_modifiers']['427'] == 40
+    assert clean_modifiers(item, base, {})
+    utility = [
+        {
+            'base_code': base['code'],
+            'sockets': 4,
+            'details': {'runeword': 'Spirit', 'legality': 'verified_type_and_capacity'},
+        }
+    ]
+    rules = compile_rows(rows, utility)
+    assert len(rules) == 1
+    assert rules[0]['evidence']['sellers'] == 3
+    assert not clean_modifiers(item | {'base_modifiers': item['base_modifiers'] | {'427': 50}}, base, {})
+    assert not clean_modifiers(item | {'base_modifiers': item['base_modifiers'] | {'510': 60, '423': 110}}, base, {})

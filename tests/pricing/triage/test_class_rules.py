@@ -219,7 +219,7 @@ def test_stacked_amazon_javelin_skills_do_not_need_a_second_class_prefix():
     assert verdict('ajav', {'456': 6, '457': 40}, 'rare')['verdict'] == 'vendor'
 
 
-def test_javelin_prices_keep_base_ethereal_and_extra_modifiers_separate():
+def test_javelin_prices_preserve_ethereal_and_primary_skill_pattern():
     from inventory_tracking.items.metadata import metadata
     from pricing.triage.adapters import from_listing
     from pricing.triage.bands import build_bands
@@ -251,12 +251,16 @@ def test_javelin_prices_keep_base_ethereal_and_extra_modifiers_separate():
     for change in (
         {'ethereal': True},
         {'ethereal': None},
-        {'base_code': None},
-        {'base_code': next(b['code'] for b in metadata()['bases'].values() if b['name'] == 'Matriarchal Javelin')},
-        {'base_modifiers': item['base_modifiers'] | {'418': 30}},
         {'properties': item['properties'] | {'456': 6}},
     ):
         assert assess(item | change, tables)['band'] is None
+
+    for change in (
+        {'base_code': None},
+        {'base_code': next(b['code'] for b in metadata()['bases'].values() if b['name'] == 'Matriarchal Javelin')},
+        {'base_modifiers': item['base_modifiers'] | {'418': 30}},
+    ):
+        assert assess(item | change, tables)['decision_ist'] == 1.5
 
 
 def test_magic_fist_of_heavens_scepter_requires_prefix_spell_and_utility():

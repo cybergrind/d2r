@@ -63,14 +63,22 @@ def main():
     from pricing.triage.compiled_rolls import compile_model
 
     rows, catalog = market_rows()
+    from pricing.triage.base_socket_inference import apply, compile_inferences
+
+    utility = json.loads((ROOT / 'pricing/data/appraisal-utility.json').read_text())['rows']
+    socket_inferences = compile_inferences(rows, utility)
+    rows = [listing_defaults(apply(row, socket_inferences)) for row in rows]
     rules = json.loads((ROOT / 'pricing/data/triage/rules.json').read_text())
     document = build_bands(rows, catalog, rules=rules['rows'], policies=rules.get('policies', []))
+    document['base_socket_inferences'] = socket_inferences
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
-    reports = analyze(rows, definitions, metadata())
+    reports = analyze(rows, definitions, metadata(), coarse=True)
     from pricing.triage.bands import latest_rows
 
     unique_rows = latest_rows(rows)
-    document['roll_models'] = [model for report in reports if (model := compile_model(report, unique_rows))]
+    document['roll_models'] = [
+        model for report in reports if (model := compile_model(report, unique_rows, require_supported_split=True))
+    ]
     output = ROOT / 'pricing/data/triage'
     output.mkdir(parents=True, exist_ok=True)
     atomic_json(output / 'bands.json', document)

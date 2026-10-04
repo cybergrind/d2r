@@ -1,10 +1,31 @@
 """Price matching affixed rolls; retain broader pattern bands as references only."""
 
+import json
+
 from pricing.triage.variants import scoped_bucket
 
 
 def family_name(rule):
     return str(rule.get('family') or rule.get('name') or '').casefold()
+
+
+def pattern_bucket(rule):
+    # Skill/class combinations remain different identities even when importers
+    # reuse a human-readable bucket label. Only secondary rolls may be pooled.
+    identity = {
+        key: rule[key]
+        for key in ('category', 'name', 'family', 'bucket', 'properties', 'conditions', 'at_least')
+        if key in rule
+    }
+    return 'pattern:' + json.dumps(identity, sort_keys=True, separators=(',', ':'))
+
+
+def compile_pattern(rule, members):
+    from pricing.triage.named_cohorts import compile_named
+
+    facets = ['property:' + prop for prop in sorted(rule['properties'])]
+    facets += [f for f in rule.get('band_facets', []) if f != 'ethereal']
+    return compile_named('family', family_name(rule), members, [], facets=facets, bucket=pattern_bucket(rule))
 
 
 def roll_bucket(rule, item):
@@ -70,6 +91,15 @@ def lookup(item, rules, bands):
         return None, None
     for rule in rules:
         name = family_name(rule)
+        coarse = bands.get(('family', name, pattern_bucket(rule)))
+        if coarse is not None:
+            from pricing.triage.named_cohorts import lookup as cohort_band
+
+            band = cohort_band(item, coarse)
+            if band and band.get('q1_ist') is not None:
+                return band, coarse
+            reference = reference or coarse
+            continue
         bucket = roll_bucket(rule, item)
         if bucket is None:
             continue

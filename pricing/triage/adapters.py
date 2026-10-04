@@ -161,6 +161,11 @@ def from_drop(observation):
         'name': name,
         'family': facts.item_type,
         'properties': properties,
+        'native_rolls': {
+            key: row['value']
+            for key, row in facts.stats.items()
+            if row.get('status') == 'decoded' and type(row.get('value')) in (int, float)
+        },
         'charm_suffix': suffix(facts.base_name, properties),
         'ethereal': facets['ethereal'],
         'sockets': facets['sockets'],

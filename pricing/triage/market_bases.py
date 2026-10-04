@@ -27,6 +27,12 @@ def clean_modifiers(item, base, policy):
     elif item['base_ed'] != 0:
         return False
     if base['type'] == 'ashd':
+        # The shared projection expands one all-resistance roll into four
+        # equal components. Those copies are not additional base modifiers.
+        if '441' in modifiers:
+            modifiers = {
+                p: v for p, v in modifiers.items() if p not in ('401', '426', '427', '428') or v != modifiers['441']
+            }
         allowed |= {'441': (5, 45), '510': (10, 65), '423': (15, 121)}
         if ('510' in modifiers) != ('423' in modifiers):
             return False

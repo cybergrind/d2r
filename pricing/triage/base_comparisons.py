@@ -46,7 +46,7 @@ def no_better_modifiers(item, policy):
     ]
 
 
-def compile_modifiers(category, name, bucket, rows, policy):
+def compile_modifiers(category, name, bucket, rows, policy, *, coarse_index=None, coarse_properties=()):
     from pricing.triage.adapters import from_listing
     from pricing.triage.bands import band_for
 
@@ -77,6 +77,12 @@ def compile_modifiers(category, name, bucket, rows, policy):
             if not selected:
                 continue
             target = sample | {'base_modifiers': sample['base_modifiers'] | target_rolls}
+            if coarse_index:
+                from pricing.triage.base_cohorts import band as base_cohort
+
+                replacement = base_cohort(target, bucket, policy, coarse_index, coarse_properties)
+                if replacement and replacement['sellers'] >= 3:
+                    continue
             band = band_for(category, name, selected)
             band.update(
                 bucket=scoped_bucket(bucket, target, policy['facets']),

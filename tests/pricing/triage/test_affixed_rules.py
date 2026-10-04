@@ -424,13 +424,19 @@ def test_useful_mana_and_life_leech_count_as_support_but_do_not_replace_primary_
 def test_phase_blade_intrinsic_durability_preserves_physical_stat_gates(ethereal):
     tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
     item = {
-        'category': 'rare', 'family': 'swor', 'base_name': 'Phase Blade',
-        'ethereal': ethereal, 'sockets': 0, 'properties': {'510': 300, '457': 30},
+        'category': 'rare',
+        'family': 'swor',
+        'base_name': 'Phase Blade',
+        'ethereal': ethereal,
+        'sockets': 0,
+        'properties': {'510': 300, '457': 30},
     }
     assert assess(item, tables)['verdict'] == 'check'
     for change in (
-        {'base_name': 'Crystal Sword'}, {'base_name': 'Cryptic Sword'},
-        {'ethereal': None}, {'properties': {'510': 299, '457': 30}},
+        {'base_name': 'Crystal Sword'},
+        {'base_name': 'Cryptic Sword'},
+        {'ethereal': None},
+        {'properties': {'510': 299, '457': 30}},
         {'properties': {'510': 300, '457': 20}},
     ):
         assert assess(item | change, tables)['verdict'] == 'vendor'

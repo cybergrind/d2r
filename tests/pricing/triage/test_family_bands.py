@@ -42,7 +42,7 @@ def test_family_band_prices_matching_rolls_without_borrowing_perfect_asks():
 def test_family_band_does_not_pool_stacks_or_sellers():
     rows = [charm(1, 17, 2), {**charm(1, 17, 100), 'listing_id': 'second'}, {**charm(2, 17, 50), 'amount': 40}]
     document = build_bands(rows, [], rules=[RULE])
-    bands = [r for r in document['bands'] if r['category'] == 'family' and r.get('roll_properties')]
+    bands = [r for r in document['bands'] if r['category'] == 'family' and 'named_cohorts' in r]
     assert len(bands) == 1
     assert bands[0]['sellers'] == 1
     assert bands[0]['median_ist'] == 2
@@ -79,15 +79,18 @@ def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort()
     assert result['band']['sellers'] == 3
     assert result['verdict'] == 'slow'
     for changes in (
-        {'name': 'Heavy Gloves', 'base_code': bases['Heavy Gloves']},
         {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}},
         {'properties': {**{k: v for k, v in rows[0]['properties'].items() if k != '410'}, '456': 3}},
-        {'properties': rows[0]['properties'] | {'427': 10}},
     ):
         other = from_listing(rows[0] | changes)
         result = assess(other, tables)
         assert result['verdict'] == 'check'
         assert result['band'] is None
+    for changes in (
+        {'name': 'Heavy Gloves', 'base_code': bases['Heavy Gloves']},
+        {'properties': rows[0]['properties'] | {'427': 10}},
+    ):
+        assert assess(from_listing(rows[0] | changes), tables)['decision_ist'] == 4
 
 
 def test_amazon_class_prefix_javelins_do_not_borrow_stacked_skill_prefix_prices():
@@ -122,7 +125,9 @@ def test_amazon_class_prefix_javelins_do_not_borrow_stacked_skill_prefix_prices(
         result = assess(other, tables)
         assert result['verdict'] == 'check'
         assert result['band'] is None
-    for changed in ({'ethereal': True}, {'base_code': bases['Matriarchal Javelin']}, {'base_code': None}):
+    for base in (bases['Matriarchal Javelin'], None):
+        assert assess(item | {'base_code': base}, tables)['decision_ist'] == 5
+    for changed in ({'ethereal': True},):
         result = assess(item | changed, tables)
         assert result['verdict'] == 'check'
         assert result['band'] is None
@@ -202,3 +207,19 @@ def test_rare_skill_gloves_price_no_better_resistance_with_other_rolls_fixed():
     assert assess(from_listing(rows[0]), tables)['verdict'] == 'check'
     changed = from_listing(rows[2] | {'properties': rows[2]['properties'] | {'463': 2}})
     assert assess(changed, tables)['band'] is None
+
+
+def test_secondary_rolls_merge_only_when_the_price_difference_is_small():
+    rows = [charm(i, 17, 2) for i in range(3)] + [charm(i + 3, 18, 2.2) for i in range(3)]
+    document = build_bands(rows, [], rules=[RULE])
+    tables = {
+        'bands': {(r['category'], r['name'].casefold(), r['bucket']): r for r in document['bands']},
+        'rules': {'keep_ist': 0.25, 'rows': [RULE]},
+        'own': {'rows': []},
+    }
+    result = assess(from_listing(rows[0]), tables)
+    assert result['band']['sellers'] == 6
+    assert result['decision_ist'] == 2
+    missing = from_listing(rows[0])
+    missing['properties'].pop('448')
+    assert assess(missing, tables)['verdict'] == 'vendor'

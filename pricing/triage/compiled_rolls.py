@@ -6,6 +6,7 @@ from itertools import product
 
 from pricing.triage.adapters import expanded_properties
 from pricing.triage.bands import band_for, eligible
+from pricing.triage.roll_cohorts import matches_cohort
 from pricing.triage.roll_comparisons import comparable, compare, fallback_required, numeric
 
 
@@ -13,7 +14,7 @@ def key(values):
     return json.dumps(values, separators=(',', ':'))
 
 
-def compile_model(report, rows):
+def compile_model(report, rows, *, require_supported_split=False):
     if not report['deciding'] or fallback_required(report['validation']):
         return None
     cohort = [
@@ -21,15 +22,27 @@ def compile_model(report, rows):
         for r in rows
         if eligible(r)
         and r['name'].casefold() == report['name'].casefold()
-        and r.get('ethereal') is report['ethereal']
-        and r.get('socket_contents') == report.get('socket_contents')
-        and r.get('sockets') == report.get('sockets')
-        and r.get('base_code') == report.get('base_code')
+        and matches_cohort(r, report)
         and r['amount'] == 1
     ]
     if not cohort:
         return None
     deciding = report['deciding']
+    if require_supported_split:
+        from pricing.triage.cohort_splits import roll_split
+
+        deciding = {
+            prop: spec
+            for prop, spec in deciding.items()
+            if roll_split(cohort, prop)
+            or (
+                report.get('coarse_facets') is not None
+                and spec.get('sample_size', 0) >= 15
+                and spec.get('top_count', 0) / spec['sample_size'] >= 0.75
+            )
+        }
+        if not deciding:
+            return None
     axes = {}
     for prop, spec in deciding.items():
         sign = -1 if spec.get('better') == 'lower' else 1
@@ -54,6 +67,7 @@ def compile_model(report, rows):
         cells[key(values)] = {'band': band, 'upper_bound_ist': result['upper_bound_ist']}
     return {
         **report,
+        'deciding': deciding,
         'category': cohort[0]['category'],
         'axes': axes,
         'cells': cells,
@@ -68,10 +82,7 @@ def lookup(item, models, *, keep_ist):
             for m in models
             if m['name'].casefold() == str(item.get('name', '')).casefold()
             and m['category'] == item.get('category')
-            and m['ethereal'] is item.get('ethereal')
-            and m.get('socket_contents') == item.get('socket_contents')
-            and m.get('sockets') == item.get('sockets')
-            and m.get('base_code') == item.get('base_code')
+            and matches_cohort(item, m)
         ),
         None,
     )
@@ -90,6 +101,10 @@ def lookup(item, models, *, keep_ist):
         if spec.get('base_code') and item.get('base_code') != spec['base_code']:
             return result | {'reason': 'unverified base for deciding roll: ' + spec.get('label', prop)}
         value = item.get('properties', {}).get(prop)
+        # Some market labels omit class restrictions. Use the model's verified
+        # native identity for captures without creating a global skill alias.
+        if prop not in item.get('properties', {}):
+            value = item.get('native_rolls', {}).get(spec.get('native_key'))
         if not numeric(value) or not spec['min'] <= value <= spec['max']:
             return result | {'reason': 'unreadable or out-of-range deciding roll: ' + spec.get('label', prop)}
         oriented = value * (-1 if spec.get('better') == 'lower' else 1)

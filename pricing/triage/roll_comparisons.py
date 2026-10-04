@@ -170,7 +170,7 @@ def validation_summary(reports):
         'deployed_median_error': median(deployed) if deployed else None,
         'error_unit': 'absolute log2 price ratio',
         'fallbacks': [
-            {k: report[k] for k in ('name', 'ethereal', 'socket_contents')}
+            {k: report.get(k) for k in ('name', 'ethereal', 'socket_contents', 'coarse_facets')}
             for report in reports
             if fallback_required(report['validation'])
         ],

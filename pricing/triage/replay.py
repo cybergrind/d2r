@@ -17,53 +17,75 @@ from pricing.triage.roll_comparisons import validation_summary
 
 
 def listing_score(rows, tables):
-    counts = {}
-    types = {}
+    from pricing.triage.base_socket_inference import apply
+    from pricing.triage.listing_scores import cohort_key, summarize
+    from pricing.triage.miss_causes import MissCauses
+
+    observations = []
+    sellers = {}
+    missing_seller = 0
+    excluded = Counter()
+    excluded_sellers = set()
+    misses = MissCauses()
     for row in latest_rows(rows):
         price = row.get('ask_ist')
         if not eligible(row) or type(price) not in (int, float) or price <= 0:
             continue
+        row = apply(row, tables.get('base_socket_inferences', {}))
         item = from_listing(row)
+        if item['category'] == 'base' and item.get('sockets') is None:
+            excluded['base_missing_sockets'] += 1
+            excluded['valuable_base_missing_sockets'] += price >= tables['rules']['keep_ist']
+            if row.get('seller_id'):
+                excluded_sellers.add(str(row['seller_id']))
+            continue
         price = sale_value(item, price)
         category = item['category']
-        verdict = assess(item, tables)['verdict']
+        result = assess(item, tables)
+        verdict = result['verdict']
         flag = verdict in ('sell', 'slow')
         attention = flag or (category in ('rare', 'magic', 'crafted') and verdict == 'check')
         key = f'{category}/{item.get("family") or item.get("name")}'
         named = category in ('uniques', 'sets', 'runewords')
-        cohort_price = (variant_name_band(item, tables) or {}).get('q1_ist') if named else price
+        cohort = variant_name_band(item, tables) if named else None
+        cohort_price = (cohort or {}).get('q1_ist') if named else price
         valuable = cohort_price is not None and cohort_price >= tables['rules']['keep_ist']
-        for tally in (counts.setdefault(category, Counter()), types.setdefault(key, Counter())):
-            tally['priced'] += 1
-            tally['checks'] += verdict == 'check'
-            if named and cohort_price is None:
-                tally['unpriced_cohort'] += 1
-            if named and cohort_price is not None and cohort_price < tables['rules']['keep_ist'] <= price:
-                tally['asks_above_cheap_cohort'] += 1
-            if valuable:
-                tally['valuable'] += 1
-                tally['flagged_valuable'] += attention
-                tally['sell_flagged_valuable'] += flag
-                tally['checks_valuable'] += verdict == 'check'
-            if price < tables['rules']['keep_ist'] / 4:
-                tally['cheap'] += 1
-                tally['flagged_cheap'] += flag
-                tally['checks_cheap'] += verdict == 'check'
-
-    def summarize(tally):
-        return {
-            **tally,
-            'valuable': tally['valuable'],
-            'recall': tally['flagged_valuable'] / tally['valuable'] if tally['valuable'] else None,
-            'sell_recall': tally['sell_flagged_valuable'] / tally['valuable'] if tally['valuable'] else None,
-            'cheap_false_positive_rate': tally['flagged_cheap'] / tally['cheap'] if tally['cheap'] else None,
-            'cheap_check_rate': tally['checks_cheap'] / tally['cheap'] if tally['cheap'] else None,
-        }
-
+        cheap = price < tables['rules']['keep_ist'] / 4
+        tally = Counter(
+            {
+                'priced': 1,
+                'checks': int(verdict == 'check'),
+                'unpriced_cohort': int(named and cohort_price is None),
+                'asks_above_cheap_cohort': int(
+                    named and cohort_price is not None and cohort_price < tables['rules']['keep_ist'] <= price
+                ),
+                'valuable': int(valuable),
+                'flagged_valuable': int(valuable and attention),
+                'sell_flagged_valuable': int(valuable and flag),
+                'checks_valuable': int(valuable and verdict == 'check'),
+                'cheap': int(cheap),
+                'flagged_cheap': int(cheap and flag),
+                'checks_cheap': int(cheap and verdict == 'check'),
+            }
+        )
+        observation = category, key, tally
+        observations.append(observation)
+        miss = misses.add(row, item, result, tables) if valuable and not attention else None
+        if not row.get('seller_id'):
+            missing_seller += 1
+            continue
+        identity = str(row['seller_id']), cohort_key(item, result, cohort, tables)
+        rank = price, str(row['listing_id'])
+        if identity not in sellers or rank < sellers[identity][0]:
+            sellers[identity] = rank, observation, miss
     return {
-        'overall': summarize(sum(counts.values(), Counter())),
-        'categories': {k: summarize(v) for k, v in sorted(counts.items())},
-        'per_type': {k: summarize(v) for k, v in sorted(types.items())},
+        **summarize([o for _, o, _ in sellers.values()]),
+        'miss_causes': misses.report([miss for _, _, miss in sellers.values()]),
+        'weighting': 'one vote per seller per cohort or paid pattern; lowest ask wins',
+        'missing_seller_listings': missing_seller,
+        'excluded_listings': dict(excluded),
+        'excluded_distinct_sellers': len(excluded_sellers),
+        'per_listing': summarize(observations),
     }
 
 
@@ -145,6 +167,19 @@ def main():
         item = row['observation']['item']
         results.append({'id': row['id'], 'name': item.get('name'), 'rarity': item.get('rarity'), **result})
     summary = score(results, labels)
+    rarity_counts = {}
+    for result in results:
+        rarity_counts.setdefault(result.get('rarity', 'unknown'), Counter())[result['verdict']] += 1
+    summary['check_share_by_rarity'] = {
+        rarity: {
+            'items': sum(counts.values()),
+            'checks': counts['check'],
+            'share': counts['check'] / sum(counts.values()),
+        }
+        for rarity, counts in sorted(rarity_counts.items())
+    }
+    named = sum((counts for rarity, counts in rarity_counts.items() if rarity in ('unique', 'set')), Counter())
+    summary['named_check_share'] = named['check'] / sum(named.values()) if named else None
     baseline = json.loads((DATA / 'score-legacy-baseline-20261003.json').read_text())
     comparison = compare_types(items, results, baseline['results'], keep_ist=tables['rules']['keep_ist'])
     atomic_json(DATA / 'score-triage.json', {'summary': summary, 'results': results, 'per_type': comparison})
@@ -160,7 +195,7 @@ def main():
     rows, _ = market_rows()
     listing = listing_score(rows, tables)
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
-    models = analyze(rows, definitions, metadata())
+    models = analyze(rows, definitions, metadata(), coarse=True)
     listing['roll_validation'] = {
         'models': models,
         'drafts': len(models),

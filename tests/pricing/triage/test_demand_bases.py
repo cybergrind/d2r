@@ -100,7 +100,7 @@ def test_build_base_import_skips_generic_starter_variants_but_keeps_uber_mercena
     assert demand['Mythical Sword']['sockets_by_runeword'] == {'Malice': 3}
 
 
-def test_superior_modifiers_price_only_from_same_pattern_with_no_better_rolls():
+def test_superior_secondary_rolls_merge_without_a_supported_price_split():
     from pricing.triage.adapters import from_listing
     from pricing.triage.bands import build_bands
     from pricing.triage.engine import assess
@@ -127,10 +127,10 @@ def test_superior_modifiers_price_only_from_same_pattern_with_no_better_rolls():
     }
     result = assess(from_listing(rows[2]), tables)
     assert result['verdict'] == 'slow'
-    assert result['band']['q1_ist'] == 1.5
-    assert result['band']['sellers'] == 3
-    assert 'comparable-or-worse' in result['reason']
-    assert assess(from_listing(rows[0]), tables)['verdict'] == 'check'
-    for props in ({'510': 15}, {'510': 15, '937': 12, '423': 3}):
-        target = from_listing(rows[2] | {'properties': props})
-        assert assess(target, tables)['band'] is None
+    assert result['band']['q1_ist'] == 1.75
+    assert result['band']['sellers'] == 4
+    assert assess(from_listing(rows[0]), tables)['verdict'] == 'slow'
+    absent = from_listing(rows[2] | {'properties': {'510': 15}})
+    assert assess(absent, tables)['decision_ist'] == 1.75
+    target = from_listing(rows[2] | {'properties': {'510': 15, '937': 12, '423': 3}})
+    assert assess(target, tables)['band'] is None

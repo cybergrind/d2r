@@ -59,7 +59,7 @@ def ranges_for(definition, rows, game):
     return ranges, missing
 
 
-def analyze(rows, definitions, game):
+def analyze(rows, definitions, game, *, coarse=False):
     groups = defaultdict(list)
     for row in latest_rows(rows):
         if eligible(row) and row['category'] in ('uniques', 'sets'):
@@ -78,7 +78,20 @@ def analyze(rows, definitions, game):
                 cohorts[
                     row.get('ethereal'), row.get('socket_contents'), row.get('sockets'), row.get('base_code')
                 ].append(row)
-        for (ethereal, contents, sockets, base_code), cohort in cohorts.items():
+        grouped = [
+            ({'ethereal': e, 'socket_contents': c, 'sockets': s, 'base_code': b}, group)
+            for (e, c, s, b), group in cohorts.items()
+        ]
+        if coarse:
+            from pricing.triage.roll_cohorts import groups as coarse_groups
+
+            grouped = coarse_groups([row for group in cohorts.values() for row in group])
+        for identity, cohort in grouped:
+            ethereal = identity['ethereal']
+            contents = identity.get('socket_contents')
+            if coarse and all(r.get('socket_contents') == 'empty' for r in cohort):
+                contents = 'empty'
+
             cohort_ranges = dict(ranges)
             defense = definition.get('base_defense_range')
             if (
@@ -103,10 +116,7 @@ def analyze(rows, definitions, game):
             reports.append(
                 {
                     'name': definition['name'],
-                    'ethereal': ethereal,
-                    'socket_contents': contents,
-                    'sockets': sockets,
-                    'base_code': base_code,
+                    **identity,
                     'deciding': deciding,
                     'unmapped_variable_stats': missing,
                     'validation': leave_one_out(cohort, deciding, ranges=cohort_ranges, minimum_sellers=1),
