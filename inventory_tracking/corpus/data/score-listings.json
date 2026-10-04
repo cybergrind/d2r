@@ -1,20 +1,20 @@
 {
   "overall": {
-    "priced": 20835,
-    "valuable": 17959,
-    "flagged_valuable": 13039,
-    "sell_flagged_valuable": 11797,
-    "checks": 3518,
-    "checks_valuable": 2788,
+    "priced": 20831,
+    "valuable": 17976,
+    "flagged_valuable": 12592,
+    "sell_flagged_valuable": 11338,
+    "checks": 3621,
+    "checks_valuable": 2922,
     "cheap": 129,
-    "unpriced_cohort": 765,
-    "asks_above_cheap_cohort": 890,
-    "flagged_cheap": 19,
-    "checks_cheap": 24,
-    "recall": 0.7260426527089482,
-    "sell_recall": 0.6568851272342559,
-    "cheap_false_positive_rate": 0.14728682170542637,
-    "cheap_check_rate": 0.18604651162790697
+    "unpriced_cohort": 754,
+    "asks_above_cheap_cohort": 884,
+    "flagged_cheap": 16,
+    "checks_cheap": 27,
+    "recall": 0.7004895416110369,
+    "sell_recall": 0.6307298620382733,
+    "cheap_false_positive_rate": 0.12403100775193798,
+    "cheap_check_rate": 0.20930232558139536
   },
   "categories": {
     "base": {
@@ -23,14 +23,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 3744,
-      "flagged_valuable": 1268,
-      "sell_flagged_valuable": 1268,
+      "flagged_valuable": 1219,
+      "sell_flagged_valuable": 1219,
       "checks_valuable": 1157,
       "cheap": 4,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.3386752136752137,
-      "sell_recall": 0.3386752136752137,
+      "recall": 0.32558760683760685,
+      "sell_recall": 0.32558760683760685,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -69,19 +69,19 @@
       "cheap_check_rate": 0.22727272727272727
     },
     "magic": {
-      "priced": 1114,
-      "checks": 358,
+      "priced": 1120,
+      "checks": 370,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 1092,
-      "flagged_valuable": 503,
+      "valuable": 1098,
+      "flagged_valuable": 515,
       "sell_flagged_valuable": 145,
-      "checks_valuable": 358,
+      "checks_valuable": 370,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.4606227106227106,
-      "sell_recall": 0.13278388278388278,
+      "recall": 0.4690346083788707,
+      "sell_recall": 0.1320582877959927,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -154,38 +154,38 @@
       "cheap_check_rate": 1.0
     },
     "sets": {
-      "priced": 1689,
-      "checks": 93,
-      "unpriced_cohort": 101,
+      "priced": 1687,
+      "checks": 86,
+      "unpriced_cohort": 102,
       "asks_above_cheap_cohort": 262,
-      "valuable": 937,
-      "flagged_valuable": 926,
-      "sell_flagged_valuable": 926,
-      "checks_valuable": 11,
+      "valuable": 934,
+      "flagged_valuable": 887,
+      "sell_flagged_valuable": 887,
+      "checks_valuable": 16,
       "cheap": 45,
-      "flagged_cheap": 3,
-      "checks_cheap": 2,
-      "recall": 0.9882604055496265,
-      "sell_recall": 0.9882604055496265,
-      "cheap_false_positive_rate": 0.06666666666666667,
-      "cheap_check_rate": 0.044444444444444446
+      "flagged_cheap": 2,
+      "checks_cheap": 3,
+      "recall": 0.949678800856531,
+      "sell_recall": 0.949678800856531,
+      "cheap_false_positive_rate": 0.044444444444444446,
+      "cheap_check_rate": 0.06666666666666667
     },
     "uniques": {
-      "priced": 7919,
-      "checks": 766,
-      "unpriced_cohort": 651,
-      "asks_above_cheap_cohort": 609,
-      "valuable": 6159,
-      "flagged_valuable": 5933,
-      "sell_flagged_valuable": 5933,
-      "checks_valuable": 215,
+      "priced": 7911,
+      "checks": 864,
+      "unpriced_cohort": 639,
+      "asks_above_cheap_cohort": 603,
+      "valuable": 6173,
+      "flagged_valuable": 5562,
+      "sell_flagged_valuable": 5562,
+      "checks_valuable": 332,
       "cheap": 49,
-      "flagged_cheap": 16,
-      "checks_cheap": 10,
-      "recall": 0.9633057314499107,
-      "sell_recall": 0.9633057314499107,
-      "cheap_false_positive_rate": 0.32653061224489793,
-      "cheap_check_rate": 0.20408163265306123
+      "flagged_cheap": 14,
+      "checks_cheap": 12,
+      "recall": 0.9010205734650899,
+      "sell_recall": 0.9010205734650899,
+      "cheap_false_positive_rate": 0.2857142857142857,
+      "cheap_check_rate": 0.24489795918367346
     }
   },
   "per_type": {
@@ -518,14 +518,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 314,
-      "flagged_valuable": 17,
-      "sell_flagged_valuable": 17,
+      "flagged_valuable": 13,
+      "sell_flagged_valuable": 13,
       "checks_valuable": 268,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.054140127388535034,
-      "sell_recall": 0.054140127388535034,
+      "recall": 0.041401273885350316,
+      "sell_recall": 0.041401273885350316,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -603,14 +603,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 444,
-      "flagged_valuable": 275,
-      "sell_flagged_valuable": 275,
+      "flagged_valuable": 253,
+      "sell_flagged_valuable": 253,
       "checks_valuable": 83,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.6193693693693694,
-      "sell_recall": 0.6193693693693694,
+      "recall": 0.5698198198198198,
+      "sell_recall": 0.5698198198198198,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -739,14 +739,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 618,
-      "flagged_valuable": 341,
-      "sell_flagged_valuable": 341,
+      "flagged_valuable": 318,
+      "sell_flagged_valuable": 318,
       "checks_valuable": 107,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.551779935275081,
-      "sell_recall": 0.551779935275081,
+      "recall": 0.5145631067961165,
+      "sell_recall": 0.5145631067961165,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -1108,18 +1108,18 @@
       "cheap_check_rate": null
     },
     "magic/ashd": {
-      "priced": 13,
-      "checks": 0,
+      "priced": 16,
+      "checks": 4,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 12,
-      "flagged_valuable": 0,
+      "valuable": 15,
+      "flagged_valuable": 4,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 0,
+      "checks_valuable": 4,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.0,
+      "recall": 0.26666666666666666,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1669,18 +1669,18 @@
       "cheap_check_rate": null
     },
     "magic/tors": {
-      "priced": 73,
-      "checks": 18,
+      "priced": 76,
+      "checks": 26,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 73,
-      "flagged_valuable": 18,
+      "valuable": 76,
+      "flagged_valuable": 26,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 18,
+      "checks_valuable": 26,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.2465753424657534,
+      "recall": 0.34210526315789475,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -5546,20 +5546,20 @@
     },
     "sets/Tal Rasha's Lidless Eye": {
       "priced": 14,
-      "checks": 0,
+      "checks": 4,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 14,
-      "flagged_valuable": 14,
-      "sell_flagged_valuable": 14,
-      "checks_valuable": 0,
+      "flagged_valuable": 10,
+      "sell_flagged_valuable": 10,
+      "checks_valuable": 4,
       "cheap": 1,
-      "flagged_cheap": 1,
-      "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
-      "cheap_false_positive_rate": 1.0,
-      "cheap_check_rate": 0.0
+      "flagged_cheap": 0,
+      "checks_cheap": 1,
+      "recall": 0.7142857142857143,
+      "sell_recall": 0.7142857142857143,
+      "cheap_false_positive_rate": 0.0,
+      "cheap_check_rate": 1.0
     },
     "sets/Tal Rasha's Wrappings": {
       "priced": 11,
@@ -5853,17 +5853,17 @@
     "sets/abow": {
       "priced": 1,
       "checks": 1,
-      "unpriced_cohort": 0,
+      "unpriced_cohort": 1,
       "asks_above_cheap_cohort": 0,
-      "valuable": 1,
+      "valuable": 0,
       "flagged_valuable": 0,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 1,
+      "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.0,
-      "sell_recall": 0.0,
+      "recall": null,
+      "sell_recall": null,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -5941,14 +5941,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 11,
       "valuable": 42,
-      "flagged_valuable": 42,
-      "sell_flagged_valuable": 42,
+      "flagged_valuable": 38,
+      "sell_flagged_valuable": 38,
       "checks_valuable": 0,
       "cheap": 2,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.9047619047619048,
+      "sell_recall": 0.9047619047619048,
       "cheap_false_positive_rate": 0.5,
       "cheap_check_rate": 0.0
     },
@@ -5992,14 +5992,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 8,
       "valuable": 18,
-      "flagged_valuable": 18,
-      "sell_flagged_valuable": 18,
+      "flagged_valuable": 11,
+      "sell_flagged_valuable": 11,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.6111111111111112,
+      "sell_recall": 0.6111111111111112,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -6039,7 +6039,7 @@
     },
     "sets/hamm": {
       "priced": 13,
-      "checks": 13,
+      "checks": 0,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 5,
       "valuable": 0,
@@ -6077,14 +6077,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 28,
       "valuable": 68,
-      "flagged_valuable": 67,
-      "sell_flagged_valuable": 67,
+      "flagged_valuable": 47,
+      "sell_flagged_valuable": 47,
       "checks_valuable": 1,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9852941176470589,
-      "sell_recall": 0.9852941176470589,
+      "recall": 0.6911764705882353,
+      "sell_recall": 0.6911764705882353,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -6107,18 +6107,18 @@
     },
     "sets/orb": {
       "priced": 10,
-      "checks": 0,
+      "checks": 2,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 10,
-      "flagged_valuable": 10,
-      "sell_flagged_valuable": 10,
-      "checks_valuable": 0,
+      "flagged_valuable": 8,
+      "sell_flagged_valuable": 8,
+      "checks_valuable": 2,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.8,
+      "sell_recall": 0.8,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -6140,13 +6140,13 @@
       "cheap_check_rate": null
     },
     "sets/phlm": {
-      "priced": 12,
+      "priced": 10,
       "checks": 0,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 12,
-      "flagged_valuable": 12,
-      "sell_flagged_valuable": 12,
+      "valuable": 10,
+      "flagged_valuable": 10,
+      "sell_flagged_valuable": 10,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
@@ -6294,18 +6294,18 @@
     },
     "uniques/Arreat's Face": {
       "priced": 3,
-      "checks": 3,
-      "unpriced_cohort": 3,
+      "checks": 0,
+      "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 0,
-      "flagged_valuable": 0,
-      "sell_flagged_valuable": 0,
+      "valuable": 3,
+      "flagged_valuable": 3,
+      "sell_flagged_valuable": 3,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": null,
-      "sell_recall": null,
+      "recall": 1.0,
+      "sell_recall": 1.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -6889,18 +6889,18 @@
     },
     "uniques/Chance Guards": {
       "priced": 9,
-      "checks": 0,
+      "checks": 8,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 7,
-      "flagged_valuable": 7,
-      "sell_flagged_valuable": 7,
-      "checks_valuable": 0,
+      "flagged_valuable": 1,
+      "sell_flagged_valuable": 1,
+      "checks_valuable": 6,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.14285714285714285,
+      "sell_recall": 0.14285714285714285,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -7654,18 +7654,18 @@
     },
     "uniques/Guardian Angel": {
       "priced": 36,
-      "checks": 31,
-      "unpriced_cohort": 31,
+      "checks": 36,
+      "unpriced_cohort": 36,
       "asks_above_cheap_cohort": 0,
-      "valuable": 5,
-      "flagged_valuable": 5,
-      "sell_flagged_valuable": 5,
+      "valuable": 0,
+      "flagged_valuable": 0,
+      "sell_flagged_valuable": 0,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": null,
+      "sell_recall": null,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -7840,19 +7840,19 @@
       "cheap_check_rate": 1.0
     },
     "uniques/Hellwarden's Will": {
-      "priced": 25,
+      "priced": 27,
       "checks": 2,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 25,
-      "flagged_valuable": 23,
-      "sell_flagged_valuable": 23,
+      "valuable": 27,
+      "flagged_valuable": 0,
+      "sell_flagged_valuable": 0,
       "checks_valuable": 2,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.92,
-      "sell_recall": 0.92,
+      "recall": 0.0,
+      "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -8402,18 +8402,18 @@
     },
     "uniques/Measured Wrath": {
       "priced": 21,
-      "checks": 1,
+      "checks": 3,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 21,
-      "flagged_valuable": 20,
-      "sell_flagged_valuable": 20,
-      "checks_valuable": 1,
+      "flagged_valuable": 18,
+      "sell_flagged_valuable": 18,
+      "checks_valuable": 3,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9523809523809523,
-      "sell_recall": 0.9523809523809523,
+      "recall": 0.8571428571428571,
+      "sell_recall": 0.8571428571428571,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -8742,20 +8742,20 @@
     },
     "uniques/Riphook": {
       "priced": 10,
-      "checks": 0,
+      "checks": 6,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 10,
-      "flagged_valuable": 10,
-      "sell_flagged_valuable": 10,
-      "checks_valuable": 0,
+      "flagged_valuable": 4,
+      "sell_flagged_valuable": 4,
+      "checks_valuable": 6,
       "cheap": 1,
-      "flagged_cheap": 1,
-      "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
-      "cheap_false_positive_rate": 1.0,
-      "cheap_check_rate": 0.0
+      "flagged_cheap": 0,
+      "checks_cheap": 1,
+      "recall": 0.4,
+      "sell_recall": 0.4,
+      "cheap_false_positive_rate": 0.0,
+      "cheap_check_rate": 1.0
     },
     "uniques/Ripsaw": {
       "priced": 7,
@@ -8844,18 +8844,18 @@
     },
     "uniques/Rusthandle": {
       "priced": 14,
-      "checks": 2,
+      "checks": 3,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 14,
-      "flagged_valuable": 12,
-      "sell_flagged_valuable": 12,
-      "checks_valuable": 2,
+      "flagged_valuable": 11,
+      "sell_flagged_valuable": 11,
+      "checks_valuable": 3,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8571428571428571,
-      "sell_recall": 0.8571428571428571,
+      "recall": 0.7857142857142857,
+      "sell_recall": 0.7857142857142857,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -8894,13 +8894,13 @@
       "cheap_check_rate": null
     },
     "uniques/Shaftstop": {
-      "priced": 9,
-      "checks": 3,
-      "unpriced_cohort": 3,
+      "priced": 8,
+      "checks": 0,
+      "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 6,
-      "flagged_valuable": 6,
-      "sell_flagged_valuable": 6,
+      "valuable": 8,
+      "flagged_valuable": 8,
+      "sell_flagged_valuable": 8,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
@@ -8980,18 +8980,18 @@
     },
     "uniques/Skin of the Vipermagi": {
       "priced": 16,
-      "checks": 16,
-      "unpriced_cohort": 15,
-      "asks_above_cheap_cohort": 0,
-      "valuable": 1,
-      "flagged_valuable": 0,
-      "sell_flagged_valuable": 0,
+      "checks": 1,
+      "unpriced_cohort": 0,
+      "asks_above_cheap_cohort": 1,
+      "valuable": 14,
+      "flagged_valuable": 13,
+      "sell_flagged_valuable": 13,
       "checks_valuable": 1,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.0,
-      "sell_recall": 0.0,
+      "recall": 0.9285714285714286,
+      "sell_recall": 0.9285714285714286,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -9473,18 +9473,18 @@
     },
     "uniques/Suicide Branch": {
       "priced": 12,
-      "checks": 0,
+      "checks": 3,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 12,
-      "flagged_valuable": 12,
-      "sell_flagged_valuable": 12,
-      "checks_valuable": 0,
+      "flagged_valuable": 9,
+      "sell_flagged_valuable": 9,
+      "checks_valuable": 3,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.75,
+      "sell_recall": 0.75,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -9541,18 +9541,18 @@
     },
     "uniques/Tarnhelm": {
       "priced": 12,
-      "checks": 1,
+      "checks": 7,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 12,
-      "flagged_valuable": 11,
-      "sell_flagged_valuable": 11,
-      "checks_valuable": 1,
+      "flagged_valuable": 5,
+      "sell_flagged_valuable": 5,
+      "checks_valuable": 7,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9166666666666666,
-      "sell_recall": 0.9166666666666666,
+      "recall": 0.4166666666666667,
+      "sell_recall": 0.4166666666666667,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -9867,15 +9867,15 @@
       "checks": 1,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 7,
+      "valuable": 6,
       "flagged_valuable": 6,
       "sell_flagged_valuable": 6,
-      "checks_valuable": 1,
+      "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8571428571428571,
-      "sell_recall": 0.8571428571428571,
+      "recall": 1.0,
+      "sell_recall": 1.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10221,18 +10221,18 @@
     },
     "uniques/Vampire Gaze": {
       "priced": 13,
-      "checks": 12,
+      "checks": 13,
       "unpriced_cohort": 12,
       "asks_above_cheap_cohort": 0,
       "valuable": 1,
-      "flagged_valuable": 1,
-      "sell_flagged_valuable": 1,
-      "checks_valuable": 0,
+      "flagged_valuable": 0,
+      "sell_flagged_valuable": 0,
+      "checks_valuable": 1,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.0,
+      "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10306,18 +10306,18 @@
     },
     "uniques/War Traveler": {
       "priced": 17,
-      "checks": 0,
+      "checks": 10,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 17,
-      "flagged_valuable": 17,
-      "sell_flagged_valuable": 17,
-      "checks_valuable": 0,
+      "flagged_valuable": 0,
+      "sell_flagged_valuable": 0,
+      "checks_valuable": 10,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.0,
+      "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10375,8 +10375,8 @@
     "uniques/Witchwild String": {
       "priced": 4,
       "checks": 4,
-      "unpriced_cohort": 0,
-      "asks_above_cheap_cohort": 2,
+      "unpriced_cohort": 4,
+      "asks_above_cheap_cohort": 0,
       "valuable": 0,
       "flagged_valuable": 0,
       "sell_flagged_valuable": 0,
@@ -10514,14 +10514,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 22,
       "valuable": 299,
-      "flagged_valuable": 299,
-      "sell_flagged_valuable": 299,
+      "flagged_valuable": 281,
+      "sell_flagged_valuable": 281,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.939799331103679,
+      "sell_recall": 0.939799331103679,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10563,16 +10563,16 @@
       "priced": 229,
       "checks": 7,
       "unpriced_cohort": 0,
-      "asks_above_cheap_cohort": 20,
-      "valuable": 190,
+      "asks_above_cheap_cohort": 21,
+      "valuable": 189,
       "flagged_valuable": 186,
       "sell_flagged_valuable": 186,
-      "checks_valuable": 4,
+      "checks_valuable": 3,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9789473684210527,
-      "sell_recall": 0.9789473684210527,
+      "recall": 0.9841269841269841,
+      "sell_recall": 0.9841269841269841,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -10582,65 +10582,65 @@
       "unpriced_cohort": 5,
       "asks_above_cheap_cohort": 16,
       "valuable": 167,
-      "flagged_valuable": 165,
-      "sell_flagged_valuable": 165,
+      "flagged_valuable": 126,
+      "sell_flagged_valuable": 126,
       "checks_valuable": 2,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9880239520958084,
-      "sell_recall": 0.9880239520958084,
+      "recall": 0.7544910179640718,
+      "sell_recall": 0.7544910179640718,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/boot": {
       "priced": 213,
-      "checks": 6,
+      "checks": 12,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 6,
       "valuable": 206,
-      "flagged_valuable": 200,
-      "sell_flagged_valuable": 200,
-      "checks_valuable": 6,
+      "flagged_valuable": 131,
+      "sell_flagged_valuable": 131,
+      "checks_valuable": 12,
       "cheap": 2,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 0.970873786407767,
-      "sell_recall": 0.970873786407767,
+      "recall": 0.6359223300970874,
+      "sell_recall": 0.6359223300970874,
       "cheap_false_positive_rate": 0.5,
       "cheap_check_rate": 0.0
     },
     "uniques/bow": {
       "priced": 116,
-      "checks": 13,
+      "checks": 10,
       "unpriced_cohort": 0,
-      "asks_above_cheap_cohort": 22,
-      "valuable": 82,
-      "flagged_valuable": 75,
-      "sell_flagged_valuable": 75,
-      "checks_valuable": 3,
+      "asks_above_cheap_cohort": 16,
+      "valuable": 90,
+      "flagged_valuable": 77,
+      "sell_flagged_valuable": 77,
+      "checks_valuable": 9,
       "cheap": 2,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 0.9146341463414634,
-      "sell_recall": 0.9146341463414634,
+      "recall": 0.8555555555555555,
+      "sell_recall": 0.8555555555555555,
       "cheap_false_positive_rate": 0.5,
       "cheap_check_rate": 0.0
     },
     "uniques/circ": {
-      "priced": 49,
+      "priced": 46,
       "checks": 6,
       "unpriced_cohort": 4,
       "asks_above_cheap_cohort": 0,
-      "valuable": 45,
-      "flagged_valuable": 43,
-      "sell_flagged_valuable": 43,
+      "valuable": 42,
+      "flagged_valuable": 40,
+      "sell_flagged_valuable": 40,
       "checks_valuable": 2,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9555555555555556,
-      "sell_recall": 0.9555555555555556,
+      "recall": 0.9523809523809523,
+      "sell_recall": 0.9523809523809523,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10697,18 +10697,18 @@
     },
     "uniques/glov": {
       "priced": 278,
-      "checks": 11,
+      "checks": 22,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 36,
       "valuable": 226,
-      "flagged_valuable": 213,
-      "sell_flagged_valuable": 213,
-      "checks_valuable": 11,
+      "flagged_valuable": 191,
+      "sell_flagged_valuable": 191,
+      "checks_valuable": 20,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9424778761061947,
-      "sell_recall": 0.9424778761061947,
+      "recall": 0.8451327433628318,
+      "sell_recall": 0.8451327433628318,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -10765,35 +10765,35 @@
     },
     "uniques/head": {
       "priced": 45,
-      "checks": 0,
+      "checks": 5,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 45,
-      "flagged_valuable": 45,
-      "sell_flagged_valuable": 45,
-      "checks_valuable": 0,
+      "flagged_valuable": 40,
+      "sell_flagged_valuable": 40,
+      "checks_valuable": 5,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.8888888888888888,
+      "sell_recall": 0.8888888888888888,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/helm": {
-      "priced": 309,
-      "checks": 6,
+      "priced": 306,
+      "checks": 10,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 21,
-      "valuable": 276,
-      "flagged_valuable": 270,
-      "sell_flagged_valuable": 270,
-      "checks_valuable": 6,
+      "valuable": 273,
+      "flagged_valuable": 238,
+      "sell_flagged_valuable": 238,
+      "checks_valuable": 10,
       "cheap": 2,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 0.9782608695652174,
-      "sell_recall": 0.9782608695652174,
+      "recall": 0.8717948717948718,
+      "sell_recall": 0.8717948717948718,
       "cheap_false_positive_rate": 0.5,
       "cheap_check_rate": 0.0
     },
@@ -10816,35 +10816,35 @@
     },
     "uniques/jewl": {
       "priced": 162,
-      "checks": 0,
+      "checks": 4,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 162,
-      "flagged_valuable": 162,
-      "sell_flagged_valuable": 162,
-      "checks_valuable": 0,
+      "flagged_valuable": 158,
+      "sell_flagged_valuable": 158,
+      "checks_valuable": 4,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.9753086419753086,
+      "sell_recall": 0.9753086419753086,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/knif": {
       "priced": 110,
-      "checks": 4,
+      "checks": 14,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 15,
       "valuable": 76,
-      "flagged_valuable": 72,
-      "sell_flagged_valuable": 72,
-      "checks_valuable": 4,
+      "flagged_valuable": 62,
+      "sell_flagged_valuable": 62,
+      "checks_valuable": 14,
       "cheap": 3,
       "flagged_cheap": 2,
       "checks_cheap": 0,
-      "recall": 0.9473684210526315,
-      "sell_recall": 0.9473684210526315,
+      "recall": 0.8157894736842105,
+      "sell_recall": 0.8157894736842105,
       "cheap_false_positive_rate": 0.6666666666666666,
       "cheap_check_rate": 0.0
     },
@@ -10854,14 +10854,14 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 379,
-      "flagged_valuable": 379,
-      "sell_flagged_valuable": 379,
+      "flagged_valuable": 352,
+      "sell_flagged_valuable": 352,
       "checks_valuable": 0,
       "cheap": 1,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.9287598944591029,
+      "sell_recall": 0.9287598944591029,
       "cheap_false_positive_rate": 1.0,
       "cheap_check_rate": 0.0
     },
@@ -10900,70 +10900,70 @@
       "cheap_check_rate": null
     },
     "uniques/orb": {
-      "priced": 102,
-      "checks": 2,
+      "priced": 100,
+      "checks": 14,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 102,
-      "flagged_valuable": 100,
-      "sell_flagged_valuable": 100,
-      "checks_valuable": 2,
+      "valuable": 100,
+      "flagged_valuable": 86,
+      "sell_flagged_valuable": 86,
+      "checks_valuable": 14,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9803921568627451,
-      "sell_recall": 0.9803921568627451,
+      "recall": 0.86,
+      "sell_recall": 0.86,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/pelt": {
-      "priced": 62,
+      "priced": 64,
       "checks": 1,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 62,
-      "flagged_valuable": 61,
-      "sell_flagged_valuable": 61,
+      "valuable": 64,
+      "flagged_valuable": 63,
+      "sell_flagged_valuable": 63,
       "checks_valuable": 1,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9838709677419355,
-      "sell_recall": 0.9838709677419355,
+      "recall": 0.984375,
+      "sell_recall": 0.984375,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/phlm": {
-      "priced": 66,
-      "checks": 1,
+      "priced": 65,
+      "checks": 12,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
-      "valuable": 66,
-      "flagged_valuable": 65,
-      "sell_flagged_valuable": 65,
-      "checks_valuable": 1,
+      "valuable": 65,
+      "flagged_valuable": 53,
+      "sell_flagged_valuable": 53,
+      "checks_valuable": 12,
       "cheap": 1,
       "flagged_cheap": 1,
       "checks_cheap": 0,
-      "recall": 0.9848484848484849,
-      "sell_recall": 0.9848484848484849,
+      "recall": 0.8153846153846154,
+      "sell_recall": 0.8153846153846154,
       "cheap_false_positive_rate": 1.0,
       "cheap_check_rate": 0.0
     },
     "uniques/pole": {
-      "priced": 429,
+      "priced": 428,
       "checks": 2,
       "unpriced_cohort": 0,
-      "asks_above_cheap_cohort": 3,
-      "valuable": 418,
-      "flagged_valuable": 416,
-      "sell_flagged_valuable": 416,
+      "asks_above_cheap_cohort": 2,
+      "valuable": 421,
+      "flagged_valuable": 419,
+      "sell_flagged_valuable": 419,
       "checks_valuable": 2,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9952153110047847,
-      "sell_recall": 0.9952153110047847,
+      "recall": 0.995249406175772,
+      "sell_recall": 0.995249406175772,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -10973,33 +10973,33 @@
       "unpriced_cohort": 4,
       "asks_above_cheap_cohort": 0,
       "valuable": 203,
-      "flagged_valuable": 197,
-      "sell_flagged_valuable": 197,
+      "flagged_valuable": 163,
+      "sell_flagged_valuable": 163,
       "checks_valuable": 5,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9704433497536946,
-      "sell_recall": 0.9704433497536946,
+      "recall": 0.8029556650246306,
+      "sell_recall": 0.8029556650246306,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
     "uniques/scep": {
       "priced": 85,
-      "checks": 3,
+      "checks": 5,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 2,
       "valuable": 81,
-      "flagged_valuable": 78,
-      "sell_flagged_valuable": 78,
-      "checks_valuable": 3,
+      "flagged_valuable": 76,
+      "sell_flagged_valuable": 76,
+      "checks_valuable": 5,
       "cheap": 1,
-      "flagged_cheap": 1,
-      "checks_cheap": 0,
-      "recall": 0.9629629629629629,
-      "sell_recall": 0.9629629629629629,
-      "cheap_false_positive_rate": 1.0,
-      "cheap_check_rate": 0.0
+      "flagged_cheap": 0,
+      "checks_cheap": 1,
+      "recall": 0.9382716049382716,
+      "sell_recall": 0.9382716049382716,
+      "cheap_false_positive_rate": 0.0,
+      "cheap_check_rate": 1.0
     },
     "uniques/scha": {
       "priced": 17,
@@ -11007,31 +11007,31 @@
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 17,
-      "flagged_valuable": 17,
-      "sell_flagged_valuable": 17,
+      "flagged_valuable": 0,
+      "sell_flagged_valuable": 0,
       "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
-      "sell_recall": 1.0,
+      "recall": 0.0,
+      "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/shie": {
       "priced": 227,
-      "checks": 20,
+      "checks": 32,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 29,
       "valuable": 178,
-      "flagged_valuable": 167,
-      "sell_flagged_valuable": 167,
-      "checks_valuable": 11,
+      "flagged_valuable": 155,
+      "sell_flagged_valuable": 155,
+      "checks_valuable": 23,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9382022471910112,
-      "sell_recall": 0.9382022471910112,
+      "recall": 0.8707865168539326,
+      "sell_recall": 0.8707865168539326,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
@@ -11054,18 +11054,18 @@
     },
     "uniques/staf": {
       "priced": 85,
-      "checks": 7,
+      "checks": 10,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 6,
       "valuable": 72,
-      "flagged_valuable": 65,
-      "sell_flagged_valuable": 65,
-      "checks_valuable": 7,
+      "flagged_valuable": 62,
+      "sell_flagged_valuable": 62,
+      "checks_valuable": 10,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9027777777777778,
-      "sell_recall": 0.9027777777777778,
+      "recall": 0.8611111111111112,
+      "sell_recall": 0.8611111111111112,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -11124,33 +11124,33 @@
       "priced": 422,
       "checks": 14,
       "unpriced_cohort": 0,
-      "asks_above_cheap_cohort": 13,
-      "valuable": 401,
-      "flagged_valuable": 388,
-      "sell_flagged_valuable": 388,
+      "asks_above_cheap_cohort": 14,
+      "valuable": 399,
+      "flagged_valuable": 386,
+      "sell_flagged_valuable": 386,
       "checks_valuable": 13,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9675810473815462,
-      "sell_recall": 0.9675810473815462,
+      "recall": 0.9674185463659147,
+      "sell_recall": 0.9674185463659147,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "uniques/wand": {
-      "priced": 82,
+      "priced": 81,
       "checks": 2,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 5,
-      "valuable": 75,
-      "flagged_valuable": 73,
-      "sell_flagged_valuable": 73,
+      "valuable": 74,
+      "flagged_valuable": 72,
+      "sell_flagged_valuable": 72,
       "checks_valuable": 2,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9733333333333334,
-      "sell_recall": 0.9733333333333334,
+      "recall": 0.972972972972973,
+      "sell_recall": 0.972972972972973,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
@@ -11625,6 +11625,36 @@
         ]
       },
       {
+        "family": "pole",
+        "cause": "below_keep_price",
+        "distinct_sellers": 36,
+        "seller_votes": 37,
+        "listings": 46,
+        "examples": [
+          {
+            "listing_id": "1002503912750",
+            "name": "Cryptic Axe",
+            "reason": "below keep price",
+            "ask_ist": 0.4904166666666666,
+            "source": "pricing/raw/traderie/cryptic-axe.json"
+          },
+          {
+            "listing_id": "1002459930042",
+            "name": "Cryptic Axe",
+            "reason": "below keep price",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/cryptic-axe.json"
+          },
+          {
+            "listing_id": "1002497735221",
+            "name": "Giant Thresher",
+            "reason": "Act 2 mercenary Insight/Infinity base",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/giant-thresher.json"
+          }
+        ]
+      },
+      {
         "family": "staf",
         "cause": "base_bucket_missing",
         "distinct_sellers": 33,
@@ -12045,6 +12075,36 @@
         ]
       },
       {
+        "family": "tors",
+        "cause": "below_keep_price",
+        "distinct_sellers": 21,
+        "seller_votes": 23,
+        "listings": 24,
+        "examples": [
+          {
+            "listing_id": "1002190739597",
+            "name": "Archon Plate",
+            "reason": "Act 2 mercenary Treachery base",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/archon-plate.json"
+          },
+          {
+            "listing_id": "1002494571709",
+            "name": "Archon Plate",
+            "reason": "Act 2 mercenary Fortitude base",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/archon-plate.json"
+          },
+          {
+            "listing_id": "1002458607818",
+            "name": "Archon Plate",
+            "reason": "Act 2 mercenary Treachery base",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/archon-plate.json"
+          }
+        ]
+      },
+      {
         "family": "abow",
         "cause": "insufficient_sellers",
         "distinct_sellers": 19,
@@ -12191,36 +12251,6 @@
             "reason": "fewer than three sellers for the matched base variant; price is reference only",
             "ask_ist": 2.585,
             "source": "pricing/raw/traderie/flail.json"
-          }
-        ]
-      },
-      {
-        "family": "pole",
-        "cause": "below_keep_price",
-        "distinct_sellers": 16,
-        "seller_votes": 15,
-        "listings": 18,
-        "examples": [
-          {
-            "listing_id": "1002503912750",
-            "name": "Cryptic Axe",
-            "reason": "below keep price",
-            "ask_ist": 0.4904166666666666,
-            "source": "pricing/raw/traderie/cryptic-axe.json"
-          },
-          {
-            "listing_id": "1002459930042",
-            "name": "Cryptic Axe",
-            "reason": "below keep price",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/cryptic-axe.json"
-          },
-          {
-            "listing_id": "1002327160768",
-            "name": "Thresher",
-            "reason": "below keep price",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/pull-20261003/2966095818-p0.json"
           }
         ]
       },
@@ -13481,6 +13511,36 @@
             "reason": "no priced band for the required base, variant or roll combination",
             "ask_ist": 1.0,
             "source": "pricing/raw/traderie/pull-20261003/3284207504-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "knif",
+        "cause": "below_keep_price",
+        "distinct_sellers": 4,
+        "seller_votes": 4,
+        "listings": 4,
+        "examples": [
+          {
+            "listing_id": "1002457075860",
+            "name": "Kriss",
+            "reason": "Echoing Strike Void base",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/kris.json"
+          },
+          {
+            "listing_id": "1002491246476",
+            "name": "Legend Spike",
+            "reason": "Echoing Strike Void base",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/legend-spike.json"
+          },
+          {
+            "listing_id": "1002495351616",
+            "name": "Legend Spike",
+            "reason": "Echoing Strike Void base",
+            "ask_ist": 8.469999999999999,
+            "source": "pricing/raw/traderie/legend-spike.json"
           }
         ]
       },
@@ -16092,9 +16152,9 @@
       {
         "family": "tors",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 53,
-        "seller_votes": 55,
-        "listings": 116,
+        "distinct_sellers": 48,
+        "seller_votes": 50,
+        "listings": 91,
         "examples": [
           {
             "listing_id": "857885902",
@@ -16602,9 +16662,9 @@
       {
         "family": "ashd",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 12,
-        "seller_votes": 12,
-        "listings": 24,
+        "distinct_sellers": 11,
+        "seller_votes": 11,
+        "listings": 19,
         "examples": [
           {
             "listing_id": "1002389769624",
@@ -18906,6 +18966,126 @@
     ],
     "sets": [
       {
+        "family": "helm",
+        "cause": "below_keep_price",
+        "distinct_sellers": 20,
+        "seller_votes": 20,
+        "listings": 22,
+        "examples": [
+          {
+            "listing_id": "1002483040974",
+            "name": "Guillaume's Face",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/pull-20261003/4017690976-p0.json"
+          },
+          {
+            "listing_id": "1002412579109",
+            "name": "Guillaume's Face",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 41.482,
+            "source": "pricing/raw/traderie/wpi-guillaume-s-face.json"
+          },
+          {
+            "listing_id": "1002502574727",
+            "name": "Guillaume's Face",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/wpi-guillaume-s-face.json"
+          }
+        ]
+      },
+      {
+        "family": "glov",
+        "cause": "below_keep_price",
+        "distinct_sellers": 7,
+        "seller_votes": 7,
+        "listings": 8,
+        "examples": [
+          {
+            "listing_id": "1002499212773",
+            "name": "Trang-Oul's Claws",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/wpi-trang-oul-s-claws.json"
+          },
+          {
+            "listing_id": "1002442333322",
+            "name": "Trang-Oul's Claws",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wpi-trang-oul-s-claws.json"
+          },
+          {
+            "listing_id": "1002335430296",
+            "name": "Trang-Oul's Claws",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-trang-oul-s-claws.json"
+          }
+        ]
+      },
+      {
+        "family": "Tal Rasha's Lidless Eye",
+        "cause": "roll_comparison",
+        "distinct_sellers": 4,
+        "seller_votes": 4,
+        "listings": 4,
+        "examples": [
+          {
+            "listing_id": "1002493580778",
+            "name": "Tal Rasha's Lidless Eye",
+            "reason": "listed copies are mostly 2 Fire Mastery; this has 1; name band is reference only",
+            "ask_ist": 0.09808333333333333,
+            "source": "pricing/raw/traderie/wpi-tal-rasha-s-lidless-eye.json"
+          },
+          {
+            "listing_id": "1002440557603",
+            "name": "Tal Rasha's Lidless Eye",
+            "reason": "listed copies are mostly 2 Fire Mastery; this has 1; listed copies are mostly 2 Cold Mastery; this has 1; name band is reference only",
+            "ask_ist": 0.059444444444444446,
+            "source": "pricing/raw/traderie/wpi-tal-rasha-s-lidless-eye.json"
+          },
+          {
+            "listing_id": "1002471310629",
+            "name": "Tal Rasha's Lidless Eye",
+            "reason": "listed copies are mostly 2 Lightning Mastery; this has 1; listed copies are mostly 2 Cold Mastery; this has 1; name band is reference only",
+            "ask_ist": 0.568,
+            "source": "pricing/raw/traderie/wpi-tal-rasha-s-lidless-eye.json"
+          }
+        ]
+      },
+      {
+        "family": "boot",
+        "cause": "below_keep_price",
+        "distinct_sellers": 4,
+        "seller_votes": 4,
+        "listings": 4,
+        "examples": [
+          {
+            "listing_id": "1002400811387",
+            "name": "Aldur's Advance",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-aldur-s-advance.json"
+          },
+          {
+            "listing_id": "1002417432281",
+            "name": "Aldur's Advance",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-aldur-s-advance.json"
+          },
+          {
+            "listing_id": "1002434748991",
+            "name": "Aldur's Advance",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 45.684,
+            "source": "pricing/raw/traderie/pull-20261003/2912900382-p0.json"
+          }
+        ]
+      },
+      {
         "family": "shie",
         "cause": "insufficient_sellers",
         "distinct_sellers": 2,
@@ -18955,6 +19135,29 @@
             "reason": "fewer than three comparable sellers; price is reference only",
             "ask_ist": 2.585,
             "source": "pricing/raw/traderie/pull-20261003/4048251320-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "orb",
+        "cause": "roll_comparison",
+        "distinct_sellers": 2,
+        "seller_votes": 2,
+        "listings": 2,
+        "examples": [
+          {
+            "listing_id": "1002452351431",
+            "name": "Tal Rasha's Lidless Eye",
+            "reason": "listed copies are mostly 2 Lightning Mastery; this has 1; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/wpi-tal-rasha-s-lidless-eye.json"
+          },
+          {
+            "listing_id": "1002502465588",
+            "name": "Tal Rasha's Lidless Eye",
+            "reason": "listed copies are mostly 2 Lightning Mastery; this has 1; listed copies are mostly 2 Cold Mastery; this has 1; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-tal-rasha-s-lidless-eye.json"
           }
         ]
       },
@@ -19014,22 +19217,6 @@
         ]
       },
       {
-        "family": "abow",
-        "cause": "insufficient_sellers",
-        "distinct_sellers": 1,
-        "seller_votes": 1,
-        "listings": 1,
-        "examples": [
-          {
-            "listing_id": "1002485921429",
-            "name": "M'avina's Caster",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/pull-20261003/3196591890-p0.json"
-          }
-        ]
-      },
-      {
         "family": "helm",
         "cause": "insufficient_sellers",
         "distinct_sellers": 1,
@@ -19064,11 +19251,191 @@
     ],
     "uniques": [
       {
+        "family": "boot",
+        "cause": "below_keep_price",
+        "distinct_sellers": 47,
+        "seller_votes": 63,
+        "listings": 98,
+        "examples": [
+          {
+            "listing_id": "1002381673323",
+            "name": "Sandstorm Trek",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wpi-sandstorm-trek.json"
+          },
+          {
+            "listing_id": "1002236969451",
+            "name": "Sandstorm Trek",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 228.42,
+            "source": "pricing/raw/traderie/wpi-sandstorm-trek.json"
+          },
+          {
+            "listing_id": "1002399216451",
+            "name": "Sandstorm Trek",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/wpi-sandstorm-trek.json"
+          }
+        ]
+      },
+      {
+        "family": "belt",
+        "cause": "below_keep_price",
+        "distinct_sellers": 34,
+        "seller_votes": 39,
+        "listings": 54,
+        "examples": [
+          {
+            "listing_id": "1002464780229",
+            "name": "Arachnid Mesh",
+            "reason": "Echoing Strike belt",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/wpi-arachnid-mesh.json"
+          },
+          {
+            "listing_id": "1002487553461",
+            "name": "Arachnid Mesh",
+            "reason": "Echoing Strike belt",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/wpi-arachnid-mesh.json"
+          },
+          {
+            "listing_id": "1002381097029",
+            "name": "Arachnid Mesh",
+            "reason": "Echoing Strike belt",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/wpi-arachnid-mesh.json"
+          }
+        ]
+      },
+      {
+        "family": "ring",
+        "cause": "below_keep_price",
+        "distinct_sellers": 33,
+        "seller_votes": 34,
+        "listings": 46,
+        "examples": [
+          {
+            "listing_id": "1002506187298",
+            "name": "Bul-Kathos' Wedding Band",
+            "reason": "Echoing Strike ring",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-bul-kathos-wedding-band.json"
+          },
+          {
+            "listing_id": "1002496718632",
+            "name": "Bul-Kathos' Wedding Band",
+            "reason": "Echoing Strike ring",
+            "ask_ist": 1.7890000000000001,
+            "source": "pricing/raw/traderie/wpi-bul-kathos-wedding-band.json"
+          },
+          {
+            "listing_id": "1002501435776",
+            "name": "Bul-Kathos' Wedding Band",
+            "reason": "Echoing Strike ring",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-bul-kathos-wedding-band.json"
+          }
+        ]
+      },
+      {
+        "family": "lcha",
+        "cause": "below_keep_price",
+        "distinct_sellers": 27,
+        "seller_votes": 27,
+        "listings": 58,
+        "examples": [
+          {
+            "listing_id": "1002494922886",
+            "name": "Gheed's Fortune",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/wph-gheeds-fortune.json"
+          },
+          {
+            "listing_id": "1002494918624",
+            "name": "Gheed's Fortune",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/wph-gheeds-fortune.json"
+          },
+          {
+            "listing_id": "1002503886448",
+            "name": "Gheed's Fortune",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/wph-gheeds-fortune.json"
+          }
+        ]
+      },
+      {
+        "family": "helm",
+        "cause": "below_keep_price",
+        "distinct_sellers": 25,
+        "seller_votes": 25,
+        "listings": 60,
+        "examples": [
+          {
+            "listing_id": "1002494669959",
+            "name": "Andariel's Visage",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/wpi-andariel-s-visage.json"
+          },
+          {
+            "listing_id": "1002494671259",
+            "name": "Andariel's Visage",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/wpi-andariel-s-visage.json"
+          },
+          {
+            "listing_id": "3802996951",
+            "name": "Andariel's Visage",
+            "reason": "Act 2 mercenary helm upgrade",
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/pull-20261003/2768846755-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "Hellwarden's Will",
+        "cause": "below_keep_price",
+        "distinct_sellers": 23,
+        "seller_votes": 25,
+        "listings": 60,
+        "examples": [
+          {
+            "listing_id": "1002499917427",
+            "name": "Hellwarden's Will",
+            "reason": "Echoing Strike helm",
+            "ask_ist": 8.229,
+            "source": "pricing/raw/traderie/wpi-hellwarden-s-will.json"
+          },
+          {
+            "listing_id": "1002471041948",
+            "name": "Hellwarden's Will",
+            "reason": "Echoing Strike helm",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-hellwarden-s-will.json"
+          },
+          {
+            "listing_id": "1002499481813",
+            "name": "Hellwarden's Will",
+            "reason": "Echoing Strike helm",
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/wpi-hellwarden-s-will.json"
+          }
+        ]
+      },
+      {
         "family": "glov",
         "cause": "roll_comparison",
-        "distinct_sellers": 12,
-        "seller_votes": 12,
-        "listings": 13,
+        "distinct_sellers": 21,
+        "seller_votes": 21,
+        "listings": 24,
         "examples": [
           {
             "listing_id": "1002458431914",
@@ -19090,6 +19457,276 @@
             "reason": "unreadable or out-of-range deciding roll: Enhanced Defense",
             "ask_ist": 1.0,
             "source": "pricing/raw/traderie/frostburn.json"
+          }
+        ]
+      },
+      {
+        "family": "amul",
+        "cause": "below_keep_price",
+        "distinct_sellers": 18,
+        "seller_votes": 18,
+        "listings": 25,
+        "examples": [
+          {
+            "listing_id": "1002453855869",
+            "name": "Entropy Locket",
+            "reason": "Echoing Strike amulet",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/wpi-entropy-locket.json"
+          },
+          {
+            "listing_id": "1002469507390",
+            "name": "Entropy Locket",
+            "reason": "Echoing Strike amulet",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/wpi-entropy-locket.json"
+          },
+          {
+            "listing_id": "1002488021803",
+            "name": "Entropy Locket",
+            "reason": "Echoing Strike amulet",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/pull-20261003/1833988524-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "scha",
+        "cause": "below_keep_price",
+        "distinct_sellers": 17,
+        "seller_votes": 17,
+        "listings": 35,
+        "examples": [
+          {
+            "listing_id": "1002319010619",
+            "name": "Annihilus",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 22.842,
+            "source": "pricing/raw/traderie/annihilus-p0.json"
+          },
+          {
+            "listing_id": "1002319006223",
+            "name": "Annihilus",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/annihilus-p0.json"
+          },
+          {
+            "listing_id": "1002318882098",
+            "name": "Annihilus",
+            "reason": "Echoing Strike inventory charm",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/annihilus-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "glov",
+        "cause": "below_keep_price",
+        "distinct_sellers": 13,
+        "seller_votes": 13,
+        "listings": 15,
+        "examples": [
+          {
+            "listing_id": "1002509099483",
+            "name": "Magefist",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/magefist.json"
+          },
+          {
+            "listing_id": "1002495302097",
+            "name": "Magefist",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/magefist.json"
+          },
+          {
+            "listing_id": "1002329941315",
+            "name": "Magefist",
+            "reason": "Echoing Strike 20 FCR gloves",
+            "ask_ist": 0.4,
+            "source": "pricing/raw/traderie/magefist.json"
+          }
+        ]
+      },
+      {
+        "family": "knif",
+        "cause": "roll_comparison",
+        "distinct_sellers": 13,
+        "seller_votes": 12,
+        "listings": 15,
+        "examples": [
+          {
+            "listing_id": "1002478723046",
+            "name": "Bloodpact Shard",
+            "reason": "listed copies are mostly 3 Bind Demon; this has 1; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-bloodpact-shard.json"
+          },
+          {
+            "listing_id": "1002487264596",
+            "name": "Bloodpact Shard",
+            "reason": "listed copies are mostly 3 Bind Demon; this has 2; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-bloodpact-shard.json"
+          },
+          {
+            "listing_id": "1002197972494",
+            "name": "Bloodpact Shard",
+            "reason": "listed copies are mostly 3 Blood Oath; this has 2; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-bloodpact-shard.json"
+          }
+        ]
+      },
+      {
+        "family": "bow",
+        "cause": "roll_comparison",
+        "distinct_sellers": 13,
+        "seller_votes": 13,
+        "listings": 14,
+        "examples": [
+          {
+            "listing_id": "1002409446218",
+            "name": "Wizendraw",
+            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 31",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
+          },
+          {
+            "listing_id": "1002226223689",
+            "name": "Wizendraw",
+            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 34",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
+          },
+          {
+            "listing_id": "1002530804528",
+            "name": "Wizendraw",
+            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 23",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "shie",
+        "cause": "roll_comparison",
+        "distinct_sellers": 13,
+        "seller_votes": 13,
+        "listings": 13,
+        "examples": [
+          {
+            "listing_id": "1002331935667",
+            "name": "Tiamat's Rebuke",
+            "reason": "comparable-or-worse asks for All Resistances 34, Enhanced Defense 152",
+            "ask_ist": 0.475875,
+            "source": "pricing/raw/traderie/pull-20261003/2737647797-p0.json"
+          },
+          {
+            "listing_id": "1002456822783",
+            "name": "Blackoak Shield",
+            "reason": "listed copies are mostly 200 Enhanced Defense; this has 185; name band is reference only",
+            "ask_ist": 0.568,
+            "source": "pricing/raw/traderie/pull-20261003/3012560158-p0.json"
+          },
+          {
+            "listing_id": "1002438561090",
+            "name": "Blackoak Shield",
+            "reason": "listed copies are mostly 200 Enhanced Defense; this has 191; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/3012560158-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "orb",
+        "cause": "roll_comparison",
+        "distinct_sellers": 12,
+        "seller_votes": 12,
+        "listings": 13,
+        "examples": [
+          {
+            "listing_id": "1002365649609",
+            "name": "Eschuta's Temper",
+            "reason": "listed copies are mostly 20 to Lightning Skill Damage; this has 12; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/wpi-eschuta-s-temper.json"
+          },
+          {
+            "listing_id": "1002443252502",
+            "name": "Eschuta's Temper",
+            "reason": "listed copies are mostly 20 to Lightning Skill Damage; this has 12; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-eschuta-s-temper.json"
+          },
+          {
+            "listing_id": "1002471875828",
+            "name": "Eschuta's Temper",
+            "reason": "listed copies are mostly 20 to Lightning Skill Damage; this has 11; name band is reference only",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/wpi-eschuta-s-temper.json"
+          }
+        ]
+      },
+      {
+        "family": "phlm",
+        "cause": "roll_comparison",
+        "distinct_sellers": 12,
+        "seller_votes": 11,
+        "listings": 12,
+        "examples": [
+          {
+            "listing_id": "1002483286847",
+            "name": "Halaberd's Reign",
+            "reason": "listed copies are mostly 23 Replenish Life; this has 22; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/pull-20261003/2763391028-p0.json"
+          },
+          {
+            "listing_id": "1002514645959",
+            "name": "Halaberd's Reign",
+            "reason": "listed copies are mostly 23 Replenish Life; this has 21; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/pull-20261003/2763391028-p0.json"
+          },
+          {
+            "listing_id": "1002422321694",
+            "name": "Halaberd's Reign",
+            "reason": "listed copies are mostly 23 Replenish Life; this has 21; name band is reference only",
+            "ask_ist": 2.0,
+            "source": "pricing/raw/traderie/pull-20261003/2763391028-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "War Traveler",
+        "cause": "roll_comparison",
+        "distinct_sellers": 10,
+        "seller_votes": 10,
+        "listings": 14,
+        "examples": [
+          {
+            "listing_id": "1002473685139",
+            "name": "War Traveler",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 49; name band is reference only",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          },
+          {
+            "listing_id": "1002440890576",
+            "name": "War Traveler",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 46; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          },
+          {
+            "listing_id": "1002471591300",
+            "name": "War Traveler",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 49; name band is reference only",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
           }
         ]
       },
@@ -19124,6 +19761,186 @@
         ]
       },
       {
+        "family": "staf",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 10,
+        "seller_votes": 10,
+        "listings": 10,
+        "examples": [
+          {
+            "listing_id": "1002185677480",
+            "name": "The Salamander",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 0.19616666666666666,
+            "source": "pricing/raw/traderie/pull-20261003/2474580966-p0.json"
+          },
+          {
+            "listing_id": "1002395587077",
+            "name": "Ribcracker",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261003/2548632429-p0.json"
+          },
+          {
+            "listing_id": "1002291092367",
+            "name": "Ribcracker",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/pull-20261003/2548632429-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "shie",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 9,
+        "seller_votes": 10,
+        "listings": 10,
+        "examples": [
+          {
+            "listing_id": "1002364273384",
+            "name": "Head Hunter's Glory",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/pull-20261003/3027384979-p0.json"
+          },
+          {
+            "listing_id": "1002263098174",
+            "name": "Head Hunter's Glory",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 22.842,
+            "source": "pricing/raw/traderie/pull-20261003/3027384979-p0.json"
+          },
+          {
+            "listing_id": "1002456640312",
+            "name": "Head Hunter's Glory",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/pull-20261003/3027384979-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "jewl",
+        "cause": "roll_comparison",
+        "distinct_sellers": 9,
+        "seller_votes": 4,
+        "listings": 9,
+        "examples": [
+          {
+            "listing_id": "1002410352358",
+            "name": "Rainbow Facet",
+            "reason": "listed copies are mostly 5 to Lightning Skill Damage; this has 3; name band is reference only",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/wph-facet-fire-levelup.json"
+          },
+          {
+            "listing_id": "1002361477010",
+            "name": "Rainbow Facet",
+            "reason": "listed copies are mostly 5 to Lightning Skill Damage; this has 4; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/wph-facet-lightning-death.json"
+          },
+          {
+            "listing_id": "1002413663546",
+            "name": "Rainbow Facet",
+            "reason": "listed copies are mostly 5 to Lightning Skill Damage; this has 3; name band is reference only",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wph-facet-lightning-death.json"
+          }
+        ]
+      },
+      {
+        "family": "War Traveler",
+        "cause": "below_keep_price",
+        "distinct_sellers": 8,
+        "seller_votes": 7,
+        "listings": 38,
+        "examples": [
+          {
+            "listing_id": "1002507468638",
+            "name": "War Traveler",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 5.666225,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          },
+          {
+            "listing_id": "1002457440624",
+            "name": "War Traveler",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 8.229,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          },
+          {
+            "listing_id": "1002388177928",
+            "name": "War Traveler",
+            "reason": "Echoing Strike guide boot alternative",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          }
+        ]
+      },
+      {
+        "family": "boot",
+        "cause": "roll_comparison",
+        "distinct_sellers": 8,
+        "seller_votes": 8,
+        "listings": 10,
+        "examples": [
+          {
+            "listing_id": "1002443200277",
+            "name": "Shadow Dancer",
+            "reason": "listed copies are mostly 2 skilltab; this has 1; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-shadow-dancer.json"
+          },
+          {
+            "listing_id": "1002435436176",
+            "name": "War Traveler",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 32; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          },
+          {
+            "listing_id": "1002463367557",
+            "name": "War Traveler",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 35; name band is reference only",
+            "ask_ist": 0.2,
+            "source": "pricing/raw/traderie/wpi-war-traveler.json"
+          }
+        ]
+      },
+      {
+        "family": "helm",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 8,
+        "seller_votes": 8,
+        "listings": 8,
+        "examples": [
+          {
+            "listing_id": "1002379771408",
+            "name": "Tarnhelm",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 22.842,
+            "source": "pricing/raw/traderie/wpi-tarnhelm.json"
+          },
+          {
+            "listing_id": "1002487984456",
+            "name": "Vampire Gaze",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 171.315,
+            "source": "https://traderie.com/api/diablo2resurrected/listings?item=2815366576&page=1"
+          },
+          {
+            "listing_id": "1002487550701",
+            "name": "Undead Crown",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 1.431,
+            "source": "https://traderie.com/api/diablo2resurrected/listings?item=4125520960&page=1"
+          }
+        ]
+      },
+      {
         "family": "Tiamat's Rebuke",
         "cause": "roll_comparison",
         "distinct_sellers": 7,
@@ -19150,96 +19967,6 @@
             "reason": "comparable-or-worse asks for All Resistances 27, Enhanced Defense 192",
             "ask_ist": 0.1427625,
             "source": "pricing/raw/traderie/pull-20261003/2737647797-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "bow",
-        "cause": "roll_comparison",
-        "distinct_sellers": 7,
-        "seller_votes": 7,
-        "listings": 7,
-        "examples": [
-          {
-            "listing_id": "1002409446218",
-            "name": "Wizendraw",
-            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 31",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
-          },
-          {
-            "listing_id": "1002226223689",
-            "name": "Wizendraw",
-            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 34",
-            "ask_ist": 4.053,
-            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
-          },
-          {
-            "listing_id": "1002530804528",
-            "name": "Wizendraw",
-            "reason": "comparable-or-worse asks for -% to Enemy Cold Resistance 23",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/pull-20261003/2734041570-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "shie",
-        "cause": "insufficient_sellers",
-        "distinct_sellers": 7,
-        "seller_votes": 7,
-        "listings": 7,
-        "examples": [
-          {
-            "listing_id": "1002353383123",
-            "name": "Pelta Lunata",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 9.32,
-            "source": "pricing/raw/traderie/pull-20261003/3243192670-p0.json"
-          },
-          {
-            "listing_id": "1002158622791",
-            "name": "Swordback Hold",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 91.368,
-            "source": "pricing/raw/traderie/pull-20261003/3777456241-p0.json"
-          },
-          {
-            "listing_id": "1002287141591",
-            "name": "Wall of the Eyeless",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 68.526,
-            "source": "pricing/raw/traderie/pull-20261003/3797820822-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "staf",
-        "cause": "insufficient_sellers",
-        "distinct_sellers": 7,
-        "seller_votes": 7,
-        "listings": 7,
-        "examples": [
-          {
-            "listing_id": "1002185677480",
-            "name": "The Salamander",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 0.19616666666666666,
-            "source": "pricing/raw/traderie/pull-20261003/2474580966-p0.json"
-          },
-          {
-            "listing_id": "1002395587077",
-            "name": "Ribcracker",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 114.21,
-            "source": "pricing/raw/traderie/pull-20261003/2548632429-p0.json"
-          },
-          {
-            "listing_id": "1002291092367",
-            "name": "Ribcracker",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 68.526,
-            "source": "pricing/raw/traderie/pull-20261003/2548632429-p0.json"
           }
         ]
       },
@@ -19274,32 +20001,92 @@
         ]
       },
       {
-        "family": "helm",
-        "cause": "insufficient_sellers",
+        "family": "Chance Guards",
+        "cause": "roll_comparison",
+        "distinct_sellers": 6,
+        "seller_votes": 6,
+        "listings": 7,
+        "examples": [
+          {
+            "listing_id": "1002503497494",
+            "name": "Chance Guards",
+            "reason": "listed copies are mostly 40 Better Chance of Getting Magic Items; this has 39; name band is reference only",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wpi-chance-guards.json"
+          },
+          {
+            "listing_id": "1002499715172",
+            "name": "Chance Guards",
+            "reason": "listed copies are mostly 40 Better Chance of Getting Magic Items; this has 38; name band is reference only",
+            "ask_ist": 0.2,
+            "source": "pricing/raw/traderie/wpi-chance-guards.json"
+          },
+          {
+            "listing_id": "1002456201725",
+            "name": "Chance Guards",
+            "reason": "listed copies are mostly 40 Better Chance of Getting Magic Items; this has 37; name band is reference only",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wpi-chance-guards.json"
+          }
+        ]
+      },
+      {
+        "family": "Riphook",
+        "cause": "roll_comparison",
         "distinct_sellers": 6,
         "seller_votes": 6,
         "listings": 6,
         "examples": [
           {
-            "listing_id": "1002379771408",
+            "listing_id": "1002256019310",
+            "name": "Riphook",
+            "reason": "listed copies are mostly 220 Enhanced Minimum Damage; this has 219; name band is reference only",
+            "ask_ist": 4.053,
+            "source": "pricing/raw/traderie/pull-20261003/4002172813-p0.json"
+          },
+          {
+            "listing_id": "1002439712125",
+            "name": "Riphook",
+            "reason": "listed copies are mostly 220 Enhanced Minimum Damage; this has 216; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/4002172813-p0.json"
+          },
+          {
+            "listing_id": "1002525609631",
+            "name": "Riphook",
+            "reason": "listed copies are mostly 220 Enhanced Minimum Damage; this has 219; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/pull-20261003/4002172813-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "Tarnhelm",
+        "cause": "roll_comparison",
+        "distinct_sellers": 6,
+        "seller_votes": 6,
+        "listings": 6,
+        "examples": [
+          {
+            "listing_id": "1002458405651",
             "name": "Tarnhelm",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 22.842,
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 49; name band is reference only",
+            "ask_ist": 0.674,
             "source": "pricing/raw/traderie/wpi-tarnhelm.json"
           },
           {
-            "listing_id": "1002487550701",
-            "name": "Undead Crown",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 1.431,
-            "source": "https://traderie.com/api/diablo2resurrected/listings?item=4125520960&page=1"
+            "listing_id": "1002437566044",
+            "name": "Tarnhelm",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 37; name band is reference only",
+            "ask_ist": 0.2,
+            "source": "pricing/raw/traderie/wpi-tarnhelm.json"
           },
           {
-            "listing_id": "1002517061506",
-            "name": "Biggin's Bonnet",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 9.32,
-            "source": "pricing/raw/traderie/pull-20261003/3259776118-p0.json"
+            "listing_id": "1002527964704",
+            "name": "Tarnhelm",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 48; name band is reference only",
+            "ask_ist": 0.5885,
+            "source": "pricing/raw/traderie/pull-20261003/2426353737-p0.json"
           }
         ]
       },
@@ -19364,32 +20151,32 @@
         ]
       },
       {
-        "family": "axe",
-        "cause": "insufficient_sellers",
-        "distinct_sellers": 4,
-        "seller_votes": 4,
+        "family": "head",
+        "cause": "roll_comparison",
+        "distinct_sellers": 5,
+        "seller_votes": 5,
         "listings": 5,
         "examples": [
           {
-            "listing_id": "1002447185579",
-            "name": "The Minotaur",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 25.095,
-            "source": "pricing/raw/traderie/pull-20261003/3042401936-p0.json"
+            "listing_id": "1002484869707",
+            "name": "Darkforce Spawn",
+            "reason": "listed copies are mostly 3 skilltab; this has 2; name band is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/pull-20261003/3188737937-p0.json"
           },
           {
-            "listing_id": "1002258257262",
-            "name": "Skull Splitter",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261003/3106291644-p0.json"
+            "listing_id": "1002354537623",
+            "name": "Darkforce Spawn",
+            "reason": "listed copies are mostly 3 skilltab; this has 2; name band is reference only",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/pull-20261003/3188737937-p0.json"
           },
           {
-            "listing_id": "1002251421751",
-            "name": "Skull Splitter",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 0.674,
-            "source": "pricing/raw/traderie/pull-20261003/3106291644-p0.json"
+            "listing_id": "1002365107915",
+            "name": "Darkforce Spawn",
+            "reason": "listed copies are mostly 3 skilltab; this has 1; name band is reference only",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/pull-20261003/3188737937-p0.json"
           }
         ]
       },
@@ -19514,32 +20301,62 @@
         ]
       },
       {
-        "family": "shie",
-        "cause": "roll_comparison",
-        "distinct_sellers": 4,
-        "seller_votes": 4,
+        "family": "mcha",
+        "cause": "below_keep_price",
+        "distinct_sellers": 3,
+        "seller_votes": 0,
+        "listings": 10,
+        "examples": [
+          {
+            "listing_id": "1002449402915",
+            "name": "Hellfire Torch",
+            "reason": "Echoing Strike Warlock torch",
+            "ask_ist": 22.842,
+            "source": "pricing/raw/traderie/wph-hellfire-torch.json"
+          },
+          {
+            "listing_id": "1002507323175",
+            "name": "Hellfire Torch",
+            "reason": "Echoing Strike Warlock torch",
+            "ask_ist": 79.947,
+            "source": "pricing/raw/traderie/wph-hellfire-torch.json"
+          },
+          {
+            "listing_id": "1002507323699",
+            "name": "Hellfire Torch",
+            "reason": "Echoing Strike Warlock torch",
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/wph-hellfire-torch.json"
+          }
+        ]
+      },
+      {
+        "family": "axe",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 3,
+        "seller_votes": 3,
         "listings": 4,
         "examples": [
           {
-            "listing_id": "1002331935667",
-            "name": "Tiamat's Rebuke",
-            "reason": "comparable-or-worse asks for All Resistances 34, Enhanced Defense 152",
-            "ask_ist": 0.475875,
-            "source": "pricing/raw/traderie/pull-20261003/2737647797-p0.json"
+            "listing_id": "1002258257262",
+            "name": "Skull Splitter",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/pull-20261003/3106291644-p0.json"
           },
           {
-            "listing_id": "1002389232100",
-            "name": "Blackoak Shield",
-            "reason": "comparable-or-worse asks for Enhanced Defense 187",
-            "ask_ist": 0.29425,
-            "source": "pricing/raw/traderie/pull-20261003/3012560158-p0.json"
+            "listing_id": "1002251421751",
+            "name": "Skull Splitter",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/pull-20261003/3106291644-p0.json"
           },
           {
-            "listing_id": "1002457381315",
-            "name": "Blackoak Shield",
-            "reason": "comparable-or-worse asks for Enhanced Defense 163",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/pull-20261003/3012560158-p0.json"
+            "listing_id": "1002488296550",
+            "name": "Brainhew",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 2.585,
+            "source": "pricing/raw/traderie/pull-20261003/3577497958-p0.json"
           }
         ]
       },
@@ -19574,6 +20391,36 @@
         ]
       },
       {
+        "family": "Suicide Branch",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 3,
+        "seller_votes": 3,
+        "listings": 3,
+        "examples": [
+          {
+            "listing_id": "1002507068629",
+            "name": "Suicide Branch",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/wpi-suicide-branch.json"
+          },
+          {
+            "listing_id": "1002526706046",
+            "name": "Suicide Branch",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/pull-20261003/3353828076-p0.json"
+          },
+          {
+            "listing_id": "1002515216607",
+            "name": "Suicide Branch",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 91.368,
+            "source": "pricing/raw/traderie/pull-20261003/3353828076-p0.json"
+          }
+        ]
+      },
+      {
         "family": "scep",
         "cause": "insufficient_sellers",
         "distinct_sellers": 3,
@@ -19604,32 +20451,32 @@
         ]
       },
       {
-        "family": "boot",
+        "family": "Measured Wrath",
         "cause": "roll_comparison",
         "distinct_sellers": 2,
         "seller_votes": 2,
         "listings": 4,
         "examples": [
           {
-            "listing_id": "1002509743086",
-            "name": "Hotspur",
-            "reason": "comparable-or-worse asks for Enhanced Defense 15",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/pull-20261003/2302821337-p0.json"
+            "listing_id": "1002386807906",
+            "name": "Measured Wrath",
+            "reason": "listed copies are mostly 3 Flame Wave; this has 2; name band is reference only",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/pull-20261003/744634431-p0.json"
           },
           {
-            "listing_id": "1002477301671",
-            "name": "Hotspur",
-            "reason": "comparable-or-worse asks for Enhanced Defense 13",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/pull-20261003/2302821337-p0.json"
+            "listing_id": "1002494421877",
+            "name": "Measured Wrath",
+            "reason": "listed copies are mostly 3 Flame Wave; this has 2; name band is reference only",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/pull-20261003/744634431-p0.json"
           },
           {
-            "listing_id": "1002477302775",
-            "name": "Hotspur",
-            "reason": "comparable-or-worse asks for Enhanced Defense 16",
-            "ask_ist": 2.585,
-            "source": "pricing/raw/traderie/pull-20261003/2302821337-p0.json"
+            "listing_id": "1002494423157",
+            "name": "Measured Wrath",
+            "reason": "listed copies are mostly 3 Flame Wave; this has 2; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/744634431-p0.json"
           }
         ]
       },
@@ -19664,36 +20511,6 @@
         ]
       },
       {
-        "family": "knif",
-        "cause": "roll_comparison",
-        "distinct_sellers": 2,
-        "seller_votes": 2,
-        "listings": 4,
-        "examples": [
-          {
-            "listing_id": "61299317",
-            "name": "Ghostflame",
-            "reason": "comparable-or-worse asks for Enhanced Minimum Damage 220",
-            "ask_ist": 2.585,
-            "source": "pricing/raw/traderie/pull-20261003/2679985884-p0.json"
-          },
-          {
-            "listing_id": "1002290094925",
-            "name": "Ghostflame",
-            "reason": "comparable-or-worse asks for Enhanced Minimum Damage 214",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/pull-20261003/2679985884-p0.json"
-          },
-          {
-            "listing_id": "1002527094112",
-            "name": "Ghostflame",
-            "reason": "comparable-or-worse asks for Enhanced Minimum Damage 225",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/pull-20261003/2679985884-p0.json"
-          }
-        ]
-      },
-      {
         "family": "club",
         "cause": "insufficient_sellers",
         "distinct_sellers": 2,
@@ -19720,6 +20537,36 @@
             "reason": "fewer than three comparable sellers; price is reference only",
             "ask_ist": 2.585,
             "source": "pricing/raw/traderie/pull-20261003/3515285818-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "scep",
+        "cause": "roll_comparison",
+        "distinct_sellers": 2,
+        "seller_votes": 2,
+        "listings": 3,
+        "examples": [
+          {
+            "listing_id": "1002449386118",
+            "name": "Rusthandle",
+            "reason": "listed copies are mostly 3 Vengeance; this has 1; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/3129541467-p0.json"
+          },
+          {
+            "listing_id": "1002466118138",
+            "name": "Rusthandle",
+            "reason": "listed copies are mostly 3 Vengeance; this has 2; name band is reference only",
+            "ask_ist": 0.0475875,
+            "source": "pricing/raw/traderie/pull-20261003/3129541467-p0.json"
+          },
+          {
+            "listing_id": "1002510204140",
+            "name": "Rusthandle",
+            "reason": "listed copies are mostly 3 Vengeance; this has 2; name band is reference only",
+            "ask_ist": 0.095175,
+            "source": "pricing/raw/traderie/pull-20261003/3129541467-p0.json"
           }
         ]
       },
@@ -20226,6 +21073,29 @@
             "reason": "fewer than three comparable sellers; price is reference only",
             "ask_ist": 4.053,
             "source": "pricing/raw/traderie/pull-20261003/2309105433-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "helm",
+        "cause": "roll_comparison",
+        "distinct_sellers": 2,
+        "seller_votes": 2,
+        "listings": 2,
+        "examples": [
+          {
+            "listing_id": "1002352531944",
+            "name": "Tarnhelm",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 49; name band is reference only",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/pull-20261003/2426353737-p0.json"
+          },
+          {
+            "listing_id": "1002330165130",
+            "name": "Tarnhelm",
+            "reason": "listed copies are mostly 50 Better Chance of Getting Magic Items; this has 49; name band is reference only",
+            "ask_ist": 0.789,
+            "source": "pricing/raw/traderie/pull-20261003/2426353737-p0.json"
           }
         ]
       },
@@ -20805,6 +21675,22 @@
         ]
       },
       {
+        "family": "Rusthandle",
+        "cause": "roll_comparison",
+        "distinct_sellers": 1,
+        "seller_votes": 1,
+        "listings": 1,
+        "examples": [
+          {
+            "listing_id": "1002515460683",
+            "name": "Rusthandle",
+            "reason": "listed copies are mostly 3 Vengeance; this has 2; name band is reference only",
+            "ask_ist": 0.2,
+            "source": "pricing/raw/traderie/pull-20261003/3129541467-p0.json"
+          }
+        ]
+      },
+      {
         "family": "Silks of the Victor",
         "cause": "insufficient_sellers",
         "distinct_sellers": 1,
@@ -21013,22 +21899,6 @@
         ]
       },
       {
-        "family": "The Minotaur",
-        "cause": "insufficient_sellers",
-        "distinct_sellers": 1,
-        "seller_votes": 1,
-        "listings": 1,
-        "examples": [
-          {
-            "listing_id": "1002293057127",
-            "name": "The Minotaur",
-            "reason": "fewer than three comparable sellers; price is reference only",
-            "ask_ist": 0.2379375,
-            "source": "pricing/raw/traderie/pull-20261003/3042401936-p0.json"
-          }
-        ]
-      },
-      {
         "family": "The Patriarch",
         "cause": "insufficient_sellers",
         "distinct_sellers": 1,
@@ -21153,6 +22023,22 @@
             "reason": "fewer than three comparable sellers; price is reference only",
             "ask_ist": 2.585,
             "source": "pricing/raw/traderie/pull-20261003/3343401007-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "Vampire Gaze",
+        "cause": "insufficient_sellers",
+        "distinct_sellers": 1,
+        "seller_votes": 1,
+        "listings": 1,
+        "examples": [
+          {
+            "listing_id": "1002505656817",
+            "name": "Vampire Gaze",
+            "reason": "fewer than three comparable sellers; price is reference only",
+            "ask_ist": 9.32,
+            "source": "pricing/raw/traderie/pull-20261003/2815366576-p0.json"
           }
         ]
       },
@@ -21360,20 +22246,20 @@
   "per_listing": {
     "overall": {
       "priced": 32476,
-      "valuable": 29192,
-      "flagged_valuable": 19835,
-      "sell_flagged_valuable": 16122,
-      "checks": 6234,
-      "checks_valuable": 5366,
+      "valuable": 29218,
+      "flagged_valuable": 19161,
+      "sell_flagged_valuable": 15418,
+      "checks": 6368,
+      "checks_valuable": 5537,
       "cheap": 137,
-      "unpriced_cohort": 913,
-      "asks_above_cheap_cohort": 1010,
-      "flagged_cheap": 19,
-      "checks_cheap": 26,
-      "recall": 0.6794669772540421,
-      "sell_recall": 0.5522745957796656,
-      "cheap_false_positive_rate": 0.1386861313868613,
-      "cheap_check_rate": 0.1897810218978102
+      "unpriced_cohort": 899,
+      "asks_above_cheap_cohort": 1003,
+      "flagged_cheap": 16,
+      "checks_cheap": 29,
+      "recall": 0.655794373331508,
+      "sell_recall": 0.527688411253337,
+      "cheap_false_positive_rate": 0.11678832116788321,
+      "cheap_check_rate": 0.2116788321167883
     },
     "categories": {
       "base": {
@@ -21382,14 +22268,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 4342,
-        "flagged_valuable": 1446,
-        "sell_flagged_valuable": 1446,
+        "flagged_valuable": 1390,
+        "sell_flagged_valuable": 1390,
         "checks_valuable": 1215,
         "cheap": 5,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.3330262551819438,
-        "sell_recall": 0.3330262551819438,
+        "recall": 0.3201289728235836,
+        "sell_recall": 0.3201289728235836,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -21429,17 +22315,17 @@
       },
       "magic": {
         "priced": 1957,
-        "checks": 598,
+        "checks": 628,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 1932,
-        "flagged_valuable": 785,
+        "flagged_valuable": 815,
         "sell_flagged_valuable": 187,
-        "checks_valuable": 598,
+        "checks_valuable": 628,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.40631469979296064,
+        "recall": 0.4218426501035197,
         "sell_recall": 0.09679089026915114,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -21514,37 +22400,37 @@
       },
       "sets": {
         "priced": 1929,
-        "checks": 106,
-        "unpriced_cohort": 119,
+        "checks": 99,
+        "unpriced_cohort": 120,
         "asks_above_cheap_cohort": 298,
-        "valuable": 1073,
-        "flagged_valuable": 1061,
-        "sell_flagged_valuable": 1061,
-        "checks_valuable": 12,
+        "valuable": 1072,
+        "flagged_valuable": 1021,
+        "sell_flagged_valuable": 1021,
+        "checks_valuable": 17,
         "cheap": 50,
-        "flagged_cheap": 3,
-        "checks_cheap": 2,
-        "recall": 0.9888164026095061,
-        "sell_recall": 0.9888164026095061,
-        "cheap_false_positive_rate": 0.06,
-        "cheap_check_rate": 0.04
+        "flagged_cheap": 2,
+        "checks_cheap": 3,
+        "recall": 0.9524253731343284,
+        "sell_recall": 0.9524253731343284,
+        "cheap_false_positive_rate": 0.04,
+        "cheap_check_rate": 0.06
       },
       "uniques": {
         "priced": 10307,
-        "checks": 881,
-        "unpriced_cohort": 761,
-        "asks_above_cheap_cohort": 691,
-        "valuable": 8325,
-        "flagged_valuable": 8077,
-        "sell_flagged_valuable": 8077,
-        "checks_valuable": 234,
+        "checks": 992,
+        "unpriced_cohort": 746,
+        "asks_above_cheap_cohort": 684,
+        "valuable": 8352,
+        "flagged_valuable": 7469,
+        "sell_flagged_valuable": 7469,
+        "checks_valuable": 370,
         "cheap": 50,
-        "flagged_cheap": 16,
-        "checks_cheap": 11,
-        "recall": 0.9702102102102103,
-        "sell_recall": 0.9702102102102103,
-        "cheap_false_positive_rate": 0.32,
-        "cheap_check_rate": 0.22
+        "flagged_cheap": 14,
+        "checks_cheap": 13,
+        "recall": 0.8942768199233716,
+        "sell_recall": 0.8942768199233716,
+        "cheap_false_positive_rate": 0.28,
+        "cheap_check_rate": 0.26
       }
     },
     "per_type": {
@@ -21877,14 +22763,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 364,
-        "flagged_valuable": 22,
-        "sell_flagged_valuable": 22,
+        "flagged_valuable": 18,
+        "sell_flagged_valuable": 18,
         "checks_valuable": 284,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.06043956043956044,
-        "sell_recall": 0.06043956043956044,
+        "recall": 0.04945054945054945,
+        "sell_recall": 0.04945054945054945,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -21962,14 +22848,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 494,
-        "flagged_valuable": 318,
-        "sell_flagged_valuable": 318,
+        "flagged_valuable": 290,
+        "sell_flagged_valuable": 290,
         "checks_valuable": 85,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.6437246963562753,
-        "sell_recall": 0.6437246963562753,
+        "recall": 0.5870445344129555,
+        "sell_recall": 0.5870445344129555,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -22098,14 +22984,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 698,
-        "flagged_valuable": 397,
-        "sell_flagged_valuable": 397,
+        "flagged_valuable": 373,
+        "sell_flagged_valuable": 373,
         "checks_valuable": 111,
         "cheap": 2,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.5687679083094556,
-        "sell_recall": 0.5687679083094556,
+        "recall": 0.5343839541547278,
+        "sell_recall": 0.5343839541547278,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -22468,17 +23354,17 @@
       },
       "magic/ashd": {
         "priced": 25,
-        "checks": 0,
+        "checks": 5,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 24,
-        "flagged_valuable": 0,
+        "flagged_valuable": 5,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 0,
+        "checks_valuable": 5,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.0,
+        "recall": 0.20833333333333334,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -23029,17 +23915,17 @@
       },
       "magic/tors": {
         "priced": 162,
-        "checks": 46,
+        "checks": 71,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 162,
-        "flagged_valuable": 46,
+        "flagged_valuable": 71,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 46,
+        "checks_valuable": 71,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.2839506172839506,
+        "recall": 0.4382716049382716,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26956,20 +27842,20 @@
       },
       "sets/Tal Rasha's Lidless Eye": {
         "priced": 14,
-        "checks": 0,
+        "checks": 4,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 14,
-        "flagged_valuable": 14,
-        "sell_flagged_valuable": 14,
-        "checks_valuable": 0,
+        "flagged_valuable": 10,
+        "sell_flagged_valuable": 10,
+        "checks_valuable": 4,
         "cheap": 1,
-        "flagged_cheap": 1,
-        "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
-        "cheap_false_positive_rate": 1.0,
-        "cheap_check_rate": 0.0
+        "flagged_cheap": 0,
+        "checks_cheap": 1,
+        "recall": 0.7142857142857143,
+        "sell_recall": 0.7142857142857143,
+        "cheap_false_positive_rate": 0.0,
+        "cheap_check_rate": 1.0
       },
       "sets/Tal Rasha's Wrappings": {
         "priced": 11,
@@ -27263,17 +28149,17 @@
       "sets/abow": {
         "priced": 1,
         "checks": 1,
-        "unpriced_cohort": 0,
+        "unpriced_cohort": 1,
         "asks_above_cheap_cohort": 0,
-        "valuable": 1,
+        "valuable": 0,
         "flagged_valuable": 0,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 1,
+        "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.0,
-        "sell_recall": 0.0,
+        "recall": null,
+        "sell_recall": null,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -27351,14 +28237,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 12,
         "valuable": 53,
-        "flagged_valuable": 53,
-        "sell_flagged_valuable": 53,
+        "flagged_valuable": 49,
+        "sell_flagged_valuable": 49,
         "checks_valuable": 0,
         "cheap": 2,
         "flagged_cheap": 1,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.9245283018867925,
+        "sell_recall": 0.9245283018867925,
         "cheap_false_positive_rate": 0.5,
         "cheap_check_rate": 0.0
       },
@@ -27402,14 +28288,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 10,
         "valuable": 22,
-        "flagged_valuable": 22,
-        "sell_flagged_valuable": 22,
+        "flagged_valuable": 14,
+        "sell_flagged_valuable": 14,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.6363636363636364,
+        "sell_recall": 0.6363636363636364,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -27449,7 +28335,7 @@
       },
       "sets/hamm": {
         "priced": 13,
-        "checks": 13,
+        "checks": 0,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 5,
         "valuable": 0,
@@ -27487,14 +28373,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 37,
         "valuable": 72,
-        "flagged_valuable": 71,
-        "sell_flagged_valuable": 71,
+        "flagged_valuable": 49,
+        "sell_flagged_valuable": 49,
         "checks_valuable": 1,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9861111111111112,
-        "sell_recall": 0.9861111111111112,
+        "recall": 0.6805555555555556,
+        "sell_recall": 0.6805555555555556,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -27517,18 +28403,18 @@
       },
       "sets/orb": {
         "priced": 11,
-        "checks": 0,
+        "checks": 2,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 11,
-        "flagged_valuable": 11,
-        "sell_flagged_valuable": 11,
-        "checks_valuable": 0,
+        "flagged_valuable": 9,
+        "sell_flagged_valuable": 9,
+        "checks_valuable": 2,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.8181818181818182,
+        "sell_recall": 0.8181818181818182,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -27704,18 +28590,18 @@
       },
       "uniques/Arreat's Face": {
         "priced": 3,
-        "checks": 3,
-        "unpriced_cohort": 3,
+        "checks": 0,
+        "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
-        "valuable": 0,
-        "flagged_valuable": 0,
-        "sell_flagged_valuable": 0,
+        "valuable": 3,
+        "flagged_valuable": 3,
+        "sell_flagged_valuable": 3,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": null,
-        "sell_recall": null,
+        "recall": 1.0,
+        "sell_recall": 1.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -28299,18 +29185,18 @@
       },
       "uniques/Chance Guards": {
         "priced": 11,
-        "checks": 0,
+        "checks": 9,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 9,
-        "flagged_valuable": 9,
-        "sell_flagged_valuable": 9,
-        "checks_valuable": 0,
+        "flagged_valuable": 2,
+        "sell_flagged_valuable": 2,
+        "checks_valuable": 7,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.2222222222222222,
+        "sell_recall": 0.2222222222222222,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -29064,18 +29950,18 @@
       },
       "uniques/Guardian Angel": {
         "priced": 38,
-        "checks": 33,
-        "unpriced_cohort": 33,
+        "checks": 38,
+        "unpriced_cohort": 38,
         "asks_above_cheap_cohort": 0,
-        "valuable": 5,
-        "flagged_valuable": 5,
-        "sell_flagged_valuable": 5,
+        "valuable": 0,
+        "flagged_valuable": 0,
+        "sell_flagged_valuable": 0,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": null,
+        "sell_recall": null,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -29255,14 +30141,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 62,
-        "flagged_valuable": 60,
-        "sell_flagged_valuable": 60,
+        "flagged_valuable": 0,
+        "sell_flagged_valuable": 0,
         "checks_valuable": 2,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.967741935483871,
-        "sell_recall": 0.967741935483871,
+        "recall": 0.0,
+        "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -29812,18 +30698,18 @@
       },
       "uniques/Measured Wrath": {
         "priced": 25,
-        "checks": 1,
+        "checks": 5,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 25,
-        "flagged_valuable": 24,
-        "sell_flagged_valuable": 24,
-        "checks_valuable": 1,
+        "flagged_valuable": 20,
+        "sell_flagged_valuable": 20,
+        "checks_valuable": 5,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.96,
-        "sell_recall": 0.96,
+        "recall": 0.8,
+        "sell_recall": 0.8,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -30152,20 +31038,20 @@
       },
       "uniques/Riphook": {
         "priced": 11,
-        "checks": 0,
+        "checks": 6,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 11,
-        "flagged_valuable": 11,
-        "sell_flagged_valuable": 11,
-        "checks_valuable": 0,
+        "flagged_valuable": 5,
+        "sell_flagged_valuable": 5,
+        "checks_valuable": 6,
         "cheap": 1,
-        "flagged_cheap": 1,
-        "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
-        "cheap_false_positive_rate": 1.0,
-        "cheap_check_rate": 0.0
+        "flagged_cheap": 0,
+        "checks_cheap": 1,
+        "recall": 0.45454545454545453,
+        "sell_recall": 0.45454545454545453,
+        "cheap_false_positive_rate": 0.0,
+        "cheap_check_rate": 1.0
       },
       "uniques/Ripsaw": {
         "priced": 7,
@@ -30254,18 +31140,18 @@
       },
       "uniques/Rusthandle": {
         "priced": 15,
-        "checks": 2,
+        "checks": 3,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 15,
-        "flagged_valuable": 13,
-        "sell_flagged_valuable": 13,
-        "checks_valuable": 2,
+        "flagged_valuable": 12,
+        "sell_flagged_valuable": 12,
+        "checks_valuable": 3,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.8666666666666667,
-        "sell_recall": 0.8666666666666667,
+        "recall": 0.8,
+        "sell_recall": 0.8,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -30305,12 +31191,12 @@
       },
       "uniques/Shaftstop": {
         "priced": 11,
-        "checks": 5,
-        "unpriced_cohort": 5,
+        "checks": 0,
+        "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
-        "valuable": 6,
-        "flagged_valuable": 6,
-        "sell_flagged_valuable": 6,
+        "valuable": 11,
+        "flagged_valuable": 11,
+        "sell_flagged_valuable": 11,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
@@ -30390,18 +31276,18 @@
       },
       "uniques/Skin of the Vipermagi": {
         "priced": 24,
-        "checks": 24,
-        "unpriced_cohort": 19,
-        "asks_above_cheap_cohort": 0,
-        "valuable": 5,
-        "flagged_valuable": 0,
-        "sell_flagged_valuable": 0,
+        "checks": 5,
+        "unpriced_cohort": 0,
+        "asks_above_cheap_cohort": 1,
+        "valuable": 21,
+        "flagged_valuable": 16,
+        "sell_flagged_valuable": 16,
         "checks_valuable": 5,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.0,
-        "sell_recall": 0.0,
+        "recall": 0.7619047619047619,
+        "sell_recall": 0.7619047619047619,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -30883,18 +31769,18 @@
       },
       "uniques/Suicide Branch": {
         "priced": 13,
-        "checks": 0,
+        "checks": 3,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 13,
-        "flagged_valuable": 13,
-        "sell_flagged_valuable": 13,
-        "checks_valuable": 0,
+        "flagged_valuable": 10,
+        "sell_flagged_valuable": 10,
+        "checks_valuable": 3,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.7692307692307693,
+        "sell_recall": 0.7692307692307693,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -30951,18 +31837,18 @@
       },
       "uniques/Tarnhelm": {
         "priced": 12,
-        "checks": 1,
+        "checks": 7,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 12,
-        "flagged_valuable": 11,
-        "sell_flagged_valuable": 11,
-        "checks_valuable": 1,
+        "flagged_valuable": 5,
+        "sell_flagged_valuable": 5,
+        "checks_valuable": 7,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9166666666666666,
-        "sell_recall": 0.9166666666666666,
+        "recall": 0.4166666666666667,
+        "sell_recall": 0.4166666666666667,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -31277,15 +32163,15 @@
         "checks": 1,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
-        "valuable": 7,
+        "valuable": 6,
         "flagged_valuable": 6,
         "sell_flagged_valuable": 6,
-        "checks_valuable": 1,
+        "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.8571428571428571,
-        "sell_recall": 0.8571428571428571,
+        "recall": 1.0,
+        "sell_recall": 1.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -31631,18 +32517,18 @@
       },
       "uniques/Vampire Gaze": {
         "priced": 14,
-        "checks": 13,
+        "checks": 14,
         "unpriced_cohort": 13,
         "asks_above_cheap_cohort": 0,
         "valuable": 1,
-        "flagged_valuable": 1,
-        "sell_flagged_valuable": 1,
-        "checks_valuable": 0,
+        "flagged_valuable": 0,
+        "sell_flagged_valuable": 0,
+        "checks_valuable": 1,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.0,
+        "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -31716,18 +32602,18 @@
       },
       "uniques/War Traveler": {
         "priced": 52,
-        "checks": 0,
+        "checks": 14,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 52,
-        "flagged_valuable": 52,
-        "sell_flagged_valuable": 52,
-        "checks_valuable": 0,
+        "flagged_valuable": 0,
+        "sell_flagged_valuable": 0,
+        "checks_valuable": 14,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.0,
+        "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -31785,8 +32671,8 @@
       "uniques/Witchwild String": {
         "priced": 7,
         "checks": 7,
-        "unpriced_cohort": 0,
-        "asks_above_cheap_cohort": 3,
+        "unpriced_cohort": 7,
+        "asks_above_cheap_cohort": 0,
         "valuable": 0,
         "flagged_valuable": 0,
         "sell_flagged_valuable": 0,
@@ -31924,14 +32810,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 25,
         "valuable": 391,
-        "flagged_valuable": 391,
-        "sell_flagged_valuable": 391,
+        "flagged_valuable": 366,
+        "sell_flagged_valuable": 366,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.9360613810741688,
+        "sell_recall": 0.9360613810741688,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -31973,16 +32859,16 @@
         "priced": 243,
         "checks": 8,
         "unpriced_cohort": 0,
-        "asks_above_cheap_cohort": 21,
-        "valuable": 202,
+        "asks_above_cheap_cohort": 22,
+        "valuable": 201,
         "flagged_valuable": 197,
         "sell_flagged_valuable": 197,
-        "checks_valuable": 5,
+        "checks_valuable": 4,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9752475247524752,
-        "sell_recall": 0.9752475247524752,
+        "recall": 0.9800995024875622,
+        "sell_recall": 0.9800995024875622,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -31992,48 +32878,48 @@
         "unpriced_cohort": 9,
         "asks_above_cheap_cohort": 20,
         "valuable": 270,
-        "flagged_valuable": 268,
-        "sell_flagged_valuable": 268,
+        "flagged_valuable": 214,
+        "sell_flagged_valuable": 214,
         "checks_valuable": 2,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9925925925925926,
-        "sell_recall": 0.9925925925925926,
+        "recall": 0.7925925925925926,
+        "sell_recall": 0.7925925925925926,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "uniques/boot": {
         "priced": 295,
-        "checks": 8,
+        "checks": 14,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 6,
         "valuable": 288,
-        "flagged_valuable": 280,
-        "sell_flagged_valuable": 280,
-        "checks_valuable": 8,
+        "flagged_valuable": 176,
+        "sell_flagged_valuable": 176,
+        "checks_valuable": 14,
         "cheap": 2,
         "flagged_cheap": 1,
         "checks_cheap": 0,
-        "recall": 0.9722222222222222,
-        "sell_recall": 0.9722222222222222,
+        "recall": 0.6111111111111112,
+        "sell_recall": 0.6111111111111112,
         "cheap_false_positive_rate": 0.5,
         "cheap_check_rate": 0.0
       },
       "uniques/bow": {
         "priced": 126,
-        "checks": 14,
+        "checks": 12,
         "unpriced_cohort": 0,
-        "asks_above_cheap_cohort": 22,
-        "valuable": 91,
-        "flagged_valuable": 84,
-        "sell_flagged_valuable": 84,
-        "checks_valuable": 3,
+        "asks_above_cheap_cohort": 16,
+        "valuable": 99,
+        "flagged_valuable": 85,
+        "sell_flagged_valuable": 85,
+        "checks_valuable": 10,
         "cheap": 3,
         "flagged_cheap": 1,
         "checks_cheap": 1,
-        "recall": 0.9230769230769231,
-        "sell_recall": 0.9230769230769231,
+        "recall": 0.8585858585858586,
+        "sell_recall": 0.8585858585858586,
         "cheap_false_positive_rate": 0.3333333333333333,
         "cheap_check_rate": 0.3333333333333333
       },
@@ -32107,18 +32993,18 @@
       },
       "uniques/glov": {
         "priced": 338,
-        "checks": 11,
+        "checks": 24,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 42,
         "valuable": 278,
-        "flagged_valuable": 264,
-        "sell_flagged_valuable": 264,
-        "checks_valuable": 11,
+        "flagged_valuable": 238,
+        "sell_flagged_valuable": 238,
+        "checks_valuable": 22,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9496402877697842,
-        "sell_recall": 0.9496402877697842,
+        "recall": 0.8561151079136691,
+        "sell_recall": 0.8561151079136691,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -32175,35 +33061,35 @@
       },
       "uniques/head": {
         "priced": 68,
-        "checks": 0,
+        "checks": 5,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 68,
-        "flagged_valuable": 68,
-        "sell_flagged_valuable": 68,
-        "checks_valuable": 0,
+        "flagged_valuable": 63,
+        "sell_flagged_valuable": 63,
+        "checks_valuable": 5,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.9264705882352942,
+        "sell_recall": 0.9264705882352942,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "uniques/helm": {
         "priced": 419,
-        "checks": 6,
+        "checks": 10,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 25,
         "valuable": 382,
-        "flagged_valuable": 376,
-        "sell_flagged_valuable": 376,
-        "checks_valuable": 6,
+        "flagged_valuable": 312,
+        "sell_flagged_valuable": 312,
+        "checks_valuable": 10,
         "cheap": 2,
         "flagged_cheap": 1,
         "checks_cheap": 0,
-        "recall": 0.9842931937172775,
-        "sell_recall": 0.9842931937172775,
+        "recall": 0.8167539267015707,
+        "sell_recall": 0.8167539267015707,
         "cheap_false_positive_rate": 0.5,
         "cheap_check_rate": 0.0
       },
@@ -32226,35 +33112,35 @@
       },
       "uniques/jewl": {
         "priced": 281,
-        "checks": 0,
+        "checks": 9,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 281,
-        "flagged_valuable": 281,
-        "sell_flagged_valuable": 281,
-        "checks_valuable": 0,
+        "flagged_valuable": 272,
+        "sell_flagged_valuable": 272,
+        "checks_valuable": 9,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.9679715302491103,
+        "sell_recall": 0.9679715302491103,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "uniques/knif": {
         "priced": 121,
-        "checks": 6,
+        "checks": 17,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 16,
         "valuable": 85,
-        "flagged_valuable": 79,
-        "sell_flagged_valuable": 79,
-        "checks_valuable": 6,
+        "flagged_valuable": 68,
+        "sell_flagged_valuable": 68,
+        "checks_valuable": 17,
         "cheap": 3,
         "flagged_cheap": 2,
         "checks_cheap": 0,
-        "recall": 0.9294117647058824,
-        "sell_recall": 0.9294117647058824,
+        "recall": 0.8,
+        "sell_recall": 0.8,
         "cheap_false_positive_rate": 0.6666666666666666,
         "cheap_check_rate": 0.0
       },
@@ -32264,14 +33150,14 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 547,
-        "flagged_valuable": 547,
-        "sell_flagged_valuable": 547,
+        "flagged_valuable": 489,
+        "sell_flagged_valuable": 489,
         "checks_valuable": 0,
         "cheap": 1,
         "flagged_cheap": 1,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.8939670932358318,
+        "sell_recall": 0.8939670932358318,
         "cheap_false_positive_rate": 1.0,
         "cheap_check_rate": 0.0
       },
@@ -32298,31 +33184,31 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 39,
-        "flagged_valuable": 39,
-        "sell_flagged_valuable": 39,
+        "flagged_valuable": 29,
+        "sell_flagged_valuable": 29,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.7435897435897436,
+        "sell_recall": 0.7435897435897436,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "uniques/orb": {
         "priced": 151,
-        "checks": 2,
+        "checks": 15,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 151,
-        "flagged_valuable": 149,
-        "sell_flagged_valuable": 149,
-        "checks_valuable": 2,
+        "flagged_valuable": 136,
+        "sell_flagged_valuable": 136,
+        "checks_valuable": 15,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9867549668874173,
-        "sell_recall": 0.9867549668874173,
+        "recall": 0.9006622516556292,
+        "sell_recall": 0.9006622516556292,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -32345,18 +33231,18 @@
       },
       "uniques/phlm": {
         "priced": 78,
-        "checks": 1,
+        "checks": 13,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 78,
-        "flagged_valuable": 77,
-        "sell_flagged_valuable": 77,
-        "checks_valuable": 1,
+        "flagged_valuable": 65,
+        "sell_flagged_valuable": 65,
+        "checks_valuable": 13,
         "cheap": 1,
         "flagged_cheap": 1,
         "checks_cheap": 0,
-        "recall": 0.9871794871794872,
-        "sell_recall": 0.9871794871794872,
+        "recall": 0.8333333333333334,
+        "sell_recall": 0.8333333333333334,
         "cheap_false_positive_rate": 1.0,
         "cheap_check_rate": 0.0
       },
@@ -32364,16 +33250,16 @@
         "priced": 484,
         "checks": 2,
         "unpriced_cohort": 0,
-        "asks_above_cheap_cohort": 3,
-        "valuable": 472,
-        "flagged_valuable": 470,
-        "sell_flagged_valuable": 470,
+        "asks_above_cheap_cohort": 2,
+        "valuable": 476,
+        "flagged_valuable": 474,
+        "sell_flagged_valuable": 474,
         "checks_valuable": 2,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9957627118644068,
-        "sell_recall": 0.9957627118644068,
+        "recall": 0.9957983193277311,
+        "sell_recall": 0.9957983193277311,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -32383,33 +33269,33 @@
         "unpriced_cohort": 4,
         "asks_above_cheap_cohort": 0,
         "valuable": 347,
-        "flagged_valuable": 339,
-        "sell_flagged_valuable": 339,
+        "flagged_valuable": 293,
+        "sell_flagged_valuable": 293,
         "checks_valuable": 5,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9769452449567724,
-        "sell_recall": 0.9769452449567724,
+        "recall": 0.8443804034582133,
+        "sell_recall": 0.8443804034582133,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
       "uniques/scep": {
         "priced": 101,
-        "checks": 3,
+        "checks": 6,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 2,
         "valuable": 97,
-        "flagged_valuable": 94,
-        "sell_flagged_valuable": 94,
-        "checks_valuable": 3,
+        "flagged_valuable": 91,
+        "sell_flagged_valuable": 91,
+        "checks_valuable": 6,
         "cheap": 1,
-        "flagged_cheap": 1,
-        "checks_cheap": 0,
-        "recall": 0.9690721649484536,
-        "sell_recall": 0.9690721649484536,
-        "cheap_false_positive_rate": 1.0,
-        "cheap_check_rate": 0.0
+        "flagged_cheap": 0,
+        "checks_cheap": 1,
+        "recall": 0.9381443298969072,
+        "sell_recall": 0.9381443298969072,
+        "cheap_false_positive_rate": 0.0,
+        "cheap_check_rate": 1.0
       },
       "uniques/scha": {
         "priced": 35,
@@ -32417,31 +33303,31 @@
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 35,
-        "flagged_valuable": 35,
-        "sell_flagged_valuable": 35,
+        "flagged_valuable": 0,
+        "sell_flagged_valuable": 0,
         "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
-        "sell_recall": 1.0,
+        "recall": 0.0,
+        "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "uniques/shie": {
         "priced": 266,
-        "checks": 29,
+        "checks": 41,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 40,
         "valuable": 206,
-        "flagged_valuable": 195,
-        "sell_flagged_valuable": 195,
-        "checks_valuable": 11,
+        "flagged_valuable": 183,
+        "sell_flagged_valuable": 183,
+        "checks_valuable": 23,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9466019417475728,
-        "sell_recall": 0.9466019417475728,
+        "recall": 0.8883495145631068,
+        "sell_recall": 0.8883495145631068,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
@@ -32464,18 +33350,18 @@
       },
       "uniques/staf": {
         "priced": 100,
-        "checks": 7,
+        "checks": 10,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 7,
         "valuable": 86,
-        "flagged_valuable": 79,
-        "sell_flagged_valuable": 79,
-        "checks_valuable": 7,
+        "flagged_valuable": 76,
+        "sell_flagged_valuable": 76,
+        "checks_valuable": 10,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9186046511627907,
-        "sell_recall": 0.9186046511627907,
+        "recall": 0.8837209302325582,
+        "sell_recall": 0.8837209302325582,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -32534,16 +33420,16 @@
         "priced": 535,
         "checks": 20,
         "unpriced_cohort": 0,
-        "asks_above_cheap_cohort": 14,
-        "valuable": 511,
-        "flagged_valuable": 492,
-        "sell_flagged_valuable": 492,
+        "asks_above_cheap_cohort": 15,
+        "valuable": 509,
+        "flagged_valuable": 490,
+        "sell_flagged_valuable": 490,
         "checks_valuable": 19,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9628180039138943,
-        "sell_recall": 0.9628180039138943,
+        "recall": 0.962671905697446,
+        "sell_recall": 0.962671905697446,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
@@ -32583,6 +33469,1349 @@
       }
     }
   },
+  "sub_ist_without_demand": [
+    {
+      "category": "sets",
+      "name": "Aldur's Watchtower",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Alma Negra",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Arctic Furs",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.8827499999999999,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Atma's Scarab",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 175,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Authority",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6475000000000001,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Baranar's Star",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.320453125,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bartuc's Cut-Throat",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5300208333333334,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Biggin's Bonnet",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Blackhorn's Face",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5944999999999999,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Blackoak Shield",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.4904166666666666,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Blood Crescent",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6802916666666667,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bloodmoon",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bloodthief",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bloodtree Stump",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"null\"]]",
+      "q1_ist": 0.25,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Boneflame",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bonehew",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.29425,
+      "sellers": 199,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Bonehew",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.5782499999999999,
+      "sellers": 67,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Boneshade",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.870375,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "base",
+      "name": "Breast Plate",
+      "ethereal": false,
+      "bucket": "base-coarse:demand:3os:[\"423\",\"937\"]|facets:{\"base_ed_grade\":\"perfect\",\"base_modifiers\":{},\"rarity\":\"superior\",\"socket_contents\":\"empty\",\"sockets\":3}|cohort:[[\"ethereal\",\"false\"],[\"base_modifier:937\",\"0\"]]",
+      "q1_ist": 0.789,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Bul-Kathos' Children",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5885,
+      "sellers": 25,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Butcher's Pupil",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.29887604166666665,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Carrion Wind",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6035833333333334,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Cerebus' Bite",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Chromatic Ire",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.26655625,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Coldsteel Eye",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Cow King's Hooves",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.8945000000000001,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Cow King's Horns",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3206875,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Cow King's Leathers",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Crainte Vomir",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Cranebeak",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 36,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Cranebeak",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.789,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Crescent Moon",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.31655625,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Crown of Thieves",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 22,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "base",
+      "name": "Crystal Sword",
+      "ethereal": false,
+      "bucket": "base-coarse:wp-b:5os/noneth/superior:[\"423\",\"937\"]|facets:{\"base_ed_grade\":\"ordinary\",\"base_modifiers\":{},\"rarity\":\"superior\",\"socket_contents\":\"empty\",\"sockets\":5}|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 10,
+      "date": "2026-09-18"
+    },
+    {
+      "category": "sets",
+      "name": "Death's Guard",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Death's Hand",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Demonhorn's Edge",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.652625,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Dragonscale",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6569375000000001,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Dreadfang",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 19,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Duriel's Shell",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"null\"]]",
+      "q1_ist": 0.5240833333333332,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Earth Shifter",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Executioner's Justice",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Firelizard's Talons",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Fleshrender",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.30931875,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Fleshripper",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6385000000000001,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Frostburn",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"\\\"uhg\\\"\"]]",
+      "q1_ist": 0.8849166666666666,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Gargoyle's Bite",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Ghostflame",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.6475000000000001,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Ghoulhide",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.55415625,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Giant Skull",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.870375,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Ginther's Rift",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.4549895833333333,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Goldskin",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Goldstrike Arch",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Greyform",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Grim's Burning Dead",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3923333333333333,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Guardian Angel",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"null\"]]",
+      "q1_ist": 0.674,
+      "sellers": 30,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Guardian Naga",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.49450000000000005,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Gut Siphon",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.985625,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Hawkmail",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Head Hunter's Glory",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7027500000000001,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Heaven's Brethren",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.52540625,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Hellmouth",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.26414374999999995,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Hellrack",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.621,
+      "sellers": 19,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Hellslayer",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.384,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Hexfire",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.34329166666666666,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Honor",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.621,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Horazon's Hold",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.2961666666666667,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Howltusk",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6475000000000001,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Humongous",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5555000000000001,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Husoldal Evo",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 31,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Hwanin's Majesty",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5944999999999999,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Iceblink",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Ichorsting",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.31562500000000004,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Immortal King",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.732609375,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Iron Pelt",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.49450000000000005,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Jade Talon",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Jalal's Mane",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Kelpie Snare",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.674,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Kinemil's Awl",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.25,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Kingslayer",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"socket_variant\",\"[4,\\\"filled\\\"]\"]]",
+      "q1_ist": 0.94725,
+      "sellers": 32,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Lance Guard",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"null\"]]",
+      "q1_ist": 0.621,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Latent Rotting Fissure",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Lava Gout",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.34425,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Lenymo",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 27,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Leviathan",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 62,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Lycander's Aim",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "M'avina's Battle Hymn",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Milabrega's Regalia",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3678125,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Natalya's Odium",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 21,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Natalya's Shadow",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.34329166666666666,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Nosferatu's Coil",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Obedience",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.8945000000000001,
+      "sellers": 31,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Ondal's Almighty",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.394778125,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Orphan's Call",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7027500000000001,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Pierre Tombale Couant",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.29425,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Pus Spitter",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.48016666666666663,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Que-Hegan's Wisdom",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Renewed Rotting Fissure",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.94725,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Ribcracker",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Riphook",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.62325,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Ritual",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5449687499999999,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Rixot's Keen",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Rockstopper",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"],[\"base_code\",\"null\"]]",
+      "q1_ist": 0.4904166666666666,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Rogue's Bow",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Rune Master",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Rusthandle",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Sanctuary",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 22,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Schaefer's Hammer",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.8945000000000001,
+      "sellers": 23,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Skull Collector",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.35614375,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Skystrike",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Soul Drainer",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Spike Thorn",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6653125,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Spirit Forge",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.57105,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Spirit Ward",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5944999999999999,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Steel Pillar",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 20,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Steel Shade",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 21,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Steelgoad",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5292083333333333,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Stone",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Stone",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.94725,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Stoneraven",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3891875,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Stormeye",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Stormspire",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5555000000000001,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Swordback Hold",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.8945000000000001,
+      "sellers": 11,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Swordguard",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.484125,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Taebaek's Glory",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7016666666666667,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Telling of Beads",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.431125,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "The Disciple",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "The Fetid Sprinkler",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7315,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "The Gnasher",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "The Grandfather",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "The Hand of Broc",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5944999999999999,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Tiamat's Rebuke",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.475875,
+      "sellers": 13,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Torch of Iro",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.757,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Trang-Oul's Avatar",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.9917500000000001,
+      "sellers": 22,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Trang-Oul's Guise",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.43700000000000006,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "sets",
+      "name": "Trang-Oul's Wing",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 15,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Treads of Cthon",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3100458333333333,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Twitchthroe",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.568,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Unbending Will",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 21,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Valkyrie Wing",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5944999999999999,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Venom Grip",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.674,
+      "sellers": 17,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Viperfork",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.5790625,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Wall of the Eyeless",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.3626875,
+      "sellers": 14,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "runewords",
+      "name": "Wind",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.789,
+      "sellers": 22,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Windhammer",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.41639062499999996,
+      "sellers": 12,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Wizendraw",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.6653125,
+      "sellers": 16,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Woestave",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.2708125,
+      "sellers": 10,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Wolfhowl",
+      "ethereal": false,
+      "bucket": "name|cohort:[[\"ethereal\",\"false\"]]",
+      "q1_ist": 0.7027500000000001,
+      "sellers": 18,
+      "date": "2026-10-03"
+    },
+    {
+      "category": "uniques",
+      "name": "Wraith Flight",
+      "ethereal": true,
+      "bucket": "name|cohort:[[\"ethereal\",\"true\"]]",
+      "q1_ist": 0.3678125,
+      "sellers": 16,
+      "date": "2026-10-03"
+    }
+  ],
   "roll_validation": {
     "models": [
       {
@@ -56069,6 +58298,6 @@
         }
       ]
     },
-    "compiled_comparisons": 24
+    "compiled_comparisons": 46
   }
 }

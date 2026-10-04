@@ -129,8 +129,9 @@ Unknown/future dates cannot establish activity; fetching old listings today cann
 Keep the newest-50 span as a diagnostic, not a veto. Historical bands describe activity at
 their evidence date and retain the stale marker.
 The weekly page-0 pull gives a second signal over time: how many of last week's listings are gone.
-Guide demand (number of builds that name the item) is shown as a hint next to the class; it
-does not change the class.
+Steering 4 qualifies the verdict: equipment below 1 Ist without explicit endgame variant
+demand is SELL (slow), even when seller activity is liquid. Starter, budget, Hardcore and
+unspecified guide mentions do not count. Demand never creates a numerical price.
 
 ### 3.6 Verdicts
 
@@ -261,14 +262,108 @@ Check that the method works (added to the listing replay): leave each listing ou
 the others with this method and with the plain name median, and report the median error of
 both. The roll-aware price must beat the name median, or the item keeps the name band.
 
-Acceptance case (user clarified, 2026-10-03): Rusthandle, +2 Vengeance, 50% enhanced damage → CHECK.
-Keep comparable-or-worse Q1: the +1 ask at 0.789 Ist and +2 ask at 0.2 Ist give
-Q1 = 0.34725 Ist, but only two sellers. Do not substitute the cheapest exact-roll ask
-or describe this copy as below every listed roll. The validation requirement above remains.
+User clarification (2026-10-04): Steering 3's supported-split requirement applies to
+roll comparisons too; selection concentration alone does not authorize a price split.
+When validation fails but a robust deciding-roll signal has only one or two comparable-or-worse
+sellers, retain CHECK and show the name band only as reference. Do not publish the rejected
+model's Q1 as an item estimate. Rusthandle +2 Vengeance / 50% ED is this acceptance case:
+its diagnostic Q1 is 0.34725 Ist from two sellers, but the pooled roll model fails validation.
+It is not below every listed roll, and the name band must not turn this sparse comparison into SELL.
+Steering 4 below extends this selection safeguard to below-selected rolls regardless of
+comparable seller count; refreshed/coarsened cohorts must not silently undo the acceptance case.
 
 ## 4. Work packages
 
-### Steering 4 (progress check, 2026-10-04 10:30) — takes precedence over everything below
+### Steering 6 (user directive, 2026-10-04 14:00) — takes precedence over everything below
+
+**The user does not label or assess items. Progress comes solely from the guides and from
+Traderie.** Do not ask for labels, skims, reviews of lists or verdict confirmations, and do not
+report work as blocked on them. `label.html`, `labels.json`, the "disagree" hotkey proposal and
+the label score are retired; the one existing label stays as a regression case only.
+
+Ground truth is now two sources, both already in the repo's rules of evidence:
+
+1. **Guides are the answer key for patterns and demand.** `guides/pricing.html` §2, §3, §6,
+   §7, §8, §9, `guides/pricing-primer.html` (§2–§6, the `#miss` checklist, the decision table
+   §8), `guides/warlock.html` and `guides/pindle-anya.html` §3/§5. Every worked example, every
+   keep/sell/vendor row and every listed false positive becomes an acceptance case: item
+   description → expected verdict class. These are built once, mechanically, into a guide case
+   file and scored by the same scorer that scored labels. Where a guide states a verdict and
+   triage disagrees, triage is wrong unless Traderie evidence dated later than the guide row
+   contradicts it; then the guide is corrected with a dated pass (AGENTS.md rule 6).
+2. **Traderie is the answer key for price and demand.**
+   - price: the listing replay, one vote per seller (as now);
+   - demand: **turnover**. A second page-0 pull through `pricing/tools/market_pull.py` (paced,
+     scope filters) is authorized by this directive and runs now; then weekly. Per cohort:
+     share of 2026-10-03 listing ids gone, new sellers, and whether the gone listings were the
+     cheap ones. A cohort with many sellers and no turnover is supply, not demand;
+   - buy-side listings: one test request through `pricing/tools/traderie.py` to learn whether
+     the API returns them; if it does, buyers per cohort join the demand evidence.
+   Maxroll build data in the repo stays the demand source for *which* items builds use; it is
+   never a price.
+
+Decision rules that no longer wait for the user:
+
+- **Decision 5 (cheap asks without demand evidence)** is decided by data: after Steering 5
+  item 1 (wider demand table) and the turnover measurement, a cohort under 1 Ist with no build
+  use, no turnover and no buyers is VENDOR with the ask as a note; with any one of them it is
+  slow; SELL needs the keep price plus demand evidence.
+- **Explained VENDOR corrections** stand without a skim.
+- **Disagreements between guide and Traderie** are listed in section 8 with both dates; the
+  later evidence wins and the guide is edited.
+
+Measures (replace the label row of section 5):
+
+| Report | Source | Target |
+|---|---|---|
+| Guide cases | acceptance cases extracted from the guides | 100% of worked examples and false-positive rows; ≥ 95% of keep/sell/vendor table rows |
+| Listing replay | Traderie asks, one vote per seller | as section 5 and Steering 3 item 4 |
+| Demand agreement | turnover between pulls | ≥ 80% of SELL cohorts show turnover or buyers; ≤ 10% of VENDOR-by-rule cohorts show strong turnover |
+| Speed | service log, from whatever identify passes occur in normal play | as section 5 |
+
+The live ten-item check is no longer a request: record it from the next service log that
+contains an identify pass.
+
+Order: guide case file and its score → second pull and turnover → Steering 5 item 1 →
+decision 5 rule → fix what the guide cases and turnover expose. Steering 5 item 4 changes
+accordingly: work is driven by guide-case failures and Traderie evidence.
+
+### Steering 5 (progress check, 2026-10-04 13:30) — items 1, 3, 5 stand; user-action paragraph void
+
+Done since Steering 4: Rusthandle +2 is CHECK with the "mostly +3" line; socket contents no
+longer form price bands (Harlequin Crest 0.65 Ist); demand table of 130 named items from
+resolved endgame variants; green SELL 66 → 34. Corpus 777: 540 VENDOR / 135 slow / 63 CHECK /
+34 SELL / 5 SELF-USE. Host run 20261004T090422Z had HUD, Alt+D and a shop scan but no identify
+events, so the ten-item check is still open. Labels: 1.
+
+1. **The demand table is too narrow to carry a VENDOR decision.** 117 of the 135 slow drops
+   are under 1 Ist without demand evidence, and that group contains Rainbow Facet, Atma's
+   Scarab, Jade Talon, Leviathan and Arkaine's Valor. Rainbow Facet is "High, 7 builds" in the
+   repo's own `appraisal-value-watch.json` (277 items); it is missing because facets and jewels
+   are socket inserts, not gear slots. Extend demand evidence to the union of:
+   resolved endgame gear variants (as now); value-watch entries whose priority is a valuable
+   candidate or whose local tier is above Floor; socket inserts and mercenary gear named in
+   those variants. Print the list of sub-1-Ist cohorts with at least 10 sellers and no demand
+   evidence — that list, not a rule, is what the user decides on (decision 5).
+2. **Decision 5 recommendation withdrawn for now.** Until item 1 is done and a turnover
+   measurement exists, "no demand evidence" keeps the verdict at slow; it does not produce
+   VENDOR.
+3. **Slow must not drown SELL on the HUD.** 135 slow against 34 SELL. The identify summary
+   lists SELL, SELF-USE and CHECK lines; slow items are one count line ("7 slow, cheapest
+   asks 0.3–0.8 Ist") expandable in Alt+D. If the summary already does this, record it in
+   section 8 and skip.
+4. **The offline phase is closed.** Named, commodity and routing work are at the point where
+   more offline effort does not change what the user sees. Open work is only:
+   item 1 above; the ten-item identify check; fixes for labels, disagreements and live
+   findings as they arrive. No new rule families, audits or refactors without one of those.
+5. **Own-use check:** Gheed's Fortune matches an own-use row yet shows slow. Confirm whether
+   the row's conditions exclude it or the verdict order is wrong (SELF-USE precedes slow).
+
+User actions that now gate progress: identify ten items in one pass with the service
+restarted; answer decision 6 (second pull, disagree hotkey); label or skim
+`inventory_tracking/corpus/data/label.html` and `vendor-corrections.md`.
+
+### Steering 4 (progress check, 2026-10-04 10:30) — done; item 3 continued by Steering 5
 
 Done since Steering 3: named CHECK 53% → 12.9% (uniques 8.9%, sets 19.2%); seller-weighted
 scores (attention 72.6%, SELL/slow 65.7%); `own.json` has 75 rows and SELF-USE appears;
@@ -371,10 +466,14 @@ Corpus (768 items): 446 VENDOR / 203 CHECK / 95 slow / 24 SELL. Labels: 1. `own.
 
 Order: 1 → 2 → 7 → 4 → 5 → 6 → 3.
 
-Execution note (2026-10-04): items 4–6 are implemented; do not repeat them as new work.
-Resume item 2, preserving the explicit §3.10 Rusthandle CHECK acceptance. Diagnose deciding-roll
-projection and model admission together; restoring all models is not an accepted fix. Then
-proceed to item 3 using the seller-ranked miss tables. Keep item 7 current throughout.
+User clarification (2026-10-04): the remaining guide-backed gaps may be fixed in one combined
+coverage pass even when each recovers fewer than 300 listings. This replaces item 3's numerical
+batch floor for that pass; retain guide/market evidence, scoped comparisons and both score reports.
+
+Historical execution note: Steering 3 items 4–6 are implemented. Steering 4 now controls
+the queue; the authorized combined guide-gap pass is complete. Do not resume listing-led
+affixed batches. Preserve Rusthandle CHECK, normalize socket-content prices, qualify SELL
+with endgame demand, then verify the live ten-item identify run.
 
 User actions outstanding: label the dispute page (`inventory_tracking/corpus/data/label.html`,
 one label so far); skim `inventory_tracking/corpus/data/vendor-corrections.md`.
@@ -566,7 +665,7 @@ Exit: rares and magic items in the corpus reach the section 5 targets; no family
 
 ### Historical execution sequence (reviewed 2026-10-03; order superseded)
 
-Steering 3 above controls the active order: 1 → 2 → 7 → 4 → 5 → 6 → 3.
+Steering 5 controls the remaining work: demand union/review list, slow HUD summary, own-use precedence, then live findings and labels.
 The P0–P5 sequence below is implementation reference, not the current work queue.
 Work on the triage path, not incremental improvements to
 detail-engine coverage. Existing decoder, native/property projection, scoped market
@@ -680,38 +779,35 @@ Decisions needed from the user:
 4. **Housekeeping.** Delete `tmp/` and move the frozen artifacts out?
 5. **Cheap asks without demand evidence.** An item listed at 0.25–1 Ist by many sellers with no
    endgame build use, turnover, buy request or fill: show as slow (current default), or VENDOR
-   with the ask as a note? Recommended: VENDOR with the note.
-6. **Second market pull and a "disagree" hotkey.** Authorize a second page-0 pull (about 75
+   with the ask as a note? Recommendation withdrawn (Steering 5): keep slow until demand
+   coverage is extended and turnover is measured; then decide from the printed list.
+6. **Resolved by Steering 6:** second pull authorized; hotkey and labels retired. Original text:
+   **Second market pull and a "disagree" hotkey.** Authorize a second page-0 pull (about 75
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-04 — incomplete; blocked pending policy decisions/labels/live verification; Steering 3 governs.
-- Items 4–6 implemented: seller-weighted scores/miss tables, socket inference, 75 own-use rules.
-- Corpus: 768 items; 529 VENDOR, 61 CHECK, 107 slow, 66 SELL, 5 SELF-USE; 355 bands.
-- Named CHECK: 43/333 (12.91%); uniques 18/203 (8.87%), sets 25/130 (19.23%).
-- Named roll calibration now uses supported coarse base/socket cohorts; ethereal stays separate.
-  24 roll models retained. Selection signal needs ≥15 sellers with ≥75% in the best quartile,
-  or a supported price split; worse held-out predictions fall back to name bands.
-- Rusthandle remains SELL, conflicting with explicit CHECK acceptance. Native Vengeance reads
-  correctly; pooled validation error 0.556 exceeds name error 0.342. Precedence question pending.
-- Seller-weighted attention 72.60%, SELL/slow 65.69%; cheap CHECK 24/129 (18.60%),
-  cheap SELL/slow 19/129 (14.73%, above 10% limit). Attention fell 16/17,959 votes after roll
-  recalibration; retained for coherent coarse cohorts and roll comparisons, not a recall gain.
-- 17,389 bands: 13,903 none, 2,437 thin, 1,049 liquid; base importer 236 variants / 239 bases.
-  Socket inference: Fanged Knife → 0, Cinquedeas → 3 (noneth/normal); 634 groups unresolved.
-  Excluded unresolved sockets: 1,582 listings (1,557 valuable).
-- 624 combined tests pass; subsequent diagnostic extension: 25 focused tests pass; Ruff clean.
-  Both reports 21.71 s; scores unchanged; 185 routes. Base misses now separate 234 missing ED,
-  44 invalid ED, 84 quality conflicts and 9 filled/unknown socket-content rows from rule gaps.
-  One CHECK label; SELL metrics unavailable. Cold warm-up ~18 s; ten-item/HUD verification pending.
-- Live run 20261003T202202Z-82a8f89c: six/four-item passes 91/308 ms; 2–9 ms/item.
-- User actions: Rusthandle validation precedence and sub-300 batch-floor decisions; label
-  `inventory_tracking/corpus/data/label.html`; skim `inventory_tracking/corpus/data/vendor-corrections.md`.
-- Base audit: normal 3os Cuirass Q1 0.196 Ist/5 sellers correctly fails keep; four other
-  supported cheap variants excluded. No hidden later paid bucket found; secondary pooling
-  reaches ≤288 rows before data validation. No safe broad base rule change established.
-- Next 1–2: apply pending policy answers, then the remaining guide-backed coverage pass.
-- Rare sword/bow audit: 209 misses fail only IAS, 84 fail durability/ethereal, 8 only base tier;
-  no ≥300 guide-backed correction established. No newer Alt+D host run than 20261003T202202Z.
-- Magic audit: narrower prefix/base gaps; no saved-drop regression found. Batch-floor decision pending.
-- Final audit: 19 gem-paid cheap flags retained; 24 model stat sets agree. Next 3: labels/live §5.
+2026-10-04 — Steering 5 offline items 1/3/5 implemented; live ten-item pass and user decisions pending.
+- No new families/audits/refactors queued; future changes require live findings or user labels.
+- Demand union now 167 named items: resolved endgame variants, qualifying value-watch entries,
+  explicit named socket inserts and mercenary contexts. Floor-only watches do not qualify.
+- 149 sub-1-Ist cohorts with ≥10 sellers still lack demand evidence. The full list is printed
+  by replay and stored in score-listings.json under sub_ist_without_demand, with scope/category,
+  ethereal, bucket, dated Q1 and seller count. No lack-of-demand VENDOR rule was introduced.
+- Identify HUD lists SELL, SELF-USE and CHECK; slow is one count/ask-range line with Alt+D detail.
+  Full item records remain in identify-latest.json. Requires host restart for Python changes.
+- Gheed's Fortune own-use conditions matched; verdict precedence was wrong. Own-use now beats
+  slow, but not liquid SELL. All three saved Gheed captures replay as SELF-USE.
+- Corpus grew to 832: 587 VENDOR, 127 slow, 67 CHECK, 40 SELL, 11 SELF-USE; 366 bands.
+  Named CHECK 49/350 (14%); one CHECK label, SELL precision still unavailable.
+- Seller-weighted attention 70.05%, SELL/slow 63.07%; cheap SELL/slow 16/129 (12.40%),
+  cheap CHECK 27/129 (20.93%). Recall reduction is explained by own-use precedence: SELF-USE
+  is excluded from trade hits; those items still receive a visible blue HUD line.
+- 706 triage/identify/appraisal/corpus tests pass; Ruff and diff checks clean.
+  Both reports complete in 23.78 seconds. Triage remains table-only at runtime.
+- Preserved Rusthandle CHECK and filled unique/set bare-item pricing; runewords unchanged.
+- Latest live run 20261004T102533Z-884da476: eight identified items over five passes
+  (2/1/2/1/2), 55.6–80.6 ms/pass, retrieval 1.8–2.6 ms/item, no assessment issues.
+  Main inventory/Cube detection verified. A single ten-item pass remains unmeasured.
+- Next: host restart for the HUD change, ten-item identify timing/HUD check; review new labels
+  or disagreements. Second market pull and disagree hotkey still await user decision 6.
+- No new live market collection, commits, staging or cleanup performed.

@@ -194,6 +194,9 @@ def main():
     (DATA / 'label.html').write_text(label_page(observations, disputes, labels=labels))
     rows, _ = market_rows()
     listing = listing_score(rows, tables)
+    from pricing.triage.demand import cohorts_without_demand
+
+    listing['sub_ist_without_demand'] = cohorts_without_demand(tables)
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
     models = analyze(rows, definitions, metadata(), coarse=True)
     listing['roll_validation'] = {

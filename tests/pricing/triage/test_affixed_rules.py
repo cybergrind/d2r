@@ -440,3 +440,36 @@ def test_phase_blade_intrinsic_durability_preserves_physical_stat_gates(ethereal
         {'properties': {'510': 300, '457': 20}},
     ):
         assert assess(item | change, tables)['verdict'] == 'vendor'
+
+
+@pytest.mark.parametrize('base', ['Balrog Skin', 'Great Hauberk', 'Lacquered Plate'])
+@pytest.mark.parametrize('properties', [{'418': 90}, {'430': 24}, {'429': 10}])
+def test_jeweler_armor_uses_elite_family_and_complete_suffix(base, properties):
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {'category': 'magic', 'family': 'tors', 'base_name': base, 'sockets': 4, 'properties': properties}
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    for change in ({'sockets': 3}, {'sockets': None}, {'base_name': 'Embossed Plate'}, {'properties': {}}):
+        assert assess(item | change, tables)['verdict'] == 'vendor'
+
+
+def test_jeweler_sacred_targe_requires_both_deflecting_mods_and_four_sockets():
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {
+        'category': 'magic',
+        'family': 'ashd',
+        'base_name': 'Sacred Targe',
+        'sockets': 4,
+        'properties': {'446': 20, '449': 30},
+    }
+    assert assess(item, tables)['verdict'] == 'check'
+    assert assess(item, tables)['band'] is None
+    for change in (
+        {'sockets': 3},
+        {'properties': {'446': 20}},
+        {'properties': {'449': 30}},
+        {'base_name': 'Sacred Rondache'},
+        {'category': 'rare'},
+    ):
+        assert assess(item | change, tables)['verdict'] == 'vendor'

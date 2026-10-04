@@ -15,7 +15,8 @@ def key(values):
 
 
 def compile_model(report, rows, *, require_supported_split=False):
-    if not report['deciding'] or fallback_required(report['validation']):
+    reference_only = fallback_required(report['validation'])
+    if not report['deciding'] or (reference_only and not require_supported_split):
         return None
     cohort = [
         r | {'properties': expanded_properties(r.get('properties', {}))}
@@ -28,21 +29,20 @@ def compile_model(report, rows, *, require_supported_split=False):
     if not cohort:
         return None
     deciding = report['deciding']
-    if require_supported_split:
-        from pricing.triage.cohort_splits import roll_split
-
+    if reference_only:
+        # Rejected predictions must not publish prices. A robust selection
+        # signal still caps below-selected rolls at CHECK (Steering 4).
         deciding = {
             prop: spec
             for prop, spec in deciding.items()
-            if roll_split(cohort, prop)
-            or (
-                report.get('coarse_facets') is not None
-                and spec.get('sample_size', 0) >= 15
-                and spec.get('top_count', 0) / spec['sample_size'] >= 0.75
-            )
+            if spec.get('sample_size', 0) >= 15 and spec.get('top_count', 0) / spec['sample_size'] >= 0.75
         }
-        if not deciding:
-            return None
+    elif require_supported_split:
+        from pricing.triage.cohort_splits import roll_split
+
+        deciding = {prop: spec for prop, spec in deciding.items() if roll_split(cohort, prop)}
+    if not deciding:
+        return None
     axes = {}
     for prop, spec in deciding.items():
         sign = -1 if spec.get('better') == 'lower' else 1
@@ -68,6 +68,7 @@ def compile_model(report, rows, *, require_supported_split=False):
     return {
         **report,
         'deciding': deciding,
+        'reference_only': reference_only,
         'category': cohort[0]['category'],
         'axes': axes,
         'cells': cells,
@@ -95,25 +96,45 @@ def lookup(item, models, *, keep_ist):
         'reference_band': model['reference_band'],
         'deciding': model['deciding'],
     }
-    values, labels = [], []
+    reference_only = model.get('reference_only', False)
+    values, labels, selected_shortfalls = [], [], []
     for prop, points in model['axes'].items():
         spec = model['deciding'][prop]
         if spec.get('base_code') and item.get('base_code') != spec['base_code']:
-            return result | {'reason': 'unverified base for deciding roll: ' + spec.get('label', prop)}
+            return (
+                None
+                if reference_only
+                else result | {'reason': 'unverified base for deciding roll: ' + spec.get('label', prop)}
+            )
         value = item.get('properties', {}).get(prop)
         # Some market labels omit class restrictions. Use the model's verified
         # native identity for captures without creating a global skill alias.
         if prop not in item.get('properties', {}):
             value = item.get('native_rolls', {}).get(spec.get('native_key'))
         if not numeric(value) or not spec['min'] <= value <= spec['max']:
-            return result | {'reason': 'unreadable or out-of-range deciding roll: ' + spec.get('label', prop)}
+            return (
+                None
+                if reference_only
+                else result | {'reason': 'unreadable or out-of-range deciding roll: ' + spec.get('label', prop)}
+            )
+        best = spec['min'] if spec.get('better') == 'lower' else spec['max']
+        if value != best:
+            selected_shortfalls.append(
+                f'listed copies are mostly {best:g} {spec.get("label", prop)}; this has {value:g}'
+            )
         oriented = value * (-1 if spec.get('better') == 'lower' else 1)
         values.append(points[bisect_right(points, oriented) - 1])
         labels.append(f'{spec.get("label", prop)} {value:g}')
     cell = model['cells'][key(values)]
     band, ceiling = cell['band'], cell['upper_bound_ist']
-    result.update(cell)
     comparison = ', '.join(labels)
+    if reference_only:
+        if selected_shortfalls:
+            return result | {
+                'reason': '; '.join(selected_shortfalls) + '; name band is reference only',
+            }
+        return None
+    result.update(cell)
     if band is not None:
         price = band['q1_ist']
         verdict = (

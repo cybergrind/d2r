@@ -294,15 +294,26 @@ def test_failed_validation_keeps_sparse_deciding_roll_check_with_reference_only(
     }
     model = compile_model(report, rows, require_supported_split=True)
     assert model is not None
-    item = {'category': 'uniques', 'name': 'Example', 'ethereal': False,
-            'socket_contents': 'empty', 'properties': {'skill': 2}}
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'properties': {'skill': 2},
+    }
     result = lookup(item, [model], keep_ist=0.25)
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['reference_band']['sellers'] == 19
-    assert '1 comparable-or-worse seller' in result['reason']
-    # The rejected model cannot price supported, below-range, or unknown rolls.
-    for props in ({'skill': 3}, {'skill': 1}, {}):
+    assert 'listed copies are mostly' in result['reason']
+    # Low rolls remain CHECK even without comparable sellers or with three.
+    assert lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25)['verdict'] == 'check'
+    lower = rows[0] | {'properties': {'skill': 2}}
+    expanded = rows + [lower | {'seller_id': f'low-{i}', 'listing_id': f'low-{i}'} for i in range(3)]
+    supported = compile_model(report, expanded, require_supported_split=True)
+    assert lookup(item, [supported], keep_ist=0.25)['verdict'] == 'check'
+    # The rejected model cannot price top or unknown rolls.
+    for props in ({'skill': 3}, {}):
         assert lookup(item | {'properties': props}, [model], keep_ist=0.25) is None
     # A sparse draft without a robust selection signal cannot create this guard.
     weak = report | {'deciding': {'skill': MODEL['deciding']['skill'] | {'sample_size': 2, 'top_count': 2}}}

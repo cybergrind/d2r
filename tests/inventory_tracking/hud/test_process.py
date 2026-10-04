@@ -92,10 +92,11 @@ def test_rune_marks_default_to_io_and_up():
     assert not is_valuable_rune(639, minimum=APPRAISAL.rune_minimum)  # Hel
 
 
-def test_terror_card_is_a_text_widget_in_its_own_right_hand_slot():
+def test_terror_card_is_a_text_widget_in_its_own_top_right_slot():
     [widget] = terror_widgets(['Terror · Black Marsh'])
 
     assert (widget.id, widget.kind, widget.slot) == ('terror', 'text', 'terror')
     assert terror_widgets([]) == []
     slot = HUD.slots['terror']
     assert slot.x > HUD.slots['assessment'].x + HUD.slots['assessment'].max_width  # never under an Alt+D card
+    assert slot.y <= 0.03  # at the top of the window (user, 2026-10-04)

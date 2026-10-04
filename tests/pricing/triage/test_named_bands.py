@@ -187,9 +187,12 @@ def test_named_fallback_bands_never_pool_socket_counts_or_contents():
             assert high['verdict'] == 'slow'
             assert high['band']['q1_ist'] == 10
             assert high['band']['sellers'] == 3
+            filled = assess(item | {'sockets': 3, 'socket_contents': 'filled'}, data)
+            assert filled['decision_ist'] == 10
             assert assess(item | {'sockets': 2}, data)['verdict'] == 'vendor'
-            for change in ({'sockets': None}, {'socket_contents': 'unknown'}):
-                assert assess(item | change, data)['band'] is None
+            assert assess(item | {'sockets': None}, data)['band'] is None
+            # Insert prices are excluded, so unknown contents cannot inflate this known count.
+            assert assess(item | {'socket_contents': 'unknown'}, data)['decision_ist'] == 0.1
 
 
 def test_named_fallback_cannot_pool_original_upgraded_or_unknown_bases():
@@ -212,3 +215,39 @@ def test_named_fallback_cannot_pool_original_upgraded_or_unknown_bases():
     for i, price in [(0, 0.1), (3, 10)]:
         assert assess(from_listing(rows[i]), tables)['band']['q1_ist'] == price
     assert assess(from_listing(rows[6]), tables)['verdict'] == 'check'
+
+
+def test_filled_unique_uses_bare_item_price_and_excludes_socketed_listing_premiums():
+    rows = [listing(i, 0.6, ethereal=False, sockets=0, socket_contents='empty') for i in range(10)]
+    rows += [listing(f'filled-{i}', 8, ethereal=False, sockets=1, socket_contents='filled') for i in range(10)]
+    item = {'category': 'uniques', 'name': 'Example', 'ethereal': False, 'sockets': 1, 'socket_contents': 'filled'}
+    result = assess(item, tables(rows))
+    assert result['decision_ist'] == 0.6
+    assert result['band']['sellers'] == 10
+    assert result['reference_band']['sellers'] == 10
+    assert item['sockets'] == 1
+    assert item['socket_contents'] == 'filled'
+    assert assess(item | {'ethereal': True}, tables(rows))['decision_ist'] is None
+    assert assess(item, tables(rows[10:]))['decision_ist'] is None
+
+
+def test_completed_runeword_still_prices_the_completed_socketed_item():
+    rows = [
+        listing(i, 8, ethereal=False, sockets=4, socket_contents='filled') | {'category': 'runewords'} for i in range(3)
+    ]
+    result = assess(
+        {'category': 'runewords', 'name': 'Example', 'ethereal': False, 'sockets': 4, 'socket_contents': 'filled'},
+        tables(rows),
+    )
+    assert result['decision_ist'] == 8
+
+
+def test_unpriced_empty_listing_cannot_replace_excluded_filled_ask():
+    rows = [listing('empty', None, ethereal=False, sockets=0, socket_contents='empty')]
+    rows += [listing(i, 8, ethereal=False, sockets=1, socket_contents='filled') for i in range(3)]
+    result = assess(
+        {'category': 'uniques', 'name': 'Example', 'ethereal': False, 'sockets': 1, 'socket_contents': 'filled'},
+        tables(rows),
+    )
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None

@@ -71,6 +71,11 @@ def main():
     rules = json.loads((ROOT / 'pricing/data/triage/rules.json').read_text())
     document = build_bands(rows, catalog, rules=rules['rows'], policies=rules.get('policies', []))
     document['base_socket_inferences'] = socket_inferences
+    from pricing.triage.demand import compile_demand
+
+    demand = json.loads((ROOT / 'pricing/data/appraisal-demand.json').read_text())['rows']
+    watches = json.loads((ROOT / 'pricing/data/appraisal-value-watch.json').read_text())['rows']
+    document['demand'] = compile_demand(demand, watches)
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
     reports = analyze(rows, definitions, metadata(), coarse=True)
     from pricing.triage.bands import latest_rows

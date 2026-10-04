@@ -20,7 +20,7 @@ def test_threshold_liquidity_staleness_and_own_use_are_separate():
         },
     }
     result = assess(item, tables, today=date(2026, 10, 3))
-    assert result['verdict'] == 'sell'
+    assert result['verdict'] == 'slow'  # Seller activity alone is not endgame demand.
     assert result['stale'] is True
     tables['bands']['uniques', 'example', 'name']['liquidity'] = 'thin'
     assert assess(item, tables)['verdict'] == 'slow'

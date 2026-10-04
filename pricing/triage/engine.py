@@ -251,6 +251,14 @@ def assess(item, tables, *, today=None):
         or (verdict == 'check' and category in NAMED and price is None and not patterns and comparison is None)
     ):
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
+    from pricing.triage.demand import demand_for
+
+    demand = demand_for(item, tables.get('demand', {}))
+    if verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
+        verdict = 'slow'
+        reason += '; no endgame demand evidence'
+    if own_use and verdict == 'slow':
+        verdict, reason = 'self', own_use.get('label', 'own-build rule')
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:
@@ -278,6 +286,7 @@ def assess(item, tables, *, today=None):
         'preparation': socket_preparation,
         'sale_mode': sale_mode,
         'own_use': own_use,
+        'demand': demand,
     }
 
 
@@ -304,6 +313,7 @@ class Tables:
                 'rules': rules,
                 'own': own,
                 'roll_models': bands.get('roll_models', []),
+                'demand': bands.get('demand', {}),
                 'base_socket_inferences': bands.get('base_socket_inferences', {}),
                 'rule_index': compile_index(rules['rows']),
                 'pattern_index': compile_index(rules['rows'], patterns=True),

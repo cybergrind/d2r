@@ -559,7 +559,27 @@ def test_triage_overrides_build_keep_and_uses_sell_colors():
     summary = item_summary(observation(), result)
     assert summary['verdict'] == 'slow'
     lines = result_lines({'state': 'complete', 'items': [summary], 'issues': []})
-    assert any('SELL (slow)' in line.text for line in lines)
+    assert any('1 slow' in line.text for line in lines)
     assert any(line.tone == Tone.TIER_MED for line in lines)
     result['triage']['verdict'] = 'vendor'
     assert verdict_for(result)[0] == 'vendor'
+
+
+def test_slow_items_are_one_count_line_and_do_not_push_out_priority_items():
+    slow = {
+        'verdict': 'slow',
+        'triage': {'decision_ist': 0.3},
+        'name': 'Slow item',
+        'stats': [],
+        'tone': 'unique',
+        'reason': 'asks',
+    }
+    items = [slow.copy() for _ in range(7)]
+    items[-1] = slow | {'triage': {'decision_ist': 0.8}}
+    items.append(slow | {'verdict': 'self', 'name': 'Own charm'})
+    result = {'state': 'complete', 'items': items, 'issues': []}
+    text = '\n'.join(line.text for line in result_lines(result))
+    assert '7 slow, cheapest asks 0.3-0.8 Ist' in text
+    assert 'Own charm' in text
+    assert 'Slow item' not in text
+    assert len(result['items']) == 8

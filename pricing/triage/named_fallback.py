@@ -41,7 +41,11 @@ def supported(band):
 
 def protects_variant(item, band, keep_ist):
     """A cheap pooled price cannot dispose of a known or possibly premium variant."""
-    if band['q1_ist'] >= keep_ist or (item.get('ethereal') is False and item.get('sockets') == 0):
+    if (
+        band['q1_ist'] is None
+        or band['q1_ist'] >= keep_ist
+        or (item.get('ethereal') is False and item.get('sockets') == 0)
+    ):
         return False
     for variant in band.get('variant_prices', []):
         if variant['q1_ist'] < keep_ist:

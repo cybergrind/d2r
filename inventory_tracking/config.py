@@ -346,8 +346,8 @@ class HudConfig(Config):
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
         # Valuable runes on the ground: under the guide card.
         'loot': HudSlot(x=0.03, y=0.34),
-        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, below the automap's area text.
-        'terror': HudSlot(x=0.78, y=0.25, max_width=0.2),
+        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04).
+        'terror': HudSlot(x=0.78, y=0.02, max_width=0.2),
     }
 
 

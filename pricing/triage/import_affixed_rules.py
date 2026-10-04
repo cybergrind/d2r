@@ -26,6 +26,9 @@ def resist(value):
 
 
 def magic_patterns(add):
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
+
     # Guide §8: Echoing throwing weapons are paid buff-switch items even
     # without a suffix. Plain Javelin tree skills are not the same use.
     for family in ('jave', 'tkni', 'taxe'):
@@ -93,6 +96,17 @@ def magic_patterns(add):
         "Jeweler's Monarch of Deflecting",
         {**stats(**{'446': 20, '449': 30}), 'conditions': {'sockets': 4, 'base_name': 'Monarch'}},
     )
+    add(
+        'ashd',
+        'magic',
+        "Jeweler's Sacred Targe of Deflecting",
+        {**stats(**{'446': 20, '449': 30}), 'conditions': {'sockets': 4, 'base_name': 'Sacred Targe'}},
+    )
+    elite_armor = sorted(
+        base['name']
+        for base in metadata()['bases'].values()
+        if base['type'] == 'tors' and base_tier(base['code']) == 'Elite'
+    )
     for prop, minimum, suffix in (('418', 90, 'Whale'), ('430', 24, 'Stability'), ('429', 10, 'Precision')):
         add(
             'tors',
@@ -102,7 +116,7 @@ def magic_patterns(add):
                 **stats(**{prop: minimum}),
                 'conditions': {
                     'sockets': 4,
-                    'base_name': {'in': ['Archon Plate', 'Dusk Shroud', 'Wire Fleece', 'Sacred Armor']},
+                    'base_name': {'in': elite_armor},
                 },
             },
         )

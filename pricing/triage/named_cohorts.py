@@ -42,6 +42,9 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
         if matches({'category': category, 'name': name}, {k: r[k] for k in ('category', 'name') if k in r})
         and r.get('bucket')
     ]
+    if category in ('uniques', 'sets'):
+        # Socket contents have their own value; they cannot price the bare item.
+        rows = [row for row in rows if row.get('socket_contents') != 'filled']
     prepared = [(row, from_listing(row)) for row in rows]
     bands = []
 
@@ -89,12 +92,20 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
 
 
 def lookup(item, reference):
+    filled = item.get('category') in ('uniques', 'sets') and item.get('socket_contents') == 'filled'
+    if filled:
+        # Native socket counts (for example Tomb Reaver) retain their empty-socket band.
+        bare_sockets = 0 if any(v['sockets'] == 0 for v in reference['variant_prices']) else item.get('sockets')
+        item = item | {'sockets': bare_sockets, 'socket_contents': 'empty'}
     tree = reference['named_cohorts']
     node = tree.get(token(item.get('ethereal')))
     if node is None:
         return None
     while 'children' in node:
         facet = node['facet']
+        if filled and facet == 'roll_bucket':
+            # Captured totals include inserts; do not buy a roll premium from them.
+            return node['band']
         observed = value(item, facet, reference['cohort_rules'])
         if observed is None or (facet == 'socket_variant' and any(v in (None, 'unknown') for v in observed)):
             return None

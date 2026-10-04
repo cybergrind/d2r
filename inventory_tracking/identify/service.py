@@ -221,7 +221,7 @@ VERDICT_ORDER = ('keep', 'check', 'vendor')
 
 
 def verdict_order(items):
-    return ('sell', 'slow', 'check', 'self', 'vendor') if any('triage' in i for i in items) else VERDICT_ORDER
+    return ('sell', 'self', 'check', 'slow', 'vendor') if any('triage' in i for i in items) else VERDICT_ORDER
 
 
 def counts(items) -> dict[str, int]:
@@ -238,7 +238,7 @@ def result_lines(result) -> list[StyledLine]:
     summary = ' · '.join(f'{tally[v]} {v}' for v in order)
     lines = [StyledLine(f'Identified {len(items)} — {summary}', tone)]
     # Only items with something particular get a row; vendor items are just counted.
-    shown = [i for i in items if i['verdict'] != 'vendor']
+    shown = [i for i in items if i['verdict'] not in ('vendor', 'slow')]
     for item in shown[:SHOWN_ITEMS]:
         stats = ' · '.join(item['stats']) or 'no decoded stats'
         lines.append(
@@ -249,6 +249,11 @@ def result_lines(result) -> list[StyledLine]:
         lines.append(
             StyledLine(f'       {item["reason"]}', (TONES if 'triage' in item else VERDICT_TONES)[item['verdict']])
         )
+    if slow := [i for i in items if i['verdict'] == 'slow']:
+        prices = [i.get('triage', {}).get('decision_ist') for i in slow]
+        prices = [p for p in prices if type(p) in (int, float)]
+        price_text = f', cheapest asks {min(prices):g}-{max(prices):g} Ist' if prices else ''
+        lines.append(StyledLine(f'{len(slow)} slow{price_text} · details: Alt+D', TONES['slow']))
     if len(shown) > SHOWN_ITEMS:
         lines.append(StyledLine(f'+{len(shown) - SHOWN_ITEMS} more; full list in identify-latest.json'))
     if result['issues']:
