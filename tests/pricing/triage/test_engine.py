@@ -187,10 +187,14 @@ def test_paid_base_bucket_retains_sparse_variant_evidence(sellers, price):
         'bands': {('base', 'example', key): band},
     }
     result = assess(item, tables)
-    assert result['band'] == band
     assert result['verdict'] == ('vendor' if price < 0.25 else 'slow' if sellers >= 3 else 'check')
     if price >= 0.25 and sellers < 3:
         assert 'fewer than three' in result['reason']
+        assert result['band'] is None
+        assert result['decision_ist'] is None
+        assert result['reference_band'] == band
+    else:
+        assert result['band'] == band
     # A sparse paid variant never lends its price to a different/unknown variant.
     for change in ({'sockets': None}, {'sockets': 0}, {'ethereal': False}):
         unmatched = assess(item | change, tables)

@@ -54,13 +54,17 @@ def compile_watches(rows):
             'bucket': details['watch_id'],
             'properties': properties,
             'labels': labels,
-            'premium': True,
+            'premium': details.get('guide_tier') in ('High', 'Very High'),
             'pattern_label': details['roll_bucket'] + ' pattern complete',
             'source': row['source'],
             'imported_watch': details['watch_id'],
         }
         if len(components) + resistance > 1:
             rule['pattern'] = {'properties': required}
+        elif not rule['premium']:
+            # A documented single-affix watch still warrants review at its
+            # stated roll, but neither its priority nor weaker rolls prove a sale.
+            rule['pattern'] = {'properties': properties}
         compiled.append(rule)
     return compiled
 

@@ -7,6 +7,7 @@ from inventory_tracking.items.combined_affix_ranges import combined_scalar_range
 from inventory_tracking.items.combined_charm_damage import CHARM_TYPES, combined_damage_ranges
 from inventory_tracking.items.identity import FLAGS_OFFSET, IDENTIFIED_FLAG, ITEM_DATA_SIZE, QUALITY_OFFSET
 from inventory_tracking.items.metadata import metadata
+from inventory_tracking.items.poison_ranges import poison_range
 
 
 PREFIX_OFFSET = 0x48
@@ -78,6 +79,7 @@ def resolve_affix_ranges(details, arrays, base):
     ranges.update(combined)
     return {
         'roll_ranges': ranges,
+        'poison_range': poison_range(entries, base, quality, metadata()),
         'native_affixes': {
             table: [entry['table_id'] for entry in entries if entry['affix_table'] == table]
             for table in ('prefix', 'suffix', 'auto')

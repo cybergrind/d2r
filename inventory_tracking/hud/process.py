@@ -7,6 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from inventory_tracking.common import LOG
+from inventory_tracking.hud.ground import ground_payload
 from inventory_tracking.hud.payloads import card_payload, guide_payload
 from inventory_tracking.hud.scene import Widget
 from inventory_tracking.osd.level_map import MapCard
@@ -26,12 +27,18 @@ def acquire_instance(scene_dir: Path):
 
 
 def guide_widgets(lines) -> list[Widget]:
-    """The level guide's display lines (styled rows + one MapCard) as the 'guide' slot widget."""
-    if not lines:
-        return []
+    """The level guide's display lines: the styled rows in the 'guide' slot, its MapCard as a map-only
+    guide widget in the 'map' slot (top centre, user 2026-10-04), and the card's marked dots as ground
+    marks over the game view (hud/ground.py)."""
     rows = [line for line in lines if isinstance(line, StyledLine)]
     card = next((line for line in lines if isinstance(line, MapCard)), None)
-    return [Widget('guide', 'guide', 'guide', guide_payload(rows, card))]
+    widgets = [Widget('guide', 'guide', 'guide', guide_payload(rows, None))] if rows else []
+    if card is None:
+        return widgets
+    # 'ground' sorts before the cards, so the marks are drawn under them.
+    marks = ground_payload(card)
+    ground = [Widget('ground', 'ground', 'ground', marks)] if marks else []
+    return ground + widgets + [Widget('map', 'guide', 'map', guide_payload([], card))]
 
 
 def card_widgets(lines, widget_id='card') -> list[Widget]:

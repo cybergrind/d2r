@@ -2,10 +2,15 @@
 
 import json
 
-from pricing.triage.named_cohorts import compile_named, token, value
+from pricing.triage.named_cohorts import compile_named, identity_facet, token, value
 
 
 def matches_cohort(item, report):
+    if facet := identity_facet(item):
+        identity = dict(report.get('coarse_facets', []))
+        observed = value(item, facet, [])
+        if observed is None or identity.get(facet) != observed:
+            return False
     if item.get('ethereal') is not report['ethereal']:
         return False
     if 'coarse_facets' in report:

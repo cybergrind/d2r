@@ -1,0 +1,2369 @@
+{
+  "groups": {
+    "table": {
+      "total": 503,
+      "evaluated": 223,
+      "passed": 223,
+      "accuracy": 0.4433399602385686
+    },
+    "worked": {
+      "total": 38,
+      "evaluated": 34,
+      "passed": 34,
+      "accuracy": 0.8947368421052632
+    },
+    "false_positive": {
+      "total": 15,
+      "evaluated": 15,
+      "passed": 15,
+      "accuracy": 1.0
+    }
+  },
+  "context": [
+    {
+      "id": "guides/warlock.html#s7:1",
+      "text": "Crafted fixed-mod ranges for Caster Belt (FCR) and Caster Boots (max mana) \u2014 from the Arreat Summit table; confirm on the first craft.",
+      "reason": "Explicitly unverified appendix; not an asserted item verdict"
+    },
+    {
+      "id": "guides/warlock.html#s7:2",
+      "text": "Whether Hell Anya sells daggers / grimoires after patch 3.1.2 (WP-C open question) \u2014 check her weapon tab once.",
+      "reason": "Explicitly unverified appendix; not an asserted item verdict"
+    },
+    {
+      "id": "guides/warlock.html#s7:3",
+      "text": "After importing the 2026-09-20 narrowing, verify plain Kris and the six generic armor bases are hidden, Superior/socketed/ethereal copies remain shown, and plain Flail remains shown. Check Tiara/Diadem bases are hidden while magic/rare copies remain visible; use Alt to compare.",
+      "reason": "Explicitly unverified appendix; not an asserted item verdict"
+    },
+    {
+      "id": "guides/warlock.html#s7:4",
+      "text": "Whether the Bases WEAPONS Gray rule (hiQuality + flag, no normal) hides a plain 0os Thresher yet still shows a non-eth socketed one \u2014 the \u201cnormal also matches gray\u201d behaviour is from forum posts, not tested here.",
+      "reason": "Explicitly unverified appendix; not an asserted item verdict"
+    },
+    {
+      "id": "guides/warlock.html#s7:5",
+      "text": "Exact mods of the merc helm runewords Cure (Shael-Io-Tal) and Bulwark (Shael-Io-Sol) \u2014 recipes from the d2runewizard index (pricing/raw/d2runes-index.html); the per-runeword pages are script-rendered and gave no text. Look up before spending the runes (\u00a70.1). Also whether a Holy Freeze merc's Meditation aura from Insight heals \u2014 assumed no.",
+      "reason": "Explicitly unverified appendix; not an asserted item verdict"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:1",
+      "text": "Bases \u2014 ground rule first, then per-base rules after pickup",
+      "reason": "Full-width bold table group heading; individual rules follow"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:14",
+      "text": "Blues and rares \u2014 pick up by colour + base, decide after identify",
+      "reason": "Full-width bold table group heading; individual rules follow"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:21",
+      "text": "Charms & jewels \u2014 pick up all, decide after identify",
+      "reason": "Full-width bold table group heading; individual rules follow"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:25",
+      "text": "Runes & gems",
+      "reason": "Full-width bold table group heading; individual rules follow"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:28",
+      "text": "Leave (ground) \u00b7 vendor (after pickup/ID)",
+      "reason": "Full-width bold table group heading; individual rules follow"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "guides/pricing.html#s2-gray:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gray:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gray:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gray:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-blue:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-blue:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-blue:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-blue:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-yellow:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-yellow:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-yellow:24",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gold:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gold:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s2-gold:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s3:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s6:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s7:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing.html#s8:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": "Guide gives three +1 staffmods without skill identities; do not invent exact skills."
+    },
+    {
+      "id": "guides/pricing.html#s8:17",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": "The local magicsuffix definition restricts of Thawing to armor/shields/boots/circlets/amulets/orbs, not gloves. Original title is inconsistent with the item definitions."
+    },
+    {
+      "id": "guides/pricing.html#s8:19",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": "Poison-length reduction and thorns values are unspecified; known gates can be tested but the full item remains untranscribed."
+    },
+    {
+      "id": "guides/pricing.html#s8:24",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": "Nova chance is given, but trigger event and skill level are unspecified; the full trigger remains untranscribed."
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:14",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:14",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:15",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:16",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:17",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:18",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:19",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:20",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:21",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:22",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:23",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:24",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:25",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:26",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2:27",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-3:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-3:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-3:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-3:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-4:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-4:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-4:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-1:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-1:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-1:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-2:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s3-2:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-1:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-1:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-1:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-2:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-2:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-3:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-4:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-4:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s4-4:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s5-2:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s5-2:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s5-2:14",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s5-2:15",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s5-2:16",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-1:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#s6-2:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d0:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d2:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d3:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d4:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d5:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d6:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pricing-primer.html#d7:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s0-1:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s1:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s2:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s2:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s2:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s2:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s2:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s3:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s4:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s5:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s5:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s5:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s5:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s5:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:1",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:14",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:15",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:16",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:17",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:18",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:19",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:20",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/warlock.html#s6:21",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:2",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:3",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:4",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:5",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:6",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:7",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:8",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:9",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:10",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:11",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:12",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:13",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:15",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:16",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:17",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:18",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:19",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:20",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:22",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:23",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:24",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:26",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:27",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:29",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:30",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:33",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:34",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:35",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:36",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:97",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:99",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:100",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:101",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:102",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:103",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:107",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:110",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:113",
+      "missing": [
+        "item",
+        "expected"
+      ],
+      "reason": null
+    }
+  ],
+  "failures": [],
+  "exact_verdict_score": {
+    "mode": "triage",
+    "labelled": 254,
+    "worth": 6,
+    "checks": 457,
+    "check_recall": 1.0,
+    "recall": 1.0,
+    "keeps": 0,
+    "precision": null,
+    "priced": 28,
+    "sell_band_coverage": null,
+    "confusion": {
+      "check\u2192check": 13,
+      "self\u2192self": 1,
+      "slow\u2192slow": 6,
+      "vendor\u2192vendor": 234
+    },
+    "missed": [],
+    "false_keeps": []
+  }
+}

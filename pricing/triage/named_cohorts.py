@@ -1,17 +1,65 @@
-"""Coarse-to-fine named bands: ethereal first, only useful supported splits thereafter."""
+"""Named bands: preserve exclusive identities, then apply supported roll splits."""
 
 import json
 from collections import defaultdict
+from functools import lru_cache
 
 from pricing.triage.cohort_splits import numeric_partition, worthwhile
 
 
 FACETS = ('socket_variant', 'base_code', 'roll_bucket')
+# Exclusive native choices in appraisal-definitions.json are identities, not
+# optional statistical roll splits. Unknown choices cannot use the pooled band.
+IDENTITY_FACETS = {
+    'hellfire torch': 'torch_class',
+    'wraithstep': 'wraithstep_tree',
+    'opalvein': 'opalvein_bonus',
+    "ormus' robes": 'ormus_skill',
+}
+IDENTITY_PROPERTIES = {
+    'torch_class': dict.fromkeys(('453', '514', '498', '442', '403', '488', '519', '1862'), 3),
+    'wraithstep_tree': dict.fromkeys(('1546', '1547', '1548'), 1),
+    'opalvein_bonus': dict.fromkeys(('1879', '510', '750', '747', '743', '783')),
+}
+
+
+@lru_cache(maxsize=1)
+def ormus_skills():
+    """Use the native random-skill interval, not all Sorceress skill properties."""
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+
+    definition = next(d for d in metadata()['identities']['unique'].values() if d['name'] == "Ormus' Robes")
+    game = definition['game_definition']
+    slot = next(i for i in range(1, 13) if game.get(f'prop{i}') == 'skill-rand')
+    projection = market_properties()
+    return {
+        projection[key]: game[f'par{slot}']
+        for skill in range(game[f'min{slot}'], game[f'max{slot}'] + 1)
+        if (key := f'107:{skill}') in projection
+    }
+
+
+def identity_facet(item):
+    if item.get('category') == 'uniques':
+        return IDENTITY_FACETS.get(str(item.get('name', '')).casefold())
+    return None
 
 
 def value(item, facet, rules):
     from pricing.triage.engine import matches
 
+    if facet in IDENTITY_PROPERTIES or facet == 'ormus_skill':
+        properties = item.get('properties', {})
+        choices = ormus_skills() if facet == 'ormus_skill' else IDENTITY_PROPERTIES[facet]
+        present = [p for p in choices if properties.get(p) not in (None, 0)]
+        if len(present) != 1:
+            return None
+        prop = present[0]
+        observed, exact = properties[prop], choices[prop]
+        if type(observed) not in (int, float) or observed <= 0 or (exact is not None and observed != exact):
+            return None
+        return prop
     if facet.startswith('property:'):
         return item.get('properties', {}).get(facet[9:])
     if facet.startswith('base_modifier:'):
@@ -45,6 +93,9 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
     if category in ('uniques', 'sets'):
         # Socket contents have their own value; they cannot price the bare item.
         rows = [row for row in rows if row.get('socket_contents') != 'filled']
+    identity = identity_facet({'category': category, 'name': name})
+    mandatory = (identity,) if identity else ()
+    facets = (*mandatory, *facets)
     prepared = [(row, from_listing(row)) for row in rows]
     bands = []
 
@@ -57,7 +108,7 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
             groups = defaultdict(list)
             for row, item in members:
                 groups[token(value(item, facet, rules))].append((row, item))
-            if not worthwhile([[r for r, _ in group] for group in groups.values()]):
+            if facet not in mandatory and not worthwhile([[r for r, _ in group] for group in groups.values()]):
                 split = (
                     numeric_partition(members, [value(item, facet, rules) for _, item in members])
                     if (facet.startswith(('property:', 'base_modifier:')))
@@ -88,10 +139,15 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
     fallback = compile_bands(category, name, 'name', rows, 1)
     summaries = fallback[0]['variant_prices'] if fallback else []
     reference.update(bucket=bucket, named_cohorts=tree, cohort_rules=rules, variant_prices=summaries)
+    if mandatory:
+        reference['required_identity'] = list(mandatory)
     return [reference, *bands]
 
 
 def lookup(item, reference):
+    identity = identity_facet(item)
+    if identity and reference.get('required_identity') != [identity]:
+        return None
     filled = item.get('category') in ('uniques', 'sets') and item.get('socket_contents') == 'filled'
     if filled:
         # Native socket counts (for example Tomb Reaver) retain their empty-socket band.
@@ -120,6 +176,8 @@ def lookup(item, reference):
             if not lower:
                 return None
             child = max(lower, key=lambda pair: pair[0])[1]
+        if child is None and facet in reference.get('required_identity', []):
+            return None
         if child is None:
             # Known but unlisted variant uses the supported parent approximation.
             return node['band']

@@ -204,12 +204,6 @@
                 "uui",
                 "utu",
                 "uar",
-                "lbt",
-                "xlb",
-                "ulb",
-                "vbl",
-                "zvb",
-                "uvc",
                 "ne1",
                 "ne5",
                 "nef",
@@ -268,6 +262,28 @@
                 "obe",
                 "obf",
                 "7ws"
+            ]
+        },
+        {
+            "name": "SHOW Craft Bases ARMOR",
+            "enabled": true,
+            "ruleType": "show",
+            "filterEtherealSocketed": false,
+            "equipmentRarity": [
+                "magic"
+            ],
+            "equipmentQuality": [
+                "normal",
+                "exceptional",
+                "elite"
+            ],
+            "equipmentItemCode": [
+                "lbt",
+                "xlb",
+                "ulb",
+                "vbl",
+                "zvb",
+                "uvc"
             ]
         },
         {

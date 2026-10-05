@@ -787,33 +787,33 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-04 — Steering 5 changes and local disagreement action implemented; live checks pending.
-- Offline family expansion stays closed. Future rule fixes come from saved disagreements/labels.
-- Demand union: 167 named items; 149 sub-1-Ist cohorts with ≥10 sellers lack evidence, listed
-  under sub_ist_without_demand in score-listings.json. They stay slow, never vendor for that reason.
-- Identify HUD groups slow into one count/price-range line; SELL/SELF-USE/CHECK retain item lines.
-- Own-use now precedes slow, but not liquid SELL. All three Gheed captures replay SELF-USE.
-- User go-ahead continued local feedback work: Alt+Shift+D flags the displayed Alt+D verdict.
-  Niri binding installed and validated; request --disagree routes through the existing socket.
-  Restart make serve, inspect via Alt+D, then Alt+Shift+D; confirmation uses a desktop notification.
-- Pending flags go to corpus/data/disagreements.json with capture ID, observation, triage,
-  timestamp and request source. Duplicate pending flags collapse; labels.json is never guessed.
-  No displayed item cannot flag an old result. Corpus merge retains flagged snapshots, and
-  replay puts pending disagreements first on label.html. No user feedback has been manufactured.
-- Corpus 839: 594 VENDOR, 127 slow, 67 CHECK, 40 SELL, 11 SELF-USE. One CHECK label.
-- Seller-weighted attention 70.05%, SELL/slow 63.07%; cheap SELL/slow 12.40%, cheap CHECK 20.93%.
-  Scores unchanged by feedback work; seven newly captured vendor items were merged.
-  SELF-USE is excluded from trade hits, explaining the earlier own-use precedence reduction.
-- 734 relevant tests pass; Ruff/diff checks and niri validation clean. Both score reports 28.81 s.
-- Preserved Rusthandle CHECK, socket-content price correction, commodity and routing behavior.
-- Live run 20261004T102533Z-884da476: eight items over five identify passes (2/1/2/1/2),
-  55.6–80.6 ms/pass; retrieval 1.8–2.6 ms/item, no assessment issues. Inventory/Cube verified.
-- Next (Steering 6 governs; nothing here waits for the user):
-  1. build the guide acceptance-case file from the guides and score it;
-  2. run the second page-0 pull (authorized) with `pricing/tools/market_pull.py`, compute turnover
-     per cohort, test whether the Traderie API returns buy-side listings;
-  3. apply the decision-5 rule to the 149 sub-1-Ist cohorts without demand evidence;
-  4. fix what guide cases and turnover expose.
-- The Alt+Shift+D flag exists and stays as an optional tool; it is never requested, and no step
-  depends on flags or labels. Live timing is read from logs of normal play.
-- No commits or cleanup performed.
+2026-10-04 — Steering 6 active; no user labels or requested live probes.
+- Decision 5 published: measured sub-1-Ist equipment without build use, turnover or buyers
+  is VENDOR; any demand keeps it slow. Green SELL needs demand. Missing measurement is not
+  inactivity. Own-use/commodities retained; sparse CHECK asks are reference only.
+- Demand union: 167 names, 1115 variant records (201 merc), 170 inserts, 114 watches.
+  Second pull completed 1402/1402. Turnover: 4543 cohorts, 10676 vanished IDs, 54 uncensored.
+  Buy-side: four Jah buyers / five listings; no further buy pulls authorized. Prior 181 SELL
+  cohorts show hints, 180 only censored absence; zero of 1620 VENDOR cohorts has strong
+  demand. Only ONE strong cohort (Jah). Page-zero disappearance is not a sale.
+- Guide: 38 worked (34 execute/pass), 15 false-positive (all execute/pass), 503 table/prose
+  candidates (223 execute/pass); 10 context rows retained, 284 candidates unresolved.
+  Ormus bands/models now preserve its exact legal +3 skill; unknown/ambiguous stays
+  CHECK unpriced. Native elemental range corrected to 10–15%; 18932 bands, 14997 priced.
+- Clean normal-labelled listings with 5–15 ED and at most one legal AR/durability bonus
+  infer superior quality, retaining reported labels and native qualityitems provenance.
+- Completed words: 16 roll models (84 total), separate base/ethereal/socket cohorts.
+  Spirit Monarch 25 FCR stays CHECK unpriced; 35 FCR uses matched asks. Bloodthief stays
+  CHECK reference-only; sparse base/charm CHECKs also no longer expose an item estimate.
+- Bonehew September 19 vendor claim corrected: October 4 non-eth Q1 0.29425 / 202
+  sellers clears 0.25; slow uses cohort fallback, not the rejected ED300 model.
+  Ravenlore -25 listings explicitly contain Fire Facets; native range is 10–20.
+  Removed contaminated bucket guidance; added native-roll cases. Four worked inputs remain incomplete.
+- Tests: 482 item/affix and 383 triage tests pass; Ruff/diff clean. Replay 51.25 s; warm median 0.39 ms.
+  Corpus 943: 700 VENDOR, 127 slow, 75 CHECK, 19 SELL, 22 SELF. Normal-play captures
+  continue; live Python adoption unverified. Two unsupported premium SELLs removed.
+- Seller-weighted attention 68.94%, SELL/slow 61.81%; cheap SELL/slow 9.76%, CHECK 17.68%.
+  Pindle September 18 floor rows corrected by October 4 scoped Q1 asks; 35 guide rows added.
+- Poison charm affix tiers/ranges now preserve duration; saved +25/5s capture replays as
+  suffix T2 (6–50, T1 50/6s); combined poison and mismatched-native guards tested.
+- Next: remaining Pindle/Anya rows and guide groups, four worked inputs. No commits/staging/cleanup.

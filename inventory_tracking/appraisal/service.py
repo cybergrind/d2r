@@ -71,7 +71,7 @@ from inventory_tracking.levels.dump import (
 )
 from inventory_tracking.levels.evidence import DEFAULT_EVIDENCE, EvidenceLog
 from inventory_tracking.levels.guide import LevelGuide
-from inventory_tracking.levels.memory import observe_walkable
+from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
@@ -520,6 +520,8 @@ def run_service(args, directory, report):
                             library=WallLibrary() if APPRAISAL.level_walls else None,
                             visited_rooms=zones.visited_rooms if zones is not None else None,
                             map_dots=zones.map_dots if zones is not None else None,
+                            observe_waypoints=observe_waypoints,
+                            pinned=APPRAISAL.level_guide_pinned,
                         )
                     runes = None
                     if args.rune_marks and args.osd:

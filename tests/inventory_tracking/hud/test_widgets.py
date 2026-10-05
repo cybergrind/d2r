@@ -117,3 +117,27 @@ def test_a_map_only_guide_card_has_no_box():
 
     surface.flush()
     assert surface.get_data()[3] == 0  # top-left corner: no card background or border
+
+
+def test_ground_marks_fill_the_game_window_and_stay_translucent():
+    from inventory_tracking.config import HudGroundConfig
+    from inventory_tracking.hud.ground import place_mark
+
+    config = HudGroundConfig()
+    payload = {'player': [10.0, 10.0], 'marks': [['leader', 11.0, 10.0], ['stairs', 90.0, 10.0]]}
+    widget = Widget('ground', 'ground', 'ground', payload)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 800, 450)
+
+    assert measure(widget, scale=1.0, limit=(800, 450)) == (800, 450)
+    draw_scene(cairo.Context(surface), [(widget, (0, 0, 800, 450))], scale=1.0)
+    surface.flush()
+
+    def alpha(x, y):
+        return surface.get_data()[round(y) * surface.get_stride() + round(x) * 4 + 3]
+
+    near_x, near_y, near_on_screen = place_mark(1, 0, 800, 450, config)
+    far_x, far_y, far_on_screen = place_mark(80, 0, 800, 450, config)
+    assert (near_on_screen, far_on_screen) == (True, False)
+    assert 0 < alpha(near_x, near_y) < 128  # the faint fill: the monster under it stays visible
+    assert 0 < alpha(far_x, far_y) < 255  # the edge dot
+    assert alpha(5, 5) == 0

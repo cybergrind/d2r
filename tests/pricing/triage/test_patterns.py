@@ -65,3 +65,36 @@ def test_imported_fine_life_acceptance_and_unrelated_stats():
     poison = {**item, 'properties': {'518': 175, '418': 17}}
     assert assess(poison, tables)['verdict'] == 'sell'
     assert assess({**item, 'properties': {'418': 17, 'duration': 6}}, tables)['verdict'] == 'vendor'
+
+
+def test_guide_priority_does_not_promote_unpriced_low_or_medium_charms_to_sell():
+    import json
+    from pathlib import Path
+
+    from pricing.triage.import_watches import compile_watches
+
+    rows = compile_watches(json.loads(Path('pricing/data/appraisal-value-watch.json').read_text())['rows'])
+    tables = {'rules': {'keep_ist': 0.25, 'rows': rows}, 'own': {'rows': []}, 'bands': {}}
+    for resistance in (3, 4):
+        for life in (0, 5):
+            properties = dict.fromkeys(('427', '428', '426', '401'), resistance)
+            if life:
+                properties['418'] = life
+            item = {'category': 'magic', 'name': 'Small Charm', 'properties': properties}
+            assert assess(item, tables)['verdict'] == 'check'
+    # An exact low-priority pattern may still sell when scoped asks support it.
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.bands import build_bands
+    from tests.pricing.triage.test_bands import listing
+
+    listings = []
+    for seller in range(4):
+        row = listing(seller, 0.5)
+        row.update(name='Small Charm', category='charms', rarity='magic')
+        row['properties'].update(dict.fromkeys(('427', '428', '426', '401'), 3))
+        listings.append(row)
+    document = build_bands(listings, [], rules=rows)
+    tables['bands'] = {(r['category'], r['name'].casefold(), r['bucket']): r for r in document['bands']}
+    item = from_listing(listings[0])
+    assert assess(item, tables)['verdict'] == 'slow'
+    assert assess({**item, 'properties': {'427': 3}}, tables)['verdict'] == 'vendor'

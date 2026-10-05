@@ -32,9 +32,12 @@ def test_ingestion_reads_catalog_once_per_batch_and_refreshes_next_batch(tmp_pat
         return original(path)
 
     monkeypatch.setattr(artifacts, '_read', read)
-    rows, _ = build.market_rows(tmp_path)
+    normalization_cache = {}
+    rows, _ = build.market_rows(tmp_path, normalization_cache=normalization_cache)
     assert len(reads) == 1
     assert rows == [{'catalog': '{"version": 1}'}] * 2
+    page = folder / '1-p0.json'
+    assert normalization_cache[page.resolve()] == (page.read_bytes(), rows)
     catalog.write_text('{"version": 2}')
     rows, _ = build.market_rows(tmp_path)
     assert len(reads) == 2

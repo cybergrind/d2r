@@ -360,6 +360,59 @@ def native_shield_rules():
     return rows, policies
 
 
+def guide_base_patterns():
+    """Keep explicit guide variants reviewable when their price cohort is absent.
+
+    These rows carry no price bucket: they cannot borrow the normal or perfect
+    superior band. Historical floor rows do not establish paid patterns.
+    """
+    from pricing.triage.guide_cases import base_table_examples, extract, item_from_spec
+
+    source = 'guides/pindle-anya.html'
+    rows = []
+    for case in extract((ROOT / source).read_text(), source):
+        examples = base_table_examples(case)
+        if not examples:
+            continue
+        items = [item_from_spec(example['spec']) for example in examples]
+        item = items[0]
+        eds = [entry['base_ed'] for entry in items]
+        conditions = {
+            'rarity': item['rarity'],
+            'ethereal': item['ethereal'],
+            'sockets': item['sockets'],
+            'empty_sockets': True,
+            'base_ed': {'min': min(eds), 'max': max(eds)},
+        }
+        properties = {key: value for key, value in item['properties'].items() if key not in {'425', '510'}}
+        rows.append(
+            {
+                'category': 'base',
+                'name': item['name'],
+                'conditions': conditions,
+                'properties': properties,
+                'pattern': {'conditions': conditions, 'properties': properties},
+                'pattern_label': 'Guide-listed runeword base',
+                'source': case['id'],
+                'imported_guide_base': True,
+            }
+        )
+        if item['rarity'] == 'normal' and item['sockets'] > 0:
+            # §9 says sub-perfect superior ED is a plain base, not a premium.
+            # Retain its paid pattern, but do not copy the plain base's price.
+            # Unsocketed bases are excluded: superior cannot use the cube recipe.
+            superior = conditions | {'rarity': 'superior', 'base_ed': {'min': 0, 'max': 14}}
+            rows.append(
+                rows[-1]
+                | {
+                    'conditions': superior,
+                    'pattern': {'conditions': superior, 'properties': properties},
+                    'sources': [case['id'], 'guides/pricing.html#s9'],
+                }
+            )
+    return rows
+
+
 def main():
     source = json.loads((ROOT / SOURCE).read_text())
     path = ROOT / 'pricing/data/triage/rules.json'
@@ -403,6 +456,7 @@ def main():
             r
             for r in document['rows']
             if not r.get('imported_market_base')
+            and not r.get('imported_guide_base')
             and not r.get('imported_native_base')
             and not r.get('imported_demand_base')
             and not r.get('imported_staffmod_base')
@@ -442,6 +496,7 @@ def main():
         excluded_words=STARTER_WORDS,
     )
     document['rows'].extend(market_rules)
+    document['rows'].extend(guide_base_patterns())
     names = {r['name'] for r in document['rows'] if r.get('category') == 'base' and r.get('name')}
     document['socket_caps'] = {
         r['name']: r['details']['larzuk_unknown_ilvl']['maximum_by_ilvl_bracket']

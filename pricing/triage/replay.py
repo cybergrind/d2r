@@ -5,7 +5,7 @@ import time
 from collections import Counter
 from statistics import median
 
-from inventory_tracking.corpus.build import DATA, RUNS, disagreements, label_page, merge, review_order
+from inventory_tracking.corpus.build import DATA, RUNS, merge
 from inventory_tracking.corpus.score import load, score
 from pricing.triage.adapters import from_drop, from_listing
 from pricing.triage.analyze_rolls import analyze
@@ -27,6 +27,7 @@ def listing_score(rows, tables):
     excluded = Counter()
     excluded_sellers = set()
     misses = MissCauses()
+    cohort_verdicts = {}
     for row in latest_rows(rows):
         price = row.get('ask_ist')
         if not eligible(row) or type(price) not in (int, float) or price <= 0:
@@ -74,7 +75,9 @@ def listing_score(rows, tables):
         if not row.get('seller_id'):
             missing_seller += 1
             continue
-        identity = str(row['seller_id']), cohort_key(item, result, cohort, tables)
+        market_cohort = cohort_key(item, result, cohort, tables)
+        cohort_verdicts.setdefault(market_cohort, set()).add(verdict)
+        identity = str(row['seller_id']), market_cohort
         rank = price, str(row['listing_id'])
         if identity not in sellers or rank < sellers[identity][0]:
             sellers[identity] = rank, observation, miss
@@ -86,6 +89,7 @@ def listing_score(rows, tables):
         'excluded_listings': dict(excluded),
         'excluded_distinct_sellers': len(excluded_sellers),
         'per_listing': summarize(observations),
+        'cohort_verdicts': {key: sorted(values) for key, values in sorted(cohort_verdicts.items())},
     }
 
 
@@ -166,7 +170,11 @@ def main():
         timings.append((time.perf_counter() - before) * 1000)
         item = row['observation']['item']
         results.append({'id': row['id'], 'name': item.get('name'), 'rarity': item.get('rarity'), **result})
-    summary = score(results, labels)
+    from pricing.triage.guide_cases import build_cases, evaluate
+
+    guide_score = evaluate(build_cases(), lambda item: assess(item, tables))
+    atomic_json(DATA / 'score-guides.json', guide_score)
+    summary = {'explicit_regressions': score(results, labels), 'guide_cases': guide_score['groups']}
     rarity_counts = {}
     for result in results:
         rarity_counts.setdefault(result.get('rarity', 'unknown'), Counter())[result['verdict']] += 1
@@ -183,17 +191,8 @@ def main():
     baseline = json.loads((DATA / 'score-legacy-baseline-20261003.json').read_text())
     comparison = compare_types(items, results, baseline['results'], keep_ist=tables['rules']['keep_ist'])
     atomic_json(DATA / 'score-triage.json', {'summary': summary, 'results': results, 'per_type': comparison})
-    old = {r['id']: r for r in baseline['results']}
-    disputes = sorted(
-        r['id']
-        for r in results
-        if r['verdict'] in ('check', 'sell')
-        or (r['verdict'] == 'vendor' and old.get(r['id'], {}).get('verdict') in ('keep', 'check'))
-    )
-    disputes = review_order(disputes, disagreements(DATA))
-    observations = {r['id']: r['observation'] for r in items}
-    (DATA / 'label.html').write_text(label_page(observations, disputes, labels=labels))
-    rows, _ = market_rows()
+    normalization_cache = {}
+    rows, _ = market_rows(normalization_cache=normalization_cache)
     listing = listing_score(rows, tables)
     from pricing.triage.demand import cohorts_without_demand
 
@@ -207,6 +206,12 @@ def main():
         'aggregate': validation_summary(models),
         'compiled_comparisons': len(tables.get('roll_models', [])),
     }
+    from pricing.triage.turnover import latest_report
+
+    listing['turnover'] = latest_report(tables, ROOT, normalization_cache=normalization_cache)
+    from pricing.triage.market_demand import agreement
+
+    listing['demand_agreement'] = agreement(listing['cohort_verdicts'], listing['turnover'])
     atomic_json(DATA / 'score-listings.json', listing)
     print(
         json.dumps(
@@ -215,7 +220,7 @@ def main():
                     'items': len(results),
                     'verdicts': dict(Counter(r['verdict'] for r in results)),
                     'bands': sum(r['band'] is not None and r['band']['median_ist'] is not None for r in results),
-                    'labels': summary,
+                    'summary': summary,
                 },
                 'listings': listing,
                 'per_type': comparison,

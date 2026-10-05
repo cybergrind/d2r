@@ -25,6 +25,7 @@ from inventory_tracking.native.layout import (
     ROOM2_NEAR_COUNT,
     ROOM2_NEXT,
     ROOM2_PRESET,
+    TILE_UNITS,
 )
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.unit_probe import ResearchReader
@@ -35,6 +36,9 @@ MAX_ROOMS = 1024
 MAX_NEAR = 16  # observed 5-9 (a 3x3 neighbourhood)
 MAX_LOADED = 64  # loaded Room1s: about 9-35 in the dumps
 MAX_SUBTILES = 400 * 400
+OBJECT_UNIT = 2
+# Waypoint object classes: every d2data objects.json row with OperateFn 23 (all named 'Waypoint'), by *ID.
+WAYPOINT_CLASSES = frozenset((119, 145, 156, 157, 237, 238, 288, 323, 324, 398, 402, 429, 494, 496, 511, 539))
 
 
 def pointer(read, address):
@@ -62,7 +66,7 @@ def player_room(read, table_address) -> tuple[Location, int] | None:
         except OSError, ValueError, struct.error:
             continue
         x, y = struct.unpack_from('<HxxH', path, 0x02)
-        found.add((Location(area, level, x, y), room1))
+        found.add((Location(area, level, x, y, unit['path_pointer']), room1))
     levels = {(loc.area_id, loc.level) for loc, _ in found}
     # Player-like units share the character's position; keep the first when they agree.
     return min(found, key=lambda item: (item[0].x, item[0].y)) if len(levels) == 1 else None
@@ -195,6 +199,39 @@ def observe_level(pid, images, capture, *, rooms=False) -> tuple[Location | None
     if identity(pid) != token:
         raise ValueError('Game process changed during the level read')
     return location, found
+
+
+def nearby_waypoints(read, table_address) -> list[tuple[float, float]]:
+    """Waypoint objects among the streamed object units (those near the player), in tiles.
+    Object positions are the static path x/y (+0x10/+0x14, confirmed for shrines, loot/ground.py)."""
+    heads = struct.unpack('<128Q', read(table_address + OBJECT_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, OBJECT_UNIT)['units']:
+        if unit['txt_id'] not in WAYPOINT_CLASSES or not unit['path_pointer']:
+            continue
+        try:
+            path = read(unit['path_pointer'], 0x18)
+        except OSError, ValueError:
+            continue
+        x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
+        found.append((x / TILE_UNITS, y / TILE_UNITS))
+    return found
+
+
+def observe_waypoints(pid, images, capture) -> list[tuple[float, float]]:
+    """Waypoints near the player, in tiles (read-only, bounded)."""
+    tables = {x['table_address'] for x in capture['unit_table_candidates']}
+    if len(tables) != 1:
+        raise ValueError('Expected one freshly scanned unit table address')
+    token = images['identity']
+    fd = os.open(f'/proc/{pid}/mem', os.O_RDONLY)
+    try:
+        found = nearby_waypoints(ResearchReader(fd, process_mappings(pid)).read, next(iter(tables)))
+    finally:
+        os.close(fd)
+    if identity(pid) != token:
+        raise ValueError('Game process changed during the waypoint read')
+    return found
 
 
 def observe_walkable(pid, images, capture) -> list[Walkable]:

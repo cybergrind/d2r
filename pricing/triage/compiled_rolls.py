@@ -29,18 +29,31 @@ def compile_model(report, rows, *, require_supported_split=False):
     if not cohort:
         return None
     deciding = report['deciding']
+    guided = {prop: spec for prop, spec in deciding.items() if 'guide_floor' in spec}
+    selected = {
+        prop: spec
+        for prop, spec in deciding.items()
+        if spec.get('sample_size', 0) >= 15 and spec.get('top_count', 0) / spec['sample_size'] >= 0.75
+    }
+    # Unlike a discovered selection signal, a declared guide floor has no
+    # statistical calibration of its own. Missing validation is not approval.
+    if guided and not report['validation'].get('use_roll_model'):
+        reference_only = True
     if reference_only:
         # Rejected predictions must not publish prices. A robust selection
         # signal still caps below-selected rolls at CHECK (Steering 4).
-        deciding = {
-            prop: spec
-            for prop, spec in deciding.items()
-            if spec.get('sample_size', 0) >= 15 and spec.get('top_count', 0) / spec['sample_size'] >= 0.75
-        }
+        deciding = guided | selected
     elif require_supported_split:
         from pricing.triage.cohort_splits import roll_split
 
-        deciding = {prop: spec for prop, spec in deciding.items() if roll_split(cohort, prop)}
+        supported = {prop: spec for prop, spec in deciding.items() if roll_split(cohort, prop)}
+        safeguards = guided | selected
+        if safeguards.keys() - supported.keys():
+            # A guide establishes relevant rolls, not a supported numerical split.
+            # Never silently omit one axis of its combination to publish a price.
+            deciding, reference_only = safeguards, True
+        else:
+            deciding = supported
     if not deciding:
         return None
     axes = {}
@@ -103,7 +116,7 @@ def lookup(item, models, *, keep_ist):
         if spec.get('base_code') and item.get('base_code') != spec['base_code']:
             return (
                 None
-                if reference_only
+                if reference_only and 'guide_floor' not in spec
                 else result | {'reason': 'unverified base for deciding roll: ' + spec.get('label', prop)}
             )
         value = item.get('properties', {}).get(prop)
@@ -114,11 +127,16 @@ def lookup(item, models, *, keep_ist):
         if not numeric(value) or not spec['min'] <= value <= spec['max']:
             return (
                 None
-                if reference_only
+                if reference_only and 'guide_floor' not in spec
                 else result | {'reason': 'unreadable or out-of-range deciding roll: ' + spec.get('label', prop)}
             )
         best = spec['min'] if spec.get('better') == 'lower' else spec['max']
-        if value != best:
+        floor = spec.get('guide_floor')
+        if floor is not None:
+            shortfall = value > floor if spec.get('better') == 'lower' else value < floor
+            if shortfall:
+                selected_shortfalls.append(f'{spec.get("label", prop)} {value:g}, guide trade threshold {floor:g}')
+        elif value != best:
             selected_shortfalls.append(
                 f'listed copies are mostly {best:g} {spec.get("label", prop)}; this has {value:g}'
             )
@@ -134,16 +152,17 @@ def lookup(item, models, *, keep_ist):
                 'reason': '; '.join(selected_shortfalls) + '; name band is reference only',
             }
         return None
+    if band is not None and band['sellers'] < 3:
+        return result | {
+            'comparison_band': band,
+            'reason': (
+                f'only {band["sellers"]} comparable-or-worse sellers for {comparison}; name band is reference only'
+            ),
+        }
     result.update(cell)
     if band is not None:
         price = band['q1_ist']
-        verdict = (
-            'check'
-            if band['sellers'] < 3
-            else 'vendor'
-            if price < keep_ist
-            else ('sell' if band['liquidity'] == 'liquid' else 'slow')
-        )
+        verdict = 'vendor' if price < keep_ist else ('sell' if band['liquidity'] == 'liquid' else 'slow')
         return result | {'verdict': verdict, 'reason': f'comparable-or-worse asks for {comparison}'}
     if ceiling is not None:
         return result | {

@@ -50,3 +50,13 @@ def test_slot_limit_is_the_room_left_in_the_game_window_capped_by_max_width():
 
     assert slot_limit(Slot(0.2, 0.25), rect) == (800, 600)
     assert slot_limit(Slot(0.2, 0.25, max_width=0.45), rect) == (450, 600)
+
+
+def test_a_centred_slot_puts_the_middle_of_its_widgets_on_its_x():
+    rect = GameRect(100, 200, 1000, 800)
+    slot = Slot(0.5, 0.02, centered=True)
+
+    [(_, box)] = place([Widget('a', 'k', 's', {})], {'a': (300, 200)}, {'s': slot}, rect)
+
+    assert box == (450, 216, 300, 200)
+    assert slot_limit(slot, rect) == (1000, 784)

@@ -61,8 +61,12 @@ def test_market_base_rejects_unknown_filled_affixed_or_conflicting_identity():
         {'amount': 2},
     ):
         assert not compile_rows([r | change for r in rows], utility)
-    for props in ({'520': 35, '511': 2}, {'510': 15}, {'937': 15}):
+    for props in ({'520': 35, '511': 2}, {'510': 16}, {'937': 15}):
         assert not compile_rows([r | {'properties': r['properties'] | props} for r in rows], utility)
+    inferred = compile_rows([r | {'properties': r['properties'] | {'510': 15}} for r in rows], utility)
+    assert len(inferred) == 1
+    assert inferred[0]['conditions']['rarity'] == 'superior'
+    assert inferred[0]['conditions']['base_ed_grade'] == 'perfect'
     armor = next(b for b in metadata()['bases'].values() if b['name'] == 'Archon Plate')
     conflicting = [r | {'base_code': armor['code']} for r in rows]
     armor_recipe = [
@@ -124,7 +128,9 @@ def test_two_seller_base_variant_is_check_with_reference_price_not_vendor_or_sel
     item = from_listing(rows[0])
     result = assess(item, tables)
     assert result['verdict'] == 'check'
-    assert result['band']['sellers'] == 2
+    assert result['band'] is None
+    assert result['decision_ist'] is None
+    assert result['reference_band']['sellers'] == 2
     assert result['liquidity'] == 'none'
     assert 'reference' in result['reason']
     for change in ({'sockets': 3}, {'ethereal': False}, {'base_modifiers': {'423': 3}}):

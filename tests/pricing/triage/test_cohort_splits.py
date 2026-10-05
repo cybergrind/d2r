@@ -90,3 +90,73 @@ def test_numeric_cohorts_can_retain_multiple_supported_price_steps():
         assert band['q1_ist'] == expected
         assert band['sellers'] == 3
     assert lookup({'ethereal': False, 'properties': {'roll': float('nan')}}, reference) is None
+
+
+def test_torch_class_is_an_identity_even_with_similar_prices_or_sparse_sellers():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.bands import build_bands
+    from pricing.triage.engine import assess
+    from pricing.triage.roll_cohorts import groups, matches_cohort
+
+    rows = []
+    for prop, price, count in [('514', 1, 3), ('442', 1.2, 3), ('1862', 50, 1)]:
+        for index in range(count):
+            row = listing(f'{prop}-{index}', price)
+            row.update(
+                name='Hellfire Torch', category='uniques', rarity='unique', socket_contents='empty', ethereal=False
+            )
+            row['properties'].update({prop: 3})
+            rows.append(row)
+    document = build_bands(rows, [])
+    tables = {
+        'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in document['bands']},
+        'rules': {'keep_ist': 0.25, 'rows': []},
+        'own': {'rows': []},
+    }
+    assert assess(from_listing(rows[0]), tables)['decision_ist'] == 1
+    assert assess(from_listing(rows[3]), tables)['decision_ist'] == 1.2
+    for props in ({'1862': 3}, {'453': 3}, {}, {'514': 3, '442': 3}):
+        result = assess(from_listing(rows[0] | {'properties': props}), tables)
+        assert result['verdict'] == 'check'
+        assert result['decision_ist'] is None
+    cohorts = groups(rows)
+    assert sorted(len(members) for _, members in cohorts) == [1, 3, 3]
+    for identity, members in cohorts:
+        assert all(matches_cohort(from_listing(row), identity) for row in members)
+        foreign = rows[3] if members[0]['properties'].get('514') == 3 else rows[0]
+        assert not matches_cohort(from_listing(foreign), identity)
+
+
+def test_exclusive_unique_bonuses_cannot_share_bands_or_roll_models():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.bands import build_bands
+    from pricing.triage.engine import assess
+    from pricing.triage.roll_cohorts import groups, matches_cohort
+
+    for name, left, right in (
+        ('Wraithstep', {'1546': 1}, {'1548': 1}),
+        ('Opalvein', {'1879': 3}, {'510': 20}),
+        ("Ormus' Robes", {'703': 3}, {'602': 3}),
+    ):
+        rows = []
+        for variant, price in ((left, 1), (right, 1.2)):
+            for i in range(3):
+                row = listing(f'{price}-{i}', price)
+                row.update(name=name, category='uniques', rarity='unique', ethereal=False, socket_contents='empty')
+                row['properties'].update(variant)
+                rows.append(row)
+        bands = build_bands(rows, [])['bands']
+        tables = {
+            'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands},
+            'rules': {'keep_ist': 0.25, 'rows': []},
+            'own': {'rows': []},
+        }
+        assert assess(from_listing(rows[0]), tables)['decision_ist'] == 1
+        assert assess(from_listing(rows[3]), tables)['decision_ist'] == 1.2
+        for properties in ({}, left | right):
+            result = assess(from_listing(rows[0] | {'properties': properties}), tables)
+            assert result['verdict'] == 'check'
+            assert result['decision_ist'] is None
+        cohorts = groups(rows)
+        assert sorted(len(members) for _, members in cohorts) == [3, 3]
+        assert not matches_cohort(from_listing(rows[0]), {'ethereal': False, 'coarse_facets': []})

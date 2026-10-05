@@ -70,6 +70,7 @@ class MapCard:
     room_kinds: tuple[str, ...] = ()  # per room: 'room' or 'edge' (outdoor level border); empty = all 'room'
     walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, '1'/'0' per tile
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
+    live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
 
     def to_payload(self) -> dict:
         return {
@@ -81,6 +82,7 @@ class MapCard:
                 'room_kinds': list(self.room_kinds),
                 'walkable': [list(grid) for grid in self.walkable],
                 'visited': list(self.visited),
+                'live': list(self.live) if self.live else None,
             }
         }
 
@@ -95,9 +97,11 @@ class MapCard:
             kinds = tuple(str(kind) for kind in data.get('room_kinds', ()))
             walkable = tuple((int(x), int(y), int(w), int(h), str(c)) for x, y, w, h, c in data.get('walkable', ()))
             visited = tuple(int(flag) for flag in data.get('visited', ()))
+            live = data.get('live')
+            live = (int(live[0]), int(live[1])) if live else None
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError('Invalid map payload') from exc
-        return cls(rooms, (px, py), pois, route, kinds, walkable, visited)
+        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live)
 
 
 def project(x: float, y: float) -> tuple[float, float]:

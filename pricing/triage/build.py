@@ -14,14 +14,14 @@ from pricing.triage.listing_defaults import normalize as listing_defaults
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def market_rows(root=ROOT):
+def market_rows(root=ROOT, *, normalization_cache=None):
     # Immutable bytes for this batch only: avoid re-reading and hashing the
     # same catalog for every listing while seeing changes on the next run.
     with artifact_snapshot([BASE_CATALOG]):
-        return _market_rows(root)
+        return _market_rows(root, normalization_cache=normalization_cache)
 
 
-def _market_rows(root):
+def _market_rows(root, *, normalization_cache=None):
     data = root / 'pricing/data'
     catalog = json.loads((data / 'appraisal-traderie-catalog.json').read_text())['items']
     by_id = {str(r['id']): r for r in catalog}
@@ -33,14 +33,16 @@ def _market_rows(root):
     if commodity.exists():
         rows.extend(json.loads(commodity.read_text())['rows'])
     for path in sorted((root / 'pricing/raw/traderie').glob('pull-*/*-p*.json')):
-        cached = json.loads(path.read_text())
+        raw_bytes = path.read_bytes()
+        cached = json.loads(raw_bytes)
         item = by_id.get(path.name.split('-p')[0])
         if not item:
             continue
+        page_rows = []
         for row in cached.get('listings', []):
             if str(row.get('item_id')) != str(item['id']):
                 continue
-            rows.append(
+            page_rows.append(
                 normalize_listing(
                     row,
                     name=item['name'],
@@ -50,6 +52,11 @@ def _market_rows(root):
                     currencies=currencies,
                 )
             )
+        rows.extend(page_rows)
+        if normalization_cache is not None:
+            # Replay-local reuse only. Original bytes detect concurrent collector
+            # updates; cache before gem/stock processing to preserve snapshot semantics.
+            normalization_cache[path.resolve()] = (raw_bytes, page_rows)
     from pricing.triage.currencies import apply_gem_quotes
     from pricing.triage.stock_evidence import restore
 
@@ -59,10 +66,11 @@ def _market_rows(root):
 def main():
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.refresh import atomic_json
-    from pricing.triage.analyze_rolls import analyze
+    from pricing.triage.analyze_rolls import analyze, guide_rolls
     from pricing.triage.compiled_rolls import compile_model
 
-    rows, catalog = market_rows()
+    normalization_cache = {}
+    rows, catalog = market_rows(normalization_cache=normalization_cache)
     from pricing.triage.base_socket_inference import apply, compile_inferences
 
     utility = json.loads((ROOT / 'pricing/data/appraisal-utility.json').read_text())['rows']
@@ -77,13 +85,21 @@ def main():
     watches = json.loads((ROOT / 'pricing/data/appraisal-value-watch.json').read_text())['rows']
     document['demand'] = compile_demand(demand, watches)
     definitions = json.loads((ROOT / 'pricing/data/appraisal-definitions.json').read_text())['rows']
-    reports = analyze(rows, definitions, metadata(), coarse=True)
+    guide_rules = guide_rolls((ROOT / 'guides/pricing.html').read_text(), 'guides/pricing.html#s8')
+    reports = analyze(rows, definitions, metadata(), coarse=True, guide_rules=guide_rules)
     from pricing.triage.bands import latest_rows
 
     unique_rows = latest_rows(rows)
     document['roll_models'] = [
         model for report in reports if (model := compile_model(report, unique_rows, require_supported_split=True))
     ]
+    from pricing.triage.engine import prepare_tables
+    from pricing.triage.market_demand import compile_evidence
+    from pricing.triage.turnover import latest_report
+
+    own = json.loads((ROOT / 'pricing/data/triage/own.json').read_text())
+    tables = prepare_tables(document, rules, own)
+    document['market_demand'] = compile_evidence(latest_report(tables, ROOT, normalization_cache=normalization_cache))
     output = ROOT / 'pricing/data/triage'
     output.mkdir(parents=True, exist_ok=True)
     atomic_json(output / 'bands.json', document)

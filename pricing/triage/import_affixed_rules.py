@@ -29,6 +29,22 @@ def magic_patterns(add):
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 
+    add(
+        'scha',
+        'magic',
+        'Small Charm: magic find',
+        stats(**{'461': 6}),
+        source='guides/pricing-primer.html §4.2 CH-sc-mf',
+    )
+    add(
+        'scha',
+        'magic',
+        'Fine Small Charm: maximum damage + attack rating',
+        stats(**{'448': 3, '423': 20}),
+        low_rolls={'448': {'min': 1}, '423': {'min': 1}},
+        source='guides/pricing-primer.html §4.2 CH-sc-dmg; PLAN §3.9',
+    )
+
     # Guide §8: Echoing throwing weapons are paid buff-switch items even
     # without a suffix. Plain Javelin tree skills are not the same use.
     for family in ('jave', 'tkni', 'taxe'):
@@ -81,8 +97,53 @@ def magic_patterns(add):
                 'independent_sellers': sellers,
             },
         )
+    # Explicit single-affix trade patterns in primer §3.2. These establish
+    # review thresholds only; compound jewel asks must not price a plain copy.
+    for prop, minimum, label in (
+        ('510', 30, 'enhanced damage'),
+        ('457', 15, 'increased attack speed'),
+        ('441', 10, 'all resistances'),
+    ):
+        add(
+            'jewl',
+            'magic',
+            f'Magic jewel: {label}',
+            stats(**{prop: minimum}),
+            source='guides/pricing-primer.html#s3-2 (JW-ed / JW-ias / JW-res)',
+        )
+    # An all-resistance prefix + Carnage suffix is a legal magic-jewel pair.
+    # Guide §2 blue / primer D-3 specify both modifiers; no scoped price is implied.
+    add(
+        'jewl',
+        'magic',
+        'Magic jewel: all resistances + maximum damage',
+        stats(**{'441': 8, '448': 10}),
+        low_rolls={'441': {'min': 1}, '448': {'min': 1}},
+        labels={'441': 'all resistances', '448': 'maximum damage'},
+        source='guides/pricing.html#s2-blue; guides/pricing-primer.html#d3',
+    )
     # At least 31 MF requires both the prefix and suffix on a magic ring.
     add('ring', 'magic', 'Fortuitous ring of Fortune: 31+ magic find', stats(**{'461': 31}))
+    for family, bases, sockets in (
+        ('tors', ['Archon Plate'], 4),
+        ('circ', ['Tiara', 'Diadem'], 3),
+    ):
+        add(
+            family,
+            'magic',
+            f'Magic socket base: {sockets} sockets; evaluate the suffix separately',
+            {'conditions': {'base_name': {'in': bases}, 'sockets': sockets}},
+            source='guides/pindle-anya.html#s5 (plain magic socket bases)',
+        )
+    add(
+        'circ',
+        'magic',
+        'Tiara: faster run/walk + all resistances',
+        {**stats(**{'480': 30, '441': 30}), 'conditions': {'base_name': 'Tiara'}},
+        low_rolls={'480': {'min': 1}, '441': {'min': 1}},
+        labels={'480': 'faster run/walk', '441': 'all resistances'},
+        source='guides/pindle-anya.html#s5 (30 FRW + 30 all resistances)',
+    )
     for prop, minimum, suffix in (('480', 30, 'Speed'), ('461', 26, 'Luck'), ('418', 81, 'Whale')):
         add(
             'circ',
@@ -90,6 +151,13 @@ def magic_patterns(add):
             f"Artisan's circlet of {suffix}",
             {**stats(**{prop: minimum}), 'conditions': {'sockets': 3, 'base_name': {'in': ['Tiara', 'Diadem']}}},
         )
+    add(
+        'shie',
+        'magic',
+        "Jeweler's Monarch: four sockets; evaluate the suffix separately",
+        {'conditions': {'sockets': 4, 'base_name': 'Monarch'}},
+        source='guides/pricing-primer.html#s3-3 (non-Deflecting four-socket Monarch)',
+    )
     add(
         'shie',
         'magic',
@@ -129,7 +197,9 @@ def physical_weapon_patterns(add):
     # Shared physical patterns supported by scoped 2026-10-03 asks. These
     # are review candidates, not sufficient evidence for a numerical price.
     sellers = {'swor': 8, 'axe': 8, 'mace': 5, 'club': 2, 'spea': 2, 'bow': 10, 'xbow': 3}
-    for family, count in sellers.items():
+    # Hammers are a separate native type within the guide's mace weapon class.
+    # Only the guide-backed Fool's combination is added for them, without a price.
+    for family, count in (sellers | {'hamm': None}).items():
         bases = sorted(
             b['name'] for b in metadata()['bases'].values() if b['type'] == family and base_tier(b['code']) == 'Elite'
         )
@@ -152,21 +222,22 @@ def physical_weapon_patterns(add):
                     ),
                 },
             )
-        add(
-            family,
-            'rare',
-            'Elite physical weapon: damage + speed' + ('' if ranged else ' + durability solution'),
-            {**stats(**{'510': 300, '457': 20 if ranged else 30}), 'conditions': conditions},
-            support,
-            source={
-                'path': 'pricing/raw/traderie/pull-20261003/',
-                'reviewed_at': '2026-10-03',
-                'scope': 'SC/NL/PC/RotW',
-                'kind': 'paid_pattern',
-                'independent_sellers': count,
-            },
-        )
-        if family in ('swor', 'axe', 'mace'):
+        if count is not None:
+            add(
+                family,
+                'rare',
+                'Elite physical weapon: damage + speed' + ('' if ranged else ' + durability solution'),
+                {**stats(**{'510': 300, '457': 20 if ranged else 30}), 'conditions': conditions},
+                support,
+                source={
+                    'path': 'pricing/raw/traderie/pull-20261003/',
+                    'reviewed_at': '2026-10-03',
+                    'scope': 'SC/NL/PC/RotW',
+                    'kind': 'paid_pattern',
+                    'independent_sellers': count,
+                },
+            )
+        if family in ('swor', 'axe', 'mace', 'hamm'):
             add(
                 family,
                 'rare',
@@ -181,8 +252,13 @@ def physical_weapon_patterns(add):
                     'reviewed_at': '2026-10-03',
                     'scope': 'SC/NL/PC/RotW',
                     'kind': 'paid_pattern',
-                    'independent_sellers': {'swor': 9, 'axe': 5, 'mace': 2}[family],
+                    'independent_sellers': {'swor': 9, 'axe': 5, 'mace': 2}.get(family),
                     'observed_ed_band': [200, 299],
+                }
+                if family != 'hamm'
+                else {
+                    'path': 'guides/pricing.html#s2-yellow',
+                    'kind': 'guide_pattern',
                 },
             )
 
@@ -325,19 +401,9 @@ def affixed_rules():
         add(
             'circ',
             'rare',
-            'Rare circlet: class skills + 20 FCR + two supporting affixes',
+            'Rare circlet: +2 class skills and 20 faster cast rate',
             stats(**{skill: 2, '520': 20}),
-            counted(
-                2,
-                stats(**{'480': 1}),
-                stats(**{'457': 1}),
-                {'conditions': {'sockets': {'min': 1}}},
-                resist(1),
-                stats(**{'418': 1}),
-                stats(**{'400': 1}),
-                stats(**{'437': 1}),
-                stats(**{'429': 1}),
-            ),
+            source='guides/pricing-primer.html#s3-3 (rare 2/20 circlets)',
         )
     for skill in ('454', '456', '410'):
         add(
@@ -353,9 +419,9 @@ def affixed_rules():
         add(
             'glov',
             'rare',
-            'Rare skill gloves + 20 IAS + two supporting affixes',
+            'Rare skill gloves: +2 skill tree and 20 increased attack speed',
             stats(**{skill: 2, '457': 20}),
-            counted(2, stats(**{'437': 1}), stats(**{'429': 1}), stats(**{'418': 1}), stats(**{'462': 1}), resist(1)),
+            source='guides/pricing-primer.html#s3-3 (rare 2/20 skill gloves)',
         )
     for rarity in ('rare', 'crafted'):
         source = (

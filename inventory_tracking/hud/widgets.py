@@ -17,10 +17,11 @@ gi.require_version('PangoCairo', '1.0')
 from gi.repository import Pango, PangoCairo  # ruff: ignore[module-import-not-at-top-of-file]
 
 from inventory_tracking.common import LOG  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.config import OSD  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.config import HUD, OSD  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.hud.ground import ground_marks, place_mark  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.osd.level_map import MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.osd.level_map import KIND_COLOURS, MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
 
 
@@ -145,7 +146,41 @@ class TextCard:
         PangoCairo.show_layout(cr, layout)
 
 
-RENDERERS = {'guide': GuideCard(), 'text': TextCard()}
+class GroundMarks:
+    """Translucent marks on the game view at map positions (hud/ground.py). In view: a floor
+    ellipse around the spot; beyond it: a small dot at the window edge, in the spot's direction."""
+
+    # Logical pixels; the radii are half the ellipse's width (a monster's is smaller than a way on).
+    RADIUS, LEADER_RADIUS, EDGE_RADIUS, LINE = 44, 30, 9, 3
+    FILL = 0.3  # of the outline's alpha
+
+    def measure(self, payload, scale, limit=None):
+        return limit or (0, 0)  # the whole game window; nothing without one
+
+    def draw(self, cr, width, height, payload, scale, config=None):
+        config = config or HUD.ground
+        (px, py), marks = ground_marks(payload)
+        for kind, x, y in marks:
+            colour = KIND_COLOURS.get(kind, KIND_COLOURS['target'])
+            sx, sy, on_screen = place_mark(x - px, y - py, width, height, config)
+            if not on_screen:
+                cr.arc(sx, sy, self.EDGE_RADIUS * scale, 0, 2 * math.pi)
+                cr.set_source_rgba(*colour, config.alpha)
+                cr.fill()
+                continue
+            cr.save()
+            cr.translate(sx, sy)
+            cr.scale(1, 0.5)  # a circle on the floor, seen isometrically
+            cr.arc(0, 0, (self.LEADER_RADIUS if kind == 'leader' else self.RADIUS) * scale, 0, 2 * math.pi)
+            cr.restore()
+            cr.set_source_rgba(*colour, config.alpha * self.FILL)
+            cr.fill_preserve()
+            cr.set_source_rgba(*colour, config.alpha)
+            cr.set_line_width(self.LINE * scale)
+            cr.stroke()
+
+
+RENDERERS = {'guide': GuideCard(), 'text': TextCard(), 'ground': GroundMarks()}
 
 
 def measure(widget, *, scale: float, limit: tuple[int, int] | None = None) -> tuple[int, int]:

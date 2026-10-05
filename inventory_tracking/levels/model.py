@@ -1,6 +1,6 @@
 """Level data the framework passes around: where the player is and the level's rooms."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -11,6 +11,8 @@ class Location:
     level: int
     x: int
     y: int
+    # Address of the player's dynamic path, where the HUD re-reads the position (hud/live.py); 0 = unknown.
+    path: int = field(default=0, compare=False)
 
 
 @dataclass(frozen=True)

@@ -41,9 +41,7 @@ def price_description(triage):
     comparison = f' · {triage["reason"]}' if triage.get('roll_comparison') else ''
     if label := band.get('comparison', {}).get('label'):
         comparison = f' · comparable-or-worse {label}'
-    unsupported = (
-        triage['verdict'] == 'vendor' and price >= triage.get('keep_ist', 0.25) and band.get('liquidity') == 'none'
-    )
+    unsupported = triage['verdict'] == 'vendor' and price >= triage.get('keep_ist', 0.25)
     prefix = f'{triage["reason"]} · reference ' if unsupported else ''
     sellers = band['sellers']
     seller_label = 'seller' if sellers == 1 else 'sellers'

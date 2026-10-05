@@ -29,7 +29,8 @@ with `with_overrides(model, **changes)`, which re-validates; invalid values rais
 
 Default appearance is one transparent line, 16px, centered 130 logical pixels
 above center. The window requests no keyboard interaction, an empty pointer input
-region and no reserved space. It is desktop-wide, without focus-based hiding.
+region and no reserved space. Like the HUD canvas, it is hidden while the game is
+not the focused window (demo previews show regardless).
 Empty alerts unmap the window; startup/stale/incomplete health and stock stay blank.
 
 ```sh

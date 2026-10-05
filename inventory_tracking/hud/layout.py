@@ -18,16 +18,20 @@ class GameRect:
 
 @dataclass(frozen=True)
 class Slot:
-    """Top-left of the slot's widget stack, as fractions of the game window (x from left, y from top)."""
+    """Top-left of the slot's widget stack, as fractions of the game window (x from left, y from top);
+    a centred slot's x is the middle of its widgets instead."""
 
     x: float
     y: float
     max_width: float = 1.0  # widest widget, as a fraction of the game window width
+    centered: bool = False
 
 
 def slot_limit(slot: Slot, rect: GameRect) -> tuple[int, int]:
-    """(width, height) a widget may take: the game window's room right of and below the slot."""
-    width = min(rect.width * (1 - slot.x), rect.width * slot.max_width)
+    """(width, height) a widget may take: the game window's room right of (or around, centred) and
+    below the slot."""
+    room = 2 * min(slot.x, 1 - slot.x) if slot.centered else 1 - slot.x
+    width = min(rect.width * room, rect.width * slot.max_width)
     return round(width), round(rect.height * (1 - slot.y))
 
 
@@ -54,7 +58,8 @@ def place(widgets, sizes, slots, rect: GameRect, *, gap: int = 8):
             continue
         width, height = sizes[widget.id]
         top = cursors.get(widget.slot, rect.y + slot.y * rect.height)
-        x = min(rect.x + slot.x * rect.width, rect.x + rect.width - width)
+        left = rect.x + slot.x * rect.width - (width / 2 if slot.centered else 0)
+        x = min(left, rect.x + rect.width - width)
         y = min(top, rect.y + rect.height - height)
         x, y = max(rect.x, round(x)), max(rect.y, round(y))
         boxes.append((widget, (x, y, width, height)))

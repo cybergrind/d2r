@@ -132,3 +132,38 @@ def test_normalized_empty_socket_marker_is_not_a_filled_socket():
 
     assert base_facets({}, 'normal', 4, 'empty')['empty_sockets'] is True
     assert base_facets({}, 'normal', 4, 'unknown')['empty_sockets'] is None
+
+
+def test_guide_base_pattern_keeps_unpriced_paid_variant_without_borrowing_price():
+    from pricing.triage.engine import assess
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    rows = guide_base_patterns()
+    tables = {'rules': {'rows': rows, 'keep_ist': 0.25, 'policies': []}, 'bands': {}, 'own': {'rows': []}}
+    spec = {'base': 'Archon Plate', 'rarity': 'superior', 'ethereal': False, 'sockets': 4, 'stats': {'16:0': 10}}
+    result = assess(item_from_spec(spec), tables)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    assert result['decision_ist'] is None
+    for changed in ({'sockets': 1}, {'rarity': 'rare'}):
+        assert assess(item_from_spec(spec | changed), tables)['verdict'] == 'vendor'
+    filled = item_from_spec(spec | {'socket_contents': ['rune']})
+    assert assess(filled, tables)['verdict'] == 'vendor'
+
+
+def test_supported_below_threshold_base_price_overrides_historical_guide_pattern():
+    from pricing.triage.engine import assess
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    item = item_from_spec(
+        {'base': 'Archon Plate', 'rarity': 'superior', 'ethereal': False, 'sockets': 4, 'stats': {'16:0': 10}}
+    )
+    band = {'q1_ist': 0.1, 'median_ist': 0.15, 'sellers': 3, 'liquidity': 'thin'}
+    tables = {
+        'rules': {'rows': guide_base_patterns(), 'keep_ist': 0.25, 'policies': []},
+        'bands': {('base', 'archon plate', 'name'): band},
+        'own': {'rows': []},
+    }
+    assert assess(item, tables)['verdict'] == 'vendor'

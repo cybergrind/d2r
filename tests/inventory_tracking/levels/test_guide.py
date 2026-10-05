@@ -501,3 +501,53 @@ def test_the_map_carries_live_dots_of_the_current_area():
 
     card = next(line for line in shown[-1] if isinstance(line, MapCard))
     assert card.pois[-1] == dot
+
+
+def test_a_waypoint_seen_near_the_player_moves_its_mark_from_the_room_centre_onto_the_object():
+    from inventory_tracking.levels.model import Poi, Room
+    from inventory_tracking.levels.spots import on_waypoint
+
+    room = Room(296, 4524, 1336, 12, 12)  # 'Act 1 - Catacombs Waypoint E', evidence 35/20261005T064253
+    waypoint, stairs = Poi('Waypoint', room, 'waypoint'), Poi('Next level', room, 'stairs')
+
+    assert on_waypoint(waypoint, [(10.0, 10.0), (4528.0, 1341.2)]).spot == (4528.0, 1341.2)
+    assert on_waypoint(waypoint, [(10.0, 10.0)]) is waypoint  # another room's waypoint: the centre stands
+    assert on_waypoint(stairs, [(4528.0, 1341.2)]) is stairs
+
+
+def test_the_guide_remembers_waypoints_for_the_level_and_survives_a_failed_read():
+    guide, shown, _ = make_guide([74, 74, 74])
+    reads = iter([[(1.0, 2.0)], [(3.0, 4.0)]])
+    guide.observe_waypoints = lambda pid, images, capture: next(reads)
+
+    guide.poll(1.0)
+    guide.poll(2.0)
+    assert guide.waypoints == {(1.0, 2.0), (3.0, 4.0)}
+
+    guide.poll(3.0)  # the iterator is exhausted: a failed read keeps the card and what was seen
+    guide.tick()
+    assert guide.waypoints == {(1.0, 2.0), (3.0, 4.0)}
+    assert shown[-1]
+
+
+def test_a_guide_started_pinned_shows_the_map_in_every_level_until_a_double_press():
+    from inventory_tracking.config import APPRAISAL
+
+    guide, shown, clock = make_guide([74, 74, 1, 1])
+    guide.pinned = APPRAISAL.level_guide_pinned  # what serve passes
+    assert guide.pinned
+
+    guide.poll(1.0)
+    clock.now += 60
+    guide.tick()
+    assert shown[-1]  # no expiry
+
+    guide.poll(2.0)
+    guide.poll(3.0)  # an unguided level (town): the map alone
+    guide.tick()
+    assert shown[-1]
+
+    guide.press(100.0)
+    guide.press(100.2)
+    assert not guide.pinned
+    assert shown[-1] == []

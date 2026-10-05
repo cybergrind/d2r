@@ -122,6 +122,8 @@ def class_rules():
             'Amazon + Javelin skills + attack speed',
             {'453': 2, '456': 3 if category == 'magic' else 2, '457': 40 if category == 'magic' else 30},
             bucket='amazon-class-javelin-speed' if category == 'magic' else None,
+            low_rolls={'453': 1} if category == 'magic' else None,
+            labels={'453': 'Amazon skills'},
         )
     for prefix in ({'519': 2}, {'408': 3}):
         add(
@@ -242,6 +244,7 @@ def class_rules():
     )
     for gate in ('441', '449'):
         supporting = [
+            {'properties': {'446': {'min': 20}}},
             {'properties': {'430': {'min': 1}}},
             {'properties': {'418': {'min': 1}}},
             {'conditions': {'sockets': {'min': 1}}},
@@ -259,6 +262,8 @@ def class_rules():
     # Guide class-prefix/staffmod shape, checked against scoped 2026-10-03
     # cached asks: rare Tornado/Armageddon 20/5 independent sellers; magic
     # Elemental Tornado/Armageddon 9/6, Shapeshifting Fire Claws 3, Summon Grizzly 5.
+    # October 4 recheck: rare +2 Druid/+3 Tornado has 3 life-only and
+    # 7 socket-only supporting seller patterns; two supports are not required.
     pelt_source = {
         'path': 'pricing/raw/traderie/pull-20261003/',
         'guide': 'guides/pricing.html#s2-yellow',
@@ -271,10 +276,10 @@ def class_rules():
         add(
             'pelt',
             'rare',
-            'Druid skills + paid spell + two supporting rolls',
+            'Druid skills + paid spell + supporting rolls',
             {'488': 2, spell: 3},
             support={
-                'count': 2,
+                'count': 1 if spell == '972' else 2,
                 'of': [
                     {'properties': {'430': {'min': 1}}},
                     {'properties': {'418': {'min': 1}}},

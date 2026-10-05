@@ -157,7 +157,6 @@ def test_paid_pelt_combinations_require_matching_skills_and_support():
     for properties in (
         {'488': 1, '972': 3, '418': 31},
         {'488': 2, '972': 0, '418': 31},
-        {'488': 2, '972': 3},
         {'488': 2, '1155': 3, '418': 31},
     ):
         assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
@@ -184,7 +183,7 @@ def test_pelt_near_miss_keeps_all_gates_and_names_the_low_skill_roll():
     assert result['verdict'] == 'check'
     assert 'Tornado 2 of 3' in result['reason']
     assert result['band'] is None
-    assert assess(item | {'sockets': 0}, tables)['verdict'] == 'vendor'
+    assert assess(item | {'sockets': 0}, tables)['verdict'] == 'check'
     magic = item | {'category': 'magic', 'properties': {'487': 3, '972': 1}}
     assert assess(magic, tables)['verdict'] == 'check'
     assert 'Tornado 1 of 3' in assess(magic, tables)['reason']
@@ -301,3 +300,37 @@ def test_fools_claw_pattern_separates_ethereal_preparation_from_caster_skills():
         assert verdict(family, props, 'magic', base_name=base, ethereal=False)['verdict'] == 'vendor'
     assert verdict('swor', props, 'rare', base_name='Runic Talons', ethereal=False)['verdict'] == 'vendor'
     assert verdict('h2h2', props, 'rare', base_name='Unknown', ethereal=True)['verdict'] == 'vendor'
+
+
+def test_guide_class_combinations_keep_single_support_pelts_and_blocking_shields():
+    from pricing.triage.engine import assess
+    from pricing.triage.import_class_rules import class_rules
+
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': class_rules()}, 'own': {'rows': []}}
+    pelt = {
+        'category': 'rare',
+        'family': 'pelt',
+        'base_name': 'Antlers',
+        'sockets': 0,
+        'properties': {'488': 2, '972': 3, '418': 30},
+    }
+    shield = {
+        'category': 'rare',
+        'family': 'ashd',
+        'base_name': 'Sacred Targe',
+        'sockets': 0,
+        'properties': {'442': 2, '441': 45, '449': 30, '446': 20},
+    }
+    for item in (pelt, shield):
+        result = assess(item, tables)
+        assert result['verdict'] == 'check'
+        assert result['decision_ist'] is None
+    assert assess(pelt | {'properties': {'488': 2, '972': 3}}, tables)['verdict'] == 'vendor'
+    assert assess(pelt | {'properties': {'488': 2, '972': 3}, 'sockets': 1}, tables)['verdict'] == 'check'
+    assert assess(shield | {'properties': {'442': 2, '441': 45, '449': 30, '446': 19}}, tables)['verdict'] == 'vendor'
+
+
+def test_magic_javelin_lower_class_roll_keeps_full_paid_pattern_for_review():
+    assert verdict('ajav', {'453': 1, '456': 3, '457': 40})['verdict'] == 'check'
+    assert verdict('ajav', {'456': 3, '457': 40})['verdict'] == 'vendor'
+    assert verdict('ajav', {'453': 1, '454': 3, '457': 40})['verdict'] == 'vendor'

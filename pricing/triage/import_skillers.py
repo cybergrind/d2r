@@ -1,4 +1,4 @@
-"""Import documented life-skiller patterns; old aggregate prices are not bands."""
+"""Import documented plain/life skiller patterns; historical prices are not bands."""
 
 import json
 import re
@@ -8,6 +8,20 @@ from pricing.triage.build import ROOT
 
 
 SOURCE = 'pricing/data/wp-h-jewels-charms.json'
+# Explicit paid plain variants in primer §4.1; not every listed tree qualifies.
+# In particular, WP-H's '-plain' buckets can contain gold-find/FHR suffixes.
+PAID_PLAIN = frozenset(
+    {
+        'CH-skiller-pala-combat',
+        'CH-skiller-sorc-lightning',
+        'CH-skiller-ama-javelin',
+        'CH-skiller-sorc-cold',
+        'CH-skiller-sorc-fire',
+        'CH-skiller-necro-pnb',
+        'CH-skiller-druid-elemental',
+        'CH-skiller-assa-martial-arts',
+    }
+)
 
 
 def compile_skillers(document):
@@ -33,6 +47,19 @@ def compile_skillers(document):
                 'imported_skiller': key,
             }
         )
+        if key in PAID_PLAIN:
+            rules.append(
+                {
+                    'category': 'magic',
+                    'name': 'Grand Charm',
+                    'properties': {match[1]: 1},
+                    'conditions': {'charm_suffix': {'in': [{}]}},
+                    'pattern': {'properties': {match[1]: 1}},
+                    'pattern_label': 'Documented plain skill-tree charm',
+                    'source': 'guides/pricing-primer.html#s4-1',
+                    'imported_skiller': key,
+                }
+            )
         if life.get('n_priced', 0) < 1:
             continue
         properties = {match[1]: 1, '418': {'min': 1, 'max': 45}}
@@ -63,7 +90,8 @@ def main():
         json.dumps(
             {
                 'skiller_rows': len(rules),
-                'life_patterns': sum('pattern' in r for r in rules),
+                'life_patterns': sum('418' in r.get('pattern', {}).get('properties', {}) for r in rules),
+                'plain_patterns': sum(r.get('pattern_label') == 'Documented plain skill-tree charm' for r in rules),
                 'historical_prices_imported': False,
             }
         )

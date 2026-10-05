@@ -153,6 +153,11 @@ def show(render, config=OSD, *, demo=False, marks=None):
             lines = render(now=time.monotonic())
             if demo:
                 lines.insert(0, 'PREVIEW')
+            elif lines:
+                # Like the HUD canvas: nothing over other windows while the game is not focused.
+                game_output()
+                if not game_output.focused:
+                    lines = []
             apply_display(window, label, lines)
             surface = window.get_surface()
             if surface is not None:

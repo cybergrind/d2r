@@ -176,7 +176,12 @@ def assess(item, tables, *, today=None):
         verdict, reason = 'sell', 'premium rule combination'
     elif price is not None and price >= tables['rules']['keep_ist'] and liquidity in ('liquid', 'thin'):
         verdict, reason = ('sell' if liquidity == 'liquid' else 'slow'), f'asks {price:g} Ist lower quartile'
-    elif category in NAMED and supported(band) and price is not None and price < tables['rules']['keep_ist']:
+    elif (
+        (category in NAMED or category == 'base')
+        and supported(band)
+        and price is not None
+        and price < tables['rules']['keep_ist']
+    ):
         verdict, reason = 'vendor', 'below keep price'
     elif patterns:
         verdict, reason = 'check', min((check_reason(item, r) for r in patterns), key=len)
@@ -254,21 +259,35 @@ def assess(item, tables, *, today=None):
     from pricing.triage.demand import demand_for
 
     demand = demand_for(item, tables.get('demand', {}))
-    if verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
+    market_demand = None
+    if tables.get('market_demand', {}).get('complete') and not fungible(item):
+        from pricing.triage.market_demand import lookup, qualify
+
+        market_demand = lookup(item, {'band': band, 'preparation': socket_preparation}, tables)
+        verdict, qualification = qualify(verdict, price, bool(demand), market_demand)
+        if qualification:
+            reason = qualification
+    elif verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
         verdict = 'slow'
         reason += '; no endgame demand evidence'
-    if own_use and verdict == 'slow':
+    if own_use and verdict in ('slow', 'vendor'):
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:
         stale = None
+    sparse_quote = verdict == 'check' and price is not None and not supported(band)
+    if sparse_quote:
+        # Sparse asks explain why an item needs review; they do not establish
+        # its price. Keep the actual matched quote, rather than a pooled name.
+        reference, band, price, liquidity = band, None, None, 'none'
     return {
         'verdict': verdict,
         'reason': reason,
         'band': band,
         'reference_band': reference
-        if category in NAMED
+        if sparse_quote
+        or category in NAMED
         or sale_mode
         or comparison is not None
         or category in ('magic', 'rare', 'crafted')
@@ -287,6 +306,7 @@ def assess(item, tables, *, today=None):
         'sale_mode': sale_mode,
         'own_use': own_use,
         'demand': demand,
+        'market_demand': market_demand,
     }
 
 
@@ -295,6 +315,22 @@ def revision(directory=DATA):
         (p.stat().st_mtime_ns, p.stat().st_size)
         for p in (Path(directory) / f'{name}.json' for name in ('bands', 'rules', 'own'))
     )
+
+
+def prepare_tables(bands, rules, own):
+    data = {
+        'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands['bands']},
+        'rules': rules,
+        'own': own,
+        'roll_models': bands.get('roll_models', []),
+        'demand': bands.get('demand', {}),
+        'market_demand': bands.get('market_demand', {}),
+        'base_socket_inferences': bands.get('base_socket_inferences', {}),
+        'rule_index': compile_index(rules['rows']),
+        'pattern_index': compile_index(rules['rows'], patterns=True),
+    }
+    data['commodity_lots'] = compile_lots(data['bands'], rules['keep_ist'])
+    return data
 
 
 class Tables:
@@ -308,16 +344,6 @@ class Tables:
         stamp = revision(self.directory)
         if stamp != self.stamp:
             bands, rules, own = [json.loads(p.read_text()) for p in paths]
-            self.data = {
-                'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands['bands']},
-                'rules': rules,
-                'own': own,
-                'roll_models': bands.get('roll_models', []),
-                'demand': bands.get('demand', {}),
-                'base_socket_inferences': bands.get('base_socket_inferences', {}),
-                'rule_index': compile_index(rules['rows']),
-                'pattern_index': compile_index(rules['rows'], patterns=True),
-            }
-            self.data['commodity_lots'] = compile_lots(self.data['bands'], rules['keep_ist'])
+            self.data = prepare_tables(bands, rules, own)
             self.stamp = stamp
         return self.data

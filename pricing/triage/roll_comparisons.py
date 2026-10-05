@@ -127,6 +127,9 @@ def leave_one_out(rows, deciding, *, ranges=None, minimum_sellers=15):
     for held in seller_rows(rows):
         training = [r for r in rows if str(r.get('seller_id')) != str(held['seller_id'])]
         selected = deciding_stats(training, ranges, minimum_sellers=minimum_sellers) if ranges is not None else deciding
+        # Guide-declared axes are independent of the held-out listing. Keep
+        # them when recomputing market-selected axes on the training sellers.
+        selected = selected | {prop: spec for prop, spec in deciding.items() if spec.get('guide_source')}
         if not selected:
             continue
         result = compare(held.get('properties', {}), training, selected, keep_ist=0)

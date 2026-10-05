@@ -32,8 +32,9 @@ def test_compiled_comparisons_keep_sparse_rolls_check_and_below_listed_rolls_ven
     }
     result = lookup(item, [model], keep_ist=0.25)
     assert result['verdict'] == 'check'
-    assert result['band']['q1_ist'] == 0.2
-    assert result['band']['sellers'] == 1
+    assert result['comparison_band']['q1_ist'] == 0.2
+    assert result['comparison_band']['sellers'] == 1
+    assert result['band'] is None
     result = lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25)
     assert result['verdict'] == 'vendor'
     assert result['band'] is None
@@ -90,7 +91,7 @@ def test_model_overrides_name_price_and_report_names_the_comparison():
     }
     result = assess(item, tables)
     assert result['verdict'] == 'check'
-    assert result['decision_ist'] == 0.2
+    assert result['decision_ist'] is None
     assert 'Skill 2' in headline(result)
     assert 'comparable-or-worse' in headline(result)
 
@@ -193,8 +194,9 @@ def test_captured_deciding_skill_uses_native_identity_without_market_mapping():
     report = MODEL | {'sockets': 0, 'deciding': {'skill': MODEL['deciding']['skill'] | {'native_key': '107:111'}}}
     model = compile_model(report, rows)
     result = lookup(item, [model], keep_ist=0.25)
-    assert result['band']['sellers'] == 1
-    assert result['band']['q1_ist'] == 0.2
+    assert result['comparison_band']['sellers'] == 1
+    assert result['band'] is None
+    assert result['comparison_band']['q1_ist'] == 0.2
     assert 'Skill 2' in result['reason']
     # An all-class skill is a different stat, even with the same skill parameter.
     observation['decoded_stats'][0]['memory_stat']['id'] = 97
@@ -229,7 +231,8 @@ def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
         coarse=True,
     )
     assert len(reports) == 1
-    assert compile_model(reports[0], rows, require_supported_split=True) is None
+    guard = compile_model(reports[0], rows, require_supported_split=True)
+    assert guard['reference_only'] is True
     # Offline diagnostic comparisons remain available, but cannot set a live price.
     models = [compile_model(reports[0], rows)]
     item = {
@@ -243,8 +246,11 @@ def test_coarse_roll_model_pools_bases_but_requires_supported_price_splits():
     }
     result = lookup(item, models, keep_ist=0.25)
     assert result['verdict'] == 'check'
-    assert result['band']['sellers'] == 2
-    assert abs(result['band']['q1_ist'] - 0.34725) < 1e-9
+    assert result['comparison_band']['sellers'] == 2
+    assert abs(result['comparison_band']['q1_ist'] - 0.34725) < 1e-9
+    guarded = lookup(item, [guard], keep_ist=0.25)
+    assert guarded['verdict'] == 'check'
+    assert guarded['band'] is None
     assert lookup(item | {'ethereal': True}, models, keep_ist=0.25) is None
 
 
@@ -318,3 +324,119 @@ def test_failed_validation_keeps_sparse_deciding_roll_check_with_reference_only(
     # A sparse draft without a robust selection signal cannot create this guard.
     weak = report | {'deciding': {'skill': MODEL['deciding']['skill'] | {'sample_size': 2, 'top_count': 2}}}
     assert compile_model(weak, rows, require_supported_split=True) is None
+
+
+def test_guide_deciding_rolls_survive_unsupported_price_split_without_inventing_price():
+    from pricing.triage.analyze_rolls import analyze, guide_rolls
+
+    html = """<tr data-roll-name="Example" data-roll-ethereal="false"
+        data-roll-floors='{"skill": 2, "leech": 10}'><td>Guide thresholds</td></tr>"""
+    rules = guide_rolls(html, 'guide.html#worked')
+    rows = cohort()
+    for i, row in enumerate(rows):
+        row['properties']['leech'] = 8 if i == 0 else 12
+    definitions = [
+        {
+            'name': 'Example',
+            'roll_ranges': {
+                '1': {'min': 1, 'max': 3, 'better': 'higher', 'property': 'Skill'},
+                '2': {'min': 8, 'max': 12, 'better': 'higher', 'property': 'Leech'},
+            },
+        }
+    ]
+    game = {'stats': {'1': {'property_id': 'skill'}, '2': {'property_id': 'leech'}}, 'skills': {}}
+    report = analyze(rows, definitions, game, coarse=True, guide_rules=rules)[0]
+    model = compile_model(report, rows, require_supported_split=True)
+    assert model is not None
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'properties': {'skill': 2, 'leech': 9},
+    }
+    result = lookup(item, [model], keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    assert result['upper_bound_ist'] is None
+    assert result['reference_band']['sellers'] == 4
+    assert 'guide' in result['reason']
+    assert 'mostly' not in result['reason']
+    # The guide floor is not the native maximum; reaching it removes this cap.
+    assert lookup(item | {'properties': {'skill': 2, 'leech': 10}}, [model], keep_ist=0.25) is None
+    assert lookup(item | {'ethereal': True}, [model], keep_ist=0.25) is None
+    # Missing deciding data cannot silently restore a name-level estimate.
+    assert lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25)['verdict'] == 'check'
+
+
+def test_guide_price_requires_held_out_support_even_when_each_split_has_sellers():
+    rows = cohort()
+    rows += [rows[0] | {'seller_id': f'low-{i}', 'listing_id': f'low-{i}'} for i in range(2)]
+    report = MODEL | {
+        'deciding': {'skill': MODEL['deciding']['skill'] | {'guide_floor': 3, 'guide_source': 'guide.html'}},
+        'validation': {'evaluated': 0, 'use_roll_model': False, 'roll_median_error': None, 'name_median_error': None},
+    }
+    model = compile_model(report, rows, require_supported_split=True)
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'properties': {'skill': 2},
+    }
+    result = lookup(item, [model], keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    assert result['upper_bound_ist'] is None
+
+
+def test_held_out_validation_keeps_independently_declared_guide_axes():
+    from pricing.triage.roll_comparisons import leave_one_out
+
+    spec = MODEL['deciding']['skill'] | {'guide_source': 'guide.html', 'guide_floor': 3}
+    rows = cohort()
+    # Too few training sellers to discover an axis; the guide supplied it before
+    # any seller was held out. Both predictors must still be scored.
+    result = leave_one_out(rows, {'skill': spec}, ranges={'skill': spec})
+    assert result['evaluated'] > 0
+    assert result['roll_median_error'] is not None
+    assert result['name_median_error'] is not None
+
+
+def test_completed_runewords_calibrate_filled_recipe_sockets_without_mixing_bases():
+    from pricing.triage.analyze_rolls import analyze
+
+    rows = []
+    for base, price in (('shield', 1), ('sword', 10)):
+        for i in range(20):
+            row = listing(f'{base}-{i}', price, ethereal=False, socket_contents='filled', sockets=4, base_code=base)
+            row['category'] = 'runewords'
+            row['properties']['cast'] = 25 if i == 0 else 35
+            rows.append(row)
+    definition = {
+        'name': 'Example',
+        'roll_ranges': {
+            '105': {'min': 25, 'max': 35, 'better': 'higher', 'property': 'cast3'},
+        },
+    }
+    reports = analyze(rows, [definition], {'stats': {'105': {'property_id': 'cast'}}, 'skills': {}}, coarse=True)
+    assert len(reports) == 2
+    assert {r['base_code'] for r in reports} == {'shield', 'sword'}
+    models = [compile_model(r, rows, require_supported_split=True) for r in reports]
+    assert all(models)
+    item = {
+        'category': 'runewords',
+        'name': 'Example',
+        'base_code': 'shield',
+        'ethereal': False,
+        'sockets': 4,
+        'socket_contents': 'filled',
+        'properties': {'cast': 25},
+    }
+    result = lookup(item, models, keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['band'] is None
+    assert result['reference_band']['q1_ist'] == 1
+    assert lookup(item | {'base_code': 'sword'}, models, keep_ist=0.25)['reference_band']['q1_ist'] == 10
+    for changes in ({'base_code': None}, {'ethereal': True}, {'sockets': 3}, {'socket_contents': 'empty'}):
+        assert lookup(item | changes, models, keep_ist=0.25) is None

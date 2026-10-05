@@ -2,7 +2,7 @@
 
 from inventory_tracking.config import HUD
 from inventory_tracking.hud.process import acquire_instance, card_widgets, guide_widgets, terror_widgets
-from inventory_tracking.osd.level_map import MapCard
+from inventory_tracking.osd.level_map import MapCard, MapPoi
 from inventory_tracking.presentation import StyledLine
 
 
@@ -12,15 +12,36 @@ def test_guide_slot_is_a_game_window_fraction():
     assert 0 <= slot.y < 0.5
 
 
-def test_display_lines_become_one_guide_widget_and_nothing_when_hidden():
+def test_display_lines_become_a_guide_widget_and_a_map_widget_and_nothing_when_hidden():
     card = MapCard(((0, 0, 8, 8),), (4.0, 4.0))
     line = StyledLine('↗  Summoner: north', arrow='↗')
 
-    [widget] = guide_widgets([line, card])
+    guide, level_map = guide_widgets([line, card])
 
-    assert (widget.id, widget.kind, widget.slot) == ('guide', 'guide', 'guide')
-    assert widget.payload == {'lines': [line.to_payload()], 'map': card.to_payload()}
+    assert (guide.id, guide.kind, guide.slot) == ('guide', 'guide', 'guide')
+    assert guide.payload == {'lines': [line.to_payload()], 'map': None}
+    assert (level_map.id, level_map.kind, level_map.slot) == ('map', 'guide', 'map')
+    assert level_map.payload == {'lines': [], 'map': card.to_payload()}
+    assert [widget.id for widget in guide_widgets([line])] == ['guide']
+    assert [widget.id for widget in guide_widgets([card])] == ['map']
     assert guide_widgets([]) == []
+
+
+def test_marked_map_dots_also_become_ground_marks_over_the_whole_game_window():
+    card = MapCard(((0, 0, 8, 8),), (4.0, 4.0), (MapPoi('unique', 'leader', 2.0, 3.0),))
+
+    ground, level_map = guide_widgets([card])
+
+    assert (ground.id, ground.kind, ground.slot) == ('ground', 'ground', 'ground')
+    assert ground.payload == {'player': [4.0, 4.0], 'marks': [['leader', 2.0, 3.0]], 'live': None}
+    assert level_map.id == 'map'
+    assert (HUD.slots['ground'].x, HUD.slots['ground'].y) == (0, 0)
+
+
+def test_map_slot_is_centred_at_the_top_of_the_window():
+    slot = HUD.slots['map']  # user, 2026-10-04
+    assert (slot.x, slot.centered) == (0.5, True)
+    assert slot.y <= 0.03
 
 
 def test_only_one_canvas_runs_per_scene_directory(tmp_path):

@@ -59,10 +59,26 @@ def ranges_for(definition, rows, game):
     return ranges, missing
 
 
-def analyze(rows, definitions, game, *, coarse=False):
+def guide_rolls(html, source):
+    """Read explicit deciding-roll annotations beside their human-readable evidence."""
+    from pricing.triage.guide_cases import Document
+
+    return [
+        {
+            'name': node.attrs['data-roll-name'],
+            'ethereal': json.loads(node.attrs['data-roll-ethereal']),
+            'floors': json.loads(node.attrs['data-roll-floors']),
+            'source': source,
+        }
+        for node in Document(html).root.walk()
+        if 'data-roll-floors' in node.attrs
+    ]
+
+
+def analyze(rows, definitions, game, *, coarse=False, guide_rules=()):
     groups = defaultdict(list)
     for row in latest_rows(rows):
-        if eligible(row) and row['category'] in ('uniques', 'sets'):
+        if eligible(row) and row['category'] in ('uniques', 'sets', 'runewords'):
             groups[row['name'].casefold()].append(row | {'properties': expanded_properties(row.get('properties', {}))})
     reports = []
     for definition in definitions:
@@ -73,8 +89,10 @@ def analyze(rows, definitions, game, *, coarse=False):
         # Never calibrate an ethereal/non-ethereal mixture. Unknown remains its
         # own research group and cannot price a known non-ethereal drop.
         cohorts = defaultdict(list)
+        runeword = members[0]['category'] == 'runewords'
         for row in members:
-            if row['amount'] == 1 and row.get('socket_contents') in ('empty', 'unknown', None):
+            allowed_contents = ('filled',) if runeword else ('empty', 'unknown', None)
+            if row['amount'] == 1 and row.get('socket_contents') in allowed_contents:
                 cohorts[
                     row.get('ethereal'), row.get('socket_contents'), row.get('sockets'), row.get('base_code')
                 ].append(row)
@@ -82,14 +100,18 @@ def analyze(rows, definitions, game, *, coarse=False):
             ({'ethereal': e, 'socket_contents': c, 'sockets': s, 'base_code': b}, group)
             for (e, c, s, b), group in cohorts.items()
         ]
-        if coarse:
+        # Recipe sockets are intrinsic to a completed word. Keep its actual
+        # base and count: a sword cannot calibrate a shield's roll price.
+        from pricing.triage.named_cohorts import identity_facet
+
+        if (coarse or identity_facet(members[0])) and not runeword:
             from pricing.triage.roll_cohorts import groups as coarse_groups
 
             grouped = coarse_groups([row for group in cohorts.values() for row in group])
         for identity, cohort in grouped:
             ethereal = identity['ethereal']
             contents = identity.get('socket_contents')
-            if coarse and all(r.get('socket_contents') == 'empty' for r in cohort):
+            if 'coarse_facets' in identity and all(r.get('socket_contents') == 'empty' for r in cohort):
                 contents = 'empty'
 
             cohort_ranges = dict(ranges)
@@ -113,6 +135,17 @@ def analyze(rows, definitions, game, *, coarse=False):
             if not cohort or not cohort_ranges:
                 continue
             deciding = deciding_stats(cohort, cohort_ranges, minimum_sellers=1)
+            for rule in guide_rules:
+                if rule['name'].casefold() != definition['name'].casefold() or rule['ethereal'] is not ethereal:
+                    continue
+                for prop, floor in rule['floors'].items():
+                    spec = cohort_ranges.get(prop)
+                    if spec is None or not spec['min'] <= floor <= spec['max']:
+                        raise ValueError(f'Invalid guide deciding roll: {rule["name"]} / {prop}')
+                    deciding[prop] = deciding.get(prop, spec) | {
+                        'guide_floor': floor,
+                        'guide_source': rule['source'],
+                    }
             reports.append(
                 {
                     'name': definition['name'],

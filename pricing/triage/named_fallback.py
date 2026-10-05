@@ -76,6 +76,12 @@ def missing_dependent_facet(item, band):
 
 
 def lookup(item, tables, candidates, *, allow_name):
+    from pricing.triage.named_cohorts import identity_facet
+
+    # Legacy pooled fallbacks cannot establish an exclusive variant identity.
+    # Absent/sparse variants remain unpriced CHECKs.
+    if identity_facet(item):
+        return None
     if item.get('category') not in NAMED:
         return None
     category, name = item['category'], item['name'].casefold()

@@ -182,3 +182,49 @@ def test_verified_code_distinguishes_duplicate_native_base_names():
     for base in bases:
         row = listing('seller', 1) | {'category': 'base', 'name': base['name'], 'base_code': base['code']}
         assert from_listing(row)['family'] == base['type']
+
+
+@pytest.mark.parametrize(('name', 'prop'), [('Archon Plate', '425'), ('Giant Thresher', '510')])
+def test_plain_listing_with_superior_ed_is_not_priced_as_normal(name, prop):
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.listing_defaults import normalize
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == name)
+    row = listing('seller', 1) | {
+        'category': 'base',
+        'name': name,
+        'base_code': base['code'],
+        'rarity': 'normal',
+        'sockets': 4,
+        'socket_contents': 'empty',
+    }
+    row['properties'][prop] = 13
+    result = normalize(row)
+    assert result['rarity'] == 'superior'
+    assert result['facet_basis']['rarity']['reported'] == 'normal'
+    assert row['rarity'] == 'normal'
+    assert from_listing(row)['rarity'] == 'superior'
+    assert normalize(row | {'properties': row['properties'] | {prop: 13.0}})['rarity'] == 'superior'
+    for value in (0, 4, 13.5, 16, None, '13'):
+        assert normalize(row | {'properties': row['properties'] | {prop: value}})['rarity'] == 'normal'
+    for extra in ({'520': 10}, {'937': 30}, {'423': 100}, {'937': 10, '423': 3}):
+        assert normalize(row | {'properties': row['properties'] | extra})['rarity'] == 'normal'
+    for changes in ({'socket_contents': 'filled'}, {'rarity': 'rare'}, {'base_code': None}):
+        assert normalize(row | changes)['rarity'] == changes.get('rarity', 'normal')
+
+
+def test_inherent_paladin_damage_cannot_imply_superior_armor_quality():
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.listing_defaults import normalize
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Sacred Targe')
+    row = listing('seller', 1) | {
+        'category': 'base',
+        'name': base['name'],
+        'base_code': base['code'],
+        'rarity': 'normal',
+        'sockets': 4,
+        'socket_contents': 'empty',
+    }
+    row['properties']['510'] = 10
+    assert normalize(row)['rarity'] == 'normal'

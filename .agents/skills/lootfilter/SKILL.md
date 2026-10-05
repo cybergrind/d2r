@@ -5,7 +5,7 @@ description: Explain or change the D2R in-game loot filter profiles in lootfilte
 
 # Loot filter
 
-Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 12 rules, the one in use) and
+Profiles: `lootfilter/warlock_lean.json` (profile "Warlock Lean", 13 rules, the one in use; "SHOW Craft Bases ARMOR" = craft-only fodder the player may disable) and
 `lootfilter/warlock_echoing_strike.json` (profile "General (ALL)", 23 rules, the older per-class one).
 The rule table with the reason per rule: `guides/warlock.html` §6. Pickup rules the filter implements:
 `guides/pindle-anya.html` §3 (`PK-*`) and `pricing/data/wp-d-pickup.json` (a `why` per key);

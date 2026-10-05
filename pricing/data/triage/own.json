@@ -1,0 +1,1155 @@
+{
+  "schema_version": 1,
+  "scope": "Echoing Strike Warlock and mercenary variants, including Act 5 Uber / Ancients",
+  "reviewed_at": "2026-10-04",
+  "rows": [
+    {
+      "category": "uniques",
+      "slot": "helm",
+      "label": "Echoing Strike helm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Harlequin Crest"
+    },
+    {
+      "category": "uniques",
+      "slot": "belt",
+      "label": "Echoing Strike belt",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Arachnid Mesh"
+    },
+    {
+      "category": "uniques",
+      "slot": "ring",
+      "label": "Echoing Strike ring",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "The Stone of Jordan"
+    },
+    {
+      "category": "uniques",
+      "slot": "ring",
+      "label": "Echoing Strike ring",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Bul-Kathos' Wedding Band"
+    },
+    {
+      "category": "uniques",
+      "slot": "amulet",
+      "label": "Echoing Strike amulet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Entropy Locket"
+    },
+    {
+      "category": "uniques",
+      "slot": "helm",
+      "label": "Echoing Strike helm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Hellwarden's Will"
+    },
+    {
+      "category": "uniques",
+      "slot": "amulet",
+      "label": "Echoing Strike resistance amulet",
+      "source": "guides/warlock.html#s0",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "441": {
+          "min": 27
+        }
+      },
+      "name": "Mara's Kaleidoscope"
+    },
+    {
+      "category": "sets",
+      "slot": "gloves",
+      "label": "Echoing Strike 20 FCR gloves",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Trang-Oul's Claws"
+    },
+    {
+      "category": "uniques",
+      "slot": "gloves",
+      "label": "Echoing Strike 20 FCR gloves",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Magefist"
+    },
+    {
+      "category": "sets",
+      "slot": "boots",
+      "label": "Echoing Strike movement and lightning-resist boots",
+      "source": "guides/warlock.html#s0",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "428": {
+          "min": 17
+        }
+      },
+      "name": "Natalya's Soul"
+    },
+    {
+      "category": "uniques",
+      "slot": "boots",
+      "label": "Echoing Strike guide boot alternative",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Waterwalk"
+    },
+    {
+      "category": "uniques",
+      "slot": "boots",
+      "label": "Echoing Strike guide boot alternative",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": {
+          "in": [
+            false,
+            true
+          ]
+        }
+      },
+      "properties": {},
+      "name": "Sandstorm Trek"
+    },
+    {
+      "category": "uniques",
+      "slot": "boots",
+      "label": "Echoing Strike guide boot alternative",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "War Traveler"
+    },
+    {
+      "category": "sets",
+      "slot": "boots",
+      "label": "Echoing Strike guide boot alternative",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Aldur's Advance"
+    },
+    {
+      "category": "uniques",
+      "slot": "boots",
+      "label": "Echoing Strike guide boot alternative",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Silkweave"
+    },
+    {
+      "category": "runewords",
+      "slot": "body",
+      "label": "Echoing Strike body upgrade",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false,
+        "base_name": {
+          "in": [
+            "Mage Plate",
+            "Dusk Shroud",
+            "Archon Plate",
+            "Wire Fleece"
+          ]
+        }
+      },
+      "properties": {},
+      "name": "Enigma"
+    },
+    {
+      "category": "runewords",
+      "slot": "body",
+      "label": "Echoing Strike body upgrade",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false,
+        "base_name": {
+          "in": [
+            "Mage Plate",
+            "Dusk Shroud",
+            "Archon Plate",
+            "Wire Fleece"
+          ]
+        }
+      },
+      "properties": {},
+      "name": "Chains of Honor"
+    },
+    {
+      "category": "runewords",
+      "slot": "weapon",
+      "label": "Echoing Strike caster weapon",
+      "source": "guides/warlock.html#s0",
+      "conditions": {
+        "ethereal": false,
+        "base_name": "Flail"
+      },
+      "properties": {
+        "441": {
+          "min": 35
+        }
+      },
+      "name": "Heart of the Oak"
+    },
+    {
+      "category": "runewords",
+      "slot": "weapon",
+      "label": "Echoing Strike Void weapon",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Legend Spike"
+      },
+      "properties": {},
+      "name": "Void"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Legend Spike"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Legend Spike"
+    },
+    {
+      "category": "runewords",
+      "slot": "weapon",
+      "label": "Echoing Strike Void weapon",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Fanged Knife"
+      },
+      "properties": {},
+      "name": "Void"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Fanged Knife"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Fanged Knife"
+    },
+    {
+      "category": "runewords",
+      "slot": "weapon",
+      "label": "Echoing Strike Void weapon",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Kriss"
+      },
+      "properties": {},
+      "name": "Void"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Kriss"
+    },
+    {
+      "category": "base",
+      "slot": "weapon",
+      "label": "Echoing Strike Void base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Kriss"
+    },
+    {
+      "category": "runewords",
+      "slot": "swap",
+      "label": "Echoing Strike Battle Orders swap",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Flail",
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Call to Arms"
+    },
+    {
+      "category": "runewords",
+      "slot": "swap",
+      "label": "Echoing Strike Battle Orders swap",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Crystal Sword",
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Call to Arms"
+    },
+    {
+      "category": "runewords",
+      "slot": "offhand",
+      "label": "Echoing Strike Spirit offhand or buff swap",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "base_name": "Monarch",
+        "ethereal": false
+      },
+      "properties": {
+        "520": {
+          "min": 25
+        }
+      },
+      "name": "Spirit"
+    },
+    {
+      "category": "uniques",
+      "slot": "swap",
+      "label": "Echoing Strike buff-swap shield",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {},
+      "name": "Lidless Wall"
+    },
+    {
+      "category": "uniques",
+      "slot": "charm",
+      "label": "Echoing Strike inventory charm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {},
+      "name": "Annihilus"
+    },
+    {
+      "category": "uniques",
+      "slot": "charm",
+      "label": "Echoing Strike inventory charm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {},
+      "name": "Gheed's Fortune"
+    },
+    {
+      "category": "uniques",
+      "slot": "charm",
+      "label": "Echoing Strike inventory charm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {},
+      "name": "Renewed Bone Break"
+    },
+    {
+      "category": "uniques",
+      "slot": "charm",
+      "label": "Echoing Strike Warlock torch",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1862": {
+          "min": 1
+        }
+      },
+      "name": "Hellfire Torch"
+    },
+    {
+      "category": "magic",
+      "slot": "charm",
+      "label": "Echoing Strike Warlock skiller",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1546": {
+          "min": 1
+        }
+      },
+      "name": "Grand Charm"
+    },
+    {
+      "category": "magic",
+      "slot": "charm",
+      "label": "Echoing Strike Warlock skiller",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1547": {
+          "min": 1
+        }
+      },
+      "name": "Grand Charm"
+    },
+    {
+      "category": "magic",
+      "slot": "charm",
+      "label": "Echoing Strike Warlock skiller",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1548": {
+          "min": 1
+        }
+      },
+      "name": "Grand Charm"
+    },
+    {
+      "category": "magic",
+      "slot": "amulet",
+      "label": "Echoing Strike +2 Warlock / 10 FCR amulet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 10
+        }
+      },
+      "family": "amul"
+    },
+    {
+      "category": "magic",
+      "slot": "helm",
+      "label": "Echoing Strike +2 Warlock / 20 FCR circlet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 20
+        }
+      },
+      "family": "circ"
+    },
+    {
+      "category": "rare",
+      "slot": "amulet",
+      "label": "Echoing Strike +2 Warlock / 10 FCR amulet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 10
+        }
+      },
+      "family": "amul"
+    },
+    {
+      "category": "rare",
+      "slot": "helm",
+      "label": "Echoing Strike +2 Warlock / 20 FCR circlet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 20
+        }
+      },
+      "family": "circ"
+    },
+    {
+      "category": "crafted",
+      "slot": "amulet",
+      "label": "Echoing Strike +2 Warlock / 10 FCR amulet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 10
+        }
+      },
+      "family": "amul"
+    },
+    {
+      "category": "crafted",
+      "slot": "helm",
+      "label": "Echoing Strike +2 Warlock / 20 FCR circlet",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "1862": {
+          "min": 2
+        },
+        "520": {
+          "min": 20
+        }
+      },
+      "family": "circ"
+    },
+    {
+      "category": "rare",
+      "slot": "ring",
+      "label": "Echoing Strike FCR, life and resistance ring",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "520": {
+          "min": 10
+        },
+        "418": {
+          "min": 20
+        }
+      },
+      "at_least": {
+        "count": 1,
+        "of": [
+          {
+            "properties": {
+              "427": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "428": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "426": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "401": {
+                "min": 20
+              }
+            }
+          }
+        ]
+      },
+      "family": "ring"
+    },
+    {
+      "category": "rare",
+      "slot": "boots",
+      "label": "Echoing Strike 30 FRW / dual-resist boots",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "480": {
+          "min": 30
+        }
+      },
+      "at_least": {
+        "count": 2,
+        "of": [
+          {
+            "properties": {
+              "427": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "428": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "426": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "401": {
+                "min": 30
+              }
+            }
+          }
+        ]
+      },
+      "family": "boot"
+    },
+    {
+      "category": "crafted",
+      "slot": "ring",
+      "label": "Echoing Strike FCR, life and resistance ring",
+      "source": "guides/warlock.html#s1",
+      "conditions": {},
+      "properties": {
+        "520": {
+          "min": 10
+        },
+        "418": {
+          "min": 20
+        }
+      },
+      "at_least": {
+        "count": 1,
+        "of": [
+          {
+            "properties": {
+              "427": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "428": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "426": {
+                "min": 20
+              }
+            }
+          },
+          {
+            "properties": {
+              "401": {
+                "min": 20
+              }
+            }
+          }
+        ]
+      },
+      "family": "ring"
+    },
+    {
+      "category": "crafted",
+      "slot": "boots",
+      "label": "Echoing Strike 30 FRW / dual-resist boots",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {
+        "480": {
+          "min": 30
+        }
+      },
+      "at_least": {
+        "count": 2,
+        "of": [
+          {
+            "properties": {
+              "427": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "428": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "426": {
+                "min": 30
+              }
+            }
+          },
+          {
+            "properties": {
+              "401": {
+                "min": 30
+              }
+            }
+          }
+        ]
+      },
+      "family": "boot"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary weapon",
+      "label": "Act 2 mercenary elite polearm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Giant Thresher"
+      },
+      "properties": {},
+      "name": "Insight"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary weapon",
+      "label": "Act 2 mercenary elite polearm",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Giant Thresher"
+      },
+      "properties": {},
+      "name": "Infinity"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Dusk Shroud"
+      },
+      "properties": {},
+      "name": "Fortitude"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Dusk Shroud"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Dusk Shroud"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Archon Plate"
+      },
+      "properties": {},
+      "name": "Fortitude"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Archon Plate"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Archon Plate"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Wire Fleece"
+      },
+      "properties": {},
+      "name": "Fortitude"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Wire Fleece"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Fortitude base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Wire Fleece"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Dusk Shroud"
+      },
+      "properties": {},
+      "name": "Treachery"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Dusk Shroud"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Dusk Shroud"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Archon Plate"
+      },
+      "properties": {},
+      "name": "Treachery"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Archon Plate"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Archon Plate"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Wire Fleece"
+      },
+      "properties": {},
+      "name": "Treachery"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Wire Fleece"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary Treachery base",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 3,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Wire Fleece"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Dusk Shroud"
+      },
+      "properties": {},
+      "name": "Chains of Honor"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Archon Plate"
+      },
+      "properties": {},
+      "name": "Chains of Honor"
+    },
+    {
+      "category": "runewords",
+      "slot": "mercenary body",
+      "label": "Act 2 mercenary ethereal armor",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {
+        "ethereal": true,
+        "base_name": "Wire Fleece"
+      },
+      "properties": {},
+      "name": "Chains of Honor"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary weapon",
+      "label": "Act 2 mercenary Insight/Infinity base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "normal",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Giant Thresher"
+    },
+    {
+      "category": "base",
+      "slot": "mercenary weapon",
+      "label": "Act 2 mercenary Insight/Infinity base",
+      "source": "guides/warlock.html#s1",
+      "conditions": {
+        "ethereal": true,
+        "rarity": "superior",
+        "sockets": 4,
+        "empty_sockets": true
+      },
+      "properties": {},
+      "name": "Giant Thresher"
+    },
+    {
+      "category": "uniques",
+      "slot": "mercenary helm",
+      "label": "Act 2 mercenary helm upgrade",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {},
+      "properties": {},
+      "name": "Andariel's Visage"
+    },
+    {
+      "category": "sets",
+      "slot": "mercenary helm",
+      "label": "Act 2 mercenary helm upgrade",
+      "source": "guides/warlock.html#s0-1",
+      "conditions": {},
+      "properties": {},
+      "name": "Guillaume's Face"
+    },
+    {
+      "category": "sets",
+      "name": "Sazabi's Mental Sheath",
+      "slot": "mercenary helm",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set",
+      "source": "guides/warlock.html#s1; guides/pricing.html#s8",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {}
+    },
+    {
+      "category": "sets",
+      "name": "Sazabi's Ghost Liberator",
+      "slot": "mercenary armor",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set",
+      "source": "guides/warlock.html#s1; guides/pricing.html#s8",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {}
+    },
+    {
+      "category": "sets",
+      "name": "Sazabi's Cobalt Redeemer",
+      "slot": "mercenary weapon",
+      "label": "Echoing Strike Uber / Ancients mercenary: collect the full Sazabi set",
+      "source": "guides/warlock.html#s1; guides/pricing.html#s8",
+      "conditions": {
+        "ethereal": false
+      },
+      "properties": {}
+    }
+  ]
+}

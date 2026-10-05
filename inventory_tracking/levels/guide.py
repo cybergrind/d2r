@@ -12,7 +12,8 @@ Win+C calls `press()`: a single press shows the card again from a fresh room and
 in any level (unguided levels get the map alone), waiting up to `lock_timeout` for the capture
 lock. Two presses within DOUBLE_PRESS seconds (hotkey timestamps) toggle a pinned card: it never
 expires, follows the player into every level (map only where no handler exists), hides while
-D2R is unfocused, and is removed by the next double press.
+D2R is unfocused, and is removed by the next double press. `pinned=True` starts that way
+(`APPRAISAL.level_guide_pinned`, what `make serve` does).
 
 Each entry into a guided area also yields one evidence record (levels/evidence.py), saved
 after the capture lock is released; a failed lookup is recorded once even while retrying.
@@ -30,7 +31,7 @@ from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.memory import observe_level
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location
 from inventory_tracking.levels.registry import handler_for
-from inventory_tracking.levels.spots import pinpoint
+from inventory_tracking.levels.spots import on_waypoint, pinpoint
 from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
 
@@ -67,6 +68,8 @@ class LevelGuide:
         library=None,
         visited_rooms=None,
         map_dots=None,
+        observe_waypoints=None,
+        pinned=False,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.seconds, self.poll_interval, self.clock, self.observe = seconds, poll_interval, clock, observe
@@ -79,13 +82,16 @@ class LevelGuide:
         self.recorded = None  # (area, POI presets, problems) of the last saved record this entry
         self.shown = None  # (snapshot, pois) behind the visible card, for live position updates
         self.lock_timeout = 1.0  # seconds show() may wait for the capture lock
-        self.pinned = False
+        self.pinned = pinned
         self.last_press = None  # hotkey timestamp of an unpaired press
         # Walkable tiles of loaded rooms, remembered for the current level (called under the capture lock).
         # The library (levels/walls.py) draws rooms of already-seen layouts before they load.
         self.observe_walls, self.library = observe_walls, library
         self.visited_rooms = visited_rooms  # area -> bounds of the rooms ever loaded (terror/tracker.py)
         self.map_dots = map_dots  # area -> live MapPoi dots: monsters, Heralds (terror/tracker.py)
+        # Waypoint objects seen in the current level, in tiles (called under the capture lock): the
+        # waypoint POI moves from its room's centre onto the object once it is near (levels/spots.py).
+        self.observe_waypoints, self.waypoints = observe_waypoints, set()
         self.walls = {}
         self.rooms = ()  # the current level's rooms, for the library
         # Walls read this game, per level: a trip to town must not lose generated terrain, which
@@ -104,7 +110,9 @@ class LevelGuide:
         if self.library is not None:
             for grid in self.library.known(self.rooms):
                 self.walls.setdefault((grid.x, grid.y), grid)
+        self.waypoints = set()
         self._read_walls()
+        self._read_waypoints()
 
     def _read_walls(self):
         if self.observe_walls is None:
@@ -117,6 +125,14 @@ class LevelGuide:
                 self.library.learn(self.rooms, grids)
         except Exception as exc:
             self.warn('walls not read: %s', exc)
+
+    def _read_waypoints(self):
+        if self.observe_waypoints is None:
+            return
+        try:
+            self.waypoints.update(self.observe_waypoints(self.source.pid, self.source.images, self.source.capture))
+        except Exception as exc:
+            self.warn('waypoints not read: %s', exc)
 
     def warn(self, message, *args):
         text = message % args
@@ -149,6 +165,7 @@ class LevelGuide:
         if area == self.area:
             if self.visible is not None and self.shown is not None and location is not None:
                 self._read_walls()
+                self._read_waypoints()
                 self.visible = self._card(location)
             return None
         self.walls, self.rooms = {}, ()  # a new level (or leaving one): forget its rooms
@@ -232,9 +249,10 @@ class LevelGuide:
 
     def _card(self, location: Location) -> list:
         snapshot, pois = self.shown
+        pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
         visited = self.visited_rooms(location.area_id) if self.visited_rooms is not None else None
         dots = self.map_dots(location.area_id) if self.map_dots is not None else ()
-        card = build_map(snapshot, pois, location, self.walls.values(), visited=visited, dots=dots)
+        card = build_map(snapshot, pois, location, self.walls.values(), visited=visited, dots=dots, pid=self.source.pid)
         return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
 
     def dismiss(self):

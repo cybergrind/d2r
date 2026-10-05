@@ -185,3 +185,14 @@ def test_player_room_is_the_room1_the_location_came_from(memory):
     from inventory_tracking.levels.memory import player_room
 
     assert player_room(memory.read, TABLE) == (Location(74, LEVEL, 25450, 5442), ROOM1)
+
+
+def test_waypoint_classes_are_the_objects_operated_as_waypoints():
+    import json
+    from pathlib import Path
+
+    from inventory_tracking.levels.memory import WAYPOINT_CLASSES
+
+    objects = json.loads(Path('third-parties/d2data/json/objects.json').read_text())
+
+    assert {row['*ID'] for row in objects.values() if row.get('OperateFn') == 23} == WAYPOINT_CLASSES

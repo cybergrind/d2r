@@ -12,6 +12,7 @@ class GameOutput:
         self.query, self.clock = query, clock
         self.checked_at = -float('inf')
         self.output: str | None = None
+        self.focused = False
         self.window_size: tuple[int, int] | None = None
         # Workspace-view position of the game's visual geometry; niri reports it for floating
         # windows only (tiled ones have tile_pos_in_workspace_view = null).
@@ -23,10 +24,12 @@ class GameOutput:
             return self.output
         self.checked_at = now
         self.output = self.window_size = self.window_position = None
+        self.focused = False
         try:
             window = self.read('focused-window')
             if not isinstance(window, dict) or window.get('app_id') != INPUT.game_app_id:
                 return None
+            self.focused = True
             layout = window.get('layout') or {}
             size = layout.get('window_size')
             if isinstance(size, list) and len(size) == 2 and all(type(v) is int and v > 0 for v in size):

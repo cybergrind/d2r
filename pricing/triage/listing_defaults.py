@@ -38,6 +38,31 @@ def alias_bases(generation):
     return {alias: names[name] for alias, name in BASE_ALIASES.items() if name in names}
 
 
+def superior_base(row):
+    """Recognize only a clean superior signature, not arbitrary mislabeled affixes."""
+    from pricing.triage.adapters import base_facets, bases_by_code
+
+    if row.get('category') != 'base' or row.get('rarity') != 'normal' or row.get('socket_contents') != 'empty':
+        return False
+    base = bases_by_code(metadata_generation()).get(row.get('base_code'), {})
+    if base.get('category') not in ('armor', 'weapons'):
+        return False
+    facets = base_facets(row.get('properties', {}), 'normal', row.get('sockets'), 'empty', base=base)
+    ed, modifiers = facets['base_ed'], facets['base_modifiers']
+    if type(ed) not in (int, float) or not 5 <= ed <= 15 or ed != int(ed) or modifiers is None or len(modifiers) > 1:
+        return False
+    allowed = {'937': (10, 15)}
+    if base['category'] == 'weapons':
+        allowed['423'] = (1, 3)
+    return all(
+        prop in allowed
+        and type(value) in (int, float)
+        and allowed[prop][0] <= value <= allowed[prop][1]
+        and value == int(value)
+        for prop, value in modifiers.items()
+    )
+
+
 def normalize(row):
     result = dict(row)
     if caster_amulet(row):
@@ -87,4 +112,14 @@ def normalize(row):
         and '934' not in properties
     ):
         result['socket_contents'] = 'empty'
+    if superior_base(result):
+        result['rarity'] = 'superior'
+        result['facet_basis'] = {
+            **result.get('facet_basis', {}),
+            'rarity': {
+                'kind': 'clean_superior_ed_signature',
+                'reported': 'normal',
+                'source': 'third-parties/d2data/json/qualityitems.json',
+            },
+        }
     return result

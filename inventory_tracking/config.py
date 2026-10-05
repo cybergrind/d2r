@@ -307,6 +307,8 @@ class AppraisalConfig(Config):
     level_guide: bool = True  # on entering a guided level (levels/handlers/), point at its target
     level_guide_poll_interval: Positive = 0.5  # seconds between current-area reads
     level_guide_seconds: Positive = 5.0  # how long the arrow stays on the OSD
+    # The map starts pinned: shown in every level until a double Win+C unpins it (user, 2026-10-05).
+    level_guide_pinned: bool = True
     level_walls: bool = True  # draw walkable tiles of loaded rooms on the level map
     rune_marks: bool = True  # HUD arrows to valuable runes on the ground (streamed, often off-screen)
     rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r16'  # Io and up (user, 2026-09-30)
@@ -331,6 +333,24 @@ class HudSlot(Config):
     x: Annotated[float, Field(ge=0, le=1)]
     y: Annotated[float, Field(ge=0, le=1)]
     max_width: Annotated[float, Field(gt=0, le=1)] = 1.0  # widest widget, fraction of the game window width
+    centered: bool = False  # x is the middle of the slot's widgets, not their left edge
+
+
+class HudGroundConfig(Config):
+    """Marks on the game view at map positions (hud/ground.py); shown while the level map is."""
+
+    enabled: bool = True
+    # Map dot kinds (osd/level_map.KIND_TONES) that also get a ground mark: unique/champion
+    # monsters, Heralds, the next level, exits and waypoints (user, 2026-10-05).
+    kinds: tuple[str, ...] = ('leader', 'herald', 'stairs', 'exit', 'waypoint')
+    alpha: Annotated[float, Field(gt=0, le=1)] = 0.5  # outline; the fill is fainter still
+    # Where the player stands in the game window, and one tile's floor-diamond height, as window
+    # fractions. Classic 800x600 view values (a tile is 160x80 px there); not calibrated in D2R yet.
+    player_x: Annotated[float, Field(ge=0, le=1)] = 0.5
+    player_y: Annotated[float, Field(ge=0, le=1)] = 0.46
+    tile_height: Positive = 80 / 600
+    # Marks beyond the view are drawn this far inside the window edge (fraction of its height).
+    edge_inset: Annotated[float, Field(ge=0, lt=0.4)] = 0.04
 
 
 class HudConfig(Config):
@@ -342,13 +362,18 @@ class HudConfig(Config):
     gap: Annotated[int, Field(ge=0)] = 8
     slots: dict[str, HudSlot] = {
         'guide': HudSlot(x=0.03, y=0.08),
+        # Level map (the guide's MapCard): centred at the top of the window (user, 2026-10-04).
+        'map': HudSlot(x=0.5, y=0.15, centered=True),
         # Alt+D / shop / identify card: right of the guide card, at most 45% of the window wide.
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
         # Valuable runes on the ground: under the guide card.
         'loot': HudSlot(x=0.03, y=0.34),
         # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04).
         'terror': HudSlot(x=0.78, y=0.02, max_width=0.2),
+        # Ground marks (hud/ground.py): the whole game window.
+        'ground': HudSlot(x=0, y=0),
     }
+    ground: HudGroundConfig = HudGroundConfig()
 
 
 HUD = HudConfig()

@@ -10,6 +10,11 @@ waypoints are objects, not warps, and keep their place even in a preset that als
 (Nihlathak's 'Temple Final Room' holds the way back; the handler puts him across it). An
 entrance kept as a side trip ('target' colour: Frozen River, the Kurast temples) opts in with
 PoiSpec.warp.
+
+A waypoint is an object, so its place is not in the preset's warp tiles: `on_waypoint` moves the
+POI onto the waypoint object once the game has streamed it (levels/memory.nearby_waypoints).
+Until then the room centre stands; on 2026-10-05 that was about 2 tiles off in Catacombs 2,
+which put the HUD's ground mark (hud/ground.py) beside the waypoint instead of on it.
 """
 
 from dataclasses import replace
@@ -32,3 +37,14 @@ def pinpoint(poi: Poi, *, warp: bool = False) -> Poi:
     ((x, y),) = spots.values()
     origin_x, origin_y, _w, _h = room.block or (room.x, room.y, room.width, room.height)
     return replace(poi, spot=(origin_x + x, origin_y + y))
+
+
+def on_waypoint(poi: Poi, waypoints) -> Poi:
+    """A waypoint POI moved onto the waypoint object seen in its room (`waypoints`: tiles)."""
+    if poi.kind != 'waypoint':
+        return poi
+    room = poi.room
+    for x, y in waypoints:
+        if room.x <= x < room.x + room.width and room.y <= y < room.y + room.height:
+            return replace(poi, spot=(x, y))
+    return poi

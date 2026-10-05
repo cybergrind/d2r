@@ -72,7 +72,7 @@ def test_guide_magic_jewelry_combinations(family, properties):
     assert verdict(family, {'526': 1}, 'magic') == 'vendor'
 
 
-def test_socketed_magic_patterns_keep_base_and_suffix_requirements():
+def test_socketed_magic_patterns_keep_base_and_socket_requirements():
     tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
     for family, base, sockets, props in [
         ('shie', 'Monarch', 4, {'446': 20, '449': 30}),
@@ -81,8 +81,9 @@ def test_socketed_magic_patterns_keep_base_and_suffix_requirements():
     ]:
         item = {'category': 'magic', 'family': family, 'base_name': base, 'sockets': sockets, 'properties': props}
         assert assess(item, tables)['verdict'] == 'check'
-        for changes in ({'sockets': sockets - 1}, {'base_name': 'Unknown'}, {'properties': {}}):
+        for changes in ({'sockets': sockets - 1}, {'base_name': 'Unknown'}):
             assert assess(item | changes, tables)['verdict'] == 'vendor'
+        assert assess(item | {'properties': {}}, tables)['verdict'] == 'check'
 
 
 def test_two_socket_circlet_patterns_keep_casting_and_mobility_separate():
@@ -96,8 +97,8 @@ def test_two_socket_circlet_patterns_keep_casting_and_mobility_separate():
     assert result['band'] is None
     movement = item | {'properties': {'453': 2, '480': 30}}
     assert assess(movement, tables)['verdict'] == 'check'
+    assert assess(item | {'sockets': 1}, tables)['verdict'] == 'check'
     for changed in [
-        item | {'sockets': 1},
         movement | {'sockets': 1},
         movement | {'properties': {'453': 1, '480': 30}},
         movement | {'properties': {'453': 2, '480': 20}},
@@ -118,8 +119,6 @@ def test_skill_speed_mana_leech_gloves_and_lower_rolls_keep_rarity_and_support_g
     for props in (
         {'456': 1, '457': 20, '463': 3},
         {'456': 2, '457': 10, '463': 3},
-        {'456': 2, '457': 20},
-        {'454': 2, '457': 20, '463': 3},
     ):
         assert assess(item | {'properties': props}, tables)['verdict'] == 'vendor'
     bow = item | {'properties': {'454': 2, '457': 20, '463': 3, '437': 10}}
@@ -280,7 +279,10 @@ def test_complete_support_pattern_survives_low_rolls_and_explains_shortfall():
     assert 'lightning resistance 24 of 25' in result['reason']
 
 
-@pytest.mark.parametrize(('family', 'base'), [('swor', 'Phase Blade'), ('axe', 'Berserker Axe'), ('mace', 'Scourge')])
+@pytest.mark.parametrize(
+    ('family', 'base'),
+    [('swor', 'Phase Blade'), ('axe', 'Berserker Axe'), ('mace', 'Scourge'), ('hamm', 'Legendary Mallet')],
+)
 def test_fools_weapon_requires_both_scaling_stats_and_physical_gates(family, base):
     tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
     props = {'510': 250, '457': 30, '535': 40, '536': 1300}
@@ -414,8 +416,10 @@ def test_useful_mana_and_life_leech_count_as_support_but_do_not_replace_primary_
     family, properties, primary, support
 ):
     assert verdict(family, properties) == 'check'
-    for prop in primary + support:
+    for prop in primary:
         assert verdict(family, {k: v for k, v in properties.items() if k != prop}) == 'vendor'
+    for prop in support:
+        assert verdict(family, {k: v for k, v in properties.items() if k != prop}) == 'check'
     assert verdict(family, {**properties, primary[0]: 1}) == 'vendor'
     assert verdict(family, {**properties, primary[1]: 10}) == 'vendor'
 
@@ -473,3 +477,74 @@ def test_jeweler_sacred_targe_requires_both_deflecting_mods_and_four_sockets():
         {'category': 'rare'},
     ):
         assert assess(item | change, tables)['verdict'] == 'vendor'
+
+
+def test_magic_resistance_damage_jewel_requires_both_modifiers():
+    assert verdict('jewl', {'441': 8, '448': 10}, 'magic') == 'check'
+    assert verdict('jewl', {'441': 8}, 'magic') == 'vendor'
+    assert verdict('jewl', {'448': 10}, 'magic') == 'vendor'
+
+
+@pytest.mark.parametrize(('prop', 'minimum'), [('510', 30), ('457', 15), ('441', 10)])
+def test_documented_single_affix_magic_jewel_pattern_has_a_review_floor(prop, minimum):
+    assert verdict('jewl', {prop: minimum}, 'magic') == 'check'
+    assert verdict('jewl', {prop: minimum - 1}, 'magic') == 'vendor'
+    assert verdict('ring', {prop: minimum}, 'magic') == 'vendor'
+    assert verdict('jewl', {prop: minimum}, 'rare') == 'vendor'
+
+
+@pytest.mark.parametrize(('family', 'skill', 'speed'), [('circ', '514', '520'), ('glov', '456', '457')])
+def test_guide_two_skill_twenty_speed_patterns_do_not_require_extra_affixes(family, skill, speed):
+    assert verdict(family, {skill: 2, speed: 20}) == 'check'
+    assert verdict(family, {skill: 1, speed: 20}) == 'vendor'
+    assert verdict(family, {skill: 2, speed: 10}) == 'vendor'
+    assert verdict(family, {skill: 2}) == 'vendor'
+    assert verdict('ring', {skill: 2, speed: 20}) == 'vendor'
+
+
+def test_four_socket_magic_monarch_is_reviewable_without_deflecting_price():
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {'category': 'magic', 'family': 'shie', 'base_name': 'Monarch', 'sockets': 4, 'properties': {}}
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    for change in ({'sockets': 3}, {'base_name': 'Kite Shield'}, {'category': 'rare'}):
+        assert assess(item | change, tables)['verdict'] == 'vendor'
+
+
+def test_plain_small_charm_guide_patterns_without_borrowing_combination_prices():
+    assert verdict('scha', {'461': 6}, 'magic') == 'check'
+    assert verdict('scha', {'461': 7}, 'magic') == 'check'
+    assert verdict('scha', {'461': 5}, 'magic') == 'vendor'
+    assert verdict('scha', {'448': 3, '423': 20}, 'magic') == 'check'
+    assert verdict('scha', {'448': 2, '423': 18}, 'magic') == 'check'
+    assert verdict('scha', {'448': 3}, 'magic') == 'vendor'
+    assert verdict('scha', {'423': 20}, 'magic') == 'vendor'
+    assert verdict('mcha', {'448': 3, '423': 20}, 'magic') == 'vendor'
+
+
+@pytest.mark.parametrize(
+    ('base', 'family', 'sockets'), [('Archon Plate', 'tors', 4), ('Tiara', 'circ', 3), ('Diadem', 'circ', 3)]
+)
+def test_documented_magic_socket_bases_do_not_need_premium_suffix(base, family, sockets):
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {'category': 'magic', 'family': family, 'base_name': base, 'sockets': sockets, 'properties': {}}
+    assert assess(item, tables)['verdict'] == 'check'
+    assert assess(item, tables)['decision_ist'] is None
+    assert assess(item | {'sockets': sockets - 1}, tables)['verdict'] == 'vendor'
+    assert assess(item | {'category': 'rare'}, tables)['verdict'] == 'vendor'
+
+
+def test_speed_resistance_tiara_needs_both_stats_without_three_sockets():
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {
+        'category': 'magic',
+        'family': 'circ',
+        'base_name': 'Tiara',
+        'sockets': 0,
+        'properties': {'480': 30, '441': 30},
+    }
+    assert assess(item, tables)['verdict'] == 'check'
+    assert assess(item | {'properties': {'480': 20, '441': 20}}, tables)['verdict'] == 'check'
+    for properties in ({'480': 30}, {'441': 30}):
+        assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'

@@ -12,6 +12,7 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
 from inventory_tracking.hud.layout import Slot, game_rect, place, scale_for, slot_limit
+from inventory_tracking.hud.live import LivePlayer, follow, ground_payload_of
 from inventory_tracking.hud.scene import read_scene
 from inventory_tracking.hud.widgets import draw_scene, measure
 from inventory_tracking.osd.monitor import GameOutput, choose_monitor
@@ -21,7 +22,7 @@ from inventory_tracking.osd.window import load_toolkit
 def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.Hud', flags=Gio.ApplicationFlags.NON_UNIQUE)
-    slots = {name: Slot(slot.x, slot.y, slot.max_width) for name, slot in config.slots.items()}
+    slots = {name: Slot(slot.x, slot.y, slot.max_width, slot.centered) for name, slot in config.slots.items()}
     failure = []
 
     def activate(application):
@@ -48,8 +49,22 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         )
         monitors = Gdk.Display.get_default().get_monitors()
         game_output = GameOutput()
-        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None}
-        area.set_draw_func(lambda _a, cr, _w, _h: draw_scene(cr, state['boxes'], scale=state['scale']))
+        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'player': None}
+        live = LivePlayer()
+        area.set_draw_func(
+            lambda _a, cr, _w, _h: draw_scene(cr, follow(state['boxes'], state['player']), scale=state['scale'])
+        )
+
+        def follow_player(*_):
+            """Every frame: ground marks move with the player's position read now (hud/live.py)."""
+            payload = ground_payload_of(state['boxes'])
+            player = live.locate(payload) if payload else None
+            if player != state['player']:
+                state['player'] = player
+                area.queue_draw()
+            return GLib.SOURCE_CONTINUE
+
+        area.add_tick_callback(follow_player)
 
         def canvas_size(monitor):
             if area.get_width() > 0 and area.get_height() > 0:

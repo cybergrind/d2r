@@ -92,4 +92,31 @@ def test_life_skiller_uses_no_better_life_rolls_but_not_other_trees_or_suffixes(
     assert result['band']['sellers'] == 3
     low = assess(from_listing(rows[0]), tables)
     assert low['verdict'] != 'sell'
-    assert low['band']['sellers'] == 1
+    assert low['band'] is None
+    assert low['decision_ist'] is None
+    assert low['reference_band']['sellers'] == 1
+
+
+def test_guide_paid_plain_skiller_is_check_without_borrowing_suffix_price():
+    from pricing.triage.adapters import from_listing
+
+    rules = compile_skillers(
+        {'CH-skiller-pala-combat': {'class': 'charm-grand-skiller', 'bucket_def': 'Grand Charm (prop 443)'}}
+    )
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': rules}, 'own': {'rows': []}}
+    item = from_listing(
+        {
+            'name': 'Grand Charm',
+            'base_name': 'Grand Charm',
+            'rarity': 'magic',
+            'category': 'charms',
+            'properties': {'443': 1},
+            'ethereal': False,
+            'sockets': 0,
+        }
+    )
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    assert assess(item | {'charm_suffix': {'79': 40}}, tables)['verdict'] == 'vendor'
+    assert assess(item | {'properties': {'444': 1}}, tables)['verdict'] == 'vendor'

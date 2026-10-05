@@ -51,8 +51,10 @@ def test_non_game_focus_clears_cached_output():
     )
     output = GameOutput(query=query, clock=lambda: now[0])
     assert output() == 'DP-5'
+    assert output.focused
     now[0] = 1
     assert output() is None
+    assert not output.focused
 
 
 def test_game_window_size_is_read_with_the_output_and_cleared_without_focus():

@@ -125,3 +125,19 @@ Constraints if this is revisited:
   retried inline).
 
 ### Phase 4: remove the old windows and centring tricks (after Phase 3)
+
+### Ground marks (2026-10-05, user request; not calibrated in-game)
+
+- `hud/ground.py`: the level map's dots of `HUD.ground.kinds` (unique/champion monsters, Heralds,
+  next level, exits, waypoints) are also drawn on the game view, as translucent floor ellipses.
+  `project` maps a tile offset from the player to window pixels (isometric, 2:1); a mark beyond
+  the view becomes a small dot at the window edge in its direction.
+- Widget kind `ground` in slot `ground` (the whole game window), published with the map card by
+  `guide_widgets`, so the marks show only while the map does and move at the guide's poll rate.
+- Open: `HUD.ground.player_x/player_y/tile_height` are the classic 800x600 values scaled to the
+  window height. Calibrate against a static mark (a waypoint) in a screenshot with the map pinned.
+- Lag fix (2026-10-05): the marks trailed the player by up to ~0.8 s (guide poll 0.5 s, serve loop
+  0.2 s, canvas refresh 0.1 s). `hud/live.py`: the canvas re-reads the player's path position
+  itself on every frame (`live` = pid + path address in the ground payload, from `Location.path`)
+  and redraws when it changed. Monster positions still arrive at the terror probe's 0.25 s.
+  Open: the sub-unit fraction at path +0x00/+0x04 is the classic layout, not confirmed in D2R.
