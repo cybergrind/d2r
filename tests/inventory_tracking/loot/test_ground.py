@@ -164,3 +164,20 @@ def test_expensive_unique_drops_are_named_from_their_base():
         GroundUnique('Unique Ring (Sling?)', units[4][1], 25504, 5400),
         GroundUnique("Horazon's Legacy", units[5][1], 25505, 5400),
     ]
+
+
+def test_item_units_of_a_class_are_returned_in_every_mode():
+    from inventory_tracking.loot.ground import ItemSighting, item_units
+
+    memory = Memory()
+    specs = [(678, 0, 0, 0), (678, 5, 25500, 5400), (654, 3, 25510, 5410)]  # carried, dropping, another item
+    previous = 0
+    for index, spec in reversed(list(enumerate(specs))):
+        address, _ = item(memory, index, *spec)
+        struct.pack_into('<Q', memory.blocks[address], 0x158, previous)
+        previous = address
+    struct.pack_into('<Q', memory.block(ITEMS, 1024), 5 * 8, previous)
+
+    found = item_units(memory.read, TABLE, {674, 678})
+
+    assert found == [ItemSighting(678, 5, 0, 0, 0), ItemSighting(678, 128 + 5, 5, 25500, 5400)]

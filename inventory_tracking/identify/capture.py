@@ -44,7 +44,7 @@ def identified_flag(data: bytes, quality) -> bool:
 
 
 def probe_inventory(read, snapshot) -> dict[str, Any]:
-    """`away` outside town; otherwise the identified state of every candidate by unit id.
+    """The identified state of every candidate by unit id, in town or out of it (`town`).
 
     `owned` lists every item unit of the player (worn, stash and cursor included), so the
     watcher can tell an item that is new to the character from one that only moved.
@@ -59,8 +59,6 @@ def probe_inventory(read, snapshot) -> dict[str, Any]:
     player_id, _ = select_player(groups['players']['units'])
     player = next(p for p in groups['players']['units'] if p['unit_id'] == player_id)
     location = read_location(read, player['path_pointer'])
-    if location not in TOWN_IDS:
-        return {'state': 'away', 'location': location, 'player_id': player_id, 'items': {}}
     items = {}
     for unit in inventory_candidates(snapshot, player_id):
         details = unit['details']
@@ -78,7 +76,14 @@ def probe_inventory(read, snapshot) -> dict[str, Any]:
         for unit in groups['items']['units']
         if unit.get('details', {}).get('owner_id') == player_id
     )
-    return {'state': 'ok', 'location': location, 'player_id': player_id, 'items': items, 'owned': owned}
+    return {
+        'state': 'ok',
+        'location': location,
+        'town': location in TOWN_IDS,
+        'player_id': player_id,
+        'items': items,
+        'owned': owned,
+    }
 
 
 def capture_inventory_state(pid, images, capture):

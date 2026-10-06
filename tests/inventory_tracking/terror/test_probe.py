@@ -357,3 +357,41 @@ def test_the_card_counts_the_levels_elite_groups_under_the_terror_lines(tmp_path
     probe.poll(2.0)
     probe.tick()
     assert not any(line.startswith('Elites') for line in shown[-1])
+
+
+def test_elite_kills_and_shard_drops_are_logged_with_the_probes_events(tmp_path):
+    from inventory_tracking.loot.ground import ItemSighting
+    from inventory_tracking.terror.shards import ShardWatch
+
+    champion = bytearray(0x80)
+    champion[0x1A] = 0x0C
+    asked = []
+
+    def observe(pid, images, capture, *, known, counted_level, item_classes):
+        asked.append(set(item_classes))
+        return snapshots.pop(0)
+
+    shard = ItemSighting(678, 77, 3, 5031, 5041)
+    snapshots = [
+        replace(snapshot(alive(5, data_hex=champion.hex())), items=()),
+        replace(snapshot(dead(5)), items=()),
+        replace(snapshot(dead(5)), items=(shard,)),
+        replace(snapshot(dead(5)), items=None),  # the item read failed: nothing new is known
+    ]
+    probe = TerrorProbe(
+        Source(),
+        tmp_path / 'terror.jsonl',
+        capture_lock=threading.Lock(),
+        poll_interval=0.25,
+        observe=observe,
+        tracker=ZoneTracker(),
+        shards=ShardWatch(terrorized=lambda area: False),
+    )
+    for now in (1.0, 2.0, 3.0, 4.0):
+        probe.poll(now)
+
+    written = [json.loads(line) for line in (tmp_path / 'terror.jsonl').read_text().splitlines()]
+    assert [e['event'] for e in written] == ['area', 'rooms', 'seen', 'died', 'elite_kill', 'shard']
+    assert (written[4]['kind'], written[4]['terrorized']) == ('champion', False)
+    assert (written[5]['code'], written[5]['from'], written[5]['area']) == ('xa5', 5, 108)
+    assert asked[0] == {674, 675, 676, 677, 678}

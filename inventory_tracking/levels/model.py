@@ -1,6 +1,9 @@
 """Level data the framework passes around: where the player is and the level's rooms."""
 
+import base64
+import binascii
 from dataclasses import dataclass, field
+from functools import lru_cache
 
 from inventory_tracking.native.layout import TILE_UNITS
 
@@ -50,9 +53,34 @@ class Room:
         return (self.x + self.width / 2) * TILE_UNITS, (self.y + self.height / 2) * TILE_UNITS
 
 
+def pack_cells(bits: str) -> str:
+    """'1' (walkable) / '0' per sub-tile, row by row -> base64 of the bits, first sub-tile in the top bit."""
+    padded = bits + '0' * (-len(bits) % 8)
+    return base64.b64encode(int(padded, 2).to_bytes(len(padded) // 8, 'big')).decode() if bits else ''
+
+
+@lru_cache(maxsize=4096)
+def unpack_cells(cells: str, count: int) -> str | None:
+    """Packed cells -> '1'/'0' per sub-tile; None when they are not `count` sub-tiles."""
+    try:
+        raw = base64.b64decode(cells, validate=True)
+    except binascii.Error, ValueError:
+        return None
+    if not count or len(raw) != (count + 7) // 8:
+        return None
+    return f'{int.from_bytes(raw, "big"):0{len(raw) * 8}b}'[:count]
+
+
+def pack_tiles(tiles: str, width: int) -> str:
+    """'1'/'0' per tile, row by row -> packed sub-tiles, each tile filling its 5x5 (old wall library)."""
+    rows = (tiles[start : start + width] for start in range(0, len(tiles), width))
+    return pack_cells(''.join(''.join(cell * TILE_UNITS for cell in row) * TILE_UNITS for row in rows))
+
+
 @dataclass(frozen=True)
 class Walkable:
-    """A loaded room's walkable tiles: `cells` is '1' (walkable) / '0' per tile, row by row."""
+    """A loaded room's walkable sub-tiles. The bounds are the room in tiles; `cells` holds one bit
+    per sub-tile (5x5 a tile, so thin walls survive), row by row, 1 = walkable (`pack_cells`)."""
 
     x: int
     y: int

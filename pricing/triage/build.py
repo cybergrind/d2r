@@ -104,26 +104,6 @@ def main():
     own = json.loads((ROOT / 'pricing/data/triage/own.json').read_text())
     tables = prepare_tables(document, rules, own)
     document['market_demand'] = compile_evidence(latest_report(tables, ROOT, normalization_cache=normalization_cache))
-    from inventory_tracking.corpus.build import DATA as CORPUS_DATA, RUNS, merge
-    from inventory_tracking.corpus.score import load
-    from pricing.knowledge.assessment.adapters.market_projection import market_properties
-    from pricing.triage.adapters import from_drop
-    from pricing.triage.engine import assess
-    from pricing.triage.guide_cases import build_cases
-    from pricing.triage.learned_patterns import guide_negatives
-    from pricing.triage.paid_properties import compile_scores
-
-    merge(RUNS, CORPUS_DATA)
-    captures, _ = load(CORPUS_DATA)
-    corpus = [from_drop(row['observation']) for row in captures]
-    tables = prepare_tables(document, rules, own)
-    verdicts = [assess(item, tables)['verdict'] for item in corpus]
-    properties = {str(stat['property_id']) for stat in metadata()['stats'].values() if stat.get('property_id')}
-    properties.update(str(prop) for prop in market_properties().values())
-    properties.update({'441', '510'})
-    document['paid_scores'] = compile_scores(
-        rows, corpus, verdicts, properties, rules['keep_ist'], negatives=guide_negatives(build_cases())
-    )
     document['learned_patterns'] = []
     output = ROOT / 'pricing/data/triage'
     output.mkdir(parents=True, exist_ok=True)
@@ -133,7 +113,6 @@ def main():
             {
                 'bands': len(document['bands']),
                 'learned_patterns': len(document['learned_patterns']),
-                'paid_score_families': len(document['paid_scores']['models']),
                 'roll_models': len(document['roll_models']),
                 'priced': sum(b['median_ist'] is not None for b in document['bands']),
                 'liquidity': dict(Counter(b['liquidity'] for b in document['bands'])),

@@ -4,7 +4,7 @@ import contextlib
 import os
 import struct
 
-from inventory_tracking.levels.model import Location, Room, Walkable
+from inventory_tracking.levels.model import Location, Room, Walkable, pack_cells
 from inventory_tracking.native.layout import (
     COLLISION_BLOCK_WALK,
     COLLISION_BOUNDS,
@@ -114,7 +114,7 @@ def neighbour_areas(read, room2, data, level) -> tuple[int, ...]:
 
 
 def walkable_tiles(read, room1) -> Walkable | None:
-    """The room's tiles, walkable when at least half of their 5x5 sub-tiles do not block walking."""
+    """The room's sub-tiles, walkable when the collision mask does not block walking there."""
     try:
         grid = pointer(read, room1 + ROOM1_COLLISION)
         header = read(grid, COLLISION_MASK + 8)
@@ -128,15 +128,13 @@ def walkable_tiles(read, room1) -> Walkable | None:
 
 
 def tiles_from_mask(x, y, w, h, mask) -> Walkable:
-    """Sub-tile collision mask (x, y, w, h in sub-tiles) -> tiles walkable when half their 5x5 are open."""
-    cells = []
-    for ty in range(h // 5):
-        for tx in range(w // 5):
-            open_ = sum(
-                not mask[(ty * 5 + sy) * w + tx * 5 + sx] & COLLISION_BLOCK_WALK for sy in range(5) for sx in range(5)
-            )
-            cells.append('1' if open_ * 2 >= 25 else '0')
-    return Walkable(x // 5, y // 5, w // 5, h // 5, ''.join(cells))
+    """Sub-tile collision mask (x, y, w, h in sub-tiles) -> the room's walkable sub-tiles.
+
+    Kept per sub-tile (user, 2026-10-06): a tile-by-majority map lost walls one sub-tile thick,
+    such as most of a Lower Kurast hut.
+    """
+    cells = pack_cells(''.join('0' if value & COLLISION_BLOCK_WALK else '1' for value in mask))
+    return Walkable(x // 5, y // 5, w // 5, h // 5, cells)
 
 
 def loaded_walkable(read, room1, level, *, max_rooms=MAX_LOADED) -> list[Walkable]:

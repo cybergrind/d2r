@@ -334,3 +334,30 @@ def test_magic_javelin_lower_class_roll_keeps_full_paid_pattern_for_review():
     assert verdict('ajav', {'453': 1, '456': 3, '457': 40})['verdict'] == 'check'
     assert verdict('ajav', {'456': 3, '457': 40})['verdict'] == 'vendor'
     assert verdict('ajav', {'453': 1, '454': 3, '457': 40})['verdict'] == 'vendor'
+
+
+def test_fire_blast_planner_claw_is_a_review_candidate_without_borrowed_price():
+    from pricing.triage.guide_cases import item_from_spec
+
+    spec = {
+        'base': 'Greater Claws',
+        'rarity': 'magic',
+        'ethereal': False,
+        'sockets': 2,
+        'stats': {'188:48': 3, '93:0': 40, '107:251': 3, '107:263': 3},
+    }
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': class_rules()}, 'own': {'rows': []}}
+    result = assess(item_from_spec(spec), tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    for missing in ('188:48', '107:251'):
+        item = item_from_spec(spec | {'stats': {k: v for k, v in spec['stats'].items() if k != missing}})
+        assert assess(item, tables)['verdict'] == 'vendor'
+
+
+def test_warlock_grimoire_abyss_combination_does_not_need_unrelated_support():
+    result = verdict('grim', {'1862': 2, '1579': 3, '1578': 2, '1561': 3}, 'rare', base_name='Codex', sockets=0)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    for properties in ({'1862': 2}, {'1579': 3}, {'1862': 2, '1579': 2}, {'1862': 2, '1579': 3}):
+        assert verdict('grim', properties, 'rare', base_name='Codex', sockets=0)['verdict'] == 'vendor'

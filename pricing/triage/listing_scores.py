@@ -1,10 +1,43 @@
 """Seller votes for replay, with listing counts retained as secondary evidence."""
 
 import json
+import math
 from collections import Counter
 
 from pricing.triage.patterns import matched_patterns
 from pricing.triage.rule_index import candidates
+
+
+def evidence_backed_check(item, result, tables):
+    """Attention needs a matched quote or reviewed demand, not missing information."""
+    if result['verdict'] != 'check':
+        return False
+    if item.get('category') == 'affixed_unknown':
+        from pricing.triage.unknown_affixed import review_pattern
+
+        return bool(review_pattern(item, tables))
+    rows = candidates(item, tables['pattern_index']) if 'pattern_index' in tables else tables['rules']['rows']
+    if matched_patterns(item, rows, socket_preparation=result.get('preparation')):
+        return True
+    reference = result.get('reference_band') or {}
+    price = reference.get('q1_ist')
+    if result.get('sale_mode') == 'accumulate' and type(price) in (int, float):
+        price *= reference.get('quantity', 1)
+    priced = type(price) in (int, float) and math.isfinite(price) and price >= tables['rules']['keep_ist']
+    if priced and reference.get('sellers', 0) > 0:
+        if result.get('bucket') is not None and result['bucket'] == reference.get('bucket'):
+            return True
+        if result.get('sale_mode') == 'accumulate':
+            return True
+        deciding = (result.get('roll_comparison') or {}).get('deciding', {})
+        if deciding and all(
+            type(item.get('properties', {}).get(key)) in (int, float)
+            and math.isfinite(item['properties'][key])
+            and spec.get('min', math.inf) <= item['properties'][key] <= spec.get('max', -math.inf)
+            for key, spec in deciding.items()
+        ):
+            return True
+    return False
 
 
 def cohort_key(item, result, named_cohort, tables):

@@ -33,29 +33,32 @@ levelling characters. Keep price: 0.25 Ist, inclusive.
 
 | Measure | Target | Now |
 |---|---|---|
-| Guide worked examples and false-positive rows | 100% pass | 36/36 and 16/16 |
-| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 384 of 404 pass (95.05%, no margin) |
-| Listing replay, valuable seller votes flagged | at least 85% | 81.1% in-sample (bases 65.5%, rare 64.3%, magic 74.2%); held-out scorer recall 41% |
-| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 10.4% (over) / 18.3% |
+| Guide worked examples and false-positive rows | 100% pass | 36/36 and 18/18 |
+| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 402 of 404 pass (99.50%) |
+| Listing replay, valuable seller votes flagged | at least 85% | 82.82% (bases 77.82%, rare 45.07%, magic 55.74%); evidence-backed CHECK counts for all types; scorer removed after zero added held-out votes |
+| Cheap listings flagged SELL or slow / CHECK; a cheap listing in a cohort where at least 90% of sellers ask the keep price is not a false flag | at most 10% / 25% | 10.37% (over) / 17.68% |
 | Named corpus drops that end as CHECK | at most 15% | 12.0% |
 | SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | unmeasured (one-day interval) |
-| Speed | under 50 ms per item; a ten-item identify pass under 1 s | 0.5 ms replayed; live five-item pass 6,985 ms (over) |
+| Speed | under 50 ms per item; a ten-item identify pass under 1 s | latest live one-item pass 69.0 ms; prior three-item pass 57.5 ms; required ten-item pass unverified |
 
 A measure counts as met only from a score file produced by the current code and tables. A
 number that goes down is reverted or explained in PLAN.md section 8.
 
 ### Queue
 
-PLAN.md "Steering 12" (2026-10-06 21:25), in this order, with the Steering 9 rules of pace:
+PLAN.md "Steering 14" (2026-10-06 23:55), in this order, with the Steering 9 rules of pace:
 
-1. Speed: the live identify pass (five items in 7 s) back under the limit, with a recorded
-   ten-item pass.
-2. Rare and magic attention reported out-of-sample (three folds over sellers).
-3. CHECK reasons name the properties found; threshold-one models dropped for rares.
-4. Named items: roll placement.
-5. Alongside: guide rows, with the changed expectations logged as a dated pass.
-6. Bases: no more work until the user decides whether CHECK counts as attention for bases
-   and named items. Cheap SELL and demand: at the weekly pull.
+1. Speed: record a ten-item pass by replaying captured identify items through the live
+   service path; bring the one-item pass from 69.0 ms under 50 ms.
+2. Report the 982 valuable votes vendored for lack of demand as their own miss cause; flag
+   none of them. Whether they stay in the denominator is the user's decision after the
+   seven-day pull of 2026-10-10 or -11.
+3. Rare and magic: authored patterns only, largest missed families first (481 votes short
+   of 85%). The paid-property scorer is removed and is not rebuilt.
+4. Base variants priced from existing listings (391 votes).
+5. Named roll placement and the two remaining guide rows.
+6. Evidence-backed CHECK counts as attention for all item types (user, 2026-10-06);
+   priced SELL/slow is reported separately. Cheap SELL and demand: at the weekly pull.
 
 ### Stopping rule
 

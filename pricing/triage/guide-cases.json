@@ -11322,18 +11322,18 @@
     "kind": "table",
     "cells": [
       "Craft bases",
-      "magic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet, Leather / Demonhide Gloves / Bramble Mitts from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale",
+      "magic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale. Leather Gloves / Demonhide Gloves / Bramble Mitts are recipe references only: the low-priority caster-glove option is weaker than the recommended unique/set gloves and does not earn an automatic own-use keep.",
       "\u2014",
       "Warlock \u00a73"
     ],
     "resolved_cells": [
       "Craft bases",
-      "magic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet, Leather / Demonhide Gloves / Bramble Mitts from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale",
+      "magic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale. Leather Gloves / Demonhide Gloves / Bramble Mitts are recipe references only: the low-priority caster-glove option is weaker than the recommended unique/set gloves and does not earn an automatic own-use keep.",
       "\u2014",
       "Warlock \u00a73"
     ],
     "description": "Craft bases",
-    "text": "Craft basesmagic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet, Leather / Demonhide Gloves / Bramble Mitts from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale\u2014Warlock \u00a73",
+    "text": "Craft basesmagic Boots / Demonhide / Wyrmhide Boots, Light Belt / Sharkskin Belt / Vampirefang Belt, Ring, Amulet from Hell (ilvl \u2265 71 after the craft) \u2014 keep for the cube, not for sale. Leather Gloves / Demonhide Gloves / Bramble Mitts are recipe references only: the low-priority caster-glove option is weaker than the recommended unique/set gloves and does not earn an automatic own-use keep.\u2014Warlock \u00a73",
     "expected": null,
     "examples": [
       {
@@ -11474,11 +11474,15 @@
           "item_level": 90
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: caster-glove recipe reference, weaker than the recommended unique/set gloves; no automatic own-use keep. Retain independent trade evaluation.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -11490,11 +11494,15 @@
           "item_level": 90
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: caster-glove recipe reference, weaker than the recommended unique/set gloves; no automatic own-use keep. Retain independent trade evaluation.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -11506,11 +11514,15 @@
           "item_level": 90
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: caster-glove recipe reference, weaker than the recommended unique/set gloves; no automatic own-use keep. Retain independent trade evaluation.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -16890,17 +16902,17 @@
     "cells": [
       "Belt",
       "24 FHR \u00b7 life \u226540",
-      "res + str; alternatively 15+ strength without a resistance (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.",
+      "res + str; alternatively 15+ strength without a resistance, or two resistances of at least 25% without strength (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.",
       "same \u2014 offer"
     ],
     "resolved_cells": [
       "Belt",
       "24 FHR \u00b7 life \u226540",
-      "res + str; alternatively 15+ strength without a resistance (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.",
+      "res + str; alternatively 15+ strength without a resistance, or two resistances of at least 25% without strength (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.",
       "same \u2014 offer"
     ],
     "description": "Belt",
-    "text": "Belt24 FHR \u00b7 life \u226540res + str; alternatively 15+ strength without a resistance (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.same \u2014 offer",
+    "text": "Belt24 FHR \u00b7 life \u226540res + str; alternatively 15+ strength without a resistance, or two resistances of at least 25% without strength (CHECK). Blood crafts: 10 open wounds + leech with the same FHR/life floor also warrant CHECK.same \u2014 offer",
     "expected": null,
     "examples": [
       {
@@ -20086,15 +20098,15 @@
     "cells": [
       "Socketed (n)",
       "exact count vs the runeword; a magic / rare item's sockets are 1\u20132 (Larzuk gives 1 to rares)",
-      "wrong count = floor"
+      "wrong count does not inherit an exact runeword-base price; apply the reviewed fallback ladder before discard. Under Steering 7, a normal non-ethereal 2os Archon Plate uses the socket-relaxed October 4 Q1 ask of 0.674 Ist (20 sellers), SELL (slow); this is pooled evidence, not an exact 2os quote."
     ],
     "resolved_cells": [
       "Socketed (n)",
       "exact count vs the runeword; a magic / rare item's sockets are 1\u20132 (Larzuk gives 1 to rares)",
-      "wrong count = floor"
+      "wrong count does not inherit an exact runeword-base price; apply the reviewed fallback ladder before discard. Under Steering 7, a normal non-ethereal 2os Archon Plate uses the socket-relaxed October 4 Q1 ask of 0.674 Ist (20 sellers), SELL (slow); this is pooled evidence, not an exact 2os quote."
     ],
     "description": "Socketed (n)",
-    "text": "Socketed (n)exact count vs the runeword; a magic / rare item's sockets are 1\u20132 (Larzuk gives 1 to rares)wrong count = floor",
+    "text": "Socketed (n)exact count vs the runeword; a magic / rare item's sockets are 1\u20132 (Larzuk gives 1 to rares)wrong count does not inherit an exact runeword-base price; apply the reviewed fallback ladder before discard. Under Steering 7, a normal non-ethereal 2os Archon Plate uses the socket-relaxed October 4 Q1 ask of 0.674 Ist (20 sellers), SELL (slow); this is pooled evidence, not an exact 2os quote.",
     "expected": null,
     "examples": [
       {
@@ -20138,9 +20150,9 @@
           "ethereal": false
         },
         "expected": [
-          "vendor"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: Updated \u00a73 Socketed example 3 from VENDOR to SELL (slow), following Steering 7\u2019s exact \u2192 drop ED \u2192 drop socket fallback, always retaining ethereal status. The October 4 normal non-ethereal Archon Plate fallback is 0.674 Ist Q1 from 20 sellers. This is not an exact two-socket valuation; the report retains relaxed facets."
       }
     ],
     "classification": "verdict",
@@ -20315,16 +20327,16 @@
       "Weapon",
       "+Warlock skills, FCR, 3os dagger for Void",
       "gray 3os Legend Spike / Fanged Knife / Kris (your Void base); Bloodpact Shard / Wizardspike early",
-      "a second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17)"
+      "a second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17) Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently."
     ],
     "resolved_cells": [
       "Weapon",
       "+Warlock skills, FCR, 3os dagger for Void",
       "gray 3os Legend Spike / Fanged Knife / Kris (your Void base); Bloodpact Shard / Wizardspike early",
-      "a second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17)"
+      "a second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17) Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently."
     ],
     "description": "Weapon",
-    "text": "Weapon+Warlock skills, FCR, 3os dagger for Voidgray 3os Legend Spike / Fanged Knife / Kris (your Void base); Bloodpact Shard / Wizardspike earlya second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17)",
+    "text": "Weapon+Warlock skills, FCR, 3os dagger for Voidgray 3os Legend Spike / Fanged Knife / Kris (your Void base); Bloodpact Shard / Wizardspike earlya second 3os elite dagger with +3 Abyss / Chaos staff-mods (4 \u2192 17) Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently.",
     "expected": null,
     "examples": [
       {
@@ -20397,7 +20409,10 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently. Original trade verdict expectations retained.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -27451,6 +27466,67 @@
     "classification_reason": "Item or variant trade guidance: Rare War Boots with 20% Faster Run/Walk, 5 Dexterity, 51% Enhanced Defense and only 8% or 9% Fire Resistance: VENDOR. The October 6 captured"
   },
   {
+    "id": "guides/pricing.html#s9:11",
+    "source": "guides/pricing.html#s9",
+    "heading": "9 \u00b7 False positives \u2014 looks valuable, is not",
+    "kind": "false_positive",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Magic Crown, non-ethereal, no sockets, 198% enhanced defense and no other modifier: VENDOR (live case, 2026-10-06). Enhanced defense alone does not inherit the asking prices of ethereal elite helms with sockets or replenish life. A family model fitted on fewer than 30 corpus drops is not evidence of demand.",
+    "text": "Magic Crown, non-ethereal, no sockets, 198% enhanced defense and no other modifier: VENDOR (live case, 2026-10-06). Enhanced defense alone does not inherit the asking prices of ethereal elite helms with sockets or replenish life. A family model fitted on fewer than 30 corpus drops is not evidence of demand.",
+    "expected": null,
+    "examples": [
+      {
+        "spec": {
+          "base": "Crown",
+          "rarity": "magic",
+          "ethereal": false,
+          "sockets": 0,
+          "stats": {
+            "16:0": 198
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Steering 12: ED alone on a plain non-ethereal Crown is not the listed ethereal elite combination."
+      }
+    ],
+    "classification": "verdict",
+    "classification_reason": "Item or variant trade guidance: Magic Crown, non-ethereal, no sockets, 198% enhanced defense and no other modifier: VENDOR (live case, 2026-10-06). Enhanced defense alone d"
+  },
+  {
+    "id": "guides/pricing.html#s9:12",
+    "source": "guides/pricing.html#s9",
+    "heading": "9 \u00b7 False positives \u2014 looks valuable, is not",
+    "kind": "false_positive",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Magic Demon Heart with 43 life and 37% fire resistance but no Necromancer skills: VENDOR (live case, 2026-10-06). Life and resistance do not replace the skill combination on listed heads; at least three valuable training sellers must support a complete paid-property set contained in the drop.",
+    "text": "Magic Demon Heart with 43 life and 37% fire resistance but no Necromancer skills: VENDOR (live case, 2026-10-06). Life and resistance do not replace the skill combination on listed heads; at least three valuable training sellers must support a complete paid-property set contained in the drop.",
+    "expected": null,
+    "examples": [
+      {
+        "spec": {
+          "base": "Demon Heart",
+          "rarity": "magic",
+          "ethereal": false,
+          "sockets": 0,
+          "stats": {
+            "7:0": 43,
+            "39:0": 37
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Life and fire resistance without Necromancer skills do not contain the listed paid combination."
+      }
+    ],
+    "classification": "verdict",
+    "classification_reason": "Item or variant trade guidance: Magic Demon Heart with 43 life and 37% fire resistance but no Necromancer skills: VENDOR (live case, 2026-10-06). Life and resistance do not"
+  },
+  {
     "id": "guides/pricing-primer.html#twin:1",
     "source": "guides/pricing-primer.html#twin",
     "heading": "",
@@ -27877,16 +27953,16 @@
     "kind": "table",
     "cells": [
       "Any grimoire (Grimoire \u2026 Forgotten Volume) of any colour",
-      "the roll, never the tier: rare +2 to Warlock Skills \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor",
+      "the roll, never the tier: rare +2 to Warlock Skills with a reviewed supporting combination (for example +3 Abyss / +2 Apocalypse; the bare +2 prefix alone is VENDOR) \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor",
       "+2 Warlock med 4.05, max 457 \u00b7 magic tree med 51 \u00b7 white med 5\u2013118 \u00b7 \u00a72.4"
     ],
     "resolved_cells": [
       "Any grimoire (Grimoire \u2026 Forgotten Volume) of any colour",
-      "the roll, never the tier: rare +2 to Warlock Skills \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor",
+      "the roll, never the tier: rare +2 to Warlock Skills with a reviewed supporting combination (for example +3 Abyss / +2 Apocalypse; the bare +2 prefix alone is VENDOR) \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor",
       "+2 Warlock med 4.05, max 457 \u00b7 magic tree med 51 \u00b7 white med 5\u2013118 \u00b7 \u00a72.4"
     ],
     "description": "Any grimoire (Grimoire \u2026 Forgotten Volume) of any colour",
-    "text": "Any grimoire (Grimoire \u2026 Forgotten Volume) of any colourthe roll, never the tier: rare +2 to Warlock Skills \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor+2 Warlock med 4.05, max 457 \u00b7 magic tree med 51 \u00b7 white med 5\u2013118 \u00b7 \u00a72.4",
+    "text": "Any grimoire (Grimoire \u2026 Forgotten Volume) of any colourthe roll, never the tier: rare +2 to Warlock Skills with a reviewed supporting combination (for example +3 Abyss / +2 Apocalypse; the bare +2 prefix alone is VENDOR) \u00b7 magic +3 to a tree \u00b7 white 2os +3 Summon Tainted / Consume / Bind Demon / Sigil: Death; +3 Abyss / Apocalypse are the common rolls; no staff mods = vendor+2 Warlock med 4.05, max 457 \u00b7 magic tree med 51 \u00b7 white med 5\u2013118 \u00b7 \u00a72.4",
     "expected": null,
     "examples": [
       {
@@ -27900,12 +27976,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -27918,12 +27991,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -27936,12 +28006,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -27954,12 +28021,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -27972,12 +28036,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -27990,12 +28051,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28008,12 +28066,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28026,12 +28081,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28044,12 +28096,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28062,12 +28111,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28080,12 +28126,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28098,12 +28141,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28116,12 +28156,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28134,12 +28171,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28152,12 +28186,9 @@
           "ethereal": false
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "vendor"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 against primer \u00a72.4 and pricing \u00a77: this fixture has only the +2 Warlock prefix, no supporting affix or staffmod. Historical mixed-roll grimoire asks do not make the bare prefix a paid combination; retain as a negative case."
       },
       {
         "spec": {
@@ -28635,16 +28666,16 @@
     "kind": "table",
     "cells": [
       "Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelins",
-      "staff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning \u2026 of Quickness (magic, Larzuk 2os); Preserved Head 2os +Necro; Eldritch Orb of the Magus; War Scepter of the Apprentice; \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skills",
+      "staff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning Greater Claws of Quickness with +3 Fire Blast and +3 Weapon Block, 40 IAS and two sockets (cached Fire Blast planner; CHECK without a matched price); Preserved Head 2os +Necro; Eldritch Orb of the Magus; Rose Branded War Scepter of the Apprentice (+3 Combat Skills, +3 Fist of the Heavens, 10 FCR; cached planner s10106pr item 57); \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skills",
       "claws 22.8 \u2192 114 \u00b7 heads 22.8 \u2192 68.5 \u00b7 javelin +2 Ama 57 \u00b7 \u00a73.3"
     ],
     "resolved_cells": [
       "Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelins",
-      "staff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning \u2026 of Quickness (magic, Larzuk 2os); Preserved Head 2os +Necro; Eldritch Orb of the Magus; War Scepter of the Apprentice; \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skills",
+      "staff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning Greater Claws of Quickness with +3 Fire Blast and +3 Weapon Block, 40 IAS and two sockets (cached Fire Blast planner; CHECK without a matched price); Preserved Head 2os +Necro; Eldritch Orb of the Magus; Rose Branded War Scepter of the Apprentice (+3 Combat Skills, +3 Fist of the Heavens, 10 FCR; cached planner s10106pr item 57); \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skills",
       "claws 22.8 \u2192 114 \u00b7 heads 22.8 \u2192 68.5 \u00b7 javelin +2 Ama 57 \u00b7 \u00a73.3"
     ],
     "description": "Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelins",
-    "text": "Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelinsstaff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning \u2026 of Quickness (magic, Larzuk 2os); Preserved Head 2os +Necro; Eldritch Orb of the Magus; War Scepter of the Apprentice; \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skillsclaws 22.8 \u2192 114 \u00b7 heads 22.8 \u2192 68.5 \u00b7 javelin +2 Ama 57 \u00b7 \u00a73.3",
+    "text": "Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelinsstaff-mods + the slot's second affix: claws +3 Traps / MA with 3os (white, cube recipe) or Cunning Greater Claws of Quickness with +3 Fire Blast and +3 Weapon Block, 40 IAS and two sockets (cached Fire Blast planner; CHECK without a matched price); Preserved Head 2os +Necro; Eldritch Orb of the Magus; Rose Branded War Scepter of the Apprentice (+3 Combat Skills, +3 Fist of the Heavens, 10 FCR; cached planner s10106pr item 57); \"Echoing\" barb helm (+6 BO); Antlers of the Colossus; Bloodlord Skull of Deflecting; +3 Jav / 40 IAS javelin only with +2 Amazon skillsclaws 22.8 \u2192 114 \u00b7 heads 22.8 \u2192 68.5 \u00b7 javelin +2 Ama 57 \u00b7 \u00a73.3",
     "expected": null,
     "examples": [
       {
@@ -28759,22 +28790,24 @@
       },
       {
         "spec": {
-          "base": "Greater Talons",
+          "base": "Greater Claws",
           "rarity": "magic",
-          "stats": {
-            "188:50": 3,
-            "93:0": 40
-          },
+          "ethereal": false,
           "sockets": 2,
-          "ethereal": false
+          "stats": {
+            "188:48": 3,
+            "93:0": 40,
+            "107:251": 3,
+            "107:263": 3
+          }
         },
         "expected": [
-          "check",
-          "sell",
-          "slow",
-          "self"
+          "check"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected 2026-10-06 from cached Fire Blast planner e113x0l4 items 49/56: Traps is layer 48, not Martial Arts layer 50; planner also has +3 Fire Blast/+3 Weapon Block. Build demand warrants CHECK, not a borrowed price; socket inserts assessed separately.",
+        "expected_fields": {
+          "decision_ist": null
+        }
       },
       {
         "spec": {
@@ -28799,12 +28832,15 @@
         "spec": {
           "base": "War Scepter",
           "rarity": "magic",
+          "ethereal": false,
+          "sockets": 2,
           "stats": {
+            "188:24": 3,
             "105:0": 10,
+            "107:121": 3,
+            "107:112": 3,
             "107:113": 3
-          },
-          "sockets": 0,
-          "ethereal": false
+          }
         },
         "expected": [
           "check",
@@ -28812,7 +28848,7 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Corrected from cached FoH planner s10106pr item 57, dated 2026-02-16: complete Rose Branded FoH/Combat/FCR combination, rather than the previous incomplete Concentration-only transcription."
       },
       {
         "spec": {
@@ -28844,16 +28880,16 @@
     "kind": "table",
     "cells": [
       "White Sacred Targe / Sacred Rondache (an ordinary white shield)",
-      "the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) with high res: self-use Spirit only, no market",
+      "the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) need their own matched evidence: the 4os normal non-ethereal 45-resistance Heraldic/Aerin price remains unresolved; no automatic Paladin leveling recommendation for this Warlock player",
       "45@ 0os 4.05 \u2192 40 \u00b7 4os 9.3 \u2192 17.3 \u00b7 3os 22.8 \u2192 45.7 \u00b7 \u00a72"
     ],
     "resolved_cells": [
       "White Sacred Targe / Sacred Rondache (an ordinary white shield)",
-      "the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) with high res: self-use Spirit only, no market",
+      "the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) need their own matched evidence: the 4os normal non-ethereal 45-resistance Heraldic/Aerin price remains unresolved; no automatic Paladin leveling recommendation for this Warlock player",
       "45@ 0os 4.05 \u2192 40 \u00b7 4os 9.3 \u2192 17.3 \u00b7 3os 22.8 \u2192 45.7 \u00b7 \u00a72"
     ],
     "description": "White Sacred Targe / Sacred Rondache (an ordinary white shield)",
-    "text": "White Sacred Targe / Sacred Rondache (an ordinary white shield)the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) with high res: self-use Spirit only, no market45@ 0os 4.05 \u2192 40 \u00b7 4os 9.3 \u2192 17.3 \u00b7 3os 22.8 \u2192 45.7 \u00b7 \u00a72",
+    "text": "White Sacred Targe / Sacred Rondache (an ordinary white shield)the all-res automod: 45@ at any socket count; 40\u201344@ still sells; below 40 floor. Normal-tier Paladin shields (Heraldic, Aerin, Crown) need their own matched evidence: the 4os normal non-ethereal 45-resistance Heraldic/Aerin price remains unresolved; no automatic Paladin leveling recommendation for this Warlock player45@ 0os 4.05 \u2192 40 \u00b7 4os 9.3 \u2192 17.3 \u00b7 3os 22.8 \u2192 45.7 \u00b7 \u00a72",
     "expected": null,
     "examples": [
       {
@@ -29043,7 +29079,7 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Audit 2026-10-06 remains open: exact normal non-ethereal 4os/45-resistance quote absent from scoped cache; Ladder, superior, different-socket and lower-resistance asks excluded. Retain trade expectation pending matching evidence, without inventing a price or automatic Paladin own-use."
       },
       {
         "spec": {
@@ -29064,7 +29100,7 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Audit 2026-10-06 remains open: exact normal non-ethereal 4os/45-resistance quote absent from scoped cache; Ladder, superior, different-socket and lower-resistance asks excluded. Retain trade expectation pending matching evidence, without inventing a price or automatic Paladin own-use."
       },
       {
         "spec": {
@@ -37634,7 +37670,7 @@
       "Targe \u00b7 Bone Shield \u00b7 Mask \u00b7 Preserved Head (BS-targe, BS-bone-shield, BS-mask, BS-preserved-head) \u00b7 31\u201332",
       "45@ sup Targe 0os 4.05 \u2192 5.9 (n=4), 3os 2.6 \u2192 6 (n=3) \u00b7 sup 15ED Mask 3os 0.79 \u2192 4.05 (n=7)",
       "\u2014",
-      "Other variants historically floor/offer-heavy, n < 5. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)",
+      "Other variants historically floor/offer-heavy, n < 5. Clean normal non-ethereal 3os Mask is now SELL (slow): October 4 matching Q1 asks 0.325578125 Ist, three independent sellers; do not apply this price to other socket counts or ethereal/superior copies. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)",
       "not searched"
     ],
     "resolved_cells": [
@@ -37642,11 +37678,11 @@
       "Targe \u00b7 Bone Shield \u00b7 Mask \u00b7 Preserved Head (BS-targe, BS-bone-shield, BS-mask, BS-preserved-head) \u00b7 31\u201332",
       "45@ sup Targe 0os 4.05 \u2192 5.9 (n=4), 3os 2.6 \u2192 6 (n=3) \u00b7 sup 15ED Mask 3os 0.79 \u2192 4.05 (n=7)",
       "\u2014",
-      "Other variants historically floor/offer-heavy, n < 5. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)",
+      "Other variants historically floor/offer-heavy, n < 5. Clean normal non-ethereal 3os Mask is now SELL (slow): October 4 matching Q1 asks 0.325578125 Ist, three independent sellers; do not apply this price to other socket counts or ethereal/superior copies. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)",
       "not searched"
     ],
     "description": "22\u201325",
-    "text": "22\u201325Targe \u00b7 Bone Shield \u00b7 Mask \u00b7 Preserved Head (BS-targe, BS-bone-shield, BS-mask, BS-preserved-head) \u00b7 31\u20133245@ sup Targe 0os 4.05 \u2192 5.9 (n=4), 3os 2.6 \u2192 6 (n=3) \u00b7 sup 15ED Mask 3os 0.79 \u2192 4.05 (n=7)\u2014Other variants historically floor/offer-heavy, n < 5. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)not searched",
+    "text": "22\u201325Targe \u00b7 Bone Shield \u00b7 Mask \u00b7 Preserved Head (BS-targe, BS-bone-shield, BS-mask, BS-preserved-head) \u00b7 31\u20133245@ sup Targe 0os 4.05 \u2192 5.9 (n=4), 3os 2.6 \u2192 6 (n=3) \u00b7 sup 15ED Mask 3os 0.79 \u2192 4.05 (n=7)\u2014Other variants historically floor/offer-heavy, n < 5. Clean normal non-ethereal 3os Mask is now SELL (slow): October 4 matching Q1 asks 0.325578125 Ist, three independent sellers; do not apply this price to other socket counts or ethereal/superior copies. Review 2026-10-06: clean non-ethereal Bone Shield 0os/2os is a guide-listed runeword base with fewer than three matching sellers: CHECK under Steering 7, with no numeric estimate. Do not borrow the mixed name band. Preserved Head has no white market (2os magic heads 22.8 \u2192 68.5, n=12, are +skill items)not searched",
     "expected": null,
     "examples": [
       {
@@ -38256,10 +38292,9 @@
           "stats": {}
         },
         "expected": [
-          "vendor",
-          "self"
+          "slow"
         ],
-        "rationale": "The source labels other clean variants floor; retain as a negative case until dated market evidence contradicts it."
+        "rationale": "Reviewed 2026-10-06: Updated \u00a72 base-group example 30 (normal non-ethereal 3os Mask) from VENDOR/SELF to SELL (slow). Scoped October 4 cache 4288110108-p0.json has matching listings 1002528892455, 1002524095723 and 1002519763542 from three sellers: asks 0.29425, 0.35690625 and 9.32 Ist after cached currency conversion, Q1 0.325578125. Other variants remain separate; this corrects the old floor statement, not the engine."
       },
       {
         "spec": {
@@ -48597,7 +48632,7 @@
       "0.57\u20131.0 (masteries with FRW 4)",
       "1 \u2192 22.8 (shadow/curses medians 9.32; shapeshift n=2 at Jah\u20132 Jah)",
       "Captain's (Offensive Auras) \u2192 1 Pul; Fletcher's of Vita (Bow) \u2192 1 Ohm",
-      "The historical WP-A snapshot did not name these trees, which does not establish zero demand. Current scoped October 3 cohorts include +1 Druid Summoning / 45 life (Q1 7.235 Ist, four sellers) and +1 Shadow / 45 life (Q1 3.08 Ist, six sellers). Both are slow candidates. Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven."
+      "The historical WP-A snapshot did not name these trees, which does not establish zero demand. Review 2026-10-06: +1 Druid Summoning / 45 life remains CHECK, without an item estimate. The current eligible cache has only one priced seller in the 30\u201345-life band (a 41-life copy) and two across all life rolls; the earlier four-seller/7.235-Ist claim is not reproducible and is withdrawn. The separately reviewed +1 Shadow / 45-life cohort remains a slow candidate (October 3 asks Q1 3.08 Ist, six sellers). Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven."
     ],
     "resolved_cells": [
       "CH-skiller-pala-offensive \u00b7 -pala-defensive \u00b7 -assa-shadow \u00b7 -ama-bow \u00b7 -necro-curses \u00b7 -barb-masteries \u00b7 -barb-combat \u00b7 -druid-summon \u00b7 -druid-shapeshift",
@@ -48606,10 +48641,10 @@
       "0.57\u20131.0 (masteries with FRW 4)",
       "1 \u2192 22.8 (shadow/curses medians 9.32; shapeshift n=2 at Jah\u20132 Jah)",
       "Captain's (Offensive Auras) \u2192 1 Pul; Fletcher's of Vita (Bow) \u2192 1 Ohm",
-      "The historical WP-A snapshot did not name these trees, which does not establish zero demand. Current scoped October 3 cohorts include +1 Druid Summoning / 45 life (Q1 7.235 Ist, four sellers) and +1 Shadow / 45 life (Q1 3.08 Ist, six sellers). Both are slow candidates. Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven."
+      "The historical WP-A snapshot did not name these trees, which does not establish zero demand. Review 2026-10-06: +1 Druid Summoning / 45 life remains CHECK, without an item estimate. The current eligible cache has only one priced seller in the 30\u201345-life band (a 41-life copy) and two across all life rolls; the earlier four-seller/7.235-Ist claim is not reproducible and is withdrawn. The separately reviewed +1 Shadow / 45-life cohort remains a slow candidate (October 3 asks Q1 3.08 Ist, six sellers). Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven."
     ],
     "description": "CH-skiller-pala-offensive \u00b7 -pala-defensive \u00b7 -assa-shadow \u00b7 -ama-bow \u00b7 -necro-curses \u00b7 -barb-masteries \u00b7 -barb-combat \u00b7 -druid-summon \u00b7 -druid-shapeshift",
-    "text": "CH-skiller-pala-offensive \u00b7 -pala-defensive \u00b7 -assa-shadow \u00b7 -ama-bow \u00b7 -necro-curses \u00b7 -barb-masteries \u00b7 -barb-combat \u00b7 -druid-summon \u00b7 -druid-shapeshiftNiche trees; assess the exact tree and secondary affix1\u20138 each0.57\u20131.0 (masteries with FRW 4)1 \u2192 22.8 (shadow/curses medians 9.32; shapeshift n=2 at Jah\u20132 Jah)Captain's (Offensive Auras) \u2192 1 Pul; Fletcher's of Vita (Bow) \u2192 1 OhmThe historical WP-A snapshot did not name these trees, which does not establish zero demand. Current scoped October 3 cohorts include +1 Druid Summoning / 45 life (Q1 7.235 Ist, four sellers) and +1 Shadow / 45 life (Q1 3.08 Ist, six sellers). Both are slow candidates. Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven.",
+    "text": "CH-skiller-pala-offensive \u00b7 -pala-defensive \u00b7 -assa-shadow \u00b7 -ama-bow \u00b7 -necro-curses \u00b7 -barb-masteries \u00b7 -barb-combat \u00b7 -druid-summon \u00b7 -druid-shapeshiftNiche trees; assess the exact tree and secondary affix1\u20138 each0.57\u20131.0 (masteries with FRW 4)1 \u2192 22.8 (shadow/curses medians 9.32; shapeshift n=2 at Jah\u20132 Jah)Captain's (Offensive Auras) \u2192 1 Pul; Fletcher's of Vita (Bow) \u2192 1 OhmThe historical WP-A snapshot did not name these trees, which does not establish zero demand. Review 2026-10-06: +1 Druid Summoning / 45 life remains CHECK, without an item estimate. The current eligible cache has only one priced seller in the 30\u201345-life band (a 41-life copy) and two across all life rolls; the earlier four-seller/7.235-Ist claim is not reproducible and is withdrawn. The separately reviewed +1 Shadow / 45-life cohort remains a slow candidate (October 3 asks Q1 3.08 Ist, six sellers). Masteries +7 FRW has sparse matching asks and remains CHECK/reference. Plain, life and FRW quotes are separate: do not use these high-life figures or the mixed September aggregate to price a plain or lower-life copy. Middle-life Offensive/Defensive Aura trade coverage remains unproven.",
     "expected": null,
     "examples": [
       {
@@ -48624,10 +48659,12 @@
           "ethereal": false
         },
         "expected": [
-          "sell",
-          "slow"
+          "check"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: skill/life demand warrants CHECK; current eligible cache cannot reproduce the earlier four-seller estimate. No numerical item price.",
+        "expected_fields": {
+          "decision_ist": null
+        }
       },
       {
         "spec": {
@@ -48679,7 +48716,7 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Audit 2026-10-06 remains unresolved: no eligible cached 30-life Offensive Aura listing. The dated 2026-09-23 43-life ask (listing 1002465463747) is one seller and cannot price this 30-life example. Mixed suffix/plain references do not establish the expected keep; retain this failing expectation pending demand review rather than infer VENDOR from missing evidence."
       },
       {
         "spec": {
@@ -48698,7 +48735,7 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Audit 2026-10-06 remains unresolved: no eligible cached 30-life Defensive Aura listing. The dated 2026-09-23 45-life ask (listing 1002353036417) is one seller and cannot price this 30-life example. Mixed suffix/plain references do not establish the expected keep; retain this failing expectation pending demand review rather than infer VENDOR from missing evidence."
       },
       {
         "spec": {
@@ -56976,16 +57013,16 @@
       "Chance Guards (UQ-chance-guards) \u00b7 Med \u2192 Low\u2013Mid",
       "40 MF: 1.0 \u00b7 5.9 (9) \u00b7 35\u201339: 0.2 \u00b7 0.67 (5) \u00b7 <35: 0.12 \u00b7 0.2 (3)",
       "1 Pul \u00b7 1 Lo Perf \u00b7 10 Perfect Amethyst 15 Perfect Ruby \u00b7 20 Perfect Gems \u00b7 1 Gul 30 Perfect Gems \u00b7 1 Lem \u00b7 2 Ist Perf \u00b7 2 Hel \u00b7 1 Lo Perf \u00b7 1 for 1 Perfect Ruby",
-      "17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722)"
+      "17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722) Review 2026-10-06: the below-35 MF trade bucket does not imply discarding a personal magic-find option. Non-ethereal Chance Guards are explicitly listed for the player's Echoing Strike magic-find setup in Warlock \u00a71; report SELF when the trade estimate is below the keep threshold, without presenting that own-use recommendation as a sale price."
     ],
     "resolved_cells": [
       "Chance Guards (UQ-chance-guards) \u00b7 Med \u2192 Low\u2013Mid",
       "40 MF: 1.0 \u00b7 5.9 (9) \u00b7 35\u201339: 0.2 \u00b7 0.67 (5) \u00b7 <35: 0.12 \u00b7 0.2 (3)",
       "1 Pul \u00b7 1 Lo Perf \u00b7 10 Perfect Amethyst 15 Perfect Ruby \u00b7 20 Perfect Gems \u00b7 1 Gul 30 Perfect Gems \u00b7 1 Lem \u00b7 2 Ist Perf \u00b7 2 Hel \u00b7 1 Lo Perf \u00b7 1 for 1 Perfect Ruby",
-      "17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722)"
+      "17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722) Review 2026-10-06: the below-35 MF trade bucket does not imply discarding a personal magic-find option. Non-ethereal Chance Guards are explicitly listed for the player's Echoing Strike magic-find setup in Warlock \u00a71; report SELF when the trade estimate is below the keep threshold, without presenting that own-use recommendation as a sale price."
     ],
     "description": "Chance Guards (UQ-chance-guards) \u00b7 Med \u2192 Low\u2013Mid",
-    "text": "Chance Guards (UQ-chance-guards) \u00b7 Med \u2192 Low\u2013Mid40 MF: 1.0 \u00b7 5.9 (9) \u00b7 35\u201339: 0.2 \u00b7 0.67 (5) \u00b7 <35: 0.12 \u00b7 0.2 (3)1 Pul \u00b7 1 Lo Perf \u00b7 10 Perfect Amethyst 15 Perfect Ruby \u00b7 20 Perfect Gems \u00b7 1 Gul 30 Perfect Gems \u00b7 1 Lem \u00b7 2 Ist Perf \u00b7 2 Hel \u00b7 1 Lo Perf \u00b7 1 for 1 Perfect Ruby17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722)",
+    "text": "Chance Guards (UQ-chance-guards) \u00b7 Med \u2192 Low\u2013Mid40 MF: 1.0 \u00b7 5.9 (9) \u00b7 35\u201339: 0.2 \u00b7 0.67 (5) \u00b7 <35: 0.12 \u00b7 0.2 (3)1 Pul \u00b7 1 Lo Perf \u00b7 10 Perfect Amethyst 15 Perfect Ruby \u00b7 20 Perfect Gems \u00b7 1 Gul 30 Perfect Gems \u00b7 1 Lem \u00b7 2 Ist Perf \u00b7 2 Hel \u00b7 1 Lo Perf \u00b7 1 for 1 Perfect Ruby17 builds; MF 25\u201340 \u00b7 qlvl 20, TC 12 (\"Cheap and easy to find off of normal/nightmare difficulty bosses\", t722) Review 2026-10-06: the below-35 MF trade bucket does not imply discarding a personal magic-find option. Non-ethereal Chance Guards are explicitly listed for the player's Echoing Strike magic-find setup in Warlock \u00a71; report SELF when the trade estimate is below the keep threshold, without presenting that own-use recommendation as a sale price.",
     "expected": null,
     "examples": [
       {
@@ -57003,9 +57040,22 @@
           }
         },
         "expected": [
-          "vendor"
+          "self"
         ],
-        "rationale": "Guide roll-bucket boundaries; other variable rolls unspecified, fixed native properties from local item definition."
+        "rationale": "Guide roll-bucket boundaries; other variable rolls unspecified, fixed native properties from local item definition. Review 2026-10-06: Warlock \u00a71 explicitly retains this non-ethereal glove as the personal magic-find option; this does not establish trade value.",
+        "expected_fields": {
+          "own_use": {
+            "category": "uniques",
+            "slot": "gloves",
+            "label": "Echoing Strike magic-find gloves",
+            "source": "guides/warlock.html#s1",
+            "conditions": {
+              "ethereal": false
+            },
+            "properties": {},
+            "name": "Chance Guards"
+          }
+        }
       },
       {
         "spec": {
@@ -57022,9 +57072,22 @@
           }
         },
         "expected": [
-          "vendor"
+          "self"
         ],
-        "rationale": "Guide roll-bucket boundaries; other variable rolls unspecified, fixed native properties from local item definition."
+        "rationale": "Guide roll-bucket boundaries; other variable rolls unspecified, fixed native properties from local item definition. Review 2026-10-06: Warlock \u00a71 explicitly retains this non-ethereal glove as the personal magic-find option; this does not establish trade value.",
+        "expected_fields": {
+          "own_use": {
+            "category": "uniques",
+            "slot": "gloves",
+            "label": "Echoing Strike magic-find gloves",
+            "source": "guides/warlock.html#s1",
+            "conditions": {
+              "ethereal": false
+            },
+            "properties": {},
+            "name": "Chance Guards"
+          }
+        }
       },
       {
         "spec": {
@@ -61385,16 +61448,16 @@
     "kind": "table",
     "cells": [
       "Worldstone Shards (MS-*-worldstone-shard)",
-      "per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table)",
+      "per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table) Review 2026-10-06 (SC/Non-Ladder/PC/RotW asks): Northern single-item offers now have Q1 0.5749375 Ist from three priced sellers (October 4\u20136 cache), supporting SELL (slow) for one shard. The older 0.17 figure is historical; bulk lots remain separate quantity cohorts. Other single shards remain CHECK/save toward a supported sale lot.",
       "\u2014"
     ],
     "resolved_cells": [
       "Worldstone Shards (MS-*-worldstone-shard)",
-      "per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table)",
+      "per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table) Review 2026-10-06 (SC/Non-Ladder/PC/RotW asks): Northern single-item offers now have Q1 0.5749375 Ist from three priced sellers (October 4\u20136 cache), supporting SELL (slow) for one shard. The older 0.17 figure is historical; bulk lots remain separate quantity cohorts. Other single shards remain CHECK/save toward a supported sale lot.",
       "\u2014"
     ],
     "description": "Worldstone Shards (MS-*-worldstone-shard)",
-    "text": "Worldstone Shards (MS-*-worldstone-shard)per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table)\u2014",
+    "text": "Worldstone Shards (MS-*-worldstone-shard)per unit Western 0.03 \u00b7 Eastern 0.03 \u00b7 Southern 0.05 \u00b7 Deep 0.12 \u00b7 Northern 0.17 (\u00a76.2); Northern/Deep gate the Renewed Bone Break / Flame Rift / Black Cleft recipes (new-items cube table) Review 2026-10-06 (SC/Non-Ladder/PC/RotW asks): Northern single-item offers now have Q1 0.5749375 Ist from three priced sellers (October 4\u20136 cache), supporting SELL (slow) for one shard. The older 0.17 figure is historical; bulk lots remain separate quantity cohorts. Other single shards remain CHECK/save toward a supported sale lot.\u2014",
     "expected": null,
     "examples": [
       {
@@ -61468,9 +61531,13 @@
           "quantity": 1
         },
         "expected": [
-          "check"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: three independent scoped single-item sellers yield Q1 0.5749375 Ist, above 0.25 Ist. Thin activity supports slow, not a liquid sale claim; bulk quotes are separate.",
+        "expected_fields": {
+          "bucket": "name",
+          "sale_mode": null
+        }
       }
     ],
     "classification": "verdict",
@@ -63733,18 +63800,18 @@
     "kind": "table",
     "cells": [
       "RR-circlet (RR-pc-barb-circlet)",
-      "+2 skills & 20 FCR plus FRW/IAS/sockets",
-      "else Charsi (thread)",
-      "t1863846 (+2 Barb / 20 FCR / 16 ED / 20 energy / 1 socket): \"Charsi food given fcr not ias/frw and energy instead of something else\"; \"the socket actually takes away an affix since Larzuk can give one on top \u2026 blank 2/20s are easy to get and singer barbs are not super popular right now, so Charsi food it is\"."
+      "Rare +2 class skills and 20 FCR; supporting affixes determine stronger variants",
+      "CHECK; no numerical price without matching evidence",
+      "Review 2026-10-06: apply the October 4 rare 2/20 correction (\u00a73.3) to this row too. The +2 Barbarian / 20 FCR / 16 ED / 20 energy / one-socket example warrants trade review, not an automatic sale claim. The September thread t1863846 vendor opinion is historical and does not override the later scoped October evidence across all eight classes. Do not borrow a premium socket/FRW/life variant price."
     ],
     "resolved_cells": [
       "RR-circlet (RR-pc-barb-circlet)",
-      "+2 skills & 20 FCR plus FRW/IAS/sockets",
-      "else Charsi (thread)",
-      "t1863846 (+2 Barb / 20 FCR / 16 ED / 20 energy / 1 socket): \"Charsi food given fcr not ias/frw and energy instead of something else\"; \"the socket actually takes away an affix since Larzuk can give one on top \u2026 blank 2/20s are easy to get and singer barbs are not super popular right now, so Charsi food it is\"."
+      "Rare +2 class skills and 20 FCR; supporting affixes determine stronger variants",
+      "CHECK; no numerical price without matching evidence",
+      "Review 2026-10-06: apply the October 4 rare 2/20 correction (\u00a73.3) to this row too. The +2 Barbarian / 20 FCR / 16 ED / 20 energy / one-socket example warrants trade review, not an automatic sale claim. The September thread t1863846 vendor opinion is historical and does not override the later scoped October evidence across all eight classes. Do not borrow a premium socket/FRW/life variant price."
     ],
     "description": "RR-circlet (RR-pc-barb-circlet)",
-    "text": "RR-circlet (RR-pc-barb-circlet)+2 skills & 20 FCR plus FRW/IAS/socketselse Charsi (thread)t1863846 (+2 Barb / 20 FCR / 16 ED / 20 energy / 1 socket): \"Charsi food given fcr not ias/frw and energy instead of something else\"; \"the socket actually takes away an affix since Larzuk can give one on top \u2026 blank 2/20s are easy to get and singer barbs are not super popular right now, so Charsi food it is\".",
+    "text": "RR-circlet (RR-pc-barb-circlet)Rare +2 class skills and 20 FCR; supporting affixes determine stronger variantsCHECK; no numerical price without matching evidenceReview 2026-10-06: apply the October 4 rare 2/20 correction (\u00a73.3) to this row too. The +2 Barbarian / 20 FCR / 16 ED / 20 energy / one-socket example warrants trade review, not an automatic sale claim. The September thread t1863846 vendor opinion is historical and does not override the later scoped October evidence across all eight classes. Do not borrow a premium socket/FRW/life variant price.",
     "expected": null,
     "examples": [
       {
@@ -63761,9 +63828,12 @@
           "ethereal": false
         },
         "expected": [
-          "vendor"
+          "check"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: fold the October 4 rare 2/20 circlet correction into this retained Barbarian example; CHECK without inventing an item price.",
+        "expected_fields": {
+          "decision_ist": null
+        }
       }
     ],
     "classification": "verdict",
@@ -63778,16 +63848,16 @@
       "(no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelins",
       "WP-A names \"Rare Boots\" (17 builds), \"Rare Gloves\" (10), \"Rare Belt\" (7), +2 Jav / 20 IAS gloves (\u00a73.3), \"Rare Kris\" (Abyss Warlock)",
       "unpriced in this file \u2014 no thread and no non-wall ask prices them",
-      "Assess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares."
+      "Assess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares. Review 2026-10-06: the rare Warlock dagger example is +2 Warlock / +3 Abyss / life (40 in the acceptance case), following pricing \u00a72. A 20-FCR dagger is not a legal affix combination: native magicsuffix rows 22/175 allow rods and, for row 175, orbs/circlets, not daggers. FCR does not substitute for the reviewed supporting affixes."
     ],
     "resolved_cells": [
       "(no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelins",
       "WP-A names \"Rare Boots\" (17 builds), \"Rare Gloves\" (10), \"Rare Belt\" (7), +2 Jav / 20 IAS gloves (\u00a73.3), \"Rare Kris\" (Abyss Warlock)",
       "unpriced in this file \u2014 no thread and no non-wall ask prices them",
-      "Assess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares."
+      "Assess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares. Review 2026-10-06: the rare Warlock dagger example is +2 Warlock / +3 Abyss / life (40 in the acceptance case), following pricing \u00a72. A 20-FCR dagger is not a legal affix combination: native magicsuffix rows 22/175 allow rods and, for row 175, orbs/circlets, not daggers. FCR does not substitute for the reviewed supporting affixes."
     ],
     "description": "(no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelins",
-    "text": "(no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelinsWP-A names \"Rare Boots\" (17 builds), \"Rare Gloves\" (10), \"Rare Belt\" (7), +2 Jav / 20 IAS gloves (\u00a73.3), \"Rare Kris\" (Abyss Warlock)unpriced in this file \u2014 no thread and no non-wall ask prices themAssess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares.",
+    "text": "(no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelinsWP-A names \"Rare Boots\" (17 builds), \"Rare Gloves\" (10), \"Rare Belt\" (7), +2 Jav / 20 IAS gloves (\u00a73.3), \"Rare Kris\" (Abyss Warlock)unpriced in this file \u2014 no thread and no non-wall ask prices themAssess the concrete family combinations in pricing \u00a72, including skill/speed gloves, resistance boots and FHR/life belts. A generic build-slot mention alone is not enough; complete reviewed combinations warrant CHECK without borrowing prices from unrelated rares. Review 2026-10-06: the rare Warlock dagger example is +2 Warlock / +3 Abyss / life (40 in the acceptance case), following pricing \u00a72. A 20-FCR dagger is not a legal affix combination: native magicsuffix rows 22/175 allow rods and, for row 175, orbs/circlets, not daggers. FCR does not substitute for the reviewed supporting affixes.",
     "expected": null,
     "examples": [
       {
@@ -63909,12 +63979,28 @@
           "ethereal": false
         },
         "expected": [
+          "vendor"
+        ],
+        "rationale": "Reviewed 2026-10-06: retain the former 20-FCR dagger fixture as a negative combination check. Native magicsuffix rows 22/175 do not permit 20 FCR on daggers; it cannot satisfy the guide's life/resistance/damage/socket support requirement."
+      },
+      {
+        "spec": {
+          "base": "Kriss",
+          "rarity": "rare",
+          "stats": {
+            "83:7": 2,
+            "107:402": 3,
+            "7:0": 40
+          },
+          "sockets": 0,
+          "ethereal": false
+        },
+        "expected": [
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: pricing \u00a72 rare Warlock dagger combination \u2014 +2 Warlock, +3 Abyss and life. Legal supporting affix, CHECK without an unrelated price."
       }
     ],
     "classification": "verdict",
@@ -65802,15 +65888,15 @@
     "cells": [
       "Weapon",
       "Void (Thul-Zod-Ist, 3os Legend Spike / Fanged Knife / Kris), Plague, Heart of the Oak, Spirit, Obsession, Silence, Fortitude, Insight, Doom \u00b7 uniques Bloodpact Shard, Spectral Shard, Wizardspike, Tomb Reaver, Arioc's Needle, Mang Song's, Ondal's, Razorswitch, Skull Collector, Suicide Branch",
-      "Void base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter."
+      "Void base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter. Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently."
     ],
     "resolved_cells": [
       "Weapon",
       "Void (Thul-Zod-Ist, 3os Legend Spike / Fanged Knife / Kris), Plague, Heart of the Oak, Spirit, Obsession, Silence, Fortitude, Insight, Doom \u00b7 uniques Bloodpact Shard, Spectral Shard, Wizardspike, Tomb Reaver, Arioc's Needle, Mang Song's, Ondal's, Razorswitch, Skull Collector, Suicide Branch",
-      "Void base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter."
+      "Void base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter. Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently."
     ],
     "description": "Weapon",
-    "text": "WeaponVoid (Thul-Zod-Ist, 3os Legend Spike / Fanged Knife / Kris), Plague, Heart of the Oak, Spirit, Obsession, Silence, Fortitude, Insight, Doom \u00b7 uniques Bloodpact Shard, Spectral Shard, Wizardspike, Tomb Reaver, Arioc's Needle, Mang Song's, Ondal's, Razorswitch, Skull Collector, Suicide BranchVoid base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter.",
+    "text": "WeaponVoid (Thul-Zod-Ist, 3os Legend Spike / Fanged Knife / Kris), Plague, Heart of the Oak, Spirit, Obsession, Silence, Fortitude, Insight, Doom \u00b7 uniques Bloodpact Shard, Spectral Shard, Wizardspike, Tomb Reaver, Arioc's Needle, Mang Song's, Ondal's, Razorswitch, Skull Collector, Suicide BranchVoid base: gray 3os or 0os elite dagger from Pindle/cows (Larzuk gives 3 on Legend Spike / Fanged Knife / Kris at ilvl 86). Zod is the cost. Spirit Crystal Sword is the starter. Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently.",
     "expected": null,
     "examples": [
       {
@@ -65936,7 +66022,10 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Review 2026-10-06: Bloodpact Shard is a starter reference, not an automatic own-use keep for this non-leveling player. Assess its trade value independently. Original trade verdict expectations retained.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -66737,15 +66826,15 @@
     "cells": [
       "Body",
       "Enigma, Stealth, Chains of Honor, Que-Hegan's Wisdom, Skin of the Vipermagi, Skullder's Ire, Tal Rasha's Guardianship",
-      "Stealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots."
+      "Stealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots. Review 2026-10-06: Que-Hegan's Wisdom is historical equipment, replaced by Authority before September 29 (\u00a70); it does not receive an automatic own-use keep. Assess its trade value independently."
     ],
     "resolved_cells": [
       "Body",
       "Enigma, Stealth, Chains of Honor, Que-Hegan's Wisdom, Skin of the Vipermagi, Skullder's Ire, Tal Rasha's Guardianship",
-      "Stealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots."
+      "Stealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots. Review 2026-10-06: Que-Hegan's Wisdom is historical equipment, replaced by Authority before September 29 (\u00a70); it does not receive an automatic own-use keep. Assess its trade value independently."
     ],
     "description": "Body",
-    "text": "BodyEnigma, Stealth, Chains of Honor, Que-Hegan's Wisdom, Skin of the Vipermagi, Skullder's Ire, Tal Rasha's GuardianshipStealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots.",
+    "text": "BodyEnigma, Stealth, Chains of Honor, Que-Hegan's Wisdom, Skin of the Vipermagi, Skullder's Ire, Tal Rasha's GuardianshipStealth (Tal-Eth) day one; Enigma is the long-term goal that also removes the FRW argument for boots. Review 2026-10-06: Que-Hegan's Wisdom is historical equipment, replaced by Authority before September 29 (\u00a70); it does not receive an automatic own-use keep. Assess its trade value independently.",
     "expected": null,
     "examples": [
       {
@@ -66829,7 +66918,10 @@
           "slow",
           "self"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Review 2026-10-06: Que-Hegan's Wisdom is historical equipment, replaced by Authority before September 29 (\u00a70); it does not receive an automatic own-use keep. Assess its trade value independently. Original trade verdict expectations retained.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -71106,6 +71198,216 @@
     "context_reason": "Historical review log; current guidance is in the guide body",
     "cells": [],
     "resolved_cells": [],
+    "description": "Bulwark (Demonhead) \u2014 s0-1:3, example 4: no automatic own-use keep.",
+    "text": "Bulwark (Demonhead) \u2014 s0-1:3, example 4: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:13",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Spirit (Crystal Sword) \u2014 s1:1, example 5: no automatic own-use keep.",
+    "text": "Spirit (Crystal Sword) \u2014 s1:1, example 5: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:14",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Spectral Shard (Blade) \u2014 s1:1, example 7: no automatic own-use keep.",
+    "text": "Spectral Shard (Blade) \u2014 s1:1, example 7: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:15",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Wizardspike (Bone Knife) \u2014 s1:1, example 8: no automatic own-use keep.",
+    "text": "Wizardspike (Bone Knife) \u2014 s1:1, example 8: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:16",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Razorswitch (Jo Staff) \u2014 s1:1, example 13: no automatic own-use keep.",
+    "text": "Razorswitch (Jo Staff) \u2014 s1:1, example 13: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:17",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Splendor (Bone Shield) \u2014 s1:2, example 3: no automatic own-use keep.",
+    "text": "Splendor (Bone Shield) \u2014 s1:2, example 3: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:18",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Ancients' Pledge (Kite Shield) \u2014 s1:2, example 4: no automatic own-use keep.",
+    "text": "Ancients' Pledge (Kite Shield) \u2014 s1:2, example 4: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:19",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Rhyme (Bone Shield) \u2014 s1:2, example 5: no automatic own-use keep.",
+    "text": "Rhyme (Bone Shield) \u2014 s1:2, example 5: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:20",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Lore (Cap) \u2014 s1:4, example 6: no automatic own-use keep.",
+    "text": "Lore (Cap) \u2014 s1:4, example 6: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:21",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Stealth (Quilted Armor) \u2014 s1:5, example 2: no automatic own-use keep.",
+    "text": "Stealth (Quilted Armor) \u2014 s1:5, example 2: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:22",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Bulwark (Demonhead) \u2014 s1:12, example 10: no automatic own-use keep.",
+    "text": "Bulwark (Demonhead) \u2014 s1:12, example 10: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:23",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Caster Leather Gloves \u2014 s3:6, example 1: no automatic own-use keep.",
+    "text": "Caster Leather Gloves \u2014 s3:6, example 1: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:24",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Caster Demonhide Gloves \u2014 s3:6, example 2: no automatic own-use keep.",
+    "text": "Caster Demonhide Gloves \u2014 s3:6, example 2: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:25",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Caster Bramble Mitts \u2014 s3:6, example 3: no automatic own-use keep.",
+    "text": "Caster Bramble Mitts \u2014 s3:6, example 3: no automatic own-use keep.",
+    "expected": null,
+    "unresolved_reason": "Concrete item and expected outcome not yet transcribed: Historical review log; current guidance is in the guide body",
+    "classification": "context",
+    "classification_reason": "Historical review log; current guidance is in the guide body"
+  },
+  {
+    "id": "guides/warlock.html#s6:26",
+    "source": "guides/warlock.html#s6",
+    "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
+    "kind": "context",
+    "context_reason": "Historical review log; current guidance is in the guide body",
+    "cells": [],
+    "resolved_cells": [],
     "description": "2026-09-20 \u2014 Added \u00a70.1 (merc survival) from a mercenary screen + three tooltip screenshots and the Holy Freeze skill tooltip: diagnosis is defense 1,853 and 10 % leech, not resists or life; Fortitude in an eth 4os Dusk Shroud (Lo ~5.9 + base 0.25\u20130.8) jumps ahead of the helm and Giant Thresher that the \u00a70 merc bullet had queued. Sacred Armor excluded on the merc's 204 str. Cure/Bulwark mods left unverified (\u00a77 item 5); Prayer+Meditation pairing not asserted.",
     "text": "2026-09-20 \u2014 Added \u00a70.1 (merc survival) from a mercenary screen + three tooltip screenshots and the Holy Freeze skill tooltip: diagnosis is defense 1,853 and 10 % leech, not resists or life; Fortitude in an eth 4os Dusk Shroud (Lo ~5.9 + base 0.25\u20130.8) jumps ahead of the helm and Giant Thresher that the \u00a70 merc bullet had queued. Sacred Armor excluded on the merc's 204 str. Cure/Bulwark mods left unverified (\u00a77 item 5); Prayer+Meditation pairing not asserted.",
     "expected": null,
@@ -71114,7 +71416,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:13",
+    "id": "guides/warlock.html#s6:27",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71129,7 +71431,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:14",
+    "id": "guides/warlock.html#s6:28",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71144,7 +71446,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:15",
+    "id": "guides/warlock.html#s6:29",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71159,7 +71461,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:16",
+    "id": "guides/warlock.html#s6:30",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71174,7 +71476,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:17",
+    "id": "guides/warlock.html#s6:31",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71189,7 +71491,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:18",
+    "id": "guides/warlock.html#s6:32",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71204,7 +71506,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:19",
+    "id": "guides/warlock.html#s6:33",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71219,7 +71521,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:20",
+    "id": "guides/warlock.html#s6:34",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -71234,7 +71536,7 @@
     "classification_reason": "Historical review log; current guidance is in the guide body"
   },
   {
-    "id": "guides/warlock.html#s6:21",
+    "id": "guides/warlock.html#s6:35",
     "source": "guides/warlock.html#s6",
     "heading": "6 \u00b7 Loot filter lootfilter/warlock_lean.json \u2014 what it does",
     "kind": "context",
@@ -73073,18 +73375,18 @@
     "kind": "table",
     "cells": [
       "PK-leave-blue-misc",
-      "Vendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (1\u20132os elite armor remains a generic leveling case); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.",
+      "Vendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (do not blanket-vendor 1\u20132os elite armor: the approved socket-relaxed fallback can still exceed the keep price; normal non-ethereal 2os Archon Plate currently uses October 4 pooled Q1 asks of 0.674 Ist, 20 sellers, SELL slow); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.",
       "vendor",
       "Cube needs an unsocketed non-superior base and Larzuk follows the item-level socket cap; existing sockets cannot be rerolled, but assess every compatible runeword before calling the count wrong (Sockets); VMI (2024) has no generic magic armor/weapon category; WP-A's 169 blue patterns have none either; \u00a75 floor rows."
     ],
     "resolved_cells": [
       "PK-leave-blue-misc",
-      "Vendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (1\u20132os elite armor remains a generic leveling case); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.",
+      "Vendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (do not blanket-vendor 1\u20132os elite armor: the approved socket-relaxed fallback can still exceed the keep price; normal non-ethereal 2os Archon Plate currently uses October 4 pooled Q1 asks of 0.674 Ist, 20 sellers, SELL slow); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.",
       "vendor",
       "Cube needs an unsocketed non-superior base and Larzuk follows the item-level socket cap; existing sockets cannot be rerolled, but assess every compatible runeword before calling the count wrong (Sockets); VMI (2024) has no generic magic armor/weapon category; WP-A's 169 blue patterns have none either; \u00a75 floor rows."
     ],
     "description": "PK-leave-blue-misc",
-    "text": "PK-leave-blue-miscVendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (1\u20132os elite armor remains a generic leveling case); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.vendorCube needs an unsocketed non-superior base and Larzuk follows the item-level socket cap; existing sockets cannot be rerolled, but assess every compatible runeword before calling the count wrong (Sockets); VMI (2024) has no generic magic armor/weapon category; WP-A's 169 blue patterns have none either; \u00a75 floor rows.",
+    "text": "PK-leave-blue-miscVendor/drop after pickup or ID: bases without a paid compatible variant after checking the updated \u00a75 cohorts (do not blanket-vendor 1\u20132os elite armor: the approved socket-relaxed fallback can still exceed the keep price; normal non-ethereal 2os Archon Plate currently uses October 4 pooled Q1 asks of 0.674 Ist, 20 sellers, SELL slow); do not blanket-vendor 3os Monarch, 5/6os eth polearms, ordinary superior bases or other historically floor-priced bases. Several exceed the current 0.25-Ist threshold; blue armor/helm/shield/weapon that is not a class item, circlet or Jeweler's elite; blue Amazon bows/spears; Large Charms without a reviewed primer \u00a74.1 pattern; single-low-affix jewels/charms/rings/amulets; potions, arrows/bolts, scrolls, town keys.vendorCube needs an unsocketed non-superior base and Larzuk follows the item-level socket cap; existing sockets cannot be rerolled, but assess every compatible runeword before calling the count wrong (Sockets); VMI (2024) has no generic magic armor/weapon category; WP-A's 169 blue patterns have none either; \u00a75 floor rows.",
     "expected": null,
     "examples": [
       {
@@ -73186,9 +73488,9 @@
           "ethereal": false
         },
         "expected": [
-          "vendor"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "Reviewed 2026-10-06: Updated PK-leave-blue-misc example 7 (normal non-ethereal 2os Archon Plate) from VENDOR to SELL (slow), following the approved Steering 7 socket-relaxed fallback. The October 4 pooled Q1 is 0.674 Ist from 20 sellers, not an exact 2os quote. No new base rule or price multiplier was introduced."
       },
       {
         "spec": {

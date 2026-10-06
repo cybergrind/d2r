@@ -9,6 +9,12 @@ from pricing.triage.charm_modifiers import poison_total, suffix
 from pricing.triage.listing_defaults import normalize as listing_defaults
 
 
+# Scalar native flags whose market facets are boolean in appraisal-properties.json:
+# Indestructible, Cannot Be Frozen, Half Freeze Duration, Ignore Target Defense,
+# Knockback and Prevent Monster Heal. Numeric text effects are not flags.
+BOOLEAN_PROPERTIES = frozenset({'432', '591', '447', '553', '532', '531'})
+
+
 @lru_cache(maxsize=2)
 def base_families(generation):
     return {base['name'].casefold(): base['type'] for base in metadata()['bases'].values()}
@@ -131,6 +137,11 @@ def base_facets(properties, rarity, sockets, contents, *, base=None):
 
 def expanded_properties(properties):
     properties = dict(properties)
+    # Native flags assert presence with integer 1. Never coerce arbitrary
+    # nonzero payloads or numeric stats merely because their value is one.
+    for prop in BOOLEAN_PROPERTIES:
+        if type(properties.get(prop)) is int and properties[prop] == 1:
+            properties[prop] = True
     resistances = ('427', '428', '426', '401')
     if '441' not in properties and all(type(properties.get(k)) in (int, float) for k in resistances):
         properties['441'] = min(properties[k] for k in resistances)

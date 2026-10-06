@@ -2469,6 +2469,54 @@
       },
       "properties": {},
       "name": "Cure"
+    },
+    {
+      "category": "crafted",
+      "family": "belt",
+      "slot": "belt",
+      "label": "Echoing Strike 10 FCR / life caster belt (Arachnid alternative)",
+      "source": "guides/pricing.html#s6; guides/warlock.html#s3",
+      "conditions": {
+        "ethereal": false,
+        "name": {
+          "in": [
+            "Light Belt",
+            "Sharkskin Belt",
+            "Vampirefang Belt"
+          ]
+        }
+      },
+      "properties": {
+        "520": {
+          "min": 10,
+          "max": 10
+        },
+        "418": {
+          "min": 30
+        }
+      }
+    },
+    {
+      "category": "magic",
+      "family": "belt",
+      "slot": "crafting base",
+      "label": "Echoing Strike caster belt crafting base",
+      "source": "guides/pricing.html#s2-blue; guides/warlock.html#s3",
+      "conditions": {
+        "name": {
+          "in": [
+            "Light Belt",
+            "Sharkskin Belt",
+            "Vampirefang Belt"
+          ]
+        },
+        "ethereal": false,
+        "sockets": 0,
+        "item_level": {
+          "min": 71
+        }
+      },
+      "properties": {}
     }
   ]
 }

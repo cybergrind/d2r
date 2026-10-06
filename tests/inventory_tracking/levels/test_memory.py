@@ -151,7 +151,7 @@ def test_loaded_rooms_give_walkable_tiles_from_their_collision_mask(memory):
     # Win+C dump 20260930T135418Z-6b2890e1 (Cave 2): Room1 +0x38 -> grid {+0x00 x, y, w, h in
     # sub-tiles; +0x20 -> w x h u16 mask}; bit 0x1 blocks walking (the mask drew the cave's walls).
     from inventory_tracking.levels.memory import loaded_walkable
-    from inventory_tracking.levels.model import Walkable
+    from inventory_tracking.levels.model import Walkable, pack_cells
 
     room1 = memory.blocks[ROOM1]
     struct.pack_into('<QI', room1, 0x00, NEAR_1, 0)
@@ -166,11 +166,14 @@ def test_loaded_rooms_give_walkable_tiles_from_their_collision_mask(memory):
         for column in range(5, 10):  # the east tile is rock; 0x8000 (a unit) does not block
             struct.pack_into('<H', mask, (row * 10 + column) * 2, 0x5)
     struct.pack_into('<H', mask, 0, 0x8000)
+    struct.pack_into('<H', mask, 2 * 2, 0x1)  # a wall one sub-tile thick down the west tile
+    for row in range(1, 5):
+        struct.pack_into('<H', mask, (row * 10 + 2) * 2, 0x1)
     # A neighbour in another level is not read.
     struct.pack_into('<Q', memory.block(ROOM1_OTHER, 0x100), 0x18, ROOM2_OTHER)
     struct.pack_into('<Q', memory.block(ROOM2_OTHER, 0x100), 0x90, OTHER_LEVEL)
 
-    assert loaded_walkable(memory.read, ROOM1, LEVEL) == [Walkable(5000, 1000, 2, 1, '10')]
+    assert loaded_walkable(memory.read, ROOM1, LEVEL) == [Walkable(5000, 1000, 2, 1, pack_cells('1101100000' * 5))]
 
 
 def test_a_room_without_a_readable_grid_is_skipped(memory):

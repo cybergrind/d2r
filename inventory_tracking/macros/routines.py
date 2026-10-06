@@ -1,11 +1,12 @@
 """The Pindleskin routines for an Echoing Strike Warlock (CybergrindAA), built from small steps.
 
 `run_macro` picks by place (plan.md, decisions of 2026-10-06): where a run ends (Nihlathak's
-Temple, Frigid Highlands, Bloody Foothills, the Fortress just after act 3) leave the game,
+Temple, Frigid Highlands, Bloody Foothills, the Fortress just after act 3, Catacombs Level 4
+with Andariel dead) leave the game,
 create the next one and prebuff; in the lobby create the next game and prebuff; anywhere else
 prebuff where the character stands.
-Prebuff: get Consume active and one Defiler out (summoning and consuming only what is missing),
-then Hex: Purge and Psychic Ward.
+Prebuff: cast Consume anew on a Defiler (a standing one, else a summoned one), leave one
+Defiler out, then Hex: Purge and Psychic Ward.
 """
 
 import math
@@ -42,6 +43,10 @@ RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
 # (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
 # came to it from act 3 (Kurast Docks to Durance of Hate Level 3). A game that started in the
 # Fortress, or a return from the act 4 levels, is not.
+# An Andariel run ends on her level once she is dead (user, 2026-10-07): her corpse in the unit
+# table says so. Before the kill, or with the corpse out of the loaded rooms, Win+X prebuffs.
+CATACOMBS_4 = 37
+ANDARIEL = 156  # as in terror/bosses.py
 PANDEMONIUM_FORTRESS = 103
 ACT_3 = range(75, 103)
 ARRIVAL_SECONDS = 180.0
@@ -177,7 +182,7 @@ def consume(run: Run, defiler: Monster) -> None:
     """Consume this Defiler and nothing else. Consume once took the bound demon with the pointer
     on the Defiler (host, 20:51 on 2026-10-06), so the key is pressed only while nothing else
     stands within CLEAR of the Defiler; if it stays crowded, another Defiler is summoned
-    somewhere open (Consume is not active here, so that costs nothing). Afterwards the Defiler
+    somewhere open (that cancels an active Consume, which is about to be cast anew anyway). Afterwards the Defiler
     must be the one gone."""
     for _ in range(CONSUME_ATTEMPTS):
 
@@ -282,19 +287,28 @@ def take_prebuff_weapons(run: Run, *, until: float | None = None) -> None:
     run.pause('key')
 
 
+def log_consume(run: Run, when: str) -> None:
+    """Research: the buff's record, to find where it keeps the time it has left."""
+    player = run.world().player
+    if player is not None and player.consume_node:
+        LOG.info('Macro: Consume record %s (clock %.2f): %s', when, run.clock(), player.consume_node.hex())
+
+
 def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
-    """End with Consume active and one Defiler out, pressing only what is missing. A second
-    Defiler summoned while one stands cancels Consume (user, 2026-10-06), so a standing Defiler
-    is used or kept, never summoned over."""
+    """End with a newly cast Consume and one Defiler out. Consume is always cast, never taken
+    as good because it is active: how long it has left is not known, and it ran out in the
+    middle of a run (user, 2026-10-06). A second Defiler summoned while one stands cancels
+    Consume (user, 2026-10-06), so a standing Defiler is the one consumed, never summoned over."""
     take_prebuff_weapons(run, until=None if fresh is None else fresh.started + LOAD_LIMIT)
-    world = run.world()
+    log_consume(run, 'before')
     if fresh is not None:  # a new game: nothing is out, and the first summon may have to wait
         defiler = summon_defiler(run, until=fresh.started + LOAD_LIMIT)
         fresh.finish()
-        consume(run, defiler)
-    elif not (world.player and world.player.consume):
-        standing = defilers(world)
-        consume(run, standing[0] if standing else summon_defiler(run))
+    else:
+        standing = defilers(run.world())
+        defiler = standing[0] if standing else summon_defiler(run)
+    consume(run, defiler)
+    log_consume(run, 'after')
     if not defilers(run.world()):
         summon_defiler(run)
     cast(run, HEX_PURGE)
@@ -395,6 +409,8 @@ def run_ended(run: Run, world: World) -> bool:
         return False
     if world.player.area in RUN_ENDS:
         return True
+    if world.player.area == CATACOMBS_4:
+        return ANDARIEL in world.corpses
     if world.player.area != PANDEMONIUM_FORTRESS or run.arrival is None:
         return False
     previous, seconds = run.arrival()

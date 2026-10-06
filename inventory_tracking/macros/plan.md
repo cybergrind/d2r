@@ -289,3 +289,15 @@ Differences from the design above, and what is still open:
   level (75-102) at most 180 s ago. The service notes game and level once a second
   (`journey.Journey`, `MacroRunner.poll`); a game that started in the Fortress has no level before
   it, so Win+X there only prebuffs. Scripted tests only; not run on the host yet.
+
+- 2026-10-06, Consume is always cast (user: the buff ran out; "active" says nothing about the time
+  left): every prebuff consumes a Defiler (the standing one, else a summoned one) and then summons
+  one, whether or not Consume is active. This replaces "press only what is missing". Research: the
+  buff's 0x80-byte record is logged before and after each cast ("Consume record"), to find the
+  field with the time left; with it the cast could be skipped while plenty remains.
+
+- 2026-10-07, Andariel run (user): Win+X on Catacombs Level 4 (area 37) with Andariel dead is a run
+  end: leave, create the next game, prebuff. "Dead" is her corpse (monster 156 in a dead mode) in
+  the unit table, read in the same pass as the live monsters (`World.corpses`). With her alive, or
+  her corpse not in the loaded rooms, Win+X there prebuffs as anywhere else. Scripted tests only;
+  open on the host: that her corpse stays in the unit table while the character is on the level.

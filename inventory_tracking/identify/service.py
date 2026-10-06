@@ -1,18 +1,25 @@
 """Identify watcher: assess items right after Cain (or a scroll) identifies them.
 
-Once a second in town (five seconds elsewhere) the worker reads the identified flag
-of every magic-or-better item in the main inventory and the Horadric Cube. Items that were unidentified on
-the previous read and are identified now are read in full, decoded and run through
+Once a second the worker reads the identified flag of every magic-or-better item in the
+main inventory and the Horadric Cube (every five seconds outside town while nothing
+unidentified is carried). Items that were unidentified on the previous read and are
+identified now are read in full, decoded and run through
 the same offline knowledge base Alt+D uses; one OSD summary and one desktop
 notification give each a verdict — keep, check or vendor — with the reason (value
 watch, build use, trade tier, leveling use, asks) and its best-rolled stats. Owned copies
 from the collection database are named in the reason; a build-use-only keep becomes a
 check when a copy that rolls at least as well is already owned (appraisal/owned.py).
 
+The previous read lasts for the whole game: through a portal, and through reads that failed
+or were skipped, so Cain right after the portal still finds the unidentified items of the
+field read. A new game (another player unit id) starts over, its first read announces nothing.
+
 Gambling: a gambled item arrives identified, so nothing flips. While gamble stock is loaded
 (the shop watcher's `gamble` state) an identified carried item that the character did not
 hold anywhere on an earlier read is assessed the same way. Vendor stock stays in memory
 after the panel closes, so an item picked up from the ground in town then counts too.
+Outside town the same holds without gamble stock: an item picked up and identified with a
+scroll between two reads is first seen identified.
 """
 
 import logging
@@ -369,7 +376,8 @@ class IdentifyWorker:
         self.generation = 0
         self.last_poll = -math.inf
         self.next_poll_delay = poll_interval
-        self.unidentified: set[str] | None = None  # None until the inventory was read once
+        self.player_id = None  # the game the two sets below belong to
+        self.unidentified: set[str] | None = None  # None until the inventory was read once in this game
         self.held: set[str] = set()  # every item unit the character held since that first read
         self.last_result = None
         self.showing: list[dict[str, Any]] = []  # item rows of the summary on screen, newest first
@@ -408,15 +416,13 @@ class IdentifyWorker:
             LOG.log(
                 logging.INFO if newly or probe_ms >= SLOW_PROBE_MS else logging.DEBUG,
                 'Identify probe: %s, %d items in %s ms (lock wait %s ms)',
-                probe['state'],
+                'town' if probe['town'] else 'field',
                 len(probe.get('items', {})),
                 probe_ms,
                 lock_wait,
             )
         except Exception as exc:
-            LOG.debug('Identify probe skipped: %s', exc)
-            with self.lock:
-                self.unidentified = None
+            LOG.debug('Identify probe skipped: %s', exc)  # the earlier read stays the one to compare with
         finally:
             if not newly:
                 with self.lock:
@@ -428,19 +434,19 @@ class IdentifyWorker:
     def _observe(self, probe) -> list[str]:
         """Update the unidentified set; return the units that just became identified."""
         with self.lock:
-            self.next_poll_delay = self.poll_interval * (AWAY_BACKOFF if probe['state'] == 'away' else 1)
-            if probe['state'] != 'ok':
-                self.unidentified = None
-                return []
-            items = probe['items']
+            items, town = probe['items'], probe['town']
+            if probe['player_id'] != self.player_id:  # a new game deals new unit ids
+                self.player_id, self.unidentified, self.held = probe['player_id'], None, set()
             current = {unit_id for unit_id, item in items.items() if not item['identified']}
             previous, self.unidentified = self.unidentified, current
-            held = self.held if previous is not None else set()
+            held = self.held
             self.held = held | set(probe.get('owned', ())) | set(items)
+            self.next_poll_delay = self.poll_interval * (1 if town or current else AWAY_BACKOFF)
             if previous is None:
+                LOG.info('Identify baseline: %d of %d carried items unidentified', len(current), len(items))
                 return []
             newly = {unit_id for unit_id in previous - current if unit_id in items}
-            if self.gambling():
+            if self.gambling() or not town:
                 newly |= {unit_id for unit_id, item in items.items() if item['identified'] and unit_id not in held}
             return sorted(newly)
 

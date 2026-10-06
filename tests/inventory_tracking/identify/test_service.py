@@ -27,6 +27,7 @@ def probe_result(**items):
     return {
         'state': 'ok',
         'location': 1,
+        'town': True,
         'player_id': 1,
         'items': {ids[k]: {'identified': v, 'quality': 4, 'txt_id': 351} for k, v in items.items()},
     }
@@ -256,19 +257,66 @@ def test_a_new_pass_adds_to_the_summary_still_on_screen(parts):
     assert displays[-1][0].text == 'Identified 1 — 1 keep · 0 check · 0 vendor'
 
 
-def test_leaving_town_or_a_failed_probe_forgets_the_baseline(parts):
-    worker, state, _, notifications, _ = parts
+def field(probe):
+    return probe | {'location': 46, 'town': False}
+
+
+def test_a_scroll_used_in_the_field_is_assessed(parts):
+    worker, state, _, _, tmp_path = parts
+    state['probe'] = field(probe_result(a=False, c=True))
     assert worker.poll(100.0)
     wait(worker)
-    state['probe'] = {'state': 'away', 'location': 46, 'player_id': 1, 'items': {}}
+    assert worker.next_poll_delay == pytest.approx(1.0)  # an unidentified item is carried: a scroll may follow
+    state['probe'] = field(probe_result(a=True, c=True))
     assert worker.poll(101.0)
     wait(worker)
-    assert worker.unidentified is None
-    assert worker.next_poll_delay == pytest.approx(5.0)
-    state['probe'] = probe_result(a=True, b=True)  # identified while away: nothing to announce
-    assert worker.poll(110.0)
+    assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['1']
+    assert worker.next_poll_delay == pytest.approx(5.0)  # nothing left to identify out here
+
+
+def test_an_item_picked_up_and_identified_between_two_field_reads_is_assessed(parts):
+    # Nothing unidentified is carried, so the field is read every five seconds: the pickup and the
+    # scroll both fit in between, and the item is first seen identified.
+    worker, state, _, _, tmp_path = parts
+    state['probe'] = field(probe_result(a=True)) | {'owned': ['1', '3']}
+    assert worker.poll(100.0)
+    wait(worker)
+    state['probe'] = field(probe_result(a=True, b=True, c=True)) | {'owned': ['1', '2', '3']}
+    assert worker.poll(105.0)
+    wait(worker)
+    assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['2']  # '3' was held before
+
+
+def test_the_baseline_survives_the_portal_and_a_failed_probe(parts):
+    # Cain right after the portal: the last read before him was in the field, or failed.
+    worker, state, _, _, tmp_path = parts
+    state['probe'] = field(probe_result(a=False, b=False))
+    assert worker.poll(100.0)
+    wait(worker)
+    probe = worker.probe
+    worker.probe = lambda *args: (_ for _ in ()).throw(ValueError('Incomplete or unstable inventory snapshot'))
+    assert worker.poll(101.0)
+    wait(worker)
+    assert worker.unidentified == {'1', '2'}
+    worker.probe = probe
+    state['probe'] = probe_result(a=True, b=True)
+    assert worker.poll(102.0)
+    wait(worker)
+    assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['1', '2']
+
+
+def test_a_new_game_starts_from_a_new_baseline(parts):
+    # Unit ids are dealt again in every game; the player's own id tells the games apart.
+    worker, state, _, notifications, tmp_path = parts
+    state['probe'] = field(probe_result(a=False)) | {'owned': ['1']}
+    assert worker.poll(100.0)
+    wait(worker)
+    state['probe'] = field(probe_result(a=True, b=True)) | {'player_id': 2, 'owned': ['1', '2']}
+    assert worker.poll(101.0)
     wait(worker)
     assert notifications == []
+    assert not (tmp_path / 'identify-latest.json').exists()
+    assert worker.unidentified == set()
 
 
 def test_polls_wait_for_the_interval_and_for_alt_d(parts):

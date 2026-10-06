@@ -1,8 +1,9 @@
 """Pin one loaded KB publication per request; newer publications load in the background.
 
-Validating a generation costs ~20 s of CPU, so no request ever loads one. Requests use the
-generation this process already holds; a new pointer is validated in a retrieval process,
-reused there by the other processes, and only then adopted here (`refresh`).
+Validating a generation costs ~13 s of CPU (once per generation and validating code, see
+`load_runtime`), so no request ever loads one. Requests use the generation this process
+already holds; a new pointer is validated in a retrieval process, reused there by the other
+processes, and only then adopted here (`refresh`).
 """
 
 import threading
@@ -87,10 +88,17 @@ class PublishedAppraisal:
         self.failed = None  # a generation that failed to load is not retried until the pointer moves
         self._active = ContextVar('published_appraisal_request', default=None)
 
-    def start(self):
+    def pointer(self):
+        """The generation to `start` with, so the retrieval processes can load it meanwhile."""
+        try:
+            return pointer_generation(self.store)
+        except (OSError, ValueError) as error:
+            raise ValueError(f'No valid offline publication: {error}') from error
+
+    def start(self, generation=None):
         """Blocking first (validated) load, before the service accepts hotkeys."""
         try:
-            self.serving = (self.publications.get(pointer_generation(self.store), validate=True), ())
+            self.serving = (self.publications.get(generation or pointer_generation(self.store), validate=True), ())
         except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
             raise ValueError(f'No valid offline publication: {error}') from error
 
@@ -218,7 +226,7 @@ def process_publications(store) -> LoadedPublications:
 
 
 def warm_publication(store, generation):
-    """Retrieval-process initializer: hold the generation the service validated at startup."""
+    """Retrieval-process initializer: hold the generation the service validates at startup."""
     process_publications(store).get(generation, validate=False)
 
 

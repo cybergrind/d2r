@@ -203,3 +203,19 @@ def test_arrow_rows_have_no_box_behind_them_and_their_text_is_outlined():
     text = [data[y * stride + x * 4 : y * stride + x * 4 + 4] for y in range(h) for x in range(w // 2, w)]
     assert any(pixel[3] > 200 and max(pixel[:3]) < 40 for pixel in text)  # the outline
     assert any(pixel[3] > 200 and min(pixel[:3]) > 180 for pixel in text)  # the text itself
+
+
+def test_a_card_drawn_before_the_ground_marks_leaves_no_line_to_a_mark():
+    # The text card's pen position stayed on the canvas, and the next mark's ellipse started
+    # with a line from it across the game view (user, 2026-10-06).
+    card = text_widget(['Identified 1'])
+    w, h = measure(card, scale=1.0, limit=(300, 100))
+    ground = Widget('ground', 'ground', 'ground', {'player': [10.0, 10.0], 'marks': [['stairs', 11.0, 14.0]]})
+
+    def drawn(boxes):
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 800, 450)
+        draw_scene(cairo.Context(surface), boxes, scale=1.0)
+        surface.flush()
+        return bytes(surface.get_data())[(22 + h) * surface.get_stride() :]  # the rows below the card and its edge
+
+    assert drawn([(card, (100, 20, w, h)), (ground, (0, 0, 800, 450))]) == drawn([(ground, (0, 0, 800, 450))])

@@ -37,6 +37,12 @@ def _ready():
     return True
 
 
+def _timed_call(function, args):
+    started = time.perf_counter()
+    result = function(*args)
+    return result, started, time.perf_counter()
+
+
 class RetrievalProcess:
     """One warm child process; `call` blocks the calling (pool) thread, never the service loop."""
 
@@ -63,7 +69,27 @@ class RetrievalProcess:
             pool = self._pool
             self._active += 1
         try:
-            return pool.submit(function, *args).result()
+            submitted = time.perf_counter()
+            result, started, finished = pool.submit(_timed_call, function, args).result()
+            received = time.perf_counter()
+            if received - submitted >= 0.05:
+                timing = {
+                    'function': function.__name__,
+                    'dispatch_ms': (started - submitted) * 1000,
+                    'work_ms': (finished - started) * 1000,
+                    'return_ms': (received - finished) * 1000,
+                    'total_ms': (received - submitted) * 1000,
+                }
+                LOG.info(
+                    'Retrieval %s: dispatch %.1f ms, work %.1f ms, return %.1f ms, total %.1f ms',
+                    timing['function'],
+                    timing['dispatch_ms'],
+                    timing['work_ms'],
+                    timing['return_ms'],
+                    timing['total_ms'],
+                    extra={'retrieval_timing': timing},
+                )
+            return result
         except BrokenProcessPool:
             with self._lock:
                 if self._pool is pool:

@@ -321,7 +321,7 @@ class AppraisalConfig(Config):
     stash_auto: bool = True  # collect (as Win+S) every time the stash panel is closed
     stash_poll_interval: Positive = 0.5  # seconds between open-panel flag reads
     identify_auto: bool = True  # assess inventory/cube items the moment they become identified (Cain, scrolls)
-    identify_poll_interval: Positive = 1.0  # seconds between identified-flag reads in town; 5x outside town
+    identify_poll_interval: Positive = 1.0  # seconds between identified-flag reads; 5x in the field, all identified
     identify_lookup_processes: Annotated[int, Field(ge=1, le=8)] = 3  # KB lookups of one identify pass run in parallel
     retrieval_keep_warm_interval: Positive = 15.0  # idle seconds before a retrieval process reruns a recent lookup
     level_guide: bool = True  # on entering a guided level (levels/handlers/), point at its target

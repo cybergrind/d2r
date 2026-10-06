@@ -25,13 +25,13 @@ DEFILER = Monster(60, 744, 1, 5006.0, 4996.0, 0xFFFFFFFF)
 @pytest.mark.parametrize(
     ('consume', 'monsters', 'keys'),
     [
-        (True, (DEFILER,), ['g', 'r']),  # both there: only the casts
-        (True, (), ['q', 'g', 'r']),  # buff without a Defiler: one summon
-        (False, (DEFILER,), ['6', 'q', 'g', 'r']),  # a Defiler without the buff: consume it, summon one
+        (True, (DEFILER,), ['6', 'q', 'g', 'r']),  # both there: the buff may be about to run out
+        (True, (), ['q', '6', 'q', 'g', 'r']),
+        (False, (DEFILER,), ['6', 'q', 'g', 'r']),  # a standing Defiler is consumed, not summoned over
         (False, (), ['q', '6', 'q', 'g', 'r']),
     ],
 )
-def test_prebuff_presses_only_what_is_missing_and_ends_buffed_with_one_defiler(consume, monsters, keys):
+def test_prebuff_always_casts_consume_and_ends_buffed_with_one_defiler(consume, monsters, keys):
     game = Game(world(player=player(consume=consume), monsters=monsters))
     prebuff(game.run())
     assert game.pressed() == keys
@@ -384,5 +384,28 @@ def test_in_the_fortress_otherwise_the_macro_only_prebuffs(previous, seconds):
 
 def test_without_a_journey_the_fortress_is_an_ordinary_place():
     game = Game(world(103))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
+def test_on_andariels_level_with_her_dead_the_macro_leaves_and_makes_the_next_game():
+    game = Game(world(37, corpses=frozenset((156,))))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    keys = game.pressed()
+    assert keys[0] == 'Escape'
+    assert keys[keys.index('Return') + 1 :] == ['q', '6', 'q', 'g', 'r']
+    assert game.world.game_name == 'cyber33'
+
+
+@pytest.mark.parametrize(
+    ('area', 'corpses'),
+    [
+        (37, frozenset()),  # Andariel alive, or not in the loaded rooms
+        (37, frozenset((58,))),  # only her minions are dead
+        (36, frozenset((156,))),  # not her level
+    ],
+)
+def test_before_andariel_is_dead_the_macro_only_prebuffs(area, corpses):
+    game = Game(world(area, corpses=corpses))
     run_macro(game.run(), lambda w: dict(KEYS))
     assert game.pressed() == ['q', '6', 'q', 'g', 'r']

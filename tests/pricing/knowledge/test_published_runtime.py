@@ -98,3 +98,61 @@ def test_supplied_artifacts_reject_missing_files_and_restore_after_failure(tmp_p
     ):
         pass
     assert read_artifact(live) == b'live'
+
+
+def test_a_validated_generation_is_validated_again_only_by_other_code(tmp_path, monkeypatch):
+    import pytest
+
+    from pricing.knowledge import publication_validation, published_runtime
+
+    bundle = publish(DEFAULT_DATABASE, repository=ROOT, store=tmp_path, extra_paths=runtime_inputs())
+    code, runs, failure = ['a'], [], []
+
+    def validate():
+        runs.append(code[0])
+        if failure:
+            raise ValueError(failure[0])
+
+    monkeypatch.setattr(published_runtime, 'validation_code', lambda: code[0])
+    monkeypatch.setattr(publication_validation, 'validate_runtime_inputs', validate)
+
+    def load(**options):
+        return published_runtime.load_runtime(bundle, **options)
+
+    load(validate=False)
+    assert runs == []
+    load()
+    load()  # a restart: the same bytes, checked by the same code
+    assert runs == ['a']
+    code[0] = 'b'  # edited validators have not seen this generation
+    failure.append('rejected by the new code')
+    with pytest.raises(ValueError, match='rejected by the new code'):
+        load()
+    failure.clear()
+    load()  # a rejection leaves no record
+    load()
+    assert runs == ['a', 'b', 'b']
+    # Records name the bytes they approved: a copied one from another generation counts for nothing.
+    stamp = bundle.directory / published_runtime.VALIDATED
+    stamp.write_text(stamp.read_text().replace(bundle.generation, '0' * 64))
+    load()
+    assert runs == ['a', 'b', 'b', 'b']
+
+
+def test_validation_code_covers_the_modules_validation_runs(tmp_path):
+    import subprocess
+    import sys
+
+    from pricing.knowledge import published_runtime
+
+    first = published_runtime.validation_code()
+    assert first == published_runtime.validation_code()
+    script = (
+        'import sys, pricing.knowledge.publication_validation, pricing.knowledge.published_runtime as runtime\n'
+        'from pathlib import Path\n'
+        'files = [Path(m.__file__).resolve() for m in list(sys.modules.values()) if getattr(m, "__file__", None)]\n'
+        'print(*[f for f in files if f.is_relative_to(runtime.ROOT) and ".venv" not in f.parts'
+        ' and f not in runtime.validation_sources()])\n'
+    )
+    done = subprocess.run([sys.executable, '-c', script], cwd=ROOT, capture_output=True, text=True, check=True)
+    assert done.stdout.split() == []

@@ -682,3 +682,35 @@ def test_the_elite_line_uses_the_rooms_the_level_guide_read():
     tracker.level_layout(83, [Room(654, 1140, 280, 8, 8, 0, (1140, 280, 32, 32))])
 
     assert tracker.elite_line(83) == 'Elites: 0 killed · 0 alive of 6-8 · fixed: 0 killed of 3'
+
+
+def test_a_loading_screen_read_as_leaving_keeps_what_was_counted_on_the_trip(tmp_path):
+    # A waypoint's loading screen reads as 'left_game' (terror-probe.jsonl 2026-10-06: town 103,
+    # left_game, 0.3 s later level 79 of the same game, town 103 again with its seed). Coming back
+    # to town restored the copy saved before the trip over the elites counted on it (user, 2026-10-06).
+    tracker = ZoneTracker(tmp_path / 'terror-games.json')
+    tracker.apply([entered(1, 0xAAAA), entered(6, 0xBBBB), elite(1, 5000, 5000, area=6), died(1, 6)])
+    tracker.apply([entered(1, 0xAAAA), {'event': 'left_game'}, entered(7, 0xCCCC)])
+    tracker.apply([elite(2, 5000, 5000), died(2, 7), elite(3, 6000, 5000)])
+
+    assert tracker.elite_line(6, []).startswith('Elites: 1 killed · 0 alive')  # a level out of town: the same game
+
+    tracker.apply([entered(1, 0xAAAA)])
+
+    assert tracker.elite_line(7, []) == 'Elites: 1 killed · 1 alive of 7-9'
+    assert tracker.elite_line(6, []).startswith('Elites: 1 killed · 0 alive')
+
+
+def test_a_stored_game_joined_late_is_merged_into_what_was_counted_since(tmp_path):
+    # The first level entered after a false leave can be a town not seen before (another act's).
+    store = tmp_path / 'terror-games.json'
+    tracker = ZoneTracker(store)
+    tracker.apply([entered(1, 0xAAAA), entered(6, 0xBBBB), herald(9, 6, 5100, 5200), died(9, 6)])
+    tracker.apply([{'event': 'left_game'}, entered(40, 0xDDDD), entered(7, 0xCCCC), elite(2, 5000, 5000), died(2, 7)])
+    assert tracker.next_tier == 1  # a town first: it may be another game
+
+    tracker.apply([entered(1, 0xAAAA)])
+
+    assert tracker.next_tier == 2
+    assert tracker.elite_line(7, []) == 'Elites: 1 killed · 0 alive of 7-9'
+    assert tracker_for(store, 0xBBBB).elite_line(7, []) is not None  # saved as one game

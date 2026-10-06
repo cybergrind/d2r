@@ -173,6 +173,37 @@ def class_rules():
                 'imported_class_rule': True,
             }
         )
+    add(
+        'grim',
+        'rare',
+        'Warlock grimoire: +2 class skills, +3 Abyss and +2 Apocalypse',
+        {'1862': 2, '1579': 3, '1578': 2},
+        labels={'1862': 'Warlock skills', '1579': 'Abyss', '1578': 'Apocalypse'},
+        source={
+            'guide': 'guides/pricing.html#s7',
+            'reviewed_at': '2026-10-06',
+            'kind': 'guide_pattern_with_sparse_asks',
+            'scope': 'SC/NL/PC/RotW',
+            'listing_ids': ['1002369489640', '1002384011704'],
+            'independent_sellers': 2,
+        },
+    )
+    # The cached Fire Blast planner names the complete claw, including its staffmods.
+    # Demand permits review; it supplies no Non-Ladder asking-price estimate.
+    add(
+        'h2h2',
+        'magic',
+        'Fire Blast claw: +3 Traps, +3 Fire Blast, +3 Weapon Block, 40 IAS and two sockets',
+        {'408': 3, '1054': 3, '1065': 3, '457': 40},
+        {'base_name': 'Greater Claws', 'ethereal': False, 'sockets': 2},
+        source={
+            'path': 'pricing/raw/mr/planners/e113x0l4.json',
+            'locator': 'planner.items.49 and 56',
+            'source_date': '2026-02-17',
+            'reviewed_at': '2026-10-06',
+            'kind': 'build_demand',
+        },
+    )
     # Scoped scepter asks: four Combat-prefix sellers, two class-prefix
     # sellers pair +3 Fist of the Heavens with Redemption or cast rate.
     for prefix, minimum in (('442', 2), ('443', 3)):

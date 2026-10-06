@@ -33,7 +33,7 @@ import threading
 import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager, nullcontext, suppress
+from contextlib import ExitStack, contextmanager, nullcontext, suppress
 from functools import partial
 from pathlib import Path
 from tempfile import mkdtemp
@@ -85,6 +85,7 @@ from inventory_tracking.reports import create_run, publish
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
 from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
+from inventory_tracking.terror.shards import ShardWatch
 from inventory_tracking.terror.tracker import ZoneTracker
 from inventory_tracking.tracking.panels import observe_panels
 from inventory_tracking.tracking.reader import LiveReader
@@ -205,6 +206,14 @@ def refreshing(backend, processes, store):
             yield
     finally:
         stopped.set()
+
+
+@contextmanager
+def publication_required():
+    try:
+        yield
+    except ValueError as error:
+        raise ValueError(f'{error}; run uv run --offline python -m pricing.knowledge.publication') from error
 
 
 def collection_revision(database):
@@ -386,20 +395,44 @@ def run_service(args, directory, report):
                     return connection
 
                 backend = PublishedAppraisal(args.publication_store) if args.publication_store else None
-                warm = ()
-                if backend:
-                    try:
-                        backend.start()
-                    except ValueError as error:
-                        raise ValueError(
-                            f'{error}; run uv run --offline python -m pricing.knowledge.publication'
-                        ) from error
-                    startup_generation = backend.serving[0].runtime.generation
-                    warm = (warm_publication, (args.publication_store, startup_generation))
-                pid, images, capture = wait_for_game(connect, directory, report)
+                recent = RecentObservations(stored_observations(args.output))
+                with ExitStack() as starting:
+                    # Loading the KB and the first lookups take seconds in each lookup process, so
+                    # they start first and warm up while this process loads the KB and finds the game.
+                    warm, startup_generation = (), None
+                    if backend:
+                        with publication_required():
+                            startup_generation = backend.pointer()
+                        warm = (warm_publication, (args.publication_store, startup_generation))
+                    # Separate processes: KB lookups would otherwise hold this process's GIL and stall the loop.
+                    appraisal_lookups = starting.enter_context(RetrievalProcess(*warm))
+                    identify_lookups = starting.enter_context(
+                        RetrievalGroup(APPRAISAL.identify_lookup_processes, triage_warm, (recent.next(),))
+                    )
+                    if backend:
+                        with publication_required():
+                            backend.start(startup_generation)
+                    starting.enter_context(refreshing(backend, [appraisal_lookups], args.publication_store))
+                    # Detail warm-up can take seconds. Unrouted identify items use this
+                    # already-warm process rather than blocking the fast worker queues.
+                    starting.enter_context(
+                        KeepWarm(
+                            [appraisal_lookups],
+                            warm_lookup(backend, args.database, recent),
+                            interval=APPRAISAL.retrieval_keep_warm_interval,
+                        )
+                    )
+                    starting.enter_context(
+                        KeepWarm(
+                            identify_lookups.processes,
+                            warm_identify_lookup(recent),
+                            interval=APPRAISAL.retrieval_keep_warm_interval,
+                        )
+                    )
+                    pid, images, capture = wait_for_game(connect, directory, report)
+                    lookups = starting.pop_all()
                 print(f'Ready for Alt+D. Reports: {directory}', flush=True)
                 source = AppraisalCapture(pid, images, capture, reconnect=connect)
-                recent = RecentObservations(stored_observations(args.output))
 
                 with (
                     hud_process(args.hud_scene, args.osd, directory / 'hud.log'),
@@ -410,24 +443,7 @@ def run_service(args, directory, report):
                     ThreadPoolExecutor(
                         max_workers=APPRAISAL.identify_lookup_processes, thread_name_prefix='identify-lookup'
                     ) as identify_lookup_pool,
-                    # Separate processes: KB lookups would otherwise hold this process's GIL and stall the loop.
-                    RetrievalProcess(*warm) as appraisal_lookups,
-                    RetrievalGroup(
-                        APPRAISAL.identify_lookup_processes, triage_warm, (recent.next(),)
-                    ) as identify_lookups,
-                    refreshing(backend, [appraisal_lookups], args.publication_store),
-                    # Detail warm-up can take seconds. Unrouted identify items use this
-                    # already-warm process rather than blocking the fast worker queues.
-                    KeepWarm(
-                        [appraisal_lookups],
-                        warm_lookup(backend, args.database, recent),
-                        interval=APPRAISAL.retrieval_keep_warm_interval,
-                    ),
-                    KeepWarm(
-                        identify_lookups.processes,
-                        warm_identify_lookup(recent),
-                        interval=APPRAISAL.retrieval_keep_warm_interval,
-                    ),
+                    lookups,  # the lookup processes and their warmers, started above
                 ):
                     shop = None
                     identify = None
@@ -601,6 +617,7 @@ def run_service(args, directory, report):
                             bosses=BossTracker(args.output / 'boss-kills.json') if APPRAISAL.boss_stats else None,
                             danger=APPRAISAL.danger_marks,
                             elites=APPRAISAL.elite_line,
+                            shards=ShardWatch(terrorized=zones.terrorized) if zones is not None else None,
                         )
                     stash = None
                     if args.stash_auto:

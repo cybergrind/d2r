@@ -12,7 +12,8 @@ current Herald group's lines while D2R is focused.
 Events: area (entered; level Room2 count), rooms (newly loaded Room2s), life (the player's life,
 whenever it changed: burst research, terror/bursts.py), seen (first sight, with data/stats), died
 (alive -> dead/dying mode: one kill), gone (dropped from the client; alive or not), back
-(reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark.
+(reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark, and
+elite_kill / shard (a pack leader's death, a Worldstone Shard first seen on the ground: terror/shards.py).
 """
 
 import json
@@ -177,6 +178,7 @@ class TerrorProbe:
         bosses=None,
         danger=True,
         elites=True,
+        shards=None,
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
@@ -189,6 +191,7 @@ class TerrorProbe:
         self.bosses = bosses  # boss kills of this game launch (terror/bosses.py), shown under the Terror lines
         self.danger = danger  # warning rows for deadly packs above the Terror lines (terror/danger.py)
         self.elites = elites  # the level's elite groups under the Terror lines (terror/elites.py)
+        self.shards = shards  # elite kills and Worldstone Shard drops, logged with the events (terror/shards.py)
         self.card: list[str] = []
 
     def poll(self, now):
@@ -203,6 +206,7 @@ class TerrorProbe:
                 self.source.capture,
                 known=self.ledger.known,
                 counted_level=self.level,
+                **({'item_classes': frozenset(self.shards.model.items)} if self.shards is not None else {}),
             )
         except Exception as exc:
             text = f'Terror probe: read failed: {exc}'
@@ -219,6 +223,8 @@ class TerrorProbe:
         elif snapshot.level_rooms is not None:
             self.level = location.level
         events = self.ledger.update(snapshot, now)
+        if self.shards is not None:
+            events += self.shards.update(events, now, items=snapshot.items, area=location and location.area_id)
         for event in events:
             if event['event'] == 'left_game' and event['killed']:
                 LOG.info('Terror probe: game left; kills by area %s, seen %s', event['killed'], event['seen'])

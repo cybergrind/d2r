@@ -107,3 +107,22 @@ def test_identify_finishes_while_detail_worker_is_busy(tmp_path):
             finally:
                 release.touch()
             blocked.result(timeout=5)
+
+
+def test_slow_process_call_reports_dispatch_and_work_separately(caplog):
+    import logging
+
+    caplog.set_level(logging.INFO, logger='inventory_tracking')
+    with RetrievalProcess() as process:
+        process.call(child_pid, {})
+        caplog.clear()
+        result = process.call(slow_pid, 0.08)
+    assert result != os.getpid()
+    records = [r for r in caplog.records if hasattr(r, 'retrieval_timing')]
+    assert len(records) == 1
+    timing = records[0].retrieval_timing
+    assert timing['function'] == 'slow_pid'
+    assert timing['work_ms'] >= 70
+    assert timing['dispatch_ms'] >= 0
+    assert timing['return_ms'] >= 0
+    assert timing['total_ms'] >= timing['work_ms']

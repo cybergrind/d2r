@@ -175,3 +175,29 @@ def test_poison_charm_native_rates_reach_trade_pattern(rate, frames, total):
         decoded, affixes, _ = decode_stats([r for r in raw if r['id'] != missing], base=base)
         captured['decoded_stats'], captured['item']['affixes'] = decoded, affixes
         assert '518' not in from_drop(captured)['properties']
+
+
+@pytest.mark.parametrize(
+    ('stat', 'prop'), [(152, '432'), (153, '591'), (118, '447'), (115, '553'), (81, '532'), (117, '531')]
+)
+@pytest.mark.parametrize('raw', [0, 1, 2])
+def test_native_flags_use_market_booleans_without_truthy_coercion(raw, stat, prop):
+    from inventory_tracking.items.metadata import decode_stats
+    from pricing.triage.guide_cases import item_from_spec
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Berserker Axe')
+    native = [{'id': stat, 'layer': 0, 'raw': raw}]
+    decoded, affixes, _ = decode_stats(native, base=base)
+    captured = observation(base['code'], rarity='rare', ethereal=True, sockets=0, socket_contents='empty')
+    captured['item']['affixes'] = affixes
+    captured['decoded_stats'] = decoded
+    item = from_drop(captured)
+    guide = item_from_spec(
+        {'base': base['name'], 'rarity': 'rare', 'ethereal': True, 'sockets': 0, 'stats': {f'{stat}:0': raw}}
+    )
+    if raw == 1:
+        assert item['properties'][prop] is True
+        assert guide['properties'][prop] is True
+    else:
+        assert item['properties'].get(prop) is not True
+        assert guide['properties'].get(prop) is not True

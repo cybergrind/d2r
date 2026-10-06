@@ -40,7 +40,7 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
-from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
+from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS, TOWN_IDS
 from inventory_tracking.osd.level_map import MapPoi
 from inventory_tracking.terror import elites
 from inventory_tracking.terror.chance import Level, group_completion, odds
@@ -155,6 +155,7 @@ class ZoneTracker:
     def __init__(self, store: Path | None = None, *, clock=time.monotonic):
         self.store, self.clock = store, clock
         self.saved_at = -math.inf
+        self.left: dict[int, str] = {}  # the levels of the game just left, until the next level is entered
         self.reset()
 
     def reset(self):
@@ -214,6 +215,7 @@ class ZoneTracker:
             kind = event['event']
             if kind == 'left_game':
                 self.save()
+                self.left = dict(self.game_levels) or self.left
                 self.reset()
             elif kind == 'seen':
                 self.saw(event)
@@ -254,20 +256,28 @@ class ZoneTracker:
             self.save()
             self.reset()
         self.game_levels[area] = seed
+        left, self.left = self.left, {}
         if self.restored:
             return
-        for game in reversed(self.stored_games()):
-            if game['levels'].get(str(area)) == seed:
-                levels = self.game_levels
-                try:
-                    self.restore(game['state'])
-                except (KeyError, TypeError, ValueError) as exc:
-                    LOG.warning('Terror tracker: stored game unreadable: %s', exc)
-                    self.reset()
-                self.game_levels = {int(k): v for k, v in game['levels'].items()} | levels
-                self.restored = True
-                LOG.info('Terror tracker: game rejoined; Heralds seen %s', self.heralds)
-                return
+        games = self.stored_games()
+        game = next((g for g in reversed(games) if g['levels'].get(str(area)) == seed), None)
+        if game is None and area not in TOWN_IDS and area not in left:
+            # A game starts in a town: a level out of town right after "leaving" is the game that was
+            # left, behind a loading screen (a waypoint's reads as the menu, probe logs 2026-10-06).
+            shared = {str(known): known_seed for known, known_seed in left.items()}.items()
+            game = next((g for g in reversed(games) if shared & g['levels'].items()), None)
+        if game is None:
+            return
+        levels, since = self.game_levels, self.state()
+        try:
+            self.restore(game['state'])
+            self.restore(since, merge=True)  # counted before a level of the stored game was entered
+        except (KeyError, TypeError, ValueError) as exc:
+            LOG.warning('Terror tracker: stored game unreadable: %s', exc)
+            self.reset()
+        self.game_levels = {int(k): v for k, v in game['levels'].items()} | levels
+        self.restored = True
+        LOG.info('Terror tracker: game rejoined; Heralds seen %s', self.heralds)
 
     def stored_games(self) -> list[dict]:
         if self.store is None:
@@ -297,29 +307,48 @@ class ZoneTracker:
             'elites': {unit_id: list(first) for unit_id, first in self.elites.items()},
         }
 
-    def restore(self, state: dict):
-        self.areas = {int(area): Count(int(killed), set(seen)) for area, (killed, seen) in state['areas'].items()}
-        self.level_rooms = {int(area): int(rooms) for area, rooms in state['level_rooms'].items()}
-        self.heralds = [(int(tier), str(name)) for tier, name in state['heralds']]
-        self.herald_units, self.allies, self.zones = (
-            set(state['herald_units']),
-            set(state['allies']),
-            set(state['zones']),
-        )
-        self.visited = {int(area): {tuple(room) for room in rooms} for area, rooms in state['visited'].items()}
+    def restore(self, state: dict, *, merge: bool = False):
+        """Take a stored game's state; with `merge`, add it to what is held (the same game, in two parts)."""
+        areas = {int(area): Count(int(killed), set(seen)) for area, (killed, seen) in state['areas'].items()}
+        level_rooms = {int(area): int(rooms) for area, rooms in state['level_rooms'].items()}
+        heralds = [(int(tier), str(name)) for tier, name in state['heralds']]
+        visited = {int(area): {tuple(room) for room in rooms} for area, rooms in state['visited'].items()}
         # Absent in games stored before 2026-10-06: their map starts unshaded.
-        explored = state.get('explored', {})
-        self.explored = {int(area): {tuple(room) for room in rooms} for area, rooms in explored.items()}
-        self.loaded = {int(area): int(count) for area, count in state['loaded'].items()}
-        self.dead = {int(unit_id): int(area) for unit_id, area in state['dead'].items()}
-        self.votes = {zone: deque(votes, maxlen=TERROR_VOTES) for zone, votes in state['votes'].items()}
-        self.modifiers = {zone: deque(mods, maxlen=TERROR_VOTES) for zone, mods in state['modifiers'].items()}
-        self.offsets = {str(name): float(offset) for name, offset in state['offsets'].items()}
+        explored = {int(area): {tuple(room) for room in rooms} for area, rooms in state.get('explored', {}).items()}
+        loaded = {int(area): int(count) for area, count in state['loaded'].items()}
+        dead = {int(unit_id): int(area) for unit_id, area in state['dead'].items()}
+        votes = {zone: list(votes) for zone, votes in state['votes'].items()}
+        modifiers = {zone: list(mods) for zone, mods in state['modifiers'].items()}
+        offsets = {str(name): float(offset) for name, offset in state['offsets'].items()}
         # Absent in games stored before 2026-10-06.
-        self.elites = {
+        found = {
             int(unit_id): (int(area), str(kind), int(txt_id), int(x), int(y), name)
             for unit_id, (area, kind, txt_id, x, y, name) in state.get('elites', {}).items()
         }
+        if not merge:
+            self.areas, self.level_rooms, self.heralds, self.loaded, self.dead = {}, {}, [], {}, {}
+            self.herald_units, self.allies, self.zones = set(), set(), set()
+            self.visited, self.explored, self.votes, self.modifiers, self.offsets, self.elites = {}, {}, {}, {}, {}, {}
+        for area, count in areas.items():
+            mine = self.area_count(area)
+            mine.killed += count.killed
+            mine.seen |= count.seen
+        self.level_rooms |= level_rooms
+        self.heralds += [herald for herald in heralds if herald not in self.heralds]
+        self.herald_units |= set(state['herald_units'])
+        self.allies |= set(state['allies'])
+        self.zones |= set(state['zones'])
+        for mine, theirs in ((self.visited, visited), (self.explored, explored)):
+            for area, rooms in theirs.items():
+                mine.setdefault(area, set()).update(rooms)
+        for area, count in loaded.items():
+            self.loaded[area] = max(self.loaded.get(area, 0), count)
+        self.dead = dead | self.dead
+        for mine, theirs in ((self.votes, votes), (self.modifiers, modifiers)):
+            for zone, values in theirs.items():
+                mine.setdefault(zone, deque(maxlen=TERROR_VOTES)).extend(values)
+        self.offsets |= offsets
+        self.elites = found | self.elites  # as first seen
 
     def save(self):
         """Keep this game in the store, in place of what was stored of it before."""

@@ -363,6 +363,15 @@ passed) have walls; `APPRAISAL.level_walls` turns it off. Walls ahead of time co
 chunk offset, size), and rooms with a learned key get walls on entry, in any later game. Generated
 terrain (preset 0) is never learned. Coverage grows with play; nothing is decoded from game files.
 
+**Sub-tile walls (user, 2026-10-06):** a Lower Kurast hut showed one wall of four. The collision
+mask had them all (dump 20261006T191949Z-2b0d3cf4); the tile-by-majority rule dropped every wall
+thinner than 13 of a tile's 25 sub-tiles. `Walkable.cells` now holds one bit per sub-tile, packed
+and base64 (`model.pack_cells`), in memory, in the card payload and in the wall library (schema 2,
+about 1.4 MB). The map fills one run of walkable sub-tiles per row, a room at a time (11-13 ms for
+80 rooms). A schema 1 library is read with each tile filling its 5x5, so rooms keep their coarse
+walls until a live read or a saved dump (`python -m inventory_tracking.levels.walls <level.json>...`)
+replaces them. The old "half of the 5x5" rule above no longer applies.
+
 **Colours (user, 2026-09-30):** one colour per POI kind for the row text, the arrow and the map dot:
 next level (`stairs`, including entrances such as the Forgotten Tower, Pit and Stony Tomb) green,
 previous level purple, waypoint blue, and other POIs (bosses, chests, ground runes, shrines) bright

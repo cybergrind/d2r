@@ -694,3 +694,11 @@ def test_grimoire_guide_tree_prefix_requires_three_levels_and_magic_book(tree):
     assert verdict('grim', {}, 'magic') == 'vendor'
     assert verdict('grim', {tree: 3}, 'rare') == 'vendor'
     assert verdict('shie', {tree: 3}, 'magic') == 'vendor'
+
+
+def test_fhr_life_dual_resistance_belt_can_qualify_without_strength():
+    properties = {'430': 24, '418': 60, '427': 30, '428': 30}
+    assert verdict('belt', properties) == 'check'
+    for missing in properties:
+        assert verdict('belt', {k: v for k, v in properties.items() if k != missing}) == 'vendor'
+    assert verdict('belt', properties | {'428': 24}) == 'vendor'

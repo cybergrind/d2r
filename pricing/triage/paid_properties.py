@@ -4,14 +4,21 @@ import hashlib
 import math
 from collections import defaultdict
 
+from pricing.triage.paid_facets import FIELDS, conditions, group_key
 
-def split_sellers(rows):
+
+MIN_CORPUS_ITEMS = 30
+
+
+def split_sellers(rows, fold=0):
     """Reserve one third of sellers; every copy from a seller stays together."""
     sellers = sorted(
         {str(row['seller_id']) for row in rows if row.get('seller_id') is not None},
         key=lambda seller: hashlib.sha256(seller.encode()).digest(),
     )
-    held = set(sellers[::3])
+    if fold not in (0, 1, 2):
+        raise ValueError('Expected one of three seller folds')
+    held = set(sellers[fold::3])
     valid = [row for row in rows if row.get('seller_id') is not None]
     return (
         [row for row in valid if str(row['seller_id']) not in held],
@@ -26,6 +33,21 @@ def reaches(item, key, floor):
 
 def score(item, model):
     return sum(reaches(item, key, floor) for key, floor in model['properties'].items())
+
+
+def paid_set(item, model):
+    return {key for key, floor in model['properties'].items() if reaches(item, key, floor)}
+
+
+def supported_rows(item, model):
+    """Require whole training signatures, not interchangeable property counts."""
+    found = paid_set(item, model)
+    rows = [
+        row
+        for row in model.get('supporters', [])
+        if len(row['paid_properties']) >= model['threshold'] and set(row['paid_properties']) <= found
+    ]
+    return rows if len({str(row['seller_id']) for row in rows}) >= 3 else []
 
 
 def lower_quartile(values):
@@ -75,7 +97,7 @@ def fit(listed, corpus, verdicts, *, limit=0.08):
     return model | {'threshold': threshold, 'corpus_checks': checks, 'corpus_items': len(corpus)}
 
 
-def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=()):
+def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=(), held_sellers=None):
     """Derive from training sellers only and report untouched seller holdout recall."""
     from pricing.triage.adapters import AFFIXED, from_listing
     from pricing.triage.bands import band_for, eligible, latest_rows, timestamp
@@ -97,15 +119,23 @@ def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=
         item = from_listing(row)
         if item['category'] not in AFFIXED or not item.get('family'):
             continue
-        key = item['category'], item['family']
+        key = group_key(item)
+        if key is None:
+            continue
         seller = str(row['seller_id'])
         previous = grouped[key].get(seller)
         if previous is None or price < previous['ask_ist']:
             grouped[key][seller] = row
     models, validation = [], []
     checks = {i for i, verdict in enumerate(verdicts) if verdict == 'check'}
-    for (category, family), sellers in sorted(grouped.items(), key=lambda pair: (-len(pair[1]), pair[0])):
-        training, held = split_sellers(list(sellers.values()))
+    corpus_keys = [group_key(item) for item in corpus]
+    for key, sellers in sorted(grouped.items(), key=lambda pair: (-len(pair[1]), pair[0])):
+        category, family, *facets = key
+        if held_sellers is None:
+            training, held = split_sellers(list(sellers.values()))
+        else:
+            training = [row for seller, row in sellers.items() if seller not in held_sellers]
+            held = [row for seller, row in sellers.items() if seller in held_sellers]
         training = [row for row in training if row['ask_ist'] >= keep_ist]
         held = [row for row in held if row['ask_ist'] >= keep_ist]
         if len(training) < 3:
@@ -115,27 +145,33 @@ def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=
             item['properties'] = {
                 key: value for key, value in item['properties'].items() if key in property_ids and key not in CONTEXT
             }
-        indices = [i for i, item in enumerate(corpus) if (item['category'], item.get('family')) == (category, family)]
+        indices = [i for i, item_key in enumerate(corpus_keys) if item_key == key]
+        if len(indices) < MIN_CORPUS_ITEMS:
+            continue
         model = fit(listed, [corpus[i] for i in indices], [verdicts[i] for i in indices])
-        model.update(category=category, family=family)
+        model.update(category=category, family=family, conditions=dict(zip(FIELDS, facets, strict=True)))
+        model['supporters'] = [
+            {**row, 'paid_properties': sorted(paid_set(item, model))}
+            for row, item in zip(training, listed, strict=True)
+        ]
         # The specified cap is per rarity, not per family. Allocate it in the
         # same largest-family-first order, including all pre-existing CHECKs.
         total = sum(item['category'] == category for item in corpus)
         baseline = sum(corpus[i]['category'] == category for i in checks)
         model['threshold'] = len(model['properties']) + 1
         added = set()
-        for threshold in range(1, len(model['properties']) + 1):
+        # A co-occurring affix is not evidence of standalone demand. Until a
+        # model carries reviewed standalone/top-tier evidence, require a pair.
+        for threshold in range(2, len(model['properties']) + 1):
+            candidate = model | {'threshold': threshold}
             proposed = {
-                i for i in indices if verdicts[i] in ('vendor', 'self') and score(corpus[i], model) >= threshold
+                i for i in indices if verdicts[i] in ('vendor', 'self') and supported_rows(corpus[i], candidate)
             }
             if baseline + len(proposed) <= total * 0.08:
                 model['threshold'], added = threshold, proposed
                 break
         # Explicit guide false positives veto deployment, never train the holdout.
-        veto = any(
-            (item['category'], item.get('family')) == (category, family) and score(item, model) >= model['threshold']
-            for item in negatives
-        )
+        veto = any(group_key(item) == key and supported_rows(item, model) for item in negatives)
         if veto:
             model['threshold'] = len(model['properties']) + 1
             added = set()
@@ -147,11 +183,12 @@ def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=
         model['references'] = {
             str(count): band_for(category, family, members) for count, members in buckets.items() if len(members) >= 3
         }
-        hits = sum(score(from_listing(row), model) >= model['threshold'] for row in held)
+        hits = sum(bool(supported_rows(from_listing(row), model)) for row in held)
         validation.append(
             {
                 'category': category,
                 'family': family,
+                'conditions': model['conditions'],
                 'training_sellers': len(training),
                 'held_out_sellers': len(held),
                 'held_out_flagged': hits,
@@ -168,13 +205,21 @@ def compile_scores(rows, corpus, verdicts, property_ids, keep_ist, *, negatives=
 
 def lookup(item, models):
     for model in models:
+        # Also reject unsafe models in caches built before these guards.
+        if model.get('corpus_items', 0) < MIN_CORPUS_ITEMS or model['threshold'] < 2:
+            continue
         if (item.get('category'), item.get('family')) != (model['category'], model['family']):
             continue
+        if not model.get('conditions') or conditions(item) != model['conditions']:
+            continue
         count = score(item, model)
-        if count >= model['threshold']:
+        if count >= model['threshold'] and (rows := supported_rows(item, model)):
+            from pricing.triage.bands import band_for
+
             return {
                 'count': count,
                 'threshold': model['threshold'],
-                'reference_band': model['references'].get(str(count)),
+                'reference_band': band_for(model['category'], model['family'], rows),
+                'properties': {key: item['properties'][key] for key in sorted(paid_set(item, model))},
             }
     return None

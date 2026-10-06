@@ -186,3 +186,31 @@ def test_unknown_rarity_listing_is_a_data_gap_not_a_missing_base_rule():
     result = listing_score([row], data)
     assert result['miss_causes']['base'][0]['cause'] == 'base_rarity_missing'
     assert result['overall']['valuable'] == 1
+
+
+@pytest.mark.parametrize('category', ['base', 'uniques', 'sets', 'runewords', 'runes'])
+def test_evidence_backed_checks_count_for_every_category(category):
+    from pricing.triage.listing_scores import evidence_backed_check
+
+    item = {'category': category, 'properties': {}}
+    tables = {'rules': {'keep_ist': 0.25, 'rows': []}}
+    quote = {'bucket': 'matched', 'q1_ist': 0.5, 'sellers': 1}
+    result = {'verdict': 'check', 'bucket': 'matched', 'reference_band': quote}
+    assert evidence_backed_check(item, result, tables)
+    assert not evidence_backed_check(item, result | {'bucket': None}, tables)
+    assert not evidence_backed_check(item, result | {'reference_band': None}, tables)
+    assert not evidence_backed_check(item, result | {'reference_band': quote | {'q1_ist': 0.1}}, tables)
+
+
+def test_unreadable_or_impossible_deciding_roll_does_not_count_as_attention():
+    from pricing.triage.listing_scores import evidence_backed_check
+
+    tables = {'rules': {'keep_ist': 0.25, 'rows': []}}
+    result = {
+        'verdict': 'check',
+        'bucket': 'roll-comparison',
+        'reference_band': {'bucket': 'name', 'q1_ist': 1, 'sellers': 10},
+        'roll_comparison': {'deciding': {'510': {'min': 100, 'max': 200}}},
+    }
+    for roll, expected in ((150, True), (None, False), (250, False)):
+        assert evidence_backed_check({'properties': {'510': roll}}, result, tables) is expected

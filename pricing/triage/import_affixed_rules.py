@@ -435,6 +435,23 @@ def affixed_rules():
             }
         )
 
+    add(
+        'belt',
+        'rare',
+        'FHR belt: life and two substantial resistances',
+        stats(**{'430': 24, '418': 40}),
+        counted(2, *(stats(**{prop: 25}) for prop in RESISTS)),
+        relax_support=False,
+        source={
+            'guide': 'guides/pricing-primer.html#miss rare belt',
+            'reviewed_at': '2026-10-06',
+            'scope': 'SC/NL/PC/RotW',
+            'kind': 'review_pattern',
+            'independent_sellers': 7,
+            'without_strength_examples': ['1002165796238', '2912838208'],
+            'threshold_basis': 'existing FHR/life and substantial-resistance review floors; no numeric price',
+        },
+    )
     caster_support = counted(
         2, resist(10), stats(**{'418': 1}), stats(**{'400': 1}), stats(**{'437': 1}), stats(**{'429': 1})
     )

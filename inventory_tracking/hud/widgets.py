@@ -230,6 +230,7 @@ def draw_scene(cr, boxes, *, scale: float):
             continue
         cr.save()
         try:
+            cr.new_path()  # save/restore keeps the path: the last widget's pen position would join this one's shapes
             cr.translate(x, y)
             renderer.draw(cr, width, height, widget.payload, scale)
         except Exception:  # one broken widget never blanks the rest of the HUD

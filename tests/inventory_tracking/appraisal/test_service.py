@@ -238,6 +238,59 @@ def test_service_separates_detail_and_identify_warmup(tmp_path, monkeypatch):
     assert seen == [[primary], identify]
 
 
+def test_lookup_processes_warm_up_while_the_game_is_awaited(tmp_path, monkeypatch):
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    import pytest
+
+    events = []
+
+    @contextmanager
+    def recorded(name, value=None):
+        events.append(name)
+        try:
+            yield value
+        finally:
+            events.append(f'{name} closed')
+
+    def no_game(*_):
+        events.append('waiting for the game')
+        raise ValueError('unsupported build')
+
+    monkeypatch.setattr(appraisal_service, 'RetrievalProcess', lambda *_: recorded('detail process'))
+    monkeypatch.setattr(
+        appraisal_service, 'RetrievalGroup', lambda *_: recorded('identify processes', SimpleNamespace(processes=[]))
+    )
+    monkeypatch.setattr(appraisal_service, 'KeepWarm', lambda *_, **__: recorded('keep warm'))
+    monkeypatch.setattr(appraisal_service, 'wait_for_game', no_game)
+    with pytest.raises(ValueError, match='unsupported build'):
+        appraisal_service.main(
+            [
+                'serve',
+                '--socket',
+                str(tmp_path / 'sock'),
+                '--output',
+                str(tmp_path / 'runs'),
+                '--database',
+                str(tmp_path / 'unused.sqlite3'),
+            ]
+        )
+    # Loading and the first lookups take seconds: they run while the game is attached, and a
+    # failed attach still stops every process.
+    assert events == [
+        'detail process',
+        'identify processes',
+        'keep warm',
+        'keep warm',
+        'waiting for the game',
+        'keep warm closed',
+        'keep warm closed',
+        'identify processes closed',
+        'detail process closed',
+    ]
+
+
 def test_disagree_request_routes_only_fresh_messages(tmp_path):
     endpoint = tmp_path / 'request.sock'
     with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as server:

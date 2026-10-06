@@ -450,18 +450,21 @@ def test_a_failing_walls_read_keeps_the_card():
 
 
 def test_rooms_of_a_learned_layout_have_walls_on_entry_and_live_reads_teach_the_library(tmp_path):
-    from inventory_tracking.levels.model import Walkable
+    from inventory_tracking.levels.model import Walkable, pack_tiles
     from inventory_tracking.levels.walls import WallLibrary
     from inventory_tracking.osd.level_map import MapCard
 
     rooms = [r for r in replay('lower_kurast_camp').rooms if r.variant is not None and r.preset]
     known, loaded = rooms[0], rooms[1]
     library = WallLibrary(tmp_path / 'walls.json')
-    library.learn([known], [Walkable(known.x, known.y, known.width, known.height, '1' * known.width * known.height)])
+    cells = pack_tiles('1' * known.width * known.height, known.width)
+    library.learn([known], [Walkable(known.x, known.y, known.width, known.height, cells)])
 
     guide, shown, _ = make_guide([79], fixture='lower_kurast_camp')
     guide.library = library
-    live = Walkable(loaded.x, loaded.y, loaded.width, loaded.height, '0' * loaded.width * loaded.height)
+    live = Walkable(
+        loaded.x, loaded.y, loaded.width, loaded.height, pack_tiles('0' * loaded.width * loaded.height, loaded.width)
+    )
     guide.observe_walls = lambda pid, images, capture: [live]
     guide.poll(1.0)
     guide.tick()

@@ -1,10 +1,14 @@
-"""Wall library: walkable tiles learned per preset layout, so unvisited rooms get walls on entry.
+"""Wall library: walkable sub-tiles learned per preset layout, so unvisited rooms get walls on entry.
 
 The client builds collision grids only for rooms loaded around the player (levels/memory.py
 loaded_walkable). A preset room's walls come from its DS1 file, so every live read is saved under
 (preset, DS1 variant, chunk offset in the preset, size), and any room with the same key, in this
 game or a later one, is drawn from the library. Generated terrain (preset 0) and rooms without a
 readable variant are never learned. A later sighting of the same key replaces the earlier one.
+
+The file (schema 2) holds packed sub-tiles (model.pack_cells). A schema 1 file held one cell per
+tile; it is read with each tile filling its 5x5, so those rooms keep their coarse walls until a
+live read or a dump (`main`) replaces them.
 """
 
 import json
@@ -15,12 +19,13 @@ from pathlib import Path
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.memory import tiles_from_mask
-from inventory_tracking.levels.model import Room, Walkable
-from inventory_tracking.native.layout import COLLISION_BOUNDS, COLLISION_MASK, ROOM1_COLLISION
+from inventory_tracking.levels.model import Room, Walkable, pack_tiles, unpack_cells
+from inventory_tracking.native.layout import COLLISION_BOUNDS, COLLISION_MASK, ROOM1_COLLISION, TILE_UNITS
 from inventory_tracking.reports import publish
 
 
 DEFAULT_WALLS = Path('inventory_tracking/runs/levels/walls.json')
+SCHEMA_VERSION = 2
 
 
 def layout_key(room: Room) -> str | None:
@@ -30,11 +35,19 @@ def layout_key(room: Room) -> str | None:
     return f'{room.preset}:{room.variant}:{room.x - bx}:{room.y - by}:{room.width}x{room.height}'
 
 
+def tile_width(key: str) -> int:
+    """The room width in tiles named by a layout key."""
+    return int(key.rsplit(':', 1)[1].split('x')[0])
+
+
 class WallLibrary:
     def __init__(self, path: Path = DEFAULT_WALLS):
         self.path = path
         try:
-            self.cells: dict[str, str] = json.loads(path.read_text())['layouts']
+            data = json.loads(path.read_text())
+            self.cells: dict[str, str] = data['layouts']
+            if data.get('schema_version') == 1:
+                self.cells = {key: pack_tiles(cells, tile_width(key)) for key, cells in self.cells.items()}
         except FileNotFoundError:
             self.cells = {}
         except (ValueError, KeyError, TypeError) as exc:
@@ -56,7 +69,7 @@ class WallLibrary:
                 changed = True
         if changed:
             self.path.parent.mkdir(parents=True, exist_ok=True)
-            publish(self.path, {'schema_version': 1, 'layouts': self.cells})
+            publish(self.path, {'schema_version': SCHEMA_VERSION, 'layouts': self.cells})
         return learned
 
     def known(self, rooms: Iterable[Room]) -> list[Walkable]:
@@ -64,7 +77,7 @@ class WallLibrary:
         for room in rooms:
             key = layout_key(room)
             cells = self.cells.get(key) if key else None
-            if cells is not None and len(cells) == room.width * room.height:
+            if cells is not None and unpack_cells(cells, room.width * room.height * TILE_UNITS**2):
                 found.append(Walkable(room.x, room.y, room.width, room.height, cells))
         return found
 

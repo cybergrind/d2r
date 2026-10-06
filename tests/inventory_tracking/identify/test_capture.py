@@ -60,7 +60,7 @@ def test_identified_flag_requires_the_quality_it_was_selected_by():
         identified_flag(item_data(4, True)[:-1], 4)
 
 
-def test_probe_reports_identified_state_in_town_and_away_elsewhere(monkeypatch):
+def test_probe_reports_identified_state_in_town_and_in_the_field(monkeypatch):
     units = [
         unit(1, data_pointer=0x1000),
         unit(2, quality=7, page=3, data_pointer=0x2000),
@@ -84,6 +84,7 @@ def test_probe_reports_identified_state_in_town_and_away_elsewhere(monkeypatch):
     monkeypatch.setattr(capture, 'describe_item', lambda read, u: u['details'])
     probe = probe_inventory(lambda address, size: memory[address][:size], snapshot)
     assert probe['state'] == 'ok'
+    assert probe['town']
     assert probe['items'] == {
         '1': {'identified': False, 'quality': 4, 'txt_id': 351, 'page': 0},
         '2': {'identified': True, 'quality': 7, 'txt_id': 351, 'page': 3},
@@ -91,11 +92,10 @@ def test_probe_reports_identified_state_in_town_and_away_elsewhere(monkeypatch):
     # Everything the player holds anywhere: a gambled item is new to all of it, a stash item is not.
     assert probe['owned'] == ['1', '2', '3', '4']
     location['value'] = 46
-    assert probe_inventory(lambda address, size: memory[address][:size], snapshot) == {
-        'state': 'away',
+    # A scroll works anywhere, so the field is read the same way (it used to answer `away`).
+    assert probe_inventory(lambda address, size: memory[address][:size], snapshot) == probe | {
         'location': 46,
-        'player_id': PLAYER,
-        'items': {},
+        'town': False,
     }
     snapshot['groups']['items']['complete'] = False
     with pytest.raises(ValueError, match='Incomplete'):

@@ -71,6 +71,7 @@ class Player:
     x: float  # world units
     y: float
     consume: bool | None  # None when the effect list could not be read
+    consume_node: bytes = field(default=b'', compare=False, repr=False)  # research: the buff's record
 
     @property
     def in_town(self) -> bool:
@@ -98,6 +99,7 @@ class World:
     view: int = 255  # the byte at VIEW_RVA: 0 while a game loads
     player: Player | None = None
     monsters: tuple[Monster, ...] = ()  # alive, with a position
+    corpses: frozenset[int] = frozenset()  # classes of the dead monsters still in the unit table
 
     @property
     def quit_menu(self) -> bool:
@@ -160,20 +162,27 @@ class GameMemory:
                 name = decode_name(self.read(unit['data_pointer'], 16))
             except OSError, ValueError, struct.error:
                 continue
+            consume, node = None, b''
             try:
-                consume = read_consume(self.read, unit['stats_pointer']).active
+                buff = read_consume(self.read, unit['stats_pointer'])
+                consume = buff.active
+                if buff.effect_id:
+                    node = self.read(buff.effect_id, 0x80)
             except OSError, ValueError, struct.error:
-                consume = None
-            found.append(Player(unit['unit_id'], name, unit['mode'], area, *position(path), consume))
+                pass
+            found.append(Player(unit['unit_id'], name, unit['mode'], area, *position(path), consume, node))
         # Several player units may stand for the one character (levels/memory.py); a game with
         # another character in view is not handled.
         return min(found, key=lambda p: p.unit_id) if len({p.name for p in found}) == 1 else None
 
-    def _monsters(self) -> tuple[Monster, ...]:
+    def _monsters(self) -> tuple[tuple[Monster, ...], frozenset[int]]:
         heads = struct.unpack('<128Q', self.read(self.table + MONSTER_UNIT * 1024, 1024))
-        found = []
+        found, corpses = [], set()
         for unit in walk_units(self.read, heads, MONSTER_UNIT)['units']:
-            if unit['mode'] in DEAD_MODES or not unit['path_pointer'] or not unit['data_pointer']:
+            if unit['mode'] in DEAD_MODES:
+                corpses.add(unit['txt_id'])
+                continue
+            if not unit['path_pointer'] or not unit['data_pointer']:
                 continue
             try:
                 path = self.read(unit['path_pointer'], 8)
@@ -185,7 +194,7 @@ class GameMemory:
                 with contextlib.suppress(OSError, ValueError):
                     raw = self.read(unit['address'], 0x160) + self.read(unit['data_pointer'], 0x80)
             found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, raw))
-        return tuple(found)
+        return tuple(found), frozenset(corpses)
 
     def hands(self) -> tuple[str, ...]:
         """Base codes of what the character holds in the weapon set in hand; () when unreadable."""
@@ -237,13 +246,14 @@ class GameMemory:
     def world(self) -> World:
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)
         in_game = panels[IN_GAME] == 1
-        player, monsters = None, ()
+        player, monsters, corpses = None, (), frozenset()
         if in_game:
             try:
                 player = self._player()
-                monsters = self._monsters() if player is not None else ()
+                if player is not None:
+                    monsters, corpses = self._monsters()
             except OSError, ValueError, struct.error:
-                player, monsters = None, ()
+                player, monsters, corpses = None, (), frozenset()
         return World(
             in_game=in_game,
             open_panels=tuple(name for name, offset in OPEN_PANELS.items() if panels[offset] == 1),
@@ -253,4 +263,5 @@ class GameMemory:
             view=self.read(self.base + VIEW_RVA, 1)[0],
             player=player,
             monsters=monsters,
+            corpses=corpses,
         )

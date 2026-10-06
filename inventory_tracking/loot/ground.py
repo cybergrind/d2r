@@ -65,6 +65,17 @@ class GroundUnique:
 
 
 @dataclass(frozen=True)
+class ItemSighting:
+    """An item unit of a watched class, wherever it is: on the ground, carried or stored."""
+
+    class_id: int
+    unit_id: int
+    mode: int
+    x: int  # static path position: where it lies, for a ground item
+    y: int
+
+
+@dataclass(frozen=True)
 class Shrine:
     shrine_type: int
     unit_id: int
@@ -122,6 +133,21 @@ def nearby_shrines(read, table_address, *, types: frozenset[int]) -> list[Shrine
         x, y = struct.unpack_from('<I', path, 0x10)[0] & 0xFFFF, struct.unpack_from('<I', path, 0x14)[0] & 0xFFFF
         shrines.append(Shrine(data[OBJECT_SHRINE_TYPE], unit['unit_id'], x, y))
     return shrines
+
+
+def item_units(read, table_address, class_ids) -> list[ItemSighting]:
+    """Every streamed item unit of the given classes (terror/shards.py tells drops from carried ones)."""
+    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+    found = []
+    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+        if unit['txt_id'] not in class_ids:
+            continue
+        try:
+            x, y = static_position(read, unit) if unit['path_pointer'] else (0, 0)
+        except OSError, ValueError:
+            continue
+        found.append(ItemSighting(unit['txt_id'], unit['unit_id'], unit['mode'], x, y))
+    return found
 
 
 def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:

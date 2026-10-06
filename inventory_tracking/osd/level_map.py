@@ -4,7 +4,7 @@ Coordinates are Room2 tiles (map plane). The screen is isometric like the game: 
 down-right, +y down-left, so the dots sit where the arrow points. The card travels in the
 HUD guide widget's payload and is drawn by hud/widgets.py; this module has no GTK import so
 it stays unit-testable with cairo alone.
-Room2 carries no walls; loaded rooms add walkable tiles from their collision grids (`walkable`),
+Room2 carries no walls; loaded rooms add walkable sub-tiles from their collision grids (`walkable`),
 drawn as light floor with rock left transparent, so explored parts show corridors (levels/plan.md).
 Rooms never loaded are drawn slightly dimmer (`visited`, terror/tracker.py). Hostile monsters
 alive are dots at their last seen position: small toned-down red for plain mobs, larger bright
@@ -18,8 +18,11 @@ too much colour over the game). `MapCard.whole` asks for the whole level anyway 
 """
 
 import math
+import re
 from dataclasses import dataclass
 
+from inventory_tracking.levels.model import unpack_cells
+from inventory_tracking.native.layout import TILE_UNITS
 from inventory_tracking.presentation import Tone, tone_rgb
 
 
@@ -89,7 +92,7 @@ class MapCard:
     pois: tuple[MapPoi, ...] = ()
     route: tuple[tuple[float, float], ...] = ()  # player → room centres → POI, in tiles (mazes only)
     room_kinds: tuple[str, ...] = ()  # per room: 'room' or 'edge' (outdoor level border); empty = all 'room'
-    walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, '1'/'0' per tile
+    walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, packed sub-tiles (levels/model.py)
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
     live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
     whole: bool = False  # draw the whole level however small, not the part around the player
@@ -228,35 +231,27 @@ def _dot(cr, x, y, radius, fill, ring):
 
 
 FLOOR = (0.80, 0.72, 0.52, 0.80)
+WALKABLE_RUN = re.compile('1+')
 
 
 def _draw_tiles(cr, transform, x, y, w, h, cells, floor=FLOOR):
-    """One iso parallelogram per run of walkable tiles in a row; rock is left transparent."""
-    if len(cells) != w * h:
+    """One iso parallelogram per run of walkable sub-tiles in a row, the room filled in one go
+    (no seams between rows); rock is left transparent."""
+    columns = w * TILE_UNITS
+    bits = unpack_cells(cells, columns * h * TILE_UNITS)
+    if bits is None:
         return
-    for row in range(h):
-        line = cells[row * w : (row + 1) * w]
-        start = 0
-        while start < w:
-            end = start
-            while end < w and line[end] == line[start]:
-                end += 1
-            corners = [
-                transform(x + start, y + row),
-                transform(x + end, y + row),
-                transform(x + end, y + row + 1),
-                transform(x + start, y + row + 1),
-            ]
-            cr.move_to(*corners[0])
-            for corner in corners[1:]:
-                cr.line_to(*corner)
+    for row in range(h * TILE_UNITS):
+        top, bottom = y + row / TILE_UNITS, y + (row + 1) / TILE_UNITS
+        for run in WALKABLE_RUN.finditer(bits[row * columns : (row + 1) * columns]):
+            left, right = x + run.start() / TILE_UNITS, x + run.end() / TILE_UNITS
+            cr.move_to(*transform(left, top))
+            cr.line_to(*transform(right, top))
+            cr.line_to(*transform(right, bottom))
+            cr.line_to(*transform(left, bottom))
             cr.close_path()
-            if line[start] == '1':
-                cr.set_source_rgba(*floor)
-                cr.fill()
-            else:
-                cr.new_path()
-            start = end
+    cr.set_source_rgba(*floor)
+    cr.fill()
 
 
 def draw_map(cr, width: float, height: float, card: MapCard, *, min_scale: float = 0.0, local_scale: float = 0.0):

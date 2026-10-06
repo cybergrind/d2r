@@ -83,6 +83,10 @@ def test_paid_pattern_check_remains_trade_review_with_own_use_attached():
     [
         {'base': 'Amulet', 'rarity': 'magic', 'item_level': 90},
         {'base': 'Wyrmhide Boots', 'rarity': 'magic', 'item_level': 90},
+        *(
+            {'base': base, 'rarity': 'magic', 'item_level': 90}
+            for base in ('Light Belt', 'Sharkskin Belt', 'Vampirefang Belt')
+        ),
         {'base': 'Monarch', 'rarity': 'normal', 'sockets': 4},
         {'base': 'Small Charm', 'rarity': 'magic', 'stats': {'7:0': 20}},
         {'base': 'Corona', 'name': 'Crown of Ages', 'rarity': 'unique'},
@@ -105,6 +109,13 @@ def test_current_guide_crafting_bases_and_endgame_variants_qualify(spec):
         {'base': 'Amulet', 'rarity': 'magic', 'item_level': 40},
         {'base': 'Amulet', 'rarity': 'magic'},
         {'base': 'Wyrmhide Boots', 'rarity': 'rare', 'item_level': 90},
+        {'base': 'Vampirefang Belt', 'rarity': 'rare', 'item_level': 90},
+        {'base': 'Light Belt', 'rarity': 'magic', 'item_level': 40},
+        {'base': 'Sharkskin Belt', 'rarity': 'magic'},
+        *(
+            {'base': base, 'rarity': 'magic', 'item_level': 90}
+            for base in ('Leather Gloves', 'Demonhide Gloves', 'Bramble Mitts')
+        ),
         {'base': 'Monarch', 'rarity': 'normal', 'sockets': 4, 'ethereal': True},
         {'base': 'Monarch', 'rarity': 'normal', 'sockets': 3},
         {'base': 'Small Charm', 'rarity': 'magic', 'stats': {'7:0': 5}},
@@ -126,3 +137,29 @@ def test_own_use_does_not_expand_to_wrong_facets_or_generic_leveling(spec):
 
     item = item_from_spec({'rarity': 'normal', 'sockets': 0, 'ethereal': False, **spec})
     assert not assess(item, tables())['own_use']
+
+
+@pytest.mark.parametrize('base', ['Light Belt', 'Sharkskin Belt', 'Vampirefang Belt'])
+def test_reviewed_caster_belt_alternative_requires_max_fcr_and_life(base):
+    from pricing.triage.guide_cases import item_from_spec
+
+    spec = {
+        'base': base,
+        'rarity': 'crafted',
+        'ethereal': False,
+        'sockets': 0,
+        'stats': {'105:0': 10, '7:0': 30, '9:0': 20, '27:0': 10},
+    }
+    item = item_from_spec(spec)
+    result = assess(item, tables())
+    assert result['verdict'] == 'self'
+    assert result['own_use']['slot'] == 'belt'
+    assert result['decision_ist'] is None
+    for change in (
+        {'rarity': 'magic'},
+        {'ethereal': True},
+        {'stats': dict(spec['stats'], **{'105:0': 9})},
+        {'stats': dict(spec['stats'], **{'105:0': 11})},
+        {'stats': dict(spec['stats'], **{'7:0': 29})},
+    ):
+        assert not assess(item_from_spec(spec | change), tables())['own_use']

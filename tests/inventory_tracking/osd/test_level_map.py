@@ -3,6 +3,7 @@
 import cairo
 import pytest
 
+from inventory_tracking.levels.model import pack_cells, pack_tiles
 from inventory_tracking.osd.level_map import MapCard, MapPoi, draw_map, fit, project
 
 
@@ -91,7 +92,7 @@ def test_walkable_tiles_round_trip_and_default_to_none():
 
 
 def test_walkable_tiles_are_drawn_lighter_than_rock():
-    card = MapCard(((0, 0, 8, 8),), (0.0, 8.0), walkable=((0, 0, 8, 8, ('1' * 4 + '0' * 4) * 8),))
+    card = MapCard(((0, 0, 8, 8),), (0.0, 8.0), walkable=((0, 0, 8, 8, pack_tiles(('1' * 4 + '0' * 4) * 8, 8)),))
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 240, 160)
 
     draw_map(cairo.Context(surface), 240, 160, card)
@@ -122,7 +123,7 @@ def test_the_map_has_no_background_square():
 
 
 def test_rock_in_rooms_with_known_walls_is_transparent():
-    card = MapCard(((0, 0, 8, 8),), (0.0, 8.0), walkable=((0, 0, 8, 8, ('1' * 4 + '0' * 4) * 8),))
+    card = MapCard(((0, 0, 8, 8),), (0.0, 8.0), walkable=((0, 0, 8, 8, pack_tiles(('1' * 4 + '0' * 4) * 8, 8)),))
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 240, 160)
 
     draw_map(cairo.Context(surface), 240, 160, card)
@@ -164,8 +165,23 @@ def pixel(surface, card, x, y):
     return pixel_at(surface, *(round(v) for v in fit(card, 240, 160)(x, y)))
 
 
+def test_a_wall_one_sub_tile_thick_shows_as_a_gap_in_the_floor():
+    # User, 2026-10-06: the thin walls of a Lower Kurast hut were missing from the map.
+    wall_row = 12  # sub-tile row 12 of 40 is rock: y 2.4..2.6 tiles
+    cells = pack_cells(''.join(('0' if row == wall_row else '1') * 40 for row in range(40)))
+    card = MapCard(((0, 0, 8, 8),), (0.0, 8.0), walkable=((0, 0, 8, 8, cells),))
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 960, 640)
+
+    draw_map(cairo.Context(surface), 960, 640, card)
+
+    transform = fit(card, 960, 640)
+    assert alpha(surface, *(round(v) for v in transform(4, 2.5))) == 0
+    assert alpha(surface, *(round(v) for v in transform(4, 2.0))) > 0
+    assert alpha(surface, *(round(v) for v in transform(4, 3.0))) > 0
+
+
 def test_unvisited_rooms_and_their_floor_are_drawn_dimmer():
-    floor = ('1' * 8) * 8
+    floor = pack_tiles('1' * 64, 8)
     for walkable in ((), ((0, 0, 8, 8, floor), (8, 0, 8, 8, floor))):
         card = MapCard(((0, 0, 8, 8), (8, 0, 8, 8)), (0.0, 16.0), walkable=walkable, visited=(0, 1))
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 240, 160)

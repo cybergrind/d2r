@@ -1,0 +1,3859 @@
+{
+  "source": "D2R install data/global/excel treasureclassex, monstats, levels, superuniques (2026-10-07)",
+  "items": {
+    "674": [
+      "xa1",
+      "Western Worldstone Shard"
+    ],
+    "675": [
+      "xa2",
+      "Eastern Worldstone Shard"
+    ],
+    "676": [
+      "xa3",
+      "Southern Worldstone Shard"
+    ],
+    "677": [
+      "xa4",
+      "Deep Worldstone Shard"
+    ],
+    "678": [
+      "xa5",
+      "Northern Worldstone Shard"
+    ]
+  },
+  "mixes": {
+    "1": [
+      5,
+      3,
+      2,
+      2,
+      1
+    ],
+    "2": [
+      3,
+      5,
+      2,
+      1,
+      2
+    ],
+    "3": [
+      1,
+      2,
+      5,
+      3,
+      2
+    ],
+    "4": [
+      2,
+      1,
+      2,
+      5,
+      3
+    ],
+    "5": [
+      2,
+      2,
+      1,
+      2,
+      5
+    ]
+  },
+  "classes": {
+    "Act 1 (H) Champ A": [
+      13,
+      63,
+      0.022556390977443608,
+      3
+    ],
+    "Act 1 (H) Champ B": [
+      13,
+      66,
+      0.022556390977443608,
+      3
+    ],
+    "Act 1 (H) Champ C": [
+      13,
+      68,
+      0.022556390977443608,
+      3
+    ],
+    "Act 1 (H) Super A": [
+      18,
+      67,
+      0.04819277108433735,
+      3
+    ],
+    "Act 1 (H) Super B": [
+      18,
+      67,
+      0.04819277108433735,
+      3
+    ],
+    "Act 1 (H) Super C": [
+      18,
+      68,
+      0.04819277108433735,
+      3
+    ],
+    "Act 1 (H) Unique A": [
+      15,
+      63,
+      0.024096385542168676,
+      3
+    ],
+    "Act 1 (H) Unique B": [
+      15,
+      66,
+      0.024096385542168676,
+      3
+    ],
+    "Act 1 (H) Unique C": [
+      15,
+      68,
+      0.024096385542168676,
+      3
+    ],
+    "Act 2 (H) Champ A": [
+      13,
+      69,
+      0.022556390977443608,
+      4
+    ],
+    "Act 2 (H) Champ B": [
+      13,
+      71,
+      0.022556390977443608,
+      4
+    ],
+    "Act 2 (H) Champ C": [
+      13,
+      72,
+      0.022556390977443608,
+      4
+    ],
+    "Act 2 (H) Super A": [
+      18,
+      68,
+      0.04819277108433735,
+      4
+    ],
+    "Act 2 (H) Super B": [
+      18,
+      69,
+      0.04819277108433735,
+      4
+    ],
+    "Act 2 (H) Super C": [
+      18,
+      72,
+      0.04819277108433735,
+      4
+    ],
+    "Act 2 (H) Unique A": [
+      15,
+      69,
+      0.024096385542168676,
+      4
+    ],
+    "Act 2 (H) Unique B": [
+      15,
+      71,
+      0.024096385542168676,
+      4
+    ],
+    "Act 2 (H) Unique C": [
+      15,
+      72,
+      0.024096385542168676,
+      4
+    ],
+    "Act 3 (H) Champ A": [
+      13,
+      74,
+      0.022556390977443608,
+      5
+    ],
+    "Act 3 (H) Champ B": [
+      13,
+      75,
+      0.022556390977443608,
+      5
+    ],
+    "Act 3 (H) Champ C": [
+      13,
+      77,
+      0.022556390977443608,
+      5
+    ],
+    "Act 3 (H) Super A": [
+      18,
+      73,
+      0.04819277108433735,
+      5
+    ],
+    "Act 3 (H) Super B": [
+      18,
+      75,
+      0.04819277108433735,
+      5
+    ],
+    "Act 3 (H) Super C": [
+      18,
+      78,
+      0.04819277108433735,
+      5
+    ],
+    "Act 3 (H) Unique A": [
+      15,
+      74,
+      0.024096385542168676,
+      5
+    ],
+    "Act 3 (H) Unique B": [
+      15,
+      75,
+      0.024096385542168676,
+      5
+    ],
+    "Act 3 (H) Unique C": [
+      15,
+      77,
+      0.024096385542168676,
+      5
+    ],
+    "Act 4 (H) Champ A": [
+      13,
+      78,
+      0.022556390977443608,
+      2
+    ],
+    "Act 4 (H) Champ B": [
+      13,
+      80,
+      0.022556390977443608,
+      2
+    ],
+    "Act 4 (H) Super A": [
+      18,
+      81,
+      0.04819277108433735,
+      2
+    ],
+    "Act 4 (H) Super B": [
+      18,
+      84,
+      0.04819277108433735,
+      2
+    ],
+    "Act 4 (H) Super C": [
+      18,
+      87,
+      0.04819277108433735,
+      2
+    ],
+    "Act 4 (H) Unique A": [
+      15,
+      78,
+      0.024096385542168676,
+      2
+    ],
+    "Act 4 (H) Unique B": [
+      15,
+      80,
+      0.024096385542168676,
+      2
+    ],
+    "Act 5 (H) Champ A": [
+      13,
+      81,
+      0.022556390977443608,
+      1
+    ],
+    "Act 5 (H) Champ B": [
+      13,
+      83,
+      0.022556390977443608,
+      1
+    ],
+    "Act 5 (H) Champ C": [
+      13,
+      85,
+      0.022556390977443608,
+      1
+    ],
+    "Act 5 (H) Super A": [
+      18,
+      90,
+      0.04819277108433735,
+      1
+    ],
+    "Act 5 (H) Super B": [
+      18,
+      93,
+      0.04819277108433735,
+      1
+    ],
+    "Act 5 (H) Super C": [
+      18,
+      96,
+      0.04819277108433735,
+      1
+    ],
+    "Act 5 (H) Super Cx": [
+      19,
+      96,
+      0.04819277108433735,
+      1
+    ],
+    "Act 5 (H) Unique A": [
+      15,
+      81,
+      0.024096385542168676,
+      1
+    ],
+    "Act 5 (H) Unique B": [
+      15,
+      83,
+      0.024096385542168676,
+      1
+    ],
+    "Act 5 (H) Unique C": [
+      15,
+      85,
+      0.024096385542168676,
+      1
+    ],
+    "Andarielq (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Baal (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Blood Raven (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Council (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Countess (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Cow King (H)": [
+      0,
+      0,
+      0.04016064257028113,
+      3
+    ],
+    "Diablo (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Duriel (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Flying Scimitar (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Griswold (H)": [
+      0,
+      0,
+      0.024096385542168676,
+      3
+    ],
+    "Haphesto (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Izual (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Mephisto (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Nihlathak (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "ROP (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Radament (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Smith (H)": [
+      0,
+      0,
+      0.024096385542168676,
+      3
+    ],
+    "Summoner (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Trapped Soul (H)": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Uber Andariel": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Uber Duriel": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "Uber Izual": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "groups": {
+    "13": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Champ C",
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Champ C",
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Champ C",
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Champ B",
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Champ C"
+    ],
+    "15": [
+      "Act 1 (H) Unique A",
+      "Act 1 (H) Unique B",
+      "Act 1 (H) Unique C",
+      "Act 2 (H) Unique A",
+      "Act 2 (H) Unique B",
+      "Act 2 (H) Unique C",
+      "Act 3 (H) Unique A",
+      "Act 3 (H) Unique B",
+      "Act 3 (H) Unique C",
+      "Act 4 (H) Unique A",
+      "Act 4 (H) Unique B",
+      "Act 5 (H) Unique A",
+      "Act 5 (H) Unique B",
+      "Act 5 (H) Unique C"
+    ],
+    "18": [
+      "Act 1 (H) Super A",
+      "Act 1 (H) Super B",
+      "Act 1 (H) Super C",
+      "Act 2 (H) Super A",
+      "Act 2 (H) Super B",
+      "Act 2 (H) Super C",
+      "Act 3 (H) Super A",
+      "Act 3 (H) Super B",
+      "Act 3 (H) Super C",
+      "Act 4 (H) Super A",
+      "Act 4 (H) Super B",
+      "Act 4 (H) Super C",
+      "Act 5 (H) Super A",
+      "Act 5 (H) Super B",
+      "Act 5 (H) Super C"
+    ],
+    "19": [
+      "Act 5 (H) Super Cx"
+    ]
+  },
+  "monsters": {
+    "0": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "1": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "2": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "3": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "4": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "5": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "6": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "7": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "8": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "9": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "10": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "11": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "12": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "13": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "14": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "15": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "16": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "17": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "18": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "19": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "20": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "21": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "22": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "23": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "24": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "25": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "26": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "27": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "28": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "29": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "30": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "31": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "32": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "33": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "38": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "39": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "40": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "41": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "42": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "43": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "44": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "45": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "46": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "47": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "48": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "49": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "50": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "51": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "52": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "53": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "54": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "55": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "56": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "57": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "58": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "59": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "60": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "61": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "62": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "63": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "64": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "65": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "66": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "67": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "68": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "69": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "70": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "71": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "72": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "73": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "74": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "75": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "76": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "77": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "78": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "79": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "80": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "81": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "82": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "83": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "84": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "85": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "86": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "87": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "88": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "89": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "90": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "91": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "92": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "93": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "94": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "95": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "96": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "97": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "98": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "99": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "100": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "101": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "102": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "103": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "104": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "105": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "110": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "111": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "112": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "113": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "114": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "115": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "116": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "117": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "118": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "119": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "120": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "121": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "122": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "123": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "124": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "125": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "126": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "127": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "128": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "129": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "130": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "131": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "132": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "133": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "134": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "135": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "136": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "137": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "138": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "139": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "140": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "141": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "142": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "143": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "144": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "145": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "156": [
+      "Andarielq (H)",
+      "Andarielq (H)",
+      75
+    ],
+    "160": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "161": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "162": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "163": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "164": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "165": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "166": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "167": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "168": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "169": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "170": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "171": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "172": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "173": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "174": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "186": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "187": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "188": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "189": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "206": [
+      "Act 1 (H) Champ A",
+      "Act 1 (H) Unique A",
+      0
+    ],
+    "207": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "208": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "209": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "211": [
+      "Duriel (H)",
+      "Duriel (H)",
+      88
+    ],
+    "212": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "213": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "214": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "215": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "216": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "229": [
+      "Radament (H)",
+      "Radament (H)",
+      83
+    ],
+    "234": [
+      "Flying Scimitar (H)",
+      "Flying Scimitar (H)",
+      0
+    ],
+    "235": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "236": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "237": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "238": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "239": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "240": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "241": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "242": [
+      "Mephisto (H)",
+      "Mephisto (H)",
+      87
+    ],
+    "243": [
+      "Diablo (H)",
+      "Diablo (H)",
+      94
+    ],
+    "247": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "248": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "249": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "250": [
+      "Summoner (H)",
+      "Summoner (H)",
+      80
+    ],
+    "256": [
+      "Izual (H)",
+      "Izual (H)",
+      86
+    ],
+    "267": [
+      "Blood Raven (H)",
+      "Blood Raven (H)",
+      88
+    ],
+    "274": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "275": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "276": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "277": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "278": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "279": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "280": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "281": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "282": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "284": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "285": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "286": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "287": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "288": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "295": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "298": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "299": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "300": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "301": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "302": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "303": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "304": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "305": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "306": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "307": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "308": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "309": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "310": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "311": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "312": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "333": [
+      "ROP (H)",
+      "ROP (H)",
+      110
+    ],
+    "334": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "335": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "336": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "337": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "345": [
+      "Council (H)",
+      "Council (H)",
+      0
+    ],
+    "346": [
+      "Council (H)",
+      "Council (H)",
+      0
+    ],
+    "347": [
+      "Council (H)",
+      "Council (H)",
+      0
+    ],
+    "360": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "361": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "362": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "365": [
+      "Griswold (H)",
+      "Griswold (H)",
+      84
+    ],
+    "370": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "373": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "374": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "375": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "376": [
+      "Act 2 (H) Champ C",
+      "Act 2 (H) Unique C",
+      0
+    ],
+    "379": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "380": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "381": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "382": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "383": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "384": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "385": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "386": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "387": [
+      "Act 1 (H) Champ B",
+      "Act 1 (H) Unique B",
+      0
+    ],
+    "388": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "389": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "390": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "391": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "394": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "395": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "396": [
+      "Act 1 (H) Champ C",
+      "Act 1 (H) Unique C",
+      0
+    ],
+    "397": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "398": [
+      "Act 3 (H) Champ A",
+      "Act 3 (H) Unique A",
+      0
+    ],
+    "399": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "400": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "401": [
+      "Trapped Soul (H)",
+      "Trapped Soul (H)",
+      0
+    ],
+    "402": [
+      "Smith (H)",
+      "Smith (H)",
+      0
+    ],
+    "403": [
+      "Trapped Soul (H)",
+      "Trapped Soul (H)",
+      0
+    ],
+    "404": [
+      "Trapped Soul (H)",
+      "Trapped Soul (H)",
+      0
+    ],
+    "407": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "409": [
+      "Haphesto (H)",
+      "Haphesto (H)",
+      0
+    ],
+    "436": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "437": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "438": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "439": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "440": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "441": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "442": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "443": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "444": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "445": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "446": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "447": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "448": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "449": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "450": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "451": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "452": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "453": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "454": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "455": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "456": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "457": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "458": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "459": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "460": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "469": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "470": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "471": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "472": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "473": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "474": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "475": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "476": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "477": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "478": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "479": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "480": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "481": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "482": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "483": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "484": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "485": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "486": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "487": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "488": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "489": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "490": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "491": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "492": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "493": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "494": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "495": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "496": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "497": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "498": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "499": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "500": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "501": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "502": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "503": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "504": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "505": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "506": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "507": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "508": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "509": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "510": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "526": [
+      "Nihlathak (H)",
+      "Nihlathak (H)",
+      92
+    ],
+    "529": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "530": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "531": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "532": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "533": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "544": [
+      "Baal (H)",
+      "Baal (H)",
+      99
+    ],
+    "546": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      80
+    ],
+    "547": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      81
+    ],
+    "548": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      82
+    ],
+    "549": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      83
+    ],
+    "550": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      84
+    ],
+    "557": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "558": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "571": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "572": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "573": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "575": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "576": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "577": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "578": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "579": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "580": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "581": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "582": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "583": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "584": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "585": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "586": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "587": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "588": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "589": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "590": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "591": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "592": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "593": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "594": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "595": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "596": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "597": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "598": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "599": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "600": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "601": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "602": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "603": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "604": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "605": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "606": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "607": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "608": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "609": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "610": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "611": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "612": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "613": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "614": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "615": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "616": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "617": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "618": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "619": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "620": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "621": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "622": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "623": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "624": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "625": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "626": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ],
+    "627": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "628": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "629": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "630": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "631": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "632": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "633": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "634": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "635": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "636": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "637": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "638": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "639": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "640": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "641": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "642": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "643": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "644": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "645": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "646": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "647": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "648": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "649": [
+      "Act 2 (H) Champ A",
+      "Act 2 (H) Unique A",
+      0
+    ],
+    "650": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "651": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "652": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "653": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "654": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "655": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "656": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "657": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "658": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "659": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "660": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "661": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "662": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "663": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "664": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "665": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "666": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "667": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "668": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "669": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "670": [
+      "Act 5 (H) Champ B",
+      "Act 5 (H) Unique B",
+      0
+    ],
+    "671": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "672": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "673": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "674": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "675": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "676": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "677": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "678": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "679": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "682": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "683": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "684": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "685": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "686": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "687": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "688": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "689": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "690": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "691": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "692": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "693": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "694": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "695": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "696": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "697": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "698": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "699": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "700": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "701": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "702": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "703": [
+      "Act 3 (H) Champ C",
+      "Act 3 (H) Unique C",
+      0
+    ],
+    "706": [
+      "Uber Izual",
+      "Uber Izual",
+      110
+    ],
+    "707": [
+      "Uber Andariel",
+      "Uber Andariel",
+      110
+    ],
+    "708": [
+      "Uber Duriel",
+      "Uber Duriel",
+      110
+    ],
+    "713": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "714": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "715": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "716": [
+      "Act 4 (H) Champ A",
+      "Act 4 (H) Unique A",
+      0
+    ],
+    "717": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "718": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "719": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "720": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "721": [
+      "Act 3 (H) Champ B",
+      "Act 3 (H) Unique B",
+      0
+    ],
+    "722": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "723": [
+      "Act 5 (H) Champ A",
+      "Act 5 (H) Unique A",
+      0
+    ],
+    "724": [
+      "Act 5 (H) Champ C",
+      "Act 5 (H) Unique C",
+      0
+    ],
+    "735": [
+      "Act 4 (H) Champ B",
+      "Act 4 (H) Unique B",
+      0
+    ],
+    "736": [
+      "Act 2 (H) Champ B",
+      "Act 2 (H) Unique B",
+      0
+    ]
+  },
+  "supers": {
+    "0": [
+      "Act 1 (H) Super A",
+      58
+    ],
+    "1": [
+      "Act 1 (H) Super A",
+      0
+    ],
+    "2": [
+      "Act 1 (H) Super A",
+      160
+    ],
+    "3": [
+      "Act 1 (H) Super B",
+      20
+    ],
+    "4": [
+      "Act 1 (H) Super B",
+      24
+    ],
+    "5": [
+      "Griswold (H)",
+      365
+    ],
+    "6": [
+      "Countess (H)",
+      45
+    ],
+    "7": [
+      "Act 1 (H) Super B",
+      11
+    ],
+    "8": [
+      "Act 1 (H) Unique C",
+      66
+    ],
+    "9": [
+      "Act 1 (H) Super C",
+      276
+    ],
+    "10": [
+      "Radament (H)",
+      229
+    ],
+    "11": [
+      "Act 2 (H) Super A",
+      83
+    ],
+    "12": [
+      "Act 2 (H) Super B",
+      75
+    ],
+    "13": [
+      "Act 2 (H) Super B",
+      92
+    ],
+    "14": [
+      "Act 2 (H) Super A",
+      97
+    ],
+    "15": [
+      "Act 2 (H) Super B",
+      284
+    ],
+    "16": [
+      "Act 2 (H) Super B",
+      31
+    ],
+    "17": [
+      "Act 2 (H) Super B",
+      736
+    ],
+    "18": [
+      "Summoner (H)",
+      250
+    ],
+    "19": [
+      "Act 2 (H) Super C",
+      103
+    ],
+    "20": [
+      "Smith (H)",
+      402
+    ],
+    "21": [
+      "Act 3 (H) Super A",
+      125
+    ],
+    "22": [
+      "Act 3 (H) Super B",
+      281
+    ],
+    "23": [
+      "Act 3 (H) Super B",
+      129
+    ],
+    "24": [
+      "Act 3 (H) Super B",
+      47
+    ],
+    "25": [
+      "Act 3 (H) Super A",
+      138
+    ],
+    "26": [
+      "Council (H)",
+      345
+    ],
+    "27": [
+      "Council (H)",
+      346
+    ],
+    "28": [
+      "Council (H)",
+      347
+    ],
+    "29": [
+      "Council (H)",
+      345
+    ],
+    "30": [
+      "Council (H)",
+      346
+    ],
+    "31": [
+      "Council (H)",
+      347
+    ],
+    "32": [
+      "Act 4 (H) Super A",
+      362
+    ],
+    "33": [
+      "Act 4 (H) Super A",
+      120
+    ],
+    "34": [
+      "Act 4 (H) Super A",
+      299
+    ],
+    "35": [
+      "Act 4 (H) Super A",
+      308
+    ],
+    "36": [
+      "Act 4 (H) Super B",
+      362
+    ],
+    "37": [
+      "Act 4 (H) Super C",
+      312
+    ],
+    "38": [
+      "Act 4 (H) Super B",
+      306
+    ],
+    "39": [
+      "Cow King (H)",
+      735
+    ],
+    "40": [
+      "Act 1 (H) Super A",
+      5
+    ],
+    "41": [
+      "Haphesto (H)",
+      409
+    ],
+    "42": [
+      "Act 5 (H) Super A",
+      479
+    ],
+    "46": [
+      "Act 5 (H) Super C",
+      508
+    ],
+    "47": [
+      "Act 5 (H) Super A",
+      437
+    ],
+    "48": [
+      "Act 5 (H) Super B",
+      494
+    ],
+    "49": [
+      "Act 5 (H) Super A",
+      453
+    ],
+    "50": [
+      "Act 5 (H) Super A",
+      529
+    ],
+    "51": [
+      "Act 5 (H) Super Cx",
+      443
+    ],
+    "52": [
+      "Act 5 (H) Super Cx",
+      440
+    ],
+    "53": [
+      "Act 5 (H) Super C",
+      501
+    ],
+    "54": [
+      "Act 5 (H) Super C",
+      472
+    ],
+    "55": [
+      "Act 5 (H) Super A",
+      475
+    ],
+    "56": [
+      "Act 5 (H) Super B",
+      481
+    ],
+    "57": [
+      "Act 5 (H) Super C",
+      496
+    ],
+    "58": [
+      "Act 5 (H) Super C",
+      533
+    ],
+    "59": [
+      "Act 5 (H) Super C",
+      449
+    ],
+    "60": [
+      "Nihlathak (H)",
+      526
+    ],
+    "61": [
+      "Act 5 (H) Champ C",
+      62
+    ],
+    "62": [
+      "Act 5 (H) Champ C",
+      105
+    ],
+    "63": [
+      "Act 5 (H) Champ C",
+      557
+    ],
+    "64": [
+      "Act 5 (H) Champ C",
+      558
+    ],
+    "65": [
+      "Act 5 (H) Champ C",
+      571
+    ]
+  },
+  "heralds": {
+    "1": 0.07371007371007371,
+    "2": 0.07371007371007371,
+    "3": 0.11056511056511056,
+    "4": 0.11056511056511056,
+    "5": 0.14742014742014742
+  },
+  "levels": {
+    "2": [
+      1,
+      67,
+      "Blood Moor"
+    ],
+    "3": [
+      1,
+      68,
+      "Cold Plains"
+    ],
+    "4": [
+      1,
+      68,
+      "Stony Field"
+    ],
+    "5": [
+      1,
+      68,
+      "Dark Wood"
+    ],
+    "6": [
+      1,
+      69,
+      "Black Marsh"
+    ],
+    "7": [
+      1,
+      69,
+      "Tamoe Highland"
+    ],
+    "8": [
+      1,
+      79,
+      "Den of Evil"
+    ],
+    "9": [
+      1,
+      77,
+      "Cave Level 1"
+    ],
+    "10": [
+      1,
+      69,
+      "Underground Passage Level 1"
+    ],
+    "11": [
+      1,
+      80,
+      "Hole Level 1"
+    ],
+    "12": [
+      1,
+      85,
+      "Pit Level 1"
+    ],
+    "13": [
+      1,
+      78,
+      "Cave Level 2"
+    ],
+    "14": [
+      1,
+      85,
+      "Underground Passage Level 2"
+    ],
+    "15": [
+      1,
+      81,
+      "Hole Level 2"
+    ],
+    "16": [
+      1,
+      85,
+      "Pit Level 2"
+    ],
+    "17": [
+      1,
+      80,
+      "Burial Grounds"
+    ],
+    "18": [
+      1,
+      83,
+      "Crypt"
+    ],
+    "19": [
+      1,
+      85,
+      "Mausoleum"
+    ],
+    "21": [
+      1,
+      75,
+      "Tower Cellar Level 1"
+    ],
+    "22": [
+      1,
+      76,
+      "Tower Cellar Level 2"
+    ],
+    "23": [
+      1,
+      77,
+      "Tower Cellar Level 3"
+    ],
+    "24": [
+      1,
+      78,
+      "Tower Cellar Level 4"
+    ],
+    "25": [
+      1,
+      79,
+      "Tower Cellar Level 5"
+    ],
+    "26": [
+      1,
+      70,
+      "Monastery Gate"
+    ],
+    "27": [
+      1,
+      70,
+      "Outer Cloister"
+    ],
+    "28": [
+      1,
+      70,
+      "Barracks"
+    ],
+    "29": [
+      1,
+      71,
+      "Jail Level 1"
+    ],
+    "30": [
+      1,
+      71,
+      "Jail Level 2"
+    ],
+    "31": [
+      1,
+      71,
+      "Jail Level 3"
+    ],
+    "32": [
+      1,
+      72,
+      "Inner Cloister"
+    ],
+    "33": [
+      1,
+      72,
+      "Cathedral"
+    ],
+    "34": [
+      1,
+      72,
+      "Catacombs Level 1"
+    ],
+    "35": [
+      1,
+      73,
+      "Catacombs Level 2"
+    ],
+    "36": [
+      1,
+      73,
+      "Catacombs Level 3"
+    ],
+    "37": [
+      1,
+      73,
+      "Catacombs Level 4"
+    ],
+    "38": [
+      1,
+      76,
+      "Tristram"
+    ],
+    "39": [
+      1,
+      81,
+      "Moo Moo Farm"
+    ],
+    "41": [
+      2,
+      75,
+      "Rocky Waste"
+    ],
+    "42": [
+      2,
+      76,
+      "Dry Hills"
+    ],
+    "43": [
+      2,
+      76,
+      "Far Oasis"
+    ],
+    "44": [
+      2,
+      77,
+      "Lost City"
+    ],
+    "45": [
+      2,
+      77,
+      "Valley of Snakes"
+    ],
+    "46": [
+      2,
+      79,
+      "Canyon of the Magi"
+    ],
+    "47": [
+      2,
+      74,
+      "Sewers Level 1"
+    ],
+    "48": [
+      2,
+      74,
+      "Sewers Level 2"
+    ],
+    "49": [
+      2,
+      75,
+      "Sewers Level 3"
+    ],
+    "51": [
+      2,
+      78,
+      "Harem Level 2"
+    ],
+    "52": [
+      2,
+      78,
+      "Palace Cellar Level 1"
+    ],
+    "53": [
+      2,
+      78,
+      "Palace Cellar Level 2"
+    ],
+    "54": [
+      2,
+      78,
+      "Palace Cellar Level 3"
+    ],
+    "55": [
+      2,
+      85,
+      "Stony Tomb Level 1"
+    ],
+    "56": [
+      2,
+      79,
+      "Halls of the Dead Level 1"
+    ],
+    "57": [
+      2,
+      81,
+      "Halls of the Dead Level 2"
+    ],
+    "58": [
+      2,
+      82,
+      "Claw Viper Temple Level 1"
+    ],
+    "59": [
+      2,
+      85,
+      "Stony Tomb Level 2"
+    ],
+    "60": [
+      2,
+      82,
+      "Halls of the Dead Level 3"
+    ],
+    "61": [
+      2,
+      83,
+      "Claw Viper Temple Level 2"
+    ],
+    "62": [
+      2,
+      84,
+      "Maggot Lair Level 1"
+    ],
+    "63": [
+      2,
+      84,
+      "Maggot Lair Level 2"
+    ],
+    "64": [
+      2,
+      85,
+      "Maggot Lair Level 3"
+    ],
+    "65": [
+      2,
+      85,
+      "Ancient Tunnels"
+    ],
+    "66": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "67": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "68": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "69": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "70": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "71": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "72": [
+      2,
+      80,
+      "Tal Rasha's Tomb"
+    ],
+    "73": [
+      2,
+      80,
+      "Duriel's Lair"
+    ],
+    "74": [
+      2,
+      79,
+      "Arcane Sanctuary"
+    ],
+    "76": [
+      3,
+      79,
+      "Spider Forest"
+    ],
+    "77": [
+      3,
+      80,
+      "Great Marsh"
+    ],
+    "78": [
+      3,
+      80,
+      "Flayer Jungle"
+    ],
+    "79": [
+      3,
+      80,
+      "Lower Kurast"
+    ],
+    "80": [
+      3,
+      81,
+      "Kurast Bazaar"
+    ],
+    "81": [
+      3,
+      81,
+      "Upper Kurast"
+    ],
+    "82": [
+      3,
+      81,
+      "Kurast Causeway"
+    ],
+    "83": [
+      3,
+      82,
+      "Travincal"
+    ],
+    "84": [
+      3,
+      85,
+      "Spider Cave"
+    ],
+    "85": [
+      3,
+      79,
+      "Spider Cavern"
+    ],
+    "86": [
+      3,
+      85,
+      "Swampy Pit Level 1"
+    ],
+    "87": [
+      3,
+      85,
+      "Swampy Pit Level 2"
+    ],
+    "88": [
+      3,
+      81,
+      "Flayer Dungeon Level 1"
+    ],
+    "89": [
+      3,
+      82,
+      "Flayer Dungeon Level 2"
+    ],
+    "90": [
+      3,
+      85,
+      "Swampy Pit Level 3"
+    ],
+    "91": [
+      3,
+      83,
+      "Flayer Dungeon Level 3"
+    ],
+    "92": [
+      3,
+      85,
+      "Sewers Level 1"
+    ],
+    "93": [
+      3,
+      85,
+      "Sewers Level 2"
+    ],
+    "94": [
+      3,
+      85,
+      "Ruined Temple"
+    ],
+    "95": [
+      3,
+      85,
+      "Disused Fane"
+    ],
+    "96": [
+      3,
+      85,
+      "Forgotten Reliquary"
+    ],
+    "97": [
+      3,
+      85,
+      "Forgotten Temple"
+    ],
+    "98": [
+      3,
+      85,
+      "Ruined Fane"
+    ],
+    "99": [
+      3,
+      85,
+      "Disused Reliquary"
+    ],
+    "100": [
+      3,
+      83,
+      "Durance of Hate Level 1"
+    ],
+    "101": [
+      3,
+      83,
+      "Durance of Hate Level 2"
+    ],
+    "102": [
+      3,
+      83,
+      "Durance of Hate Level 3"
+    ],
+    "104": [
+      4,
+      82,
+      "Outer Steppes"
+    ],
+    "105": [
+      4,
+      83,
+      "Plains of Despair"
+    ],
+    "106": [
+      4,
+      84,
+      "City of the Damned"
+    ],
+    "107": [
+      4,
+      85,
+      "River of Flame"
+    ],
+    "108": [
+      4,
+      85,
+      "Chaos Sanctum"
+    ],
+    "110": [
+      5,
+      80,
+      "Bloody Foothills"
+    ],
+    "111": [
+      5,
+      81,
+      "Rigid Highlands"
+    ],
+    "112": [
+      5,
+      81,
+      "Arreat Plateau"
+    ],
+    "113": [
+      5,
+      82,
+      "Crystalized Cavern Level 1"
+    ],
+    "114": [
+      5,
+      83,
+      "Cellar of Pity"
+    ],
+    "115": [
+      5,
+      83,
+      "Crystalized Cavern Level 2"
+    ],
+    "116": [
+      5,
+      85,
+      "Echo Chamber"
+    ],
+    "117": [
+      5,
+      81,
+      "Tundra Wastelands"
+    ],
+    "118": [
+      5,
+      82,
+      "Glacial Caves Level 1"
+    ],
+    "119": [
+      5,
+      85,
+      "Glacial Caves Level 2"
+    ],
+    "120": [
+      5,
+      87,
+      "Rocky Summit"
+    ],
+    "121": [
+      5,
+      83,
+      "Nihlathaks Temple"
+    ],
+    "122": [
+      5,
+      83,
+      "Halls of Anguish"
+    ],
+    "123": [
+      5,
+      84,
+      "Halls of Death's Calling"
+    ],
+    "124": [
+      5,
+      84,
+      "Halls of Vaught"
+    ],
+    "125": [
+      5,
+      85,
+      "Hell1"
+    ],
+    "126": [
+      5,
+      85,
+      "Hell2"
+    ],
+    "127": [
+      5,
+      85,
+      "Hell3"
+    ],
+    "128": [
+      5,
+      85,
+      "The Worldstone Keep Level 1"
+    ],
+    "129": [
+      5,
+      85,
+      "The Worldstone Keep Level 2"
+    ],
+    "130": [
+      5,
+      85,
+      "The Worldstone Keep Level 3"
+    ],
+    "131": [
+      5,
+      85,
+      "Throne of Destruction"
+    ],
+    "132": [
+      5,
+      85,
+      "The Worldstone Chamber"
+    ],
+    "133": [
+      5,
+      83,
+      "Pandemonium Run 1"
+    ],
+    "134": [
+      5,
+      83,
+      "Pandemonium Run 2"
+    ],
+    "135": [
+      5,
+      83,
+      "Pandemonium Run 3"
+    ],
+    "136": [
+      5,
+      83,
+      "Tristram"
+    ],
+    "137": [
+      5,
+      87,
+      "ColossalSummit"
+    ]
+  }
+}

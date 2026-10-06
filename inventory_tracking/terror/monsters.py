@@ -18,6 +18,7 @@ from dataclasses import dataclass, field, replace
 
 from inventory_tracking.levels.memory import MAX_LOADED, MAX_NEAR, MAX_ROOMS, player_room, pointer
 from inventory_tracking.levels.model import Location
+from inventory_tracking.loot.ground import ItemSighting, item_units
 from inventory_tracking.native.layout import (
     LEVEL_AREA_ID,
     LEVEL_FIRST_ROOM2,
@@ -70,6 +71,7 @@ class MonsterSnapshot:
     level_hex: str | None = None  # the level struct, read only on entering a level (R1 research)
     player_level: int | None = None  # character level (stat 12): the Terror Zone's level follows it
     player_life: tuple[int, int] | None = None  # (life, most life) now: burst research (danger-plan.md R4)
+    items: tuple[ItemSighting, ...] | None = None  # item units of the watched classes; None: not read
 
 
 def room_bounds(read, room2) -> Bounds:
@@ -189,8 +191,9 @@ def level_entry(read, level, *, max_rooms=MAX_ROOMS) -> tuple[int, str]:
     return count, read(level, LEVEL_SIZE).hex()
 
 
-def observe_monsters(pid, images, capture, *, known, counted_level) -> MonsterSnapshot:
-    """Read-only, bounded. The level's Room2s are counted only when it is not `counted_level`."""
+def observe_monsters(pid, images, capture, *, known, counted_level, item_classes=()) -> MonsterSnapshot:
+    """Read-only, bounded. The level's Room2s are counted only when it is not `counted_level`.
+    `item_classes`: item class ids whose units are read too (Worldstone Shards, terror/shards.py)."""
     tables = {x['table_address'] for x in capture['unit_table_candidates']}
     if len(tables) != 1:
         raise ValueError('Expected one freshly scanned unit table address')
@@ -215,7 +218,13 @@ def observe_monsters(pid, images, capture, *, known, counted_level) -> MonsterSn
                 level = player_level(read, table)
             with contextlib.suppress(OSError, ValueError, struct.error):
                 life = player_life(read, table)
-            snapshot = MonsterSnapshot(location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life)
+            items = None
+            if item_classes:
+                with contextlib.suppress(OSError, ValueError, struct.error):
+                    items = tuple(item_units(read, table, item_classes))
+            snapshot = MonsterSnapshot(
+                location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life, items
+            )
     finally:
         os.close(fd)
     if identity(pid) != token:

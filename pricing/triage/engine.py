@@ -318,14 +318,7 @@ def assess(item, tables, *, today=None):
                 f' · {reference["sellers"]} sellers · {reference["observed_at"]}'
             )
             band, price, bucket, liquidity = None, None, None, 'none'
-    if verdict in ('vendor', 'self') and tables.get('paid_scores'):
-        from pricing.triage.paid_properties import lookup as paid_score
-
-        if scored := paid_score(item, tables['paid_scores'].get('models', [])):
-            verdict = 'check'
-            reason = f'{scored["count"]} paid properties meet family threshold {scored["threshold"]}; review for trade'
-            reference = scored['reference_band']
-            band, price, bucket, liquidity = None, None, None, 'none'
+    # Steering 13: paid-property models remain offline diagnostics until validated.
     if verdict == 'vendor' and reason == 'no listings' and category in ('magic', 'rare', 'crafted'):
         from pricing.triage.patterns import vendor_reason
 
@@ -382,22 +375,26 @@ def revision(directory=DATA):
     )
 
 
+def prepare_rules(data, rules):
+    return data | {
+        'rules': rules,
+        'rule_index': compile_index(rules['rows']),
+        'pattern_index': compile_index(rules['rows'], patterns=True),
+        'commodity_lots': compile_lots(data['bands'], rules['keep_ist']),
+    }
+
+
 def prepare_tables(bands, rules, own):
     data = {
         'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in bands['bands']},
-        'rules': rules,
         'own': own,
         'roll_models': bands.get('roll_models', []),
         'demand': bands.get('demand', {}),
         'market_demand': bands.get('market_demand', {}),
         'base_socket_inferences': bands.get('base_socket_inferences', {}),
-        'rule_index': compile_index(rules['rows']),
-        'pattern_index': compile_index(rules['rows'], patterns=True),
         'learned_index': compile_index(bands.get('learned_patterns', [])),
-        'paid_scores': bands.get('paid_scores', {}),
     }
-    data['commodity_lots'] = compile_lots(data['bands'], rules['keep_ist'])
-    return data
+    return prepare_rules(data, rules)
 
 
 class Tables:
@@ -410,7 +407,17 @@ class Tables:
         paths = [self.directory / f'{name}.json' for name in ('bands', 'rules', 'own')]
         stamp = revision(self.directory)
         if stamp != self.stamp:
-            bands, rules, own = [json.loads(p.read_text()) for p in paths]
-            self.data = prepare_tables(bands, rules, own)
+            if self.stamp is not None and stamp[0] == self.stamp[0]:
+                # Build a replacement before publishing; failed reads must leave
+                # the old snapshot and revision intact for a later retry.
+                data = self.data
+                if stamp[1] != self.stamp[1]:
+                    data = prepare_rules(data, json.loads(paths[1].read_text()))
+                if stamp[2] != self.stamp[2]:
+                    data = data | {'own': json.loads(paths[2].read_text())}
+                self.data = data
+            else:
+                bands, rules, own = [json.loads(p.read_text()) for p in paths]
+                self.data = prepare_tables(bands, rules, own)
             self.stamp = stamp
         return self.data

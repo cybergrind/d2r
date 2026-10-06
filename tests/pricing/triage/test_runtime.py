@@ -133,3 +133,88 @@ def test_all_rune_and_gem_families_use_fast_triage_including_unseen_drops(monkey
         assert 'triage' in runtime.guarded_retrieve(observation, None), base['name']
         seen.add(base['type'])
     assert seen == TYPES | {'rune'}
+
+
+def test_own_use_update_does_not_reload_price_tables(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    import pytest
+
+    for name, value in [('bands', {'bands': []}), ('rules', {'keep_ist': 0.25, 'rows': []}), ('own', {'rows': []})]:
+        (tmp_path / f'{name}.json').write_text(json.dumps(value))
+    tables = Tables(tmp_path)
+    original = tables.load()
+    read_text = Path.read_text
+    reads = []
+
+    def read(path, *args, **kwargs):
+        reads.append(path.name)
+        assert path.name == 'own.json', 'Small own-use update reread the large market tables'
+        return read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'read_text', read)
+    path = tmp_path / 'own.json'
+    path.write_text('{invalid')
+    with pytest.raises(json.JSONDecodeError):
+        tables.load()
+    assert tables.data is original
+    own = {'rows': [{'category': 'uniques', 'name': 'Example', 'label': 'Personal alternative'}]}
+    path.write_text(json.dumps(own))
+    updated = tables.load()
+    assert updated['own'] == own
+    assert original['own'] == {'rows': []}
+    assert updated['bands'] is original['bands']
+    assert updated['commodity_lots'] is original['commodity_lots']
+    assert tables.load() is updated
+    assert reads == ['own.json', 'own.json']
+
+
+def test_rule_reload_reuses_bands_but_rebuilds_sale_lots(tmp_path, monkeypatch):
+    from pathlib import Path
+
+    import pytest
+
+    from pricing.triage.engine import assess
+
+    band = {
+        'category': 'gems',
+        'name': 'Perfect Ruby',
+        'bucket': 'quantity:10',
+        'quantity': 10,
+        'q1_ist': 0.1,
+        'sellers': 3,
+        'liquidity': 'thin',
+    }
+    for name, value in [('bands', {'bands': [band]}), ('rules', {'keep_ist': 0.25, 'rows': []}), ('own', {'rows': []})]:
+        (tmp_path / f'{name}.json').write_text(json.dumps(value))
+    tables = Tables(tmp_path)
+    original = tables.load()
+    assert original['commodity_lots']
+    read_text = Path.read_text
+
+    def read(path, *args, **kwargs):
+        assert path.name != 'bands.json', 'Rule update reparsed market data'
+        return read_text(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, 'read_text', read)
+    rule = {'category': 'base', 'name': 'Example', 'premium': True}
+    (tmp_path / 'rules.json').write_text(json.dumps({'keep_ist': 2, 'rows': [rule]}))
+    (tmp_path / 'own.json').write_text('{invalid')
+    with pytest.raises(json.JSONDecodeError):
+        tables.load()
+    assert tables.data is original
+    (tmp_path / 'own.json').write_text(json.dumps({'rows': [], 'reviewed_at': '2026-10-06'}))
+    updated = tables.load()
+    assert updated['bands'] is original['bands']
+    assert not updated['commodity_lots']
+    assert original['commodity_lots']
+    assert original['rules']['keep_ist'] == 0.25
+    assert updated['own']['reviewed_at'] == '2026-10-06'
+    assert assess({'category': 'base', 'name': 'Example'}, updated)['verdict'] == 'sell'
+
+    monkeypatch.setattr(Path, 'read_text', read_text)
+    (tmp_path / 'bands.json').write_text(json.dumps({'bands': [band | {'q1_ist': 0.3}], 'revision': 2}))
+    refreshed = tables.load()
+    assert refreshed['bands'] is not updated['bands']
+    assert refreshed['commodity_lots']
+    assert not updated['commodity_lots']

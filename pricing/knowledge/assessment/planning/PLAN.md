@@ -278,7 +278,95 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 ## 4. Work packages
 
-### Steering 12 (progress check, 2026-10-06 21:25) — sets the queue; Steering 9 pace rules stand
+### Steering 14 (progress check, 2026-10-06 23:55) — governs; Steering 9 pace rules stand
+
+Steering 13 is executed and verified: the scorer is out of the live verdict, the table build and
+the cache; its two tests pass (1,007 tests pass across triage, appraisal and identify); Crown and
+Demon Heart are guide false-positive rows (18/18). Three seller folds gave 0 added rare/magic
+votes, so the scorer is removed for good. Do not rebuild it in another form.
+
+Score of 2026-10-06 23:00: attention 18,248 of 22,033 (82.82%); 481 more votes reach 85%.
+The 3,785 missed votes, by cause:
+
+| Cause | Votes | Where |
+|---|---|---|
+| no paid pattern | 1,931 | rare 1,226, magic 571, crafted 134 |
+| vendored although the cohort lower quartile is at or over the keep price | 982 | uniques 420, bases 287, runewords 147, sets 128 |
+| base variant not priced | 391 | Sacred Rondache family 64, staves 49, body armour 31, axes 27 |
+| base listing fields missing or invalid | 253 | rarity 83, enhancement 101, native modifiers 52, other 17 |
+| other | 228 | gems 115, roll comparison 57, rest |
+
+Order of work:
+
+1. **Speed gate, closed with what exists.** The contract needs a recorded ten-item pass. Do not
+   wait for one: replay the ten most recent captured identify items through the live service
+   path (capture → assess → publish) and record per-item and total time. The one-item live pass
+   is 69.0 ms against a 50 ms limit; name the step that costs the 19 ms and remove it.
+2. **Split the 982.** Most examples carry the reason "no build use, turnover or observed buyers"
+   (Cranebeak, Razortine, Husoldal Evo, Authority, Bul-Kathos' Children at 0.5–1 Ist asks).
+   The engine is probably right and the measure wrong: these are asks nobody is shown to take.
+   Report the exact vote count per reason as its own miss cause (`no_demand_evidence`), and do
+   not flag any of them to move the number. After the 10–11 October pull gives a seven-day
+   interval, list the cohorts with no disappearance and no buyer; the user decides whether
+   they leave the "valuable" denominator. Arithmetic for that decision: removing 800 such
+   votes gives 18,248 of 21,233 (85.9%).
+3. **Rare and magic by authored patterns only**, largest families first: rare belts 102,
+   gloves 97, swords 70, circlets 68, bows 59, knives 54, javelins 51, helms 46; magic body
+   armour 70, orbs 56, swords 42, shields 40. For each family: read its missed listings,
+   take the pattern from the guides (`guides/pricing.html` §6, `pricing-primer.html` §6,
+   `warlock.html` §4), require three valuable sellers whose whole paid set the drop contains,
+   add one guide row and one false-positive row. A family that yields no pattern in one pass
+   is recorded as such and skipped. Stop this item when rare corpus CHECK would pass 8%.
+4. **Base variants**: price the 391 from existing listings only (Paladin shield resist-all
+   tiers, staff skill combinations, body armour socket counts). No fallback below three sellers.
+5. **Named roll placement** (57 votes) and the two remaining guide rows, after items 1–4.
+
+Not to do: no new learned or statistical flagging of rares and magics; no verdict raised to
+move the measure; no change to what counts as "valuable" without the user.
+
+### Steering 13 (live findings, 2026-10-06 21:50; user: "very bad highlight") — done
+
+Two live drops were highlighted CHECK by the paid-property scorer with the line
+"1 paid properties meet family threshold 1; review for trade": a magic Crown (not ethereal,
+no sockets, 198% enhanced defence only) and a magic Demon Heart (43 life, 37% fire resist,
+no Necromancer skills). Both are VENDOR. The table of 21:07 has 70 models, 34 deployable:
+20 of them at threshold one, 26 fitted against fewer than 30 corpus drops, 11 against fewer
+than five. The magic head model counts life ≥ 12.5 and a resistance ≥ 18.75 as paid on their
+own, beside the skill properties; the magic helm model was fitted against one drop.
+
+1. **Take the scorer out of the live verdict now.** Until items 2 and 3 pass, a scorer hit
+   does not change the verdict in the service (the replay may still report it on its own
+   line). A wrong highlight costs the player more than a missed rare; the 8% cap did not
+   protect him. The attention figure is reported without scorer votes meanwhile.
+2. **A secondary roll does not flag alone.** Life and resistance on a head are only ever
+   listed together with skills. A drop is CHECK only if at least three valuable training
+   sellers reach a set of paid properties that the drop's set contains. Failing test:
+   `tests/pricing/triage/test_paid_properties.py::test_a_secondary_roll_never_listed_without_the_main_one_does_not_flag_on_its_own`.
+3. **No model without drops to test it on.** The 8% cap is per rarity, so a family with one
+   or six corpus drops always passes it. A family needs at least 30 corpus drops for a
+   model; below that it has none and its misses stay `no_paid_pattern`. Failing test:
+   `...::test_a_family_with_almost_no_observed_drops_gets_no_model`.
+4. **Conditions belong to the model**: ethereal status, sockets and base tier (normal,
+   exceptional, elite) are part of the family key where the listings differ on them, as the
+   Crown shows (Steering 12 item 3).
+5. **Add both drops to `guides/pricing.html` §9** as false-positive rows, so
+   `negatives` vetoes them and the guide score carries them.
+6. **Then recount** rare and magic attention, out-of-sample (Steering 12 item 2), and report
+   models kept and dropped. The fall is explained in section 8, not tuned away. If the
+   out-of-sample scorer adds under 200 votes after these rules, remove it: rare and magic
+   attention is then reported as reached with the authored patterns only, and the 85%
+   question goes to the user with that number.
+
+Order: 1 now; 2 → 3 → 4 → 5 → 6; then Steering 12 from its item 1 (speed).
+
+User metric clarification (2026-10-06): evidence-backed CHECK counts toward attention for
+**all item types**, including bases and named items. Priced SELL/slow remains a separate
+measure. A CHECK caused only by absent/unreadable information does not count: retain a
+matched sparse quote, a reviewed complete pattern, a supported accumulation lot, or a
+known deciding-roll comparison. This resolves the pending question in Steering 12 item 4;
+the live timing requirement and remaining execution order still apply.
+
+### Steering 12 (progress check, 2026-10-06 21:25) — items 2, 3, 6 done; rest replaced by Steering 14
 
 Measured from the score files of 21:07: attention 81.07% (17,859 of 22,028), SELL/slow
 69.95%, bases 65.5%, rare 64.3%, magic 74.2%, guide rows 384 of 404 (95.05%), worked 36/36,
@@ -316,6 +404,16 @@ missing for 85%.
    the goal (the player is not levelling) only if each is recorded as a dated pass in the
    guide's Review log; do that, then continue down the 20 failing rows. A row is not moved
    to context to hold the 95%.
+   Live case, 2026-10-06 21:40: a magic Crown, not ethereal, no sockets, 198% enhanced
+   defence and nothing else, was CHECK by this line. It is VENDOR. The magic helm model has
+   threshold one on enhanced defence ≥ 148 and was fitted against one corpus drop
+   (`corpus_items: 1`), so its 8% guard is empty. The cache has no magic helm listed for
+   enhanced defence alone; the eleven listed with ED ≥ 150 are ethereal elite helms
+   (Bone Visage, Demonhead, Corona) with sockets or replenish life, asked at 11 Ist and up.
+   Therefore: no model for a family with fewer than 30 corpus drops; threshold one is
+   dropped for magic too unless the property alone has three sellers at the keep price;
+   ethereal status, sockets and base tier are conditions of a model, not ignored. Add the
+   Crown to `guides/pricing.html` §9 as a false-positive row.
 6. **Named roll placement** (uniques 237 `roll_comparison`, 166 `no_matched_price`) after
    items 1–3.
 
@@ -1094,33 +1192,30 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-06 — Current contract and Steering 12 govern; completion unproven.
-- Paid-property scoring: 70 family models; count bands are references, never prices.
-  Scorer-only held-out: rare 173/423 (40.90%), magic 95/227 (41.85%), crafted 9/56.
-  Below-half held-out result reported; no per-family tuning or extra affixed batches.
-- Latest shield-floor replay: attention 17859/22028 (81.07%); no shield votes gained.
-  War Axe 1002354239558 loses one vote: rebuilt floor cohort has no measured demand.
-- Bases 2834/4328 (65.48%); 70% unmet. Unknown superior ED can use a zero-ED
-  normal floor without assigning ED; superior can inherit identical normal staffmods.
-  Normal cannot borrow superior prices; sockets, ethereal and native skills retained.
-- ED is now preserved in floor keys. Pooled superior floors use only equal/lower ED.
-  Of 1494 missed base votes: 755 have one fallback seller, 184 two, 126 none,
-  138 lack valid keys; 88 fail keep price and 199 demand. Four apparent supported
-  fallbacks require illegal sockets (three) or pricing an unsocketed staffmod as socketed.
-  Earlier ED correction lost 41 votes; retained for correctness, not tuned away.
-- Guide rows 384/404 (95.05%, PASS); verdict 342/355, own-use 42/49.
-  Worked 36/36 and false positives 16/16 pass. All rows execute.
-  All examples retained; 17 starter/reference examples now assert no automatic own-use.
-- Cheap SELL/slow 17/164 (10.37%, FAIL), CHECK 30/164 (18.29%).
-  Approved 90% cohort rule changes no flags; demand decides these at the October 10–11 pull.
-- Corpus CHECK guards: rare 7.66%, magic 7.25%; named CHECK 12.04% (1510 drops).
-- Named misses: 228 roll safeguards/sparse comparisons, 23 unreadable/invalid rolls,
-  206 sparse identities/variants, 729 supported below-keep/no-demand dispositions.
-- Tests: 877 triage/appraisal passed; 31 focused base tests pass; touched-code lint passes.
-- Warm replay median 0.474 ms; first 135.152 ms. Bands 105,540; roll models 105.
-- Live regression Oct 6 18:07 UTC: five items 6984.7 ms; first Large Charm 6902.2 ms.
-- Demand unmeasured; authorized weekly pull October 10–11 (current interval one day).
-- Tier metadata generation f7fde48dff09; Python changes require worker restart.
-- Unknown-rarity affixes match authored CHECK patterns without inventing rarity/prices.
-  Next: isolate identify latency from shared detail warm-up; ten-item timing still unproven.
+2026-10-06 — Current contract governs; Steering 13 executed, completion unproven.
+- Paid scorer removed from live verdicts, table loader and table build; 70 cached models removed.
+  Diagnostic fitting requires ≥30 matching corpus drops, full paid sets supported by ≥3 sellers,
+  and matching ethereal/socket/base-tier conditions. Secondary pairs cannot replace listed skills.
+- Three global seller folds: 5 models fitted per fold; 3/4/4 deployable. All-seller fit: 5 deployable.
+  Added valuable rare/magic seller votes: 0 out-of-sample and 0 in-sample; below 200, scorer removed.
+  Diagnostic code retained for the reproducible decision in score-listings.json, not live appraisal.
+- Current all-type evidence-backed attention 18248/22033 (82.82%); SELL/slow 15409/22033 (69.94%).
+  Old 81.07% included unsupported scorer highlights; loss retained for correctness, not tuned away.
+  Rare 1006/2232 (45.07%), magic 719/1290 (55.74%); authored patterns only. Five additional seller/cohort votes follow new pattern boundaries.
+- User accepted evidence-backed CHECK for every type. Bases 3368/4328 (77.82%); priced base votes remain 2834.
+  2839 valuable CHECK votes count; 36 lack sufficient matched evidence and do not. Need 481 more votes for 85%.
+  No verdict or price was raised merely to change the metric; ten-item timing still precedes further scoring work.
+- Guide rows 402/404 (99.50%); all execute. Retained all 15 bare +2-grimoire fixtures as explicit negatives after source review.
+  Worked 36/36 and false positives 18/18 pass, including Crown and Demon Heart.
+  Remaining guide failures: Heraldic/Aerin 45-resistance shields and Paladin aura/30-life charms; do not infer prices from mismatched variants.
+- Cheap SELL/slow 17/164 (10.37%, FAIL), CHECK 29/164 (17.68%).
+  Approved 90% cohort rule unchanged; demand decisions await authorized October 10–11 pull.
+- Corpus CHECK: rare 9/274 (3.28%), magic 14/622 (2.25%), named 66/549 (12.02%).
+- Tests: 600 triage passed with the all-type attention metric and current guide fixes.
+  Targeted lint/format clean. Seller-fold and duplicate-seller combination regressions pass.
+- Live five-item 6984.7-ms stall: identify queues now exclude detail warm-up/publication work.
+  Latest live pass 20:01:57 UTC: one item 69.0 ms; prior three-item pass 57.5 ms. Ten-item gate still open.
+  Small-table reloads reuse market data: own-only 0.30 ms, rules-only 42 ms vs 821.12 ms full load.
+- Demand seven-day interval remains unmeasured; only one-day observations exist.
+- Next: Steering 12 live ten-item timing; guide corrections alongside. Named rolls after timing.
 Every Current contract measure must pass together before completion.

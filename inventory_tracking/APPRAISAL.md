@@ -70,7 +70,8 @@ a game exit with the stash open is logged, not announced. Reports carry
 
 With `--identify-auto` (default since 2026-09-27; `--no-identify-auto` disables it) the
 worker reads the identified flag of every magic-or-better item in the main inventory
-and the Horadric Cube (tagged `[cube]`) once a second in town (`--identify-poll-seconds`; five seconds elsewhere). Items that
+and the Horadric Cube (tagged `[cube]`) once a second (`--identify-poll-seconds`; every five seconds outside town
+while nothing unidentified is carried). Items that
 were unidentified on the previous read and are identified now — Cain's identify all,
 or a scroll — are read in full, decoded and run through the same offline KB Alt+D
 uses. The OSD shows "Identified N — k keep · c check · v vendor" and, per item, the
@@ -96,9 +97,14 @@ memory read, decode and per-item KB retrieval in milliseconds, with the slowest
 item); the worker logs the same as one `Identify timing:` line per pass and each
 poll as `Identify probe:` (DEBUG, or INFO when a read took 250 ms or more or found
 newly identified items). Alt+D closes the summary at once (over an empty cell it
-closes it and shows nothing else). The first read after
-attaching, after leaving town or after a failed read is a baseline: items identified
-while away are not announced. The poll skips while Alt+D owns the reader or the OSD.
+closes it and shows nothing else). Since 2026-10-06 the
+field is watched too and the comparison lasts for the whole game: a scroll used outside town
+is assessed, an item picked up and identified between two field reads counts as well, and
+neither a portal nor a failed read drops the earlier read (Cain right after the portal used
+to be missed). Only the first read of a game (another player unit id, or attaching) is a
+baseline, logged as `Identify baseline:`; `Identify probe:` names `town` or `field`.
+Stash pages are not watched: a scroll used on an item lying in the stash is not assessed.
+The poll skips while Alt+D owns the reader or the OSD.
 
 ## Owned copies and roll comparison
 
@@ -339,7 +345,13 @@ uv run --offline python -m pricing.knowledge.publication
 uv run --offline -m inventory_tracking.appraisal.service serve
 ```
 
-The worker warms the publication before reporting ready. Each hotkey pins a runtime
+The worker warms the publication before reporting ready. Since 2026-10-06 a passed
+validation is recorded in the generation directory (`validated.json`: generation plus
+a fingerprint of the validating code, `published_runtime.validation_code`), so a
+restart validates again (~13 s) only after a new publication or an edit under
+`pricing/knowledge` or `inventory_tracking/items`; otherwise it loads in ~2.5 s. The
+lookup processes start first and warm up while the worker loads the KB and waits for
+the game. Each hotkey pins a runtime
 and UTC appraisal date through capture/decoding, asynchronous retrieval, cache hits
 and hover rechecks. Cache keys include generation, date and update diagnostics.
 A malformed update can retain the previous valid runtime; no valid initial bundle
