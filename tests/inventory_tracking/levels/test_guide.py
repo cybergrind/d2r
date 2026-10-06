@@ -306,14 +306,14 @@ def test_double_press_pins_the_card_until_the_next_double_press():
     guide, shown, clock = pinned_guide([])
 
     assert guide.press(10.0)
-    assert guide.press(10.3)  # second press within 0.5 s: pin
+    assert guide.press(10.15)  # second press within 0.2 s: pin
     clock.now += 60
     guide.tick()
     assert shown[-1]  # still shown a minute later
     assert guide.pinned
 
     guide.press(20.0)
-    guide.press(20.2)  # double press again: unpin and hide
+    guide.press(20.15)  # double press again: unpin and hide
     assert not guide.pinned
     assert guide.visible is None
     assert shown[-1] == []
@@ -334,7 +334,7 @@ def test_presses_far_apart_are_two_single_shows():
 def test_single_press_while_pinned_refreshes_and_stays_pinned():
     guide, _, _ = pinned_guide([])
     guide.press(10.0)
-    guide.press(10.2)
+    guide.press(10.15)
 
     assert guide.press(15.0)
     assert guide.pinned
@@ -345,7 +345,7 @@ def test_pinned_card_follows_into_an_unguided_level_as_a_map():
 
     guide, shown, _ = pinned_guide([])
     guide.press(10.0)
-    guide.press(10.2)
+    guide.press(10.15)
     town = Location(1, 0x2000, 100, 100)
     guide.observe = lambda pid, images, capture, rooms=False: (town, [Room(1, 0, 0, 40, 40)] if rooms else [])
 
@@ -360,7 +360,7 @@ def test_pinned_card_follows_into_an_unguided_level_as_a_map():
 def test_pinned_card_hides_while_unfocused_and_returns_on_focus():
     guide, shown, _ = pinned_guide([])
     guide.press(10.0)
-    guide.press(10.2)
+    guide.press(10.15)
     focus = {'on': False}
     guide.focused = lambda images: focus['on']
 
@@ -548,7 +548,7 @@ def test_a_guide_started_pinned_shows_the_map_in_every_level_until_a_double_pres
     assert shown[-1]
 
     guide.press(100.0)
-    guide.press(100.2)
+    guide.press(100.15)
     assert not guide.pinned
     assert shown[-1] == []
 
@@ -628,3 +628,34 @@ def test_walls_survive_room_details_that_load_later():
 
     card = next(line for line in shown[-1] if isinstance(line, MapCard))
     assert card.walkable == ((0, 0, 1, 1, '1'),)
+
+
+def test_single_press_switches_a_shown_map_between_the_local_view_and_the_whole_level():
+    # user, 2026-10-06
+    guide, _, _ = pinned_guide([])
+    guide.press(10.0)  # nothing shown yet: this press only shows the card
+    assert guide.visible[-1].whole is False
+
+    guide.press(11.0)
+    assert guide.visible[-1].whole is True
+    guide.press(12.0)
+    assert guide.visible[-1].whole is False
+
+
+def test_a_double_press_does_not_switch_the_view():
+    guide, _, _ = pinned_guide([])
+    guide.press(10.0)
+    guide.press(10.15)  # pinned
+    assert guide.pinned
+    assert guide.visible[-1].whole is False
+
+    guide.press(20.0)
+    guide.press(20.3)  # 0.3 s apart: two single presses, back to the local view
+    assert guide.pinned
+    assert guide.visible[-1].whole is False
+    guide.press(30.0)
+    assert guide.visible[-1].whole is True
+    guide.press(40.0)
+    guide.press(40.1)  # double: unpin; the first press's switch is taken back
+    assert not guide.pinned
+    assert guide.whole is True

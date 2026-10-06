@@ -28,8 +28,8 @@ def test_void_base_bands_keep_staffmods_ethereal_and_quality_distinct():
     assert assess(plain, tables)['verdict'] == 'vendor'
     assert assess(plain, tables)['band']['q1_ist'] == 0.1
     assert assess(abyss, tables)['band']['q1_ist'] == 10
+    assert assess(abyss | {'sockets': 2}, tables)['decision_ist'] == 10
     for change in (
-        {'sockets': 2},
         {'sockets': None},
         {'ethereal': True},
         {'rarity': 'magic'},
@@ -92,7 +92,8 @@ def test_white_grimoire_requires_paid_skill_and_two_empty_sockets():
     assert 'Consume 2 of 3' in assess(weak, data)['reason']
     for props in ({}, {'1555': 3}):  # no skills or unpaid Blood Oath alone
         assert assess(from_listing(row | {'properties': props}), data)['verdict'] == 'vendor'
-    for change in ({'sockets': 1}, {'sockets': None}, {'socket_contents': 'filled', 'empty_sockets': False}):
+    assert assess(item | {'sockets': 1}, data)['decision_ist'] == 1
+    for change in ({'sockets': None}, {'socket_contents': 'filled', 'empty_sockets': False}):
         assert assess(item | change, data)['verdict'] == 'vendor'
 
 
@@ -119,8 +120,11 @@ def test_strong_grimoire_price_includes_lower_listed_rolls_of_its_paid_pattern()
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 4
     assert result['band']['q1_ist'] == 1.75
-    # A weak roll still follows the guide's CHECK threshold, not a stronger bucket.
-    assert assess(from_listing(rows[1]), tables)['verdict'] == 'check'
+    # Three no-better sellers price the weaker roll without borrowing the +3 premium.
+    lower = assess(from_listing(rows[1]), tables)
+    assert lower['verdict'] == 'slow'
+    assert lower['band']['sellers'] == 3
+    assert lower['decision_ist'] == 1.5
 
 
 def test_battle_orders_base_family_covers_tiers_with_socket_and_skill_boundaries():
@@ -141,9 +145,10 @@ def test_battle_orders_base_family_covers_tiers_with_socket_and_skill_boundaries
         weak = from_listing(row | {'properties': row['properties'] | {'765': 2}})
         assert assess(weak, tables)['verdict'] == 'check'
         assert 'Battle Orders 2 of 3' in assess(weak, tables)['reason']
+        assert assess(item | {'sockets': 2}, tables)['decision_ist'] == 1
+        # Unsocketed preparation cannot inherit an already socketed price.
+        assert assess(item | {'sockets': 0}, tables)['decision_ist'] is None
         for change in (
-            {'sockets': 0},
-            {'sockets': 2},
             {'sockets': None},
             {'socket_contents': 'filled', 'empty_sockets': False},
         ):
@@ -236,7 +241,8 @@ def test_tornado_and_find_item_bases_keep_skill_socket_and_price_boundaries():
         assert assess(weak, tables)['verdict'] == 'check'
         for props in ({}, {unpaid: 3}):
             assert assess(from_listing(row | {'properties': props}), tables)['verdict'] == 'vendor'
-        for change in ({'sockets': 2}, {'sockets': None}, {'socket_contents': 'filled'}):
+        assert assess(from_listing(row | {'sockets': 2}), tables)['decision_ist'] == 1
+        for change in ({'sockets': None}, {'socket_contents': 'filled'}):
             assert assess(from_listing(row | change), tables)['verdict'] == 'vendor'
         assert assess(from_listing(row | {'ethereal': True}), tables)['band'] is None
 
@@ -276,7 +282,8 @@ def test_caster_base_patterns_use_full_socket_and_skill_requirements():
         assert assess(from_listing(row), tables)['verdict'] == 'slow'
         weak = from_listing(row | {'properties': row['properties'] | {prop: 2}})
         assert assess(weak, tables)['verdict'] == 'check'
-        for change in ({'properties': {}}, {'sockets': 1}, {'socket_contents': 'filled'}):
+        assert assess(from_listing(row | {'sockets': 1}), tables)['decision_ist'] == 1
+        for change in ({'properties': {}}, {'socket_contents': 'filled'}):
             assert assess(from_listing(row | change), tables)['verdict'] == 'vendor'
         assert assess(from_listing(row | {'ethereal': True}), tables)['band'] is None
     # A five-socket CTA rule must never be emitted for a four-socket staff base.
@@ -297,3 +304,45 @@ def test_void_eligibility_covers_the_full_three_socket_dagger_line():
         assert not any(matches(item | {'sockets': 2}, r) for r in void)
         assert not any(matches(item | {'rarity': 'magic'}, r) for r in void)
     assert not any(r['name'] in ('Dagger', 'Dirk', 'Bone Knife', 'Mithral Point') for r in void)
+
+
+def test_unlisted_scepter_policy_compares_native_rolls_without_creating_demand():
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+
+    meta = metadata()
+    skill = next(k for k, value in meta['skills'].items() if value['name'] == 'Concentration')
+    prop = market_properties()['107:' + skill]
+    rules, policies = staffmod_rules()
+    policies.append(
+        {
+            'category': 'base',
+            'require_bucket': True,
+            'facets': ['rarity', 'ethereal', 'sockets', 'socket_contents', 'base_modifiers'],
+        }
+    )
+    rows = []
+    for n, roll in enumerate((1, 2, 3)):
+        row = listing(str(n), n + 1) | {
+            'category': 'base',
+            'name': 'Grand Scepter',
+            'rarity': 'normal',
+            'ethereal': False,
+            'sockets': 3,
+        }
+        row['properties'][prop] = roll
+        rows.append(row)
+    document = build_bands(rows, [], rules=rules, policies=policies)
+    tables = {
+        'rules': {'keep_ist': 0.25, 'rows': rules, 'policies': policies},
+        'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in document['bands']},
+        'own': {'rows': []},
+    }
+    target = from_listing(rows[-1])
+    result = assess(target, tables)
+    assert result['verdict'] == 'slow'
+    assert result['decision_ist'] == 1.5
+    assert result['band']['sellers'] == 3
+    assert assess(from_listing(rows[0]), tables)['decision_ist'] is None
+    assert assess(target | {'ethereal': True}, tables)['decision_ist'] is None
+    assert not any(r['name'] == 'Grand Scepter' for r in rules)

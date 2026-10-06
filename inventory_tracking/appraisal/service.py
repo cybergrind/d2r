@@ -32,6 +32,7 @@ import time
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager, nullcontext, suppress
+from functools import partial
 from pathlib import Path
 from tempfile import mkdtemp
 from typing import Any
@@ -265,7 +266,7 @@ def dispatch(
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
-            # Win+C: show the level map again (double press: pin/unpin it), then dump quietly.
+            # Win+C: switch the level map's view or show it again (double press: pin/unpin it), then dump quietly.
             requested = float(text[len(LEVEL_PREFIX) :])
             if not 0 <= now - requested <= 1:
                 return False
@@ -511,6 +512,7 @@ def run_service(args, directory, report):
                     level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
+                    map_dots = partial(zones.map_dots, danger=APPRAISAL.danger_marks) if zones is not None else None
                     if args.level_guide:
                         guide = LevelGuide(
                             source,
@@ -523,7 +525,7 @@ def run_service(args, directory, report):
                             observe_walls=observe_walkable if APPRAISAL.level_walls else None,
                             library=WallLibrary() if APPRAISAL.level_walls else None,
                             visited_rooms=zones.visited_rooms if zones is not None else None,
-                            map_dots=zones.map_dots if zones is not None else None,
+                            map_dots=map_dots,
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
                         )
@@ -556,6 +558,7 @@ def run_service(args, directory, report):
                             focused=focused,
                             show_unconfirmed=APPRAISAL.terror_card_unconfirmed,
                             bosses=BossTracker(args.output / 'boss-kills.json') if APPRAISAL.boss_stats else None,
+                            danger=APPRAISAL.danger_marks,
                         )
                     stash = None
                     if args.stash_auto:

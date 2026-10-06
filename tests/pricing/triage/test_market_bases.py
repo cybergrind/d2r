@@ -98,10 +98,12 @@ def test_market_rules_price_only_the_admitted_variant_and_use_scoped_bands():
     result = assess(item, tables)
     assert result['verdict'] == 'slow'
     assert result['band']['q1_ist'] == 1.5
+    fallback = assess(item | {'sockets': 0}, tables)
+    assert fallback['decision_ist'] == 1.5
+    assert fallback['band']['relaxed_facets'] == ['base_ed', 'sockets']
     for change in (
         {'ethereal': False},
         {'ethereal': None},
-        {'sockets': 0},
         {'rarity': 'superior'},
         {'base_modifiers': {'423': 3}},
     ):
@@ -170,8 +172,10 @@ def test_market_base_better_superior_bonus_can_use_no_better_comparisons():
     assert result['decision_ist'] == 1.5
     assert result['band']['sellers'] == 3
     assert result['band']['cohort_depth'] == 0
-    for change in ({'base_modifiers': {}}, {'base_modifiers': {'423': 3, '937': 15}}, {'ethereal': False}):
-        assert assess(item | change, tables)['band'] is None
+    for change in ({'base_modifiers': {}}, {'base_modifiers': {'937': 15}}):
+        assert assess(item | change, tables)['decision_ist'] == 1.5
+    assert assess(item | {'base_modifiers': {'423': 3, '937': 15}}, tables)['decision_ist'] is None
+    assert assess(item | {'ethereal': False}, tables)['band'] is None
 
 
 def test_market_base_combines_different_no_better_rolls_before_counting_sellers():
@@ -202,7 +206,8 @@ def test_market_base_combines_different_no_better_rolls_before_counting_sellers(
         'own': {'rows': []},
     }
     results = [assess(from_listing(r), tables) for r in rows]
-    assert [r['verdict'] for r in results] == ['vendor', 'check', 'slow']
+    # Secondary AR splits each have one seller; the supported pooled price decides.
+    assert [r['verdict'] for r in results] == ['slow', 'slow', 'slow']
     assert results[-1]['band']['sellers'] == 3
     assert results[-1]['decision_ist'] == 1.5
     assert not compile_market_bases(

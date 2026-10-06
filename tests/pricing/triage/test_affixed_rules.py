@@ -420,7 +420,9 @@ def test_resistance_boots_and_life_strength_belts_share_rare_and_crafted_pattern
 ):
     assert verdict(family, properties, category) == 'check'
     for prop in missing:
-        assert verdict(family, {k: v for k, v in properties.items() if k != prop}, category) == 'vendor'
+        # Scoped rare-belt evidence independently supports FHR/life/strength without resistance.
+        expected = 'check' if (category, family, prop) == ('rare', 'belt', '401') else 'vendor'
+        assert verdict(family, {k: v for k, v in properties.items() if k != prop}, category) == expected
     assert verdict(family, properties, 'magic') == 'vendor'
 
 
@@ -604,3 +606,91 @@ def test_blood_ring_support_pattern_does_not_require_rare_ring_attack_rating():
     for changes in ({'437': 5, '418': 20}, {'437': 9}, {'418': 29}, {'401': 9}):
         assert assess(item | {'properties': item['properties'] | changes}, tables)['verdict'] == 'vendor'
     assert assess(item | {'category': 'rare'}, tables)['verdict'] == 'vendor'
+
+
+def test_elemental_small_charms_keep_reviewed_damage_patterns_without_a_price():
+    for poison in (175, 313, 451):
+        assert verdict('scha', {'518': poison}, 'magic') == 'check'
+    for damage in (44, 71):
+        for life in (16, 20):
+            assert verdict('scha', {'478': 1, '479': damage, '418': life}, 'magic') == 'check'
+    for props in ({'518': 100}, {'479': 71}, {'479': 43, '418': 20}, {'479': 71, '418': 15}):
+        assert verdict('scha', props, 'magic') == 'vendor'
+    assert verdict('mcha', {'518': 175}, 'magic') == 'vendor'
+
+
+@pytest.mark.parametrize('sellers', [1, 2])
+def test_premium_rule_cannot_turn_sparse_asks_into_a_price(sellers):
+    rule = {
+        'category': 'magic',
+        'name': 'Small Charm',
+        'bucket': 'poison',
+        'properties': {'518': {'min': 313}},
+        'premium': True,
+    }
+    from pricing.triage.family_bands import roll_bucket
+
+    item = {'category': 'magic', 'name': 'Small Charm', 'family': 'scha', 'properties': {'518': 451}}
+    bucket = roll_bucket(rule, item)
+    band = {
+        'bucket': bucket,
+        'q1_ist': 11,
+        'median_ist': 11,
+        'sellers': sellers,
+        'liquidity': 'none',
+        'observed_at': '2026-10-04',
+    }
+    tables = {
+        'bands': {('family', 'small charm', bucket): band},
+        'rules': {'keep_ist': 0.25, 'rows': [rule]},
+        'own': {'rows': []},
+    }
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    assert result['band'] is None
+    assert result['reference_band']['q1_ist'] == 11
+
+
+@pytest.mark.parametrize('resist', ['427', '428', '426', '401'])
+def test_large_charm_single_resistance_life_uses_its_own_guide_thresholds(resist):
+    assert verdict('mcha', {resist: 13, '418': 30}, 'magic') == 'check'
+    assert verdict('mcha', {resist: 15, '418': 35}, 'magic') == 'check'
+    for props in ({resist: 12, '418': 35}, {resist: 15, '418': 29}, {resist: 15}, {'418': 35}):
+        assert verdict('mcha', props, 'magic') == 'vendor'
+
+
+def test_large_charm_sharp_shimmering_and_mana_patterns_are_not_life_only():
+    for props in ({'448': 4, '423': 21}, {'448': 8, '423': 48}, {'441': 7}, {'400': 20, '418': 30}):
+        # Captured/listed all-resistance is expanded by the shared adapter.
+        if '441' in props:
+            props |= dict.fromkeys(['427', '428', '426', '401'], props['441'])
+        assert verdict('mcha', props, 'magic') == 'check'
+    for props in ({'448': 3, '423': 48}, {'448': 6}, {'400': 19, '418': 35}, {'400': 34, '418': 29}):
+        assert verdict('mcha', props, 'magic') == 'vendor'
+
+
+@pytest.mark.parametrize(
+    ('family', 'rarity', 'props', 'weaker'),
+    [
+        ('boot', 'rare', {'480': 20, '427': 20, '428': 20, '426': 20}, {'480': 10}),
+        ('belt', 'rare', {'430': 24, '418': 40, '437': 15}, {'437': 14}),
+        ('belt', 'crafted', {'430': 24, '418': 40, '566': 10, '462': 1}, {'566': 9}),
+        ('glov', 'magic', {'455': 3, '457': 20}, {'455': 2}),
+        ('glov', 'rare', {'455': 2, '457': 20, '428': 20}, {'428': 19}),
+    ],
+)
+def test_scoped_equipment_patterns_require_the_complete_combination(family, rarity, props, weaker):
+    assert verdict(family, props, rarity) == 'check'
+    assert verdict(family, props | weaker, rarity) == 'vendor'
+    for key in props:
+        assert verdict(family, {k: v for k, v in props.items() if k != key}, rarity) == 'vendor'
+
+
+@pytest.mark.parametrize('tree', ['1546', '1547', '1548'])
+def test_grimoire_guide_tree_prefix_requires_three_levels_and_magic_book(tree):
+    assert verdict('grim', {tree: 3}, 'magic') == 'check'
+    assert verdict('grim', {tree: 2}, 'magic') == 'vendor'
+    assert verdict('grim', {}, 'magic') == 'vendor'
+    assert verdict('grim', {tree: 3}, 'rare') == 'vendor'
+    assert verdict('shie', {tree: 3}, 'magic') == 'vendor'

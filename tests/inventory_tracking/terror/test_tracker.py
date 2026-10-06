@@ -493,3 +493,88 @@ def test_a_game_killed_without_leaving_is_still_saved_and_a_broken_store_is_igno
 
     store.write_text('{"games": [')
     assert tracker_for(store, 0xBBBB).next_tier == 1
+
+
+def test_a_monster_without_a_position_yet_gets_no_dot_until_it_has_one():
+    # Far Oasis probe log, 2026-10-06: a unit first seen at (0, 0), its path not filled in yet.
+    tracker = ZoneTracker()
+    tracker.apply([at(seen(1, 6, data_hex=PLAIN_DATA), 0, 0), at(seen(2, 6, data_hex=PLAIN_DATA), 5000, 5000)])
+    assert [(dot.x, dot.y) for dot in tracker.map_dots(6)] == [(1000.0, 1000.0)]
+
+    tracker.track([Monster(1, 1, 2, 5010, 5000, 6, None), Monster(2, 1, 2, 0, 0, 6, None)])
+    assert [(dot.x, dot.y) for dot in tracker.map_dots(6)] == [(1000.0, 1000.0), (1002.0, 1000.0)]
+
+
+def monster_data(flags=0, modifiers=()):
+    """Monster data with the type flags at +0x1A and the modifier bytes from +0x20."""
+    data = bytearray(0x80)
+    data[0x1A] = flags
+    data[0x20 : 0x20 + len(modifiers)] = bytes(modifiers)
+    return data.hex()
+
+
+def archers(count, *, start=100, x=5000, y=5000, stats=(), modifiers=()):
+    """Dark Rangers (txt id 160) of Tamoe Highland (area 7), two units apart."""
+    data = monster_data(0x10, modifiers)
+    return [at({**seen(start + n, 7, stats=stats, data_hex=data), 'txt_id': 160}, x + 2 * n, y) for n in range(count)]
+
+
+def test_archers_first_seen_under_fanaticism_are_danger_dots_with_a_pack_point_saying_why():
+    # Stats 350/351: the aura's skill id and level, on every monster standing in it (probe logs).
+    tracker = ZoneTracker()
+    tracker.apply([*archers(8, stats=[(350, 122), (351, 9)]), at(seen(1, 7, data_hex=PLAIN_DATA), 6000, 6000)])
+    tracker.track([Monster(100, 160, 1, 5000, 5000, 7, None, path=0x7000)])
+
+    dots = tracker.map_dots(7)
+
+    assert [dot.kind for dot in dots] == ['mob', *['danger'] * 8, 'pack']
+    assert dots[1].path == 0x7000  # the HUD follows a deadly pack's monsters
+    assert (dots[-1].label, dots[-1].x, dots[-1].y) == ('Dark Ranger x8 · Fanaticism', 1001.4, 1000.0)
+    assert [dot.kind for dot in tracker.map_dots(7, danger=False)] == ['mob'] * 9
+
+
+def test_plain_archers_stay_plain_dots_and_a_pack_to_be_careful_with_is_caution():
+    tracker = ZoneTracker()
+    tracker.apply(archers(4))
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 4
+
+    tracker.apply(archers(6, start=200, x=7000, modifiers=(5,)))  # the zone's Extra Strong on each
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == [*['mob'] * 4, *['caution'] * 6]
+    assert tracker.danger_lines(7) == []
+
+
+def test_an_aura_enchanted_leader_makes_the_archers_around_it_deadly_until_it_dies():
+    tracker = ZoneTracker()
+    leader = {**seen(50, 7, stats=[(350, 98), (351, 12)], data_hex=monster_data(0x08, (30, 5, 6))), 'txt_id': 160}
+    tracker.apply([at(leader, 5000, 5010), *archers(7)])
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['danger'] * 8 + ['pack']
+
+    tracker.apply([died(50, 7)])
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 7
+
+
+def test_the_warning_row_names_the_deadly_pack_and_points_at_it():
+    tracker = ZoneTracker()
+    tracker.apply(archers(8, stats=[(350, 122), (351, 9)]))
+
+    assert tracker.danger_lines(7, (5007, 5100)) == ['↗  ⚠ Dark Ranger x8 · Fanaticism: north']
+    assert tracker.danger_lines(6, (5007, 5100)) == []
+
+
+def test_a_deadly_pack_stays_marked_while_it_is_killed_down_to_a_weak_one():
+    tracker = ZoneTracker()
+    tracker.apply(archers(8, stats=[(350, 122), (351, 9)]))
+    assert tracker.danger_lines(7) == ['⚠ Dark Ranger x8 · Fanaticism']
+
+    tracker.apply([died(100, 7)])
+
+    assert tracker.danger_lines(7) == ['⚠ Dark Ranger x7 · Fanaticism']
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['danger'] * 7 + ['pack']
+
+    tracker.apply([died(101, 7), died(102, 7), died(103, 7)])
+
+    assert tracker.danger_lines(7) == []
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 4

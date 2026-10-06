@@ -47,7 +47,10 @@ def test_secondary_durability_rolls_merge_when_split_lacks_sellers():
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 3
     assert result['decision_ist'] == 2
-    for change in ({'ethereal': False}, {'sockets': 3}, {'base_modifiers': {'937': 10, '441': 45}}):
+    fallback = assess(from_listing(rows[0]) | {'sockets': 3}, data)
+    assert fallback['decision_ist'] == 2
+    assert fallback['band']['relaxed_facets'] == ['base_ed', 'sockets']
+    for change in ({'ethereal': False}, {'base_modifiers': {'937': 10, '441': 45}}):
         assert assess(from_listing(rows[0]) | change, data)['band'] is None
 
 

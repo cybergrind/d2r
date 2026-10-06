@@ -208,3 +208,107 @@ def test_herald_dots_have_their_own_colour():
     from inventory_tracking.osd.level_map import KIND_COLOURS
 
     assert KIND_COLOURS['herald'] not in [colour for kind, colour in KIND_COLOURS.items() if kind != 'herald']
+
+
+def test_a_monster_dot_far_outside_the_level_does_not_shrink_the_map():
+    # 2026-10-06, Far Oasis: a monster first seen at (0, 0), before it had a position, made the
+    # whole level a speck in the middle of the card.
+    stray = MapCard(CARD.rooms, CARD.player, (*CARD.pois, MapPoi('monster', 'mob', 0.0, -5000.0)))
+
+    assert fit(stray, 240, 160)(18.0, 6.0) == fit(CARD, 240, 160)(18.0, 6.0)
+
+
+BIG = MapCard(
+    rooms=tuple((x, y, 8, 8) for x in range(0, 160, 8) for y in range(0, 80, 8)),
+    player=(100.0, 40.0),
+    pois=(MapPoi('Flayer Jungle', 'stairs', 62.0, 78.0), MapPoi('monster', 'mob', 101.0, 41.0)),
+)
+
+
+def test_a_big_level_is_drawn_around_the_player_at_the_least_scale():
+    # 2026-10-06, Great Marsh: fitted to the card, the level was too small to tell monsters apart.
+    transform = fit(BIG, 390, 270, min_scale=7, local_scale=12)
+
+    assert transform(*BIG.player) == pytest.approx((195, 135))
+    (ax, ay), (bx, by) = transform(100, 40), transform(101, 40)
+    assert (bx - ax, by - ay) == pytest.approx((12, 6))
+    # A level that fits at the least scale is laid out as before.
+    assert fit(CARD, 390, 270, min_scale=7, local_scale=12)(18.0, 6.0) == fit(CARD, 390, 270)(18.0, 6.0)
+
+
+def test_the_local_view_stops_at_the_level_edge():
+    corner = MapCard(BIG.rooms, (1.0, 1.0))
+
+    transform = fit(corner, 390, 270, min_scale=12, margin=10)
+
+    assert transform(0, 0)[1] == pytest.approx(10)  # the level's top corner at the margin, not mid-card
+    assert 10 <= transform(1.0, 1.0)[1] < 135
+
+
+def test_pin_moves_a_point_outside_the_box_to_its_edge_towards_it():
+    from inventory_tracking.osd.level_map import pin
+
+    assert pin((195, 135), (200, 100), 390, 270, inset=9) == (200, 100, False)
+    assert pin((195, 135), (995, 135), 390, 270, inset=9) == pytest.approx((381, 135, True))
+    x, y, pinned = pin((195, 135), (-605, 935), 390, 270, inset=9)
+    assert pinned
+    assert (x, y) == pytest.approx((69, 261))  # leaves through the bottom, on the line to the point
+
+
+def test_a_poi_beyond_the_local_view_is_an_arrowhead_on_the_edge_and_far_monsters_are_not_drawn():
+    from inventory_tracking.osd.level_map import KIND_COLOURS
+
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 390, 270)
+    far_pack = MapCard(BIG.rooms, BIG.player, (*BIG.pois, MapPoi('unique', 'leader', 150.0, 4.0)))
+
+    draw_map(cairo.Context(surface), 390, 270, far_pack, min_scale=12)
+
+    surface.flush()
+    green = tuple(round(255 * c) for c in KIND_COLOURS['stairs'])
+    leader = tuple(round(255 * c) for c in KIND_COLOURS['leader'])
+    seen = {pixel_at(surface, x, y)[:3] for x in range(390) for y in range(270)}
+    assert green in seen
+    assert leader not in seen
+    assert pixel_at(surface, 14, 135)[:3] == green  # the exit is due screen-left: mid left edge
+
+
+def test_dangerous_packs_have_their_own_dot_colours_and_the_pack_point_is_not_drawn():
+    from inventory_tracking.osd.level_map import KIND_COLOURS, KIND_RADII, MapPoi
+
+    card = MapCard(
+        ((0, 0, 16, 8),),
+        (0.0, 8.0),
+        pois=(
+            MapPoi('monster', 'danger', 4.0, 4.0),
+            MapPoi('monster', 'caution', 8.0, 4.0),
+            MapPoi('Dark Ranger x8 · Fanaticism', 'pack', 12.0, 4.0),
+        ),
+    )
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 240, 160)
+
+    draw_map(cairo.Context(surface), 240, 160, card)
+
+    def rgb(kind):
+        return tuple(round(255 * c) for c in KIND_COLOURS[kind])
+
+    assert pixel(surface, card, 4, 4)[:3] == rgb('danger')
+    assert pixel(surface, card, 8, 4)[:3] == rgb('caution')
+    assert pixel(surface, card, 12, 4)[:3] not in (rgb('danger'), rgb('pack'), rgb('target'))
+    assert len({KIND_COLOURS[kind] for kind in ('mob', 'leader', 'herald', 'danger', 'caution')}) == 5
+    assert KIND_RADII['mob'] < KIND_RADII['caution'] <= KIND_RADII['danger']
+
+
+def test_a_whole_card_keeps_the_fitted_level_and_the_local_view_is_fainter():
+    from dataclasses import replace
+
+    whole = replace(BIG, whole=True)
+    assert MapCard.from_payload(whole.to_payload()).whole is True
+    assert fit(whole, 390, 270, min_scale=7, local_scale=12)(100, 40) == fit(BIG, 390, 270)(100, 40)
+
+    def floor_alpha(card):
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 390, 270)
+        draw_map(cairo.Context(surface), 390, 270, card, min_scale=7, local_scale=12)
+        x, y = fit(card, 390, 270, min_scale=7, local_scale=12)(96.0, 44.0)  # inside a room, off every dot
+        return pixel_at(surface, round(x), round(y))[3]
+
+    assert 0 < floor_alpha(BIG) < floor_alpha(whole)  # user, 2026-10-06: too much colour when zoomed in

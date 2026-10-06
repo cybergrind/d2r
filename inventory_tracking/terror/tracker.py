@@ -43,6 +43,7 @@ from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
 from inventory_tracking.osd.level_map import MapPoi
 from inventory_tracking.terror.chance import Level, group_completion, odds
+from inventory_tracking.terror.danger import Pack, Unit, packs, table
 from inventory_tracking.terror.zones import GROUPS, HeraldGroup, group_of, group_population
 
 
@@ -55,6 +56,11 @@ MINION_FLAG = 0x10
 # 0x0c champion, 0x0a super unique, 0x4c ghostly champion; minions carry 0x10 alone.
 LEADER_FLAGS = 0x02 | 0x04 | 0x08
 FIRST_MODIFIER = 0x20  # monster data byte: first special modifier (monumod.json id)
+MODIFIER_SLOTS = 9  # modifier bytes from there on; 0 = none (uniques show 3 in Hell, minions 2)
+AURA_MODIFIER = 30  # aura enchanted: the monster's aura is its own
+# itemstatcost.txt `modifierlist_skill` / `modifierlist_level`: the aura a monster carries, its own
+# or one it stands in (all 1,223 aura-enchanted uniques of the probe logs to 2026-10-06 have them).
+AURA_SKILL_STAT, AURA_LEVEL_STAT = 350, 351
 # desecratedzones.json rotw/hell always_unique_mod_pool: strong, fast, curse, fire, lightning
 # (17), cold, manahit, spectral hit (27), and 28 (d2data, 2026-10-02).
 TERROR_MODIFIERS = frozenset((5, 6, 7, 9, 17, 18, 25, 27, 28))
@@ -109,6 +115,18 @@ def data_byte(event, offset) -> int | None:
     return int(data[2 * offset : 2 * offset + 2], 16) if len(data) >= 2 * (offset + 1) else None
 
 
+def modifiers(event) -> tuple[int, ...]:
+    data = event.get('data_hex') or ''
+    found = bytes.fromhex(data[2 * FIRST_MODIFIER : 2 * (FIRST_MODIFIER + MODIFIER_SLOTS)])
+    return tuple(modifier for modifier in found if modifier)
+
+
+def aura(event) -> tuple[int, int] | None:
+    """(skill, level) of the aura a monster showed on first sight; other skills in that stat are none."""
+    skill = stat(event, AURA_SKILL_STAT)
+    return (skill, stat(event, AURA_LEVEL_STAT) or 1) if skill in table().auras else None
+
+
 def is_minion(event) -> bool:
     """Minion flag from first-sight monster data; unreadable data counts as not a minion."""
     data = event.get('data_hex') or ''
@@ -139,6 +157,9 @@ class ZoneTracker:
         self.loaded: dict[int, int] = {}  # area -> rooms ever loaded, as the probe counts them
         self.positions: dict[int, tuple[int, int, int]] = {}  # hostile unit id -> (area, x, y), alive
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
+        # hostile unit id -> (txt id, modifiers, aura) as first seen: what makes a pack deadly (danger.py)
+        self.traits: dict[int, tuple[int, tuple[int, ...], tuple[int, int] | None]] = {}
+        self.bands: dict[int, dict[int, str]] = {}  # area -> unit id -> its pack's band on the last pass
         self.lost: dict[int, tuple[int, int | None]] = {}  # unit id -> (area, Herald tier): not where remembered
         self.paths: dict[int, int] = {}  # unit id -> dynamic path address, units in the last walk only
         self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
@@ -199,6 +220,12 @@ class ZoneTracker:
 
         if events and (len(self.heralds) != heralds or self.clock() - self.saved_at >= SAVE_SECONDS):
             self.save()
+
+    def level_read(self, area: int, level_rooms: int | None, level_hex: str):
+        """The probe read the level's struct, on entry or after a failed first try."""
+        if level_rooms:
+            self.level_rooms[area] = level_rooms
+        self.entered(area, level_hex)
 
     def entered(self, area: int, level_hex: str):
         """Take the level's seed as this game's mark; a game known by it continues where it was left."""
@@ -293,9 +320,14 @@ class ZoneTracker:
             if modifier in TERROR_MODIFIERS:
                 self.modifiers.setdefault(group.zone, deque(maxlen=TERROR_VOTES)).append(modifier)
         if 'x' in event and event.get('mode') not in DEAD_MODES:  # a corpse seen first is nothing left to kill
+            # (0, 0) is a unit whose path is not filled in yet; track() places it once it has a position.
             self.positions[unit_id] = (event['area'], event['x'], event['y'])
+            if not (event['x'] or event['y']):
+                self.lost[unit_id] = (self.positions.pop(unit_id)[0], None)
             if (data_byte(event, TYPE_FLAGS) or 0) & LEADER_FLAGS and not is_minion(event):
                 self.leaders.add(unit_id)
+            if event.get('txt_id') is not None:
+                self.traits[unit_id] = (event['txt_id'], modifiers(event), aura(event))
         tier = stat(event, HERALD_TIER_STAT)
         if tier:
             known = unit_id in self.herald_units  # seen before the game was rejoined
@@ -317,6 +349,8 @@ class ZoneTracker:
         # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
         self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
         for monster in monsters:
+            if not (monster.x or monster.y):
+                continue  # no position yet
             alive = monster.mode not in DEAD_MODES
             if alive and monster.unit_id in self.lost:
                 area, tier = self.lost.pop(monster.unit_id)
@@ -354,20 +388,50 @@ class ZoneTracker:
             if where == area
         ]
 
-    def map_dots(self, area: int) -> list[MapPoi]:
+    def packs(self, area: int) -> list[Pack]:
+        """The packs of hostile monsters alive in `area`, the most dangerous first (danger.py)."""
+        units = []
+        for unit_id, (where, x, y) in self.positions.items():
+            if where == area and unit_id in self.traits:
+                txt_id, found, carried = self.traits[unit_id]
+                units.append(Unit(unit_id, txt_id, x, y, found, carried, AURA_MODIFIER in found))
+        found = packs(units, held=self.bands.get(area))  # a marked pack keeps its mark near the line
+        self.bands[area] = {unit_id: pack.band for pack in found if pack.band for unit_id in pack.members}
+        return found
+
+    def map_dots(self, area: int, *, danger: bool = True) -> list[MapPoi]:
         """A dot per hostile monster alive in `area` at its last seen position, in tiles: plain
         mobs (minions too), then pack leaders (unique, champion, super unique), then Heralds,
         the drawing order. A dot per monster rather than a tinted room (user, 2026-10-03: big
-        rooms hid where the pack was)."""
-        mobs, leaders = [], []
+        rooms hid where the pack was). With `danger`, every monster of a pack to be careful with
+        is a 'caution' dot and of a deadly one a 'danger' dot, leaders too (user, 2026-10-06), and
+        a deadly pack adds a 'pack' point at its centre, named by what makes it deadly."""
+        found = [pack for pack in self.packs(area) if pack.band] if danger else []
+        bands = {
+            unit_id: 'danger' if pack.band == 'deadly' else 'caution' for pack in found for unit_id in pack.members
+        }
+        dots: dict[str, list[MapPoi]] = {'mob': [], 'caution': [], 'leader': [], 'danger': []}
         for unit_id, (where, x, y) in self.positions.items():
             if where == area and unit_id not in self.live_heralds:
-                if unit_id in self.leaders:
-                    path = self.paths.get(unit_id, 0)  # the HUD follows these between passes (hud/live.py)
-                    leaders.append(MapPoi('unique', 'leader', x / TILE_UNITS, y / TILE_UNITS, path))
-                else:
-                    mobs.append(MapPoi('monster', 'mob', x / TILE_UNITS, y / TILE_UNITS))
-        return [*mobs, *leaders, *self.herald_dots(area)]
+                kind = bands.get(unit_id) or ('leader' if unit_id in self.leaders else 'mob')
+                label = 'unique' if unit_id in self.leaders else 'monster'
+                # The HUD follows the marked ones between passes (hud/live.py).
+                path = self.paths.get(unit_id, 0) if kind in ('leader', 'danger') else 0
+                dots[kind].append(MapPoi(label, kind, x / TILE_UNITS, y / TILE_UNITS, path))
+        deadly = [pack for pack in found if pack.band == 'deadly']
+        centres = [MapPoi(pack.label, 'pack', pack.x / TILE_UNITS, pack.y / TILE_UNITS) for pack in deadly]
+        return [*dots['mob'], *dots['caution'], *dots['leader'], *dots['danger'], *centres, *self.herald_dots(area)]
+
+    def danger_lines(self, area: int, position: tuple[int, int] | None = None, *, shown: int = 2) -> list[str]:
+        """A row per deadly pack in `area`, the nearest first: what it is, why, and which way."""
+        found = [pack for pack in self.packs(area) if pack.band == 'deadly']
+        if position is None:
+            return [f'⚠ {pack.label}' for pack in found[:shown]]
+        pointers = sorted(
+            (Pointer(pack.label, None, pack.x - position[0], pack.y - position[1]) for pack in found),
+            key=lambda pointer: pointer.distance,
+        )
+        return [f'{pointer.arrow}  ⚠ {pointer.label}: {pointer.compass}' for pointer in pointers[:shown]]
 
     def visited_rooms(self, area: int) -> set[tuple]:
         """Bounds of the rooms ever loaded in `area`: the map dims the others."""

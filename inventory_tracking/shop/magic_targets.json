@@ -4,8 +4,8 @@
   "sources": {
     "pricing/data/wp-a-builds.json": "8a9da0d8cdd38e74d5b03721f5cf9de78e63c17ce87170cb706a6acfa31d59a2",
     "pricing/data/wp-a-blues.json": "b0ac2a03d66598dcc85040690666cf50f1218a1a925d166cfa584725f7011388",
-    "pricing/data/appraisal-build-profiles.json": "433fd4e9ff5fb1f40d91cb63767c4305609b8befb8814307fcdb1f167010c2b6",
-    "inventory_tracking/items/data/item_metadata.json": "2ebfb2349fd8680b487c343a7b82f965d68ced01c91bcc0483e31fe9c69bada7",
+    "pricing/data/appraisal-build-profiles.json": "0673595e4a6bc3755cd93304add12586da0b0d6e6306915e93e68bd73bf4f6c0",
+    "inventory_tracking/items/data/item_metadata.json": "a5a25f9010a2457d21fdeb8468bcf890c6be5f64be959ec386103dccfc4bc33a",
     "third-parties/d2data/json/properties.json": "49fa7e80b7c889bb4fec0a4d75a165200b3812f77806e4f66c14e5ee4b8b6c34",
     "third-parties/d2data/json/armor.json": "ad8d490abd48b336ac22f605904202fe5132460f91e3b307d9006753b9cb0271",
     "third-parties/d2data/json/weapons.json": "c9c5a4b788f8d70b1ed49064d68aef7a4fe39b308880b0857b3bed361c656f88",
@@ -7374,7 +7374,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7418,7 +7418,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7474,7 +7474,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7518,7 +7518,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7574,7 +7574,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7618,7 +7618,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7674,7 +7674,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7718,7 +7718,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7774,7 +7774,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7818,7 +7818,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7874,7 +7874,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -7918,7 +7918,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -7974,7 +7974,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8018,7 +8018,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -8074,7 +8074,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8118,7 +8118,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -8174,7 +8174,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8218,7 +8218,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -8274,7 +8274,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8318,7 +8318,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -8374,7 +8374,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8418,7 +8418,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -8474,7 +8474,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -8518,7 +8518,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -14105,7 +14105,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -14159,7 +14159,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -14236,7 +14236,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -14335,7 +14335,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -14412,7 +14412,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -14467,7 +14467,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 50,
               "absent_is_zero": true
             },
             {
@@ -14554,7 +14554,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -14660,7 +14660,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 50,
               "absent_is_zero": true
             },
             {
@@ -14747,7 +14747,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -14802,7 +14802,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 50,
               "absent_is_zero": true
             },
             {
@@ -14884,7 +14884,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 50,
             "absent_is_zero": true
           },
           {
@@ -14957,7 +14957,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 50,
               "absent_is_zero": true
             },
             {
@@ -20433,7 +20433,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -20501,7 +20501,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -20602,7 +20602,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -20676,7 +20676,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -20783,7 +20783,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -20857,7 +20857,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -20964,7 +20964,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21038,7 +21038,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -21145,7 +21145,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21219,7 +21219,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -21326,7 +21326,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21421,7 +21421,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -21548,7 +21548,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21622,7 +21622,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -21729,7 +21729,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21803,7 +21803,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -21910,7 +21910,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -21984,7 +21984,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -22091,7 +22091,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -22165,7 +22165,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -22272,7 +22272,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -22346,7 +22346,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {
@@ -22453,7 +22453,7 @@
           {
             "op": "stat_at_least",
             "key": "20:0",
-            "value": 20,
+            "value": 42,
             "absent_is_zero": true
           },
           {
@@ -22527,7 +22527,7 @@
             {
               "op": "stat_at_least",
               "key": "20:0",
-              "value": 20,
+              "value": 42,
               "absent_is_zero": true
             },
             {

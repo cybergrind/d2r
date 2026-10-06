@@ -6,6 +6,22 @@ from math import prod
 from pricing.triage.variants import scoped_bucket
 
 
+# A native Knight's shield automod plus superior durability spans
+# 15 damage rolls * 21 attack-rating rolls * 6 durability rolls = 1,890.
+# Bound offline expansion without silently dropping this legal combination.
+MAX_ROLL_COMBINATIONS = 2048
+
+
+def with_rolls(modifiers, rolls):
+    """Keep the projected elemental copies of one all-resistance roll linked."""
+    updated = modifiers | rolls
+    if '441' in rolls and '441' in modifiers:
+        for prop in ('401', '426', '427', '428'):
+            if modifiers.get(prop) == modifiers['441']:
+                updated[prop] = rolls['441']
+    return updated
+
+
 def comparison_bounds(item, policy):
     modifiers = item.get('base_modifiers')
     if not isinstance(modifiers, dict):
@@ -19,7 +35,7 @@ def comparison_bounds(item, policy):
         if type(modifiers.get(p)) is int and spec['min'] <= modifiers[p] <= spec['max']
     }
     bounds = {p: allowed[p] for p in modifiers if p in allowed}
-    if prod(spec['max'] - spec['min'] + 1 for spec in bounds.values()) > 1024 or any(
+    if prod(spec['max'] - spec['min'] + 1 for spec in bounds.values()) > MAX_ROLL_COMBINATIONS or any(
         type(modifiers[p]) is not int or not spec['min'] <= modifiers[p] <= spec['max'] for p, spec in bounds.items()
     ):
         return {}
@@ -31,7 +47,7 @@ def no_worse_modifiers(item, policy):
     bounds = comparison_bounds(item, policy)
     props = sorted(bounds)
     return [
-        modifiers | dict(zip(props, values, strict=True))
+        with_rolls(modifiers, dict(zip(props, values, strict=True)))
         for values in product(*(range(modifiers[p], bounds[p]['max'] + 1) for p in props))
     ]
 
@@ -41,7 +57,7 @@ def no_better_modifiers(item, policy):
     bounds = comparison_bounds(item, policy)
     props = sorted(bounds)
     return [
-        modifiers | dict(zip(props, values, strict=True))
+        with_rolls(modifiers, dict(zip(props, values, strict=True)))
         for values in product(*(range(bounds[p]['min'], modifiers[p] + 1) for p in props))
     ]
 
@@ -62,7 +78,7 @@ def compile_modifiers(category, name, bucket, rows, policy, *, coarse_index=None
             continue
         # Same skill set, same other modifiers. A different skill is a different
         # paid pattern; absent skills are not guessed to be zero-valued rolls.
-        anchor = item | {'base_modifiers': modifiers | {p: bounds[p]['min'] for p in skills}}
+        anchor = item | {'base_modifiers': with_rolls(modifiers, {p: bounds[p]['min'] for p in skills})}
         key = scoped_bucket(bucket, anchor, policy['facets'])
         if key is not None:
             groups.setdefault(key, []).append((row, item, skills, bounds))
@@ -76,7 +92,7 @@ def compile_modifiers(category, name, bucket, rows, policy, *, coarse_index=None
             selected = [r for r, _, skills, _ in members if all(skills[p] <= v for p, v in target_rolls.items())]
             if not selected:
                 continue
-            target = sample | {'base_modifiers': sample['base_modifiers'] | target_rolls}
+            target = sample | {'base_modifiers': with_rolls(sample['base_modifiers'], target_rolls)}
             if coarse_index:
                 from pricing.triage.base_cohorts import band as base_cohort
 

@@ -1,6 +1,7 @@
 # Drop assessment plan — active since 2026-10-03
 
-This is the only active plan for item assessment. It replaces the execution rules of
+This is the plan for item assessment; the end goal, measures and stopping rule are in the
+"Current contract" section of COMPLETION_CONTRACT.md (2026-10-06). It replaces the older execution rules of
 COMPLETION_CONTRACT.md, IMPLEMENTATION_PLAN.md, GUIDE_FIRST.md, ROLL_VALUE_REVIEW.md and
 DELIVERY_APPROACH.md, which are frozen (user decision, 2026-10-03). Their technical content
 stays as reference; their gates, queues and stopping rules no longer drive work.
@@ -277,7 +278,100 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 ## 4. Work packages
 
-### Steering 6 (user directive, 2026-10-04 14:00) — takes precedence over everything below
+### Steering 8 (progress check, 2026-10-06 15:40) — refines the Steering 7 queue; its items 3, 4, 6, 7 stand
+
+Measured from the score files of 2026-10-06 15:36: seller-weighted attention 75.0% (70.5% at
+Steering 7), base recall 62.3% (40.1%), guide rows classified 408 verdict / 49 own-use /
+39 pickup / 70 context, table score 305 of 404 (75.5%), corpus CHECK share 12.3%. The base
+work moved the main measure by 4.5 points in ninety minutes; the direction is right and the
+queue stays. Four corrections:
+
+1. **Bases: finish to 70%, then stop.** The exit needs 335 more seller votes. Take them from
+   `base_bucket_missing` (564 votes: Sacred Rondache 76, Archon Staff 59, Cuirass 41, Grand
+   Scepter 35, Ancient Axe 34), `base_rarity_missing` (131) and `base_enhancement_missing`
+   (126). Do not chase `base_variant_price_missing` (455): those are staffmod class bases
+   (Cinquedeas, Greater Talons, Grimoire, Bone Wand) where fewer than three sellers list a
+   comparable roll, so they stay CHECK. Do not chase `below_keep_price` (286) either. The
+   replay credits CHECK as attention only for rare, magic and crafted items; the 576 valuable
+   base votes that end as CHECK are not counted and that rule is not changed to reach the exit.
+2. **Bases cannot reach 85% alone; name the next lever now.** The target needs 2,208 more
+   votes and all chaseable base misses together are about 820. After the base exit the queue
+   is named items, not affixed patterns: uniques `roll_comparison` (333) and
+   `no_matched_price` (166), then sets and runewords (129). The 15 cheap unique votes flagged
+   SELL (15 of 57 cheap unique listings) are the same roll-placement problem seen from the
+   other side: work both in one pass. That pass is also what returns the cheap SELL rate
+   (10.37%, 17 of 164, limit 10%) under its limit; no per-item VENDOR exception. If named
+   items do not reach 85%, the remaining gap is the 1,799 rare and magic `no_paid_pattern`
+   votes and item 3 of Steering 7 is reopened then, with that number as the reason.
+3. **The guide score is still "zero failures" because 99 rows are not cases.** 49 own-use
+   rows are classified and none executes; 50 verdict rows wait for an item and an expected
+   outcome. The 95% target cannot be met at 305 of 404. Transcribe all 99 in one pass after
+   the base exit: own-use rows as SELF-USE cases against `own.json` (warlock §0–§3, pricing
+   §6), verdict rows from the guide text (primer `#miss` 14, warlock §4 8, pricing §3 6).
+   Rows that then fail are listed under `failures` and fixed from that list. The three rows
+   with a real reason (unnamed staffmods, of Thawing, mixed aggregates) move to context.
+4. **Status lines must come from a run, and name its scope.** Section 8 reports "469 passed,
+   Ruff clean". A run of `tests/pricing/triage` and `tests/inventory_tracking` at 15:35 gave
+   2742 passed and 5 failed, and Ruff reported 17 errors, all in `inventory_tracking/hud/widgets.py`
+   (invalid suppression codes). Three failures are the terror danger work in progress and one
+   is the HUD map slot (0.15 against 0.03): not this plan's. One is this plan's:
+   `tests/inventory_tracking/shop/test_catalog.py::test_all_reviewed_magic_profiles_keep_their_item_predicates`
+   fails after the rule rebuild (a profile threshold of 20 where the shop profile says 42).
+   Fix it before the next score run and report test counts with the directories they cover.
+
+Order: 1 → 2 → 3; Steering 7 item 5 (two worked cases) inside pass 3; demand at the weekly pull.
+
+### Steering 7 (progress check, 2026-10-06 14:00) — queue refined by Steering 8; Steering 6 evidence rules stand
+
+Measured from the score files of 2026-10-06: seller-weighted attention 70.5% (target 85%;
+72.6% at Steering 4), SELL/slow 62.8%; guide tables 260 of 493 rows executed; corpus 1453
+drops: 1144 VENDOR / 166 slow / 100 CHECK / 20 SELL / 23 SELF-USE; 674 tests pass. Two days
+of charm, jewel, jewelry and equipment patterns moved attention by under one point and the
+table score by a few rows per batch. That is the micro-batch pace Steering 3 item 3 stopped.
+
+1. **Bases are the queue.** 2,599 of the 6,481 missed valuable seller votes are bases (recall
+   40.1%); rares 1,228, uniques 1,213 (714 of them asks above a cheap cohort, which are not
+   chased), magic 590. Recovering bases alone lifts attention to about 82%. About 59 of the
+   unresolved guide rows are base rows too (primer §2, §2-why, §2.1–2.4, pricing §2 gray).
+   Work the two causes in the miss table in order: `base_bucket_missing` (1,158 votes) and
+   `base_variant_price_missing` (872). Use the named-item ladder of Steering 3 item 1 for
+   bases: exact bucket → drop superior ED → drop the socket facet, ethereal always kept; the
+   first level with at least three sellers decides. A guide-listed runeword base with no
+   level of three sellers is CHECK with the missing facet named, not VENDOR.
+   Exit: base recall at least 70% seller-weighted, cheap rates inside their limits, the base
+   guide rows executed.
+2. **Give the guide score an honest denominator, in one pass.** All 235 unresolved rows lack
+   an item and an expected verdict, and 231 carry no reason. Many are not sell-verdict rows:
+   Warlock gear, boots, crafts and filter rows (about 75), pickup rules (pindle §3, 23),
+   primer context tables (`#s2-why`, `#twin`, `#d0`–`#d6`). Classify every row once:
+   *verdict* (executable sell case), *own-use* (executes as a SELF-USE case against
+   `own.json`), *pickup* (decided before identification; outside the triage score, counted
+   on its own line) or *context*, each with a one-line reason. No row stays unresolved
+   without a reason. The 95% target applies to verdict plus own-use rows; the report prints
+   the four counts instead of "260/493".
+   A row becomes a case when it is transcribed, whether or not triage passes it: "zero
+   executable failures" in every report means failing rows are being left unresolved.
+   Failing rows are listed as failures and fixed from there.
+3. **Affixed and charm patterns are parked again** (Steering 4 item 2). A new pattern is
+   added only to make a guide row from item 2 execute, or to fix a drop in the corpus. The
+   1,816 `no_paid_pattern` votes on rares and magic items stay as measured.
+4. **The demand measure is not measured; say so.** `sell_supported_share` is 1.0, but 181 of
+   182 SELL cohorts are supported only by censored page-0 absence, and one cohort (Jah) has
+   strong turnover. Report the demand row as "unmeasured: one-day interval", not as passed.
+   No more work on turnover until the weekly pull already authorized by Steering 6 (due
+   2026-10-10 or -11) gives a seven-day interval.
+5. **Close the two incomplete worked cases**: fix them, or move each to context with its
+   reason. 36/38 has been carried since 2026-10-04 against a 100% target.
+6. **Materials** continues under MATERIALS.md's own done criteria; its UI work comes after
+   item 1. The live speed line is still unrecorded: take it from the next service log that
+   has an identify pass, without asking for one.
+7. **Section 8 is a status again, not a changelog.** Keep current numbers, live facts and the
+   next three steps; delete bullets for finished batches (facets, socketed magic armour,
+   jewels, set labels). History is in git.
+
+Order: 2 → 1 → 5; item 4 at the next pull.
+
+### Steering 6 (user directive, 2026-10-04 14:00) — evidence rules stand; queue set by Steering 7
 
 **The user does not label or assess items. Progress comes solely from the guides and from
 Traderie.** Do not ask for labels, skims, reviews of lists or verdict confirmations, and do not
@@ -790,32 +884,31 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-06 — Steering 6 active; no user labels or probes requested.
-- Decision 5 distinguishes measured inactivity from missing evidence. Sparse matched
-  affixed/supply asks >=0.25 Ist yield CHECK/reference; thin unit asks never price stacks.
-- Demand: 167 names, 1115 variants (201 merc), 170 inserts, 114 watches.
-  Second pull 1402/1402; 4543 turnover cohorts, 10676 vanished IDs, 54 uncensored.
-  Only Jah has strong turnover; disappearance is not sales. Buy test: 4 buyers.
-- Guide: 36/38 worked, 15/15 false positives, 257/493 tables execute/pass;
-  20 historical/context rows retained, 238 unresolved, zero executable failures.
-- Caster amulet strong-support gate fixed; 57 jewelry guide cases pass. Blood rings
-  with leech/10 str/30 life/10 resist now CHECK without AR, retaining strict floors.
-  Three October sellers support review, not a common price; 33 craft cases added.
-- Socketed magic armor/shields: 80 cases pass; impossible Skull guidance removed.
-  RotW sets/Bloodpact: 37 cases pass; blanket floor labels corrected with October asks.
-- Facets require element/event identity and supported roll splits; eight perfect
-  variants price from 16–23 sellers. Rebuilt 19,396 bands; 80 roll models.
-- Niche skillers are not zero-demand: October high-life Druid Summoning/Shadow
-  quotes and sparse Masteries/7 FRW support kept separate; mid-life Aura gap retained.
-- Materials: 33 pages / 692 scoped asks; MATERIALS.md lists entries and gaps.
-  Finite lots normalize; 63 offers ambiguous. 30 entries have >=3 sellers across
-  quantities; sale lots need their own cohort. Recorded key/statue sets work.
-- Full triage suite: 426 passed previously; 28 latest guide/skiller tests pass.
-  Ruff/diff clean. New CHECK patterns change the counted cohort denominator;
-  SELL votes stay 13,834. Current SELL recall 63.06% reflects that, not lost SELLs.
-- Full replay: 1444 drops; 1136 VENDOR, 166 slow, 99 CHECK, 20 SELL, 23 SELF; 0.402 ms warm.
-  Seller-weighted attention 70.28%, SELL/slow 63.06%; cheap SELL/slow 9.76%, CHECK 17.68%.
-- Two worked cases remain incomplete; restart for Python changes.
-- Jewels: rare legal pairs/cross-rarity pricing tested. LLD 11+ max / equip <=40
-  gets CHECK; native IDs recover equip level for 38/42 saved jewels (no verdict change).
-  Next: base/charm guide gaps and Materials/UI. Completion unproven; goal active.
+2026-10-06 — Reread Current contract and Steering 8; base exit remains unmet.
+- Scope SC / Non-Ladder / PC / RotW; inclusive keep threshold 0.25 Ist.
+- Current-code replay: attention 75.13% (target 85%), SELL/slow 67.36%;
+  base recall 63.15% (2761/4372; target 70%); 300 additional votes needed.
+  Latest native-policy build recovered two base votes; policy count is not coverage.
+  Cheap SELL/slow 10.37% (17/164; limit 10%, FAIL); CHECK 17.68% (limit 25%).
+- Guide classification: 406 verdict / 49 own-use / 39 pickup / 72 context.
+  Tables 305/404 pass (75.50%); 99 remain untranscribed; no executed failures.
+  Worked 36/36, false positives 15/15. Two incomplete historical worked notes are
+  context, not new passing cases (missing orb skills / impossible glove suffix).
+- Named corpus CHECK 12.24% (limit 15%); replay covers 1471 captured items.
+- Offline bands 61,999 / 89 roll models; warm replay median 0.327 ms;
+  first call 124.895 ms. Ten-item identify timing remains unrecorded.
+- Tests: tests/pricing/triage 477 passed; tests/inventory_tracking/shop 233 passed
+  after catalog regeneration; generated shop catalog --check passes.
+  Changed-file Ruff/diff checks pass. Full inventory_tracking was not rerun;
+  Steering 8's unrelated terror/HUD failures are not claimed fixed or green.
+- Unknown rarity and illegal modifiers remain unresolved; no quality is invented.
+  Sparse staffmod comparisons and below-threshold asks are not recovery targets.
+- Demand unmeasured: one-day interval; authorized weekly pull October 10–11.
+  Use normal service logs for identify timing; no user labels or probes requested.
+- Next 1: missing base buckets, rarity and enhancement variants to >=70% recall.
+  Prioritize measured seller-vote recovery; retain comparison safeguards and metric.
+- Next 2: unique/set/runeword roll placement and cheap SELL corrections together;
+  no per-item VENDOR exceptions. Affixed/charm batches remain parked.
+- Next 3: transcribe all 99 guide rows in one pass, including 49 own-use cases;
+  record real failures and fix from that list. Materials UI follows base exit.
+Completion remains unproven; every Current contract measure must pass together.

@@ -98,7 +98,7 @@ def test_all_reviewed_magic_profiles_keep_their_item_predicates():
         if 'magic' in profile.get('qualities', []):
             target = compiled['profile:' + profile['id']]
             assert target['must'] == item_predicate(profile['must'])
-            assert target['conditions'] == profile['conditions']
+            assert target['conditions'] == profile.get('conditions', [])
 
 
 def test_context_alternatives_cannot_be_silently_removed():

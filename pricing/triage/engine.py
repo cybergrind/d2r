@@ -132,6 +132,11 @@ def assess(item, tables, *, today=None):
         ):
             band = found
             break
+    if category == 'base' and not supported(band):
+        from pricing.triage.base_fallback import lookup as base_fallback
+
+        if fallback := base_fallback(item, tables['bands']):
+            band, bucket = fallback, fallback['bucket']
     # Arbitrary affixed names cannot borrow a generic Ring/Amulet market band.
     if category in ('magic', 'rare', 'crafted'):
         band, reference = family_band(item, rules, tables['bands'])
@@ -181,7 +186,9 @@ def assess(item, tables, *, today=None):
         price = sale_value(item, price)
         sale_mode = 'bulk'
     liquidity = (band or {}).get('liquidity', 'none')
-    if premium:
+    if premium and price is not None and not supported(band):
+        verdict, reason = 'check', 'premium pattern with sparse asks; price is reference only'
+    elif premium:
         verdict, reason = 'sell', 'premium rule combination'
     elif price is not None and price >= tables['rules']['keep_ist'] and liquidity in ('liquid', 'thin'):
         verdict, reason = ('sell' if liquidity == 'liquid' else 'slow'), f'asks {price:g} Ist lower quartile'
@@ -221,6 +228,11 @@ def assess(item, tables, *, today=None):
             if price < tables['rules']['keep_ist']
             else 'insufficient price evidence',
         )
+    if category == 'base' and verdict == 'vendor' and not supported(band):
+        from pricing.triage.base_fallback import missing_reason
+
+        if missing := missing_reason(item, rows):
+            verdict, reason = 'check', missing
     if verdict == 'vendor' and price is None and (facets or policy.get('require_bucket')):
         reason = 'no priced band for the required base, variant or roll combination'
     if verdict == 'vendor' and price is None and (separate or separate_sockets or separate_base):

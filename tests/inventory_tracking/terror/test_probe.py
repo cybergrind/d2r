@@ -2,6 +2,7 @@
 
 import json
 import threading
+from dataclasses import replace
 
 from inventory_tracking.levels.model import Location
 from inventory_tracking.terror.bosses import BossTracker
@@ -279,3 +280,61 @@ def test_the_card_gets_the_player_level_read_with_the_monsters(tmp_path):
     probe.tick()
 
     assert shown[-1][:2] == ['Terror · Black Marsh', 'Level 95 · Fire Enchanted']
+
+
+def test_a_level_whose_struct_could_not_be_read_on_entry_is_read_again(tmp_path):
+    # 2026-10-06: stepping into Far Oasis as the service attached, the level read failed once and
+    # was never retried, so the game had no seed for that level to be known by.
+    level = bytearray(0x400)
+    level[0x1E4:0x1EC] = (0xBBBB).to_bytes(8, 'little')
+    marsh_now = black_marsh()
+    read = MonsterSnapshot(marsh_now.location, marsh_now.room2s, 30, (), level_hex=level.hex())
+    counted = []
+    snapshots = [marsh_now, read, marsh_now]
+
+    def observe(pid, images, capture, *, known, counted_level):
+        counted.append(counted_level)
+        return snapshots.pop(0)
+
+    probe, _shown = card_probe(tmp_path, [])
+    probe.observe = observe
+    for now in (1.0, 2.0, 3.0):
+        probe.poll(now)
+
+    assert counted == [None, None, marsh_now.location.level]
+    assert probe.tracker.game_levels == {6: (0xBBBB).to_bytes(8, 'little').hex()}
+    assert probe.tracker.level_rooms[6] == 30
+
+
+def test_the_players_life_is_logged_whenever_it_changed():
+    ledger = MonsterLedger()
+
+    def life(value, now):
+        snap = replace(snapshot(), player_life=value)
+        return [(e['life'], e['max']) for e in ledger.update(snap, now) if e['event'] == 'life']
+
+    assert life((900, 1450), 1.0) == [(900, 1450)]
+    assert life((900, 1450), 1.25) == []
+    assert life((310, 1450), 1.5) == [(310, 1450)]
+    assert life(None, 1.75) == []
+
+
+def test_a_deadly_pack_is_warned_of_on_the_card_outside_terror_zones_too(tmp_path):
+    # Eight Dark Rangers (txt id 160) first seen under Fanaticism (stats 350/351), north of the
+    # player: up-right on screen.
+    aura = ((0, 350, 122), (0, 351, 9))
+    archers = [
+        Monster(unit_id, 160, 1, 5000 + 2 * unit_id, 4900, 6, room(1), data_hex='00' * 0x80, stats=aura)
+        for unit_id in range(8)
+    ]
+    probe, shown = card_probe(tmp_path, [black_marsh(*archers), black_marsh(*archers)])
+    probe.poll(1.0)
+    probe.tick()
+
+    # Plain monsters without the zone's forced modifier: not terrorized, so no Terror lines.
+    assert shown[-1] == ['↗  ⚠ Dark Ranger x8 · Fanaticism: north']
+
+    probe.danger = False
+    probe.poll(2.0)
+    probe.tick()
+    assert shown[-1] == []

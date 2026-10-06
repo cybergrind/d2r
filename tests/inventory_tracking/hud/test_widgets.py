@@ -147,3 +147,30 @@ def test_ground_marks_fill_the_game_window_and_stay_translucent():
     draw_scene(cairo.Context(blank), [(far_leader, (0, 0, 800, 450))], scale=1.0)
     blank.flush()
     assert not any(blank.get_data())  # a pack that far away gets no arrow
+
+
+def test_a_deadly_packs_monsters_get_filled_marks_and_the_pack_one_arrow_from_afar():
+    from inventory_tracking.config import HudGroundConfig
+    from inventory_tracking.hud.ground import place_mark
+
+    config = HudGroundConfig()
+
+    def drawn(marks):
+        widget = Widget('ground', 'ground', 'ground', {'player': [10.0, 10.0], 'marks': marks})
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 800, 450)
+        draw_scene(cairo.Context(surface), [(widget, (0, 0, 800, 450))], scale=1.0)
+        surface.flush()
+        return surface
+
+    def alpha(surface, x, y):
+        return surface.get_data()[round(y) * surface.get_stride() + round(x) * 4 + 3]
+
+    near_x, near_y, _ = place_mark(1, 0, 800, 450, config)
+    far_x, far_y, _ = place_mark(30, 0, 800, 450, config)
+    leader, danger = drawn([['leader', 11.0, 10.0]]), drawn([['danger', 11.0, 10.0]])
+    assert alpha(danger, near_x, near_y) > 2 * alpha(leader, near_x, near_y)  # filled, not only outlined
+
+    assert not any(drawn([['pack', 11.0, 10.0]]).get_data())  # in view: its monsters are the marks
+    assert not any(drawn([['danger', 40.0, 10.0]]).get_data())  # out of view: no arrow per monster
+    assert alpha(drawn([['pack', 40.0, 10.0]]), far_x, far_y) > 128  # one arrow to the pack
+    assert not any(drawn([['pack', 60.0, 10.0]]).get_data())  # beyond 40 tiles: not yet

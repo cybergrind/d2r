@@ -56,22 +56,32 @@ def compile_model(report, rows, *, require_supported_split=False):
             deciding = supported
     if not deciding:
         return None
-    axes = {}
+    axes, stand_ins = {}, {}
     for prop, spec in deciding.items():
         sign = -1 if spec.get('better') == 'lower' else 1
         boundary = spec['max'] if sign == -1 else spec['min']
-        axes[prop] = sorted(
-            {sign * boundary}
-            | {
+        observed = sorted(
+            {
                 sign * r['properties'][prop]
                 for r in cohort
                 if numeric(r['properties'].get(prop)) and spec['min'] <= r['properties'][prop] <= spec['max']
             }
         )
+        if 'price_split' in spec:
+            # The evidence supports one boundary, so the axis has two cells: every roll on
+            # a side is priced with that side's sellers, not with the few at its exact value.
+            split = spec['price_split']
+            good = min(o for o in observed if (o > -split if sign == -1 else o >= split))
+            axes[prop] = sorted({sign * boundary, good})
+            stand_ins[prop] = {
+                point: max((o for o in observed if point >= good or o < good), default=point) for point in axes[prop]
+            }
+            continue
+        axes[prop] = sorted({sign * boundary, *observed})
     cells = {}
     for values in product(*axes.values()):
         properties = {
-            p: value * (-1 if deciding[p].get('better') == 'lower' else 1)
+            p: stand_ins.get(p, {}).get(value, value) * (-1 if deciding[p].get('better') == 'lower' else 1)
             for p, value in zip(axes, values, strict=True)
         }
         result = compare(properties, cohort, deciding, keep_ist=0)
@@ -124,6 +134,9 @@ def lookup(item, models, *, keep_ist):
         # native identity for captures without creating a global skill alias.
         if prop not in item.get('properties', {}):
             value = item.get('native_rolls', {}).get(spec.get('native_key'))
+        if value is None and 'price_split' in spec:
+            # A listing that does not state a split roll keeps its name band, as without the model.
+            return None
         if not numeric(value) or not spec['min'] <= value <= spec['max']:
             return (
                 None

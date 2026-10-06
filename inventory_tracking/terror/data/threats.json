@@ -1,0 +1,4664 @@
+{
+  "source": "D2R install data/global/excel monstats, skills, monumod (unknown build)",
+  "monsters": {
+    "0": {
+      "name": "Skeleton",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "1": {
+      "name": "Returned",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "2": {
+      "name": "Bone Warrior",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "3": {
+      "name": "Burning Dead",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.28,
+      "magic": 0.0
+    },
+    "4": {
+      "name": "Horror",
+      "family": "skeleton1",
+      "physical": 1.0,
+      "elemental": 0.3,
+      "magic": 0.0
+    },
+    "5": {
+      "name": "Zombie",
+      "family": "zombie1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "6": {
+      "name": "Hungry Dead",
+      "family": "zombie1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "7": {
+      "name": "Ghoul",
+      "family": "zombie1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "8": {
+      "name": "Drowned Carcass",
+      "family": "zombie1",
+      "physical": 1.5,
+      "elemental": 0.3,
+      "magic": 0.0
+    },
+    "9": {
+      "name": "Plague Bearer",
+      "family": "zombie1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "10": {
+      "name": "Afflicted",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "11": {
+      "name": "Tainted",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "12": {
+      "name": "Misshapen",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "13": {
+      "name": "Disfigured",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "14": {
+      "name": "Damned",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "15": {
+      "name": "Foul Crow",
+      "family": "foulcrow1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "16": {
+      "name": "Blood Hawk",
+      "family": "foulcrow1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "17": {
+      "name": "Black Raptor",
+      "family": "foulcrow1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "18": {
+      "name": "Cloud Stalker",
+      "family": "foulcrow1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "19": {
+      "name": "Fallen",
+      "family": "fallen1",
+      "physical": 1.0,
+      "elemental": 0.06,
+      "magic": 0.0
+    },
+    "20": {
+      "name": "Carver",
+      "family": "fallen1",
+      "physical": 1.0,
+      "elemental": 0.04,
+      "magic": 0.0
+    },
+    "21": {
+      "name": "Devilkin",
+      "family": "fallen1",
+      "physical": 1.0,
+      "elemental": 0.16,
+      "magic": 0.0
+    },
+    "22": {
+      "name": "Dark One",
+      "family": "fallen1",
+      "physical": 1.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "23": {
+      "name": "Warped One",
+      "family": "fallen1",
+      "physical": 1.0,
+      "elemental": 0.03,
+      "magic": 0.0
+    },
+    "24": {
+      "name": "Brute",
+      "family": "brute2",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "25": {
+      "name": "Yeti",
+      "family": "brute2",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "26": {
+      "name": "Crusher",
+      "family": "brute2",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "27": {
+      "name": "Wailing Beast",
+      "family": "brute2",
+      "physical": 1.4,
+      "elemental": 0.07,
+      "magic": 0.0
+    },
+    "28": {
+      "name": "Gargantuan Beast",
+      "family": "brute2",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "29": {
+      "name": "Sand Raider",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "30": {
+      "name": "Marauder",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "31": {
+      "name": "Invader",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "32": {
+      "name": "Infidel",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "33": {
+      "name": "Assailant",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "38": {
+      "name": "Ghost",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "39": {
+      "name": "Wraith",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "40": {
+      "name": "Specter",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "41": {
+      "name": "Apparition",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "42": {
+      "name": "Dark Shape",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "43": {
+      "name": "Dark Hunter",
+      "family": "corruptrogue1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "44": {
+      "name": "Vile Hunter",
+      "family": "corruptrogue1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "45": {
+      "name": "Dark Stalker",
+      "family": "corruptrogue1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "46": {
+      "name": "Black Rogue",
+      "family": "corruptrogue1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "47": {
+      "name": "Flesh Hunter",
+      "family": "corruptrogue1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "48": {
+      "name": "Dune Beast",
+      "family": "baboon1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "49": {
+      "name": "Rock Dweller",
+      "family": "baboon1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "50": {
+      "name": "Jungle Hunter",
+      "family": "baboon1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "51": {
+      "name": "Doom Ape",
+      "family": "baboon1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "52": {
+      "name": "Temple Guard",
+      "family": "baboon1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "53": {
+      "name": "Moon Clan",
+      "family": "goatman1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "54": {
+      "name": "Night Clan",
+      "family": "goatman1",
+      "physical": 1.25,
+      "elemental": 0.17,
+      "magic": 0.0
+    },
+    "55": {
+      "name": "Blood Clan",
+      "family": "goatman1",
+      "physical": 1.2,
+      "elemental": 0.17,
+      "magic": 0.0
+    },
+    "56": {
+      "name": "Hell Clan",
+      "family": "goatman1",
+      "physical": 1.2,
+      "elemental": 0.21,
+      "magic": 0.0
+    },
+    "57": {
+      "name": "Death Clan",
+      "family": "goatman1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "58": {
+      "name": "Fallen Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "59": {
+      "name": "Carver Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "60": {
+      "name": "Devilkin Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "61": {
+      "name": "Dark Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "62": {
+      "name": "Warped Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "63": {
+      "name": "Quill Rat",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "64": {
+      "name": "Spike Fiend",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.09,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "65": {
+      "name": "Thorn Beast",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.09,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "66": {
+      "name": "Razor Spine",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.11,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "67": {
+      "name": "Bush Barb",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.18,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "68": {
+      "name": "Sand Maggot",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "69": {
+      "name": "Rock Worm",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "70": {
+      "name": "Devourer",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "71": {
+      "name": "Giant Lamprey",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "72": {
+      "name": "Blood Maggot",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "73": {
+      "name": "Tomb Viper",
+      "family": "clawviper1",
+      "physical": 1.05,
+      "elemental": 0.7,
+      "magic": 0.0
+    },
+    "74": {
+      "name": "Claw Viper",
+      "family": "clawviper1",
+      "physical": 1.05,
+      "elemental": 1.2,
+      "magic": 0.0
+    },
+    "75": {
+      "name": "Salamander",
+      "family": "clawviper1",
+      "physical": 1.05,
+      "elemental": 0.7,
+      "magic": 0.0
+    },
+    "76": {
+      "name": "Pit Viper",
+      "family": "clawviper1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "77": {
+      "name": "Serpent Magus",
+      "family": "clawviper1",
+      "physical": 1.05,
+      "elemental": 1.0,
+      "magic": 0.0
+    },
+    "78": {
+      "name": "Sand Leaper",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "79": {
+      "name": "Cave Leaper",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "80": {
+      "name": "Tomb Creeper",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "81": {
+      "name": "Tree Lurker",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "82": {
+      "name": "Cliff Lurker",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "83": {
+      "name": "Huntress",
+      "family": "pantherwoman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "84": {
+      "name": "Saber Cat",
+      "family": "pantherwoman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "85": {
+      "name": "Night Tiger",
+      "family": "pantherwoman1",
+      "physical": 0.8,
+      "elemental": 0.5,
+      "magic": 0.0
+    },
+    "86": {
+      "name": "Hell Cat",
+      "family": "pantherwoman1",
+      "physical": 0.8,
+      "elemental": 0.6,
+      "magic": 0.0
+    },
+    "87": {
+      "name": "Itchies",
+      "family": "swarm1",
+      "physical": 0.65,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "88": {
+      "name": "Black Locusts",
+      "family": "swarm1",
+      "physical": 0.65,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "89": {
+      "name": "Plague Bugs",
+      "family": "swarm1",
+      "physical": 0.65,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "90": {
+      "name": "Hell Swarm",
+      "family": "swarm1",
+      "physical": 0.65,
+      "elemental": 0.24,
+      "magic": 0.0
+    },
+    "91": {
+      "name": "Dung Soldier",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.06,
+      "magic": 0.0
+    },
+    "92": {
+      "name": "Death Beetle",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.06,
+      "magic": 0.0
+    },
+    "93": {
+      "name": "Scarab",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.07,
+      "magic": 0.0
+    },
+    "94": {
+      "name": "Steel Scarab",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.07,
+      "magic": 0.0
+    },
+    "95": {
+      "name": "Bone Scarab",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.09,
+      "magic": 0.0
+    },
+    "96": {
+      "name": "Dried Corpse",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "97": {
+      "name": "Decayed",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "98": {
+      "name": "Embalmed",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "99": {
+      "name": "Preserved Dead",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "100": {
+      "name": "Cadaver",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "101": {
+      "name": "Hollow One",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "102": {
+      "name": "Guardian",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "103": {
+      "name": "Unraveler",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "104": {
+      "name": "Horadrim Ancient",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "105": {
+      "name": "Unraveler",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "110": {
+      "name": "Carrion Bird",
+      "family": "vulture1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "111": {
+      "name": "Undead Scavenger",
+      "family": "vulture1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "112": {
+      "name": "Hell Buzzard",
+      "family": "vulture1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "113": {
+      "name": "Winged Nightmare",
+      "family": "vulture1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "114": {
+      "name": "Sucker",
+      "family": "mosquito1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "115": {
+      "name": "Feeder",
+      "family": "mosquito1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "116": {
+      "name": "Blood Hook",
+      "family": "mosquito1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "117": {
+      "name": "Blood Wing",
+      "family": "mosquito1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "118": {
+      "name": "Gloam",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "119": {
+      "name": "Swamp Ghost",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "120": {
+      "name": "Burning Soul",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "121": {
+      "name": "Black Soul",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "122": {
+      "name": "Arach",
+      "family": "arach1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "123": {
+      "name": "Sand Fisher",
+      "family": "arach1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "124": {
+      "name": "Poison Spinner",
+      "family": "arach1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "125": {
+      "name": "Flame Spider",
+      "family": "arach1",
+      "physical": 1.05,
+      "elemental": 0.2,
+      "magic": 0.0
+    },
+    "126": {
+      "name": "Spider Magus",
+      "family": "arach1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "127": {
+      "name": "Thorned Hulk",
+      "family": "thornhulk1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "128": {
+      "name": "Bramble Hulk",
+      "family": "thornhulk1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "129": {
+      "name": "Thrasher",
+      "family": "thornhulk1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "130": {
+      "name": "Spikefist",
+      "family": "thornhulk1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "131": {
+      "name": "Ghoul Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "132": {
+      "name": "Night Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "133": {
+      "name": "Dark Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "134": {
+      "name": "Blood Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "135": {
+      "name": "The Banished",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "136": {
+      "name": "Desert Wing",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 1.56,
+      "magic": 0.0
+    },
+    "137": {
+      "name": "Fiend",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 1.68,
+      "magic": 0.0
+    },
+    "138": {
+      "name": "Gloombat",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 1.8,
+      "magic": 0.0
+    },
+    "139": {
+      "name": "Blood Diver",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 1.92,
+      "magic": 0.0
+    },
+    "140": {
+      "name": "Dark Familiar",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 2.04,
+      "magic": 0.0
+    },
+    "141": {
+      "name": "Rat Man",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "142": {
+      "name": "Fetish",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "143": {
+      "name": "Flayer",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "144": {
+      "name": "Soul Killer",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "145": {
+      "name": "Stygian Doll",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "151": {
+      "name": "dummy",
+      "family": "rat",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "156": {
+      "name": "Andariel",
+      "family": "andariel",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "157": {
+      "name": "dummy",
+      "family": "bird1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "158": {
+      "name": "dummy",
+      "family": "bird2",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "160": {
+      "name": "Dark Ranger",
+      "family": "cr_archer1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "161": {
+      "name": "Vile Archer",
+      "family": "cr_archer1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "162": {
+      "name": "Dark Archer",
+      "family": "cr_archer1",
+      "physical": 0.9,
+      "elemental": 0.12,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "163": {
+      "name": "Black Archer",
+      "family": "cr_archer1",
+      "physical": 0.9,
+      "elemental": 0.28,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "164": {
+      "name": "Flesh Archer",
+      "family": "cr_archer1",
+      "physical": 0.9,
+      "elemental": 0.16,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "165": {
+      "name": "Dark Spearwoman",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "166": {
+      "name": "Vile Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "167": {
+      "name": "Dark Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.16,
+      "magic": 0.0
+    },
+    "168": {
+      "name": "Black Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.32,
+      "magic": 0.0
+    },
+    "169": {
+      "name": "Flesh Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.18,
+      "magic": 0.0
+    },
+    "170": {
+      "name": "Skeleton Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "171": {
+      "name": "Returned Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "172": {
+      "name": "Bone Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "173": {
+      "name": "Burning Dead Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.55,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "174": {
+      "name": "Horror Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 1.2,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "180": {
+      "name": "Sand Maggot Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "181": {
+      "name": "Rock Worm Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "182": {
+      "name": "Devourer Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "183": {
+      "name": "Giant Lamprey Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "184": {
+      "name": "Blood Maggot Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "186": {
+      "name": "Blunderbore",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "187": {
+      "name": "Gorebelly",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "188": {
+      "name": "Mauler",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "189": {
+      "name": "Urdar",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "190": {
+      "name": "Sand Maggot Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "191": {
+      "name": "Rock Worm Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "192": {
+      "name": "Devourer Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "193": {
+      "name": "Giant Lamprey Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "194": {
+      "name": "Blood Maggot Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "206": {
+      "name": "Foul Crow Nest",
+      "family": "crownest1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "207": {
+      "name": "Blood Hawk Nest",
+      "family": "crownest1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "208": {
+      "name": "Black Raptor Nest",
+      "family": "crownest1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "209": {
+      "name": "Cloud Stalker Nest",
+      "family": "crownest1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "211": {
+      "name": "Duriel",
+      "family": "duriel",
+      "physical": 1.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "212": {
+      "name": "Undead Rat Man",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "213": {
+      "name": "Undead Fetish",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "214": {
+      "name": "Undead Flayer",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "215": {
+      "name": "Undead Soul Killer",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "216": {
+      "name": "Undead Stygian Doll",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "227": {
+      "name": "Maggot",
+      "family": "maggot",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "228": {
+      "name": "Mummy Sarcophagus",
+      "family": "sarcophagus",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "229": {
+      "name": "Radament",
+      "family": "radament",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "234": {
+      "name": "Flying Scimitar",
+      "family": "flyingscimitar",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "235": {
+      "name": "Zakarumite",
+      "family": "zealot1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "236": {
+      "name": "Faithful",
+      "family": "zealot1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "237": {
+      "name": "Zealot",
+      "family": "zealot1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "238": {
+      "name": "Sexton",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "239": {
+      "name": "Cantor",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "240": {
+      "name": "Hierophant",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "241": {
+      "name": "Hierophant",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "242": {
+      "name": "Mephisto",
+      "family": "mephisto",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "243": {
+      "name": "Diablo",
+      "family": "diablo",
+      "physical": 2.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "247": {
+      "name": "Swamp Dweller",
+      "family": "frogdemon1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.95,
+      "ranged": true
+    },
+    "248": {
+      "name": "Bog Creature",
+      "family": "frogdemon1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.95,
+      "ranged": true
+    },
+    "249": {
+      "name": "Slime Prince",
+      "family": "frogdemon1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.95,
+      "ranged": true
+    },
+    "250": {
+      "name": "The Summoner",
+      "family": "summoner",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "256": {
+      "name": "Izual",
+      "family": "izual",
+      "physical": 1.6,
+      "elemental": 0.8,
+      "magic": 0.0
+    },
+    "258": {
+      "name": "Water Watcher",
+      "family": "tentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "259": {
+      "name": "River Stalker",
+      "family": "tentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "260": {
+      "name": "Stygian Watcher",
+      "family": "tentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "261": {
+      "name": "Water Watcher",
+      "family": "tentaclehead1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "262": {
+      "name": "River Stalker",
+      "family": "tentaclehead1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "263": {
+      "name": "Stygian Watcher",
+      "family": "tentaclehead1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "267": {
+      "name": "Blood Raven",
+      "family": "bloodraven",
+      "physical": 1.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "268": {
+      "name": "Dummy",
+      "family": "bug",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "269": {
+      "name": "Dummy",
+      "family": "scorpion",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "271": {
+      "name": "Rogue",
+      "family": "roguehire",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "273": {
+      "name": "Gargoyle Trap",
+      "family": "gargoyletrap",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "274": {
+      "name": "Returned Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "275": {
+      "name": "Bone Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "276": {
+      "name": "Burning Dead Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "277": {
+      "name": "Horror Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "278": {
+      "name": "RatMan Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "279": {
+      "name": "Fetish Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "280": {
+      "name": "Flayer Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "281": {
+      "name": "Soul Killer Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "282": {
+      "name": "Stygian Doll Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "283": {
+      "name": "larva",
+      "family": "larva",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "284": {
+      "name": "Sand Maggot Queen",
+      "family": "maggotqueen1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "285": {
+      "name": "Rock Worm Queen",
+      "family": "maggotqueen1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "286": {
+      "name": "Devourer Queen",
+      "family": "maggotqueen1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "287": {
+      "name": "Giant Lamprey Queen",
+      "family": "maggotqueen1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "288": {
+      "name": "Blood Maggot Queen",
+      "family": "maggotqueen1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "289": {
+      "name": "ClayGolem",
+      "family": "claygolem",
+      "physical": 0.11,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "290": {
+      "name": "BloodGolem",
+      "family": "bloodgolem",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "291": {
+      "name": "IronGolem",
+      "family": "irongolem",
+      "physical": 0.49,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "292": {
+      "name": "FireGolem",
+      "family": "firegolem",
+      "physical": 0.71,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "295": {
+      "name": "Night Marauder",
+      "family": "baboon6",
+      "physical": 1.5,
+      "elemental": 0.68,
+      "magic": 0.0
+    },
+    "298": {
+      "name": "Flesh Spawner",
+      "family": "vilemother1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "299": {
+      "name": "Stygian Hag",
+      "family": "vilemother1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "300": {
+      "name": "Grotesque",
+      "family": "vilemother1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "301": {
+      "name": "Flesh Beast",
+      "family": "vilechild1",
+      "physical": 0.7,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "302": {
+      "name": "Stygian Dog",
+      "family": "vilechild1",
+      "physical": 0.7,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "303": {
+      "name": "Grotesque Wyrm",
+      "family": "vilechild1",
+      "physical": 0.7,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "304": {
+      "name": "Doom Caster",
+      "family": "fingermage1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "305": {
+      "name": "Strangler",
+      "family": "fingermage1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "306": {
+      "name": "Storm Caster",
+      "family": "fingermage1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "307": {
+      "name": "Corpulent",
+      "family": "regurgitator1",
+      "physical": 1.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "308": {
+      "name": "Corpse Spitter",
+      "family": "regurgitator1",
+      "physical": 1.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "309": {
+      "name": "Maw Fiend",
+      "family": "regurgitator1",
+      "physical": 1.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "310": {
+      "name": "Doom Knight",
+      "family": "doomknight1",
+      "physical": 1.5,
+      "elemental": 0.36,
+      "magic": 0.0
+    },
+    "311": {
+      "name": "Abyss Knight",
+      "family": "doomknight2",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "312": {
+      "name": "Oblivion Knight",
+      "family": "doomknight3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.35,
+      "ranged": true,
+      "curses": [
+        "Decrepify"
+      ]
+    },
+    "313": {
+      "name": "Quill Bear",
+      "family": "quillbear1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "314": {
+      "name": "Spike Giant",
+      "family": "quillbear1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "315": {
+      "name": "Thorn Brute",
+      "family": "quillbear1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "316": {
+      "name": "Razor Beast",
+      "family": "quillbear1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "317": {
+      "name": "Barbed Giant",
+      "family": "quillbear1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "318": {
+      "name": "Dummy",
+      "family": "snake",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "319": {
+      "name": "Dummy",
+      "family": "parrot",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "320": {
+      "name": "Dummy",
+      "family": "fish",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "321": {
+      "name": "Dummy",
+      "family": "evilhole1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "333": {
+      "name": "Diablo",
+      "family": "diablo",
+      "physical": 2.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "338": {
+      "name": "DesertMerc",
+      "family": "act2hire",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "339": {
+      "name": "Dummy",
+      "family": "minispider",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "340": {
+      "name": "skillname88",
+      "family": "boneprison1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "341": {
+      "name": "skillname88",
+      "family": "boneprison2",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "342": {
+      "name": "skillname88",
+      "family": "boneprison3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "343": {
+      "name": "skillname88",
+      "family": "boneprison4",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "344": {
+      "name": "Dummy",
+      "family": "bonewall",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "345": {
+      "name": "Council Member",
+      "family": "councilmember1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "346": {
+      "name": "Council Member",
+      "family": "councilmember1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "347": {
+      "name": "Council Member",
+      "family": "councilmember1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "348": {
+      "name": "Turret",
+      "family": "turret1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "349": {
+      "name": "Turret",
+      "family": "turret1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "350": {
+      "name": "Turret",
+      "family": "turret1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "351": {
+      "name": "Hydra",
+      "family": "hydra1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "352": {
+      "name": "Hydra",
+      "family": "hydra2",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "353": {
+      "name": "Hydra",
+      "family": "hydra3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "354": {
+      "name": "a trap",
+      "family": "trap-melee",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "356": {
+      "name": "Dopplezon",
+      "family": "dopplezon",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "357": {
+      "name": "Valkyrie",
+      "family": "valkyrie",
+      "physical": 0.62,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "358": {
+      "name": "Dummy",
+      "family": "act2guard3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "359": {
+      "name": "Iron Wolf",
+      "family": "act3hire",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "360": {
+      "name": "Balrog",
+      "family": "megademon1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "361": {
+      "name": "Pit Lord",
+      "family": "megademon1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "362": {
+      "name": "Venom Lord",
+      "family": "megademon1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "363": {
+      "name": "Skeleton",
+      "family": "necroskeleton",
+      "physical": 0.02,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "364": {
+      "name": "skillan80",
+      "family": "necromage",
+      "physical": 0.02,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "365": {
+      "name": "Griswold",
+      "family": "griswold",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "371": {
+      "name": "Lightning Spire",
+      "family": "lightningspire",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "372": {
+      "name": "Fire Tower",
+      "family": "firetower",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "373": {
+      "name": "Slinger",
+      "family": "slinger1",
+      "physical": 0.85,
+      "elemental": 0.09,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "374": {
+      "name": "Spear Cat",
+      "family": "slinger1",
+      "physical": 0.85,
+      "elemental": 0.09,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "375": {
+      "name": "Night Slinger",
+      "family": "slinger1",
+      "physical": 0.85,
+      "elemental": 0.17,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "376": {
+      "name": "Hell Slinger",
+      "family": "slinger1",
+      "physical": 0.85,
+      "elemental": 0.11,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "379": {
+      "name": "Returned Mage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "380": {
+      "name": "Bone Mage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "381": {
+      "name": "BaalColdMage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "382": {
+      "name": "Horror Mage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "383": {
+      "name": "Returned Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.7,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "384": {
+      "name": "Bone Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.7,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "385": {
+      "name": "Burning Dead Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.7,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "386": {
+      "name": "Horror Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.7,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "387": {
+      "name": "Returned Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "388": {
+      "name": "Bone Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "389": {
+      "name": "Burning Dead Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "390": {
+      "name": "Horror Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "391": {
+      "name": "Hell Bovine",
+      "family": "hellbovine",
+      "physical": 1.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "392": {
+      "name": "Stained Glass Window",
+      "family": "window1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "393": {
+      "name": "Stained Glass Window",
+      "family": "window2",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "394": {
+      "name": "Spear Cat",
+      "family": "slinger5",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "395": {
+      "name": "Night Slinger",
+      "family": "slinger5",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "396": {
+      "name": "Rat Man",
+      "family": "fetishblow1",
+      "physical": 0.33,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "397": {
+      "name": "Fetish",
+      "family": "fetishblow1",
+      "physical": 0.33,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "398": {
+      "name": "Flayer",
+      "family": "fetishblow1",
+      "physical": 0.33,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "399": {
+      "name": "Soul Killer",
+      "family": "fetishblow1",
+      "physical": 0.33,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "400": {
+      "name": "Stygian Doll",
+      "family": "fetishblow1",
+      "physical": 0.33,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "402": {
+      "name": "The Smith",
+      "family": "smith",
+      "physical": 1.1,
+      "elemental": 0.24,
+      "magic": 0.0
+    },
+    "403": {
+      "name": "Trapped Soul",
+      "family": "trappedsoul1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "404": {
+      "name": "Trapped Soul",
+      "family": "trappedsoul2",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "407": {
+      "name": "Rat Man",
+      "family": "fetish11",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "409": {
+      "name": "Hephasto The Armorer",
+      "family": "hephasto",
+      "physical": 1.7,
+      "elemental": 0.4,
+      "magic": 0.0
+    },
+    "410": {
+      "name": "Wake of Destruction",
+      "family": "wakeofdestruction",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "411": {
+      "name": "Charged Bolt Sentry",
+      "family": "chargeboltsentry",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "412": {
+      "name": "Lightning Sentry",
+      "family": "lightningsentry",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "413": {
+      "name": "Blade Creeper",
+      "family": "bladecreeper",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "415": {
+      "name": "Inferno Sentry",
+      "family": "infernosentry",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "416": {
+      "name": "Death Sentry",
+      "family": "deathsentry",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "417": {
+      "name": "Shadow Warrior",
+      "family": "shadowwarrior",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "418": {
+      "name": "Shadow Master",
+      "family": "shadowmaster",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "419": {
+      "name": "Druid Hawk",
+      "family": "druidhawk",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "420": {
+      "name": "Spirit Wolf",
+      "family": "spiritwolf",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "421": {
+      "name": "Dire Wolf",
+      "family": "spiritwolf",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "422": {
+      "name": "Spirit of Barbs",
+      "family": "spiritofbarbs",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "423": {
+      "name": "Heart of Wolverine",
+      "family": "spiritofbarbs",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "424": {
+      "name": "Oak Sage",
+      "family": "spiritofbarbs",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "425": {
+      "name": "Plague Poppy",
+      "family": "plaguepoppy",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "426": {
+      "name": "Cycle of Life",
+      "family": "cycleoflife",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "427": {
+      "name": "Vine Creature",
+      "family": "vinecreature",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "428": {
+      "name": "Grizzly",
+      "family": "druidbear",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "429": {
+      "name": "Eagle",
+      "family": "eagle",
+      "physical": 0.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "430": {
+      "name": "Wolf",
+      "family": "wolf",
+      "physical": 0.07,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "431": {
+      "name": "Bear",
+      "family": "bear",
+      "physical": 0.07,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "432": {
+      "name": "Barricaded Door",
+      "family": "barricadedoor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "433": {
+      "name": "Barricaded Door",
+      "family": "barricadedoor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "434": {
+      "name": "Prison Door",
+      "family": "prisondoor",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "435": {
+      "name": "Barricaded Tower",
+      "family": "barricadetower",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "436": {
+      "name": "Rot Walker",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "437": {
+      "name": "Reanimated Horde",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "438": {
+      "name": "Prowling Dead",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "439": {
+      "name": "Unholy Corpse",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "440": {
+      "name": "Defiled Warrior",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "441": {
+      "name": "Siege Beast",
+      "family": "siegebeast1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "442": {
+      "name": "Crush Beast",
+      "family": "siegebeast1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "443": {
+      "name": "Blood Bringer",
+      "family": "siegebeast1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "444": {
+      "name": "Gore Bearer",
+      "family": "siegebeast1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "445": {
+      "name": "Demon Steed",
+      "family": "siegebeast1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "446": {
+      "name": "Snow Drifter",
+      "family": "snowyeti1",
+      "physical": 1.15,
+      "elemental": 0.18,
+      "magic": 0.0
+    },
+    "447": {
+      "name": "Abominable",
+      "family": "snowyeti1",
+      "physical": 1.15,
+      "elemental": 0.18,
+      "magic": 0.0
+    },
+    "448": {
+      "name": "Chilled Froth",
+      "family": "snowyeti1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "449": {
+      "name": "Frozen Abyss",
+      "family": "snowyeti1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "453": {
+      "name": "Enslaved",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "454": {
+      "name": "Slayer",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "455": {
+      "name": "Ice Boar",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "456": {
+      "name": "Fire Boar",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "457": {
+      "name": "Hell Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "458": {
+      "name": "Ice Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "459": {
+      "name": "Greater Hell Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "460": {
+      "name": "Greater Ice Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "461": {
+      "name": "Fanatic Enslaved",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "462": {
+      "name": "Berserker Slayer",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "463": {
+      "name": "Consumed Ice Boar",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "464": {
+      "name": "Consumed Fire Boar",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "465": {
+      "name": "Frenzied Hell Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "466": {
+      "name": "Frenzied Ice Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "467": {
+      "name": "Insane Hell Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "468": {
+      "name": "Insane Ice Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "469": {
+      "name": "Succubus",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "470": {
+      "name": "Vile Temptress",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "471": {
+      "name": "Stygian Harlot",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "472": {
+      "name": "Hell Temptress",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "473": {
+      "name": "Blood Temptress",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "474": {
+      "name": "Siren",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "475": {
+      "name": "Vile Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "476": {
+      "name": "Stygian Fury",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "477": {
+      "name": "Blood Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "478": {
+      "name": "Hell Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "479": {
+      "name": "Overseer",
+      "family": "overseer1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "480": {
+      "name": "Lasher",
+      "family": "overseer1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "481": {
+      "name": "Overlord",
+      "family": "overseer1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "482": {
+      "name": "Blood Boss",
+      "family": "overseer1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "483": {
+      "name": "Hell Whip",
+      "family": "overseer1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "484": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "485": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "486": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "487": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "488": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "489": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "490": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "491": {
+      "name": "Demon Portal",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "492": {
+      "name": "Demon Imp",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "493": {
+      "name": "Demon Rascal",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "494": {
+      "name": "Demon Gremlin",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "495": {
+      "name": "Demon Trickster",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "496": {
+      "name": "Demon Sprite",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "497": {
+      "name": "Catapult",
+      "family": "catapult1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "498": {
+      "name": "Catapult",
+      "family": "catapult1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "499": {
+      "name": "Catapult",
+      "family": "catapult1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "500": {
+      "name": "Catapult",
+      "family": "catapult1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "501": {
+      "name": "Frozen Creeper",
+      "family": "frozenhorror1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "502": {
+      "name": "Frozen Terror",
+      "family": "frozenhorror1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "503": {
+      "name": "Frozen Scourge",
+      "family": "frozenhorror1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "504": {
+      "name": "Frozen Horror",
+      "family": "frozenhorror1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "505": {
+      "name": "Frozen Scorch",
+      "family": "frozenhorror1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "506": {
+      "name": "Moon Lord",
+      "family": "bloodlord1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "507": {
+      "name": "Night Lord",
+      "family": "bloodlord1",
+      "physical": 1.2,
+      "elemental": 0.3,
+      "magic": 0.0
+    },
+    "508": {
+      "name": "Blood Lord",
+      "family": "bloodlord1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "509": {
+      "name": "Hell Lord",
+      "family": "bloodlord1",
+      "physical": 1.2,
+      "elemental": 0.2,
+      "magic": 0.0
+    },
+    "510": {
+      "name": "Death Lord",
+      "family": "bloodlord1",
+      "physical": 1.2,
+      "elemental": 0.26,
+      "magic": 0.0
+    },
+    "522": {
+      "name": "Act 5 Combatant",
+      "family": "act5barb1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "523": {
+      "name": "Act 5 Combatant",
+      "family": "act5barb2",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "524": {
+      "name": "Barricade",
+      "family": "barricadewall1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "525": {
+      "name": "Barricade",
+      "family": "barricadewall1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "526": {
+      "name": "Nihlathak",
+      "family": "nihlathakboss",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "528": {
+      "name": "Evil Demon Hut",
+      "family": "evilhut",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "529": {
+      "name": "Death Mauler",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "530": {
+      "name": "Death Brawler",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "531": {
+      "name": "Death Slasher",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "532": {
+      "name": "Death Berserker",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "533": {
+      "name": "Death Brigadier",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "534": {
+      "name": "POW",
+      "family": "act5pow",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "535": {
+      "name": "Act 5 Townguard",
+      "family": "act5barb3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "536": {
+      "name": "Act 5 Townguard",
+      "family": "act5barb3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "540": {
+      "name": "Talic",
+      "family": "ancientbarb1",
+      "physical": 0.07,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "541": {
+      "name": "Madawc",
+      "family": "ancientbarb1",
+      "physical": 0.07,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "542": {
+      "name": "Korlic",
+      "family": "ancientbarb1",
+      "physical": 0.07,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "544": {
+      "name": "Baal",
+      "family": "baalcrab",
+      "physical": 2.4,
+      "elemental": 3.6,
+      "magic": 0.0
+    },
+    "546": {
+      "name": "Putrid Defiler",
+      "family": "putriddefiler1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "547": {
+      "name": "Wretched Defiler",
+      "family": "putriddefiler1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "548": {
+      "name": "Fetid Defiler",
+      "family": "putriddefiler1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "549": {
+      "name": "Rancid Defiler",
+      "family": "putriddefiler1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "550": {
+      "name": "Rank Defiler",
+      "family": "putriddefiler1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "551": {
+      "name": "Pain Worm",
+      "family": "painworm1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "552": {
+      "name": "Torment Worm",
+      "family": "painworm1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "553": {
+      "name": "Agony Worm",
+      "family": "painworm1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "554": {
+      "name": "Menace Worm",
+      "family": "painworm1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "555": {
+      "name": "Anguish Worm",
+      "family": "painworm1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "557": {
+      "name": "Council Member",
+      "family": "baalhighpriest",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.5,
+      "ranged": true
+    },
+    "558": {
+      "name": "Venom Lord",
+      "family": "venomlord",
+      "physical": 1.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "560": {
+      "name": "Barbarian",
+      "family": "act5hire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "561": {
+      "name": "Barbarian",
+      "family": "act5hire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "562": {
+      "name": "Baal Tentacle",
+      "family": "baaltentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "563": {
+      "name": "Baal Tentacle",
+      "family": "baaltentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "564": {
+      "name": "Baal Tentacle",
+      "family": "baaltentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "565": {
+      "name": "Baal Tentacle",
+      "family": "baaltentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "566": {
+      "name": "Baal Tentacle",
+      "family": "baaltentacle1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "570": {
+      "name": "Baal",
+      "family": "baalclone",
+      "physical": 2.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "571": {
+      "name": "Minion of Destruction",
+      "family": "baalminion1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "572": {
+      "name": "Minion of Destruction",
+      "family": "baalminion1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "573": {
+      "name": "Minion of Destruction",
+      "family": "baalminion1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "575": {
+      "name": "Burning Dead Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "576": {
+      "name": "Bone Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "577": {
+      "name": "Burning Dead Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "578": {
+      "name": "Returned Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "579": {
+      "name": "Horror Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "580": {
+      "name": "Afflicted",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "581": {
+      "name": "Tainted",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "582": {
+      "name": "Misshapen",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "583": {
+      "name": "Disfigured",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "584": {
+      "name": "Damned",
+      "family": "bighead1",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "585": {
+      "name": "Moon Clan",
+      "family": "goatman1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "586": {
+      "name": "Night Clan",
+      "family": "goatman1",
+      "physical": 1.4,
+      "elemental": 0.25,
+      "magic": 0.0
+    },
+    "587": {
+      "name": "Hell Clan",
+      "family": "goatman1",
+      "physical": 1.4,
+      "elemental": 0.3,
+      "magic": 0.0
+    },
+    "588": {
+      "name": "Blood Clan",
+      "family": "goatman1",
+      "physical": 1.4,
+      "elemental": 0.17,
+      "magic": 0.0
+    },
+    "589": {
+      "name": "Death Clan",
+      "family": "goatman1",
+      "physical": 1.4,
+      "elemental": 0.17,
+      "magic": 0.0
+    },
+    "590": {
+      "name": "Foul Crow",
+      "family": "foulcrow1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "591": {
+      "name": "Blood Hawk",
+      "family": "foulcrow1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "592": {
+      "name": "Black Raptor",
+      "family": "foulcrow1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "593": {
+      "name": "Cloud Stalker",
+      "family": "foulcrow1",
+      "physical": 1.4,
+      "elemental": 0.25,
+      "magic": 0.0
+    },
+    "594": {
+      "name": "Claw Viper",
+      "family": "clawviper1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "595": {
+      "name": "Pit Viper",
+      "family": "clawviper1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "596": {
+      "name": "Salamander",
+      "family": "clawviper1",
+      "physical": 0.6,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "597": {
+      "name": "Tomb Viper",
+      "family": "clawviper1",
+      "physical": 0.6,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "598": {
+      "name": "Serpent Magus",
+      "family": "clawviper1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "599": {
+      "name": "Marauder",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.3,
+      "magic": 0.0
+    },
+    "600": {
+      "name": "Infidel",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.3,
+      "magic": 0.0
+    },
+    "601": {
+      "name": "Sand Raider",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.3,
+      "magic": 0.0
+    },
+    "602": {
+      "name": "Invader",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.3,
+      "magic": 0.0
+    },
+    "603": {
+      "name": "Assailant",
+      "family": "sandraider1",
+      "physical": 1.4,
+      "elemental": 1.3,
+      "magic": 0.0
+    },
+    "604": {
+      "name": "Death Mauler",
+      "family": "deathmauler1",
+      "physical": 1.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "605": {
+      "name": "Quill Rat",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "606": {
+      "name": "Spike Fiend",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "607": {
+      "name": "Razor Spine",
+      "family": "quillrat1",
+      "physical": 0.5,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "608": {
+      "name": "Carrion Bird",
+      "family": "vulture1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "609": {
+      "name": "Thorned Hulk",
+      "family": "thornhulk1",
+      "physical": 1.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "610": {
+      "name": "Slinger",
+      "family": "slinger1",
+      "physical": 0.8,
+      "elemental": 0.6,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "611": {
+      "name": "Slinger",
+      "family": "slinger1",
+      "physical": 0.8,
+      "elemental": 0.6,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "612": {
+      "name": "Slinger",
+      "family": "slinger1",
+      "physical": 0.8,
+      "elemental": 0.6,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "613": {
+      "name": "Vile Archer",
+      "family": "cr_archer1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.6,
+      "ranged": true
+    },
+    "614": {
+      "name": "Dark Archer",
+      "family": "cr_archer1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.6,
+      "ranged": true
+    },
+    "615": {
+      "name": "Vile Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "616": {
+      "name": "Dark Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "617": {
+      "name": "Black Lancer",
+      "family": "cr_lancer1",
+      "physical": 1.3,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "618": {
+      "name": "Blunderbore",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "619": {
+      "name": "Mauler",
+      "family": "blunderbore1",
+      "physical": 1.55,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "620": {
+      "name": "Returned Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.75,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "621": {
+      "name": "Burning Dead Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.75,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "622": {
+      "name": "Returned Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "623": {
+      "name": "Horror Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "624": {
+      "name": "Bone Mage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "625": {
+      "name": "Horror Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "626": {
+      "name": "Horror Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "627": {
+      "name": "Huntress",
+      "family": "pantherwoman1",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "628": {
+      "name": "Saber Cat",
+      "family": "pantherwoman1",
+      "physical": 0.9,
+      "elemental": 0.09,
+      "magic": 0.0
+    },
+    "629": {
+      "name": "Cave Leaper",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 1.32,
+      "magic": 0.0
+    },
+    "630": {
+      "name": "Tomb Creeper",
+      "family": "sandleaper1",
+      "physical": 1.2,
+      "elemental": 1.32,
+      "magic": 0.0
+    },
+    "631": {
+      "name": "Ghost",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "632": {
+      "name": "Wraith",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "633": {
+      "name": "Specter",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "634": {
+      "name": "Succubus",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "635": {
+      "name": "Hell Temptress",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true
+    },
+    "636": {
+      "name": "Siren",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "637": {
+      "name": "Hell Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "638": {
+      "name": "Vile Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.9,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "639": {
+      "name": "Gloam",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "640": {
+      "name": "Black Soul",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "641": {
+      "name": "Burning Soul",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "642": {
+      "name": "Carver",
+      "family": "fallen1",
+      "physical": 0.9,
+      "elemental": 0.12,
+      "magic": 0.0
+    },
+    "643": {
+      "name": "Devilkin",
+      "family": "fallen1",
+      "physical": 0.9,
+      "elemental": 0.18,
+      "magic": 0.0
+    },
+    "644": {
+      "name": "Dark One",
+      "family": "fallen1",
+      "physical": 0.9,
+      "elemental": 0.14,
+      "magic": 0.0
+    },
+    "645": {
+      "name": "Carver Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.12,
+      "magic": 0.0
+    },
+    "646": {
+      "name": "Devilkin Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.18,
+      "magic": 0.0
+    },
+    "647": {
+      "name": "Dark Shaman",
+      "family": "fallenshaman1",
+      "physical": 0.9,
+      "elemental": 0.14,
+      "magic": 0.0
+    },
+    "648": {
+      "name": "Bone Warrior",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.72,
+      "magic": 0.0
+    },
+    "649": {
+      "name": "Returned",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.72,
+      "magic": 0.0
+    },
+    "650": {
+      "name": "Gloombat",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 2.04,
+      "magic": 0.0
+    },
+    "651": {
+      "name": "Fiend",
+      "family": "batdemon1",
+      "physical": 1.15,
+      "elemental": 2.04,
+      "magic": 0.0
+    },
+    "652": {
+      "name": "Moon Lord",
+      "family": "bloodlord1",
+      "physical": 1.5,
+      "elemental": 0.5,
+      "magic": 0.0
+    },
+    "653": {
+      "name": "Hell Lord",
+      "family": "bloodlord1",
+      "physical": 1.5,
+      "elemental": 0.6,
+      "magic": 0.0
+    },
+    "654": {
+      "name": "Scarab",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.12,
+      "magic": 0.0
+    },
+    "655": {
+      "name": "Steel Scarab",
+      "family": "scarab1",
+      "physical": 1.1,
+      "elemental": 0.12,
+      "magic": 0.0
+    },
+    "656": {
+      "name": "Flayer",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "657": {
+      "name": "Stygian Doll",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "658": {
+      "name": "Soul Killer",
+      "family": "fetish1",
+      "physical": 0.95,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "659": {
+      "name": "Flayer",
+      "family": "fetishblow1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "660": {
+      "name": "Stygian Doll",
+      "family": "fetishblow1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "661": {
+      "name": "Soul Killer",
+      "family": "fetishblow1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "662": {
+      "name": "Flayer Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "663": {
+      "name": "Stygian Doll Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "664": {
+      "name": "Soul Killer Shaman",
+      "family": "fetishshaman1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "665": {
+      "name": "Temple Guard",
+      "family": "baboon1",
+      "physical": 1.1,
+      "elemental": 0.45,
+      "magic": 0.0
+    },
+    "666": {
+      "name": "Temple Guard",
+      "family": "baboon1",
+      "physical": 1.1,
+      "elemental": 0.45,
+      "magic": 0.0
+    },
+    "667": {
+      "name": "Guardian",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "668": {
+      "name": "Unraveler",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "669": {
+      "name": "Horadrim Ancient",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "670": {
+      "name": "Horadrim Ancient",
+      "family": "unraveler1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.4,
+      "ranged": true
+    },
+    "671": {
+      "name": "Zealot",
+      "family": "zealot1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "672": {
+      "name": "Zealot",
+      "family": "zealot1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "673": {
+      "name": "Hierophant",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "674": {
+      "name": "Hierophant",
+      "family": "cantor1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.85,
+      "ranged": true
+    },
+    "675": {
+      "name": "Grotesque",
+      "family": "vilemother1",
+      "physical": 1.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "676": {
+      "name": "Flesh Spawner",
+      "family": "vilemother1",
+      "physical": 1.0,
+      "elemental": 0.15,
+      "magic": 0.0
+    },
+    "677": {
+      "name": "Grotesque Wyrm",
+      "family": "vilechild1",
+      "physical": 0.7,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "678": {
+      "name": "Flesh Beast",
+      "family": "vilechild1",
+      "physical": 0.7,
+      "elemental": 0.03,
+      "magic": 0.0
+    },
+    "679": {
+      "name": "Blood Maggot",
+      "family": "sandmaggot1",
+      "physical": 1.1,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "680": {
+      "name": "Blood Maggot Young",
+      "family": "maggotbaby1",
+      "physical": 0.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "681": {
+      "name": "Blood Maggot Egg",
+      "family": "maggotegg1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "682": {
+      "name": "Slayer",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "683": {
+      "name": "Hell Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "684": {
+      "name": "Greater Hell Spawn",
+      "family": "minion1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "685": {
+      "name": "Arach",
+      "family": "arach1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "686": {
+      "name": "Balrog",
+      "family": "megademon1",
+      "physical": 1.2,
+      "elemental": 0.2,
+      "magic": 0.0
+    },
+    "687": {
+      "name": "Pit Lord",
+      "family": "megademon1",
+      "physical": 1.2,
+      "elemental": 0.2,
+      "magic": 0.0
+    },
+    "688": {
+      "name": "Demon Imp",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "689": {
+      "name": "Demon Trickster",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "690": {
+      "name": "Undead Stygian Doll",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "691": {
+      "name": "Undead Soul Killer",
+      "family": "bonefetish1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "692": {
+      "name": "Strangler",
+      "family": "fingermage1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "693": {
+      "name": "Storm Caster",
+      "family": "fingermage1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "694": {
+      "name": "Maw Fiend",
+      "family": "regurgitator1",
+      "physical": 1.45,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "695": {
+      "name": "Blood Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "696": {
+      "name": "Ghoul Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "697": {
+      "name": "Dark Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "698": {
+      "name": "Unholy Corpse",
+      "family": "reanimatedhorde1",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "699": {
+      "name": "Doom Knight",
+      "family": "doomknight1",
+      "physical": 1.5,
+      "elemental": 0.36,
+      "magic": 0.0
+    },
+    "700": {
+      "name": "Doom Knight",
+      "family": "doomknight1",
+      "physical": 1.5,
+      "elemental": 0.36,
+      "magic": 0.0
+    },
+    "701": {
+      "name": "Oblivion Knight",
+      "family": "doomknight3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.35,
+      "ranged": true,
+      "curses": [
+        "Decrepify"
+      ]
+    },
+    "702": {
+      "name": "Oblivion Knight",
+      "family": "doomknight3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.35,
+      "ranged": true,
+      "curses": [
+        "Decrepify"
+      ]
+    },
+    "703": {
+      "name": "Cadaver",
+      "family": "mummy1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "704": {
+      "name": "Mephisto",
+      "family": "mephisto",
+      "physical": 4.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "705": {
+      "name": "Diablo",
+      "family": "diablo",
+      "physical": 3.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "706": {
+      "name": "Izual",
+      "family": "izual",
+      "physical": 4.0,
+      "elemental": 0.8,
+      "magic": 0.0
+    },
+    "707": {
+      "name": "Lilith",
+      "family": "andariel",
+      "physical": 4.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "708": {
+      "name": "Duriel",
+      "family": "duriel",
+      "physical": 3.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "709": {
+      "name": "Baal",
+      "family": "baalcrab",
+      "physical": 3.8,
+      "elemental": 3.6,
+      "magic": 0.0
+    },
+    "710": {
+      "name": "Evil Demon Hut",
+      "family": "minionspawner1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "711": {
+      "name": "Dummy",
+      "family": "evilhole1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "712": {
+      "name": "Pit Lord",
+      "family": "megademon1",
+      "physical": 2.4,
+      "elemental": 0.2,
+      "magic": 0.0
+    },
+    "713": {
+      "name": "Oblivion Knight",
+      "family": "doomknight3",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 2.7,
+      "ranged": true,
+      "curses": [
+        "Decrepify"
+      ]
+    },
+    "714": {
+      "name": "Demon Trickster",
+      "family": "imp1",
+      "physical": 0.0,
+      "elemental": 1.4,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "715": {
+      "name": "Hell Swarm",
+      "family": "swarm1",
+      "physical": 1.3,
+      "elemental": 0.24,
+      "magic": 0.0
+    },
+    "716": {
+      "name": "Blood Maggot",
+      "family": "sandmaggot1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "717": {
+      "name": "Arach",
+      "family": "arach1",
+      "physical": 2.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "718": {
+      "name": "Steel Scarab",
+      "family": "scarab1",
+      "physical": 2.2,
+      "elemental": 0.12,
+      "magic": 0.0
+    },
+    "719": {
+      "name": "Hell Temptress",
+      "family": "succubus1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.8,
+      "ranged": true
+    },
+    "720": {
+      "name": "Vile Witch",
+      "family": "succubuswitch1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.8,
+      "ranged": true,
+      "curses": [
+        "Amplify Damage"
+      ]
+    },
+    "721": {
+      "name": "Flesh Hunter",
+      "family": "corruptrogue1",
+      "physical": 2.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "722": {
+      "name": "Dark Archer",
+      "family": "cr_archer1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.2,
+      "ranged": true
+    },
+    "723": {
+      "name": "Black Lancer",
+      "family": "cr_lancer1",
+      "physical": 2.6,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "724": {
+      "name": "Hell Whip",
+      "family": "overseer1",
+      "physical": 3.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "725": {
+      "name": "Returned",
+      "family": "skeleton1",
+      "physical": 1.05,
+      "elemental": 0.72,
+      "magic": 0.0
+    },
+    "726": {
+      "name": "Horror Archer",
+      "family": "sk_archer1",
+      "physical": 0.5,
+      "elemental": 0.8,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "727": {
+      "name": "Burning Dead Mage",
+      "family": "skmage_fire1",
+      "physical": 0.0,
+      "elemental": 1.75,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "728": {
+      "name": "Horror Mage",
+      "family": "skmage_ltng1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "729": {
+      "name": "Bone Mage",
+      "family": "skmage_cold1",
+      "physical": 0.0,
+      "elemental": 1.5,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "730": {
+      "name": "Horror Mage",
+      "family": "skmage_pois1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "731": {
+      "name": "Dark Lord",
+      "family": "vampire1",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 1.0,
+      "ranged": true
+    },
+    "732": {
+      "name": "Specter",
+      "family": "wraith1",
+      "physical": 1.05,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "733": {
+      "name": "Burning Soul",
+      "family": "willowisp1",
+      "physical": 0.0,
+      "elemental": 1.9,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "735": {
+      "name": "Hell Bovine",
+      "family": "hellbovine",
+      "physical": 1.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "736": {
+      "name": "Plague Bearer",
+      "family": "darkelder",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "738": {
+      "name": "dummy",
+      "family": "seagull",
+      "physical": 0.0,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "739": {
+      "name": "Berserker Slayer",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "740": {
+      "name": "Frenzied Hell Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "741": {
+      "name": "Insane Hell Spawn",
+      "family": "suicideminion1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "742": {
+      "name": "Goatman",
+      "family": "wargoatman",
+      "physical": 2.75,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "743": {
+      "name": "Tainted",
+      "family": "warbighead",
+      "physical": 0.0,
+      "elemental": 2.0,
+      "magic": 0.0,
+      "ranged": true
+    },
+    "744": {
+      "name": "Defiler",
+      "family": "warputriddefiler",
+      "physical": 0.9,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "745": {
+      "name": "Talic",
+      "family": "colossal1",
+      "physical": 3.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "746": {
+      "name": "Madawc",
+      "family": "colossal1",
+      "physical": 4.4,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "747": {
+      "name": "Korlic",
+      "family": "colossal1",
+      "physical": 3.8,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "748": {
+      "name": "Defender Spirit",
+      "family": "act5barb1",
+      "physical": 1.15,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "749": {
+      "name": "Guardian Spirit",
+      "family": "act5barb1",
+      "physical": 1.5,
+      "elemental": 0.0,
+      "magic": 0.0
+    },
+    "750": {
+      "name": "Protector Spirit",
+      "family": "act5barb2",
+      "physical": 1.2,
+      "elemental": 0.0,
+      "magic": 0.0
+    }
+  },
+  "auras": {
+    "98": {
+      "name": "Might",
+      "range": [
+        16,
+        2
+      ]
+    },
+    "108": {
+      "name": "Blessed Aim",
+      "range": [
+        16,
+        2
+      ]
+    },
+    "122": {
+      "name": "Fanaticism",
+      "range": [
+        11,
+        1
+      ]
+    },
+    "123": {
+      "name": "Conviction",
+      "range": [
+        20,
+        0
+      ]
+    },
+    "365": {
+      "name": "Holy Freeze",
+      "range": [
+        6,
+        1
+      ]
+    },
+    "368": {
+      "name": "Holy Fire",
+      "range": [
+        6,
+        1
+      ]
+    },
+    "369": {
+      "name": "Holy Shock",
+      "range": [
+        6,
+        1
+      ]
+    }
+  },
+  "modifiers": {
+    "5": "Extra Strong",
+    "6": "Extra Fast",
+    "7": "Cursed",
+    "8": "Magic Resistant",
+    "9": "Fire Enchanted",
+    "16": "Champion",
+    "17": "Lightning Enchanted",
+    "18": "Cold Enchanted",
+    "25": "Mana Burn",
+    "26": "Teleportation",
+    "27": "Spectral Hit",
+    "28": "Stone Skin",
+    "29": "Multiple Shots",
+    "30": "Aura Enchanted",
+    "36": "Ghostly",
+    "37": "Fanatic",
+    "38": "Possessed",
+    "39": "Berserker"
+  }
+}

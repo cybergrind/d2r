@@ -15,6 +15,9 @@ A handler's own marks win: a way out it already marks (by kind, or an entrance i
 trip with PoiSpec.warp) is not repeated, so its label and colour stand; a level its border gaps
 are waiting to name (ExitsHandler.exits) is left to them. The kind is a guess from the area
 numbers, which grow along the story: a lower-numbered level is the way back.
+
+Towns. A town marks only its way out to the wilderness (user, 2026-10-06): Lut Gholein's sewer
+ladders and the Harem were noise, its gate to the Rocky Waste is in one of two places.
 """
 
 import math
@@ -26,6 +29,10 @@ from inventory_tracking.levels.handler import Handler, instances
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Poi, Room
 from inventory_tracking.levels.presets import display_name, linked_level, warp_spots
 from inventory_tracking.levels.spots import WAYS_OUT
+
+
+# Town -> the levels worth an arrow from it: the first wilderness level of its act.
+TOWN_WAYS_OUT = {1: {2}, 40: {41}, 75: {76}, 103: {104}, 109: {110}}
 
 
 def origin(room: Room) -> tuple[int, int]:
@@ -95,4 +102,8 @@ def with_exits(guidance: Guidance, snapshot: LevelSnapshot, pending: Iterable[in
 def guide_level(handler: Handler | None, snapshot: LevelSnapshot) -> Guidance:
     """Everything to mark in a level: the handler's POIs (none without a handler) and the ways out."""
     guidance = handler.guide(snapshot) if handler is not None else Guidance()
-    return with_exits(guidance, snapshot, (exit_.area for exit_ in getattr(handler, 'exits', ())))
+    guidance = with_exits(guidance, snapshot, (exit_.area for exit_ in getattr(handler, 'exits', ())))
+    wanted = TOWN_WAYS_OUT.get(snapshot.location.area_id)
+    if wanted is None:
+        return guidance
+    return replace(guidance, pois=tuple(poi for poi in guidance.pois if poi.area in wanted))

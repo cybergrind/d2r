@@ -41,6 +41,7 @@ def alias_bases(generation):
 def superior_base(row):
     """Recognize only a clean superior signature, not arbitrary mislabeled affixes."""
     from pricing.triage.adapters import base_facets, bases_by_code
+    from pricing.triage.market_bases import clean_modifiers
 
     if row.get('category') != 'base' or row.get('rarity') != 'normal' or row.get('socket_contents') != 'empty':
         return False
@@ -49,18 +50,12 @@ def superior_base(row):
         return False
     facets = base_facets(row.get('properties', {}), 'normal', row.get('sockets'), 'empty', base=base)
     ed, modifiers = facets['base_ed'], facets['base_modifiers']
-    if type(ed) not in (int, float) or not 5 <= ed <= 15 or ed != int(ed) or modifiers is None or len(modifiers) > 1:
+    if type(ed) not in (int, float) or not 5 <= ed <= 15 or ed != int(ed) or modifiers is None:
         return False
-    allowed = {'937': (10, 15)}
-    if base['category'] == 'weapons':
-        allowed['423'] = (1, 3)
-    return all(
-        prop in allowed
-        and type(value) in (int, float)
-        and allowed[prop][0] <= value <= allowed[prop][1]
-        and value == int(value)
-        for prop, value in modifiers.items()
-    )
+    # Staffmods and inherent class automods remain legal on superior bases.
+    # Use the same native bounds as price admission, including the prohibition
+    # on all three weapon quality bonuses and on foreign/affixed modifiers.
+    return clean_modifiers({'rarity': 'superior', **facets}, base, {})
 
 
 def normalize(row):

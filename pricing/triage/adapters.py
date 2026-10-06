@@ -5,7 +5,7 @@ from functools import lru_cache
 from inventory_tracking.items.metadata import metadata, metadata_generation
 from pricing.knowledge.material_items import MATERIAL_POTIONS
 from pricing.knowledge.non_equipment_mechanics import BASE_NAMES, EXPECTED
-from pricing.triage.charm_modifiers import suffix
+from pricing.triage.charm_modifiers import poison_total, suffix
 from pricing.triage.listing_defaults import normalize as listing_defaults
 
 
@@ -17,6 +17,14 @@ def base_families(generation):
 @lru_cache(maxsize=2)
 def bases_by_code(generation):
     return {base['code']: base for base in metadata()['bases'].values()}
+
+
+@lru_cache(maxsize=2)
+def unique_bases_by_name(generation):
+    names = {}
+    for base in metadata()['bases'].values():
+        names.setdefault(base['name'].casefold(), []).append(base)
+    return {name: rows[0] for name, rows in names.items() if len(rows) == 1}
 
 
 def crafted_family(row):
@@ -90,6 +98,19 @@ def base_facets(properties, rarity, sockets, contents, *, base=None):
                 if properties[prop] != 0:
                     modifiers[prop] = properties[prop]
     ed = None if unreadable_enhancement else max(enhanced) if enhanced else 0 if rarity == 'normal' else None
+    if (
+        not enhanced
+        and rarity == 'superior'
+        and contents == 'empty'
+        and base.get('category') == 'weapons'
+        and type(properties.get('423')) is int
+        and 1 <= properties['423'] <= 3
+        and type(properties.get('937')) is int
+        and 10 <= properties['937'] <= 15
+    ):
+        # Native qualityitems.json row 5: att + dur%, with no third modifier.
+        # This pair proves zero ED; either bonus alone leaves ED unknown.
+        ed = 0
     return {
         'base_ed_grade': 'perfect' if ed == 15 else 'ordinary' if ed is not None and 0 <= ed < 15 else None,
         'base_modifiers': modifiers,
@@ -136,6 +157,8 @@ def from_drop(observation):
         # A verified zero-capacity base supplies mechanics, not a guess about capture flags.
         facets.update(sockets=0, socket_contents='empty')
     properties = expanded_properties(facts.properties)
+    if (poison := poison_total(facts)) is not None:
+        properties.setdefault('518', poison)
     if (level := required_level(facts)) is not None:
         properties['796'] = level
     defense = facts.stats.get('31:0', {})
@@ -195,6 +218,12 @@ def from_listing(row):
 
     row = listing_defaults(row)
     base = bases_by_code(metadata_generation()).get(row.get('base_code'), {})
+    if (
+        not row.get('base_code')
+        and row['category'] == 'base'
+        and (not row.get('base_name') or row['base_name'].casefold() == row['name'].casefold())
+    ):
+        base = unique_bases_by_name(metadata_generation()).get(row['name'].casefold(), {})
     base_name = row.get('base_name') or base.get('name') or row['name']
     known_base = str(base_name).casefold() in base_families(metadata_generation())
     category = row.get('rarity') if row.get('rarity') in AFFIXED else row['category']
@@ -215,7 +244,7 @@ def from_listing(row):
         'ethereal': row.get('ethereal'),
         'sockets': row.get('sockets'),
         'base_name': base_name if known_base else None,
-        'base_code': row.get('base_code'),
+        'base_code': row.get('base_code') or base.get('code'),
         'quantity': row.get('amount', 1),
         'rarity': row.get('rarity'),
         'socket_contents': row.get('socket_contents'),

@@ -440,3 +440,45 @@ def test_completed_runewords_calibrate_filled_recipe_sockets_without_mixing_base
     assert lookup(item | {'base_code': 'sword'}, models, keep_ist=0.25)['reference_band']['q1_ist'] == 10
     for changes in ({'base_code': None}, {'ethereal': True}, {'sockets': 3}, {'socket_contents': 'empty'}):
         assert lookup(item | changes, models, keep_ist=0.25) is None
+
+
+def split_cohort():
+    """Ten sellers at each of two skill rolls, the better roll asking four times as much."""
+    rows = []
+    for i in range(20):
+        r = listing(i, 0.5 if i < 10 else 2)
+        r.update(ethereal=False, socket_contents='empty')
+        r['properties']['skill'] = (2 if i % 2 else 1) if i < 10 else 3
+        rows.append(r)
+    return rows
+
+
+def test_price_split_roll_has_one_cell_per_side_of_the_boundary():
+    from pricing.triage.roll_comparisons import price_split_stats
+
+    ranges = {'skill': {'min': 1, 'max': 3, 'better': 'higher', 'label': 'Skill'}}
+    deciding = price_split_stats(split_cohort(), ranges, {})
+    assert deciding['skill']['price_split'] == 3
+    model = compile_model(MODEL | {'deciding': deciding}, split_cohort())
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'properties': {'skill': 1},
+    }
+    low = lookup(item, [model], keep_ist=0.25)
+    assert (low['band']['q1_ist'], low['band']['sellers']) == (0.5, 10)
+    assert lookup(item | {'properties': {'skill': 2}}, [model], keep_ist=0.25)['band'] == low['band']
+    assert lookup(item | {'properties': {'skill': 3}}, [model], keep_ist=0.25)['band']['sellers'] == 20
+    assert lookup(item | {'properties': {}}, [model], keep_ist=0.25) is None
+
+
+def test_price_split_needs_a_held_out_gain_over_the_name_median():
+    from pricing.triage.roll_comparisons import price_split_stats
+
+    rows = split_cohort()
+    for i, row in enumerate(rows):
+        row['ask_ist'] = 1 + i % 3  # asks unrelated to the roll
+    ranges = {'skill': {'min': 1, 'max': 3, 'better': 'higher', 'label': 'Skill'}}
+    assert price_split_stats(rows, ranges, {}) == {}

@@ -151,3 +151,27 @@ def test_jewel_required_level_comes_from_verified_affixes_not_item_level():
             }
         )
         assert '796' not in adjusted['properties']
+
+
+@pytest.mark.parametrize(('rate', 'frames', 'total'), [(299, 150, 175), (385, 300, 451)])
+def test_poison_charm_native_rates_reach_trade_pattern(rate, frames, total):
+    from inventory_tracking.items.metadata import decode_stats
+    from pricing.triage.engine import assess
+    from pricing.triage.import_affixed_rules import affixed_rules
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Small Charm')
+    captured = observation(base['code'], rarity='magic', identified=True)
+    raw = [{'id': stat, 'layer': 0, 'raw': value} for stat, value in [(57, rate), (58, rate), (59, frames), (326, 1)]]
+    decoded, affixes, _ = decode_stats(raw, base=base)
+    captured['decoded_stats'] = decoded
+    captured['item']['affixes'] = affixes
+    item = from_drop(captured)
+    assert item['properties']['518'] == total
+    result = assess(item, {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}})
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    # Missing duration/source evidence must not be inferred from rate alone.
+    for missing in (59, 326):
+        decoded, affixes, _ = decode_stats([r for r in raw if r['id'] != missing], base=base)
+        captured['decoded_stats'], captured['item']['affixes'] = decoded, affixes
+        assert '518' not in from_drop(captured)['properties']

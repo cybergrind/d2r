@@ -1,4 +1,4 @@
-"""XTest key injection over ctypes. Libraries load once; each send opens one display connection."""
+"""XTest key and pointer injection over ctypes. Libraries load once; each send opens one display connection."""
 
 import ctypes
 import time
@@ -25,6 +25,10 @@ class KeyConnection(Protocol):
     def press(self, key: int) -> bool: ...
     def release(self, key: int) -> bool: ...
     def sync(self) -> None: ...
+    def focused_window_rect(self) -> tuple[int, int, int, int] | None: ...
+    def pointer(self) -> tuple[int, int] | None: ...
+    def move_pointer(self, x: int, y: int) -> bool: ...
+    def button(self, button: int, down: bool) -> bool: ...
 
 
 class Keyboard(Protocol):
@@ -142,6 +146,58 @@ class X11Connection:
     def sync(self) -> None:
         self.x11.XSync(self.display, 0)
 
+    def focused_window_rect(self) -> tuple[int, int, int, int] | None:
+        """(x, y, width, height) of the focused window in root coordinates, the space pointer
+        events use; None when no client window has the focus."""
+        window, revert = ctypes.c_ulong(), ctypes.c_int()
+        self.x11.XGetInputFocus(self.display, ctypes.byref(window), ctypes.byref(revert))
+        if window.value in (0, 1):
+            return None
+        root, child = ctypes.c_ulong(), ctypes.c_ulong()
+        x, y = ctypes.c_int(), ctypes.c_int()
+        width, height, border, depth = ctypes.c_uint(), ctypes.c_uint(), ctypes.c_uint(), ctypes.c_uint()
+        if not self.x11.XGetGeometry(
+            self.display,
+            window.value,
+            ctypes.byref(root),
+            ctypes.byref(x),
+            ctypes.byref(y),
+            ctypes.byref(width),
+            ctypes.byref(height),
+            ctypes.byref(border),
+            ctypes.byref(depth),
+        ):
+            return None
+        if not self.x11.XTranslateCoordinates(
+            self.display, window.value, root.value, 0, 0, ctypes.byref(x), ctypes.byref(y), ctypes.byref(child)
+        ):
+            return None
+        return x.value, y.value, width.value, height.value
+
+    def pointer(self) -> tuple[int, int] | None:
+        """Pointer position in root coordinates."""
+        root, child = ctypes.c_ulong(), ctypes.c_ulong()
+        x, y, inner_x, inner_y = ctypes.c_int(), ctypes.c_int(), ctypes.c_int(), ctypes.c_int()
+        mask = ctypes.c_uint()
+        found = self.x11.XQueryPointer(
+            self.display,
+            self.x11.XDefaultRootWindow(self.display),
+            ctypes.byref(root),
+            ctypes.byref(child),
+            ctypes.byref(x),
+            ctypes.byref(y),
+            ctypes.byref(inner_x),
+            ctypes.byref(inner_y),
+            ctypes.byref(mask),
+        )
+        return (x.value, y.value) if found else None
+
+    def move_pointer(self, x: int, y: int) -> bool:
+        return bool(self.xtst.XTestFakeMotionEvent(self.display, -1, x, y, 0))
+
+    def button(self, button: int, down: bool) -> bool:
+        return bool(self.xtst.XTestFakeButtonEvent(self.display, button, int(down), 0))
+
 
 class X11Keyboard:
     """Loads libX11/libXtst lazily and declares their signatures once per process."""
@@ -195,6 +251,35 @@ class X11Keyboard:
         x11.XSetErrorHandler.argtypes = [ctypes.c_void_p]
         x11.XSetErrorHandler.restype = ctypes.c_void_p
         xtst.XTestFakeKeyEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_int, ctypes.c_ulong]
+        pointers = [ctypes.POINTER(ctypes.c_int)] * 2
+        sizes = [ctypes.POINTER(ctypes.c_uint)] * 4
+        window = ctypes.POINTER(ctypes.c_ulong)
+        x11.XGetGeometry.argtypes = [ctypes.c_void_p, ctypes.c_ulong, window, *pointers, *sizes]
+        x11.XGetGeometry.restype = ctypes.c_int
+        x11.XTranslateCoordinates.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_ulong,
+            ctypes.c_ulong,
+            ctypes.c_int,
+            ctypes.c_int,
+            *pointers,
+            window,
+        ]
+        x11.XTranslateCoordinates.restype = ctypes.c_int
+        x11.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+        x11.XDefaultRootWindow.restype = ctypes.c_ulong
+        x11.XQueryPointer.argtypes = [
+            ctypes.c_void_p,
+            ctypes.c_ulong,
+            window,
+            window,
+            *pointers,
+            *pointers,
+            ctypes.POINTER(ctypes.c_uint),
+        ]
+        x11.XQueryPointer.restype = ctypes.c_int
+        xtst.XTestFakeMotionEvent.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_ulong]
+        xtst.XTestFakeButtonEvent.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_int, ctypes.c_ulong]
         return x11, xtst
 
     @contextmanager

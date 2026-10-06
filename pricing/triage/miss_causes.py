@@ -4,6 +4,8 @@ from collections import Counter, defaultdict
 
 
 def cause(item, result, tables):
+    if result.get('verdict') == 'self':
+        return 'own_use_only'
     if result.get('sale_mode') == 'accumulate':
         return 'save_for_bulk_lot'
     if result.get('roll_comparison'):
@@ -31,6 +33,13 @@ def cause(item, result, tables):
             return 'base_quality_conflicting'
         if item.get('base_modifiers') is None:
             return 'base_modifiers_unreadable'
+        from inventory_tracking.items.metadata import metadata_generation
+        from pricing.triage.adapters import bases_by_code
+        from pricing.triage.market_bases import clean_modifiers
+
+        base = bases_by_code(metadata_generation()).get(item.get('base_code'))
+        if base and not clean_modifiers(item, base, {}):
+            return 'base_native_modifiers_conflicting'
         from pricing.triage.engine import matches
         from pricing.triage.rule_index import candidates
 
@@ -38,7 +47,7 @@ def cause(item, result, tables):
         matched = any(r.get('bucket') and matches(item, r) for r in rows)
         return 'base_variant_price_missing' if matched else 'base_bucket_missing'
     if item['category'] in ('magic', 'rare', 'crafted'):
-        return 'own_use_only' if result['verdict'] == 'self' else 'no_paid_pattern'
+        return 'no_paid_pattern'
     return 'no_matched_price'
 
 

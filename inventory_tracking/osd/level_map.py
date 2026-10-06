@@ -10,6 +10,11 @@ Rooms never loaded are drawn slightly dimmer (`visited`, terror/tracker.py). Hos
 alive are dots at their last seen position: small toned-down red for plain mobs, larger bright
 magenta for a unique, champion or super unique, no rings (user, 2026-10-03: a dot per monster,
 since a tinted room hid where in a big room the pack was).
+A level too big for the card at a readable size is not shrunk to fit (user, 2026-10-06: Great
+Marsh was a speck): one that would fall below `WHOLE_SCALE` shows the part around the player at
+`LOCAL_SCALE` instead, and each of the level's own dots outside it is an arrowhead on the card's edge, towards it.
+That view is much more floor per pixel, so its rooms are fainter (`LOCAL_ALPHA`; user, 2026-10-06:
+too much colour over the game). `MapCard.whole` asks for the whole level anyway (Win+C, levels/guide.py).
 """
 
 import math
@@ -37,20 +42,33 @@ KIND_TONES = {
     'herald': Tone.HERALD,  # a live Herald (terror/tracker.py)
     'mob': Tone.MOB,  # a hostile monster alive (terror/tracker.py)
     'leader': Tone.MOB_LEADER,  # a unique, champion or super unique alive
+    'danger': Tone.MOB_DANGER,  # a monster of a deadly pack (terror/danger.py)
+    'caution': Tone.MOB_CAUTION,  # a monster of a pack to be careful with
+    'pack': Tone.MOB_DANGER,  # a deadly pack's centre: the ground arrow towards it, no dot of its own
 }
 KIND_COLOURS = {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()}
 POI_RADIUS = 5.5
-KIND_RADII = {'mob': 2.0, 'leader': 3.5, 'herald': POI_RADIUS}
+MONSTER_KINDS = frozenset(('mob', 'leader', 'herald', 'danger', 'caution', 'pack'))  # from terror/tracker.py
+KIND_RADII = {'mob': 2.0, 'caution': 3.0, 'leader': 3.5, 'danger': 3.5, 'herald': POI_RADIUS}
+MONSTER_ORDER = ('mob', 'caution', 'leader', 'danger')  # drawn in this order, under everything else
+
+# Card pixels per projected tile unit, at HUD scale 1 (the game view is about 190). A level is
+# drawn whole down to WHOLE_SCALE; a bigger one is drawn around the player at LOCAL_SCALE, where
+# the card spans a bit over two screens each way: enough to tell monsters apart.
+WHOLE_SCALE = 7.0
+LOCAL_SCALE = 12.0
+LOCAL_ALPHA = 0.55  # alpha factor for rooms and floor in the local view
+PIN_INSET = 9.0  # an edge arrowhead's tip stands this far inside the card
 
 UNVISITED_DIM = 0.82  # rgb factor for rooms never loaded; alpha drops a little too
 
 
-def room_fill(fill, visited: bool):
-    """A room's fill (rgba): slightly dimmer when never loaded."""
+def room_fill(fill, visited: bool, alpha: float = 1.0):
+    """A room's fill (rgba): slightly dimmer when never loaded; `alpha` scales its opacity."""
     r, g, b, a = fill
     if not visited:
         r, g, b, a = r * UNVISITED_DIM, g * UNVISITED_DIM, b * UNVISITED_DIM, a * 0.8
-    return r, g, b, a
+    return r, g, b, a * alpha
 
 
 @dataclass(frozen=True)
@@ -72,6 +90,7 @@ class MapCard:
     walkable: tuple[tuple[int, int, int, int, str], ...] = ()  # x, y, w, h tiles, '1'/'0' per tile
     visited: tuple[int, ...] = ()  # per room: ever loaded 0/1; empty = unshaded
     live: tuple[int, int] | None = None  # (pid, player path address): the position's source (hud/live.py)
+    whole: bool = False  # draw the whole level however small, not the part around the player
 
     def to_payload(self) -> dict:
         return {
@@ -84,6 +103,7 @@ class MapCard:
                 'walkable': [list(grid) for grid in self.walkable],
                 'visited': list(self.visited),
                 'live': list(self.live) if self.live else None,
+                'whole': self.whole,
             }
         }
 
@@ -105,29 +125,95 @@ class MapCard:
             live = (int(live[0]), int(live[1])) if live else None
         except (KeyError, TypeError, ValueError) as exc:
             raise ValueError('Invalid map payload') from exc
-        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live)
+        return cls(rooms, (px, py), pois, route, kinds, walkable, visited, live, bool(data.get('whole', False)))
 
 
 def project(x: float, y: float) -> tuple[float, float]:
     return x - y, (x + y) / 2
 
 
-def fit(card: MapCard, width: float, height: float, *, margin: float = 10):
-    """Map-plane (x, y) → pixel transform that fits every room corner and dot in the box."""
+def fit(
+    card: MapCard, width: float, height: float, *, margin: float = 10, min_scale: float = 0.0, local_scale: float = 0.0
+):
+    """Map-plane (x, y) → pixel transform that fits every room corner, the player and the level's
+    own dots in the box. Monster dots do not count: one with a wrong position must not shrink the map.
+
+    A level that would be drawn below `min_scale` (pixels per projected unit) is drawn at
+    `local_scale` instead (at least `min_scale`), with the player in the middle; the view stops
+    at the level's edge, so the card never shows more empty space than the fitted map would.
+    `card.whole` keeps the whole level."""
+    return _layout(card, width, height, margin, min_scale, local_scale)[0]
+
+
+def _layout(card: MapCard, width, height, margin, min_scale, local_scale):
+    """(transform, local): `fit`'s transform and whether it is the view around the player."""
     points = [(x + dx, y + dy) for x, y, w, h in card.rooms for dx in (0, w) for dy in (0, h)]
-    points += [card.player, *((p.x, p.y) for p in card.pois)]
+    points += [card.player, *((p.x, p.y) for p in card.pois if p.kind not in MONSTER_KINDS)]
     projected = [project(x, y) for x, y in points]
     min_x, max_x = min(p[0] for p in projected), max(p[0] for p in projected)
     min_y, max_y = min(p[1] for p in projected), max(p[1] for p in projected)
     scale = min((width - 2 * margin) / max(max_x - min_x, 1e-9), (height - 2 * margin) / max(max_y - min_y, 1e-9))
-    offset_x = (width - (max_x - min_x) * scale) / 2
-    offset_y = (height - (max_y - min_y) * scale) / 2
+    local = scale < min_scale and not card.whole
+    if local:
+        scale = max(min_scale, local_scale)
+    player_x, player_y = project(*card.player)
+
+    def offset(size: float, low: float, high: float, player: float) -> float:
+        extent = (high - low) * scale
+        if extent <= size - 2 * margin + 1e-9:
+            return (size - extent) / 2
+        return min(margin, max(size - margin - extent, size / 2 - (player - low) * scale))
+
+    offset_x = offset(width, min_x, max_x, player_x)
+    offset_y = offset(height, min_y, max_y, player_y)
 
     def transform(x: float, y: float) -> tuple[float, float]:
         sx, sy = project(x, y)
         return offset_x + (sx - min_x) * scale, offset_y + (sy - min_y) * scale
 
-    return transform
+    return transform, local
+
+
+def pin(origin, point, width: float, height: float, inset: float = PIN_INSET):
+    """(x, y, pinned): `point`, or where the line to it from `origin` (inside the box) leaves the
+    box shrunk by `inset`."""
+    (ox, oy), (x, y) = origin, point
+    if inset <= x <= width - inset and inset <= y <= height - inset:
+        return x, y, False
+    reach = 1.0
+    for start, end, size in ((ox, x, width), (oy, y, height)):
+        if end > size - inset:
+            reach = min(reach, (size - inset - start) / (end - start))
+        elif end < inset:
+            reach = min(reach, (inset - start) / (end - start))
+    reach = max(reach, 0.0)
+    return ox + (x - ox) * reach, oy + (y - oy) * reach, True
+
+
+def _arrowhead(cr, x, y, angle, colour, length=13.0, half_width=6.0):
+    """A triangle with its tip at (x, y), pointing along `angle`."""
+    cr.save()
+    cr.translate(x, y)
+    cr.rotate(angle)
+    cr.move_to(0, 0)
+    cr.line_to(-length, -half_width)
+    cr.line_to(-length, half_width)
+    cr.close_path()
+    cr.restore()
+    cr.set_source_rgba(*colour, 1)
+    cr.fill_preserve()
+    cr.set_source_rgba(0.1, 0.1, 0.1, 1)
+    cr.set_line_width(1.5)
+    cr.stroke()
+
+
+def _outside(corners, width, height) -> bool:
+    return (
+        all(x < 0 for x, _ in corners)
+        or all(x > width for x, _ in corners)
+        or all(y < 0 for _, y in corners)
+        or all(y > height for _, y in corners)
+    )
 
 
 def _dot(cr, x, y, radius, fill, ring):
@@ -171,31 +257,43 @@ def _draw_tiles(cr, transform, x, y, w, h, cells, floor=FLOOR):
             start = end
 
 
-def draw_map(cr, width: float, height: float, card: MapCard):
-    """No background (user, 2026-09-30): the game shows around the level and through rock."""
+def draw_map(cr, width: float, height: float, card: MapCard, *, min_scale: float = 0.0, local_scale: float = 0.0):
+    """No background (user, 2026-09-30): the game shows around the level and through rock.
+    `min_scale`, `local_scale`: see `fit`; what falls outside the card is not drawn."""
     if not card.rooms:
         return
-    transform = fit(card, width, height)
+    transform, local = _layout(card, width, height, 10, min_scale, local_scale)
+    alpha = LOCAL_ALPHA if local else 1.0
+    cr.save()
+    cr.rectangle(0, 0, width, height)
+    cr.clip()
     cr.set_line_width(1)
     walled = {(x, y, w, h) for x, y, w, h, _ in card.walkable}
     visited = dict(zip(card.rooms, card.visited, strict=True)) if len(card.visited) == len(card.rooms) else {}
+
+    def corners_of(x, y, w, h):
+        return [transform(x, y), transform(x + w, y), transform(x + w, y + h), transform(x, y + h)]
+
     for index, (x, y, w, h) in enumerate(card.rooms):
         if (x, y, w, h) in walled:
             continue  # its walkable tiles are drawn instead; rock stays transparent
+        corners = corners_of(x, y, w, h)
+        if _outside(corners, width, height):
+            continue
         kind = card.room_kinds[index] if index < len(card.room_kinds) else 'room'
         fill, outline = ROOM_STYLES.get(kind, ROOM_STYLES['room'])
-        fill = room_fill(fill, bool(visited.get((x, y, w, h), 1)))
-        corners = [transform(x, y), transform(x + w, y), transform(x + w, y + h), transform(x, y + h)]
+        fill = room_fill(fill, bool(visited.get((x, y, w, h), 1)), alpha)
         cr.move_to(*corners[0])
         for corner in corners[1:]:
             cr.line_to(*corner)
         cr.close_path()
         cr.set_source_rgba(*fill)
         cr.fill_preserve()
-        cr.set_source_rgba(*outline)
+        cr.set_source_rgba(*outline[:3], outline[3] * alpha)
         cr.stroke()
     for x, y, w, h, cells in card.walkable:
-        _draw_tiles(cr, transform, x, y, w, h, cells, room_fill(FLOOR, bool(visited.get((x, y, w, h), 1))))
+        if not _outside(corners_of(x, y, w, h), width, height):
+            _draw_tiles(cr, transform, x, y, w, h, cells, room_fill(FLOOR, bool(visited.get((x, y, w, h), 1)), alpha))
     if len(card.route) >= 2:
         cr.move_to(*transform(*card.route[0]))
         for point in card.route[1:]:
@@ -205,14 +303,26 @@ def draw_map(cr, width: float, height: float, card: MapCard):
         cr.set_dash([4, 3])
         cr.stroke()
         cr.set_dash([])
+    player = transform(*card.player)
     # Monsters under the level's POIs, so a pack never hides the way on.
-    for poi in sorted(card.pois, key=lambda poi: poi.kind not in ('mob', 'leader')):
+    under = {kind: index for index, kind in enumerate(MONSTER_ORDER)}
+    for poi in sorted(card.pois, key=lambda poi: under.get(poi.kind, len(under))):
+        if poi.kind == 'pack':
+            continue
         colour = KIND_COLOURS.get(poi.kind, KIND_COLOURS['target'])
         radius = KIND_RADII.get(poi.kind, POI_RADIUS)
-        if radius < POI_RADIUS:
-            cr.arc(*transform(poi.x, poi.y), radius, 0, 2 * math.pi)
+        x, y = transform(poi.x, poi.y)
+        if poi.kind in MONSTER_KINDS:
+            pinned = False  # a monster out of the card is not this card's business
+        else:
+            x, y, pinned = pin(player, (x, y), width, height)
+        if pinned:
+            _arrowhead(cr, x, y, math.atan2(y - player[1], x - player[0]), colour)
+        elif radius < POI_RADIUS:
+            cr.arc(x, y, radius, 0, 2 * math.pi)
             cr.set_source_rgba(*colour, 1)
             cr.fill()
         else:
-            _dot(cr, *transform(poi.x, poi.y), radius, colour, (0.1, 0.1, 0.1))
-    _dot(cr, *transform(*card.player), 4.5, (1, 1, 1), (0.85, 0.2, 0.2))
+            _dot(cr, x, y, radius, colour, (0.1, 0.1, 0.1))
+    _dot(cr, *player, 4.5, (1, 1, 1), (0.85, 0.2, 0.2))
+    cr.restore()

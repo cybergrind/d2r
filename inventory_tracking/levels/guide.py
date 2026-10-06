@@ -8,7 +8,9 @@ per distinct message; an earlier DEBUG-only version failed invisibly (2026-09-30
 The card is the arrow line(s) plus a level map (levels/level_map.py). While it is shown,
 each poll re-reads only the player position and rebuilds both, so the dot and arrow follow.
 
-Win+C calls `press()`: a single press shows the card again from a fresh room and position read,
+Win+C calls `press()`: a single press on a shown card switches a big level between the view
+around the player and the whole level (osd/level_map.py; user, 2026-10-06); with no card up it
+shows the card again. Either way from a fresh room and position read,
 in any level (levels without a handler get the map and their ways out, levels/exits.py), waiting
 up to `lock_timeout` for the capture lock. Two presses within DOUBLE_PRESS seconds (hotkey
 timestamps) toggle a pinned card: it never
@@ -56,7 +58,7 @@ def pointer_lines(pointers: list[Pointer]) -> list[StyledLine]:
 
 
 MAX_REMEMBERED_LEVELS = 32
-DOUBLE_PRESS = 0.5  # seconds between two Win+C presses that toggle the pinned card
+DOUBLE_PRESS = 0.2  # seconds between two Win+C presses that toggle the pinned card (user, 2026-10-06)
 ROOMS_REFRESH = 3.0  # seconds between room re-reads while a card is shown (exits get their names)
 
 
@@ -93,6 +95,8 @@ class LevelGuide:
         self.lock_timeout = 1.0  # seconds show() may wait for the capture lock
         self.pinned = pinned
         self.last_press = None  # hotkey timestamp of an unpaired press
+        self.whole = False  # big levels: the whole level instead of the part around the player
+        self.switched = False  # the unpaired press switched `whole`: a double press takes it back
         # Walkable tiles of loaded rooms, remembered for the current level (called under the capture lock).
         # The library (levels/walls.py) draws rooms of already-seen layouts before they load.
         self.observe_walls, self.library = observe_walls, library
@@ -246,11 +250,19 @@ class LevelGuide:
         self.visible, self.expires = self._card(snapshot.location), self.clock() + self.seconds
 
     def press(self, requested_at: float) -> bool:
-        """Win+C. A double press toggles the pinned card; otherwise show it now. True if a card is up."""
+        """Win+C. A double press toggles the pinned card; a single one switches a shown card between
+        the view around the player and the whole level, or shows the card. True if a card is up."""
         double = self.last_press is not None and 0 <= requested_at - self.last_press <= DOUBLE_PRESS
         self.last_press = None if double else requested_at
         if not double:
+            self.switched = self.visible is not None
+            if self.switched:
+                self.whole = not self.whole
             return self.show()
+        if self.switched:  # the first press of the pair was not a view switch after all
+            self.whole, self.switched = not self.whole, False
+            if self.visible is not None and self.shown is not None:
+                self.visible = self._card(self.shown[0].location)
         self.pinned = not self.pinned
         LOG.info('Level guide: map %s', 'pinned' if self.pinned else 'unpinned')
         if not self.pinned:
@@ -290,7 +302,16 @@ class LevelGuide:
         pois = tuple(on_waypoint(poi, self.waypoints) for poi in pois)
         visited = self.visited_rooms(location.area_id) if self.visited_rooms is not None else None
         dots = self.map_dots(location.area_id) if self.map_dots is not None else ()
-        card = build_map(snapshot, pois, location, self.walls.values(), visited=visited, dots=dots, pid=self.source.pid)
+        card = build_map(
+            snapshot,
+            pois,
+            location,
+            self.walls.values(),
+            visited=visited,
+            dots=dots,
+            pid=self.source.pid,
+            whole=self.whole,
+        )
         return [*pointer_lines([pointer(poi, location) for poi in pois]), card]
 
     def dismiss(self):

@@ -181,6 +181,28 @@ def is_self(observation: dict[str, Any], own_fingerprint: str, placement) -> boo
     return (here.container, here.x, here.y) == (location.container, location.x, location.y)
 
 
+def same_unit(observation: dict[str, Any], record: ItemRecord) -> bool:
+    """The collection last saw this fingerprint on the very unit now assessed."""
+    mine = observation.get('source', {}).get('unit_id')
+    return mine is not None and mine == record.observation.get('source', {}).get('unit_id')
+
+
+def without_self(observation: dict[str, Any], rows: list) -> list:
+    """Drop the assessed item's own placement: the cell it lies in, else the one it was moved from.
+
+    A capture (closing the stash) records the item where it lay; carried elsewhere
+    afterwards, that placement stays open until the next capture and is still this item.
+    """
+    own_fingerprint = fingerprint(observation)
+    for index, (_, placement) in enumerate(rows):
+        if is_self(observation, own_fingerprint, placement):
+            return rows[:index] + rows[index + 1 :]
+    for index, (record, placement) in enumerate(rows):
+        if placement.fingerprint == own_fingerprint and same_unit(observation, record):
+            return rows[:index] + rows[index + 1 :]
+    return rows
+
+
 def connect_readonly(database: Path) -> sqlite3.Connection:
     connection = sqlite3.connect(f'file:{database}?mode=ro', uri=True, timeout=2)
     connection.row_factory = sqlite3.Row
@@ -204,8 +226,8 @@ def owned_copies(observation: dict[str, Any], database: Path | str) -> dict[str,
     new_rolls = variable_rolls(observation)
     copies = []
     relations: list[Relation] = []
-    for record, placement in rows:
-        if not same_item(observation, record) or is_self(observation, own_fingerprint, placement):
+    for record, placement in without_self(observation, rows):
+        if not same_item(observation, record):
             continue
         old_rolls = variable_rolls(record.observation)
         old_perfection = perfection(old_rolls)

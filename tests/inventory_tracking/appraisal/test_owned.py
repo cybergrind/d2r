@@ -116,6 +116,18 @@ def test_the_assessed_item_itself_is_not_a_copy(collection):
     assert owned['copies'][0]['identical']
 
 
+def test_the_assessed_item_moved_since_the_capture_is_not_a_copy(collection):
+    captured = unique(x=2, y=0)
+    captured['source']['unit_id'] = 77
+    database = collection(captured)
+    moved = copy.deepcopy(captured)
+    moved['source'].update(container={'page': 0, 'name': 'Main inventory'}, position=[4, 2])
+    assert owned_copies(moved, database)['count'] == 0
+    another = copy.deepcopy(moved)
+    another['source']['unit_id'] = 78
+    assert owned_copies(another, database)['count'] == 1
+
+
 def test_magic_items_match_on_the_same_kinds_of_stats(collection):
     def charm(life, x, *, skill=True):
         stats = [stat(7, 'maxhp', life, '+{{value}} to Life', 1, 45)]

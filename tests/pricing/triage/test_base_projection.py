@@ -116,3 +116,18 @@ def test_unreadable_enhancement_never_becomes_zero_or_a_known_modifier_signature
         assert base_facets({prop: 0}, 'normal', 4, 'empty', base=base)['base_ed'] == 0
     unknown_base = base_facets({'425': 15, '510': None}, 'normal', 4, 'empty')
     assert unknown_base['base_ed'] is None
+
+
+def test_superior_weapon_attack_rating_and_durability_exclude_damage_bonus():
+    # Native qualityitems.json row 5 is att + dur%; no row has three modifiers.
+    base = {'category': 'weapons'}
+    props = {'423': 3, '937': 15}
+    assert base_facets(props, 'superior', 4, 'empty', base=base)['base_ed'] == 0
+    for changed, rarity, contents, kind in [
+        ({'423': 3}, 'superior', 'empty', base),
+        ({'937': 15}, 'superior', 'empty', base),
+        (props, 'superior', 'filled', base),
+        (props, 'superior', 'empty', {'category': 'armor'}),
+        (props | {'510': None}, 'superior', 'empty', base),
+    ]:
+        assert base_facets(changed, rarity, 4, contents, base=kind)['base_ed'] is None

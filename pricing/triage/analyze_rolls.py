@@ -9,7 +9,7 @@ from pricing.knowledge.assessment.adapters.market_projection import market_prope
 from pricing.triage.adapters import expanded_properties
 from pricing.triage.bands import eligible, latest_rows
 from pricing.triage.build import ROOT, market_rows
-from pricing.triage.roll_comparisons import deciding_stats, leave_one_out
+from pricing.triage.roll_comparisons import deciding_stats, leave_one_out, price_split_stats
 
 
 SKILL_LABEL = re.compile(r'^\+\{\{value\}\} to (.+) \([^()]+ Only\)$')
@@ -135,6 +135,9 @@ def analyze(rows, definitions, game, *, coarse=False, guide_rules=()):
             if not cohort or not cohort_ranges:
                 continue
             deciding = deciding_stats(cohort, cohort_ranges, minimum_sellers=1)
+            if not runeword:
+                # A runeword's asks also vary with its base; a split there measured worse in replay.
+                deciding |= price_split_stats(cohort, cohort_ranges, deciding)
             for rule in guide_rules:
                 if rule['name'].casefold() != definition['name'].casefold() or rule['ethereal'] is not ethereal:
                     continue

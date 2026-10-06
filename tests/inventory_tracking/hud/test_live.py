@@ -105,3 +105,18 @@ def test_the_time_since_entering_restarts_with_another_level_and_not_with_moving
     assert entrance.age({**here, 'level': 12}, 102.0) == 0.0
     assert entrance.age(None, 103.0) is None  # the marks are hidden: shown again, they start over
     assert entrance.age({**here, 'level': 12}, 104.0) == 0.0
+
+
+def test_the_map_card_player_follows_the_live_position():
+    card = {'lines': [], 'map': {'map': {'rooms': [[0, 0, 8, 8]], 'player': [20.0, 30.0], 'pois': []}}}
+    boxes = [
+        (Widget('map', 'guide', 'map', card), (0, 0, 400, 300)),
+        (Widget('rows', 'guide', 'guide', {'lines': []}), (0, 0, 1, 1)),
+    ]
+
+    moved = follow(boxes, {**payload(), 'player': [20.6, 29.8]})
+
+    assert moved[0][0].payload['map']['map']['player'] == [20.6, 29.8]
+    assert moved[0][0].payload['map']['map']['rooms'] == [[0, 0, 8, 8]]
+    assert card['map']['map']['player'] == [20.0, 30.0]
+    assert moved[1] == boxes[1]

@@ -2,7 +2,14 @@
 
 import struct
 
-from inventory_tracking.terror.monsters import Monster, level_entry, loaded_rooms, monster_units, player_level
+from inventory_tracking.terror.monsters import (
+    Monster,
+    level_entry,
+    loaded_rooms,
+    monster_units,
+    player_level,
+    player_life,
+)
 
 
 TABLE = 0x100000
@@ -144,3 +151,20 @@ def test_the_player_level_is_stat_12_of_the_player_unit():
 
     struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
     assert player_level(memory.read, TABLE) is None
+
+
+def test_the_player_life_is_stats_6_and_7_of_the_full_list_in_whole_points():
+    memory = Memory()
+    address, stat_block = 0x700000, 0x710000
+    header = memory.block(address, 0x160)
+    struct.pack_into('<IIII', header, 0, 0, 7, 1, 1)
+    struct.pack_into('<Q', header, 0x88, stat_block)
+    full = bytearray(16)
+    stat_list(memory, full, stat_block + 0x200, [(6, 812 << 8), (7, 1450 << 8)])
+    memory.block(stat_block, 0x100)[0xE8:0xF8] = full
+    struct.pack_into('<Q', memory.block(TABLE, 1024), 1 * 8, address)
+
+    assert player_life(memory.read, TABLE) == (812, 1450)
+
+    struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
+    assert player_life(memory.read, TABLE) is None

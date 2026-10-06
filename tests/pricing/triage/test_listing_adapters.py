@@ -22,3 +22,23 @@ def test_listing_score_groups_rare_equipment_by_actual_quality():
 
 def test_unknown_name_does_not_get_a_guessed_family():
     assert from_listing(listing(1))['family'] is None
+
+
+def test_exact_base_name_supplies_native_shield_metadata_when_code_is_absent():
+    from inventory_tracking.items.metadata import metadata
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Sacred Rondache')
+    row = listing(1) | {'name': base['name'], 'category': 'base', 'rarity': 'normal', 'sockets': 4}
+    row['properties'].update({'510': 65, '423': 121, '399': 150})
+    item = from_listing(row)
+    assert item['base_code'] == base['code']
+    assert item['base_ed'] == 0
+    assert item['base_modifiers'] == {'510': 65, '423': 121}
+    # Do not use a named unique's display title or repair an explicit unknown code.
+    assert from_listing(row | {'base_code': 'unverified'})['base_code'] == 'unverified'
+    assert from_listing(row | {'name': 'Unknown Shield'})['base_code'] is None
+    assert from_listing(row | {'name': 'HoZ', 'category': 'uniques', 'rarity': 'unique'})['base_code'] is None
+    assert from_listing(row | {'base_name': 'Sacred Targe'})['base_code'] is None
+    duplicates = [b for b in metadata()['bases'].values() if b['name'] == 'Ancient Shield']
+    assert len(duplicates) > 1
+    assert from_listing(row | {'name': 'Ancient Shield'})['base_code'] is None

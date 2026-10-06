@@ -21,7 +21,7 @@ from inventory_tracking.config import HUD, OSD  # ruff: ignore[module-import-not
 from inventory_tracking.hud.ground import arrow_reach, arrow_shown, ground_marks, place_mark  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.osd.level_map import KIND_COLOURS, MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.osd.level_map import KIND_COLOURS, LOCAL_SCALE, WHOLE_SCALE, MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.presentation import StyledLine, render_markup, tone_rgb  # ruff: ignore[module-import-not-at-top-of-file]
 
 
@@ -112,7 +112,14 @@ class GuideCard:
         if card is not None:
             cr.save()
             cr.translate(pad, y if lines else pad)
-            draw_map(cr, MAP_SIZE[0] * scale, MAP_SIZE[1] * scale, card)
+            draw_map(
+                cr,
+                MAP_SIZE[0] * scale,
+                MAP_SIZE[1] * scale,
+                card,
+                min_scale=WHOLE_SCALE * scale,
+                local_scale=LOCAL_SCALE * scale,
+            )
             cr.restore()
 
 
@@ -156,6 +163,7 @@ class GroundMarks:
     # Pointing along +x: head, then the shaft, as fractions of ARROW.
     ARROW_SHAPE = ((1, 0), (0.05, -0.8), (0.05, -0.3), (-1, -0.3), (-1, 0.3), (0.05, 0.3), (0.05, 0.8))
     FILL = 0.3  # of the outline's alpha
+    DANGER_FILL = 0.8  # a deadly pack's monsters stand on a filled mark (user, 2026-10-06)
 
     def measure(self, payload, scale, limit=None):
         return limit or (0, 0)  # the whole game window; nothing without one
@@ -170,6 +178,8 @@ class GroundMarks:
             sx, sy, on_screen = place_mark(x - px, y - py, width, height, config, reach)
             if not (on_screen or arrow_shown(kind, x - px, y - py, config)):
                 continue
+            if on_screen and kind == 'pack':
+                continue  # its monsters carry their own marks; the pack is only an arrow from afar
             cr.save()
             cr.translate(sx, sy)
             if not on_screen:
@@ -186,9 +196,9 @@ class GroundMarks:
                 cr.stroke()
                 continue
             cr.scale(1, 0.5)  # a circle on the floor, seen isometrically
-            cr.arc(0, 0, (self.LEADER_RADIUS if kind == 'leader' else self.RADIUS) * scale, 0, 2 * math.pi)
+            cr.arc(0, 0, (self.LEADER_RADIUS if kind in ('leader', 'danger') else self.RADIUS) * scale, 0, 2 * math.pi)
             cr.restore()
-            cr.set_source_rgba(*colour, config.alpha * self.FILL)
+            cr.set_source_rgba(*colour, config.alpha * (self.DANGER_FILL if kind == 'danger' else self.FILL))
             cr.fill_preserve()
             cr.set_source_rgba(*colour, config.alpha)
             cr.set_line_width(self.LINE * scale)

@@ -1,16 +1,231 @@
 {
+  "classifications": {
+    "verdict": 406,
+    "own-use": 49,
+    "pickup": 39,
+    "context": 72
+  },
+  "table_score": {
+    "total": 404,
+    "evaluated": 305,
+    "passed": 305,
+    "accuracy": 0.754950495049505
+  },
+  "pickup": [
+    {
+      "id": "guides/warlock.html#s5:1",
+      "text": "Gray or Superior bases only from the runeword list: Archon / Dusk / Wire Fleece / Sacred Armor (4os), Mage Plate (3), Monarch (4), every Sacred Targe / Rondache / Targe (read all-res), Phase Blade / Berserker Axe / Colossus Blade, the seven eth merc polearms and spears, Grand Matron / Matriarchal Bow, Crystal Sword / Flail for self-use, 2os Bone Shield / Preserved Head (Rhyme), Legend Spike / Fanged Knife / Kris (Void).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s5:2",
+      "text": "Every unique, set, rune, flawless+ gem, charm, jewel, ring, amulet.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s5:3",
+      "text": "ID every magic or rare circlet-class helm, class item (claws, orbs, Amazon weapons, Paladin shields, Barb helms, pelts, Necro heads, Warlock daggers/grimoires), Jeweler's elite armor/Monarch, rare gloves / boots / belts.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s5:4",
+      "text": "Leave: white or magic generic armor/weapons of any tier, rare non-elite generic armor/weapons, rare elites outside the runeword list, chipped/flawed/normal gems, El\u2013Dol singles, Large Charms without a reviewed primer \u00a74.1 pattern (plain Sharp/Shimmering remain candidates).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:1",
+      "text": "SHOW Important Mats and Itemsall rings/amulets/charms/jewels (any rarity), every rune, uber mats, terror-zone and absolute items, flawless + perfect gems and skulls",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:2",
+      "text": "SHOW Healing and Full RejuvSuper Healing and Full Rejuvenation; mana potions and Town Portal scrolls hidden",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:3",
+      "text": "SHOW Unique Setevery gold and green item",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:4",
+      "text": "SHOW Rare ARMOR / WEAPONSrare gloves, boots, belts, circlets; rare class items that carry +2 class / +3 tree staff-mods \u2014 Barb helms (e.g. +2 Barb / +2 Battle Orders), pelts, Necro heads, grimoires, orbs, elite Paladin shields (Sacred Targe / Rondache, Zakarum / Vortex Shield); rare Warlock daggers (whole Blade\u2013Legend Spike 3os line plus Bone Knife and Mithril Point \u2014 rare eth Mithril Points with +2 Warlock skills or 40 IAS / leech ask Jah+ on Traderie); 3-socket claws; Matriarchal / Grand Matron Bow; Matriarchal Javelin (+2 Ama / +Jav / 40 IAS / replenish); Ceremonial Pike / Matriarchal Spear / Pike; Phase Blade / Berserker Axe / Colossus Blade; Caduceus. Hidden: rare normal-tier class bases, rare polearms, rare elite armors, rare War / Divine scepters, Dagger\u2013Rondel",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:5",
+      "text": "SHOW Magic ARMORmagic circlets, grimoires, Barb helms (Echoing +BO), pelts (Antlers of the Colossus); every magic glove (Lancer's / Archer's / Kenshi's \u2026 of Alacrity = +3 skill / 20 IAS, named by five S/A builds, asks Lo\u2013Jah); Jeweler's check on Archon / Dusk / Wire Fleece / Sacred Armor / Monarch / Sacred Targe / Sacred Rondache; Preserved Head / Demon Head / Bloodlord Skull. Everything here is worth identifying. Magic boots and belts are not in this rule",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:6",
+      "text": "SHOW Magic WEAPONSmagic daggers of the 3-socket line plus Bone Knife / Mithril Point (+2 Warlock prefix, +3 staff-mods), 3-socket claws, Amazon javelins (Lancer's of Quickness), War Scepter and Caduceus (Rose Branded \u2026 of the Apprentice), the four elite orbs (<tree> Orb of the Magus). Dagger\u2013Rondel, 2-socket claws, Divine Scepter and non-elite orbs are hidden",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:7",
+      "text": "SHOW Craft Bases ARMORoptional \u2014 untick it when not crafting. Magic copies of the six caster-craft bases: Boots / Demonhide Boots / Wyrmhide Boots (Caster Boots), Light Belt / Sharkskin Belt / Vampirefang Belt (Caster Belt). Cube fodder only (\u00a73): no magic boot or belt roll is worth identifying. With the rule off, every magic boot and belt is hidden; rare ones stay shown by Rare ARMOR",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:8",
+      "text": "SHOW Bases ARMORwhite, Superior and gray (eth/socketed): Sacred Targe / Sacred Rondache / Targe, all grimoires, Circlet and Coronet. Paladin shields and grimoires retain plain whites for resistance and skill bonuses. Tiara and Diadem bases are hidden, including Superior and gray copies; their magic, rare, unique and set versions remain shown. The six generic armor bases now use the Gray rule below.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:9",
+      "text": "SHOW Bases WEAPONSwhite, Superior and gray: Fanged Knife / Legend Spike, Flail, Greater / Runic Talons. Plain Flails remain available for self-use; elite daggers and claws retain unsocketed skill-bearing copies. Kris / Cinquedeas now use the Gray rule. No broad circlet category is used here; Circlet and Coronet are explicitly preserved in Bases ARMOR.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:10",
+      "text": "SHOW Bases WEAPONS GraySuperior and gray (eth/socketed) only, plain 0-socket whites hidden: Kris / Cinquedeas, Phase Blade / Berserker Axe / Colossus Blade (max 6), the seven merc polearms and spears \u2014 Thresher, Giant Thresher, Cryptic Axe, Great Poleaxe, Colossus Voulge, Mancatcher, Matriarchal Spear \u2014 Grand Matron / Matriarchal Bow (max 5), Crystal Sword (HotO needs 4, Larzuk gives 6). Only eth 4-socket copies of the polearms sell (Infinity); a non-eth 0os Thresher is vendor food",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/warlock.html#s6:11",
+      "text": "SHOW Bases ARMOR GraySuperior and gray (eth/socketed) only: Archon Plate, Dusk Shroud, Wire Fleece, Sacred Armor, Mage Plate, Monarch and Grand Crown. Plain unsocketed non-ethereal non-Superior copies are hidden. The grimoire category remains included; all grimoire qualities are also covered by Bases ARMOR.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:2",
+      "text": "PK-ilvl-grayGround rule. Click every gray-named (socketed or ethereal) or Superior-prefixed base whose \u00a76 row \u00a73 marks keep/sell/self-use. Plain white non-gray 0os bases: do not click (not gray, not Superior; cube P(4os) on a max-5/6 base is 16.67 % and 0os plain asks are floor). After pickup: Superior with <15 % ED (or only +durability/+AR) = treat as plain in every rule below.keepSockets page ilvl rule + gray-colour rule (June 16, 2026); Pindle pack mlvl 86 (Feb 10, 2026); WP-B: Superior <15 ED buckets sit at plain prices (Archon 0os sup n=11 1\u21924.05; Mage Plate 3os sup <15ED n=5 0.67\u21920.83; fill: sup 11 ED 3os Mage Plate 0.79).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:3",
+      "text": "PK-sockets-fix0os is fine only where the ilvl-86 max equals the runeword count (safe list in the warnbox): keep 0os Archon/Dusk/Wire/Sacred Armor/Monarch/Sacred Targe/Rondache/Colossus Voulge (\u21924), Mage Plate/Diadem/Tiara/Talons/elite daggers (\u21923), Bone Shield/Preserved Head (\u21922). For a target below the maximum on max-5/6 bases, sell the 0os drop as-is; only normal-quality copies may use the socket cube recipe. Superior copies cannot reach that lower count through Larzuk or the cube. Already-socketed with a non-runeword count \u2192 vendor.keepCube recipes need an unsocketed Normal/Eth base (max 4 \u2192 4os 50 %; max 5 \u2192 4os 16.67 %, 5os 33.33 %; max 6 \u2192 each 16.67 %); Larzuk gives the max (Sockets, June 16, 2026). \u00a75: GT eth 0os sup 15ED 9.3\u219210.4 vs eth 6os plain 0.2\u21921.0.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:4",
+      "text": "PK-ethEth is wanted only on merc gear: polearms/spears, Sacred Armor, merc Archon/Dusk/Mage Plate, Berserker Axe/Colossus Blade. Not on self armor/shields (Enigma, CoH, Spirit Monarch, Flail, Rhyme bases). Exceptions: eth Sacred Targe 45@ sells (\u00a75); eth Phase Blade is irrelevant (indestructible base, no white eth listings in WP-B).keepWP-A eth flags from the runewords-page wording (\"Ethereal Superior Giant Thresher\") and \"Ethereal gear is preferred since it doesn't lose durability\" in 18/26 guides' merc sections; Superior can be eth + socketed (Base Items, May 12, 2024); WP-G: Phase Blade \"Indestructible \u2026 eth irrelevant\".",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:5",
+      "text": "PK-elite-armorArchon / Dusk Shroud / Wire Fleece / Sacred Armor (max 4). Keep: Superior \u226515 ED in 3/4/0os Archon; 3os/4os Superior \u226515 ED Dusk/Wire; any eth Archon; eth Sacred Armor (4os or 0os). Sell: plain 3os or 4os Archon (fill 1.46); 0os Superior \u226515 ED Dusk/Wire; eth 4os plain Sacred Armor. Floor: plain 3/4os Dusk/Wire, non-eth Sacred Armor.keepEnigma 3 / CoH-Fortitude-Bramble 4 on 25 builds (weight 41). \u00a75 Archon rows; fill: Superior 15 ED 0os Archon 7.2 (1 Ohm 4 Mal), plain 505-def Archon 1.46 (1 Mal 1 Um), both 2026-09-18.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:6",
+      "text": "PK-mage-plateMage Plate (max 3 at every ilvl): keep only Superior \u226515 ED, 3os or 0os (Larzuk \u2192 3 is safe); Superior <15 ED and plain 3os = floor.keep13 three-socket runewords, a 4os word never fits (Sockets 3|3|3). \u00a75; fill: Superior 11 ED 3os 0.79 (1 Mal).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:7",
+      "text": "PK-monarchMonarch (4os only from ilvl 41+): keep Superior \u226515 ED 4os or 0os (Larzuk \u2192 4 safe); plain 4os = self-use Spirit base, floor; 3os = vendor.keepSpirit/Phoenix 4 (weight 39; Sockets 3|3|4). \u00a75; no fill in 3 days.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:8",
+      "text": "PK-pala-shieldsPick up every Sacred Targe / Sacred Rondache / Targe, read the all-res. Keep Sacred Targe 45@ at any sockets/eth; sell 40\u201344@; Rondache only 45@ 4os or Superior 15 ED; Targe only Superior 45@. Below 40@ = floor. Normal-tier Paladin shields (Heraldic / Aerin / Crown Shield, max 4; Targe / Rondache 4) with a high all-res automod: no market at any roll \u2014 self-use only (a Superior Heraldic Shield with 28@, Larzuk \u2192 4os, is a level-25 Spirit for your own Paladin); otherwise leave.keepThe res automod sets the price, sockets can be added (max 4, Larzuk safe). \u00a75; fill: 45@ 0os Sacred Targe 9.3 (1 Ber).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:9",
+      "text": "PK-elite-weaponsPhase Blade / Berserker Axe / Colossus Blade (max 6). Keep Superior \u226515 ED: PB 5os or 6os; BA 5os non-eth, eth 6os, eth 0os (Larzuk \u2192 6 only for BotD); CB 5os, or eth 0/5/6os. Sell: eth 5os plain BA; eth 5os Superior BA (n=1, thin). Floor: plain PB 4/5/6os, BA 5/6os, CB 5os, eth 6os plain BA/CB.keepGrief 5 / Last Wish\u2013BotD 6 / Fortitude 4. \u00a75; fills: Superior 15 ED 6os PB 4.05 (1 Ohm), plain PB 1.43 (1 Gul).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:10",
+      "text": "PK-merc-polearmsEth only: Thresher (5) / Giant Thresher (6) / Cryptic Axe (5) / Great Poleaxe (6) / Colossus Voulge (4) / Mancatcher (5) / Matriarchal Spear (6). Keep eth 4os Superior of any; eth 4os plain GT; eth 0os Superior 15 ED GT/GPA (sell 0os; cannot cube; Larzuk only for a maximum-socket runeword); eth 6os Superior 15 ED GT/GPA. Sell: eth 4os plain Thresher, GPA, Mancatcher, CA, CV. Floor: eth 5/6os plain, any non-eth, eth 0os plain (CV: Larzuk \u2192 4 is safe but the eth 4os plain CV is floor too).keepInsight/Infinity/Pride = 4os on 25 merc builds; at ilvl 86 these roll up to 5\u20136os, so 4os is the lucky case. \u00a75; 0 sold in 3 days for GT/Thresher/GPA/Mancatcher, CA unverified.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:11",
+      "text": "PK-bowsGrand Matron Bow / Matriarchal Bow (max 5; the +3 Bow skills automod sells). Keep 4os Superior \u226515 ED +3 (either), 0os Superior 15 ED +3 Mat Bow (sell 0os; cannot cube; Larzuk only for a maximum-socket runeword). Sell: 4os plain +3 GMB; 5os Superior \u226515 ED +3 GMB. Floor: 5os/3os plain, +1/+2.keepFaith/Harmony/Insight 4, Mist 5 (Sockets 3|4|5). \u00a75; fill: Superior +3 3os GMB 0.67 (1 Um).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:12",
+      "text": "PK-self-use-basesSelf-use bases (\u00a76 rows Flail, Crystal Sword, Diadem/Tiara, Kite Shield, Bone Shield, Preserved Head, Targe, Talons, Mask/Crown-class): take one only if you need the runeword \u2014 Flail 5os CtA / 4os HotO, CS 4os Spirit / 5os CtA, Diadem/Tiara 0/3os Coven/Dream/FF (or one white Diadem > Tiara > Circlet per difficulty for the Charsi imbue \u2014 \"frequently used to imbue: Diadems \u2026 Circlets, Coronets\", maxroll Important Quests; ilvl = clvl + 4), Kite 3os, Bone Shield / Preserved Head 2os Rhyme, 3os Talons Plague/Mosaic, 3os Mask Wisdom. Superior 15 ED with the exact count = sell.self-useWeight 41 but the white market is floor (rejected idea 2). \u00a75 rows Flail/CS/Mask/Targe/Bone Shield.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:13",
+      "text": "PK-rotw-daggers-grimoiresVoid/Ritual (3os) only in Legend Spike / Fanged Knife / Kris (max 3); Mithril Point / Bone Knife / normal daggers max 1 \u2192 vendor. Pick up 3os or 0os elite dagger (Larzuk \u2192 3 safe), read the Warlock staff-mods. Grimoires: price by the roll, never by the base tier. Max 2os (358 listings, 2026-09-18); Vigilance D-tier; no S/A build equips one (Echoing Strike: Spirit / Lidless shield, a Rhyme Codex only in its Starter variant). Keep, any tier: (a) any rarity with +2 to Warlock Skills (108 listings, 75 rare; med 4.05, max 457); (b) magic with +3 to a tree (Demon/Chaos/Eldritch Skills; med 51, n=19); (c) white/superior 2os with +3 Summon Tainted, Consume, Bind Demon or Sigil: Death (med 9\u2013118, 2\u20135 sellers each). +3 Abyss / Apocalypse are the common rolls (n=30 / 24, med 5); +3 Enhanced Entropy, Engorge, Summon Defiler, Blood Boil = floor. No staff mods at all (6 of 358 listed; a dropped Superior Codex with only fire dmg + durability, seen in-game 2026-09-18) \u2192 vendor. Runes into a Rhyme Codex remove the value; sell the base instead.sellSockets table (June 16, 2026); New Items (Feb 19, 2026); WP-A Void \u2192 Legend Spike (Echoing Strike guide Aug 26, 2026). \u00a75; pricing/data/addendum-2026-09-18-session.json (one vote per seller; 2os white med by tier Grimoire 3.3 / Possessed 5.0 / Blasphemous 1.0 \u2014 tier does not price).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:15",
+      "text": "PK-blue-jewelerID every blue Archon / Dusk / Wire Fleece / Sacred Armor / Monarch / Sacred Targe. Keep any Jeweler's (4os): Monarch of Deflecting, Archon of the Whale 90\u2013100, any Jeweler's Monarch/Archon, of Stability/Precision (merc), Sacred Targe of Deflecting. No Jeweler's \u2192 vendor.keepUnshoppable 4os magic (WP-C: 1/473,600 per shopped armor for the pair); Pindle guarantees 2 magic+ drops. \u00a75 blues; VMI (2024): \"often regarded as the most valuable Magic Item in the game\".",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:16",
+      "text": "PK-blue-circletID every magic/rare Circlet / Coronet / Tiara / Diadem. Keep +2 class prefix \"of the Magus\" (value needs 2 Larzuk sockets; magic gets 1\u20132 random); Artisan's Tiara of Speed (3os/30 FRW), of Luck/Nirvana/Wealth, Artisan's Diadem of the Whale; rares with 2 of skills/FCR/FRW/res/sockets.keepVMI tables 26\u201332 (2024); WP-A \"Rare Diadem\" on 9 builds; Diadem/Tiara 3os at 41+, Circlet/Coronet 2 (Sockets). \u00a75.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:17",
+      "text": "PK-blue-class-itemsID every magic/rare class item: claws, Amazon javelins, orbs, war scepters, barb helms, druid pelts, necro heads (Bloodlord Skull, Preserved Head), any dagger (every dagger class carries Warlock staff-mods, warlock-overview) and grimoires. Keep: Cunning/Witch-hunter's claws of Quickness + LS/WoF/DS; Lancer's Jav of Quickness; Powered/Volcanic Eldritch Orb of the Magus; Rose Branded/Priest's War Scepter of the Apprentice; Echoing anything (+6 BO helm); Gaean/Hierophant's Antlers of the Colossus; Venomous/Golemlord's Bloodlord Skull of Deflecting; Arch-Devil's / +3 Abyss-Chaos-Eldritch daggers & grimoires (thin). Blue Amazon bows/spears: no keep pattern in WP-A/VMI \u2192 vendor (judgment, ledger).keepVMI tables 33\u201342 (2024); WP-A/WP-C affix targets; warlock-overview (Feb 18, 2026). \u00a75.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:18",
+      "text": "PK-blue-jewelry-glovesID every rare ring/amulet/gloves/boots/belt and every magic ring/amulet. Keep rares with 2+ of skills/FCR/res/life/MF (rings), FRW/res/FHR (boots), IAS+skills (gloves), FHR/res/life (belts). Magic: Fortuitous Ring of Fortune (31\u201340 MF), <class> Amulet of the Whale/Apprentice/Luck, Amulet of Teleportation, Lancer's/Archer's/Kenshi's Gloves of Alacrity, Boots of Acceleration, Belt of the Squid. One plain affix \u2192 vendor.keepWP-A blue weights: Rare Ring 37 (23 builds), Rare Boots 29, Rare Gloves 16, Fortuitous Ring 16 (9 builds). \u00a75 gloves rows. Slots not socketable (Sockets).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:19",
+      "text": "PK-rare-miscRare (yellow) armor, weapons, shields, helms that are not class items or circlets: pick up elite bases only (Archon/Dusk/Monarch/Sacred Targe/PB/BA/CB and the \u00a76 polearms), ID, keep only with 2+ of ED/IAS/skills/FCR/res/life; everything else \u2192 vendor. Rare non-elite armor/weapons: leave. A rare elite with 3\u00d7 durability is a failed unique, nothing more.vendorClosure rule added in pass 2 (no WP-D row): WP-B shows rare elite buckets priced far above whites only with ED/affix rolls (e.g. Berserker Axe eth 0os rare 15 ED n=40 11.4\u2192114; Diadem 2os rare n=68 45.7\u2192171); MF page (Feb 11, 2026) failed-unique tell. Judgment where no source: ledger.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:20",
+      "text": "PK-unique-setEvery gold/green item. Pindle's pack can drop all uniques but Azurewrath, Tyrael's Might, Arachnid Mesh. Value: WP-I (pricing primer).keepPindle guide (Feb 10, 2026).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:22",
+      "text": "PK-charm-grandID every Grand Charm. Keep every +1 tree skiller (Lion Branded, Sparking, Chilling, Burning, Sounding, Harpoonist's, Fungal, Graverobber's, Entrapping, Shogukusha's, Natural, Spiritual, Warlock trees) \u2014 with of Vita/Sustenance/Balance/Inertia High/Very High; Sharp GC of Vita; Shimmering GC of Vita. Demand order: Pala Combat, Sorc Light/Cold/Fire, Traps, Jav, P&B, Warcries, Chaos/Eldritch. Else vendor.keepVMI tables 0\u20138 (2024); plan review log: 4 skillers sold in 3 days on diablo2.io incl. two Warlock trees; d2io 2026-08-28 bands (orientation): Pala Combat Ist, Sorc Light Ist\u2013Gul, Fire/Cold Um\u2013Ist, Jav Pul\u2013Um, P&B Mal, Traps Pul\u2013Um.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:23",
+      "text": "PK-charm-small-largeID every Small Charm. Keep Shimmering (4\u20135@) / Fine (3 max) / Resistance (8\u201311) with of Vita (16\u201320) / Good Luck (6\u20137 MF) / Balance / Inertia / Sustenance; plain SC of Vita / of Good Luck. Large Charms: pick up and ID; assess all nine VMI patterns in primer \u00a74.1, including plain Sharp/Shimmering, resistance/life and mana/life. Missing Vita alone is not a vendor rule.keepVMI tables 9\u201315 (2024); WP-A SC weights 11\u201313 (7 builds); plan Traderie SC sample (2026-09-18): \"1x Jah\" asked for 5@ alone.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:24",
+      "text": "PK-jewelID every jewel. Keep Ruby (30\u201340 ED) of Fervor (15 IAS), Scintillating (10\u201315@) of Fervor, Ruby of Carnage/Bliss (weapon-only), any 15 IAS / 12\u201315@ / ED+life, rare jewels with ED-IAS-res, all Rainbow Facets. Single low affix \u2192 vendor.keepVMI tables 16\u201317 (2024); plan Traderie jewel sample: \"1x Ohm\" ask for 35 ED/15 IAS; d2io ask: Ruby Jewel of Hope 34 ED/20 life \"LF 1 Mal\"; d2io fill: Shimmering Jewel of Virility 6 str/10@ \u2192 20 Perfect Gems (sold 2026-09-17); d2io 2026-08-28 (orientation): 40ED Ist, 15IAS Pul, 15@ Pul\u2013Um.",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:26",
+      "text": "PK-runesEvery rune (explicit exception to the Ist bands). Pul+ = currency (ladder in the TL;DR); Lem\u2013Gul \"mid runes\"; El\u2013Fal trade in bulk (Spirit/Insight sets; \"40\u00d7 Hel / 40\u00d7 Sol = High\") and cube 3:1. MF does not affect rune drops.keepWP-F ladder (2026-09-18); maxroll Runes (Feb 10, 2026) Spirit/Insight sets and rune tiers; maxroll Rune Value (Mar 6, 2024, pre-RotW) bulk line via WP-F; MF page (Feb 11, 2026).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:27",
+      "text": "PK-gemsKeep Perfect gems for supported sale-sized lots and Flawless gems for the cube (3 of one type \u2192 1 Perfect). A single sub-threshold gem is CHECK/save, not a sale-sized lot. Also save Chipped Sapphire, Chipped Ruby, Chipped Diamond, Chipped Topaz and normal Topaz toward their supported bulk lots. Other Chipped/Flawed/normal gems: leave under the current pickup policy unless newer compatible bulk evidence supports keeping them. These are asking-price opportunities, not proven quick sales.keepmaxroll Gems (Feb 10, 2026); d2io 2026-08-28 guide line; WP-F observed bid (diablo2.io WTB, 2026-09-18).",
+      "reason": "Ground pickup or filter instruction before item identification"
+    },
+    {
+      "id": "guides/pindle-anya.html#s3:29",
+      "text": "PK-leave-whiteGround rule \u2014 do not click: anything Cracked/Crude/Damaged/Low Quality; white non-gray non-Superior bases (0os plain); bases not in \u00a76 (Ancient Armor, Gothic Plate, every normal/exceptional-tier base \u00a76 does not list); white gloves/boots/belts/rings/amulets; plain white claws (no market without staff-mods); rare non-elite armor/weapons; gold piles unless you are saving for the \u00a74 reserve (pick up while below 1,000,000 if you shop claws or gamble \u2014 threshold is judgment, ledger).leaveLow Quality: 75 % reduced stats, never eth, never socketed (Base Items 2024); gray/Superior is the only ground signal (Sockets); \u00a75 floor buckets n=10\u201353 at 0.08\u20131.0 Ist; purediablo \"at least 1,000,000\".",
+      "reason": "Ground pickup or filter instruction before item identification"
+    }
+  ],
   "groups": {
-    "table": {
-      "total": 493,
-      "evaluated": 257,
-      "passed": 257,
-      "accuracy": 0.5212981744421906
+    "verdict": {
+      "total": 355,
+      "evaluated": 305,
+      "passed": 305,
+      "accuracy": 0.8591549295774648
+    },
+    "own-use": {
+      "total": 49,
+      "evaluated": 0,
+      "passed": 0,
+      "accuracy": 0.0
     },
     "worked": {
-      "total": 38,
+      "total": 36,
       "evaluated": 36,
       "passed": 36,
-      "accuracy": 0.9473684210526315
+      "accuracy": 1.0
     },
     "false_positive": {
       "total": 15,
@@ -20,6 +235,261 @@
     }
   },
   "context": [
+    {
+      "id": "guides/pricing.html#s2-yellow:10",
+      "text": "Slot. Rings, amulets, gloves, boots, belts, circlets and class items are the slots where rares compete with uniques \u2014 read them against the table.",
+      "reason": "Introduces the following slot-specific rare-item tests"
+    },
+    {
+      "id": "guides/pricing.html#s3:5",
+      "text": "Required levela hint of the affix levels \u2014 a rare with req lvl 60+ on a normal base rolled high affixesnot a gate",
+      "reason": "Required level is an affix clue, explicitly not a verdict gate"
+    },
+    {
+      "id": "guides/pricing.html#s8:5",
+      "text": "Superior Eldritch Orb 2os +1/+1/+1 \u2014 incomplete historical noteReview 2026-10-06: the three staffmod identities were not recorded. Preserve this as context; do not invent skills or generalize the old verdict to an exact item. White orbs are not runeword bases, but that fact alone does not reconstruct this drop.Context \u2014 insufficient item identity",
+      "reason": "Historical orb note omits all three staffmod identities; no exact item or transferable verdict can be reconstructed"
+    },
+    {
+      "id": "guides/pricing.html#s8:17",
+      "text": "\u201cVambraces of Thawing\u201d \u2014 inconsistent historical titleReview 2026-10-06: local d2data magicsuffix rows 150/154 define of Thawing as +3 cold absorb, eligible on torso armor, shields, boots, circlets, amulets or orbs, not gloves. The old resist-suffix explanation was incorrect. Retain the note as context; no replacement suffix or item stats are inferred.Context \u2014 invalid recorded title",
+      "reason": "Historical glove title conflicts with native of Thawing eligibility; not a reproducible item case"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:1",
+      "text": "D-1rune / gem / key / essence / shardkeep \u2014 currency (Hel+ runes, Perfect gems, keys, shards)ladder (Pul 0.57 \u2026 Jah 11.4); keys 0.45, P.gems 0.06\u20130.12, shards 0.03\u20130.17 per unitEl\u2013Dol runes and non-perfect gems: cube up or vendor; Twisted Essence 0.01\u00a71, \u00a76.2",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:2",
+      "text": "D-2white baseon the \u00a72 list + exact sockets (or 0os where Larzuk's maximum = the runeword count) + eth / superior 15ED / automod gatechase 22.8\u2013126 \u00b7 tradeable 2.6\u201340 \u00b7 Low (Larzuk-floor) 0.2\u20130.8wrong socket count; non-eth merc polearm; superior <15 ED = price as plain; elite white whose class no \u00a72 runeword names\u00a72",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:3",
+      "text": "D-3jewelfacet 5/5; Colossal; two good affixesfacet 4.05\u20139.3 med (guide Um\u2013Vex) \u00b7 pairs med 28.6\u201380 (min 8.2) \u00b7 singles min 0.8\u20132.6, realistic Pul\u2013Istno affix from {ED \u226520, IAS 15, @ \u22658, max \u226510}\u00a73, \u00a74.5",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:4",
+      "text": "D-4charmdemanded-tree skiller (+life); SC life+res / MF+res / 3-20-20; Anni/Torch roll; sunder tierskiller +life 11.4\u201345.7 \u00b7 plain 1\u20132.5 \u00b7 SC realistic Um\u2013Lo (asks 5.9\u201345.7) \u00b7 Anni 19+ 17\u201323 \u00b7 Latent light/magic Ber\u2013Jah, physical 2 Ber\u20132 Jahzero-demand plain skiller (Pul); SC with none of the affixes; Large Charm (unpriced; see D-4); base sunder of fire/cold/poison below Ist\u00a74",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:5",
+      "text": "D-5unique / setin the \u00a75 table at the stated roll, or in appendix BTop \u22658 \u00b7 High 2.5\u20138 \u00b7 Mid 0.8\u20132.5 \u00b7 Low 0.2\u20130.8every unique/set not in \u00a75 and not in appendix B; the \u00a75 Floor row (Stormshield, IK pieces, Oculus, Wizardspike, Bane's, Horazon's)\u00a75",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:6",
+      "text": "D-6rare / craftring/amulet/circlet must-affixes + two matching extras \u2192 price-checkIst \u2026 2 Jah (threads); craft amulet Jah+one wrong affix; blank 2/20 circlet; rare gloves/boots/belts/armor/weapons (unpriced here); Traderie-wall patterns\u00a76.1",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#twin:7",
+      "text": "D-7sellingquote the median (common rolls) or \"offer\" (chase rolls)fill \u2248 ask on floor rolls; 32\u201363 % of the ask on chase rolls\u2014\u00a78",
+      "reason": "Navigation summary; detailed tables contain the item cases"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:1",
+      "text": "Giant Thresher \u00b7 Thresher \u00b7 MancatcherInfinity/Insight/Pride recommend them (runewords 2026-06-02); eth = +50 % base damage and no durability loss on a mercenary (durability-quantity, mercenary-mechanics 2026-02-10); max sockets 6 / 5 / 5 so an exact 4os drop is a lottery Larzuk cannot fix (sockets 2026-06-16); WSM 0 / \u221210 / \u221220, str 188 / 152 / 132 (base-items 2024-05-12).",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:2",
+      "text": "Great Poleaxe \u00b7 Cryptic Axe \u00b7 Wire Fleeceno maxroll guide names them (WP-A weight 0); the market trades them as Infinity/Insight and Enigma/CoH substitutes because the recipes accept any polearm / body armor \u2014 their rank rests on asks and the d2io guide row only. Cryptic Axe: highest avg dmg 91.5, slowest (WSM +10), 5-max sockets.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:3",
+      "text": "Sacred Targe \u00b7 TargeSpirit/Phoenix/Exile/Dream shields; the auric automod \"All Resistances +5\u201345\" is the price, on the lightest 4-socket paladin shield (86 str) (base-items 2024-05-12); Larzuk gives 4os so 0os is fine; 3os is the Dream/Sanctuary base and cannot be made from 0os.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:4",
+      "text": "Grand Matron Bow \u00b7 Matriarchal BowFaith/Mist (GMB) and Ice/Faith/Mist/Harmony (MB) bases; \"+1\u20133 Bow skills\" automod \u00d7 exactly 4 sockets (Faith; Larzuk gives 5) \u00d7 superior 15ED; MB WSM \u221210.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:5",
+      "text": "Colossus Blade \u00b7 Berserker Axe \u00b7 Phase BladeCB: Death names \"Ethereal Superior Colossus Blade\" (runewords), Larzuk = 6os so eth 0os sup is priced like 5os. BA: Beast/Doom (5os, non-eth), Death/BotD (eth; BotD's Zod = Indestructible so eth 6os is free +50 % dmg); 6-max so 5os must drop or cube. PB: Grief (5os) / Last Wish (6os) / HoJ, Phoenix (4os); Indestructible, WSM \u221230, 25 str \u2192 eth irrelevant; Larzuk gives 6.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:6",
+      "text": "Sacred ArmorFortitude merc base (\"Ethereal Sacred Armor (Mercenary) \u2013 any 850+ def\", runewords); highest defense 487\u2013600 at 232 str \u2192 merc-only, eth-only; Larzuk gives 4os.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:7",
+      "text": "Archon Plate \u00b7 Dusk Shroud \u00b7 Mage PlateEnigma/CoH/Fortitude/Dragon/Bramble list \"Superior Archon Plate\" first; AP = highest defense of the light (\u2264103 str) elite plates (410\u2013524 @ 103; Dusk Shroud 361\u2013467 @ 77 has more def per str); sockets 3/4/4 by ilvl \u2192 every AP is 4os at Larzuk (Low), a 3os superior cannot be made (premium). DS: lightest elite plate, every DS 4os at Larzuk. MP: 13 armor runewords (12 three-socket + Smoke 2os; Enigma via guides), 225\u2013261 def @ 55 str, sockets 3/3/3 \u2192 every MP 3os at Larzuk.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:8",
+      "text": "MonarchSpirit/Phoenix shield for non-Paladins: one of only 3 non-class shields with 4 sockets (Aegis 219 str, Ward 185, Monarch 156); Monarch receives 3/3/4 sockets at Larzuk for ilvl 1\u201325 / 26\u201340 / 41+; the old \u201calways four\u201d shorthand applies only above ilvl 40. Plain four-socket copies have their own scoped price evidence.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:9",
+      "text": "Crystal Sword \u00b7 FlailSpirit/CtA/Plague/Crescent Moon/Lawbringer and HotO/CtA/Black \u2014 joint-highest demand, Low price: normal-tier (qlvl 11 / 19), named among the \"very common items\" from the Normal Cow Level that \"receive 4 Sockets from Larzuk\" (sockets 2026-06-16); caster runewords ignore base damage (\"Ethereal for style\", runewords).",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:10",
+      "text": "Diadem10 helm runewords name it first (Dream, Flickering Flame, Lore, Coven\u2026) and \"Any Barbarian Helmet or Druid Pelt with +x to Skills\" (runewords); \"Magic Level 18\" (base-items) \u2192 99 % of listings are magic/rare; the value sits in the rune (Dream = Jah, Flickering Flame = Vex).",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:11",
+      "text": "Colossus Voulge1st Insight base by name and highest merc demand \u2014 yet cheapest: 4-max sockets, so Larzuk makes every eth CV a 4os Insight base; 210 str; not an Infinity base.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-why:12",
+      "text": "Bone Shield \u00b7 Mask \u00b7 Preserved HeadRhyme/Splendor (Bone Shield 2os), Wisdom (Mask 3os \u2014 per the guides; the runewords page recommends Crown/Diadem/Carnage Helm, and Kite/Large Shield for Ancient's Pledge), Rhyme (Preserved Head); normal-tier leveling bases, Larzuk gives the maximum; heads are +skill (blue) items.",
+      "reason": "Explains base demand and mechanics; variant verdicts are in the base tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:5",
+      "text": "Superior = 5\u201315 % Enhanced Defense / Damage and/or +5\u201315 % (armor) / +10\u201315 % (weapon) max durability, +1\u20133 AR; 15 is the chase roll; superior bases can be ethereal and socketed (base-items 2024-05-12) but the cube socket recipes \"Cannot be used on Low-quality or Superior bases\" (sockets 2026-06-16) \u2014 a superior base with the right socket count on drop is rarer than a normal one.",
+      "reason": "Base facet or socket mechanic; variant verdicts are in the tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:6",
+      "text": "Ethereal = +50 % Defense or base Weapon Damage, cannot be repaired, durability (max/2)+1; a Zod socket or an Indestructible runeword (BotD, Void) removes the drawback (durability-quantity 2026-02-10). \"Ethereal Items do not suffer from Durability loss when equipped on a Mercenary\" (mercenary-mechanics 2026-02-10) \u2014 hence eth polearms/Sacred Armor for the merc, non-eth for the character, and eth irrelevant on the Indestructible Phase Blade. Character durability is a use constraint, not a blanket trade discount: ethereal Archon Plate can be a mercenary runeword base; ethereal Monarch must be assessed separately (eth 4os normal Dusk Shroud 0.25 \u2192 0.79, n=5).",
+      "reason": "Base facet or socket mechanic; variant verdicts are in the tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:7",
+      "text": "Sockets = \"Runes must be placed in a specific Base Item type with the EXACT amount of Sockets\" (runewords 2026-06-02). Max sockets depend on ilvl (table ilvl 1\u201325 / 26\u201340 / 41+; \"Normal Difficulty has a maximum of 3 Sockets\", Nightmare 4, Hell no limit; 1/3 of eligible drops are socketed \u2014 sockets 2026-06-16). A drop's socket count is fixed unless it is 0. Superior below 15 ED has its own cohort; it neither inherits the perfect-roll premium nor automatically equals normal quality. Cached October 3/4 SC/NL/PC/RotW 3os non-ethereal Mage Plate asks have Q1 0.294 Ist / 21 normal sellers versus 0.785 Ist / five ordinary-superior sellers (5\u201314 ED); these are cohort asks, not exact-ED premiums or sales.",
+      "reason": "Base facet or socket mechanic; variant verdicts are in the tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-1:8",
+      "text": "Automods (Sacred Targe 5\u201345 all res or ED/AR; Amazon bows +1\u20133 skills) are a fourth axis on those two classes (base-items 2024-05-12). Weapon speed is a base property, not a roll: WSM \u221230 Phase Blade, \u221220 Mancatcher, \u221210 Thresher/Matriarchal Bow/Flail, 0 Berserker Axe/GT/GPA/CV/Crystal Sword, +5 Colossus Blade, +10 Cryptic Axe/GMB (attack-speed 2026-02-10; base-items).",
+      "reason": "Base facet or socket mechanic; variant verdicts are in the tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-2:4",
+      "text": "magic / rare / set / uniqueLarzuk 1\u20132 / 1 socket; cube 3 PSkull + SoJ + rare \u2192 1 socketnot a runeword base at all (\"Runewords can't be created inside of Magic, Rare, Set, or Unique Items\")",
+      "reason": "Larzuk/cube socket counts and runeword rarity eligibility; no keep/sell or own-use recommendation"
+    },
+    {
+      "id": "guides/pricing-primer.html#s2-4:3",
+      "text": "Mania / Hysteria are the RotW names of Hustle (WP-A; diablo2.io hustle page, note of 11 Feb 2026: \"Hustle can still only be crafted on ladder. Hustle also got renamed to Hysteria for armor and Mania for weapons\"): Phase Blade / Matriarchal Bow (3os) and Superior Mage Plate (3os) \u2014 covered above. Coven (Ist-Ral-Io, helms, A tier) \u2192 Diadem (Fire Warlock guide) \u2014 no white Diadem market; Authority (body armor, B tier) names no base in any guide.",
+      "reason": "Runeword naming equivalence, not a drop verdict"
+    },
+    {
+      "id": "guides/pricing-primer.html#d0:1",
+      "text": "D-0 \u00b7 Drop in hand \u2014 identify everything but white bases first (a Scroll of Identify costs nothing that matters); the only unidentified item with a market is a Hellfire Torch (fill: unid \u2192 1 3x3 Keyset 1 Key of Hate \u2248 4.5 Ist, \u00a74.3). Then take the branch for its class: currency \u00b7 white base \u00b7 jewel \u00b7 charm \u00b7 unique/set \u00b7 rare/craftmagic (blue) items: only the \u00a73.3 patterns, jewels and charms are priced; every other blue is vendor",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d1:1",
+      "text": "D-1 \u00b7 Currency \u2014 keep Hel and up, Perfect gems, keys, shards, tokens: value = \u00a71 ladder (Pul 0.57 \u2026 Jah 11.4) or \u00a76.2 per unit (keys \u2248 0.45, P.gems 0.06\u20130.12, Northern shard 0.17). El\u2013Dol and flawless-or-below gems have no market: cube up (3 \u2192 1) or vendor.sell low runes in bulk stacks (\"9\u00d7 Hel \u2192 1 Ist\"); an ask on a stack is for the whole stack",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d2:1",
+      "text": "D-2 \u00b7 White base \u2014 (a) is the base in the \u00a72 table? no \u2192 vendor as white (no runeword names the class; class items are priced only as blue/rare). (b) socket count = the runeword's exact count? yes \u2192 go to (c). 0os \u2192 only where Larzuk's maximum equals the runeword count (Monarch, Archon/Dusk/Sacred Armor/Sacred Targe 4, Mage Plate 3, Colossus Voulge 4) \u2014 never Larzuk a 0os Giant Thresher / Thresher / Cryptic Axe / Mancatcher / Berserker Axe / GMB / Phase Blade for a 4- or 5-socket runeword (warnbox); wrong count \u2192 Low / vendor. (c) roll: eth on a merc base, superior 15ED, 45@ / +3 automod \u2192 chase band, list \"offer\"; plain roll on the right base \u2192 tradeable, list the median (eth 4os normal GT 5.9 \u2192 11.4; 45@ 0os Targe 4.05 \u2192 40); superior <15 ED uses its supported ordinary-superior cohort, not an assumed plain price; evaluate ethereal mercenary/runeword demand separately from character durability. Larzuk-floor bases (plain 4os Monarch/AP/DS, 3os Mage Plate, any Crystal Sword/Flail) \u2192 Low (Lem\u2013Mal): bulk-sell or use\u00a72.2: nothing removes sockets, the cube refuses superior bases",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d3:1",
+      "text": "D-3 \u00b7 Jewel \u2014 Rainbow Facet 5/5 \u2192 sell: fire/lightning asks Ohm\u2013Ber, cold/poison Ist\u2013Lo; expect the guide band (fire Um\u2013Mal, light Gul\u2013Vex, cold Ist\u2013Gul, poison Lem\u2013Pul); facet <5/5 \u2192 Lem\u2013Ist. Colossal Ancient Jewel \u2192 \u00a74.5 (Ist for mid rolls, multi-Jah asks at \u221210 / MF \u226530). Magic/rare with two of ED \u226520 \u00b7 15 IAS \u00b7 all res \u22658 \u00b7 max dmg \u226510 \u2192 sell Vex\u2013Ber+ (Ruby of Fervor asks 8.2 \u2192 28.6); one of them \u2192 Pul\u2013Ist; none \u2192 vendor / gems\u00a73: pairs, not singles; low-req dmg jewels are a PvP niche",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d4:1",
+      "text": "D-4 \u00b7 Charm \u2014 GC skiller of a demanded tree (Pala Combat, Warlock Eldritch/Chaos/Demon, Sorc Light/Cold/Fire, Jav, Traps, Warcries of Greed): +30\u201345 life (\"fat\") \u2192 sell Jah\u2013multi-Jah; plain \u2192 Ist\u2013Gul. Zero-demand tree \u2192 Pul; +life \u2192 Ohm at best. SC with life \u226516 + @ \u22654 (realistic Ohm\u2013Lo), 7 MF + res (Vex+), 3/20/20 (offer) \u2192 sell; 7 MF plain \u2192 Um\u2013Mal. Large Charm \u2192 assess all nine \u00a74.1 patterns, including plain Sharp/Shimmering and resistance/life or mana/life; unsupported numerical prices stay absent. Anni/Torch: price the roll (18/14/9 Anni = Ist; Sorc 18/20 Torch = 40 Ist; low torches = keys/tokens). Sunder: base = Ist (magic/physical asks 9.3), Latent light/magic = Ber\u2013Jah, Latent physical = 2 Ber\u20132 Jah, Latent fire/cold/poison = Lem\u2013Ohm, Renewed = by groups maxed (Pul\u2013Ist mid, Lo\u2013Ber one max group, multi-Jah two+). Else \u2192 vendor\u00a74",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d5:1",
+      "text": "D-5 \u00b7 Unique / set \u2014 in the \u00a75 table? read the roll that matters (Arachnid ED, Mara's res, CoA sockets/res, Griffon's \u2212res/+dmg, Fathom cold, Titan's eth+ED, Verdungo vit/PDR, Gheed's MF, War Trav MF, Andy's eth 30/10): at threshold \u2192 sell at the min \u00b7 median shown, expect the fill lots; below \u2192 the next bucket down (mostly Um\u2013Ist). Not in \u00a75 \u2192 is it named by a build in appendix B? yes \u2192 Low, sell for a mid rune or use; no \u2192 vendor (keep eth merc gear; keep one Stormshield/IK piece for yourself). Set pieces other than Tal Guardianship/Adjudication and IK Soul Cage \u2192 vendor or give away. RotW uniques (Ars, Sling, Opalvein, Gheed's Wager, Entropy Locket, Wraithstep, Hellwarden's) \u2192 \u00a75.1, Top\u2013Highitem-page lots are mixed ladder; prefer them over the ask medians for HoZ, Titan's, Raven Frost",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d6:1",
+      "text": "D-6 \u00b7 Rare / craft \u2014 ring, amulet, circlet: does it carry the slot's must-affixes (ring/amulet: 10 FCR or AR+LL; amulet/circlet: +2 skills; circlet: 20 FCR) plus two matching extras (res \u226510\u201315, life \u226530\u201340, str/dex \u226510, tele charges)? \u2192 price-check it (Ist \u2026 2 Jah per \u00a76.1 threads; caster-craft +2/20 FCR amulet = Jah+). One wrong affix (energy, single low res, a socket on a circlet) \u2192 vendor / Charsi. Rare gloves / boots / belts / armor / weapons: unpriced here \u2014 vendor unless a \u00a73.3 pattern (20 IAS + skill gloves) or a build in appendix B names \"Rare \u2026\" in that slot, then price-checknever price from the Traderie rare feed (one-seller wall)",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/pricing-primer.html#d7:1",
+      "text": "D-7 \u00b7 Sell it \u2014 common or Low-tier roll: list at the bucket median (\"LF <rune> OBO\" or \"BIN <rune>\"); fill \u2248 ask there (95\u2013118 % on the floor pair). Chase roll: list \"offer\" and expect 32\u201363 % of the ask (the two observed pairs). Never quote a bucket minimum. Convert everything to Ist with \u00a71 before comparing offers; price a Traderie OR-listing at its cheapest alternative\u00a71.1 glossary; \u00a77 to refresh before a Top-tier decision",
+      "reason": "Decision-flow summary; concrete item verdicts belong to its linked tables"
+    },
+    {
+      "id": "guides/warlock.html#s0:10",
+      "text": "Attack rating 1,536 is low \u2014 about a coin flip per swing on level 85+ monsters before Sigil: Lethargy lands. Always drop the Sigil first on elites; 127 dex is enough, do not respec.",
+      "reason": "Combat rotation advice for the current character"
+    },
+    {
+      "id": "guides/warlock.html#s0:12",
+      "text": "Merc \u2014 Treachery (Fade proc = +51 res, 15 % PDR, 45 IAS) replaced Smoke on 2026-09-19, but the 2026-09-20 check found he still dies: the armor jumps the queue ahead of the helm and the Giant Thresher. See \u00a70.1.",
+      "reason": "Historical mercenary equipment observation; upgrades are in section 0.1"
+    },
+    {
+      "id": "guides/warlock.html#s0-1:5",
+      "text": "Free: Sigil: Lethargy on the pack before he reaches it; shift-click rejuvenations onto him when the herd closes. At 1,853 defense he is a tank in name only.",
+      "reason": "Mercenary combat tactics or unverified mechanics, not an equipment verdict"
+    },
+    {
+      "id": "guides/warlock.html#s0-1:6",
+      "text": "Holy Freeze does nothing to cold-immune packs. Hell cows are not immune, but Pindleskin's minions and some Nihlathak-area packs are. If the deaths cluster at Pindle rather than in cows, that is why, and the armor step is what covers it.",
+      "reason": "Mercenary combat tactics or unverified mechanics, not an equipment verdict"
+    },
+    {
+      "id": "guides/warlock.html#s0-1:7",
+      "text": "Prayer + Insight (the classic cheap sustain pairing) was considered and dropped: he is already Holy Freeze, and the claim that Meditation carries Prayer's heal is not verified in this repo.",
+      "reason": "Mercenary combat tactics or unverified mechanics, not an equipment verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:1",
+      "text": "Crafted ilvl = \u230aclvl/2\u230b + \u230abase ilvl/2\u230b. The number of random affixes is rolled from that ilvl: at crafted ilvl \u2265 71 you get the full 1\u20134 (each extra affix a coin-flip chain), lower ilvl caps you at fewer. Craft on a level 90+ character with a Hell-dropped base (Pindle's pack is mlvl 86, cows 81\u2013ish in Hell) and you are always past the cap.",
+      "reason": "Crafting and shopping mechanics, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:2",
+      "text": "Affix level = ilvl \u2212 qlvl/2 gates which affixes can appear. +2 class skills on an amulet needs a high-level amulet, 30 FRW on boots needs a high-level base. Hell Anya's stock is ilvl = clvl + 5 (cap 99), so at clvl 90 she sells ilvl-95 magic rings, amulets, boots and belts \u2014 the best craft bases you can buy, and repeatable every Pindle run (farm guide \u00a74).",
+      "reason": "Crafting and shopping mechanics, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:3",
+      "text": "Gambled rings/amulets also work but cost ~50k gold each; shop bases cost a few thousand.",
+      "reason": "Crafting and shopping mechanics, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:1",
+      "text": "Magic Boots / Demonhide / Wyrmhide Boots \u00b7 Light Belt / Sharkskin Belt / Vampirefang BeltHell Anya armor tab (magic only, ilvl clvl+5); Hell dropsyes \u2014 the six bases are in the Craft Bases ARMOR rule (\u00a76), which can be switched off",
+      "reason": "Crafting ingredient acquisition instructions, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:2",
+      "text": "Magic Ring / AmuletHell Anya; gamble; dropsyes \u2014 accessories always show",
+      "reason": "Crafting ingredient acquisition instructions, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:3",
+      "text": "Any Jeweldrops (every jewel is shown)yes",
+      "reason": "Crafting ingredient acquisition instructions, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:4",
+      "text": "Thul, Ith, Sol, Ral, Amn, Ortdrops, countess, cube-up from El\u2013Tir (3:1)yes \u2014 every rune",
+      "reason": "Crafting ingredient acquisition instructions, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:5",
+      "text": "Perfect Amethyst / Perfect Ruby3 flawless \u2192 1 perfect in the cube; cows drop plentyyes \u2014 flawless + perfect gems",
+      "reason": "Crafting ingredient acquisition instructions, not a drop verdict"
+    },
+    {
+      "id": "guides/warlock.html#s5:5",
+      "text": "A rare with triple durability is a failed unique: nothing more.",
+      "reason": "Failed-unique durability explanation; not an item keep rule"
+    },
     {
       "id": "guides/warlock.html#s6:12",
       "text": "2026-09-20 \u2014 Added \u00a70.1 (merc survival) from a mercenary screen + three tooltip screenshots and the Holy Freeze skill tooltip: diagnosis is defense 1,853 and 10 % leech, not resists or life; Fortitude in an eth 4os Dusk Shroud (Lo ~5.9 + base 0.25\u20130.8) jumps ahead of the helm and Giant Thresher that the \u00a70 merc bullet had queued. Sacred Armor excluded on the merc's 204 str. Cure/Bulwark mods left unverified (\u00a77 item 5); Prayer+Meditation pairing not asserted.",
@@ -119,48 +589,21 @@
       "id": "guides/pindle-anya.html#s3:28",
       "text": "Leave (ground) \u00b7 vendor (after pickup/ID)",
       "reason": "Full-width bold table group heading; individual rules follow"
+    },
+    {
+      "id": "guides/pindle-anya.html#s5:103",
+      "text": "Blues and rares (rarity 797 + affix props; the ones a Pindle runner or Anya shopper meets)",
+      "reason": "Table group heading for the affixed items that follow"
     }
   ],
   "unresolved": [
-    {
-      "id": "guides/pricing.html#s2-gray:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s2-gray:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s2-gray:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s2-gray:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
     {
       "id": "guides/pricing.html#s2-blue:7",
       "missing": [
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Grand Charm"
     },
     {
       "id": "guides/pricing.html#s2-blue:9",
@@ -168,7 +611,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s2-blue:10",
@@ -176,7 +619,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Anything else blue (generic armor / weapon / helm / shield, excluding the charm patterns in primer \u00a74.1)"
     },
     {
       "id": "guides/pricing.html#s2-yellow:5",
@@ -184,15 +627,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s2-yellow:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Rune and gem sale lots. An exact supported lot is assessed against the 0.25-Ist threshold using its total asking value. Keep the source quot"
     },
     {
       "id": "guides/pricing.html#s2-yellow:24",
@@ -200,7 +635,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Anything else"
     },
     {
       "id": "guides/pricing.html#s2-gold:1",
@@ -208,7 +643,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Is it in the primer's unique table (\u00a75)? Yes \u2192 read the one roll that matters and take the bucket: Arachnid Mesh ED, Mara's all-res, Crown o"
     },
     {
       "id": "guides/pricing.html#s2-gold:2",
@@ -216,7 +651,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Not in the table \u2192 does a build in appendix B name it? Yes \u2192 Low tier, sell for a mid rune or wear it (Bloodpact Shard, Entropy Locket for E"
     },
     {
       "id": "guides/pricing.html#s2-gold:3",
@@ -224,7 +659,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Set pieces: Tal Rasha's, IK, Trang-Oul's, Aldur's, Griswold's pieces trade at Low\u2013Mid; assess RotW pieces separately: October 4 scoped asks "
     },
     {
       "id": "guides/pricing.html#s3:1",
@@ -232,7 +667,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Name colour + base name"
     },
     {
       "id": "guides/pricing.html#s3:2",
@@ -240,7 +675,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: \u201cSuperior\u201d / \u201cEthereal\u201d / gray name"
     },
     {
       "id": "guides/pricing.html#s3:3",
@@ -248,15 +683,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s3:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Defense / Damage line"
     },
     {
       "id": "guides/pricing.html#s3:6",
@@ -264,7 +691,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Socketed (n)"
     },
     {
       "id": "guides/pricing.html#s3:7",
@@ -272,7 +699,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Automods (shield res, bow skills, class staff-mods)"
     },
     {
       "id": "guides/pricing.html#s3:8",
@@ -280,7 +707,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Affixes"
     },
     {
       "id": "guides/pricing.html#s6:1",
@@ -288,7 +715,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:2",
@@ -296,7 +723,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:3",
@@ -304,7 +731,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:4",
@@ -312,7 +739,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:5",
@@ -320,7 +747,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:6",
@@ -328,7 +755,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:7",
@@ -336,7 +763,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:8",
@@ -344,7 +771,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:9",
@@ -352,7 +779,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s6:10",
@@ -360,7 +787,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/pricing.html#s7:5",
@@ -368,79 +795,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing.html#s8:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": "Guide gives three +1 staffmods without skill identities; do not invent exact skills."
-    },
-    {
-      "id": "guides/pricing.html#s8:17",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": "The local magicsuffix definition restricts of Thawing to armor/shields/boots/circlets/amulets/orbs, not gloves. Original title is inconsistent with the item definitions."
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#twin:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: +3 Abyss, +2 Apocalypse, +3 Eldritch Blast on anything"
     },
     {
       "id": "guides/pricing-primer.html#miss:1",
@@ -448,7 +803,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Blue Monarch / Archon Plate / Sacred Targe with the Jeweler's prefix (4os)"
     },
     {
       "id": "guides/pricing-primer.html#miss:2",
@@ -456,7 +811,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Yellow / blue Circlet, Coronet, Tiara, Diadem"
     },
     {
       "id": "guides/pricing-primer.html#miss:3",
@@ -464,7 +819,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Any grimoire (Grimoire \u2026 Forgotten Volume) of any colour"
     },
     {
       "id": "guides/pricing-primer.html#miss:4",
@@ -472,7 +827,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Blue class items: claws, Preserved Head / Bloodlord Skull, orbs, war scepters, barb helms, druid pelts, daggers, Amazon javelins"
     },
     {
       "id": "guides/pricing-primer.html#miss:5",
@@ -480,7 +835,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: White Sacred Targe / Sacred Rondache (an ordinary white shield)"
     },
     {
       "id": "guides/pricing-primer.html#miss:6",
@@ -488,7 +843,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Superior elite armor / weapon with the right socket count, and ethereal elite polearms"
     },
     {
       "id": "guides/pricing-primer.html#miss:7",
@@ -496,7 +851,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Grand Matron Bow / Matriarchal Bow with the +3 Bow & Crossbow automod"
     },
     {
       "id": "guides/pricing-primer.html#miss:8",
@@ -504,7 +859,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Grand Charm with a tree name (Lion Branded, Sparking, Chilling, Burning \u2026)"
     },
     {
       "id": "guides/pricing-primer.html#miss:9",
@@ -512,7 +867,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Small Charm with two prefixes"
     },
     {
       "id": "guides/pricing-primer.html#miss:10",
@@ -520,7 +875,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Sunder charm, Colossal Ancient Jewel (RotW)"
     },
     {
       "id": "guides/pricing-primer.html#miss:11",
@@ -528,7 +883,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Jewel (any colour)"
     },
     {
       "id": "guides/pricing-primer.html#miss:12",
@@ -536,7 +891,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Rare ring / amulet / boots / gloves / belt"
     },
     {
       "id": "guides/pricing-primer.html#miss:13",
@@ -544,7 +899,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Crafted (orange) amulet / ring / gloves"
     },
     {
       "id": "guides/pricing-primer.html#miss:14",
@@ -552,455 +907,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:8",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:9",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:11",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:12",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:13",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:14",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:15",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:16",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:17",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:18",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:19",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:20",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:21",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:22",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:23",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:24",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:25",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:26",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2:27",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:8",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:9",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:11",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-why:12",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-1:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-1:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-1:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-1:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-1:8",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-2:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-2:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-2:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-2:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-2:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-3:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-3:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-3:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-3:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-4:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-4:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s2-4:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Unidentified Hellfire Torch, keys, essences, tokens, shards, Perfect gems, Hel+ runes"
     },
     {
       "id": "guides/pricing-primer.html#s4-1:11",
@@ -1011,28 +918,12 @@
       "reason": "Mixed historical tree/suffix aggregates do not establish every plain or life variant. October 3 supports Druid Summoning 45 life and Shadow 45 life; Masteries 7 FRW is sparse. Offensive/Defensive Aura 30-life trade coverage is unresolved; do not infer its price from plain or 45-life quotes."
     },
     {
-      "id": "guides/pricing-primer.html#s4-1:13",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#s4-2:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
       "id": "guides/pricing-primer.html#s4-3:12",
       "missing": [
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: CH-torch-_other_fills"
     },
     {
       "id": "guides/pricing-primer.html#s4-4:1",
@@ -1040,7 +931,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: base (min \u00b7 median Ist; n / priced)"
     },
     {
       "id": "guides/pricing-primer.html#s4-4:2",
@@ -1048,7 +939,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Latent"
     },
     {
       "id": "guides/pricing-primer.html#s4-4:3",
@@ -1056,7 +947,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Renewed"
     },
     {
       "id": "guides/pricing-primer.html#s5-2:14",
@@ -1064,7 +955,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Colossal Ancient Jewels \u00b7 Statue Set (MS-statue-set)"
     },
     {
       "id": "guides/pricing-primer.html#s5-2:15",
@@ -1072,7 +963,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Heralds / Thunder Charms"
     },
     {
       "id": "guides/pricing-primer.html#s5-2:16",
@@ -1080,7 +971,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Worldstone Shards (MS-*-worldstone-shard)"
     },
     {
       "id": "guides/pricing-primer.html#s6-1:6",
@@ -1088,7 +979,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: RR-circlet (RR-pc-barb-circlet)"
     },
     {
       "id": "guides/pricing-primer.html#s6-1:7",
@@ -1096,71 +987,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d0:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d1:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d2:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d3:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d4:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d5:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d6:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pricing-primer.html#d7:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: (no key) rare gloves \u00b7 boots \u00b7 belts \u00b7 body armor \u00b7 weapons \u00b7 claws \u00b7 javelins"
     },
     {
       "id": "guides/warlock.html#s0:1",
@@ -1168,7 +995,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:2",
@@ -1176,7 +1003,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:3",
@@ -1184,7 +1011,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:4",
@@ -1192,7 +1019,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:5",
@@ -1200,7 +1027,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:6",
@@ -1208,7 +1035,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:7",
@@ -1216,7 +1043,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:8",
@@ -1224,7 +1051,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:9",
@@ -1232,15 +1059,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s0:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0:11",
@@ -1248,15 +1067,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s0:12",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0-1:1",
@@ -1264,7 +1075,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0-1:2",
@@ -1272,7 +1083,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0-1:3",
@@ -1280,7 +1091,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s0-1:4",
@@ -1288,31 +1099,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s0-1:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s0-1:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s0-1:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:1",
@@ -1320,7 +1107,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:2",
@@ -1328,7 +1115,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:3",
@@ -1336,7 +1123,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:4",
@@ -1344,7 +1131,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:5",
@@ -1352,7 +1139,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:6",
@@ -1360,7 +1147,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:7",
@@ -1368,7 +1155,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:8",
@@ -1376,7 +1163,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:9",
@@ -1384,7 +1171,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:10",
@@ -1392,7 +1179,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:11",
@@ -1400,7 +1187,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:12",
@@ -1408,7 +1195,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s1:13",
@@ -1416,7 +1203,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s2:1",
@@ -1424,7 +1211,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s2:2",
@@ -1432,7 +1219,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s2:3",
@@ -1440,7 +1227,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s2:4",
@@ -1448,7 +1235,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s2:5",
@@ -1456,7 +1243,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:1",
@@ -1464,7 +1251,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:2",
@@ -1472,7 +1259,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:3",
@@ -1480,7 +1267,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:4",
@@ -1488,7 +1275,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:5",
@@ -1496,7 +1283,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s3:6",
@@ -1504,71 +1291,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-1-item-level-why-where-the-base-comes-from-matters:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#guide-3-2-shopping-list-per-craft-from-one-pindle-anya-run:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Player or mercenary equipment/crafting recommendation; test against own.json"
     },
     {
       "id": "guides/warlock.html#s4:1",
@@ -1576,7 +1299,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Void base \u2014 Legend Spike / Fanged Knife / Kris, 3os or 0os requirements: Kris 45 dex \u00b7 Legend Spike 65 str / 67 dex \u00b7 Fanged Knife 42 str / "
     },
     {
       "id": "guides/warlock.html#s4:2",
@@ -1584,7 +1307,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Grimoires (15 bases, max 2os)"
     },
     {
       "id": "guides/warlock.html#s4:5",
@@ -1592,7 +1315,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Entropy Locket (RotW unique amulet)"
     },
     {
       "id": "guides/warlock.html#s4:6",
@@ -1600,7 +1323,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Bloodpact Shard (RotW unique dagger)"
     },
     {
       "id": "guides/warlock.html#s4:7",
@@ -1608,7 +1331,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Hellwarden's Will (RotW unique Death Mask)"
     },
     {
       "id": "guides/warlock.html#s4:8",
@@ -1616,7 +1339,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Wraithstep (boots)"
     },
     {
       "id": "guides/warlock.html#s4:9",
@@ -1624,7 +1347,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Ars Al'Diabolos / Dul'Mephistos / Tor'Baalos, Opalvein, Sling, Gheed's Wager"
     },
     {
       "id": "guides/warlock.html#s4:10",
@@ -1632,311 +1355,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s5:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s5:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s5:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s5:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s5:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:1",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:8",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:9",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/warlock.html#s6:11",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:2",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:3",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:4",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:5",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:6",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:7",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:8",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:9",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:10",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:11",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:12",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:13",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:15",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:16",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:17",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:18",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:19",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:20",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:22",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:23",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:24",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s3:29",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Bane's Garments, Horazon's Splendor (sets)"
     },
     {
       "id": "guides/pindle-anya.html#s3:30",
@@ -1944,63 +1363,7 @@
         "item",
         "expected"
       ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:34",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:36",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:99",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:100",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:101",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:102",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
-    },
-    {
-      "id": "guides/pindle-anya.html#s5:103",
-      "missing": [
-        "item",
-        "expected"
-      ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: PK-leave-blue-misc"
     },
     {
       "id": "guides/pindle-anya.html#s5:107",
@@ -2008,7 +1371,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Rare circlets: Diadem 2os \u00b7 Circlet 2os \u00b7 Coronet 0os"
     },
     {
       "id": "guides/pindle-anya.html#s5:110",
@@ -2016,7 +1379,7 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Preserved Head 2os magic (Necro +skill heads)"
     },
     {
       "id": "guides/pindle-anya.html#s5:113",
@@ -2024,27 +1387,27 @@
         "item",
         "expected"
       ],
-      "reason": null
+      "reason": "Concrete item and expected outcome not yet transcribed: Item or variant trade guidance: Rare elite weapons with ED (context for PK-rare-misc): Berserker Axe eth 0os rare 15 ED \u00b7 Phase Blade eth 0os rare 15 ED"
     }
   ],
   "failures": [],
   "exact_verdict_score": {
     "mode": "triage",
-    "labelled": 375,
-    "worth": 18,
-    "checks": 778,
+    "labelled": 486,
+    "worth": 73,
+    "checks": 1231,
     "check_recall": 1.0,
     "recall": 1.0,
     "keeps": 2,
     "precision": 1.0,
-    "priced": 55,
+    "priced": 101,
     "sell_band_coverage": 1.0,
     "confusion": {
-      "check\u2192check": 40,
+      "check\u2192check": 85,
       "self\u2192self": 1,
       "sell\u2192sell": 2,
-      "slow\u2192slow": 16,
-      "vendor\u2192vendor": 316
+      "slow\u2192slow": 71,
+      "vendor\u2192vendor": 327
     },
     "missed": [],
     "false_keeps": []

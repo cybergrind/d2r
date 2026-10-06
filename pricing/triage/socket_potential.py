@@ -4,7 +4,7 @@
 def preparation(item, rules):
     if (
         item.get('category') != 'base'
-        or item.get('rarity') not in ('normal', 'superior')
+        or item.get('rarity') not in ('normal', 'superior', 'low quality')
         or type(item.get('sockets')) is not int
         or item['sockets'] != 0
     ):

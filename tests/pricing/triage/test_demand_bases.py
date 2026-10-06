@@ -17,7 +17,7 @@ def test_demand_bases_use_documented_socket_counts_and_skip_existing_or_leveling
     assert all('base_ed_grade' in p['facets'] for p in policies)
 
 
-def test_ordinary_ed_rolls_share_band_but_perfect_and_unknown_do_not():
+def test_known_ed_preserves_perfect_premium_and_unknown_uses_relaxed_band():
     from pricing.triage.adapters import from_listing
     from pricing.triage.bands import build_bands
     from pricing.triage.engine import assess
@@ -47,7 +47,10 @@ def test_ordinary_ed_rolls_share_band_but_perfect_and_unknown_do_not():
     assert ordinary['band']['q1_ist'] == 0.75
     assert assess(from_listing(rows[-1]), tables)['band']['q1_ist'] == 100
     missing = rows[0] | {'properties': {k: v for k, v in rows[0]['properties'].items() if k != '510'}}
-    assert assess(from_listing(missing), tables)['band'] is None
+    fallback = assess(from_listing(missing), tables)['band']
+    assert fallback['relaxed_facets'] == ['base_ed']
+    assert fallback['sellers'] == 6
+    assert fallback['q1_ist'] < 100
 
 
 def test_demand_prose_cannot_authorize_an_incompatible_or_unknown_recipe():
@@ -133,4 +136,31 @@ def test_superior_secondary_rolls_merge_without_a_supported_price_split():
     absent = from_listing(rows[2] | {'properties': {'510': 15}})
     assert assess(absent, tables)['decision_ist'] == 1.75
     target = from_listing(rows[2] | {'properties': {'510': 15, '937': 12, '423': 3}})
-    assert assess(target, tables)['band'] is None
+    assert assess(target, tables)['decision_ist'] is None  # impossible three superior bonuses
+
+
+def test_gray_shortlist_sparse_variants_keep_without_inventing_prices():
+    from pricing.triage.engine import assess
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': guide_base_patterns()}, 'own': {'rows': []}}
+    for base, sockets, ethereal, stats in (('Matriarchal Spear', 4, True, {'188:2': 3}),):
+        spec = {'base': base, 'rarity': 'normal', 'ethereal': ethereal, 'sockets': sockets, 'stats': stats}
+        result = assess(item_from_spec(spec), tables)
+        assert result['verdict'] == 'check'
+        assert result['decision_ist'] is None
+        filled = item_from_spec(spec | {'socket_contents': 'filled'})
+        assert assess(filled, tables)['verdict'] == 'vendor'
+    low = item_from_spec(spec | {'stats': {'188:2': 1}})
+    assert assess(low, tables)['verdict'] == 'vendor'
+
+
+def test_shortlisted_kite_shield_preserves_specific_worked_vendor_case():
+    from pricing.triage.engine import assess
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': guide_base_patterns()}, 'own': {'rows': []}}
+    item = item_from_spec({'base': 'Kite Shield', 'rarity': 'normal', 'ethereal': False, 'sockets': 3})
+    assert assess(item, tables)['verdict'] == 'vendor'

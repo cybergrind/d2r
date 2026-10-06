@@ -31,10 +31,12 @@ The full image-to-report command is not implemented yet.
 
 ## Assessment engine work (all agents)
 
-The active plan is `pricing/knowledge/assessment/planning/PLAN.md` (2026-10-03). The completion
-contract, coverage matrix, report receipts and per-item formal reviews are frozen: do not resume
-them, do not regenerate their artifacts, and do not append to `handoff.md` or `STATUS.md`.
-Measure changes with the corpus score (`inventory_tracking/corpus`).
+The driving document is `pricing/knowledge/assessment/planning/COMPLETION_CONTRACT.md`: its
+"Current contract" section (2026-10-06) holds the end goal, measures, queue and stopping rule.
+`PLAN.md` in the same directory holds the design, steering history and status. The rest of the
+contract file, the coverage matrix, report receipts and per-item formal reviews are frozen: do
+not resume them, do not regenerate their artifacts, and do not append to `handoff.md` or
+`STATUS.md`. Measure changes with the corpus score (`inventory_tracking/corpus`).
 
 ## Rules that apply to every task
 

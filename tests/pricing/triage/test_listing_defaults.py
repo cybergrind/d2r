@@ -228,3 +228,30 @@ def test_inherent_paladin_damage_cannot_imply_superior_armor_quality():
     }
     row['properties']['510'] = 10
     assert normalize(row)['rarity'] == 'normal'
+
+
+@pytest.mark.parametrize(
+    ('name', 'properties'),
+    [
+        ('Kriss', {'510': 13, '1579': 3, '1574': 2, '937': 11}),
+        ('Sacred Targe', {'425': 15, '441': 45}),
+    ],
+)
+def test_superior_signature_preserves_legal_native_modifiers(name, properties):
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.listing_defaults import normalize
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == name)
+    row = listing('seller', 1) | {
+        'category': 'base',
+        'name': name,
+        'base_code': base['code'],
+        'rarity': 'normal',
+        'sockets': 3,
+        'socket_contents': 'empty',
+    }
+    row['properties'].update(properties)
+    assert normalize(row)['rarity'] == 'superior'
+    assert normalize(row | {'properties': row['properties'] | {'520': 20}})['rarity'] == 'normal'
+    assert normalize(row | {'rarity': None})['rarity'] is None
+    assert normalize(row | {'socket_contents': 'filled'})['rarity'] == 'normal'

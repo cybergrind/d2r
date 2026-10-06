@@ -7,6 +7,11 @@ def test_known_level_and_quality_control_socket_outcomes_without_pricing():
     result = preparation(item, rules)
     assert result == {'larzuk': [4], 'cube': [1, 2, 3, 4], 'conditional': False}
     assert preparation(item | {'rarity': 'superior'}, rules)['cube'] == []
+    assert preparation(item | {'rarity': 'low quality'}, rules) == {
+        'larzuk': [4],
+        'cube': [],
+        'conditional': False,
+    }
     assert preparation(item | {'item_level': None}, rules) == {
         'larzuk': [3, 4, 6],
         'cube': [1, 2, 3, 4, 5, 6],
@@ -113,3 +118,26 @@ def test_unsocketed_abyss_and_bone_spear_need_attainable_sockets():
         assert assess(item | {'properties': {prop: 2}}, tables)['verdict'] == 'vendor'
         tables['rules']['socket_caps'][name] = [1, 1, 1]
         assert assess(item, tables)['verdict'] == 'vendor'
+
+
+def test_socket_cap_export_is_independent_of_pricing_rules_and_preserves_native_names():
+    import json
+    from pathlib import Path
+
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.import_bases import socket_caps_by_name
+
+    utility = json.loads(Path('pricing/data/appraisal-utility.json').read_text())['rows']
+    caps = socket_caps_by_name(utility)
+    assert caps['Dagger'] == [1, 1, 1]
+    assert caps['Stilleto'] == caps['Stiletto'] == [2, 3, 3]
+    assert caps['Kriss'] == caps['Kris'] == [2, 3, 3]
+    dagger = next(b for b in metadata()['bases'].values() if b['name'] == 'Dagger')
+    row = next(
+        r
+        for r in utility
+        if r.get('base_code') == dagger['code'] and r.get('details', {}).get('rule') == 'socket_potential'
+    )
+    assert socket_caps_by_name([row | {'base_code': 'unverified'}]) == {}
+    conflict = row | {'details': row['details'] | {'larzuk_unknown_ilvl': {'maximum_by_ilvl_bracket': [0, 1, 1]}}}
+    assert 'Dagger' not in socket_caps_by_name([row, conflict])

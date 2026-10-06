@@ -278,7 +278,7 @@ capture lock. The research dump still runs, with no desktop notification while t
 
 Double Win+C (user request, 2026-09-30): two presses within 0.5 s (hotkey timestamps) pin the
 card. It never expires, keeps its live dot/arrow/route, follows into every level (map only where
-there is no handler), and hides while D2R is unfocused. The next double press unpins it.
+there is no handler), and hides while D2R is unfocused. The next double press unpins it. Since 2026-10-06 the window is 0.2 s, and a single Win+C on a shown map switches a big level between the view around the player and the whole level (`osd/level_map.py` `WHOLE_SCALE`/`LOCAL_SCALE`).
 `LevelGuide.press()`.
 
 Own OSD window (user request, 2026-09-30): the guide card (arrows + map) moved out of the

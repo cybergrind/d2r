@@ -1,7 +1,79 @@
-> **FROZEN 2026-10-03 (user decision).** This document no longer drives work: its gates, queues and
-> stopping rules are suspended. The active plan is [PLAN.md](PLAN.md). Kept as technical reference only.
-
 # All-item assessment: end goal and completion contract
+
+## Current contract (2026-10-06) — read this section first; it overrides everything below
+
+The user named this document the main driving document again on 2026-10-06. It states the end
+goal, the measures that prove it and the stopping rule. [PLAN.md](PLAN.md) holds the design,
+the steering history and the status (its section 8); the work queue is its newest Steering
+block. Everything below this section was frozen by the user on 2026-10-03 and stays frozen:
+the scope manifest, coverage matrix, item bank, receipts, per-item formal reviews and the
+"Mandatory final gates" table are technical reference and are not resumed or regenerated.
+
+### End goal
+
+On a drop, say quickly whether it is worth keeping to sell, for every item type, in
+Softcore / Non-Ladder / PC / Reign of the Warlock, Ist = 1. In priority order: liquid items
+first; a fast answer; every type answered (uniques, sets, rares, magic, crafted, charms,
+jewels, bases, runewords, runes, materials); uniques and sets separated by rolls and
+ethereal status; demand taken from the guides and from market data. The player is not
+levelling characters. Keep price: 0.25 Ist, inclusive.
+
+### Evidence rules
+
+- The user does not label, skim or confirm items. Never ask, and never report work as
+  blocked on it.
+- The guides are the answer key for patterns and demand; scoped Traderie asks are the answer
+  key for price, one vote per seller. Asks are not sales; demand never creates a price.
+- When a guide and later Traderie evidence disagree, the later evidence wins and the guide
+  is corrected with a dated pass.
+- Live pulls only through `pricing/tools/`, paced, with the scope filters. The weekly page-0
+  pull is authorized; the next is due 2026-10-10 or -11.
+
+### Measures (score files in `inventory_tracking/corpus/data/`, values of 2026-10-06)
+
+| Measure | Target | Now |
+|---|---|---|
+| Guide worked examples and false-positive rows | 100% pass | 36/38 and 15/15 |
+| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified; 305 of 404 pass (75.5%); 99 not transcribed |
+| Listing replay, valuable seller votes flagged | at least 85% | 75.0% (bases 62.3%) |
+| Cheap listings flagged SELL or slow / CHECK | at most 10% / 25% | 10.4% (over) / 17.7% |
+| Named corpus drops that end as CHECK | at most 15% | 12.3% |
+| SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | unmeasured (one-day interval) |
+| Speed | under 50 ms per item; a ten-item identify pass under 1 s | 0.3 ms replayed; live pass unrecorded |
+
+A measure counts as met only from a score file produced by the current code and tables. A
+number that goes down is reverted or explained in PLAN.md section 8.
+
+### Queue
+
+PLAN.md "Steering 8" (2026-10-06 15:40, refining Steering 7), in this order:
+
+1. Bases: exit at base recall of at least 70%, from missing buckets, rarity and enhancement
+   variants; sparse staffmod rolls stay CHECK.
+2. Named items: unique, set and runeword roll placement, which also returns the cheap SELL
+   rate under its limit.
+3. Transcribe the 99 classified guide rows as cases in one pass; failing rows are listed as
+   failures. Close the two incomplete worked cases in the same pass.
+4. Demand: measure at the next weekly pull, not before.
+
+Affixed and charm pattern batches are parked: a pattern is added only to make a guide row
+execute or to fix a corpus drop.
+
+### Stopping rule
+
+The work is finished only when every measure above meets its target in the same score run.
+A batch, a family, a passing test suite, a status update or a context compaction is not a
+reason to stop, and no "continue" is requested from the user. If one item is blocked,
+continue with the next; a measure that cannot be reached is reported with its number and
+the evidence, never declared met. Do not add gates, manifests or per-batch artifacts to
+prove progress: the score files are the proof.
+
+---
+
+> **Frozen reference from here on (user decision, 2026-10-03).** The gates, queues and stopping
+> rules below are suspended and do not drive work.
+
+# Reference: contract text as of 2026-10-01
 
 Updated 2026-10-01 at the user's request. **Status: unfinished.**
 This document governs completion and stopping. It supersedes older milestone,

@@ -36,6 +36,9 @@ def test_map_dots_use_the_row_colours():
         'herald': Tone.HERALD,  # a live Terror Zone Herald
         'mob': Tone.MOB,  # a hostile monster alive
         'leader': Tone.MOB_LEADER,  # a unique, champion or super unique alive
+        'danger': Tone.MOB_DANGER,  # a monster of a deadly pack
+        'caution': Tone.MOB_CAUTION,  # a monster of a pack to be careful with
+        'pack': Tone.MOB_DANGER,  # a deadly pack's centre: only a ground arrow
     }
     assert {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()} == KIND_COLOURS
 

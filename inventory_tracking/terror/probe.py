@@ -9,9 +9,10 @@ Herald on screen can be matched to its `seen` record. No display, no game input.
 With a tracker (tracker.py) the same events drive the Terror Zone card: `tick` publishes the
 current Herald group's lines while D2R is focused.
 
-Events: area (entered; level Room2 count), rooms (newly loaded Room2s), seen (first sight, with
-data/stats), died (alive -> dead/dying mode: one kill), gone (dropped from the client; alive or
-not), back (reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark.
+Events: area (entered; level Room2 count), rooms (newly loaded Room2s), life (the player's life,
+whenever it changed: burst research, terror/bursts.py), seen (first sight, with data/stats), died
+(alive -> dead/dying mode: one kill), gone (dropped from the client; alive or not), back
+(reappeared), summary (every few seconds), left_game (menu: the ledger resets), mark.
 """
 
 import json
@@ -42,6 +43,7 @@ class MonsterLedger:
         self.rooms: dict[int, set[int]] = {}  # area -> Room2s ever loaded
         self.level_rooms: dict[int, int | None] = {}
         self.next_summary: float | None = None
+        self.life: tuple[int, int] | None = None  # the player's life as last logged
 
     @property
     def known(self) -> set[int]:
@@ -67,6 +69,10 @@ class MonsterLedger:
             if snapshot.level_hex is not None:
                 event['level_hex'] = snapshot.level_hex
             events.append(event)
+        if snapshot.player_life is not None and snapshot.player_life != self.life:
+            self.life = snapshot.player_life
+            position = {'x': location.x, 'y': location.y}
+            events.append({'event': 'life', 't': t, 'area': here, 'life': self.life[0], 'max': self.life[1]} | position)
         rooms = self.rooms.setdefault(here, set())
         new_rooms = snapshot.room2s - rooms
         if new_rooms:
@@ -169,6 +175,7 @@ class TerrorProbe:
         focused=None,
         show_unconfirmed=True,
         bosses=None,
+        danger=True,
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
@@ -179,6 +186,7 @@ class TerrorProbe:
         self.tracker, self.display, self.focused = tracker, display, focused
         self.show_unconfirmed = show_unconfirmed
         self.bosses = bosses  # boss kills of this game launch (terror/bosses.py), shown under the Terror lines
+        self.danger = danger  # warning rows for deadly packs above the Terror lines (terror/danger.py)
         self.card: list[str] = []
 
     def poll(self, now):
@@ -202,7 +210,12 @@ class TerrorProbe:
             return
         finally:
             self.capture_lock.release()
-        self.level = snapshot.location.level if snapshot.location else None
+        location = snapshot.location
+        # A level counts as read once its struct was: a read that failed on entry is tried again.
+        if location is None:
+            self.level = None
+        elif snapshot.level_rooms is not None:
+            self.level = location.level
         events = self.ledger.update(snapshot, now)
         for event in events:
             if event['event'] == 'left_game' and event['killed']:
@@ -210,6 +223,8 @@ class TerrorProbe:
         self.write(events)
         if self.tracker is not None:
             self.tracker.apply(events)
+            if location is not None and snapshot.level_rooms is not None:
+                self.tracker.level_read(location.area_id, snapshot.level_rooms, snapshot.level_hex or '')
             self.tracker.track(snapshot.monsters, snapshot.location, snapshot.complete)
         if self.bosses is not None:
             self.bosses.apply(self.source.images.get('identity') or {'pid': self.source.pid}, events)
@@ -219,7 +234,11 @@ class TerrorProbe:
         if location is None:
             return []
         bosses = self.bosses.lines() if self.bosses is not None else []
-        return [*(self.terror_lines(tracker, location, player_level) if tracker is not None else []), *bosses]
+        warnings = []
+        if tracker is not None and self.danger:
+            warnings = tracker.danger_lines(location.area_id, (location.x, location.y))
+        terror = self.terror_lines(tracker, location, player_level) if tracker is not None else []
+        return [*warnings, *terror, *bosses]
 
     def terror_lines(self, tracker, location, player_level=None) -> list[str]:
         terrorized = tracker.terrorized(location.area_id)

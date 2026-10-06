@@ -297,23 +297,36 @@ def item_from_spec(spec):
         }
     )
     # Listing omission defaults must not invent guide/capture facts.
-    item.update(ethereal=spec['ethereal'], sockets=spec['sockets'], native_rolls=native)
+    item.update(
+        ethereal=spec['ethereal'], sockets=spec['sockets'], native_rolls=native, item_level=spec.get('item_level')
+    )
     return item
 
 
 def evaluate(cases, assess):
     groups, unresolved, results, labels, failures = {}, [], [], {}, []
-    context = []
+    context, pickup = [], []
+    classifications = dict.fromkeys(('verdict', 'own-use', 'pickup', 'context'), 0)
     for case in cases:
-        if case['kind'] == 'context':
-            context.append({'id': case['id'], 'text': case['text'], 'reason': case['context_reason']})
+        category = case.get('classification', 'context' if case['kind'] == 'context' else 'verdict')
+        classifications[category] += 1
+        if category in {'context', 'pickup'}:
+            destination = context if category == 'context' else pickup
+            destination.append(
+                {
+                    'id': case['id'],
+                    'text': case['text'],
+                    'reason': case.get('classification_reason', case.get('context_reason')),
+                }
+            )
             continue
-        group = groups.setdefault(case['kind'], {'total': 0, 'evaluated': 0, 'passed': 0})
+        kind = category if case['kind'] == 'table' and case.get('classification') else case['kind']
+        group = groups.setdefault(kind, {'total': 0, 'evaluated': 0, 'passed': 0})
         group['total'] += 1
+        comparison_passed = True
         if case.get('comparisons'):
             # Some guide rows specify relative value, not an absolute verdict.
             # For example, scoped asks can establish a variant premium.
-            group['evaluated'] += 1
             passed = True
             for index, comparison in enumerate(case['comparisons']):
                 outcomes = []
@@ -343,26 +356,36 @@ def evaluate(cases, assess):
                 if differences:
                     passed = False
                     failures.append({'id': f'{case["id"]}/{index}', 'differences': differences})
-            group['passed'] += passed
-            continue
+            if not any(case.get(key) for key in ('item', 'items', 'spec', 'specs', 'examples')):
+                group['evaluated'] += 1
+                group['passed'] += passed
+                continue
+            comparison_passed = passed
         items = case.get('items', []) or ([case['item']] if case.get('item') else [])
         specs = case.get('specs', []) or ([case['spec']] if case.get('spec') else [])
         if specs:
             items = [item_from_spec(spec) for spec in specs]
         expected = [case.get('expected')] * len(items)
+        expected_fields = [case.get('expected_fields', {})] * len(items)
         if case.get('examples'):
             items = [item_from_spec(e['spec']) if e.get('spec') else e.get('item') for e in case['examples']]
             expected = [e.get('expected') for e in case['examples']]
+            expected_fields = [e.get('expected_fields', {}) for e in case['examples']]
         if not items or not all(items) or not all(expected):
             missing = ([] if items and all(items) else ['item']) + ([] if expected and all(expected) else ['expected'])
             unresolved.append({'id': case['id'], 'missing': missing, 'reason': case.get('unresolved_reason')})
             continue
+        if category == 'own-use':
+            expected = [['self']] * len(items)
         group['evaluated'] += 1
-        passed = True
+        passed = comparison_passed
         for index, item in enumerate(items):
             validate_native_keys(item, case['id'])
             result = assess(item)
-            accepted = result['verdict'] in expected[index]
+            fields = expected_fields[index]
+            accepted = result['verdict'] in expected[index] and all(
+                field in result and result[field] == value for field, value in fields.items()
+            )
             passed &= accepted
             identity = case['id'] if len(items) == 1 else f'{case["id"]}/{index}'
             row = result | {'id': identity, 'name': item.get('name', ''), 'rarity': item.get('category', '')}
@@ -371,11 +394,22 @@ def evaluate(cases, assess):
             if len(expected[index]) == 1:
                 labels[identity] = expected[index][0]
             if not accepted:
-                failures.append({'id': identity, 'expected': expected[index], 'actual': result})
+                failure = {'id': identity, 'expected': expected[index], 'actual': result}
+                if fields:
+                    failure['expected_fields'] = fields
+                failures.append(failure)
         group['passed'] += passed
     for group in groups.values():
         group['accuracy'] = group['passed'] / group['total'] if group['total'] else None
+    table_score = {
+        key: sum(groups.get(kind, {}).get(key, 0) for kind in ('table', 'verdict', 'own-use'))
+        for key in ('total', 'evaluated', 'passed')
+    }
+    table_score['accuracy'] = table_score['passed'] / table_score['total'] if table_score['total'] else None
     return {
+        'classifications': classifications,
+        'table_score': table_score,
+        'pickup': pickup,
         'groups': groups,
         'context': context,
         'unresolved': unresolved,
@@ -407,6 +441,15 @@ def build_cases():
             examples := base_table_examples(case)
         ):
             case['examples'] = examples
+    from pricing.triage.guide_classification import classify
+
+    for case in cases:
+        case.update(classify(case))
+        if not any(case.get(key) for key in ('item', 'items', 'spec', 'specs', 'examples', 'comparisons')):
+            case.setdefault(
+                'unresolved_reason',
+                'Concrete item and expected outcome not yet transcribed: ' + case['classification_reason'],
+            )
     atomic_json(path, cases)
     return cases
 
@@ -420,7 +463,17 @@ def main():
     report = evaluate(cases, lambda item: assess(item, tables))
     atomic_json(ROOT / 'inventory_tracking/corpus/data/score-guides.json', report)
     print(
-        json.dumps({'cases': len(cases), 'groups': report['groups'], 'unresolved': len(report['unresolved'])}, indent=2)
+        json.dumps(
+            {
+                'cases': len(cases),
+                'classifications': report['classifications'],
+                'table_score': report['table_score'],
+                'groups': report['groups'],
+                'unresolved': len(report['unresolved']),
+                'failures': len(report['failures']),
+            },
+            indent=2,
+        )
     )
 
 

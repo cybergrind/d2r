@@ -338,6 +338,7 @@ class AppraisalConfig(Config):
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
+    danger_marks: bool = True  # deadly packs: own map dots, ground marks and a warning row (terror/danger.py)
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
     terror_card_unconfirmed: bool = (
@@ -363,7 +364,8 @@ class HudGroundConfig(Config):
     enabled: bool = True
     # Map dot kinds (osd/level_map.KIND_TONES) that also get a ground mark: unique/champion
     # monsters, Heralds, the next level, exits and waypoints (user, 2026-10-05).
-    kinds: tuple[str, ...] = ('leader', 'herald', 'stairs', 'exit', 'waypoint')
+    # 'danger': every monster of a deadly pack; 'pack': the arrow to such a pack out of view (2026-10-06).
+    kinds: tuple[str, ...] = ('leader', 'danger', 'pack', 'herald', 'stairs', 'exit', 'waypoint')
     alpha: Annotated[float, Field(gt=0, le=1)] = 0.5  # outline; the fill is fainter still
     # Where the player stands in the game window, and one tile's floor-diamond height, as window
     # fractions. Classic 800x600 view values (a tile is 160x80 px there); not calibrated in D2R yet.
@@ -383,7 +385,9 @@ class HudGroundConfig(Config):
     arrow_alpha: Annotated[float, Field(gt=0, le=1)] = 0.9
     # Kinds that get an arrow only within this many tiles of the player (user, 2026-10-05: not an
     # arrow for every pack of the level); a screen is roughly 15 tiles across. Others always do.
-    arrow_range: dict[str, float] = {'leader': 15}
+    # A deadly pack gets one arrow, to its centre, from as far as monsters are remembered; its
+    # members get none.
+    arrow_range: dict[str, float] = {'leader': 15, 'danger': 0, 'pack': 40}
 
 
 class HudConfig(Config):

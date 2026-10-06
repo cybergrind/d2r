@@ -32,11 +32,13 @@ def build_map(
     visited: set | None = None,
     dots: Iterable[MapPoi] = (),
     pid: int | None = None,
+    whole: bool = False,
 ) -> MapCard:
     """`location` overrides the snapshot's player position (live dot while the card is shown).
     `visited` (bounds of the rooms ever loaded, terror/tracker.py) shades the rooms: the others
     are drawn dimmer. `dots` are extra live marks in tiles (monsters, a Herald).
     `pid` (the game process) lets the HUD follow the player between cards when the location has its path.
+    `whole` draws a big level whole instead of the part around the player (osd/level_map.py).
 
     The route leads to the first POI reachable through doorways (mazes only; levels/route.py).
     """
@@ -59,4 +61,5 @@ def build_map(
         walkable=tuple((g.x, g.y, g.width, g.height, g.cells) for g in walkable),
         visited=tuple(int((r.x, r.y, r.width, r.height) in visited) for r in snapshot.rooms) if visited else (),
         live=(pid, where.path) if pid and where.path else None,
+        whole=whole,
     )

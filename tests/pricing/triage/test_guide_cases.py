@@ -359,3 +359,146 @@ def test_mummified_trophy_unknown_suffixes_cover_legal_native_ranges():
     assert {
         (e['spec']['stats']['110:0'], e['spec']['stats']['78:0'], e['spec']['ethereal']) for e in row['examples']
     } == set(product(values['res-pois-len'], values['thorns'], [False, True]))
+
+
+def test_guide_item_level_reaches_socket_preparation():
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.socket_potential import preparation
+
+    spec = {'base': 'Phase Blade', 'rarity': 'normal', 'ethereal': False, 'sockets': 0}
+    rules = {'socket_caps': {'Phase Blade': [3, 4, 6]}}
+    for level, maximum in ((25, 3), (26, 4), (40, 4), (41, 6)):
+        item = item_from_spec(spec | {'item_level': level})
+        assert preparation(item, rules) == {
+            'larzuk': [maximum],
+            'cube': list(range(1, maximum + 1)),
+            'conditional': False,
+        }
+        superior = item_from_spec(spec | {'item_level': level, 'rarity': 'superior'})
+        assert preparation(superior, rules) == {'larzuk': [maximum], 'cube': [], 'conditional': False}
+    unknown = preparation(item_from_spec(spec), rules)
+    assert unknown['larzuk'] == [3, 4, 6]
+    assert unknown['conditional'] is True
+
+
+def test_classified_score_keeps_failing_and_untranscribed_verdicts_in_denominator():
+    cases = [
+        {
+            'id': 'failed',
+            'kind': 'table',
+            'classification': 'verdict',
+            'classification_reason': 'Explicit sell instruction',
+            'item': {'name': 'A'},
+            'expected': ['slow'],
+        },
+        {
+            'id': 'missing',
+            'kind': 'table',
+            'classification': 'verdict',
+            'classification_reason': 'Base variant needs transcription',
+            'unresolved_reason': 'Socket variants not transcribed',
+        },
+        {
+            'id': 'own',
+            'kind': 'table',
+            'classification': 'own-use',
+            'classification_reason': 'Player equipment upgrade',
+            'item': {'name': 'B'},
+            'expected': ['self'],
+        },
+        {
+            'id': 'pickup',
+            'kind': 'table',
+            'classification': 'pickup',
+            'classification_reason': 'Before identification',
+            'text': 'Pick up blue gloves',
+        },
+        {
+            'id': 'context',
+            'kind': 'table',
+            'classification': 'context',
+            'classification_reason': 'Recipe mechanics',
+            'text': 'Socket recipe',
+        },
+    ]
+    result = evaluate(
+        cases, lambda item: {'verdict': 'self' if item['name'] == 'B' else 'vendor', 'reason': 'Test outcome'}
+    )
+    assert result['classifications'] == {'verdict': 2, 'own-use': 1, 'pickup': 1, 'context': 1}
+    assert result['table_score'] == {'total': 3, 'evaluated': 2, 'passed': 1, 'accuracy': 1 / 3}
+    assert [row['id'] for row in result['failures']] == ['failed']
+    assert [row['id'] for row in result['unresolved']] == ['missing']
+    assert result['pickup'][0]['reason'] == 'Before identification'
+
+
+def test_guide_classification_does_not_depend_on_current_assessment_or_case_presence():
+    from pricing.triage.guide_classification import classify
+
+    cases = [
+        ('guides/pricing-primer.html#s2:6', 'verdict'),
+        ('guides/pricing-primer.html#s2-why:1', 'context'),
+        ('guides/pricing-primer.html#s2-2:4', 'context'),
+        ('guides/pricing-primer.html#s2-2:1', 'verdict'),
+        ('guides/warlock.html#s1:1', 'own-use'),
+        ('guides/warlock.html#s6:1', 'pickup'),
+        ('guides/pindle-anya.html#s3:30', 'verdict'),
+        ('guides/pricing.html#s8:5', 'context'),
+        ('guides/pricing.html#s8:17', 'context'),
+        ('guides/pricing.html#s8:18', 'verdict'),
+    ]
+    for identity, expected in cases:
+        row = {'id': identity, 'source': identity.rsplit(':', 1)[0], 'kind': 'table', 'text': 'Example'}
+        result = classify(row)
+        assert result['classification'] == expected
+        assert result['classification_reason']
+        assert classify(row | {'item': {'name': 'Example'}, 'expected': ['vendor']}) == result
+
+
+def test_own_use_row_cannot_pass_on_trade_verdict():
+    case = {
+        'id': 'own',
+        'kind': 'table',
+        'classification': 'own-use',
+        'classification_reason': 'Player upgrade',
+        'item': {'name': 'Upgrade'},
+        'expected': ['self', 'slow'],
+    }
+    result = evaluate([case], lambda item: {'verdict': 'slow', 'reason': 'Tradeable'})
+    assert result['groups']['own-use']['passed'] == 0
+    assert result['failures'][0]['expected'] == ['self']
+
+
+def test_guide_example_checks_preparation_as_well_as_verdict():
+    case = {
+        'id': 'socket',
+        'kind': 'table',
+        'examples': [
+            {
+                'item': {'name': 'Base'},
+                'expected': ['check'],
+                'expected_fields': {'preparation': {'larzuk': [3, 4], 'cube': [], 'conditional': True}},
+            }
+        ],
+    }
+    wrong = evaluate([case], lambda _: {'verdict': 'check', 'reason': 'test', 'preparation': None})
+    assert wrong['groups']['table']['passed'] == 0
+    assert wrong['failures'][0]['expected_fields'] == case['examples'][0]['expected_fields']
+    right = evaluate([case], lambda _: {'verdict': 'check', 'reason': 'test', **case['examples'][0]['expected_fields']})
+    assert right['groups']['table']['passed'] == 1
+
+
+def test_mixed_guide_row_requires_comparisons_and_examples_both_to_pass():
+    case = {
+        'id': 'mixed',
+        'kind': 'table',
+        'comparisons': [
+            {'left': {'item': {'name': 'A'}}, 'right': {'item': {'name': 'B'}}, 'less_than': ['decision_ist']}
+        ],
+        'examples': [{'item': {'name': 'C'}, 'expected': ['check']}],
+    }
+    result = evaluate(
+        [case], lambda i: {'verdict': 'slow', 'reason': 'test', 'decision_ist': 1 if i['name'] == 'A' else 2}
+    )
+    assert result['groups']['table']['evaluated'] == 1
+    assert result['groups']['table']['passed'] == 0
+    assert result['failures'][0]['expected'] == ['check']

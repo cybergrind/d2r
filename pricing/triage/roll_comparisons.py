@@ -49,6 +49,71 @@ def deciding_stats(rows, ranges, *, minimum_sellers=15, top_fraction=0.75):
     return selected
 
 
+def price_split(rows, prop, spec, *, minimum_sellers=15, side=5, ratio=1.5):
+    """A roll that most sellers do not maximise still decides price when asks split on it.
+
+    Both the lower quartile and the median of the better side must be `ratio` times the
+    worse side's, with `side` independent sellers on each: one cheap or one dear ask
+    cannot create the split.
+    """
+    votes = [
+        r
+        for r in seller_rows(rows)
+        if numeric(r.get('properties', {}).get(prop)) and spec['min'] <= r['properties'][prop] <= spec['max']
+    ]
+    if len(votes) < minimum_sellers:
+        return None
+    values = [r['properties'][prop] for r in votes]
+    for boundary in sorted(set(values))[1:]:
+        low = [r['ask_ist'] for r in votes if r['properties'][prop] < boundary]
+        high = [r['ask_ist'] for r in votes if r['properties'][prop] >= boundary]
+        good, bad = (low, high) if spec.get('better') == 'lower' else (high, low)
+        if (
+            min(len(low), len(high)) >= side
+            and lower_quartile(good) >= ratio * lower_quartile(bad)
+            and median(good) >= ratio * median(bad)
+        ):
+            return {
+                **spec,
+                'sample_size': len(values),
+                'top_count': sum(position(value, spec) >= 0.75 for value in values),
+                'observed_min': min(values),
+                'observed_max': max(values),
+                'price_split': boundary,
+            }
+    return None
+
+
+def split_validated(validation, *, minimum_sellers=15, margin=0.9):
+    """Held-out sellers priced clearly better with the rolls than with the name median."""
+    roll, name = validation['roll_median_error'], validation['name_median_error']
+    return validation['evaluated'] >= minimum_sellers and roll <= margin * name
+
+
+def price_split_stats(rows, ranges, deciding):
+    """Price-split rolls that lower the held-out asking-price error, added one at a time.
+
+    The split test alone passes on noise (several rolls, several boundaries each), so a
+    candidate is kept only when predicting each held-out seller with it beats the name
+    median by a margin and the rolls already accepted; the whole set must then pass again
+    with the splits re-tested inside every fold.
+    """
+    accepted = {}
+    error = leave_one_out(rows, deciding)['roll_median_error'] if deciding else None
+    for prop, spec in ranges.items():
+        if prop in deciding or spec['min'] >= spec['max']:
+            continue
+        candidate = price_split(rows, prop, spec)
+        if candidate is None:
+            continue
+        trial = leave_one_out(rows, deciding | accepted | {prop: candidate})
+        if split_validated(trial) and (error is None or trial['roll_median_error'] < error):
+            accepted[prop], error = candidate, trial['roll_median_error']
+    if accepted and not split_validated(leave_one_out(rows, deciding | accepted, ranges=ranges, minimum_sellers=1)):
+        return {}
+    return accepted
+
+
 def comparable(row, properties, deciding):
     for prop, spec in deciding.items():
         value = row.get('properties', {}).get(prop)
@@ -130,6 +195,13 @@ def leave_one_out(rows, deciding, *, ranges=None, minimum_sellers=15):
         # Guide-declared axes are independent of the held-out listing. Keep
         # them when recomputing market-selected axes on the training sellers.
         selected = selected | {prop: spec for prop, spec in deciding.items() if spec.get('guide_source')}
+        if ranges is not None:
+            # A price split is re-tested without the held-out seller, like the selection signal.
+            selected = selected | {
+                prop: spec
+                for prop, spec in deciding.items()
+                if 'price_split' in spec and prop not in selected and price_split(training, prop, ranges[prop])
+            }
         if not selected:
             continue
         result = compare(held.get('properties', {}), training, selected, keep_ist=0)

@@ -45,6 +45,38 @@ def compile_bucket(name, key):
     }
 
 
+def native_staffmod_policies(existing):
+    """Comparable rolls are native mechanics, independent of authored demand rules."""
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+
+    meta, projection = metadata(), market_properties()
+    covered = {policy['name'] for policy in existing}
+    classes = meta['staffmods']['classes_by_type']
+    policies = []
+    for base in meta['bases'].values():
+        character = classes.get(base['type'])
+        if not character or not base.get('max_sockets') or base['name'] in covered:
+            continue
+        labels = {
+            prop: skill['name']
+            for identity, skill in meta['skills'].items()
+            if skill.get('class') == character and (prop := projection.get('107:' + identity))
+        }
+        policies.append(
+            {
+                'category': 'base',
+                'name': base['name'],
+                'require_bucket': True,
+                'facets': ['rarity', 'ethereal', 'sockets', 'socket_contents', 'base_ed_grade', 'base_modifiers'],
+                'compare_staffmods': labels,
+                'source': 'inventory_tracking/items/data/item_metadata.json',
+                'imported_staffmod_base': True,
+            }
+        )
+    return policies
+
+
 def staffmod_rules():
     """Guide §2/§7 Void bases; modifiers remain price facets, not pooled bonuses."""
     from inventory_tracking.items.metadata import metadata
@@ -211,6 +243,7 @@ def staffmod_rules():
                 'imported_staffmod_base': True,
             }
         )
+    policies.extend(native_staffmod_policies(policies))
     return rows, policies
 
 
@@ -339,7 +372,8 @@ def native_shield_rules():
                     'base_ed': {'min': 0, 'max': 15},
                 },
                 'properties': {'510': {'min': 51, 'max': 65}, '423': {'min': 101, 'max': 121}},
-                'source': source,
+                'source': 'guides/pricing.html#s2-gray',
+                'sources': ['guides/pricing.html#s2-gray', source],
                 'imported_native_base': True,
             }
         )
@@ -350,6 +384,7 @@ def native_shield_rules():
                 'require_bucket': True,
                 'facets': ['rarity', 'ethereal', 'sockets', 'socket_contents', 'base_ed_grade', 'base_modifiers'],
                 'compare_inherent': {
+                    '441': {'min': 5, 'max': 45, 'label': 'all resistance'},
                     '510': {'min': 51, 'max': 65, 'label': '% native enhanced damage'},
                     '423': {'min': 101, 'max': 121, 'label': 'native attack rating'},
                 },
@@ -418,6 +453,27 @@ def guide_base_patterns():
                         'sources': [case['id'], 'guides/pricing.html#s9'],
                     }
                 )
+    # The gray-base shortlist also names these sparse configurations. Keep
+    # their preparation/automod conditions; this is review evidence, not a price.
+    for name, sockets, ethereal, properties in (('Matriarchal Spear', 4, True, {'456': 3}),):
+        conditions = {
+            'rarity': {'in': ['normal', 'superior']},
+            'ethereal': ethereal,
+            'sockets': sockets,
+            'empty_sockets': True,
+        }
+        rows.append(
+            {
+                'category': 'base',
+                'name': name,
+                'conditions': conditions,
+                'properties': properties,
+                'pattern': {'conditions': conditions, 'properties': properties},
+                'pattern_label': 'Guide-listed runeword base; matching price sample is sparse',
+                'source': 'guides/pricing.html#s2-gray',
+                'imported_guide_base': True,
+            }
+        )
     # §5's mixed "40-44 sell / <40 floor" row is not a single-variant
     # auto-transcription. Import only its explicit paid pattern; floor is not
     # an instruction to copy a premium band or discard every lower roll.
@@ -436,6 +492,29 @@ def guide_base_patterns():
         }
     )
     return rows
+
+
+def socket_caps_by_name(utility):
+    """Native socket mechanics do not depend on an item's market coverage."""
+    from inventory_tracking.items.metadata import metadata
+
+    bases = {b['code']: b for b in metadata()['bases'].values()}
+    candidates = defaultdict(set)
+    for row in utility:
+        details = row.get('details', {})
+        base = bases.get(row.get('base_code'))
+        caps = details.get('larzuk_unknown_ilvl', {}).get('maximum_by_ilvl_bracket')
+        if (
+            details.get('rule') != 'socket_potential'
+            or base is None
+            or not isinstance(caps, list)
+            or len(caps) != 3
+            or any(type(c) is not int or not 0 <= c <= base['max_sockets'] for c in caps)
+        ):
+            continue
+        for name in {base['name'], row.get('name')} - {None}:
+            candidates[name].add(tuple(caps))
+    return {name: list(next(iter(values))) for name, values in candidates.items() if len(values) == 1}
 
 
 def main():
@@ -522,12 +601,7 @@ def main():
     )
     document['rows'].extend(market_rules)
     document['rows'].extend(guide_base_patterns())
-    names = {r['name'] for r in document['rows'] if r.get('category') == 'base' and r.get('name')}
-    document['socket_caps'] = {
-        r['name']: r['details']['larzuk_unknown_ilvl']['maximum_by_ilvl_bracket']
-        for r in utility
-        if r.get('name') in names and r.get('details', {}).get('rule') == 'socket_potential'
-    }
+    document['socket_caps'] = socket_caps_by_name(utility)
     atomic_json(path, document)
     print(
         json.dumps(

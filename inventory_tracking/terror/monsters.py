@@ -39,6 +39,7 @@ MONSTER_DATA_SIZE = 0x80
 FULL_STATS = 0xE8
 BASE_STATS = 0x30
 LEVEL_STAT = 12
+LIFE_STAT, MAX_LIFE_STAT = 6, 7  # raw values are life x 256
 LEVEL_SIZE = 0x400  # as the Win+C research dump (levels/research.py)
 
 Bounds = tuple[int, int, int, int]
@@ -68,6 +69,7 @@ class MonsterSnapshot:
     complete: bool = True  # False when the unit walk broke off: absent monsters may still be there
     level_hex: str | None = None  # the level struct, read only on entering a level (R1 research)
     player_level: int | None = None  # character level (stat 12): the Terror Zone's level follows it
+    player_life: tuple[int, int] | None = None  # (life, most life) now: burst research (danger-plan.md R4)
 
 
 def room_bounds(read, room2) -> Bounds:
@@ -135,6 +137,23 @@ def player_level(read, table_address) -> int | None:
     return max((level for level in levels if 0 < level < 100), default=None)
 
 
+def player_life(read, table_address) -> tuple[int, int] | None:
+    """(life, most life) of the player unit with the most life; None when none is readable."""
+    heads = struct.unpack('<128Q', read(table_address, 1024))
+    found = []
+    for unit in walk_units(read, heads, 0)['units']:
+        if not unit['stats_pointer']:
+            continue
+        with contextlib.suppress(OSError, ValueError, struct.error):
+            stats = read_stats(read, unit['stats_pointer'] + FULL_STATS)
+            values = {
+                s['id']: s['raw'] >> 8 for s in stats if s['layer'] == 0 and s['id'] in (LIFE_STAT, MAX_LIFE_STAT)
+            }
+            if values.get(MAX_LIFE_STAT, 0) > 0:
+                found.append((values.get(LIFE_STAT, 0), values[MAX_LIFE_STAT]))
+    return max(found, key=lambda life: life[1]) if found else None
+
+
 def loaded_rooms(read, room1, level, *, max_rooms=MAX_LOADED) -> frozenset[Bounds]:
     """Bounds of the level's loaded rooms, reached through Room1 neighbours from `room1`."""
     found, seen, queue = set(), set(), [room1]
@@ -191,10 +210,12 @@ def observe_monsters(pid, images, capture, *, known, counted_level) -> MonsterSn
                     level_rooms, level_hex = level_entry(read, location.level)
             monsters, complete = monster_units(read, table, known=known)
             rooms = loaded_rooms(read, room1, location.level)
-            level = None
+            level = life = None
             with contextlib.suppress(OSError, ValueError, struct.error):
                 level = player_level(read, table)
-            snapshot = MonsterSnapshot(location, rooms, level_rooms, tuple(monsters), complete, level_hex, level)
+            with contextlib.suppress(OSError, ValueError, struct.error):
+                life = player_life(read, table)
+            snapshot = MonsterSnapshot(location, rooms, level_rooms, tuple(monsters), complete, level_hex, level, life)
     finally:
         os.close(fd)
     if identity(pid) != token:

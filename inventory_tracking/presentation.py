@@ -48,6 +48,8 @@ class Tone(StrEnum):
     HERALD = 'herald'  # a live Terror Zone Herald on the level map
     MOB = 'mob'  # a hostile monster alive, level map
     MOB_LEADER = 'mob_leader'  # a unique, champion or super unique alive, level map
+    MOB_DANGER = 'mob_danger'  # a monster of a deadly pack (terror/danger.py)
+    MOB_CAUTION = 'mob_caution'  # a monster of a pack to be careful with
 
 
 PALETTE = MappingProxyType(
@@ -88,6 +90,8 @@ PALETTE = MappingProxyType(
         Tone.HERALD: '#ff3d6e',
         Tone.MOB: '#a8463e',
         Tone.MOB_LEADER: '#ff4dff',
+        Tone.MOB_DANGER: '#ff6a00',
+        Tone.MOB_CAUTION: '#ffb14a',
     }
 )
 

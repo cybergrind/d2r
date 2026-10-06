@@ -29,6 +29,15 @@ def magic_patterns(add):
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 
+    for prop, label in (('1546', 'Demon Skills'), ('1547', 'Eldritch Skills'), ('1548', 'Chaos Skills')):
+        add(
+            'grim',
+            'magic',
+            f'Magic grimoire: +3 {label}',
+            stats(**{prop: 3}),
+            source='guides/pricing-primer.html#s2-4 BS-grimoire magic tree-prefix bracket',
+        )
+
     for prop, minimum, label in [('418', 81, 'life'), ('461', 26, 'magic find')]:
         add(
             'circ',
@@ -44,6 +53,25 @@ def magic_patterns(add):
         stats(**{'448': 8, '423': 49}),
         source='guides/pricing-primer.html#s4-1 CH-gc-melee; native magicprefix Sharp 253',
     )
+    large_source = 'pricing/raw/mr/items__valuable-magic-items.html Large Charms; qx0106eh items 84-92'
+    for label, required in (
+        (
+            'Sharp: damage + attack rating',
+            {'properties': {'448': {'min': 4, 'max': 8}, '423': {'min': 21, 'max': 48}}},
+        ),
+        ('Shimmering: all resistances', stats(**dict.fromkeys(RESISTS, 7))),
+        ('mana + life', stats(**{'400': 20, '418': 30})),
+    ):
+        add('mcha', 'magic', 'Large Charm: ' + label, required, source=large_source)
+    for prop in RESISTS:
+        add(
+            'mcha',
+            'magic',
+            'Large Charm: single resistance + life',
+            stats(**{prop: 13, '418': 30}),
+            source=large_source,
+        )
+
     add(
         'scha',
         'magic',
@@ -58,6 +86,24 @@ def magic_patterns(add):
         stats(**{'448': 3, '423': 20}),
         low_rolls={'448': {'min': 1}, '423': {'min': 1}},
         source='guides/pricing-primer.html §4.2 CH-sc-dmg; PLAN §3.9',
+    )
+
+    add(
+        'scha',
+        'magic',
+        'Pestilent Small Charm: poison damage; niche trade review',
+        stats(**{'518': 175}),
+        source='pricing/raw/mr/items__valuable-magic-items.html elemental-damage; native Pestilent prefix 661',
+    )
+    add(
+        'scha',
+        'magic',
+        'Shocking Small Charm of Vita: lightning damage + life; niche trade review',
+        stats(**{'479': 44, '418': 16}),
+        source=(
+            'pricing/raw/mr/items__valuable-magic-items.html elemental-damage; '
+            'qx0106eh item 117; native Shocking prefix 649'
+        ),
     )
 
     # Guide §8: Echoing throwing weapons are paid buff-switch items even
@@ -310,6 +356,62 @@ def throwing_weapon_patterns(add):
             )
 
 
+def market_equipment_patterns(add):
+    """Reviewed SC/NL equipment combinations; heterogeneous extras stay unpriced."""
+    patterns = [
+        (
+            'boot',
+            'rare',
+            '20 FRW + three resistances',
+            stats(**{'480': 20}),
+            counted(3, *(stats(**{prop: 20}) for prop in RESISTS)),
+            23,
+        ),
+        ('belt', 'rare', '24 FHR + life + strength', stats(**{'430': 24, '418': 40, '437': 15}), None, 5),
+        (
+            'belt',
+            'crafted',
+            'Blood belt: 24 FHR + life + 10 open wounds + leech',
+            stats(**{'430': 24, '418': 40, '566': 10, '462': 1}),
+            None,
+            4,
+        ),
+        (
+            'glov',
+            'rare',
+            '+2 Passive and Magic skills + 20 IAS + attribute or resistance',
+            stats(**{'455': 2, '457': 20}),
+            counted(1, stats(**{'437': 15}), stats(**{'429': 15}), resist(20)),
+            12,
+        ),
+    ]
+    evidence_examples = {
+        ('boot', 'rare'): ['1002422783093', '1002355993308', '1002342705143'],
+        ('belt', 'rare'): ['1002255459224', '1002348777356', '1002487337128'],
+        ('belt', 'crafted'): ['3560328050', '1255750539', '1002446630637'],
+        ('glov', 'rare'): ['1121080165', '87687217', '1002381300750'],
+    }
+    for family, rarity, label, required, support, sellers in patterns:
+        add(
+            family,
+            rarity,
+            label,
+            required,
+            support,
+            relax_support=False,
+            source={
+                'path': 'pricing/raw/traderie/',
+                'reviewed_at': '2026-10-06',
+                'scope': 'SC/NL/PC/RotW',
+                'kind': 'paid_pattern',
+                'independent_sellers': sellers,
+                'guide': 'guides/pricing.html#s2-yellow; guides/pricing-primer.html#s6-1',
+                'sample': 'cached priced misses; one seller vote across September and October pulls',
+                'example_listing_ids': evidence_examples[family, rarity],
+            },
+        )
+
+
 def affixed_rules():
     rows = []
 
@@ -431,7 +533,7 @@ def affixed_rules():
             stats(**{skill: 2, '520': 20}),
             source='guides/pricing-primer.html#s3-3 (rare 2/20 circlets)',
         )
-    for skill in ('454', '456', '410'):
+    for skill in ('454', '456', '410', '455'):
         add(
             'glov',
             'magic',
@@ -442,6 +544,9 @@ def affixed_rules():
                 'band_facets': ['base_code', 'ethereal', 'sockets', 'socket_contents', 'base_modifiers'],
             },
         )
+        if skill == '455':
+            # Rare Passive gloves still need the independently reviewed extra affix.
+            continue
         add(
             'glov',
             'rare',
@@ -588,6 +693,7 @@ def affixed_rules():
             {'properties': {'448': {'min': 11}, '796': {'min': 1, 'max': 40}}},
             source='guides/pricing-primer.html#s3-2 JW-lowreq; Carnage and documented 11/12/15-max examples',
         )
+    market_equipment_patterns(add)
     magic_patterns(add)
     physical_weapon_patterns(add)
     throwing_weapon_patterns(add)

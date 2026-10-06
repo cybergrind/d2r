@@ -127,6 +127,10 @@ def build_bands(rows, catalog, *, rules=(), policies=()):
         members = groups[category, name, amount]
         policy = profile_for({'category': category, 'name': name}, policies)
         facets = policy.get('facets', [])
+        if category == 'base' and amount == 1:
+            from pricing.triage.base_fallback import compile_bands as compile_base_fallback
+
+            bands.extend(compile_base_fallback(name, members, policy))
         separate = not facets and category == 'uniques'
         separate_sockets = category in ('uniques', 'sets')
         buckets = {quantity_bucket(amount): members}

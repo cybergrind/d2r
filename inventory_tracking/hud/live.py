@@ -92,7 +92,18 @@ def ground_payload_of(boxes) -> dict | None:
 
 
 def follow(boxes, ground):
-    """`boxes` with the ground widget's payload replaced by its live one (None = unchanged)."""
+    """`boxes` with the ground widget's payload replaced by its live one (None = unchanged), and
+    the map card's player moved with it: a map that keeps the player in the middle
+    (osd/level_map.py LOCAL_SCALE) would otherwise scroll in half-second steps."""
     if ground is None:
         return boxes
-    return [(Widget(w.id, w.kind, w.slot, ground) if w.kind == 'ground' else w, box) for w, box in boxes]
+    return [(Widget(w.id, w.kind, w.slot, _followed(w, ground)), box) for w, box in boxes]
+
+
+def _followed(widget, ground):
+    if widget.kind == 'ground':
+        return ground
+    card = widget.payload.get('map') if widget.kind == 'guide' and isinstance(widget.payload, dict) else None
+    if not (isinstance(card, dict) and isinstance(card.get('map'), dict)):
+        return widget.payload
+    return {**widget.payload, 'map': {**card, 'map': {**card['map'], 'player': list(ground['player'])}}}

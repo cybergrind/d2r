@@ -1,3 +1,5 @@
+import pytest
+
 from pricing.triage.adapters import from_listing
 from pricing.triage.bands import build_bands
 from pricing.triage.engine import assess
@@ -98,7 +100,8 @@ def test_rare_jewels_do_not_inherit_magic_prices_or_a_flat_extra_affix_premium()
             assert extra['verdict'] == 'check'
 
 
-def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort():
+@pytest.mark.parametrize('skill', ['410', '455'])
+def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort(skill):
     from inventory_tracking.items.metadata import metadata
     from pricing.triage.import_affixed_rules import affixed_rules
 
@@ -115,7 +118,7 @@ def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort()
             sockets=0,
             socket_contents='empty',
         )
-        row['properties'].update({'410': 3, '457': 20})
+        row['properties'].update({skill: 3, '457': 20})
         rows.append(row)
     document = build_bands(rows, [], rules=rules)
     tables = {
@@ -130,7 +133,7 @@ def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort()
     assert result['verdict'] == 'slow'
     for changes in (
         {'ethereal': True, 'properties': rows[0]['properties'] | {'738': True}},
-        {'properties': {**{k: v for k, v in rows[0]['properties'].items() if k != '410'}, '456': 3}},
+        {'properties': {**{k: v for k, v in rows[0]['properties'].items() if k != skill}, '456': 3}},
     ):
         other = from_listing(rows[0] | changes)
         result = assess(other, tables)

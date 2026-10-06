@@ -1,7 +1,8 @@
 """Generic ways out: a room whose preset has warp tiles leads to the level in that warp slot."""
 
-from inventory_tracking.levels.exits import border_exits, guide_level, warp_exits, with_exits
+from inventory_tracking.levels.exits import TOWN_WAYS_OUT, border_exits, guide_level, warp_exits, with_exits
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location, Room
+from inventory_tracking.levels.presets import display_name
 from inventory_tracking.levels.registry import handler_for
 from tests.inventory_tracking.levels.fixtures import replay
 
@@ -113,3 +114,22 @@ def test_a_level_without_a_handler_gets_its_borders_too():
     rooms = (Room(BORDER, 0, 0, 8, 8, 0, None, (BLOOD_MOOR,)),)
 
     assert marks(guide_level(None, snapshot_of(1, *rooms)).pois) == [('Blood Moor', 'stairs')]
+
+
+def test_a_town_marks_only_its_way_out_to_the_wilderness():
+    # User, 2026-10-06: in Lut Gholein the sewers and the Harem are noise; the gate to the Rocky
+    # Waste is the one worth an arrow, since it is in one of two places.
+    rooms = (
+        Room(BORDER, 0, 0, 8, 8, 0, None, (47,)),
+        Room(BORDER, 8, 0, 8, 8, 0, None, (50,)),
+        Room(BORDER, 16, 0, 8, 8, 0, None, (41,)),
+    )
+
+    assert marks(guide_level(None, snapshot_of(40, *rooms)).pois) == [('Rocky Waste', 'stairs')]
+    assert {town: display_name(next(iter(out))) for town, out in TOWN_WAYS_OUT.items()} == {
+        1: 'Blood Moor',
+        40: 'Rocky Waste',
+        75: 'Spider Forest',
+        103: 'Outer Steppes',
+        109: 'Bloody Foothills',
+    }
