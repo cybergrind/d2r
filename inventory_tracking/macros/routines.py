@@ -1,18 +1,27 @@
 """The Pindleskin routines for an Echoing Strike Warlock (CybergrindAA), built from small steps.
 
 `run_macro` picks by place (plan.md, decisions of 2026-10-06): where a run ends (Nihlathak's
-Temple, Frigid Highlands, Bloody Foothills) leave the game, create the next one and prebuff; in
-the lobby create the next game and prebuff; anywhere else prebuff where the character stands.
+Temple, Frigid Highlands, Bloody Foothills, the Fortress just after act 3) leave the game,
+create the next one and prebuff; in the lobby create the next game and prebuff; anywhere else
+prebuff where the character stands.
 Prebuff: get Consume active and one Defiler out (summoning and consuming only what is missing),
 then Hex: Purge and Psychic Ward.
 """
 
+import math
 import os
 
 from inventory_tracking.common import LOG
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import CONSUME, HEX_PURGE, NAMES, PSYCHIC_WARD, SUMMON_DEFILER
+from inventory_tracking.macros.skills import (
+    CONSUME,
+    HEX_PURGE,
+    NAMES,
+    PSYCHIC_WARD,
+    SUMMON_DEFILER,
+    SWAP_WEAPONS,
+)
 from inventory_tracking.macros.world import (
     DEFILER_CLASS as DEFILER,
     TRACE_RVAS,
@@ -21,6 +30,7 @@ from inventory_tracking.macros.world import (
     World,
     next_name,
 )
+from inventory_tracking.native.layout import HIRELING_CLASS_ID
 
 
 NIHLATHAKS_TEMPLE = 121
@@ -28,8 +38,18 @@ NIHLATHAKS_TEMPLE = 121
 # Eldritch and Shenk run (user, 2026-10-06) the Frigid Highlands above its waypoint and the
 # Bloody Foothills below it. The whole level counts, not only the part near the waypoint.
 RUN_ENDS = frozenset((NIHLATHAKS_TEMPLE, 110, 111))
-SKILLS = (SUMMON_DEFILER, CONSUME, HEX_PURGE, PSYCHIC_WARD)
-CHARACTERS = frozenset(('CybergrindAA',))
+# Mephisto and other act 3 runs end with a step into act 4, so the next game starts there
+# (user, 2026-10-06): the Pandemonium Fortress is a run end for a while after the character
+# came to it from act 3 (Kurast Docks to Durance of Hate Level 3). A game that started in the
+# Fortress, or a return from the act 4 levels, is not.
+PANDEMONIUM_FORTRESS = 103
+ACT_3 = range(75, 103)
+ARRIVAL_SECONDS = 180.0
+SKILLS = (SUMMON_DEFILER, CONSUME, HEX_PURGE, PSYCHIC_WARD, SWAP_WEAPONS)
+# Character -> base codes of the weapon set the buffs are cast with. CybergrindAA: Heart of the
+# Oak (Flail) and Spirit (Monarch), not the Naj's Puzzler set (user, 2026-10-06; codes from the
+# collection capture of the equipped items).
+CHARACTERS = {'CybergrindAA': frozenset(('fla', 'uit'))}
 
 # Window fractions. The screenshots (2000 x 1125) show the whole 2560 x 1440 output, whose top
 # 22 pixels are the desktop bar, not the game window: y = (shot_y * 1.28 - 22) / 1418. Taking
@@ -37,8 +57,8 @@ CHARACTERS = frozenset(('CybergrindAA',))
 # 17:10, 2026-10-06: six clicks, no key taken).
 SAVE_AND_EXIT = (0.5, 0.438)
 GAME_NAME_FIELD = (0.8, 0.158)  # right of the text, so the caret lands at its end
-# Right of the character, where the user summons; then nearer, then on the other side.
-SUMMON_SPOTS = ((0.66, 0.42), (0.58, 0.5), (0.36, 0.44))
+# Right of the character, where the user summons; then other sides, a Defiler's width apart.
+SUMMON_SPOTS = ((0.66, 0.42), (0.36, 0.44), (0.5, 0.26), (0.64, 0.62), (0.4, 0.64))
 # Where the character's feet are drawn. Host run 17:38, 2026-10-06: two summons landed 0.027 and
 # 0.020 of the height above the pointer with 0.47 here, and within 0.003 across.
 FEET = (0.5, 0.494)
@@ -53,6 +73,8 @@ DEAD = frozenset((0, 17))
 CREATE_LIMIT = 12.0  # seconds from Enter for the new game to exist
 LOAD_MIN = 8.5  # seconds from Enter before the first key in a new game
 LOAD_LIMIT = 40.0  # seconds from Enter the first summon may take
+CLEAR = 7.0  # world units around the Defiler that must be empty before Consume
+CONSUME_ATTEMPTS = 3
 FIELD_ATTEMPTS = 6  # about eight seconds for the lobby to come up
 
 
@@ -63,6 +85,13 @@ def screen_fraction(player: Player, x: float, y: float, aspect: float) -> tuple[
         FEET[0] + (dx - dy) * UNIT_PIXELS[0] / aspect,
         FEET[1] + (dx + dy) * UNIT_PIXELS[1] - BODY_LIFT,
     )
+
+
+def world_point(player: Player, x: float, y: float, aspect: float) -> tuple[float, float]:
+    """The ground point drawn at window fraction (x, y): the inverse of `screen_fraction` for feet."""
+    across = (x - FEET[0]) * aspect / UNIT_PIXELS[0]
+    down = (y - FEET[1]) / UNIT_PIXELS[1]
+    return player.x + (across + down) / 2, player.y + (down - across) / 2
 
 
 def on_screen(point: tuple[float, float]) -> bool:
@@ -82,20 +111,41 @@ def defilers(world: World) -> list[Monster]:
     return [monster for monster in world.monsters if monster.txt_id == DEFILER]
 
 
+def bystanders(world: World, but: int | None = None) -> list[Monster]:
+    """Every living monster Consume might take in place of the Defiler: the bound demon cannot
+    be told from the rest (summons carry no owner), so all count but the mercenary."""
+    return [m for m in world.monsters if m.txt_id not in (DEFILER, HIRELING_CLASS_ID) and m.unit_id != but]
+
+
+def crowd(world: World, x: float, y: float) -> list[Monster]:
+    return [m for m in bystanders(world) if math.hypot(m.x - x, m.y - y) < CLEAR]
+
+
+def open_spots(run: Run, world: World) -> list[tuple[float, float]]:
+    """SUMMON_SPOTS, those with nobody near first: a Defiler next to the bound demon cannot be
+    consumed safely."""
+    rect = run.actuator.keys.focused_window_rect()
+    if rect is None or world.player is None:
+        return list(SUMMON_SPOTS)
+    player, aspect = world.player, rect[2] / rect[3]
+    return sorted(SUMMON_SPOTS, key=lambda spot: bool(crowd(world, *world_point(player, *spot, aspect))))
+
+
 def summon_defiler(run: Run, *, until: float | None = None) -> Monster:
     """Summon one Defiler. `until` (a clock time) keeps trying that long: a game that has just
     come up takes no input for a while, and the summon appearing is what shows it does."""
-    before = {monster.unit_id for monster in defilers(run.world())}
+    start = run.world()
+    before = {monster.unit_id for monster in defilers(start)}
     # A spot that cannot be walked on takes no summon (user, 2026-10-06): try the next one.
     world, spot = None, SUMMON_SPOTS[0]
-    spots = list(SUMMON_SPOTS)
+    spots = open_spots(run, start)
     while world is None and spots:
         spot = spots.pop(0)
         run.actuator.move(*spot, scatter=(40, 25))
         press_skill(run, SUMMON_DEFILER)
         world = run.seen(lambda w: any(m.unit_id not in before for m in defilers(w)), 1.5)
         if world is None and not spots and until is not None and run.clock() < until:
-            spots = [SUMMON_SPOTS[0]]
+            spots = open_spots(run, run.world())[:1]
             run.pause('screen')
     if world is None:
         raise Abort('Defiler: not seen at any spot')
@@ -124,26 +174,48 @@ def summon_defiler(run: Run, *, until: float | None = None) -> Monster:
 
 
 def consume(run: Run, defiler: Monster) -> None:
-    """Consume this Defiler and nothing else: aim at it, then require that it is the one gone.
-    A Consume that took the bound demon leaves the Defiler standing, which stops the macro."""
-    world = run.world()
-    target = next((m for m in defilers(world) if m.unit_id == defiler.unit_id), None)
-    if target is None or world.player is None:
-        raise Abort('the Defiler is gone before Consume')
-    rect = run.actuator.keys.focused_window_rect()
-    if rect is None:
-        raise Abort('no game window')
-    point = screen_fraction(world.player, target.x, target.y, rect[2] / rect[3])
-    if not on_screen(point):
-        raise Abort('the Defiler is out of view')
-    run.actuator.move(*point, scatter=(5, 5))
-    press_skill(run, CONSUME)
+    """Consume this Defiler and nothing else. Consume once took the bound demon with the pointer
+    on the Defiler (host, 20:51 on 2026-10-06), so the key is pressed only while nothing else
+    stands within CLEAR of the Defiler; if it stays crowded, another Defiler is summoned
+    somewhere open (Consume is not active here, so that costs nothing). Afterwards the Defiler
+    must be the one gone."""
+    for _ in range(CONSUME_ATTEMPTS):
 
-    def consumed(w: World) -> bool:
-        return bool(w.player and w.player.consume) and all(m.unit_id != defiler.unit_id for m in defilers(w))
+        def clear(w: World, unit: int = defiler.unit_id) -> bool:
+            target = next((m for m in defilers(w) if m.unit_id == unit), None)
+            return target is None or not crowd(w, target.x, target.y)
 
-    run.expect('Consume', consumed, 2.5)
-    run.pause('key')
+        if run.seen(clear, 1.0) is None:
+            LOG.info('Macro: the Defiler is crowded; summoning another')
+            defiler = summon_defiler(run)
+            continue
+        world = run.world()
+        target = next((m for m in defilers(world) if m.unit_id == defiler.unit_id), None)
+        if target is None or world.player is None:
+            raise Abort('the Defiler is gone before Consume')
+        rect = run.actuator.keys.focused_window_rect()
+        if rect is None:
+            raise Abort('no game window')
+        point = screen_fraction(world.player, target.x, target.y, rect[2] / rect[3])
+        if not on_screen(point):
+            raise Abort('the Defiler is out of view')
+        run.actuator.move(*point, scatter=(5, 5))
+        run.expect('character ready', lambda w: w.player is not None and w.player.mode not in ACTING, 2.5)
+        if run.research is not None:  # which bytes name the unit under the pointer (a later check)
+            LOG.info(
+                'Macro: Defiler %s under the pointer; type and id at %s', defiler.unit_id, run.research(defiler.unit_id)
+            )
+        if not clear(run.world()):  # somebody walked up during the pointer move
+            continue
+        press_skill(run, CONSUME)
+
+        def consumed(w: World, unit: int = defiler.unit_id) -> bool:
+            return bool(w.player and w.player.consume) and all(m.unit_id != unit for m in defilers(w))
+
+        run.expect('Consume', consumed, 2.5)
+        run.pause('key')
+        return
+    raise Abort('something stays too close to the Defiler; Consume was not pressed')
 
 
 def cast(run: Run, skill: int) -> None:
@@ -181,10 +253,40 @@ class LoadTrace:
         )
 
 
+def take_prebuff_weapons(run: Run, *, until: float | None = None) -> None:
+    """Have the set the buffs are cast with in hand (user, 2026-10-06), swapping if the other
+    one is. The set is left in hand afterwards. `until` as in `summon_defiler`."""
+    wanted = run.prebuff_hands
+    if run.hands is None or not wanted:
+        return
+
+    def in_hand(timeout: float) -> bool:
+        deadline = run.clock() + timeout
+        while True:
+            run.world()  # a cancel stops here
+            if wanted & set(run.hands()):
+                return True
+            if run.clock() >= deadline:
+                return False
+            run.pace.sleep(0.03)
+
+    if in_hand(0):
+        return
+    while True:
+        press_skill(run, SWAP_WEAPONS)
+        if in_hand(1.2):
+            break
+        if until is None or run.clock() >= until:
+            raise Abort('the prebuff weapons are not in hand after a swap')
+        run.pause('screen')
+    run.pause('key')
+
+
 def prebuff(run: Run, *, fresh: LoadTrace | None = None) -> None:
     """End with Consume active and one Defiler out, pressing only what is missing. A second
     Defiler summoned while one stands cancels Consume (user, 2026-10-06), so a standing Defiler
     is used or kept, never summoned over."""
+    take_prebuff_weapons(run, until=None if fresh is None else fresh.started + LOAD_LIMIT)
     world = run.world()
     if fresh is not None:  # a new game: nothing is out, and the first summon may have to wait
         defiler = summon_defiler(run, until=fresh.started + LOAD_LIMIT)
@@ -284,7 +386,20 @@ def character_keys(run: Run, key_names) -> dict[int, str]:
         raise Abort('not in a game')
     if world.player.name not in CHARACTERS:
         raise Abort(f'no macro for {world.player.name}')
+    run.prebuff_hands = CHARACTERS[world.player.name]
     return key_names(world)
+
+
+def run_ended(run: Run, world: World) -> bool:
+    if world.player is None:
+        return False
+    if world.player.area in RUN_ENDS:
+        return True
+    if world.player.area != PANDEMONIUM_FORTRESS or run.arrival is None:
+        return False
+    previous, seconds = run.arrival()
+    LOG.info('Macro: in the Fortress, %.0fs after level %s', seconds, previous)
+    return previous in ACT_3 and seconds <= ARRIVAL_SECONDS
 
 
 def run_macro(run: Run, key_names) -> None:
@@ -301,7 +416,7 @@ def run_macro(run: Run, key_names) -> None:
     else:
         run.keys = character_keys(run, key_names)
         run.actuator.wait_released()
-        if world.player is not None and world.player.area in RUN_ENDS:
+        if run_ended(run, world):
             leave_game(run)
             trace = create_next_game(run, world.game_name)
             if key_names(run.world()) != run.keys:

@@ -11,6 +11,7 @@ import re
 import struct
 from dataclasses import dataclass, field
 
+from inventory_tracking.items.metadata import item_base
 from inventory_tracking.levels.memory import pointer
 from inventory_tracking.native.layout import (
     DEAD_MODES,
@@ -49,6 +50,12 @@ VIEW_RVA = 0x1EB3465
 IN_GAME = 0x00  # byte of the panel array: 1 in a game, 0 from Save and Exit to the next game
 MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/mercenary.py)
 MONSTER_UNIT = 1
+DATA_RVA, DATA_SIZE = 0x197A000, 0xC98000  # the image's writable data (record probe)
+ITEM_UNIT = 4
+EQUIPPED_MODE = 1
+ITEM_OWNER, ITEM_BODY_LOCATION = 0x0C, 0x54  # item data (native/units.py describe_item)
+# The weapon set in hand; the other set sits at 11 and 12 (config.py: staff 4 -> 11 on swap).
+HANDS = frozenset((4, 5))
 DEFILER_CLASS = 744
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
@@ -179,6 +186,53 @@ class GameMemory:
                     raw = self.read(unit['address'], 0x160) + self.read(unit['data_pointer'], 0x80)
             found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, raw))
         return tuple(found)
+
+    def hands(self) -> tuple[str, ...]:
+        """Base codes of what the character holds in the weapon set in hand; () when unreadable."""
+        try:
+            player = self._player()
+            if player is None:
+                return ()
+            heads = struct.unpack('<128Q', self.read(self.table + ITEM_UNIT * 1024, 1024))
+            held = []
+            for unit in walk_units(self.read, heads, ITEM_UNIT)['units']:
+                if unit['mode'] != EQUIPPED_MODE or not unit['data_pointer']:
+                    continue
+                data = self.read(unit['data_pointer'], 0x60)
+                if struct.unpack_from('<I', data, ITEM_OWNER)[0] != player.unit_id:
+                    continue
+                base = item_base(unit['txt_id']) if data[ITEM_BODY_LOCATION] in HANDS else None
+                if base is not None:
+                    held.append(base['code'])
+            return tuple(sorted(held))
+        except OSError, ValueError, struct.error:
+            return ()
+
+    def hover_candidates(self, unit_id: int) -> list[str]:
+        """Research: image addresses holding (monster type, this unit id), as the record of the
+        unit under the pointer would while the pointer is on it. Never raises."""
+        try:
+            data = b''.join(
+                os.pread(self.fd, 0x100000, self.base + DATA_RVA + offset).ljust(0x100000, b'\0')
+                for offset in range(0, DATA_SIZE, 0x100000)
+            )
+        except OSError:
+            return []
+        wanted, found, at = struct.pack('<II', MONSTER_UNIT, unit_id), [], -1
+        while len(found) < 8 and (at := data.find(wanted, at + 1)) >= 0:
+            found.append(hex(DATA_RVA + at))
+        return found
+
+    def place(self) -> tuple[str | None, int | None]:
+        """(game name, level) for the journey: no name out of a game, no level when unreadable."""
+        if self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)[IN_GAME] != 1:
+            return None, None
+        name = decode_name(self.read(self.base + GAME_NAME_RVA, GAME_NAME_SIZE))
+        try:
+            player = self._player()
+        except OSError, ValueError, struct.error:
+            player = None
+        return name, player.area if player is not None else None
 
     def world(self) -> World:
         panels = self.read(self.base + UI_PANELS_RVA, UI_PANELS_SIZE)

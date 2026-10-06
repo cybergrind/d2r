@@ -103,10 +103,13 @@ def compile_bands(name, rows, policy):
     floors = defaultdict(list)
     for row in valid:
         item = from_listing(row)
-        for target in targets(item, base):
+        for target in targets(item, base, policy):
             if bucket := floor_key(target, base):
                 floors[bucket].append(row)
-                floors[pooled_key(target, base)].append(row)
+                ed = target.get('base_ed')
+                rolls = range(ed, 16) if type(ed) is int and 0 <= ed <= 15 else [ed]
+                for roll in rolls:
+                    floors[pooled_key(target, base, target_ed=roll)].append(row)
     for bucket, members in floors.items():
         bands.append(band_for('base', name, members) | {'bucket': bucket, 'price_basis': 'base_floor'})
     return bands
@@ -137,7 +140,7 @@ def lookup(item, bands, *, keep_ist=0.25):
     for key, relaxed in keys(item, allow_missing_ed=True):
         # Prefer a supported plain-base floor with the actual socket count
         # before borrowing prices from different runeword socket configurations.
-        if 'sockets' in relaxed and (floor := floor_lookup(item, bands, keep_ist=keep_ist)):
+        if relaxed and (floor := floor_lookup(item, bands, keep_ist=keep_ist)):
             return floor
         # Guide §2 gray: an unsocketed staffmod candidate must not inherit
         # the price of an already socketed base, even when ED is relaxed.

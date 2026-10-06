@@ -199,7 +199,7 @@ def test_keep_warm_lookup_without_any_item_does_nothing(tmp_path):
     assert process.calls == []
 
 
-def test_service_keeps_identify_fallback_processes_warm(tmp_path, monkeypatch):
+def test_service_separates_detail_and_identify_warmup(tmp_path, monkeypatch):
     from contextlib import nullcontext
     from types import SimpleNamespace
 
@@ -214,9 +214,11 @@ def test_service_keeps_identify_fallback_processes_warm(tmp_path, monkeypatch):
     )
 
     def keep_warm(processes, touch, *, interval):
-        seen.extend(processes)
-        # Stop after service setup, before any game-memory reads or background jobs.
-        raise KeyboardInterrupt
+        seen.append(list(processes))
+        if len(seen) == 2:
+            # Stop before game-memory reads, once both independent warmers are wired.
+            raise KeyboardInterrupt
+        return nullcontext()
 
     monkeypatch.setattr(appraisal_service, 'KeepWarm', keep_warm)
     assert (
@@ -233,7 +235,7 @@ def test_service_keeps_identify_fallback_processes_warm(tmp_path, monkeypatch):
         )
         == 0
     )
-    assert seen == [primary, *identify]
+    assert seen == [[primary], identify]
 
 
 def test_disagree_request_routes_only_fresh_messages(tmp_path):
@@ -253,3 +255,38 @@ def test_disagree_request_routes_only_fresh_messages(tmp_path):
     assert not appraisal_service.dispatch(b'disagree 10', 12, None, None, disagree=handler)
     assert not appraisal_service.dispatch(b'disagree nan', 12, None, None, disagree=handler)
     assert calls == [True]
+
+
+def test_identify_uses_fast_process_and_routes_unenabled_items_to_detail(tmp_path):
+    from types import SimpleNamespace
+
+    calls = []
+    observation = {'item': {'name': 'test'}}
+    pin = {'generation': 'pinned-generation'}
+    backend = SimpleNamespace(pinned=lambda: pin)
+
+    class Process:
+        def __init__(self, result):
+            self.result = result
+
+        def call(self, function, *args):
+            calls.append((self, function, args))
+            return self.result
+
+    fast = Process({'triage': {'verdict': 'vendor'}})
+    detail = Process({'legacy': True})
+    retrieve = appraisal_service.identify_retrieval(fast, detail, backend, tmp_path)
+    assert retrieve(observation) == fast.result
+    assert [p for p, _, _ in calls] == [fast]
+    fast.result = None
+    assert retrieve(observation) == detail.result
+    assert [p for p, _, _ in calls] == [fast, fast, detail]
+    assert calls[-1][2] == (observation, tmp_path, pin)
+
+
+def test_identify_warmup_never_requests_legacy_detail():
+    process = RecordingProcess()
+    observation = {'item': {'name': 'Ring'}}
+    recent = appraisal_service.RecentObservations([observation])
+    appraisal_service.warm_identify_lookup(recent)(process)
+    assert process.calls == [(appraisal_service.triage_warm, (observation,))]

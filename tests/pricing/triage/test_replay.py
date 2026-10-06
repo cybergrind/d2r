@@ -74,6 +74,27 @@ def test_named_recall_excludes_high_asks_on_a_cheap_cohort():
     assert result['recall'] is None
 
 
+def test_a_cheap_ask_is_a_false_flag_only_when_under_nine_in_ten_sellers_ask_the_keep_price():
+    from pricing.triage.bands import build_bands
+
+    def score(prices):
+        rows = [listing(str(i), price) for i, price in enumerate(prices)]
+        doc = build_bands(rows, [])
+        tables = {
+            'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in doc['bands']},
+            'rules': {'keep_ist': 0.25, 'rows': []},
+            'own': {'rows': []},
+        }
+        return listing_score(rows, tables)['categories']['uniques']
+
+    low = score([0.01] + [10] * 9)
+    assert (low['cheap'], low['flagged_cheap'], low['underpriced_in_valuable_cohort']) == (1, 0, 1)
+    assert low['cheap_false_positive_rate'] == 0
+    mixed = score([0.01, 0.01] + [10] * 8)
+    assert (mixed['cheap'], mixed['flagged_cheap']) == (2, 2)
+    assert 'underpriced_in_valuable_cohort' not in mixed
+
+
 def test_new_captures_are_reported_without_claiming_legacy_agreement():
     from pricing.triage.replay import compare_types
 

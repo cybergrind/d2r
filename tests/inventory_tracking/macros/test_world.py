@@ -3,7 +3,14 @@ import struct
 import pytest
 
 from inventory_tracking.input.keybindings import RECORD
-from inventory_tracking.macros.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, skill_keys
+from inventory_tracking.macros.skills import (
+    CONSUME,
+    HEX_PURGE,
+    PSYCHIC_WARD,
+    SUMMON_DEFILER,
+    SWAP_WEAPONS,
+    skill_keys,
+)
 from inventory_tracking.macros.world import decode_slots, next_name
 from tests.inventory_tracking.macros.fakes import SLOTS
 
@@ -54,3 +61,10 @@ def test_next_game_name(name, following):
 def test_names_the_macro_cannot_continue(name):
     with pytest.raises(ValueError, match='number'):
         next_name(name)
+
+
+def test_the_swap_key_is_read_from_the_key_file_not_assumed():
+    # CybergrindAA, 2026-10-06: `c` on action 44; W, the game's default, is on another action there.
+    assert skill_keys(SLOTS, bindings({44: 0x43, 46: 0x57}), (SWAP_WEAPONS,)) == {SWAP_WEAPONS: 'c'}
+    with pytest.raises(ValueError, match='Swap Weapons has no key'):
+        skill_keys(SLOTS, bindings({46: 0x57}), (SWAP_WEAPONS,))

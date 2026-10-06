@@ -33,9 +33,13 @@ def enabled(observation):
 
 
 def guarded_retrieve(observation, database, pinned=None):
-    if enabled(observation):
-        return retrieve(observation)
-    return detail(observation, database, pinned)
+    result = fast_retrieve(observation)
+    return result if result is not None else detail(observation, database, pinned)
+
+
+def fast_retrieve(observation):
+    """Return None for legacy routing; never build detail caches in a fast worker."""
+    return retrieve(observation) if enabled(observation) else None
 
 
 def shop_retrieve(observation):

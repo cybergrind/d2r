@@ -15,12 +15,17 @@ CONSUME = 381
 BIND_DEMON = 382
 PSYCHIC_WARD = 387
 HEX_PURGE = 389
+# Not a skill: the Swap Weapons key action. CybergrindAA has `c` on action 44 and says `c`
+# swaps (user, 2026-10-06); unconfirmed against another character's file.
+SWAP_WEAPONS = -1
+ACTIONS = {SWAP_WEAPONS: 44}
 NAMES = {
     SUMMON_DEFILER: 'Summon Defiler',
     CONSUME: 'Consume',
     BIND_DEMON: 'Bind Demon',
     PSYCHIC_WARD: 'Psychic Ward',
     HEX_PURGE: 'Hex: Purge',
+    SWAP_WEAPONS: 'Swap Weapons',
 }
 
 
@@ -33,9 +38,9 @@ def skill_keys(slots, bindings: bytes, skills) -> dict[int, str]:
     keys = {}
     for skill in skills:
         name = NAMES.get(skill, f'skill {skill}')
-        if skill not in slots:
+        if skill not in ACTIONS and skill not in slots:
             raise ValueError(f'{name} is not on a skill key')
-        codes = action_keys(bindings, slot_action(slots.index(skill)))
+        codes = action_keys(bindings, ACTIONS.get(skill) or slot_action(slots.index(skill)))
         key = next((k for k in map(x11_name, codes) if k and k not in MODIFIERS), None)
         if key is None:
             raise ValueError(f'{name} has no key the macro can press')

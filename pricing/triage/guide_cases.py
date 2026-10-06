@@ -376,18 +376,27 @@ def evaluate(cases, assess):
             unresolved.append({'id': case['id'], 'missing': missing, 'reason': case.get('unresolved_reason')})
             continue
         if category == 'own-use':
-            expected = [['self', 'sell', 'slow', 'check']] * len(items)
+            expected = [
+                verdicts if fields.get('own_use', True) is None else ['self', 'sell', 'slow', 'check']
+                for verdicts, fields in zip(expected, expected_fields, strict=True)
+            ]
         group['evaluated'] += 1
         passed = comparison_passed
         for index, item in enumerate(items):
             validate_native_keys(item, case['id'])
             result = assess(item)
             fields = expected_fields[index]
-            accepted = result['verdict'] in expected[index] and all(
-                field in result and result[field] == value for field, value in fields.items()
+            unmet = []
+            if result['verdict'] not in expected[index]:
+                unmet.append(f'verdict: expected {expected[index]!r}, got {result["verdict"]!r}')
+            unmet.extend(
+                f'{field}: expected {value!r}, got {result.get(field)!r}'
+                for field, value in fields.items()
+                if field not in result or result[field] != value
             )
-            if category == 'own-use':
-                accepted &= bool(result.get('own_use'))
+            if category == 'own-use' and fields.get('own_use', True) is not None and not result.get('own_use'):
+                unmet.append('own_use: required qualification is absent')
+            accepted = not unmet
             passed &= accepted
             identity = case['id'] if len(items) == 1 else f'{case["id"]}/{index}'
             row = result | {'id': identity, 'name': item.get('name', ''), 'rarity': item.get('category', '')}
@@ -396,7 +405,7 @@ def evaluate(cases, assess):
             if len(expected[index]) == 1:
                 labels[identity] = expected[index][0]
             if not accepted:
-                failure = {'id': identity, 'expected': expected[index], 'actual': result}
+                failure = {'id': identity, 'expected': expected[index], 'actual': result, 'unmet_conditions': unmet}
                 if fields:
                     failure['expected_fields'] = fields
                 failures.append(failure)

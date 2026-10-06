@@ -110,7 +110,8 @@ def main():
     from pricing.triage.adapters import from_drop
     from pricing.triage.engine import assess
     from pricing.triage.guide_cases import build_cases
-    from pricing.triage.learned_patterns import derive, guard, guide_negatives
+    from pricing.triage.learned_patterns import guide_negatives
+    from pricing.triage.paid_properties import compile_scores
 
     merge(RUNS, CORPUS_DATA)
     captures, _ = load(CORPUS_DATA)
@@ -120,8 +121,10 @@ def main():
     properties = {str(stat['property_id']) for stat in metadata()['stats'].values() if stat.get('property_id')}
     properties.update(str(prop) for prop in market_properties().values())
     properties.update({'441', '510'})
-    learned = derive(rows, properties, rules['keep_ist'])
-    document['learned_patterns'] = guard(learned, corpus, verdicts, negatives=guide_negatives(build_cases()))
+    document['paid_scores'] = compile_scores(
+        rows, corpus, verdicts, properties, rules['keep_ist'], negatives=guide_negatives(build_cases())
+    )
+    document['learned_patterns'] = []
     output = ROOT / 'pricing/data/triage'
     output.mkdir(parents=True, exist_ok=True)
     atomic_json(output / 'bands.json', document)
@@ -130,7 +133,7 @@ def main():
             {
                 'bands': len(document['bands']),
                 'learned_patterns': len(document['learned_patterns']),
-                'rejected_patterns': len(learned) - len(document['learned_patterns']),
+                'paid_score_families': len(document['paid_scores']['models']),
                 'roll_models': len(document['roll_models']),
                 'priced': sum(b['median_ist'] is not None for b in document['bands']),
                 'liquidity': dict(Counter(b['liquidity'] for b in document['bands'])),

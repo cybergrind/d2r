@@ -386,11 +386,13 @@ def test_superior_floor_combines_sellers_without_lending_premiums_to_ordinary():
         row('superior-b', ed=15, price=3),
     ]
     data = tables(rows)
-    result = assess(from_listing(row('target', ed=12)), data)
+    result = assess(from_listing(row('target', ed=15)), data)
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 3
     assert result['band']['price_basis'] == 'base_floor'
     assert assess(from_listing(rows[0]), data)['decision_ist'] is None
+    # At 12 ED only two source sellers are comparable-or-worse.
+    assert assess(from_listing(row('target', ed=12)), data)['decision_ist'] is None
 
 
 def test_same_socket_plain_floor_precedes_different_socket_fallback():
@@ -455,3 +457,58 @@ def test_amazon_inherent_skills_use_lower_rolls_without_lending_high_roll_premiu
             assert assess(from_listing(r), data)['decision_ist'] is None
         for change in ({'base_modifiers': {}}, {'ethereal': True}, {'socket_contents': 'filled'}):
             assert assess(from_listing(rows[-1]) | change, data)['decision_ist'] is None
+
+
+def test_superior_ed_floor_uses_lower_rolls_and_labels_the_floor():
+    from inventory_tracking.appraisal.triage import headline
+
+    rows = [row(str(i), ed=10, price=2) for i in range(3)]
+    rows += [row(str(i + 3), ed=15, price=20) for i in range(3)]
+    result = assess(from_listing(row('target', ed=12)), tables(rows))
+    assert result['decision_ist'] == 2
+    assert result['band']['price_basis'] == 'base_floor'
+    assert 'at least' in headline(result)
+
+
+def test_superior_staffmod_base_inherits_only_identical_normal_staffmods():
+    from inventory_tracking.items.metadata import metadata
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+
+    skill = next(k for k, v in metadata()['skills'].items() if v['name'] == 'Blessed Hammer')
+    prop = market_properties()['107:' + skill]
+    rows = [
+        listing(str(i), 2)
+        | {'name': 'War Scepter', 'category': 'base', 'rarity': 'normal', 'sockets': 5, 'ethereal': False}
+        for i in range(3)
+    ]
+    for r in rows:
+        r['properties'][prop] = 3
+    superior = rows[0] | {'rarity': 'superior', 'properties': rows[0]['properties'] | {'510': 15}}
+    result = assess(from_listing(superior), tables(rows))
+    assert result['decision_ist'] == 2
+    assert result['band']['price_basis'] == 'base_floor'
+    weaker = superior | {'properties': superior['properties'] | {prop: 2}}
+    assert assess(from_listing(weaker), tables(rows))['decision_ist'] is None
+
+
+def test_ed_floor_prefers_nearest_supported_lower_band_over_pooled_cheap_rolls():
+    rows = [row(str(i), ed=5, price=1) for i in range(3)]
+    rows += [row(str(i + 3), ed=10, price=10) for i in range(3)]
+    assert assess(from_listing(row('target', ed=12)), tables(rows))['decision_ist'] == 10
+
+
+def test_unknown_superior_ed_can_use_zero_bonus_floor_without_inventing_ed():
+    from inventory_tracking.appraisal.triage import headline
+
+    ordinary = [row(str(i), ed=0, price=2) | {'rarity': 'normal'} for i in range(3)]
+    source = row('target')
+    source['properties'].pop('425')
+    target = from_listing(source)
+    assert target['base_ed'] is None
+    result = assess(target, tables(ordinary))
+    assert result['decision_ist'] == 2
+    assert result['band']['price_basis'] == 'base_floor'
+    assert 'at least' in headline(result)
+    assert target['base_ed'] is None
+    for change in ({'sockets': 3}, {'ethereal': False}, {'rarity': None}):
+        assert assess(target | change, tables(ordinary))['decision_ist'] is None

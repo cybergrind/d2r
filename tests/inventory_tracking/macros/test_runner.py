@@ -48,3 +48,23 @@ def test_a_crash_is_shown_and_the_next_press_starts_again(monkeypatch):
     runner.thread.join(5)
     assert len(calls) == 2
     assert shown[0] == ['Macro failed: boom']
+
+
+def test_the_levels_noted_between_presses_are_what_a_run_is_told():
+    places = iter([('cyber32', 102), ('cyber32', 102), ('cyber32', 103)])
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=lambda: next(places))
+    runner.poll(10.0)
+    runner.poll(10.2)  # too soon: not read
+    runner.poll(11.5)
+    runner.poll(13.0)
+    assert runner.journey.arrival(20.0) == (102, 7.0)
+
+
+def test_a_level_that_cannot_be_read_does_not_stop_the_service():
+    def place():
+        raise OSError('gone')
+
+    runner = MacroRunner(None, capture_lock=threading.Lock(), saved_games=None, place=place)
+    runner.poll(10.0)
+    assert runner.journey.arrival(11.0)[0] is None
+    assert not runner.capture_lock.locked()

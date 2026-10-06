@@ -471,6 +471,7 @@ def test_own_use_row_requires_qualification_even_when_sale_takes_precedence():
     result = evaluate([case], lambda item: {'verdict': 'slow', 'reason': 'Tradeable'})
     assert result['groups']['own-use']['passed'] == 0
     assert result['failures'][0]['expected'] == ['self', 'sell', 'slow', 'check']
+    assert result['failures'][0]['unmet_conditions'] == ['own_use: required qualification is absent']
     for verdict in ('self', 'sell', 'slow', 'check'):
         result = evaluate([case], lambda item, verdict=verdict: {'verdict': verdict, 'own_use': {'label': 'Upgrade'}})
         assert result['groups']['own-use']['passed'] == 1
@@ -494,6 +495,7 @@ def test_guide_example_checks_preparation_as_well_as_verdict():
     wrong = evaluate([case], lambda _: {'verdict': 'check', 'reason': 'test', 'preparation': None})
     assert wrong['groups']['table']['passed'] == 0
     assert wrong['failures'][0]['expected_fields'] == case['examples'][0]['expected_fields']
+    assert any('preparation' in condition for condition in wrong['failures'][0]['unmet_conditions'])
     right = evaluate([case], lambda _: {'verdict': 'check', 'reason': 'test', **case['examples'][0]['expected_fields']})
     assert right['groups']['table']['passed'] == 1
 
@@ -513,3 +515,34 @@ def test_mixed_guide_row_requires_comparisons_and_examples_both_to_pass():
     assert result['groups']['table']['evaluated'] == 1
     assert result['groups']['table']['passed'] == 0
     assert result['failures'][0]['expected'] == ['check']
+
+
+def test_mixed_gear_table_keeps_explicit_starter_non_use_cases():
+    case = {
+        'id': 'gear',
+        'kind': 'table',
+        'classification': 'own-use',
+        'examples': [
+            {'item': {'name': 'Upgrade'}, 'expected': ['self']},
+            {
+                'item': {'name': 'Starter'},
+                'expected': ['vendor', 'sell', 'slow', 'check'],
+                'expected_fields': {'own_use': None},
+            },
+        ],
+    }
+
+    def assess(item):
+        return (
+            {'verdict': 'self', 'own_use': {'label': 'Upgrade'}}
+            if item['name'] == 'Upgrade'
+            else {'verdict': 'vendor', 'own_use': None}
+        )
+
+    report = evaluate([case], assess)
+    assert report['groups']['own-use']['evaluated'] == 1
+    assert report['groups']['own-use']['passed'] == 1
+    wrong = evaluate([case], lambda _: {'verdict': 'self', 'own_use': {'label': 'Automatic keep'}})
+    assert wrong['groups']['own-use']['passed'] == 0
+    assert len(wrong['failures']) == 1
+    assert 'own_use' in str(wrong['failures'][0]['unmet_conditions'])

@@ -1,16 +1,18 @@
 """A scripted game for macro tests: a fake X connection and a world that reacts to its events."""
 
+import math
 import random
 from dataclasses import replace
 
 from inventory_tracking.macros.actuator import Actuator
 from inventory_tracking.macros.engine import Run
-from inventory_tracking.macros.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER
+from inventory_tracking.macros.skills import CONSUME, HEX_PURGE, PSYCHIC_WARD, SUMMON_DEFILER, SWAP_WEAPONS
 from inventory_tracking.macros.timing import Pace
 from inventory_tracking.macros.world import Monster, Player, World
 
 
-KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r'}
+KEYS = {SUMMON_DEFILER: 'q', CONSUME: '6', HEX_PURGE: 'g', PSYCHIC_WARD: 'r', SWAP_WEAPONS: 'c'}
+PREBUFF_SET, OTHER_SET = ('fla', 'uit'), ('6cs', 'wa3')  # Heart of the Oak + Spirit; Naj's Puzzler + Codex
 SLOTS = (379, 390, 375, 384, 389, 220, 393, 377, None, 382, 387, 54, 381, None, None, None)
 WINDOW = (1920, 0, 2560, 1418)
 
@@ -113,6 +115,7 @@ class Game:
         self.next_unit = 100
         self.consume_takes = None  # unit id Consume removes instead of the Defiler aimed at
         self.field_focused = False
+        self.sets = [PREBUFF_SET, OTHER_SET]  # the first is in hand
         self.loading_seconds = 6.0
         self.view_marks = True  # the view byte goes to 0 while the game loads
         self.ignored = []
@@ -141,6 +144,8 @@ class Game:
                         self.loaded_at = self.clock.now + self.loading_seconds
                     elif len(key) == 1:
                         self.world = replace(w, game_name=name + key)
+            elif key == 'c':
+                self.sets.reverse()
             elif key == 'Escape':
                 panels = () if w.open_panels else ('quit_menu',)
                 self.world = replace(w, open_panels=panels)
@@ -182,9 +187,10 @@ class Game:
         return p.x + (a + b) / 2, p.y + (b - a) / 2
 
     def pet_under_pointer(self):
+        """Consume takes the demon nearest the pointer, the bound one as readily as a Defiler."""
         x, y = self.under_pointer()
-        near = [m for m in self.world.monsters if m.txt_id == 744 and abs(m.x - x) < 2 and abs(m.y - y) < 2]
-        return near[0].unit_id if near else None
+        near = [m for m in self.world.monsters if m.txt_id in (744, 700) and math.hypot(m.x - x, m.y - y) < 5]
+        return min(near, key=lambda m: math.hypot(m.x - x, m.y - y)).unit_id if near else None
 
     def run(self, seed=1) -> Run:
         pace = Pace(random.Random(seed), self.clock.sleep)
@@ -194,8 +200,10 @@ class Game:
             pace,
             clock=self.clock,
             say=self.said.append,
+            hands=lambda: self.sets[0],
         )
         run.keys = dict(KEYS)
+        run.prebuff_hands = frozenset(PREBUFF_SET)
         return run
 
     def read(self):

@@ -231,6 +231,11 @@ def from_listing(row):
     base_name = row.get('base_name') or base.get('name') or row['name']
     known_base = str(base_name).casefold() in base_families(metadata_generation())
     category = row.get('rarity') if row.get('rarity') in AFFIXED else row['category']
+    if category == 'base' and row.get('rarity') is None:
+        from pricing.triage.unknown_affixed import proven
+
+        if proven(row, base):
+            category = 'affixed_unknown'
     if row['category'] == 'charms' and row['name'] in ('Small Charm', 'Large Charm', 'Grand Charm'):
         category = row.get('rarity') or 'magic'
     return {

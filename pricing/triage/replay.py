@@ -16,6 +16,9 @@ from pricing.triage.engine import Tables, assess, variant_name_band
 from pricing.triage.roll_comparisons import validation_summary
 
 
+UNDERPRICED_COHORT_SHARE = 0.9
+
+
 def listing_score(rows, tables):
     from pricing.triage.base_socket_inference import apply
     from pricing.triage.listing_scores import cohort_key, summarize
@@ -45,7 +48,7 @@ def listing_score(rows, tables):
         result = assess(item, tables)
         verdict = result['verdict']
         flag = verdict in ('sell', 'slow')
-        attention = flag or (category in ('rare', 'magic', 'crafted') and verdict == 'check')
+        attention = flag or (category in ('rare', 'magic', 'crafted', 'affixed_unknown') and verdict == 'check')
         key = f'{category}/{item.get("family") or item.get("name")}'
         named = category in ('uniques', 'sets', 'runewords')
         cohort = variant_name_band(item, tables) if named else None
@@ -81,6 +84,17 @@ def listing_score(rows, tables):
         rank = price, str(row['listing_id'])
         if identity not in sellers or rank < sellers[identity][0]:
             sellers[identity] = rank, observation, miss
+    # User decision 2026-10-06: a cheap ask is a false flag only when fewer than 90% of
+    # the sellers in its cohort ask the keep price or more; otherwise one seller priced low.
+    keep = tables['rules']['keep_ist']
+    cohort_asks = {}
+    for (_, market_cohort), (rank, _, _) in sellers.items():
+        cohort_asks.setdefault(market_cohort, []).append(rank[0])
+    for (_, market_cohort), (_, (_, _, tally), _) in sellers.items():
+        asks = cohort_asks[market_cohort]
+        if tally['flagged_cheap'] and sum(ask >= keep for ask in asks) >= UNDERPRICED_COHORT_SHARE * len(asks):
+            tally['flagged_cheap'] = 0
+            tally['underpriced_in_valuable_cohort'] = 1
     return {
         **summarize([o for _, o, _ in sellers.values()]),
         'miss_causes': misses.report([miss for _, _, miss in sellers.values()]),
@@ -212,6 +226,7 @@ def main():
     from pricing.triage.market_demand import agreement
 
     listing['demand_agreement'] = agreement(listing['cohort_verdicts'], listing['turnover'])
+    listing['paid_property_validation'] = tables.get('paid_scores', {}).get('validation', [])
     atomic_json(DATA / 'score-listings.json', listing)
     print(
         json.dumps(

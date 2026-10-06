@@ -271,3 +271,21 @@ Differences from the design above, and what is still open:
 - Eldritch and Shenk run (user, 2026-10-06): Win+X in the Frigid Highlands (111) or the Bloody
   Foothills (110) leaves and makes the next game, as in the Temple. The whole level counts;
   "near the waypoint" is not measured. Both are counted by terror/bosses.py.
+- Weapons (user, 2026-10-06): the prebuff is cast with Heart of the Oak + Spirit (base codes
+  `fla`, `uit`, per character in `routines.CHARACTERS`). The set in hand is read from the
+  equipped items at body locations 4 and 5; with the other set in hand the Swap Weapons key
+  (key action 44, `c` in CybergrindAA's file, read from the file) is pressed first and the
+  set is left in hand. Unconfirmed on the host.
+- Bound demon consumed (host, 20:51): Consume took it with the pointer on the Defiler; the
+  macro only noticed afterwards. Now Consume is pressed only while no other living monster
+  (the mercenary aside) is within 7 world units of the Defiler, checked again after the
+  pointer move; a crowded Defiler is replaced by one summoned at an open spot (five spots,
+  open ones first), and after three tries the macro stops without pressing. Research logged
+  on each Consume: image addresses holding (monster, Defiler id) with the pointer on it, to
+  find the "unit under the pointer" record and require it before the key.
+
+- 2026-10-06, act 4 after act 3 (user: Mephisto and other act 3 runs step into act 4 before Save and
+  Exit): the Pandemonium Fortress (103) is a run end while the character came to it from an act 3
+  level (75-102) at most 180 s ago. The service notes game and level once a second
+  (`journey.Journey`, `MacroRunner.poll`); a game that started in the Fortress has no level before
+  it, so Win+X there only prebuffs. Scripted tests only; not run on the host yet.

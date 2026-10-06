@@ -20417,12 +20417,15 @@
           "name": "Wizardspike"
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -20519,12 +20522,15 @@
           "ethereal": false
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -20700,11 +20706,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -65660,11 +65670,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -65890,11 +65904,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -65938,12 +65956,15 @@
           "name": "Spectral Shard"
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -65963,12 +65984,15 @@
           "name": "Wizardspike"
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -66094,12 +66118,15 @@
           "name": "Razorswitch"
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -66331,11 +66358,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -66349,11 +66380,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -66367,11 +66402,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -66676,11 +66715,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -66735,11 +66778,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -67812,11 +67859,15 @@
           "socket_contents": "filled"
         },
         "expected": [
-          "self",
+          "vendor",
+          "check",
           "sell",
           "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",
@@ -68360,7 +68411,7 @@
       "Light Belt \u00b7 Sharkskin Belt \u00b7 Vampirefang Belt codes vbl \u00b7 zvb \u00b7 uvc",
       "Ith + Perfect Amethyst",
       "5\u201310 % FCR, Regenerate Mana 4\u201310 %, +10\u201320 mana",
-      "life, resists, FHR, str (a 10-FCR roll = 20 FCR belt)",
+      "life, resists, FHR, str (10% FCR is the maximum; this belt cannot roll an extra FCR affix)",
       "Belt (listed; the Arachnid Mesh stand-in)"
     ],
     "resolved_cells": [
@@ -68368,11 +68419,11 @@
       "Light Belt \u00b7 Sharkskin Belt \u00b7 Vampirefang Belt codes vbl \u00b7 zvb \u00b7 uvc",
       "Ith + Perfect Amethyst",
       "5\u201310 % FCR, Regenerate Mana 4\u201310 %, +10\u201320 mana",
-      "life, resists, FHR, str (a 10-FCR roll = 20 FCR belt)",
+      "life, resists, FHR, str (10% FCR is the maximum; this belt cannot roll an extra FCR affix)",
       "Belt (listed; the Arachnid Mesh stand-in)"
     ],
     "description": "Caster Belt",
-    "text": "Caster BeltLight Belt \u00b7 Sharkskin Belt \u00b7 Vampirefang Belt codes vbl \u00b7 zvb \u00b7 uvcIth + Perfect Amethyst5\u201310 % FCR, Regenerate Mana 4\u201310 %, +10\u201320 manalife, resists, FHR, str (a 10-FCR roll = 20 FCR belt)Belt (listed; the Arachnid Mesh stand-in)",
+    "text": "Caster BeltLight Belt \u00b7 Sharkskin Belt \u00b7 Vampirefang Belt codes vbl \u00b7 zvb \u00b7 uvcIth + Perfect Amethyst5\u201310 % FCR, Regenerate Mana 4\u201310 %, +10\u201320 manalife, resists, FHR, str (10% FCR is the maximum; this belt cannot roll an extra FCR affix)Belt (listed; the Arachnid Mesh stand-in)",
     "expected": null,
     "examples": [
       {
@@ -68638,12 +68689,15 @@
           "ethereal": false
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -68660,12 +68714,15 @@
           "ethereal": false
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       },
       {
         "spec": {
@@ -68682,12 +68739,15 @@
           "ethereal": false
         },
         "expected": [
+          "vendor",
           "check",
           "sell",
-          "slow",
-          "self"
+          "slow"
         ],
-        "rationale": "Concrete source-row pattern; unspecified auxiliary rolls use native minimums. Guide intent, not current engine output, sets the expectation."
+        "rationale": "2026-10-06 current appraisal scope note in guides/warlock.html: retained negative own-use example; starter/reference equipment does not create an automatic keep for this non-leveling player. Trade remains assessed independently.",
+        "expected_fields": {
+          "own_use": null
+        }
       }
     ],
     "classification": "own-use",

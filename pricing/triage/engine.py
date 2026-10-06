@@ -318,10 +318,25 @@ def assess(item, tables, *, today=None):
                 f' · {reference["sellers"]} sellers · {reference["observed_at"]}'
             )
             band, price, bucket, liquidity = None, None, None, 'none'
+    if verdict in ('vendor', 'self') and tables.get('paid_scores'):
+        from pricing.triage.paid_properties import lookup as paid_score
+
+        if scored := paid_score(item, tables['paid_scores'].get('models', [])):
+            verdict = 'check'
+            reason = f'{scored["count"]} paid properties meet family threshold {scored["threshold"]}; review for trade'
+            reference = scored['reference_band']
+            band, price, bucket, liquidity = None, None, None, 'none'
     if verdict == 'vendor' and reason == 'no listings' and category in ('magic', 'rare', 'crafted'):
         from pricing.triage.patterns import vendor_reason
 
         reason = vendor_reason(item, pattern_rows)
+    if category == 'affixed_unknown':
+        from pricing.triage.unknown_affixed import review_pattern
+
+        matched = review_pattern(item, tables)
+        verdict = 'check' if matched else 'vendor'
+        reason = 'rarity unreported; ' + (matched or 'no reviewed trade combination for the reported stats')
+        band, reference, price, bucket, liquidity = None, None, None, None, 'none'
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:
@@ -379,6 +394,7 @@ def prepare_tables(bands, rules, own):
         'rule_index': compile_index(rules['rows']),
         'pattern_index': compile_index(rules['rows'], patterns=True),
         'learned_index': compile_index(bands.get('learned_patterns', [])),
+        'paid_scores': bands.get('paid_scores', {}),
     }
     data['commodity_lots'] = compile_lots(data['bands'], rules['keep_ist'])
     return data

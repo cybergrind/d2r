@@ -18,6 +18,7 @@ from inventory_tracking.input.focus import FocusTracker, owns_process
 from inventory_tracking.input.keyboard import X11Keyboard
 from inventory_tracking.macros.actuator import Abort, Actuator
 from inventory_tracking.macros.engine import Run
+from inventory_tracking.macros.journey import Journey
 from inventory_tracking.macros.routines import SKILLS, run_macro
 from inventory_tracking.macros.skills import character_bindings, skill_keys
 from inventory_tracking.macros.timing import Pace
@@ -27,6 +28,7 @@ from inventory_tracking.models import SessionIdentity
 
 REQUEST_PREFIX = 'macro '
 CARD_SECONDS = 4.0
+JOURNEY_SECONDS = 1.0  # how often the game and level are noted between presses
 
 
 class MacroRunner:
@@ -38,6 +40,7 @@ class MacroRunner:
         saved_games: Path,
         display: Callable[[list[str]], None] = lambda lines: None,
         execute: Callable[..., None] | None = None,
+        place: Callable[[], tuple[str | None, int | None]] | None = None,
     ) -> None:
         self.source = source
         self.capture_lock = capture_lock
@@ -48,6 +51,10 @@ class MacroRunner:
         self.thread: threading.Thread | None = None
         self.focus: FocusTracker | None = None
         self.last_request = -math.inf
+        self.journey = Journey()
+        self.place = place or self._place
+        self.last_poll = -math.inf
+        self.unread = False
 
     def request(self, requested_at: float, now: float) -> bool:
         if not math.isfinite(requested_at) or not 0 <= now - requested_at <= 1 or now - self.last_request < 0.3:
@@ -60,6 +67,32 @@ class MacroRunner:
         self.thread = threading.Thread(target=self._guarded, args=(self.cancelled,), name='macro', daemon=True)
         self.thread.start()
         return True
+
+    def poll(self, now: float) -> None:
+        """Note the game and level for the journey; called from the service loop."""
+        if now - self.last_poll < JOURNEY_SECONDS or not self.capture_lock.acquire(blocking=False):
+            return
+        self.last_poll = now
+        try:
+            self.journey.note(*self.place(), now)
+            self.unread = False
+        except Exception as exc:
+            if not self.unread:  # once per outage, not once a second
+                LOG.info('Macro: the level could not be noted (%s)', exc)
+            self.unread = True
+        finally:
+            self.capture_lock.release()
+
+    def _place(self) -> tuple[str | None, int | None]:
+        self.source.ensure_connected()
+        tables = {found['table_address'] for found in self.source.capture['unit_table_candidates']}
+        if len(tables) != 1:
+            raise ValueError('the game is not attached')
+        memory = GameMemory(self.source.pid, self.source.images['candidate_base'], next(iter(tables)))
+        try:
+            return memory.place()
+        finally:
+            memory.close()
 
     def close(self) -> None:
         self.cancelled.set()
@@ -116,7 +149,16 @@ class MacroRunner:
                         raise Abort(str(exc)) from exc
 
                 pace = Pace(random.Random())
-                run = Run(memory.world, Actuator(keys, focused, pace), pace, cancelled=cancelled, say=self._say)
+                run = Run(
+                    memory.world,
+                    Actuator(keys, focused, pace),
+                    pace,
+                    cancelled=cancelled,
+                    say=self._say,
+                    hands=memory.hands,
+                )
+                run.research = memory.hover_candidates
+                run.arrival = lambda: self.journey.arrival(time.monotonic())
                 run_macro(run, key_names)
         finally:
             memory.close()

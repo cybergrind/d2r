@@ -278,7 +278,50 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 ## 4. Work packages
 
-### Steering 11 (progress check, 2026-10-06 20:00) — sets the queue; Steering 9 pace rules stand
+### Steering 12 (progress check, 2026-10-06 21:25) — sets the queue; Steering 9 pace rules stand
+
+Measured from the score files of 21:07: attention 81.07% (17,859 of 22,028), SELL/slow
+69.95%, bases 65.5%, rare 64.3%, magic 74.2%, guide rows 384 of 404 (95.05%), worked 36/36,
+false positives 16/16, cheap SELL 10.37%, corpus CHECK rare 7.7% and magic 7.3% (limit 8%),
+named CHECK 12.0%. Steering 11 items 1–3 were executed in ninety minutes. 865 votes are
+missing for 85%.
+
+1. **Speed first: the live pass is seven times over its limit.** Section 8 records five
+   items in 6,985 ms, 6,902 ms of it on the first Large Charm, against a limit of one second
+   for ten items. "A fast answer" is the second priority of the goal and this is the only
+   measure that got worse today. It is not a "next": find what the first charm waits for
+   (detail warm-up, table reload after a rebuild, the new scorer tables), fix it, and record
+   a ten-item pass from the service log. No score work before this.
+2. **The rare and magic numbers are in-sample; publish the held-out ones.** The scorer is
+   derived from the sellers it is replayed on: replay says rare 64.3% and magic 74.2%, the
+   held-out third says 40.9% and 41.9% for the scorer's own votes. Compute the scorer's
+   replay votes by three folds over sellers (derive on two, score the third) so the
+   attention figure is out-of-sample, and print both. The contract counts the out-of-sample
+   figure.
+3. **A CHECK must say what was found.** 31 of the 65 rare and magic corpus drops that are
+   CHECK read "1 paid properties meet family threshold 1; review for trade". Name the
+   properties and their rolls and give the reference: "life 38, FHR 12; listed copies with
+   both ask 2.6 Ist (9 sellers)". A threshold of one is allowed only for magic items with a
+   single paid property at its top tier; print the families with threshold one and their
+   corpus hits, and drop the threshold-one models for rares.
+4. **Bases: the three-seller rule is the limit, and the decision is the user's.** 939 of the
+   1,494 missed base votes have one or two fallback sellers; base recall fell to 65.5% after
+   the ED correction and will not reach 70% by more ladder levels. Those items already get
+   CHECK with the sparse quote. Whether CHECK counts as attention for bases and named items
+   (it does for rare, magic and crafted) is put to the user with these numbers: counting it
+   gives bases 77.8% and attention about 85.8%, with SELL/slow unchanged at 69.95%. Until the
+   answer, no more base work; the measure stays as written.
+5. **Guide rows passed with no margin (384 needed, 384 passing).** 17 starter and reference
+   examples had their expectation changed to "no automatic own-use". That is consistent with
+   the goal (the player is not levelling) only if each is recorded as a dated pass in the
+   guide's Review log; do that, then continue down the 20 failing rows. A row is not moved
+   to context to hold the 95%.
+6. **Named roll placement** (uniques 237 `roll_comparison`, 166 `no_matched_price`) after
+   items 1–3.
+
+Order: 1 → 2 → 3 → 6, with 5 alongside. Cheap SELL and demand wait for the weekly pull.
+
+### Steering 11 (progress check, 2026-10-06 20:00) — items 1–3 executed; queue replaced by Steering 12; item 5 stands
 
 Measured from the score files of 19:36: attention 78.29% (17,241 of 22,022; target 85%),
 bases 67.4%, rare 45.1%, magic 55.9%, cheap SELL 10.37% (17 of 164), guide rows 373 of 404
@@ -320,13 +363,21 @@ and crafted 1,927; bases 1,172; named items 491; gems 130.
    condition in the failure, or they are not failures.
 4. **Named roll placement** (uniques 237 `roll_comparison`, 166 `no_matched_price`) after
    item 1, as in Steering 9 item 3.
-5. **Cheap SELL rate: no more work until the user decides the measure.** The 17 flagged
-   cheap listings are spread one or two per type inside cohorts that are otherwise valuable
-   (unique Large Charm: 486 valuable sellers, one cheap listing; unique body armour: 528
-   and one). That is a seller pricing low, not a wrong verdict, and no roll boundary
-   separates it. It is reported as 10.37%, over the limit, with that breakdown. Proposal
-   for the user: count a cheap listing as a false flag only when fewer than 90% of the
-   sellers in its cohort are at or above the keep price.
+5. **Cheap SELL rate: the 90% cohort rule is in force and changes nothing (corrected
+   2026-10-06 20:40).** The user accepted the rule: a cheap listing is a false flag only
+   when fewer than 90% of the sellers in its cohort ask the keep price or more
+   (`UNDERPRICED_COHORT_SHARE` in `pricing/triage/replay.py`, counter
+   `underpriced_in_valuable_cohort`). The replay with the rule still gives 17 of 164
+   (10.37%). The breakdown in the first version of this item was wrong: it used family
+   totals (unique Large Charms 486 sellers), not the cohort of the item. Per cohort the
+   17 listings are low-end named items where 67–88% of sellers ask the keep price or more
+   and the rest ask 0.048 Ist: Stoutnail 5 of 7, Iron Pelt 12 of 16, Stormeye 14 of 17,
+   Howltusk 18 of 22, Treads of Cthon 9 of 12, Hellslayer 10 of 13, Sander's Riprap 6 of 8,
+   one superior Flail 4 of 6. That is the supply-priced SELL of Steering 4 item 3, not a
+   low-priced seller. Do not lower the 90% and do not add per-item exceptions. These
+   cohorts are decided by demand evidence at the weekly pull (2026-10-10 or -11): no
+   turnover and no buyers over seven days makes the cohort VENDOR, which removes its cheap
+   flags and its valuable votes together. Until then the rate is reported as over.
 
 Forecast, not a promise: items 1, 2 and 4 together need to recover about three quarters of
 their votes to reach 85%. If the held-out number for item 1 comes in under half, report
@@ -1043,33 +1094,33 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-06 — Current contract and Steering 11 govern; completion unproven.
-- Steering 10 paid-combination fix: 119 learned rules retained, 2616 dropped.
-  Every supporter retains its complete potentially valuable numeric-affix signature;
-  unrelated valuable extras cannot establish a price for common filler stats.
-- Same listing replay: attention 80.25% → 78.29% (17241/22022), net -432 votes.
-  Rare attention 59.50% → 45.13% (1005/2227); magic 56.90% → 55.89% (721/1290).
-  The loss corrects unsupported learned combinations and is retained, not tuned away.
-- Base recall remains 67.38% (2946/4372; target 70%). Its 308 clean misses have
-  one usable seller (131), two (171), none (5), or a supported below-keep floor (1).
-  Normal bases cannot borrow superior premiums; staffmod combinations stay distinct.
-- Cheap SELL/slow remains 10.37% (17/164; limit 10%, FAIL); CHECK 17.68%.
-  Alternative supported roll boundaries did not validate another cheap-item split.
-- Guide rows 373/404 (92.33%): verdict 338/355, own-use 35/49; all execute.
-  Worked 36/36; false positives 16/16, including rare War Boots at fire 8 and 9.
-  One table-row pass was lost with removal of unsupported combinations; remains open.
-- Same-run corpus CHECK: rare 3.28% (9/274), magic 2.17% (13/598); limits 8%.
-  Named CHECK 12.11%; three-seller support remains mandatory.
-- Earlier retained corrections: normal/superior AR/durability lost eight votes;
-  Horazon lost three; smaller validated roll cohorts lost fifteen on below-keep asks.
-- Tests: triage/appraisal 857 passed; item/definition suite 426 passed plus three
-  generation failures fixed and rerun green. Publication/tier tests 21 passed; lint clean.
-- Bands 64,902; 105 roll models. Warm median 0.462 ms; first call 166.545 ms.
-  Live 4-item pass 208 ms (Oct 6 15:33 UTC); ten-item timing remains unrecorded.
+2026-10-06 — Current contract and Steering 12 govern; completion unproven.
+- Paid-property scoring: 70 family models; count bands are references, never prices.
+  Scorer-only held-out: rare 173/423 (40.90%), magic 95/227 (41.85%), crafted 9/56.
+  Below-half held-out result reported; no per-family tuning or extra affixed batches.
+- Latest shield-floor replay: attention 17859/22028 (81.07%); no shield votes gained.
+  War Axe 1002354239558 loses one vote: rebuilt floor cohort has no measured demand.
+- Bases 2834/4328 (65.48%); 70% unmet. Unknown superior ED can use a zero-ED
+  normal floor without assigning ED; superior can inherit identical normal staffmods.
+  Normal cannot borrow superior prices; sockets, ethereal and native skills retained.
+- ED is now preserved in floor keys. Pooled superior floors use only equal/lower ED.
+  Of 1494 missed base votes: 755 have one fallback seller, 184 two, 126 none,
+  138 lack valid keys; 88 fail keep price and 199 demand. Four apparent supported
+  fallbacks require illegal sockets (three) or pricing an unsocketed staffmod as socketed.
+  Earlier ED correction lost 41 votes; retained for correctness, not tuned away.
+- Guide rows 384/404 (95.05%, PASS); verdict 342/355, own-use 42/49.
+  Worked 36/36 and false positives 16/16 pass. All rows execute.
+  All examples retained; 17 starter/reference examples now assert no automatic own-use.
+- Cheap SELL/slow 17/164 (10.37%, FAIL), CHECK 30/164 (18.29%).
+  Approved 90% cohort rule changes no flags; demand decides these at the October 10–11 pull.
+- Corpus CHECK guards: rare 7.66%, magic 7.25%; named CHECK 12.04% (1510 drops).
+- Named misses: 228 roll safeguards/sparse comparisons, 23 unreadable/invalid rolls,
+  206 sparse identities/variants, 729 supported below-keep/no-demand dispositions.
+- Tests: 877 triage/appraisal passed; 31 focused base tests pass; touched-code lint passes.
+- Warm replay median 0.474 ms; first 135.152 ms. Bands 105,540; roll models 105.
+- Live regression Oct 6 18:07 UTC: five items 6984.7 ms; first Large Charm 6902.2 ms.
 - Demand unmeasured; authorized weekly pull October 10–11 (current interval one day).
-- Steering 10 tiers fixed: native group/base pools for FRW, IAS, FHR and FCR;
-  saved boots T2 / 10–30%; published generation f7fde48dff09.
-- Vendor reasons now explain the nearest reviewed combination; 1497 saved verdicts
-  unchanged, warm median 0.129 ms / max 2.155 ms. Python worker restart loads this code.
-- Next: resume Steering 9 coverage, guide failures and Materials UI verification.
+- Tier metadata generation f7fde48dff09; Python changes require worker restart.
+- Unknown-rarity affixes match authored CHECK patterns without inventing rarity/prices.
+  Next: isolate identify latency from shared detail warm-up; ten-item timing still unproven.
 Every Current contract measure must pass together before completion.

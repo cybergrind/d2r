@@ -5,7 +5,7 @@ import pytest
 from inventory_tracking.macros.actuator import Abort
 from inventory_tracking.macros.routines import prebuff, run_macro, screen_fraction
 from inventory_tracking.macros.world import Monster
-from tests.inventory_tracking.macros.fakes import KEYS, Game, player, world
+from tests.inventory_tracking.macros.fakes import KEYS, OTHER_SET, PREBUFF_SET, Game, player, world
 
 
 BOUND_DEMON = Monster(50, 700, 1, 4995.0, 5003.0, 0xFFFFFFFF)  # summons carry no owner (host, 2026-10-06)
@@ -52,7 +52,7 @@ def test_no_summon_at_any_spot_stops_before_consume():
     game.keys.on_event = lambda event: None  # the game ignores every key
     with pytest.raises(Abort, match='Defiler'):
         prebuff(game.run())
-    assert game.pressed() == ['q', 'q', 'q']
+    assert game.pressed() == ['q'] * 5  # once per summon spot
 
 
 def test_a_spot_that_takes_no_summon_is_followed_by_another():
@@ -277,3 +277,112 @@ def test_by_the_frigid_highlands_waypoint_the_macro_leaves_and_makes_the_next_ga
     assert keys[0] == 'Escape'
     assert keys[keys.index('Return') + 1 :] == ['q', '6', 'q', 'g', 'r']
     assert game.world.game_name == 'cyber33'
+
+
+def test_the_other_weapon_set_in_hand_is_swapped_away_before_the_first_cast_and_not_back():
+    game = Game(world(112))
+    game.sets = [OTHER_SET, PREBUFF_SET]
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed() == ['c', 'q', '6', 'q', 'g', 'r']
+    assert game.sets[0] == PREBUFF_SET
+
+
+def test_the_prebuff_set_in_hand_is_left_alone():
+    game = Game(world(112))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert 'c' not in game.pressed()
+
+
+def test_weapons_the_profile_does_not_know_stop_the_macro_after_one_swap():
+    game = Game(world(112))
+    game.sets = [OTHER_SET, ('wnd', 'buc')]
+    with pytest.raises(Abort, match='weapons'):
+        run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed() == ['c']
+
+
+def test_in_a_new_game_the_swap_comes_before_the_first_summon():
+    game = Game(world(121))
+    game.sets = [OTHER_SET, PREBUFF_SET]
+    run_macro(game.run(), lambda w: dict(KEYS))
+    keys = game.pressed()
+    assert keys[keys.index('Return') + 1 :] == ['c', 'q', '6', 'q', 'g', 'r']
+
+
+def follow(game, times=99):
+    """The bound demon walks onto every new Defiler, `times` times."""
+    react, left = game.keys.on_event, [times]
+
+    def on_event(event):
+        react(event)
+        if event == ('key', 'q') and left[0]:
+            left[0] -= 1
+            defiler = next(m for m in game.world.monsters if m.txt_id == 744)
+            moved = tuple(
+                replace(m, x=defiler.x + 1, y=defiler.y + 1) if m.txt_id == 700 else m for m in game.world.monsters
+            )
+            game.world = replace(game.world, monsters=moved)
+
+    game.keys.on_event = on_event
+
+
+def test_consume_is_not_pressed_while_the_bound_demon_stands_by_the_defiler():
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    follow(game)
+    with pytest.raises(Abort, match='too close'):
+        prebuff(game.run())
+    assert '6' not in game.pressed()
+    assert 700 in [m.txt_id for m in game.world.monsters]
+
+
+def test_a_defiler_the_demon_walked_up_to_is_replaced_by_one_in_the_open():
+    game = Game(world(monsters=(BOUND_DEMON,)))
+    follow(game, times=1)
+    prebuff(game.run())
+    assert game.pressed() == ['q', 'q', '6', 'q', 'g', 'r']
+    assert game.world.player.consume
+    assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
+
+
+def test_a_defiler_is_not_summoned_next_to_the_demon():
+    demon_on_the_right = replace(BOUND_DEMON, x=5004.0, y=4993.0)  # where the first summon spot is
+    game = Game(world(monsters=(demon_on_the_right,)))
+    prebuff(game.run())
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+    assert sorted(m.txt_id for m in game.world.monsters) == [700, 744]
+
+
+def arrived(game, previous, seconds):
+    run = game.run()
+    run.arrival = lambda: (previous, seconds)
+    return run
+
+
+@pytest.mark.parametrize('previous', [102, 83, 75])  # Durance of Hate 3, Travincal, Kurast Docks
+def test_in_the_fortress_just_after_act_3_the_macro_leaves_and_makes_the_next_game(previous):
+    game = Game(world(103))
+    run_macro(arrived(game, previous, 40.0), lambda w: dict(KEYS))
+    keys = game.pressed()
+    assert keys[0] == 'Escape'
+    assert keys[keys.index('Return') + 1 :] == ['q', '6', 'q', 'g', 'r']
+    assert game.world.game_name == 'cyber33'
+
+
+@pytest.mark.parametrize(
+    ('previous', 'seconds'),
+    [
+        (None, 5.0),  # the game started here
+        (107, 5.0),  # back from the River of Flame
+        (102, 600.0),  # came from Mephisto long ago
+    ],
+)
+def test_in_the_fortress_otherwise_the_macro_only_prebuffs(previous, seconds):
+    game = Game(world(103))
+    run_macro(arrived(game, previous, seconds), lambda w: dict(KEYS))
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']
+
+
+def test_without_a_journey_the_fortress_is_an_ordinary_place():
+    game = Game(world(103))
+    run_macro(game.run(), lambda w: dict(KEYS))
+    assert game.pressed() == ['q', '6', 'q', 'g', 'r']

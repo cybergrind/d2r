@@ -27,6 +27,7 @@ class Run:
         clock: Callable[[], float] = time.monotonic,
         cancelled: Event | None = None,
         say: Callable[[str], None] = lambda text: None,
+        hands: Callable[[], tuple[str, ...]] | None = None,
     ) -> None:
         self.read = read
         self.actuator = actuator
@@ -35,6 +36,11 @@ class Run:
         self.cancelled = cancelled or Event()
         self.say = say
         self.keys: dict[int, str] = {}
+        self.hands = hands  # base codes of the weapon set in hand (world.GameMemory.hands)
+        self.prebuff_hands: frozenset[str] = frozenset()  # the set the buffs are cast with
+        self.research: Callable[[int], list[str]] | None = None  # world.GameMemory.hover_candidates
+        # (level before this one, seconds since it was left), journey.Journey.arrival
+        self.arrival: Callable[[], tuple[int | None, float]] | None = None
         self.observe: Callable[[World], None] | None = None  # sees every world read
 
     def world(self) -> World:

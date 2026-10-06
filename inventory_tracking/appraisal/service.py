@@ -90,7 +90,7 @@ from inventory_tracking.tracking.panels import observe_panels
 from inventory_tracking.tracking.reader import LiveReader
 from pricing.knowledge.publication import DEFAULT_STORE
 from pricing.triage.engine import revision as triage_revision
-from pricing.triage.runtime import detail as triage_detail, guarded_retrieve as triage_retrieve, warm as triage_warm
+from pricing.triage.runtime import detail as triage_detail, fast_retrieve as triage_retrieve, warm as triage_warm
 
 
 def owned_evidence(database):
@@ -126,6 +126,24 @@ def process_retrieval(process, backend, database, recent=None):
         return process.call(triage_detail, observation, database, backend.pinned())
 
     return retrieve
+
+
+def identify_retrieval(fast, detail, backend, database):
+    """Keep legacy work out of the identify queue, including unrouted item types."""
+    fallback = process_retrieval(detail, backend, database)
+
+    def retrieve(observation):
+        result = fast.call(triage_retrieve, observation)
+        return result if result is not None else fallback(observation)
+
+    return retrieve
+
+
+def warm_identify_lookup(recent):
+    def touch(process):
+        process.call(triage_warm, recent.next())
+
+    return touch
 
 
 class RecentObservations:
@@ -397,13 +415,17 @@ def run_service(args, directory, report):
                     RetrievalGroup(
                         APPRAISAL.identify_lookup_processes, triage_warm, (recent.next(),)
                     ) as identify_lookups,
-                    refreshing(backend, [appraisal_lookups, *identify_lookups.processes], args.publication_store),
-                    # Unrouted types still use legacy detail in identify children. Warm and
-                    # refresh those caches too; triage-only initialization left the first
-                    # legacy identify lookup taking 18 seconds on the host.
+                    refreshing(backend, [appraisal_lookups], args.publication_store),
+                    # Detail warm-up can take seconds. Unrouted identify items use this
+                    # already-warm process rather than blocking the fast worker queues.
                     KeepWarm(
-                        [appraisal_lookups, *identify_lookups.processes],
+                        [appraisal_lookups],
                         warm_lookup(backend, args.database, recent),
+                        interval=APPRAISAL.retrieval_keep_warm_interval,
+                    ),
+                    KeepWarm(
+                        identify_lookups.processes,
+                        warm_identify_lookup(recent),
                         interval=APPRAISAL.retrieval_keep_warm_interval,
                     ),
                 ):
@@ -506,9 +528,7 @@ def run_service(args, directory, report):
                         focused=focused,
                         display=display_identify,
                         output=directory,
-                        retrieve=lambda observation: identify_lookups.call(
-                            triage_retrieve, observation, args.database, backend.pinned() if backend else None
-                        ),
+                        retrieve=identify_retrieval(identify_lookups, appraisal_lookups, backend, args.database),
                         request_scope=backend.request_scope if backend else nullcontext,
                         lookup_executor=identify_lookup_pool,
                         notify=notify,

@@ -72,3 +72,38 @@ def test_idle_time_restarts_after_each_call():
         assert process.idle_seconds() == 30.0
         process.call(child_pid, {})
         assert process.idle_seconds() == 0.0
+
+
+def hold_detail_queue(started, release):
+    started.touch()
+    deadline = time.monotonic() + 15
+    while not release.exists():
+        if time.monotonic() > deadline:
+            raise TimeoutError('Test did not release detail worker')
+        time.sleep(0.01)
+
+
+def test_identify_finishes_while_detail_worker_is_busy(tmp_path):
+    from inventory_tracking.appraisal.service import identify_retrieval
+    from pricing.triage.runtime import enabled, fast_retrieve, warm
+    from tests.inventory_tracking.appraisal.test_text import saved_result
+
+    observation = saved_result()['result']['extraction']
+    assert enabled(observation)
+    started, release = tmp_path / 'started', tmp_path / 'release'
+    with RetrievalProcess() as detail, RetrievalProcess(warm, (observation,)) as fast:
+        assert fast.call(fast_retrieve, observation) is not None
+        with ThreadPoolExecutor(max_workers=2) as threads:
+            blocked = threads.submit(detail.call, hold_detail_queue, started, release)
+            try:
+                deadline = time.monotonic() + 5
+                while not started.exists() and time.monotonic() < deadline:
+                    time.sleep(0.01)
+                assert started.exists()
+                retrieve = identify_retrieval(fast, detail, None, tmp_path / 'unused.sqlite')
+                result = threads.submit(retrieve, observation).result(timeout=2)
+                assert 'triage' in result
+                assert not blocked.done()
+            finally:
+                release.touch()
+            blocked.result(timeout=5)

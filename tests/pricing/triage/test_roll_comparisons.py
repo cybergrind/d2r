@@ -135,3 +135,27 @@ def test_cheap_comparable_rolls_need_three_sellers_before_vendor(sellers, expect
     assert result['verdict'] == expected
     assert result['sellers'] == sellers
     assert result['q1_ist'] == pytest.approx(0.2)
+
+
+@pytest.mark.parametrize('better', ['higher', 'lower'])
+def test_upper_bound_needs_a_copy_at_least_as_good_on_every_deciding_roll(better):
+    deciding = {
+        'skill': {'min': 1, 'max': 3, 'better': 'higher', 'label': 'Skill'},
+        'other': {'min': 1, 'max': 10, 'better': better, 'label': 'Other'},
+    }
+    target = {'skill': 1, 'other': 8 if better == 'higher' else 3}
+    cheap = {'seller_id': 'cheap', 'ask_ist': 0.1, 'properties': {'skill': 3, 'other': 2 if better == 'higher' else 9}}
+    result = compare(target, [cheap], deciding, keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['upper_bound_ist'] is None
+    dominating = {
+        'seller_id': 'better',
+        'ask_ist': 2,
+        'properties': {'skill': 2, 'other': 9 if better == 'higher' else 2},
+    }
+    result = compare(target, [cheap, dominating], deciding, keep_ist=0.25)
+    assert result['verdict'] == 'check'
+    assert result['upper_bound_ist'] == 2
+    # Another copy from the cheap seller must not be discarded before dominance.
+    result = compare(target, [cheap, dominating | {'seller_id': 'cheap'}], deciding, keep_ist=0.25)
+    assert result['upper_bound_ist'] == 2

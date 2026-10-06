@@ -33,8 +33,8 @@ def test_native_damage_shield_compares_both_rolls_and_preserves_variants():
     assert result['band']['sellers'] == 3
     assert result['band']['q1_ist'] == 1.5
     lower = assess(from_listing(rows[0]), tables)
-    assert lower['verdict'] == 'slow'
-    assert lower['band']['price_basis'] == 'base_floor'
+    assert lower['verdict'] == 'check'
+    assert lower['decision_ist'] is None  # Only one comparable-or-worse seller.
     relaxed = assess(from_listing(rows[2] | {'sockets': 2}), tables)
     assert relaxed['decision_ist'] == 1.5
     assert relaxed['band']['relaxed_facets'] == ['base_ed', 'sockets']
@@ -44,7 +44,8 @@ def test_native_damage_shield_compares_both_rolls_and_preserves_variants():
         result = assess(from_listing(rows[2] | {'properties': props}), tables)
         assert result['verdict'] == 'vendor'
     lower = assess(from_listing(rows[2] | {'properties': {'510': 50, '423': 100}}), tables)
-    assert lower['band']['price_basis'] == 'base_floor'
+    assert lower['decision_ist'] is None
+    assert lower['band'] is None
 
 
 def test_guide_native_damage_shield_remains_check_without_matching_asks():
@@ -100,6 +101,39 @@ def test_superior_durability_does_not_disable_joint_shield_roll_comparisons():
     assert result['band']['sellers'] == 3
     assert result['decision_ist'] == 1.5
     lower = assess(from_listing(rows[0]), tables)
-    assert lower['decision_ist'] == 1.75
-    assert lower['band']['price_basis'] == 'base_floor'
+    assert lower['decision_ist'] is None  # Higher damage/AR cannot price the weak copy.
     assert assess(from_listing(rows[2] | {'ethereal': True}), tables)['decision_ist'] is None
+
+
+def test_superior_shield_floor_combines_lower_native_rolls_across_qualities():
+    from inventory_tracking.appraisal.triage import headline
+
+    rules, policies = native_shield_rules()
+    rows = []
+    for n, (quality, damage, attack, ed) in enumerate(
+        [('normal', 51, 101, 0), ('normal', 55, 105, 0), ('superior', 60, 110, 10)]
+    ):
+        r = listing(str(n), n + 1) | {
+            'category': 'base',
+            'name': 'Sacred Targe',
+            'rarity': quality,
+            'sockets': 4,
+            'ethereal': False,
+        }
+        r['properties'].update({'510': damage, '423': attack, '425': ed})
+        rows.append(r)
+    doc = build_bands(rows, [], rules=rules, policies=policies)
+    data = {
+        'rules': {'keep_ist': 0.25, 'rows': rules, 'policies': policies},
+        'bands': {(b['category'], b['name'].casefold(), b['bucket']): b for b in doc['bands']},
+        'own': {'rows': []},
+    }
+    target = from_listing(rows[-1] | {'properties': {'510': 65, '423': 121, '425': 15}})
+    result = assess(target, data)
+    assert result['decision_ist'] == 1.5
+    assert result['band']['sellers'] == 3
+    assert 'at least' in headline(result)
+    for props in ({'510': 59, '423': 121, '425': 15}, {'510': 65, '423': 109, '425': 15}):
+        assert assess(from_listing(rows[-1] | {'properties': props}), data)['decision_ist'] is None
+    for change in ({'ethereal': True}, {'sockets': 3}, {'rarity': 'normal', 'base_ed': 0}):
+        assert assess(target | change, data)['decision_ist'] is None

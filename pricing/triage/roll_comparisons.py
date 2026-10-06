@@ -151,16 +151,15 @@ def compare(properties, rows, deciding, *, keep_ist):
         result['verdict'] = 'check' if len(selected) < 3 else 'vendor' if price < keep_ist else 'priced'
         result['reason'] = f'asks {price:g} Ist lower quartile; {len(selected)} comparable-or-worse sellers ({label})'
     else:
-        known = seller_rows(
-            [
-                r
-                for r in rows
-                if all(
-                    numeric(r.get('properties', {}).get(p)) and spec['min'] <= r['properties'][p] <= spec['max']
-                    for p, spec in deciding.items()
-                )
-            ]
-        )
+        readable = [
+            r
+            for r in rows
+            if all(
+                numeric(r.get('properties', {}).get(p)) and spec['min'] <= r['properties'][p] <= spec['max']
+                for p, spec in deciding.items()
+            )
+        ]
+        known = seller_rows(readable)
         below = [
             spec.get('label', prop)
             for prop, spec in deciding.items()
@@ -174,8 +173,14 @@ def compare(properties, rows, deciding, *, keep_ist):
                 for r in known
             )
         ]
-        if below:
-            ceiling = min(r['ask_ist'] for r in known)
+        # Reverse the whole-vector comparison: only a copy at least as good
+        # on every deciding stat caps this item's price. Filter before choosing
+        # each seller's cheapest copy, as their cheaper copy may be incomparable.
+        dominating = seller_rows(
+            [r for r in readable if comparable({'properties': properties}, r['properties'], deciding)]
+        )
+        if below and dominating:
+            ceiling = min(r['ask_ist'] for r in dominating)
             result.update(
                 upper_bound_ist=ceiling,
                 verdict='vendor' if ceiling < keep_ist else 'check',
