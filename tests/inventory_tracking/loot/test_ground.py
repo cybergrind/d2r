@@ -152,13 +152,15 @@ def test_expensive_unique_drops_are_named_from_their_base():
         (by_code['7gw'], 0, {}),  # a unique one in the stash
         (by_code['hax'], 3, {}),  # The Gnasher: no priced unique on this base
         (by_code['rin'], 5, {}),  # an unidentified unique ring: several candidates
+        (by_code['utb'], 3, {'quality': 5}),  # set Mirrored Boots
     ]
     units = [unique_item(memory, index, class_id, mode, **extra) for index, (class_id, mode, extra) in enumerate(specs)]
     chain(memory, [address for address, _ in units])
 
-    found = ground_uniques(memory.read, TABLE, minimum=4.0)
+    found = ground_uniques(memory.read, TABLE, minimum=2.5)
 
     assert sorted(found, key=lambda u: u.unit_id) == [
         GroundUnique("Death's Web", units[0][1], 25500, 5400),
         GroundUnique('Unique Ring (Sling?)', units[4][1], 25504, 5400),
+        GroundUnique("Horazon's Legacy", units[5][1], 25505, 5400),
     ]

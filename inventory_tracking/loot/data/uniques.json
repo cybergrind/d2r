@@ -13,6 +13,14 @@
           "low": 1.79,
           "high": 1.79
         }
+      ],
+      "sets": [
+        {
+          "id": 120,
+          "name": "Naj's Puzzler",
+          "low": 0.43,
+          "high": 0.43
+        }
       ]
     },
     "271": {
@@ -25,7 +33,8 @@
           "low": 1.0,
           "high": 9.32
         }
-      ]
+      ],
+      "sets": []
     },
     "229": {
       "code": "72h",
@@ -37,7 +46,8 @@
           "low": 1.0,
           "high": 1.0
         }
-      ]
+      ],
+      "sets": []
     },
     "235": {
       "code": "7dg",
@@ -49,7 +59,8 @@
           "low": 0.2,
           "high": 0.2
         }
-      ]
+      ],
+      "sets": []
     },
     "236": {
       "code": "7di",
@@ -61,7 +72,8 @@
           "low": 1.0,
           "high": 1.0
         }
-      ]
+      ],
+      "sets": []
     },
     "209": {
       "code": "7gw",
@@ -72,6 +84,27 @@
           "name": "Death's Web",
           "low": 9.32,
           "high": 34.26
+        }
+      ],
+      "sets": []
+    },
+    "219": {
+      "code": "7m7",
+      "name": "Ogre Maul",
+      "uniques": [
+        {
+          "id": 337,
+          "name": "Windhammer",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 75,
+          "name": "Immortal King's Stone Crusher",
+          "low": 0.57,
+          "high": 0.57
         }
       ]
     },
@@ -85,7 +118,8 @@
           "low": 1.0,
           "high": 1.0
         }
-      ]
+      ],
+      "sets": []
     },
     "103": {
       "code": "9wn",
@@ -97,7 +131,8 @@
           "low": 0.73,
           "high": 0.73
         }
-      ]
+      ],
+      "sets": []
     },
     "295": {
       "code": "ama",
@@ -108,6 +143,27 @@
           "name": "Titan's Revenge",
           "low": 1.0,
           "high": 22.84
+        }
+      ],
+      "sets": []
+    },
+    "41": {
+      "code": "kri",
+      "name": "Kriss",
+      "uniques": [
+        {
+          "id": 41,
+          "name": "The Jade Tan Do",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 132,
+          "name": "Bane's Oathmaker",
+          "low": 0.06,
+          "high": 0.06
         }
       ]
     },
@@ -121,6 +177,14 @@
           "low": 0.67,
           "high": 0.67
         }
+      ],
+      "sets": [
+        {
+          "id": 78,
+          "name": "Tal Rasha's Lidless Eye",
+          "low": 0.79,
+          "high": 0.79
+        }
       ]
     },
     "297": {
@@ -133,7 +197,8 @@
           "low": 1.0,
           "high": 114.21
         }
-      ]
+      ],
+      "sets": []
     },
     "300": {
       "code": "obf",
@@ -144,6 +209,20 @@
           "name": "Death's Fathom",
           "low": 1.0,
           "high": 34.26
+        }
+      ],
+      "sets": []
+    },
+    "407": {
+      "code": "ba5",
+      "name": "Avenger Guard",
+      "uniques": [],
+      "sets": [
+        {
+          "id": 70,
+          "name": "Immortal King's Will",
+          "low": 1.0,
+          "high": 1.0
         }
       ]
     },
@@ -157,6 +236,14 @@
           "low": 2.58,
           "high": 28.55
         }
+      ],
+      "sets": [
+        {
+          "id": 90,
+          "name": "M'avina's True Sight",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "491": {
@@ -168,6 +255,27 @@
           "name": "Ravenlore",
           "low": 0.79,
           "high": 79.95
+        }
+      ],
+      "sets": []
+    },
+    "315": {
+      "code": "hla",
+      "name": "Hard Leather Armor",
+      "uniques": [
+        {
+          "id": 81,
+          "name": "The Centurion",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 133,
+          "name": "Bane's Wraithskin",
+          "low": 0.06,
+          "high": 0.06
         }
       ]
     },
@@ -181,6 +289,14 @@
           "low": 0.2,
           "high": 5.88
         }
+      ],
+      "sets": [
+        {
+          "id": 8,
+          "name": "Cleglaw's Pincers",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "481": {
@@ -193,7 +309,8 @@
           "low": 0.79,
           "high": 45.68
         }
-      ]
+      ],
+      "sets": []
     },
     "307": {
       "code": "skp",
@@ -204,6 +321,14 @@
           "name": "Tarnhelm",
           "low": 2.58,
           "high": 2.58
+        }
+      ],
+      "sets": [
+        {
+          "id": 60,
+          "name": "Arcanna's Head",
+          "low": null,
+          "high": null
         }
       ]
     },
@@ -217,6 +342,20 @@
           "low": 0.29,
           "high": 0.29
         }
+      ],
+      "sets": [
+        {
+          "id": 43,
+          "name": "Infernal Sign",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 12,
+          "name": "Iratha's Cord",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "337": {
@@ -228,6 +367,20 @@
           "name": "Magefist",
           "low": 5.88,
           "high": 5.88
+        }
+      ],
+      "sets": [
+        {
+          "id": 57,
+          "name": "Arctic Mitts",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 10,
+          "name": "Iratha's Cuff",
+          "low": null,
+          "high": null
         }
       ]
     },
@@ -241,6 +394,33 @@
           "low": 0.73,
           "high": 2.58
         }
+      ],
+      "sets": []
+    },
+    "442": {
+      "code": "uar",
+      "name": "Sacred Armor",
+      "uniques": [
+        {
+          "id": 311,
+          "name": "Tyrael's Might",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 366,
+          "name": "Templar's Might",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 71,
+          "name": "Immortal King's Soul Cage",
+          "low": 0.2,
+          "high": 0.2
+        }
       ]
     },
     "459": {
@@ -253,7 +433,8 @@
           "low": 1.22,
           "high": 11.42
         }
-      ]
+      ],
+      "sets": []
     },
     "426": {
       "code": "uhm",
@@ -271,6 +452,14 @@
           "low": 1.0,
           "high": 125.63
         }
+      ],
+      "sets": [
+        {
+          "id": 103,
+          "name": "Ondal's Almighty",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "447": {
@@ -283,7 +472,8 @@
           "low": 1.0,
           "high": 1.0
         }
-      ]
+      ],
+      "sets": []
     },
     "460": {
       "code": "ulc",
@@ -295,7 +485,8 @@
           "low": 2.58,
           "high": 9.32
         }
-      ]
+      ],
+      "sets": []
     },
     "462": {
       "code": "umc",
@@ -306,6 +497,14 @@
           "name": "Verdungo's Hearty Cord",
           "low": 0.79,
           "high": 45.68
+        }
+      ],
+      "sets": [
+        {
+          "id": 99,
+          "name": "Credendum",
+          "low": null,
+          "high": null
         }
       ]
     },
@@ -319,6 +518,14 @@
           "low": 2.53,
           "high": 1027.89
         }
+      ],
+      "sets": [
+        {
+          "id": 81,
+          "name": "Griswold's Valor",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "428": {
@@ -330,6 +537,14 @@
           "name": "Andariel's Visage",
           "low": 1.0,
           "high": 57.1
+        }
+      ],
+      "sets": [
+        {
+          "id": 135,
+          "name": "Horazon's Countenance",
+          "low": 0.49,
+          "high": 0.49
         }
       ]
     },
@@ -343,6 +558,14 @@
           "low": 4.05,
           "high": 57.1
         }
+      ],
+      "sets": [
+        {
+          "id": 138,
+          "name": "Horazon's Legacy",
+          "low": 2.58,
+          "high": 2.58
+        }
       ]
     },
     "463": {
@@ -354,6 +577,27 @@
           "name": "Gheed's Wager",
           "low": 21.79,
           "high": 21.79
+        }
+      ],
+      "sets": [
+        {
+          "id": 89,
+          "name": "Trang-Oul's Girth",
+          "low": 0.79,
+          "high": 0.79
+        }
+      ]
+    },
+    "440": {
+      "code": "uth",
+      "name": "Lacquered Plate",
+      "uniques": [],
+      "sets": [
+        {
+          "id": 79,
+          "name": "Tal Rasha's Guardianship",
+          "low": 0.67,
+          "high": 0.67
         }
       ]
     },
@@ -367,6 +611,14 @@
           "low": 9.32,
           "high": 9.32
         }
+      ],
+      "sets": [
+        {
+          "id": 98,
+          "name": "Dark Adherent",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "456": {
@@ -379,7 +631,8 @@
           "low": 9.32,
           "high": 34.26
         }
-      ]
+      ],
+      "sets": []
     },
     "451": {
       "code": "uvg",
@@ -390,6 +643,33 @@
           "name": "Dracul's Grasp",
           "low": 4.05,
           "high": 34.26
+        }
+      ],
+      "sets": []
+    },
+    "345": {
+      "code": "vbl",
+      "name": "Light Belt",
+      "uniques": [
+        {
+          "id": 113,
+          "name": "Snakecord",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 56,
+          "name": "Arctic Binding",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 134,
+          "name": "Bane's Authority",
+          "low": 0.62,
+          "high": 0.62
         }
       ]
     },
@@ -403,7 +683,8 @@
           "low": 2.0,
           "high": 2.0
         }
-      ]
+      ],
+      "sets": []
     },
     "519": {
       "code": "wac",
@@ -414,6 +695,20 @@
           "name": "Ars Dul'Mephistos",
           "low": 22.84,
           "high": 22.84
+        }
+      ],
+      "sets": []
+    },
+    "520": {
+      "code": "wad",
+      "name": "Occult Codex",
+      "uniques": [],
+      "sets": [
+        {
+          "id": 139,
+          "name": "Horazon's Secrets",
+          "low": 1.79,
+          "high": 1.79
         }
       ]
     },
@@ -427,7 +722,8 @@
           "low": 9.32,
           "high": 9.32
         }
-      ]
+      ],
+      "sets": []
     },
     "522": {
       "code": "waf",
@@ -439,7 +735,8 @@
           "low": 62.82,
           "high": 62.82
         }
-      ]
+      ],
+      "sets": []
     },
     "352": {
       "code": "xap",
@@ -450,6 +747,14 @@
           "name": "Peasant Crown",
           "low": 0.67,
           "high": 0.67
+        }
+      ],
+      "sets": [
+        {
+          "id": 117,
+          "name": "Cow King's Horns",
+          "low": null,
+          "high": null
         }
       ]
     },
@@ -463,7 +768,8 @@
           "low": 0.38,
           "high": 10.37
         }
-      ]
+      ],
+      "sets": []
     },
     "389": {
       "code": "xhb",
@@ -474,6 +780,74 @@
           "name": "Gore Rider",
           "low": 0.61,
           "high": 9.32
+        }
+      ],
+      "sets": [
+        {
+          "id": 74,
+          "name": "Immortal King's Pillar",
+          "low": 0.44,
+          "high": 0.44
+        }
+      ]
+    },
+    "384": {
+      "code": "xhg",
+      "name": "War Gauntlets",
+      "uniques": [
+        {
+          "id": 236,
+          "name": "Hellmouth",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 73,
+          "name": "Immortal King's Forge",
+          "low": 0.67,
+          "high": 0.67
+        }
+      ]
+    },
+    "356": {
+      "code": "xhm",
+      "name": "Winged Helm",
+      "uniques": [
+        {
+          "id": 205,
+          "name": "Valkyrie Wing",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 104,
+          "name": "Guillaume's Face",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "380": {
+      "code": "xlg",
+      "name": "Demonhide Gloves",
+      "uniques": [
+        {
+          "id": 232,
+          "name": "Venom Grip",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 137,
+          "name": "Horazon's Hold",
+          "low": 0.24,
+          "high": 0.24
         }
       ]
     },
@@ -487,6 +861,34 @@
           "low": 7.6,
           "high": 7.6
         }
+      ],
+      "sets": [
+        {
+          "id": 65,
+          "name": "Natalya's Soul",
+          "low": null,
+          "high": null
+        }
+      ]
+    },
+    "382": {
+      "code": "xmg",
+      "name": "Heavy Bracers",
+      "uniques": [
+        {
+          "id": 234,
+          "name": "Ghoulhide",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 88,
+          "name": "Trang-Oul's Claws",
+          "low": 0.79,
+          "high": 0.79
+        }
       ]
     },
     "367": {
@@ -498,6 +900,14 @@
           "name": "Skullder's Ire",
           "low": 1.0,
           "high": 1.0
+        }
+      ],
+      "sets": [
+        {
+          "id": 136,
+          "name": "Horazon's Dominion",
+          "low": 0.94,
+          "high": 0.94
         }
       ]
     },
@@ -511,7 +921,8 @@
           "low": 2.58,
           "high": 2.58
         }
-      ]
+      ],
+      "sets": []
     },
     "358": {
       "code": "xsk",
@@ -529,6 +940,14 @@
           "low": 1.0,
           "high": 34.26
         }
+      ],
+      "sets": [
+        {
+          "id": 80,
+          "name": "Tal Rasha's Horadric Crest",
+          "low": 0.79,
+          "high": 0.79
+        }
       ]
     },
     "388": {
@@ -540,6 +959,14 @@
           "name": "War Traveler",
           "low": 1.0,
           "high": 11.42
+        }
+      ],
+      "sets": [
+        {
+          "id": 69,
+          "name": "Aldur's Advance",
+          "low": 0.73,
+          "high": 0.73
         }
       ]
     },
@@ -553,7 +980,8 @@
           "low": 0.73,
           "high": 7.6
         }
-      ]
+      ],
+      "sets": []
     },
     "394": {
       "code": "zhb",
@@ -564,6 +992,34 @@
           "name": "Thundergod's Vigor",
           "low": 0.79,
           "high": 0.79
+        }
+      ],
+      "sets": [
+        {
+          "id": 72,
+          "name": "Immortal King's Detail",
+          "low": 0.14,
+          "high": 0.14
+        }
+      ]
+    },
+    "392": {
+      "code": "zmb",
+      "name": "Mesh Belt",
+      "uniques": [
+        {
+          "id": 244,
+          "name": "Gloom's Trap",
+          "low": null,
+          "high": null
+        }
+      ],
+      "sets": [
+        {
+          "id": 76,
+          "name": "Tal Rasha's Fine-Spun Cloth",
+          "low": 0.57,
+          "high": 0.57
         }
       ]
     },
@@ -649,6 +1105,62 @@
           "low": 5.88,
           "high": 5.88
         }
+      ],
+      "sets": [
+        {
+          "id": 53,
+          "name": "Angelic Wings",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 58,
+          "name": "Arcanna's Sign",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 28,
+          "name": "Cathan's Sigil",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 1,
+          "name": "Civerb's Icon",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 9,
+          "name": "Iratha's Collar",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 77,
+          "name": "Tal Rasha's Adjudication",
+          "low": 0.79,
+          "high": 0.79
+        },
+        {
+          "id": 33,
+          "name": "Tancred's Weird",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 95,
+          "name": "Telling of Beads",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 20,
+          "name": "Vidala's Snare",
+          "low": null,
+          "high": null
+        }
       ]
     },
     "690": {
@@ -691,7 +1203,8 @@
           "low": 4.05,
           "high": 4.05
         }
-      ]
+      ],
+      "sets": []
     },
     "620": {
       "code": "cm3",
@@ -775,7 +1288,8 @@
           "low": null,
           "high": null
         }
-      ]
+      ],
+      "sets": []
     },
     "537": {
       "code": "rin",
@@ -846,6 +1360,20 @@
           "name": "Opalvein",
           "low": 22.84,
           "high": 35.78
+        }
+      ],
+      "sets": [
+        {
+          "id": 52,
+          "name": "Angelic Halo",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 29,
+          "name": "Cathan's Seal",
+          "low": null,
+          "high": null
         }
       ]
     }

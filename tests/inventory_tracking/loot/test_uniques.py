@@ -40,11 +40,11 @@ def test_an_identified_unique_is_judged_by_its_own_asks():
     assert unique_drop(BY_CODE['rin'], minimum=2.0, table_id=jordan, identified=True) == 'The Stone of Jordan'
 
 
-def test_every_listed_base_is_the_decoders_base_and_holds_a_priced_unique():
+def test_every_listed_base_is_the_decoders_base_and_holds_a_priced_unique_or_set_item():
     assert len(BASES) > 30
     for class_id, base in BASES.items():
         assert metadata()['bases'][str(class_id)]['code'] == base['code']
-        assert any(unique['high'] is not None for unique in base['uniques'])
+        assert any(item['high'] is not None for item in base['uniques'] + base['sets'])
 
 
 def test_the_default_threshold_marks_harlequin_crest_and_the_stone_of_jordan():
@@ -54,3 +54,14 @@ def test_the_default_threshold_marks_harlequin_crest_and_the_stone_of_jordan():
     assert unique_drop(BY_CODE['uap'], minimum=minimum) == 'Harlequin Crest'
     jordan = unique_id('The Stone of Jordan')
     assert unique_drop(BY_CODE['rin'], minimum=minimum, table_id=jordan, identified=True) == 'The Stone of Jordan'
+
+
+def test_set_drops_are_judged_against_the_set_items_of_their_base():
+    from inventory_tracking.config import APPRAISAL
+
+    # Mirrored Boots: Wraithstep as a unique, Horazon's Legacy as a set item (2.58 Ist asks, 2026-09-18).
+    minimum = APPRAISAL.unique_minimum
+    assert unique_drop(BY_CODE['utb'], minimum=minimum, quality=5) == "Horazon's Legacy"
+    assert unique_drop(BY_CODE['utb'], minimum=minimum) == 'Wraithstep'
+    assert unique_drop(BY_CODE['7gw'], minimum=minimum, quality=5) is None  # no set item on this base
+    assert unique_drop(BY_CODE['amu'], minimum=minimum, quality=5) is None  # set amulets all ask less

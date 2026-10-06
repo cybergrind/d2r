@@ -5,7 +5,7 @@ the ground and 5 dropping per MapAssist ItemMode. Position is the item's static 
 (+0x10/+0x14, as for objects) in world units. Ground mode and position are UNCONFIRMED on this
 build until a Win+C next to a dropped rune checks them (levels/research.py records ground items).
 
-A unique-quality ground item is named from its base (loot/uniques.py). Its ItemData +0x34 table
+A unique- or set-quality ground item is named from its base (loot/uniques.py). Its ItemData +0x34 table
 index is logged with it: whether that is filled before identification is UNCONFIRMED on this build.
 
 Shrines are object units: object data (unit +0x10) holds the shrine type at +0x08 and a shrine
@@ -45,7 +45,6 @@ UNUSED_SHRINE_MODE = 0
 SPARKLY_CHEST = 397  # d2data objects.json *ID 397, Name 'chest', description 'sparklychest'
 CLOSED_CHEST_MODE = 0
 GROUND_MODES = frozenset((3, 5))  # on the ground, dropping
-UNIQUE_QUALITY = 7
 
 
 @dataclass(frozen=True)
@@ -141,7 +140,7 @@ def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
 
 
 def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]:
-    """Unique-quality ground items whose base has a unique asking `minimum` Ist or more."""
+    """Unique- and set-quality ground items whose base has such an item asking `minimum` Ist or more."""
     heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
     uniques = []
     for unit in walk_units(read, heads, ITEM_UNIT)['units']:
@@ -152,11 +151,10 @@ def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]
             x, y = static_position(read, unit)
         except OSError, ValueError:
             continue
-        if struct.unpack_from('<I', data, QUALITY_OFFSET)[0] != UNIQUE_QUALITY:
-            continue
+        quality = struct.unpack_from('<I', data, QUALITY_OFFSET)[0]
         table_id = struct.unpack_from('<I', data, IDENTITY_OFFSET)[0]
         identified = bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG)
-        label = unique_drop(unit['txt_id'], minimum=minimum, table_id=table_id, identified=identified)
+        label = unique_drop(unit['txt_id'], minimum=minimum, table_id=table_id, identified=identified, quality=quality)
         if label is not None:
             uniques.append(GroundUnique(label, unit['unit_id'], x, y, table_id))
     return uniques
