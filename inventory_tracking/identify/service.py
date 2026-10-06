@@ -8,6 +8,11 @@ notification give each a verdict — keep, check or vendor — with the reason (
 watch, build use, trade tier, leveling use, asks) and its best-rolled stats. Owned copies
 from the collection database are named in the reason; a build-use-only keep becomes a
 check when a copy that rolls at least as well is already owned (appraisal/owned.py).
+
+Gambling: a gambled item arrives identified, so nothing flips. While gamble stock is loaded
+(the shop watcher's `gamble` state) an identified carried item that the character did not
+hold anywhere on an earlier read is assessed the same way. Vendor stock stays in memory
+after the panel closes, so an item picked up from the ground in town then counts too.
 """
 
 import logging
@@ -269,6 +274,11 @@ def result_lines(result) -> list[StyledLine]:
     return lines
 
 
+def shown_result(items, issues=()) -> dict[str, Any]:
+    """The card's view of several passes: their item rows together, the issues of the last one."""
+    return {'state': 'complete', 'items': list(items), 'issues': list(issues)}
+
+
 def describe(result) -> tuple[str, str] | None:
     """Desktop notification for the keep/check items; None when there is nothing particular."""
     order = verdict_order(result['items'])
@@ -336,6 +346,7 @@ class IdentifyWorker:
         auto=True,
         poll_interval=1.0,
         appraisal_active=lambda: False,
+        gambling=lambda: False,
         hit_seconds=HIT_SECONDS,
         quiet_seconds=QUIET_SECONDS,
         retry_delay=0.1,
@@ -347,6 +358,7 @@ class IdentifyWorker:
         self.notify, self.clock = notify, clock
         self.probe, self.capture, self.decode = probe, capture, decode
         self.auto, self.poll_interval, self.appraisal_active = auto, poll_interval, appraisal_active
+        self.gambling = gambling
         self.hit_seconds, self.quiet_seconds = hit_seconds, quiet_seconds
         self.retry_delay = retry_delay
         self.lookup_executor = lookup_executor  # runs one pass's KB lookups in parallel; None = one by one
@@ -358,7 +370,9 @@ class IdentifyWorker:
         self.last_poll = -math.inf
         self.next_poll_delay = poll_interval
         self.unidentified: set[str] | None = None  # None until the inventory was read once
+        self.held: set[str] = set()  # every item unit the character held since that first read
         self.last_result = None
+        self.showing: list[dict[str, Any]] = []  # item rows of the summary on screen, newest first
         self.future = None
 
     # -- polling --------------------------------------------------------------------------------
@@ -421,9 +435,14 @@ class IdentifyWorker:
             items = probe['items']
             current = {unit_id for unit_id, item in items.items() if not item['identified']}
             previous, self.unidentified = self.unidentified, current
+            held = self.held if previous is not None else set()
+            self.held = held | set(probe.get('owned', ())) | set(items)
             if previous is None:
                 return []
-            return sorted(unit_id for unit_id in previous - current if unit_id in items)
+            newly = {unit_id for unit_id in previous - current if unit_id in items}
+            if self.gambling():
+                newly |= {unit_id for unit_id, item in items.items() if item['identified'] and unit_id not in held}
+            return sorted(newly)
 
     # -- assessment -----------------------------------------------------------------------------
 
@@ -467,8 +486,13 @@ class IdentifyWorker:
         with self.lock:
             self.generation += 1
             generation = self.generation
-            self.visible = [StyledLine(f'Assessing {len(unit_ids)} identified items…', Tone.METADATA)]
-            self.expires = self.clock() + PROGRESS_SECONDS
+            # A summary still on screen stays, and this pass adds to it: gambling item after item
+            # used to replace each result with the next one at once.
+            showing = self.visible is not None and self.clock() < self.expires
+            carried = self.showing if showing else []
+            progress = StyledLine(f'Assessing {len(unit_ids)} identified items…', Tone.METADATA)
+            self.visible = [*(result_lines(shown_result(carried)) if carried else []), progress]
+            self.expires = max(self.expires if carried else 0.0, self.clock() + PROGRESS_SECONDS)
         result: dict[str, Any]
         try:
             record, observations, issues = self._read(unit_ids, timing, started)
@@ -511,8 +535,12 @@ class IdentifyWorker:
                 self.last_result = result
                 if self.generation != generation:
                     return
-                self.visible = result_lines(result)
-                hits = any(i['verdict'] != 'vendor' for i in result['items'])
+                if result['state'] == 'failed':
+                    self.visible = [*(result_lines(shown_result(carried)) if carried else []), *result_lines(result)]
+                else:
+                    self.showing = [*result['items'], *carried]  # newest first
+                    self.visible = result_lines(shown_result(self.showing, result['issues']))
+                hits = any(i['verdict'] != 'vendor' for i in self.showing)
                 self.expires = self.clock() + (self.hit_seconds if hits else self.quiet_seconds)
             notification = describe(result) if result['state'] != 'failed' else None
             if notification is not None:
@@ -528,6 +556,7 @@ class IdentifyWorker:
         with self.lock:
             self.generation += 1
             self.visible = None
+            self.showing = []
 
     def tick(self):
         with self.lock:

@@ -119,3 +119,46 @@ def test_only_unopened_sparkly_chests_are_super_chests():
 
     assert nearby_super_chests(memory.read, TABLE) == [SuperChest(7, 7612, 12522)]
     assert SuperChest(7, 7612, 12522).label == 'Super chest'
+
+
+def unique_item(memory, index, class_id, mode, *, quality=7, flags=0, table_id=0):
+    address, unit_id = item(memory, index, class_id, mode, 25500 + index, 5400)
+    data = 0x700000 + index * 0x100
+    struct.pack_into('<Q', memory.blocks[address], 0x10, data)
+    block = memory.block(data, 0x60)
+    struct.pack_into('<I', block, 0x00, quality)
+    struct.pack_into('<I', block, 0x18, flags)
+    struct.pack_into('<I', block, 0x34, table_id)
+    return address, unit_id
+
+
+def chain(memory, addresses):
+    previous = 0
+    for address in reversed(addresses):
+        struct.pack_into('<Q', memory.blocks[address], 0x158, previous)
+        previous = address
+    struct.pack_into('<Q', memory.block(ITEMS, 1024), 5 * 8, previous)
+
+
+def test_expensive_unique_drops_are_named_from_their_base():
+    from inventory_tracking.items.metadata import metadata
+    from inventory_tracking.loot.ground import GroundUnique, ground_uniques
+
+    by_code = {base['code']: int(class_id) for class_id, base in metadata()['bases'].items()}
+    memory = Memory()
+    specs = [
+        (by_code['7gw'], 3, {}),  # unique Unearthed Wand on the ground: only Death's Web
+        (by_code['7gw'], 3, {'quality': 6}),  # a rare one
+        (by_code['7gw'], 0, {}),  # a unique one in the stash
+        (by_code['hax'], 3, {}),  # The Gnasher: no priced unique on this base
+        (by_code['rin'], 5, {}),  # an unidentified unique ring: several candidates
+    ]
+    units = [unique_item(memory, index, class_id, mode, **extra) for index, (class_id, mode, extra) in enumerate(specs)]
+    chain(memory, [address for address, _ in units])
+
+    found = ground_uniques(memory.read, TABLE, minimum=4.0)
+
+    assert sorted(found, key=lambda u: u.unit_id) == [
+        GroundUnique("Death's Web", units[0][1], 25500, 5400),
+        GroundUnique('Unique Ring (Sling?)', units[4][1], 25504, 5400),
+    ]

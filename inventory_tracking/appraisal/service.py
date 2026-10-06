@@ -535,6 +535,7 @@ def run_service(args, directory, report):
                         auto=args.identify_auto,
                         poll_interval=args.identify_poll_seconds,
                         appraisal_active=lambda: worker.visible is not None or worker.pending(),
+                        gambling=lambda: shop.stock_state == 'gamble',
                     )
                     level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
 
@@ -579,6 +580,7 @@ def run_service(args, directory, report):
                             minimum=APPRAISAL.rune_minimum,
                             shrine_types=frozenset(APPRAISAL.shrine_marks),
                             super_chests=APPRAISAL.super_chest_marks,
+                            unique_minimum=APPRAISAL.unique_minimum if APPRAISAL.unique_marks else None,
                         )
                     terror = None
                     if args.terror_probe:

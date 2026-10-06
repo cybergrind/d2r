@@ -1,0 +1,853 @@
+{
+  "source": "pricing/data/wp-i-uniques-misc.json asks joined with the item decoder metadata",
+  "date": "2026-09-18",
+  "unit": "Ist = 1, median asks per roll bucket",
+  "bases": {
+    "261": {
+      "code": "6cs",
+      "name": "Elder Staff",
+      "uniques": [
+        {
+          "id": 388,
+          "name": "Ondal's Wisdom",
+          "low": 1.79,
+          "high": 1.79
+        }
+      ]
+    },
+    "271": {
+      "code": "6lw",
+      "name": "Hydra Bow",
+      "uniques": [
+        {
+          "id": 266,
+          "name": "Windforce",
+          "low": 1.0,
+          "high": 9.32
+        }
+      ]
+    },
+    "229": {
+      "code": "72h",
+      "name": "Legend Sword",
+      "uniques": [
+        {
+          "id": 412,
+          "name": "Dreadfang",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "235": {
+      "code": "7dg",
+      "name": "Bone Knife",
+      "uniques": [
+        {
+          "id": 262,
+          "name": "Wizardspike",
+          "low": 0.2,
+          "high": 0.2
+        }
+      ]
+    },
+    "236": {
+      "code": "7di",
+      "name": "Mithral Point",
+      "uniques": [
+        {
+          "id": 414,
+          "name": "Bloodpact Shard",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "209": {
+      "code": "7gw",
+      "name": "Unearthed Wand",
+      "uniques": [
+        {
+          "id": 299,
+          "name": "Death's Web",
+          "low": 9.32,
+          "high": 34.26
+        }
+      ]
+    },
+    "121": {
+      "code": "9fc",
+      "name": "Tulwar",
+      "uniques": [
+        {
+          "id": 157,
+          "name": "Blade of Ali Baba",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "103": {
+      "code": "9wn",
+      "name": "Burnt Wand",
+      "uniques": [
+        {
+          "id": 139,
+          "name": "Suicide Branch",
+          "low": 0.73,
+          "high": 0.73
+        }
+      ]
+    },
+    "295": {
+      "code": "ama",
+      "name": "Ceremonial Javelin",
+      "uniques": [
+        {
+          "id": 281,
+          "name": "Titan's Revenge",
+          "low": 1.0,
+          "high": 22.84
+        }
+      ]
+    },
+    "290": {
+      "code": "oba",
+      "name": "Swirling Crystal",
+      "uniques": [
+        {
+          "id": 284,
+          "name": "The Oculus",
+          "low": 0.67,
+          "high": 0.67
+        }
+      ]
+    },
+    "297": {
+      "code": "obc",
+      "name": "Eldritch Orb",
+      "uniques": [
+        {
+          "id": 367,
+          "name": "Eschuta's Temper",
+          "low": 1.0,
+          "high": 114.21
+        }
+      ]
+    },
+    "300": {
+      "code": "obf",
+      "name": "Dimensional Shard",
+      "uniques": [
+        {
+          "id": 354,
+          "name": "Death's Fathom",
+          "low": 1.0,
+          "high": 34.26
+        }
+      ]
+    },
+    "421": {
+      "code": "ci3",
+      "name": "Diadem",
+      "uniques": [
+        {
+          "id": 336,
+          "name": "Griffon's Eye",
+          "low": 2.58,
+          "high": 28.55
+        }
+      ]
+    },
+    "491": {
+      "code": "dre",
+      "name": "Sky Spirit",
+      "uniques": [
+        {
+          "id": 350,
+          "name": "Ravenlore",
+          "low": 0.79,
+          "high": 79.95
+        }
+      ]
+    },
+    "336": {
+      "code": "mgl",
+      "name": "Chain Gloves",
+      "uniques": [
+        {
+          "id": 104,
+          "name": "Chance Guards",
+          "low": 0.2,
+          "high": 5.88
+        }
+      ]
+    },
+    "481": {
+      "code": "pa9",
+      "name": "Gilded Shield",
+      "uniques": [
+        {
+          "id": 285,
+          "name": "Herald of Zakarum",
+          "low": 0.79,
+          "high": 45.68
+        }
+      ]
+    },
+    "307": {
+      "code": "skp",
+      "name": "Skull Cap",
+      "uniques": [
+        {
+          "id": 72,
+          "name": "Tarnhelm",
+          "low": 2.58,
+          "high": 2.58
+        }
+      ]
+    },
+    "347": {
+      "code": "tbl",
+      "name": "Heavy Belt",
+      "uniques": [
+        {
+          "id": 115,
+          "name": "Goldwrap",
+          "low": 0.29,
+          "high": 0.29
+        }
+      ]
+    },
+    "337": {
+      "code": "tgl",
+      "name": "Light Gauntlets",
+      "uniques": [
+        {
+          "id": 105,
+          "name": "Magefist",
+          "low": 5.88,
+          "high": 5.88
+        }
+      ]
+    },
+    "422": {
+      "code": "uap",
+      "name": "Shako",
+      "uniques": [
+        {
+          "id": 248,
+          "name": "Harlequin Crest",
+          "low": 0.73,
+          "high": 2.58
+        }
+      ]
+    },
+    "459": {
+      "code": "uhb",
+      "name": "Myrmidon Greaves",
+      "uniques": [
+        {
+          "id": 309,
+          "name": "Shadow Dancer",
+          "low": 1.22,
+          "high": 11.42
+        }
+      ]
+    },
+    "426": {
+      "code": "uhm",
+      "name": "Spired Helm",
+      "uniques": [
+        {
+          "id": 249,
+          "name": "Veil of Steel",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 343,
+          "name": "Nightwing's Veil",
+          "low": 1.0,
+          "high": 125.63
+        }
+      ]
+    },
+    "447": {
+      "code": "uit",
+      "name": "Monarch",
+      "uniques": [
+        {
+          "id": 253,
+          "name": "Stormshield",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "460": {
+      "code": "ulc",
+      "name": "Spiderweb Sash",
+      "uniques": [
+        {
+          "id": 373,
+          "name": "Arachnid Mesh",
+          "low": 2.58,
+          "high": 9.32
+        }
+      ]
+    },
+    "462": {
+      "code": "umc",
+      "name": "Mithril Coil",
+      "uniques": [
+        {
+          "id": 376,
+          "name": "Verdungo's Hearty Cord",
+          "low": 0.79,
+          "high": 45.68
+        }
+      ]
+    },
+    "427": {
+      "code": "urn",
+      "name": "Corona",
+      "uniques": [
+        {
+          "id": 344,
+          "name": "Crown of Ages",
+          "low": 2.53,
+          "high": 1027.89
+        }
+      ]
+    },
+    "428": {
+      "code": "usk",
+      "name": "Demonhead",
+      "uniques": [
+        {
+          "id": 345,
+          "name": "Andariel's Visage",
+          "low": 1.0,
+          "high": 57.1
+        }
+      ]
+    },
+    "458": {
+      "code": "utb",
+      "name": "Mirrored Boots",
+      "uniques": [
+        {
+          "id": 413,
+          "name": "Wraithstep",
+          "low": 4.05,
+          "high": 57.1
+        }
+      ]
+    },
+    "463": {
+      "code": "utc",
+      "name": "Troll Belt",
+      "uniques": [
+        {
+          "id": 418,
+          "name": "Gheed's Wager",
+          "low": 21.79,
+          "high": 21.79
+        }
+      ]
+    },
+    "429": {
+      "code": "uui",
+      "name": "Dusk Shroud",
+      "uniques": [
+        {
+          "id": 358,
+          "name": "Ormus' Robes",
+          "low": 9.32,
+          "high": 9.32
+        }
+      ]
+    },
+    "456": {
+      "code": "uvb",
+      "name": "Scarabshell Boots",
+      "uniques": [
+        {
+          "id": 369,
+          "name": "Sandstorm Trek",
+          "low": 9.32,
+          "high": 34.26
+        }
+      ]
+    },
+    "451": {
+      "code": "uvg",
+      "name": "Vampirebone Gloves",
+      "uniques": [
+        {
+          "id": 364,
+          "name": "Dracul's Grasp",
+          "low": 4.05,
+          "high": 34.26
+        }
+      ]
+    },
+    "513": {
+      "code": "wa6",
+      "name": "Burnt Text",
+      "uniques": [
+        {
+          "id": 411,
+          "name": "Measured Wrath",
+          "low": 2.0,
+          "high": 2.0
+        }
+      ]
+    },
+    "519": {
+      "code": "wac",
+      "name": "Occult Tome",
+      "uniques": [
+        {
+          "id": 410,
+          "name": "Ars Dul'Mephistos",
+          "low": 22.84,
+          "high": 22.84
+        }
+      ]
+    },
+    "521": {
+      "code": "wae",
+      "name": "Blasphemous Compendium",
+      "uniques": [
+        {
+          "id": 409,
+          "name": "Ars Tor'Baalos",
+          "low": 9.32,
+          "high": 9.32
+        }
+      ]
+    },
+    "522": {
+      "code": "waf",
+      "name": "Blasphemous Grimoire",
+      "uniques": [
+        {
+          "id": 408,
+          "name": "Ars Al'Diabolos",
+          "low": 62.82,
+          "high": 62.82
+        }
+      ]
+    },
+    "352": {
+      "code": "xap",
+      "name": "War Hat",
+      "uniques": [
+        {
+          "id": 201,
+          "name": "Peasant Crown",
+          "low": 0.67,
+          "high": 0.67
+        }
+      ]
+    },
+    "360": {
+      "code": "xea",
+      "name": "Serpentskin Armor",
+      "uniques": [
+        {
+          "id": 210,
+          "name": "Skin of the Vipermagi",
+          "low": 0.38,
+          "high": 10.37
+        }
+      ]
+    },
+    "389": {
+      "code": "xhb",
+      "name": "War Boots",
+      "uniques": [
+        {
+          "id": 241,
+          "name": "Gore Rider",
+          "low": 0.61,
+          "high": 9.32
+        }
+      ]
+    },
+    "387": {
+      "code": "xmb",
+      "name": "Mesh Boots",
+      "uniques": [
+        {
+          "id": 239,
+          "name": "Silkweave",
+          "low": 7.6,
+          "high": 7.6
+        }
+      ]
+    },
+    "367": {
+      "code": "xpl",
+      "name": "Russet Armor",
+      "uniques": [
+        {
+          "id": 217,
+          "name": "Skullder's Ire",
+          "low": 1.0,
+          "high": 1.0
+        }
+      ]
+    },
+    "396": {
+      "code": "xsh",
+      "name": "Grim Shield",
+      "uniques": [
+        {
+          "id": 230,
+          "name": "Lidless Wall",
+          "low": 2.58,
+          "high": 2.58
+        }
+      ]
+    },
+    "358": {
+      "code": "xsk",
+      "name": "Death Mask",
+      "uniques": [
+        {
+          "id": 207,
+          "name": "Blackhorn's Face",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 419,
+          "name": "Hellwarden's Will",
+          "low": 1.0,
+          "high": 34.26
+        }
+      ]
+    },
+    "388": {
+      "code": "xtb",
+      "name": "Battle Boots",
+      "uniques": [
+        {
+          "id": 240,
+          "name": "War Traveler",
+          "low": 1.0,
+          "high": 11.42
+        }
+      ]
+    },
+    "386": {
+      "code": "xvb",
+      "name": "Sharkskin Boots",
+      "uniques": [
+        {
+          "id": 238,
+          "name": "Waterwalk",
+          "low": 0.73,
+          "high": 7.6
+        }
+      ]
+    },
+    "394": {
+      "code": "zhb",
+      "name": "War Belt",
+      "uniques": [
+        {
+          "id": 246,
+          "name": "Thundergod's Vigor",
+          "low": 0.79,
+          "high": 0.79
+        }
+      ]
+    },
+    "535": {
+      "code": "amu",
+      "name": "Amulet",
+      "uniques": [
+        {
+          "id": 117,
+          "name": "Nokozan Relic",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 118,
+          "name": "The Eye of Etlich",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 119,
+          "name": "The Mahim-Oak Curio",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 269,
+          "name": "The Cat's Eye",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 270,
+          "name": "The Rising Sun",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 271,
+          "name": "Crescent Moon",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 272,
+          "name": "Mara's Kaleidoscope",
+          "low": 2.0,
+          "high": 9.32
+        },
+        {
+          "id": 273,
+          "name": "Atma's Scarab",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 276,
+          "name": "Highlord's Wrath",
+          "low": 1.0,
+          "high": 1.0
+        },
+        {
+          "id": 277,
+          "name": "Saracen's Chance",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 302,
+          "name": "Seraph's Hymn",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 375,
+          "name": "Metalgrid",
+          "low": 8.65,
+          "high": 8.65
+        },
+        {
+          "id": 417,
+          "name": "Entropy Locket",
+          "low": 5.88,
+          "high": 5.88
+        }
+      ]
+    },
+    "690": {
+      "code": "cjw",
+      "name": "Colossal Jewel",
+      "uniques": [
+        {
+          "id": 420,
+          "name": "Defender's Bile",
+          "low": 102.79,
+          "high": 102.79
+        },
+        {
+          "id": 421,
+          "name": "Guardian's Thunder",
+          "low": 10.37,
+          "high": 10.37
+        },
+        {
+          "id": 422,
+          "name": "Protector's Frost",
+          "low": 1.45,
+          "high": 1.45
+        },
+        {
+          "id": 423,
+          "name": "Defender's Fire",
+          "low": 68.53,
+          "high": 68.53
+        },
+        {
+          "id": 424,
+          "name": "Protector's Stone",
+          "low": 5.88,
+          "high": 5.88
+        },
+        {
+          "id": 425,
+          "name": "Guardian's Light",
+          "low": 4.05,
+          "high": 4.05
+        }
+      ]
+    },
+    "620": {
+      "code": "cm3",
+      "name": "Grand Charm",
+      "uniques": [
+        {
+          "id": 359,
+          "name": "Gheed's Fortune",
+          "low": 0.89,
+          "high": 19.02
+        },
+        {
+          "id": 401,
+          "name": "Cold Rupture",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 402,
+          "name": "Flame Rift",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 403,
+          "name": "Crack of the Heavens",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 404,
+          "name": "Rotting Fissure",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 405,
+          "name": "Bone Break",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 406,
+          "name": "Black Cleft",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 426,
+          "name": "Latent Cold Rupture",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 428,
+          "name": "Latent Flame Rift",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 429,
+          "name": "Latent Crack of the Heavens",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 430,
+          "name": "Latent Rotting Fissure",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 431,
+          "name": "Latent Bone Break",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 432,
+          "name": "Latent Black Cleft",
+          "low": null,
+          "high": null
+        }
+      ]
+    },
+    "537": {
+      "code": "rin",
+      "name": "Ring",
+      "uniques": [
+        {
+          "id": 120,
+          "name": "Nagelring",
+          "low": 0.79,
+          "high": 0.79
+        },
+        {
+          "id": 121,
+          "name": "Manald Heal",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 122,
+          "name": "The Stone of Jordan",
+          "low": 2.58,
+          "high": 2.58
+        },
+        {
+          "id": 268,
+          "name": "Bul-Kathos' Wedding Band",
+          "low": 1.0,
+          "high": 4.05
+        },
+        {
+          "id": 274,
+          "name": "Dwarf Star",
+          "low": 0.75,
+          "high": 0.75
+        },
+        {
+          "id": 275,
+          "name": "Raven Frost",
+          "low": 1.0,
+          "high": 22.84
+        },
+        {
+          "id": 300,
+          "name": "Nature's Peace",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 319,
+          "name": "Wisp Projector",
+          "low": 1.79,
+          "high": 22.84
+        },
+        {
+          "id": 378,
+          "name": "Carrion Wind",
+          "low": null,
+          "high": null
+        },
+        {
+          "id": 415,
+          "name": "Sling",
+          "low": 31.49,
+          "high": 90.32
+        },
+        {
+          "id": 416,
+          "name": "Opalvein",
+          "low": 22.84,
+          "high": 35.78
+        }
+      ]
+    }
+  }
+}

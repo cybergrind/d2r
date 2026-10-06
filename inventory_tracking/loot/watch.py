@@ -1,4 +1,4 @@
-"""Show valuable runes on the ground, wanted shrines and super chests (streamed, often off-screen)
+"""Show valuable runes and expensive uniques on the ground, wanted shrines and super chests (streamed, often off-screen)
 as HUD arrow rows.
 
 Polled from `serve` like the level guide: never waits for the capture lock, reads only when
@@ -11,7 +11,7 @@ import threading
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.levels.guide import pointer_lines
-from inventory_tracking.loot.ground import observe_ground
+from inventory_tracking.loot.ground import GroundUnique, observe_ground
 from inventory_tracking.loot.runes import rune_name
 
 
@@ -27,11 +27,12 @@ class RuneWatcher:
         minimum: str,
         shrine_types: frozenset[int] = frozenset(),
         super_chests: bool = True,
+        unique_minimum: float | None = None,
         observe=observe_ground,
     ):
         self.source, self.capture_lock, self.focused, self.display = source, capture_lock, focused, display
         self.poll_interval, self.minimum, self.observe = poll_interval, minimum, observe
-        self.shrine_types, self.super_chests = shrine_types, super_chests
+        self.shrine_types, self.super_chests, self.unique_minimum = shrine_types, super_chests, unique_minimum
         self.last_poll = -math.inf
         self.visible = []
         self.seen: set[int] = set()
@@ -53,6 +54,7 @@ class RuneWatcher:
                 minimum=self.minimum,
                 shrine_types=self.shrine_types,
                 super_chests=self.super_chests,
+                unique_minimum=self.unique_minimum,
             )
         except Exception as exc:
             text = f'Rune watch: read failed: {exc}'
@@ -67,7 +69,8 @@ class RuneWatcher:
                 LOG.info('Ground rune: %s at (%s, %s)', rune_name(rune.class_id), rune.x, rune.y)
         for mark in marks:
             if mark.unit_id not in self.seen:
-                LOG.info('Loot mark: %s at (%s, %s)', mark.label, mark.x, mark.y)
+                detail = f' [item data +0x34 = {mark.table_id}]' if isinstance(mark, GroundUnique) else ''
+                LOG.info('Loot mark: %s at (%s, %s)%s', mark.label, mark.x, mark.y, detail)
         self.seen = {rune.unit_id for rune in runes} | {mark.unit_id for mark in marks}
         if location is None:
             self.visible = []

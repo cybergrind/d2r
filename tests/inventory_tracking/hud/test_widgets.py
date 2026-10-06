@@ -184,3 +184,22 @@ def test_a_deadly_packs_monsters_get_filled_marks_and_the_pack_one_arrow_from_af
     assert not any(drawn([['danger', 40.0, 10.0]]).get_data())  # out of view: no arrow per monster
     assert alpha(drawn([['pack', 40.0, 10.0]]), far_x, far_y) > 128  # one arrow to the pack
     assert not any(drawn([['pack', 60.0, 10.0]]).get_data())  # beyond 40 tiles: not yet
+
+
+def test_arrow_rows_have_no_box_behind_them_and_their_text_is_outlined():
+    # The dark box hid the game under the rows (user, 2026-10-06): only the arrow tiles and the
+    # text are drawn, the text with a dark outline so it reads on any ground.
+    widget = Widget('g', 'guide', 'guide', guide_payload([StyledLine('→  Next level: east', arrow='→')], None))
+    w, h = measure(widget, scale=1.0)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+
+    draw_scene(cairo.Context(surface), [(widget, (0, 0, w, h))], scale=1.0)
+
+    surface.flush()
+    data, stride = bytes(surface.get_data()), surface.get_stride()
+    alphas = [data[y * stride + x * 4 + 3] for y in range(h) for x in range(w)]
+    assert data[(h - 2) * stride + (w - 3) * 4 + 3] == 0  # a corner of the card: nothing there
+    assert sum(alpha == 0 for alpha in alphas) > len(alphas) / 2
+    text = [data[y * stride + x * 4 : y * stride + x * 4 + 4] for y in range(h) for x in range(w // 2, w)]
+    assert any(pixel[3] > 200 and max(pixel[:3]) < 40 for pixel in text)  # the outline
+    assert any(pixel[3] > 200 and min(pixel[:3]) > 180 for pixel in text)  # the text itself

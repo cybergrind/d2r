@@ -1,9 +1,12 @@
-"""Valuable runes on the ground, from streamed item units (only items near the player exist).
+"""Valuable runes and expensive uniques on the ground, from streamed item units (only items near the player exist).
 
 Item modes: 0 stored, 1 equipped, 2 belt (confirmed here, layout.py/layout_notes.md); 3 on
 the ground and 5 dropping per MapAssist ItemMode. Position is the item's static path x/y
 (+0x10/+0x14, as for objects) in world units. Ground mode and position are UNCONFIRMED on this
 build until a Win+C next to a dropped rune checks them (levels/research.py records ground items).
+
+A unique-quality ground item is named from its base (loot/uniques.py). Its ItemData +0x34 table
+index is logged with it: whether that is filled before identification is UNCONFIRMED on this build.
 
 Shrines are object units: object data (unit +0x10) holds the shrine type at +0x08 and a shrine
 table pointer at +0x10 (native/layout.py, confirmed with a Stamina Shrine 2026-09-30); object
@@ -17,12 +20,20 @@ chests are ordinary jungle chests; the level guide marks those (levels/handlers/
 
 import os
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
+from inventory_tracking.items.identity import (
+    FLAGS_OFFSET,
+    IDENTIFIED_FLAG,
+    IDENTITY_OFFSET,
+    ITEM_DATA_SIZE,
+    QUALITY_OFFSET,
+)
 from inventory_tracking.levels.memory import player_location
 from inventory_tracking.levels.model import Location
 from inventory_tracking.loot.runes import is_valuable_rune
 from inventory_tracking.loot.shrines import SHRINE_NAMES
+from inventory_tracking.loot.uniques import BASES, unique_drop
 from inventory_tracking.native.layout import OBJECT_SHRINE_TABLE, OBJECT_SHRINE_TYPE
 from inventory_tracking.native.process import identity, process_mappings
 from inventory_tracking.native.unit_probe import ResearchReader
@@ -34,6 +45,7 @@ UNUSED_SHRINE_MODE = 0
 SPARKLY_CHEST = 397  # d2data objects.json *ID 397, Name 'chest', description 'sparklychest'
 CLOSED_CHEST_MODE = 0
 GROUND_MODES = frozenset((3, 5))  # on the ground, dropping
+UNIQUE_QUALITY = 7
 
 
 @dataclass(frozen=True)
@@ -42,6 +54,15 @@ class GroundRune:
     unit_id: int
     x: int
     y: int
+
+
+@dataclass(frozen=True)
+class GroundUnique:
+    label: str
+    unit_id: int
+    x: int
+    y: int
+    table_id: int | None = field(default=None, compare=False)  # ItemData +0x34 as read, for the log
 
 
 @dataclass(frozen=True)
@@ -119,10 +140,39 @@ def ground_runes(read, table_address, *, minimum: str) -> list[GroundRune]:
     return runes
 
 
+def ground_uniques(read, table_address, *, minimum: float) -> list[GroundUnique]:
+    """Unique-quality ground items whose base has a unique asking `minimum` Ist or more."""
+    heads = struct.unpack('<128Q', read(table_address + ITEM_UNIT * 1024, 1024))
+    uniques = []
+    for unit in walk_units(read, heads, ITEM_UNIT)['units']:
+        if unit['mode'] not in GROUND_MODES or unit['txt_id'] not in BASES:
+            continue
+        try:
+            data = read(unit['data_pointer'], ITEM_DATA_SIZE)
+            x, y = static_position(read, unit)
+        except OSError, ValueError:
+            continue
+        if struct.unpack_from('<I', data, QUALITY_OFFSET)[0] != UNIQUE_QUALITY:
+            continue
+        table_id = struct.unpack_from('<I', data, IDENTITY_OFFSET)[0]
+        identified = bool(struct.unpack_from('<I', data, FLAGS_OFFSET)[0] & IDENTIFIED_FLAG)
+        label = unique_drop(unit['txt_id'], minimum=minimum, table_id=table_id, identified=identified)
+        if label is not None:
+            uniques.append(GroundUnique(label, unit['unit_id'], x, y, table_id))
+    return uniques
+
+
 def observe_ground(
-    pid, images, capture, *, minimum: str, shrine_types: frozenset[int], super_chests: bool = True
-) -> tuple[Location | None, list[GroundRune], list[Shrine | SuperChest]]:
-    """(location, valuable runes, marked objects: wanted shrines, then super chests)."""
+    pid,
+    images,
+    capture,
+    *,
+    minimum: str,
+    shrine_types: frozenset[int],
+    super_chests: bool = True,
+    unique_minimum: float | None = None,
+) -> tuple[Location | None, list[GroundRune], list[GroundUnique | Shrine | SuperChest]]:
+    """(location, valuable runes, marked spots: expensive uniques, wanted shrines, then super chests)."""
     tables = {x['table_address'] for x in capture['unit_table_candidates']}
     if len(tables) != 1:
         raise ValueError('Expected one freshly scanned unit table address')
@@ -135,8 +185,9 @@ def observe_ground(
         runes = ground_runes(read, table, minimum=minimum) if location else []
         shrines = nearby_shrines(read, table, types=shrine_types) if location and shrine_types else []
         chests = nearby_super_chests(read, table) if location and super_chests else []
+        uniques = ground_uniques(read, table, minimum=unique_minimum) if location and unique_minimum is not None else []
     finally:
         os.close(fd)
     if identity(pid) != token:
         raise ValueError('Game process changed during the ground read')
-    return location, runes, [*shrines, *chests]
+    return location, runes, [*uniques, *shrines, *chests]

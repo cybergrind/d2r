@@ -61,7 +61,13 @@ def test_identified_flag_requires_the_quality_it_was_selected_by():
 
 
 def test_probe_reports_identified_state_in_town_and_away_elsewhere(monkeypatch):
-    units = [unit(1, data_pointer=0x1000), unit(2, quality=7, page=3, data_pointer=0x2000)]
+    units = [
+        unit(1, data_pointer=0x1000),
+        unit(2, quality=7, page=3, data_pointer=0x2000),
+        unit(3, page=4),  # stash
+        unit(4, mode=1),  # equipped
+        unit(5, owner=999),  # vendor stock
+    ]
     snapshot = {
         'status': 'research',
         'mappings_stable': True,
@@ -82,6 +88,8 @@ def test_probe_reports_identified_state_in_town_and_away_elsewhere(monkeypatch):
         '1': {'identified': False, 'quality': 4, 'txt_id': 351, 'page': 0},
         '2': {'identified': True, 'quality': 7, 'txt_id': 351, 'page': 3},
     }
+    # Everything the player holds anywhere: a gambled item is new to all of it, a stash item is not.
+    assert probe['owned'] == ['1', '2', '3', '4']
     location['value'] = 46
     assert probe_inventory(lambda address, size: memory[address][:size], snapshot) == {
         'state': 'away',

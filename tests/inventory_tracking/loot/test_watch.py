@@ -24,7 +24,7 @@ def watcher(found, *, lock=None, focused=True):
         display=shown.append,
         poll_interval=0.5,
         minimum='r21',
-        observe=lambda pid, images, capture, *, minimum, shrine_types, super_chests: found(),
+        observe=lambda pid, images, capture, **wanted: found(),
         shrine_types=frozenset({18}),
     )
     return watch, shown
@@ -112,3 +112,19 @@ def test_super_chests_are_listed_with_the_shrines_before_runes():
     watch.tick()
 
     assert [line.text for line in shown[-1]] == ['↖  Super chest: west', '↗  Pul Rune: north']
+
+
+def test_expensive_uniques_are_listed_first():
+    from inventory_tracking.loot.ground import GroundUnique
+
+    marks = [GroundUnique("Death's Web", 4, 25450, 5600), Shrine(18, 9, 25300, 5442)]
+    watch, shown = watcher(lambda: (PLAYER, [GroundRune(645, 1, 25450, 5300)], marks))
+
+    watch.poll(1.0)
+    watch.tick()
+
+    assert [line.text.split('  ')[1] for line in shown[-1]] == [
+        "Death's Web: south",
+        'Gem Shrine: west',
+        'Pul Rune: north',
+    ]

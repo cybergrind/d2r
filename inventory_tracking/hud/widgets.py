@@ -63,6 +63,7 @@ class GuideCard:
     ARROW_WIDTH, ARROW_HEIGHT = 64, 52
     PAD, GAP, SLACK = 8, 8, 4  # SLACK: hinting differs slightly between measure and draw
     HERE = '•'  # "you are here" rows (no arrow) get a dot in the arrow column
+    OUTLINE = 3.5  # the dark line around the rows' text
 
     def decode(self, payload):
         lines = [StyledLine.from_payload(line) for line in payload.get('lines', [])]
@@ -94,9 +95,6 @@ class GuideCard:
         lines, card = self.decode(payload)
         pad, gap, arrow = self.PAD * scale, self.GAP * scale, self.ARROW_WIDTH * scale
         rows = self._rows(lines, scale)
-        if rows:  # the text rows get a card; the map below them has no box (user, 2026-09-30)
-            text_height = sum(h for *_, h in rows) + gap * (len(rows) - 1)
-            card_background(cr, width, text_height + 2 * pad, scale)
         y = pad
         for line, text, _, row_height in rows:
             if line.arrow or line.text.startswith(self.HERE):
@@ -106,7 +104,15 @@ class GuideCard:
                 draw_indicator(cr, arrow, tile_height, line.arrow, tone_rgb(line.tone))
                 cr.restore()
             layout = text_layout(cr, render_markup([StyledLine(text, line.tone)]), scale)
-            cr.move_to(pad + arrow + gap, y + (row_height - layout.get_pixel_size()[1]) / 2)
+            # No box behind the rows (user, 2026-10-06: it hid the game): the text is outlined instead.
+            left, top = pad + arrow + gap, y + (row_height - layout.get_pixel_size()[1]) / 2
+            cr.move_to(left, top)
+            PangoCairo.layout_path(cr, layout)
+            cr.set_source_rgba(0, 0, 0, 0.9)
+            cr.set_line_width(self.OUTLINE * scale)
+            cr.set_line_join(cairo.LINE_JOIN_ROUND)
+            cr.stroke()
+            cr.move_to(left, top)
             PangoCairo.show_layout(cr, layout)
             y += row_height + gap
         if card is not None:

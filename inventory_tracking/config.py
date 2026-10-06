@@ -334,6 +334,10 @@ class AppraisalConfig(Config):
     rune_minimum: Annotated[str, Field(pattern=r'^r(0[1-9]|[12][0-9]|3[0-3])$')] = 'r16'  # Io and up (user, 2026-09-30)
     rune_poll_interval: Positive = 0.5
     shrine_marks: tuple[int, ...] = (18,)  # shrine types to point at (d2data shrines.json; 18 = Gem)
+    unique_marks: bool = True  # also point at unique drops whose base has an expensive unique (loot/uniques.py)
+    # Ist: the good-roll ask (highest bucket median, loot/data/uniques.json) of the base's dearest unique.
+    # 2.5 takes in Harlequin Crest and The Stone of Jordan (user, 2026-10-06; both 2.58 on 2026-09-18).
+    unique_minimum: Annotated[float, Field(ge=0)] = 2.5
     super_chest_marks: bool = True  # point at closed glowing chests (object class 397)
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads

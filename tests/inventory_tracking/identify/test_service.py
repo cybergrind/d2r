@@ -169,6 +169,93 @@ def test_unchanged_inventory_and_items_that_left_do_nothing(parts):
     assert worker.visible is None
 
 
+def test_an_item_that_arrives_identified_while_gambling_is_assessed(parts):
+    # A gambled item never sits unidentified in the inventory: it is new and identified at once.
+    worker, state, displays, _, tmp_path = parts
+    gambling = {'on': False}
+    worker.gambling = lambda: gambling['on']
+    state['probe'] = probe_result(a=True) | {'owned': ['1', '3']}  # '3' lies in the stash
+    assert worker.poll(100.0)
+    wait(worker)
+    state['probe'] = probe_result(a=True, b=True) | {'owned': ['1', '2', '3']}
+    assert worker.poll(101.0)
+    wait(worker)
+    assert worker.visible is None  # not gambling: bought, picked up or moved, as before
+
+    gambling['on'] = True
+    state['probe'] = probe_result(a=True, b=True, c=True) | {'owned': ['1', '2', '3']}
+    assert worker.poll(102.0)
+    wait(worker)
+    assert worker.visible is None  # taken out of the stash while the gamble stock is still loaded
+
+    state['probe'] = probe_result(a=True, b=True, c=True) | {'owned': ['1', '2', '3', '9']}
+    state['probe']['items']['9'] = {'identified': True, 'quality': 6, 'txt_id': 351}
+    assert worker.poll(103.0)
+    wait(worker)
+    worker.tick()
+    assert displays[-1][0].text == 'Identified 1 — 1 keep · 0 check · 0 vendor'
+    assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['9']
+
+    state['probe']['items'].pop('9')  # on the cursor ...
+    assert worker.poll(104.0)
+    wait(worker)
+    state['probe']['items']['9'] = {'identified': True, 'quality': 6, 'txt_id': 351}  # ... and put back
+    worker.dismiss()
+    assert worker.poll(105.0)
+    wait(worker)
+    assert worker.visible is None  # assessed once
+
+
+def test_gambled_items_need_a_baseline_from_before_the_purchase(parts):
+    worker, state, _, _, _ = parts
+    worker.gambling = lambda: True
+    state['probe'] = probe_result(a=True) | {'owned': ['1']}
+    assert worker.poll(100.0)
+    wait(worker)
+    assert worker.visible is None
+
+
+def test_a_new_pass_adds_to_the_summary_still_on_screen(parts):
+    # Gambling one item after another: each result used to replace the previous one at once.
+    worker, _state, displays, _, tmp_path = parts
+    now = {'t': 100.0}
+    worker.clock = lambda: now['t']
+    seen = []
+    capture = worker.capture
+
+    def watching(pid, images, source, unit_ids):
+        seen.append([line.text for line in worker.visible])  # what is shown while the pass runs
+        return capture(pid, images, source, unit_ids)
+
+    worker.capture = watching
+    worker.decode = lambda record: ([observation(name=f'Ring {u}', unit_id=int(u)) for u in record['unit_ids']], [])
+    worker._assess(['1'])
+    now['t'] = 105.0
+    worker._assess(['2'])
+
+    assert seen[0] == ['Assessing 1 identified items…']
+    assert seen[1][0] == 'Identified 1 — 1 keep · 0 check · 0 vendor'  # the first result stays up
+    assert seen[1][-1] == 'Assessing 1 identified items…'
+    worker.tick()
+    texts = [line.text for line in displays[-1]]
+    assert texts[0] == 'Identified 2 — 2 keep · 0 check · 0 vendor'
+    assert [t.split(':')[0] for t in texts[1::2]] == ['KEEP   Ring 2 (Ring)', 'KEEP   Ring 1 (Ring)']  # newest first
+    assert worker.expires == 105.0 + worker.hit_seconds  # the whole card gets a fresh lease
+    assert json.loads((tmp_path / 'identify-latest.json').read_text())['unit_ids'] == ['2']  # the file: one pass
+
+    now['t'] = 200.0  # long after the card expired
+    worker.tick()
+    worker._assess(['3'])
+    worker.tick()
+    assert displays[-1][0].text == 'Identified 1 — 1 keep · 0 check · 0 vendor'
+
+    worker._assess(['1'])
+    worker.dismiss()  # Alt+D takes the screen: the next card starts empty
+    worker._assess(['2'])
+    worker.tick()
+    assert displays[-1][0].text == 'Identified 1 — 1 keep · 0 check · 0 vendor'
+
+
 def test_leaving_town_or_a_failed_probe_forgets_the_baseline(parts):
     worker, state, _, notifications, _ = parts
     assert worker.poll(100.0)
