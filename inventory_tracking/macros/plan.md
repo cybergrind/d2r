@@ -1,6 +1,6 @@
 # Macros: Win+X prebuff for Pindleskin runs
 
-Plan, 2026-10-06. Nothing here is implemented yet. Companion to the
+Plan, 2026-10-06. First version implemented the same day (see Status); not yet run in the game. Companion to the
 [input design](../input/design.md), which this package builds on.
 
 ## Goal
@@ -200,3 +200,74 @@ further (menus, lobby, game creation).
 - Everywhere else, town or not, Win+X does the same full prebuff (Summon Defiler, Consume,
   Summon Defiler, Hex: Purge, Psychic Ward), also in a game made by hand. There is no shorter
   routine outside town.
+
+## Status (2026-10-06)
+
+Built: `timing.py`, `actuator.py`, `world.py`, `skills.py`, `engine.py`, `routines.py`,
+`runner.py`, `probe.py`; `request --macro` and `macro <t>` in the service; pointer events in
+`input/keyboard.py`. Tested against a scripted game (tests/inventory_tracking/macros), not yet
+in the real one.
+
+Differences from the design above, and what is still open:
+
+- Routines are plain functions of a `Run` (`run.expect(what, predicate, timeout)`), not step
+  objects; `profiles.py` is a constant in `routines.py` until a second character needs it.
+- Host run 16:37: the summon is monster class 744 as expected, but its owner field (the one
+  that works for the mercenary) is `0xFFFFFFFF`, so summons cannot be told by owner. The
+  Defiler is now "a new class-744 unit"; Consume must make that unit vanish, so a Consume that
+  took the bound demon still stops the macro. The Defiler's unit and data bytes go to the log
+  to find the real owner field.
+- Hex: Purge and Psychic Ward have no known mark in memory: the cast animation is looked for
+  and a miss is only logged. Their states should be found and made required evidence.
+- Consume aims with the classic isometric projection (`routines.screen_fraction`), unverified
+  in D2R; the summon spot and the Consume aim are close together, which helps.
+- First host run (16:32): Save and Exit worked; the name was then typed blind after a fixed
+  pause, nothing landed and Enter did nothing. The name at `0x1E9A0B8` is the lobby field's own
+  text (the recording shows `cyber3` mid-edit), so each edit is now checked there: click, End,
+  one Backspace, and only a shortened name lets the macro go on (up to six tries); Enter is
+  pressed only when the field reads the new name. The fixed lobby pause is gone.
+- Not built: the cross-process lock against `make osd` key presses, the run file under
+  `runs/macro/`.
+- Prebuff is a goal, not a fixed sequence (user, 2026-10-06): end with Consume active and one
+  Defiler out. A Defiler summoned while one stands cancels Consume, so a standing Defiler is
+  consumed (buff missing) or kept (buff active), and a summon happens only with none out.
+- Loading (user, 2026-10-06: the macro started on the loading screen). The first recording has
+  two bytes for it: `0x2122131` is 1 only on the loading screen, `0x20D7DA0` is 1 in a game
+  and returns to 1 three seconds after the loading byte clears. "Playable" needs both, and the
+  macro waits for it after creating a game and refuses to start without it. One recording
+  only: confirm on the host.
+- Only the changed end of the game name is retyped (cyber36: one Backspace and `7`).
+- Click positions are corrected for the 22-pixel desktop bar above the game window.
+- Host, same day: with both bytes required the macro refused to start in a loaded game, so
+  one of them is not what the recording suggested. Now nothing gates the start (the bytes are
+  logged there); after creating a game the loading byte is used only if it was clear in the
+  lobby, together with "the town's units exist" and a 1.2–2 s pause.
+- Host run 17:38: with the real cursor parked on the left, the Defiler appeared at the spot
+  the synthetic pointer move named and was consumed, so the game honours XTest motion for
+  quick casts (the cursor the compositor draws does not follow). The projection matched across
+  to 0.003 of the width; the feet line moved from 0.47 to 0.494 of the height. The "settled"
+  byte read 0 in that loaded game: it was the wrong one of the two.
+- Host run 18:29: the lobby step works (click, one Backspace, the new digit, Enter). The
+  prebuff then started 3 s after Enter and three summons over the next 6 s were ignored: the
+  character and the town's units exist while the loading screen is up, and the "loading" byte
+  read 1 in loaded games, so neither byte from the recording is used any more. Now nothing is
+  pressed for 8.5 s after Enter, and the first summon is repeated until a Defiler appears (up
+  to 40 s after Enter). Twenty candidate bytes are traced during that wait and their changes
+  logged with the time of the first working summon, to find a real "playable" mark.
+- Host run 18:35: creating the game failed in the game itself (an error on screen); the macro
+  waited 45 s for it, and for those 45 s the service loop stood still ("Slow service pass:
+  47466 ms, level map"). Cause: the macro kept the process-wide X11 lock for its whole run and
+  the level map's focus check opens its own X connection. The macro's connection now holds
+  the lock only to open and close (`connect(exclusive=False)`), and a game that does not exist
+  12 s after Enter stops the macro with "was not created".
+- Loading mark found (two traced host runs, 18:37 and 18:38, first summon accepted at 9.7 s
+  on the first try, the user seeing about 3 s of idle game before it): the byte at
+  `0x1EB3465` is 255 in a game, 0 from 0.6 s after Enter, and 254 at 6.55 s and 6.18 s; the
+  recording agrees (back 6.5 s after Enter). The macro now waits for it to leave 0 and then
+  only a 0.35–0.75 s pause; the fixed 8.5 s is the fallback when the byte never shows the
+  loading. The trace stays on to check the mark on further runs.
+- Lobby (user, 2026-10-06): Win+X out of a game creates the next game and prebuffs. The
+  character and its keys are checked once the game is up, before any skill key.
+- Eldritch and Shenk run (user, 2026-10-06): Win+X in the Frigid Highlands (111) or the Bloody
+  Foothills (110) leaves and makes the next game, as in the Temple. The whole level counts;
+  "near the waypoint" is not measured. Both are counted by terror/bosses.py.

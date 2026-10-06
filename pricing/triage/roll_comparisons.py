@@ -49,7 +49,7 @@ def deciding_stats(rows, ranges, *, minimum_sellers=15, top_fraction=0.75):
     return selected
 
 
-def price_split(rows, prop, spec, *, minimum_sellers=15, side=5, ratio=1.5):
+def price_split(rows, prop, spec, *, minimum_sellers=6, side=3, ratio=1.5):
     """A roll that most sellers do not maximise still decides price when asks split on it.
 
     Both the lower quartile and the median of the better side must be `ratio` times the
@@ -84,7 +84,7 @@ def price_split(rows, prop, spec, *, minimum_sellers=15, side=5, ratio=1.5):
     return None
 
 
-def split_validated(validation, *, minimum_sellers=15, margin=0.9):
+def split_validated(validation, *, minimum_sellers=6, margin=0.9):
     """Held-out sellers priced clearly better with the rolls than with the name median."""
     roll, name = validation['roll_median_error'], validation['name_median_error']
     return validation['evaluated'] >= minimum_sellers and roll <= margin * name

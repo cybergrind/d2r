@@ -1,3 +1,5 @@
+import pytest
+
 from pricing.triage.compiled_rolls import compile_model, lookup
 from tests.pricing.triage.test_bands import listing
 
@@ -55,6 +57,34 @@ def test_models_cannot_cross_ethereal_or_socket_variants():
     }
     assert lookup(item, [model], keep_ist=0.25) is None
     assert lookup(item | {'ethereal': False, 'socket_contents': 'filled'}, [model], keep_ist=0.25) is None
+
+
+def test_selection_guard_uses_listed_lower_quartile_not_the_perfect_roll():
+    rows = []
+    for i, value in enumerate([280, *[288] * 3, *[289] * 6, *[290] * 10]):
+        r = listing(str(i), 2, ethereal=False, socket_contents='empty')
+        r['properties']['damage'] = value
+        rows.append(r)
+    report = MODEL | {
+        'deciding': {
+            'damage': {
+                'min': 250,
+                'max': 290,
+                'better': 'higher',
+                'label': 'Damage',
+                'sample_size': 20,
+                'top_count': 19,
+            }
+        },
+        'validation': {'use_roll_model': False, 'roll_median_error': 2, 'name_median_error': 1},
+    }
+    model = compile_model(report, rows, require_supported_split=True)
+    item = {'category': 'uniques', 'name': 'Example', 'ethereal': False, 'socket_contents': 'empty'}
+    assert lookup(item | {'properties': {'damage': 289}}, [model], keep_ist=0.25) is None
+    low = lookup(item | {'properties': {'damage': 288}}, [model], keep_ist=0.25)
+    assert low['verdict'] == 'check'
+    assert low['band'] is None
+    assert 'quartile' in low['reason']
 
 
 def test_generic_comparison_runs_when_validation_is_tied_or_unavailable():
@@ -311,7 +341,7 @@ def test_failed_validation_keeps_sparse_deciding_roll_check_with_reference_only(
     assert result['verdict'] == 'check'
     assert result['band'] is None
     assert result['reference_band']['sellers'] == 19
-    assert 'listed copies are mostly' in result['reason']
+    assert 'below listed roll quartile' in result['reason']
     # Low rolls remain CHECK even without comparable sellers or with three.
     assert lookup(item | {'properties': {'skill': 1}}, [model], keep_ist=0.25)['verdict'] == 'check'
     lower = rows[0] | {'properties': {'skill': 2}}
@@ -453,6 +483,40 @@ def split_cohort():
     return rows
 
 
+def test_shared_name_keeps_unique_and_runeword_definitions_separate():
+    from pricing.triage.analyze_rolls import analyze
+
+    rows, definitions = [], []
+    for rarity, category, contents, prop, price in (
+        ('unique', 'uniques', 'empty', 'leech', 1),
+        ('runeword', 'runewords', 'filled', 'damage', 10),
+    ):
+        definitions.append(
+            {
+                'name': 'Example',
+                'rarity': rarity,
+                'roll_ranges': {prop: {'min': 1, 'max': 3, 'better': 'higher', 'property': prop}},
+            }
+        )
+        for i in range(20):
+            r = listing(f'{category}-{i}', price, ethereal=False, socket_contents=contents)
+            r['category'] = category
+            r['properties'][prop] = 2 if i == 0 else 3
+            rows.append(r)
+    game = {'stats': {p: {'property_id': p} for p in ('leech', 'damage')}, 'skills': {}}
+    reports = analyze(rows, definitions, game, coarse=True)
+    assert len(reports) == 2
+    assert {(r['category'], tuple(r['deciding'])) for r in reports} == {
+        ('uniques', ('leech',)),
+        ('runewords', ('damage',)),
+    }
+    models = [compile_model(r, rows, require_supported_split=True) for r in reports]
+    assert {(m['category'], m['reference_band']['q1_ist']) for m in models} == {
+        ('uniques', 1),
+        ('runewords', 10),
+    }
+
+
 def test_price_split_roll_has_one_cell_per_side_of_the_boundary():
     from pricing.triage.roll_comparisons import price_split_stats
 
@@ -482,3 +546,42 @@ def test_price_split_needs_a_held_out_gain_over_the_name_median():
         row['ask_ist'] = 1 + i % 3  # asks unrelated to the roll
     ranges = {'skill': {'min': 1, 'max': 3, 'better': 'higher', 'label': 'Skill'}}
     assert price_split_stats(rows, ranges, {}) == {}
+
+
+@pytest.mark.parametrize(('seller_count', 'high_verdict'), [(8, 'vendor'), (20, 'sell')])
+def test_supported_four_seller_roll_tail_survives_three_seller_held_out_split(seller_count, high_verdict):
+    from pricing.triage.roll_comparisons import price_split_stats
+
+    rows = []
+    for i in range(seller_count):
+        row = listing(i, 0.05 if i < 4 else 1)
+        row.update(ethereal=False, socket_contents='empty')
+        row['properties']['skill'] = 20 if i < 4 else 70
+        rows.append(row)
+    ranges = {'skill': {'min': 0, 'max': 100, 'better': 'higher', 'label': 'Roll'}}
+    deciding = price_split_stats(rows, ranges, {})
+    assert deciding['skill']['price_split'] == 70
+    model = compile_model(MODEL | {'deciding': deciding}, rows, require_supported_split=True)
+    item = {
+        'category': 'uniques',
+        'name': 'Example',
+        'ethereal': False,
+        'socket_contents': 'empty',
+        'properties': {'skill': 20},
+    }
+    assert lookup(item, [model], keep_ist=0.25)['verdict'] == 'vendor'
+    # Higher rolls retain all comparable-or-worse copies, including the cheap tail.
+    assert lookup(item | {'properties': {'skill': 70}}, [model], keep_ist=0.25)['verdict'] == high_verdict
+
+
+def test_three_sellers_per_roll_side_cannot_validate_after_holding_one_out():
+    from pricing.triage.roll_comparisons import price_split, price_split_stats
+
+    rows = []
+    for i in range(6):
+        row = listing(i, 0.05 if i < 3 else 1)
+        row['properties']['skill'] = 20 if i < 3 else 70
+        rows.append(row)
+    spec = {'min': 0, 'max': 100, 'better': 'higher', 'label': 'Roll'}
+    assert price_split(rows, 'skill', spec) is not None
+    assert price_split_stats(rows, {'skill': spec}, {}) == {}

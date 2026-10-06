@@ -101,10 +101,12 @@ def test_market_rules_price_only_the_admitted_variant_and_use_scoped_bands():
     fallback = assess(item | {'sockets': 0}, tables)
     assert fallback['decision_ist'] == 1.5
     assert fallback['band']['relaxed_facets'] == ['base_ed', 'sockets']
+    superior = assess(item | {'rarity': 'superior'}, tables)
+    assert superior['band']['price_basis'] == 'base_floor'
+    assert superior['decision_ist'] == 1.5
     for change in (
         {'ethereal': False},
         {'ethereal': None},
-        {'rarity': 'superior'},
         {'base_modifiers': {'423': 3}},
     ):
         assert assess(item | change, tables)['band'] is None

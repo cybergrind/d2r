@@ -60,3 +60,27 @@ def test_affixed_signature_is_not_reported_as_a_missing_clean_base_bucket():
 def test_self_use_with_a_price_band_is_not_mislabeled_below_keep_price():
     result = {'verdict': 'self', 'band': {'q1_ist': 2, 'sellers': 5}}
     assert cause({'category': 'base'}, result, {}) == 'own_use_only'
+
+
+def test_sparse_fallback_is_not_a_missing_authored_bucket():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.engine import assess
+    from tests.pricing.triage.test_base_fallback import row, tables
+
+    rows = [row('one'), row('two')]
+    item, data = from_listing(rows[0]), tables(rows)
+    result = assess(item, data)
+    assert result['decision_ist'] is None
+    assert cause(item, result, data) == 'base_variant_price_missing'
+    assert cause(item, assess(item, tables([])), tables([])) == 'base_bucket_missing'
+
+
+def test_impossible_socket_count_is_not_a_missing_price_bucket():
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.adapters import from_listing
+    from tests.pricing.triage.test_base_fallback import row, tables
+
+    item = from_listing(row('one'))
+    base = next(b for b in metadata()['bases'].values() if b['name'] == item['name'])
+    item['sockets'] = base['max_sockets'] + 1
+    assert cause(item, {'verdict': 'vendor'}, tables([])) == 'base_sockets_invalid'

@@ -6,7 +6,9 @@ equipment and the character sheet); `equipped <timestamp>` (`request --equipped`
 binding) records only what the character and the mercenary wear. `shop <timestamp>` requests
 a Win+D shop check (`request --shop`). `level <timestamp>` (`request --level`, Win+C) shows
 the level map card again (fresh position, any level; a double press pins or unpins it) and
-dumps the current level's room/unit structures for research (runs/level/). The level card is
+dumps the current level's room/unit structures for research (runs/level/). `macro <timestamp>`
+(`request --macro`, Win+X) runs the macro for where the character is, or cancels a running one
+(inventory_tracking/macros/plan.md). The level card is
 drawn on the HUD canvas (inventory_tracking/hud, started with the overlay), so it can show
 next to an Alt+D assessment. With `--shop-auto` (default) the worker also watches loaded
 vendor stock and scans it by itself when its first gear item changes; see
@@ -62,7 +64,7 @@ from inventory_tracking.collection.service import (
 from inventory_tracking.collection.store import DEFAULT_DATABASE as COLLECTION_DATABASE
 from inventory_tracking.collection.watch import StashWatcher
 from inventory_tracking.common import LOG, configure_logging, log_to_file, timestamp
-from inventory_tracking.config import APPRAISAL
+from inventory_tracking.config import APPRAISAL, SHOW_ITEMS
 from inventory_tracking.hud.process import card_widgets, guide_widgets, hud_process, loot_widgets, terror_widgets
 from inventory_tracking.hud.scene import DEFAULT_SCENE, publish_layer
 from inventory_tracking.identify.service import IdentifyWorker
@@ -75,6 +77,7 @@ from inventory_tracking.levels.evidence import DEFAULT_EVIDENCE, EvidenceLog
 from inventory_tracking.levels.guide import LevelGuide
 from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
+from inventory_tracking.macros.runner import REQUEST_PREFIX as MACRO_PREFIX, MacroRunner
 from inventory_tracking.loot.watch import RuneWatcher
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
@@ -252,6 +255,7 @@ def dispatch(
     guide=None,
     terror=None,
     disagree=None,
+    macro=None,
 ) -> bool:
     """Route `shop <t>`, `collect <t>`, `equipped <t>`, `level <t>` and bare Alt+D timestamps to their workers.
 
@@ -263,6 +267,9 @@ def dispatch(
         if text.startswith('disagree '):
             requested = float(text[len('disagree ') :])
             return bool(disagree and 0 <= now - requested <= 1 and disagree())
+        if text.startswith(MACRO_PREFIX):
+            # Win+X: run the macro for where the character is; a press while one runs cancels it.
+            return macro is not None and macro.request(float(text[len(MACRO_PREFIX) :]), now)
         if text.startswith(SHOP_PREFIX):
             return shop is not None and shop.request(float(text[len(SHOP_PREFIX) :]), now)
         if text.startswith(LEVEL_PREFIX):
@@ -510,6 +517,17 @@ def run_service(args, directory, report):
                         appraisal_active=lambda: worker.visible is not None or worker.pending(),
                     )
                     level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
+
+                    def display_macro(lines):
+                        if args.osd:
+                            publish_layer(args.hud_scene, 'macro', card_widgets(lines, 'macro'))
+
+                    macro = MacroRunner(
+                        source,
+                        capture_lock=worker.capture_lock,
+                        saved_games=SHOW_ITEMS.saved_games,
+                        display=display_macro,
+                    )
                     # Per-game monster/Herald state: the Terror card and the level map shading.
                     zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
                     map_dots = partial(zones.map_dots, danger=APPRAISAL.danger_marks) if zones is not None else None
@@ -618,14 +636,16 @@ def run_service(args, directory, report):
                                         guide,
                                         terror,
                                         disagree=disagree,
+                                        macro=macro,
                                     )
                             timer.finish()
                     finally:
+                        macro.close()
                         shop.dismiss()
                         identify.dismiss()
                         if guide is not None:
                             guide.dismiss()
-                        for producer in ('appraisal', 'cards', 'identify', 'levels', 'loot', 'terror'):
+                        for producer in ('appraisal', 'cards', 'identify', 'levels', 'loot', 'macro', 'terror'):
                             publish_layer(args.hud_scene, producer, [])
                         for pending in (shop.future, identify.future):
                             if pending:
@@ -685,6 +705,7 @@ def main(argv=None):
         action='store_true',
         help='request: send Win+C instead (show the level map again and dump level memory)',
     )
+    requests.add_argument('--macro', action='store_true', help='request: send Win+X instead (run or cancel the macro)')
     parser.add_argument('--level-output', type=Path, default=LEVEL_OUTPUT, help='Win+C level dump runs')
     parser.add_argument(
         '--level-evidence', type=Path, default=DEFAULT_EVIDENCE, help='evidence saved on each guided level entry'
@@ -741,6 +762,8 @@ def main(argv=None):
                 if args.shop
                 else LEVEL_PREFIX
                 if args.level
+                else MACRO_PREFIX
+                if args.macro
                 else EQUIPMENT_PREFIX
                 if args.equipped
                 else REQUEST_PREFIX

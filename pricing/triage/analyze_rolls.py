@@ -79,10 +79,21 @@ def analyze(rows, definitions, game, *, coarse=False, guide_rules=()):
     groups = defaultdict(list)
     for row in latest_rows(rows):
         if eligible(row) and row['category'] in ('uniques', 'sets', 'runewords'):
-            groups[row['name'].casefold()].append(row | {'properties': expanded_properties(row.get('properties', {}))})
+            groups[row['category'], row['name'].casefold()].append(
+                row | {'properties': expanded_properties(row.get('properties', {}))}
+            )
     reports = []
     for definition in definitions:
-        members = groups.get(definition['name'].casefold(), [])
+        name = definition['name'].casefold()
+        category = {'unique': 'uniques', 'set': 'sets', 'runeword': 'runewords'}.get(definition.get('rarity'))
+        if category is None:
+            # Legacy definition inputs may omit rarity; resolve only an
+            # unambiguous category, never mix namesakes across item kinds.
+            categories = {kind for kind, title in groups if title == name}
+            if len(categories) != 1:
+                continue
+            category = categories.pop()
+        members = groups.get((category, name), [])
         if not members:
             continue
         ranges, missing = ranges_for(definition, members, game)
@@ -115,6 +126,11 @@ def analyze(rows, definitions, game, *, coarse=False, guide_rules=()):
                 contents = 'empty'
 
             cohort_ranges = dict(ranges)
+            if runeword:
+                from pricing.triage.runeword_ranges import total_definition
+
+                total = total_definition(definition, identity.get('base_code'), game)
+                cohort_ranges, missing = ranges_for(total, cohort, game)
             defense = definition.get('base_defense_range')
             if (
                 defense
@@ -152,6 +168,7 @@ def analyze(rows, definitions, game, *, coarse=False, guide_rules=()):
             reports.append(
                 {
                     'name': definition['name'],
+                    'category': category,
                     **identity,
                     'deciding': deciding,
                     'unmapped_variable_stats': missing,

@@ -33,11 +33,11 @@ levelling characters. Keep price: 0.25 Ist, inclusive.
 
 | Measure | Target | Now |
 |---|---|---|
-| Guide worked examples and false-positive rows | 100% pass | 36/38 and 15/15 |
+| Guide worked examples and false-positive rows | 100% pass | 36/36 and 15/15 (two worked notes moved to context) |
 | Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified; 305 of 404 pass (75.5%); 99 not transcribed |
-| Listing replay, valuable seller votes flagged | at least 85% | 75.0% (bases 62.3%) |
+| Listing replay, valuable seller votes flagged | at least 85% | 75.1% (bases 63.2%) |
 | Cheap listings flagged SELL or slow / CHECK | at most 10% / 25% | 10.4% (over) / 17.7% |
-| Named corpus drops that end as CHECK | at most 15% | 12.3% |
+| Named corpus drops that end as CHECK | at most 15% | 12.2% |
 | SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | unmeasured (one-day interval) |
 | Speed | under 50 ms per item; a ten-item identify pass under 1 s | 0.3 ms replayed; live pass unrecorded |
 
@@ -46,18 +46,16 @@ number that goes down is reverted or explained in PLAN.md section 8.
 
 ### Queue
 
-PLAN.md "Steering 8" (2026-10-06 15:40, refining Steering 7), in this order:
+PLAN.md "Steering 9" (2026-10-06 16:30), in this order, with its rules of pace:
 
-1. Bases: exit at base recall of at least 70%, from missing buckets, rarity and enhancement
-   variants; sparse staffmod rolls stay CHECK.
-2. Named items: unique, set and runeword roll placement, which also returns the cheap SELL
-   rate under its limit.
-3. Transcribe the 99 classified guide rows as cases in one pass; failing rows are listed as
-   failures. Close the two incomplete worked cases in the same pass.
-4. Demand: measure at the next weekly pull, not before.
-
-Affixed and charm pattern batches are parked: a pattern is added only to make a guide row
-execute or to fix a corpus drop.
+1. SELF-USE does not hide a sale price: an own-use item with a supported band at or above
+   the keep price is SELL or slow.
+2. Bases: exit at base recall of at least 70%.
+3. Named items: roll placement, which also returns the cheap SELL rate under its limit.
+4. Rare, magic and crafted patterns in one data-driven pass, guarded by the corpus CHECK
+   share for rare and magic (at most 8% each).
+5. In parallel: transcribe the 99 classified guide rows as cases; failing rows are failures.
+6. Demand: measure at the next weekly pull, not before.
 
 ### Stopping rule
 

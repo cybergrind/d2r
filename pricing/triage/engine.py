@@ -135,7 +135,7 @@ def assess(item, tables, *, today=None):
     if category == 'base' and not supported(band):
         from pricing.triage.base_fallback import lookup as base_fallback
 
-        if fallback := base_fallback(item, tables['bands']):
+        if fallback := base_fallback(item, tables['bands'], keep_ist=tables['rules']['keep_ist']):
             band, bucket = fallback, fallback['bucket']
     # Arbitrary affixed names cannot borrow a generic Ring/Amulet market band.
     if category in ('magic', 'rare', 'crafted'):
@@ -299,14 +299,25 @@ def assess(item, tables, *, today=None):
         from pricing.triage.market_demand import lookup, qualify
 
         market_demand = lookup(item, {'band': band, 'preparation': socket_preparation}, tables)
-        verdict, qualification = qualify(verdict, price, bool(demand), market_demand)
+        verdict, qualification = qualify(verdict, price, bool(demand or own_use), market_demand)
         if qualification:
             reason = qualification
     elif verdict == 'sell' and price is not None and price < 1 and not fungible(item) and not demand:
         verdict = 'slow'
         reason += '; no endgame demand evidence'
-    if own_use and verdict in ('slow', 'vendor'):
+    if own_use and verdict == 'vendor':
         verdict, reason = 'self', own_use.get('label', 'own-build rule')
+    if verdict in ('vendor', 'self') and tables.get('learned_index'):
+        from pricing.triage.learned_patterns import lookup as learned_pattern
+
+        if learned := learned_pattern(item, tables['learned_index']):
+            reference = learned['reference_band']
+            verdict = 'check'
+            reason = (
+                f'listed stat combination; reference asks {reference["q1_ist"]:g} Ist lower quartile'
+                f' · {reference["sellers"]} sellers · {reference["observed_at"]}'
+            )
+            band, price, bucket, liquidity = None, None, None, 'none'
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:
@@ -363,6 +374,7 @@ def prepare_tables(bands, rules, own):
         'base_socket_inferences': bands.get('base_socket_inferences', {}),
         'rule_index': compile_index(rules['rows']),
         'pattern_index': compile_index(rules['rows'], patterns=True),
+        'learned_index': compile_index(bands.get('learned_patterns', [])),
     }
     data['commodity_lots'] = compile_lots(data['bands'], rules['keep_ist'])
     return data

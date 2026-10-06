@@ -68,6 +68,10 @@ def base_facets(properties, rarity, sockets, contents, *, base=None):
     properties = expanded_properties(properties)
     base = base or {}
     if rarity in ('normal', 'superior') and contents == 'empty':
+        if base.get('category') == 'weapons':
+            # Traderie property551 is the total Two-Hand Damage header, not
+            # an affix. Keep it in observed properties, outside the modifier key.
+            properties.pop('551', None)
         # Empty clean armor cannot roll flat-defense affixes. Sellers also use
         # property399 for its total; retain conflicting dual-field evidence.
         defense = properties.get('399')

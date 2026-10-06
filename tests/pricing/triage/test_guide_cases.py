@@ -422,7 +422,12 @@ def test_classified_score_keeps_failing_and_untranscribed_verdicts_in_denominato
         },
     ]
     result = evaluate(
-        cases, lambda item: {'verdict': 'self' if item['name'] == 'B' else 'vendor', 'reason': 'Test outcome'}
+        cases,
+        lambda item: {
+            'verdict': 'self' if item['name'] == 'B' else 'vendor',
+            'reason': 'Test outcome',
+            'own_use': {'label': 'Upgrade'} if item['name'] == 'B' else None,
+        },
     )
     assert result['classifications'] == {'verdict': 2, 'own-use': 1, 'pickup': 1, 'context': 1}
     assert result['table_score'] == {'total': 3, 'evaluated': 2, 'passed': 1, 'accuracy': 1 / 3}
@@ -454,7 +459,7 @@ def test_guide_classification_does_not_depend_on_current_assessment_or_case_pres
         assert classify(row | {'item': {'name': 'Example'}, 'expected': ['vendor']}) == result
 
 
-def test_own_use_row_cannot_pass_on_trade_verdict():
+def test_own_use_row_requires_qualification_even_when_sale_takes_precedence():
     case = {
         'id': 'own',
         'kind': 'table',
@@ -465,7 +470,13 @@ def test_own_use_row_cannot_pass_on_trade_verdict():
     }
     result = evaluate([case], lambda item: {'verdict': 'slow', 'reason': 'Tradeable'})
     assert result['groups']['own-use']['passed'] == 0
-    assert result['failures'][0]['expected'] == ['self']
+    assert result['failures'][0]['expected'] == ['self', 'sell', 'slow', 'check']
+    for verdict in ('self', 'sell', 'slow', 'check'):
+        result = evaluate([case], lambda item, verdict=verdict: {'verdict': verdict, 'own_use': {'label': 'Upgrade'}})
+        assert result['groups']['own-use']['passed'] == 1
+    for verdict in ('self', 'check', 'sell'):
+        result = evaluate([case], lambda item, verdict=verdict: {'verdict': verdict, 'own_use': None})
+        assert result['groups']['own-use']['passed'] == 0
 
 
 def test_guide_example_checks_preparation_as_well_as_verdict():

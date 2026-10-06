@@ -97,12 +97,24 @@ def compile_bands(name, rows, policy):
         for band in compiled:
             band['relaxed_facets'] = list(relaxed)
         bands.extend(compiled)
+    from pricing.triage.bands import band_for
+    from pricing.triage.base_floor import key as floor_key, pooled_key
+
+    floors = defaultdict(list)
+    for row in valid:
+        item = from_listing(row)
+        if bucket := floor_key(item, base):
+            floors[bucket].append(row)
+            floors[pooled_key(item, base)].append(row)
+    for bucket, members in floors.items():
+        bands.append(band_for('base', name, members) | {'bucket': bucket, 'price_basis': 'base_floor'})
     return bands
 
 
-def lookup(item, bands):
+def lookup(item, bands, *, keep_ist=0.25):
     from inventory_tracking.items.metadata import metadata_generation
     from pricing.triage.adapters import bases_by_code
+    from pricing.triage.base_floor import lookup as floor_lookup
     from pricing.triage.market_bases import clean_modifiers, native_staffmods
     from pricing.triage.variants import scoped_bucket
 
@@ -122,6 +134,10 @@ def lookup(item, bands):
     # Missing ED skips the exact level for both targets and sources;
     # unknown is never silently converted to zero.
     for key, relaxed in keys(item, allow_missing_ed=True):
+        # Prefer a supported plain-base floor with the actual socket count
+        # before borrowing prices from different runeword socket configurations.
+        if 'sockets' in relaxed and (floor := floor_lookup(item, bands, keep_ist=keep_ist)):
+            return floor
         # Guide §2 gray: an unsocketed staffmod candidate must not inherit
         # the price of an already socketed base, even when ED is relaxed.
         if needs_preparation and 'sockets' in relaxed:
@@ -134,7 +150,7 @@ def lookup(item, bands):
         selected = bands.get(('base', item['name'].casefold(), key)) if key is not None else None
         if supported(selected):
             return selected
-    return None
+    return floor_lookup(item, bands, keep_ist=keep_ist)
 
 
 def missing_reason(item, rules):

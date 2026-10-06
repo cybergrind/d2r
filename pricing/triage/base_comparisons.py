@@ -11,6 +11,9 @@ from pricing.triage.variants import scoped_bucket
 # Bound offline expansion without silently dropping this legal combination.
 MAX_ROLL_COMBINATIONS = 2048
 
+# Native automagic groups 300/302: one to three skill-tree levels on Amazon bases.
+AMAZON_AUTOMODS = {'abow': '454', 'aspe': '456', 'ajav': '456'}
+
 
 def with_rolls(modifiers, rolls):
     """Keep the projected elemental copies of one all-resistance roll linked."""
@@ -34,6 +37,12 @@ def comparison_bounds(item, policy):
         for p, spec in policy.get('compare_inherent', {}).items()
         if type(modifiers.get(p)) is int and spec['min'] <= modifiers[p] <= spec['max']
     }
+    if (
+        item.get('category') == 'base'
+        and item.get('rarity') in ('normal', 'superior')
+        and (prop := AMAZON_AUTOMODS.get(item.get('family')))
+    ):
+        allowed[prop] = {'min': 1, 'max': 3, 'label': 'native Amazon skill-tree levels'}
     bounds = {p: allowed[p] for p in modifiers if p in allowed}
     if prod(spec['max'] - spec['min'] + 1 for spec in bounds.values()) > MAX_ROLL_COMBINATIONS or any(
         type(modifiers[p]) is not int or not spec['min'] <= modifiers[p] <= spec['max'] for p, spec in bounds.items()

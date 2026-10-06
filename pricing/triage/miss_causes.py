@@ -38,8 +38,21 @@ def cause(item, result, tables):
         from pricing.triage.market_bases import clean_modifiers
 
         base = bases_by_code(metadata_generation()).get(item.get('base_code'))
+        sockets = item.get('sockets')
+        if base and type(sockets) is int and not 0 <= sockets <= base.get('max_sockets', 0):
+            return 'base_sockets_invalid'
         if base and not clean_modifiers(item, base, {}):
             return 'base_native_modifiers_conflicting'
+        from pricing.triage.base_fallback import keys
+
+        # The market fallback does not require an authored demand bucket.
+        # An existing fallback with insufficient comparisons is a variant gap,
+        # not evidence that another item-specific rule needs to be written.
+        if any(
+            ('base', item.get('name', '').casefold(), key) in tables.get('bands', {})
+            for key, _ in keys(item, allow_missing_ed=True)
+        ):
+            return 'base_variant_price_missing'
         from pricing.triage.engine import matches
         from pricing.triage.rule_index import candidates
 

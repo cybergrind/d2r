@@ -376,7 +376,7 @@ def evaluate(cases, assess):
             unresolved.append({'id': case['id'], 'missing': missing, 'reason': case.get('unresolved_reason')})
             continue
         if category == 'own-use':
-            expected = [['self']] * len(items)
+            expected = [['self', 'sell', 'slow', 'check']] * len(items)
         group['evaluated'] += 1
         passed = comparison_passed
         for index, item in enumerate(items):
@@ -386,6 +386,8 @@ def evaluate(cases, assess):
             accepted = result['verdict'] in expected[index] and all(
                 field in result and result[field] == value for field, value in fields.items()
             )
+            if category == 'own-use':
+                accepted &= bool(result.get('own_use'))
             passed &= accepted
             identity = case['id'] if len(items) == 1 else f'{case["id"]}/{index}'
             row = result | {'id': identity, 'name': item.get('name', ''), 'rarity': item.get('category', '')}

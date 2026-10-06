@@ -6,7 +6,7 @@ from functools import lru_cache
 from inventory_tracking.items.metadata import metadata, metadata_generation
 from pricing.triage.adapters import from_listing
 from pricing.triage.bands import band_for, eligible, latest_rows
-from pricing.triage.base_comparisons import no_better_modifiers, no_worse_modifiers
+from pricing.triage.base_comparisons import AMAZON_AUTOMODS, no_better_modifiers, no_worse_modifiers
 from pricing.triage.engine import matches
 from pricing.triage.rule_index import candidates, compile_index
 from pricing.triage.variants import profile_for, scoped_bucket
@@ -65,10 +65,8 @@ def clean_modifiers(item, base, policy):
         if '441' in modifiers and '510' in modifiers:
             return False
     # Native Amazon skill automods; labels verified in appraisal-properties.json.
-    if base['type'] == 'abow':
-        allowed['454'] = (1, 3)
-    if base['type'] in ('aspe', 'ajav'):
-        allowed['456'] = (1, 3)
+    if prop := AMAZON_AUTOMODS.get(base['type']):
+        allowed[prop] = (1, 3)
     return all(
         p in allowed and type(value) is int and allowed[p][0] <= value <= allowed[p][1]
         for p, value in modifiers.items()

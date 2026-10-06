@@ -19,7 +19,7 @@ hud:
 open: export
 	xdg-open $(COLLECTION_HTML)
 
-## serve: start the Alt+D / Win+S / Win+D / Win+C worker (collects on stash close; Win+C re-shows the level map and dumps level memory)
+## serve: start the Alt+D / Win+S / Win+D / Win+C worker (collects on stash close; Win+C re-shows the level map and dumps level memory; Win+X runs the prebuff macro)
 serve:
 	$(UV) python -m inventory_tracking.appraisal_service serve
 

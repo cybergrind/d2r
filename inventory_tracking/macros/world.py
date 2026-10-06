@@ -5,15 +5,15 @@ table, the game name and the in-game byte. The unit table is the one the service
 it stays at the same address through the lobby and into the next game.
 """
 
+import contextlib
 import os
 import re
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from inventory_tracking.levels.memory import pointer
 from inventory_tracking.native.layout import (
     DEAD_MODES,
-    HIRELING_CLASS_ID,
     LEVEL_AREA_ID,
     PANEL_FLAGS,
     PATH_ROOM1,
@@ -33,9 +33,23 @@ SKILL_SLOT_SIZE = 28
 EMPTY_SLOT = 0xFFFFFFFF
 GAME_NAME_RVA = 0x1E9A0B8
 GAME_NAME_SIZE = 32
+# Research: bytes that moved around the loading screen in the one recording. The two tried as
+# "loading" (0x2122131) and "playable" (0x20D7DA0) both read wrong in loaded games on the host
+# (2026-10-06), so none is relied on; their changes are logged against the moment the first
+# summon works (routines.LoadTrace) to find one that really marks a playable game.
+TRACE_RVAS = (
+    0x20D7DA0, 0x25A5C41, 0x2121F39, 0x2121F81, 0x2121FE9, 0x2122011, 0x21220B1, 0x2122131,
+    0x19DAB10, 0x1ABD6F1, 0x1AB8A71, 0x1AB8AEC, 0x1E3C410, 0x1E3C7F0, 0x1EC39BE, 0x1EC38EA,
+    0x1EB3465, 0x1EB118D, 0x1EC3944, 0x1A7EC19,
+)  # fmt: skip
+# 255 in a game, 0 while a new game loads, back (254, then 255) when its view comes up: 6.5 s
+# after Enter in the recording and 6.2 s and 6.6 s in two traced host runs (2026-10-06), where
+# the first key was accepted. 0x1EB118D moves with it.
+VIEW_RVA = 0x1EB3465
 IN_GAME = 0x00  # byte of the panel array: 1 in a game, 0 from Save and Exit to the next game
 MONSTER_OWNER = 84  # monster data u32[21]: the owning player's unit id (native/mercenary.py)
 MONSTER_UNIT = 1
+DEFILER_CLASS = 744
 # Flags that mean something is open over the game view; the array also holds bytes that are
 # set with nothing open (Show Items, belt rows and unnamed ones).
 OPEN_PANELS = {name: offset for name, offset in PANEL_FLAGS.items() if name != 'belt_rows'}
@@ -64,6 +78,7 @@ class Monster:
     x: float
     y: float
     owner: int
+    raw: bytes = field(default=b'', compare=False, repr=False)  # unit and monster data, Defilers only
 
 
 @dataclass(frozen=True)
@@ -72,19 +87,14 @@ class World:
     open_panels: tuple[str, ...]
     game_name: str
     slots: tuple[int | None, ...]  # skill id by slot
+    trace: bytes = b''  # research: the bytes at TRACE_RVAS
+    view: int = 255  # the byte at VIEW_RVA: 0 while a game loads
     player: Player | None = None
     monsters: tuple[Monster, ...] = ()  # alive, with a position
 
     @property
     def quit_menu(self) -> bool:
         return 'quit_menu' in self.open_panels
-
-    @property
-    def pets(self) -> tuple[Monster, ...]:
-        """The player's own summons; the mercenary is not one."""
-        if self.player is None:
-            return ()
-        return tuple(m for m in self.monsters if m.owner == self.player.unit_id and m.txt_id != HIRELING_CLASS_ID)
 
 
 def decode_slots(raw: bytes) -> tuple[int | None, ...]:
@@ -148,8 +158,9 @@ class GameMemory:
             except OSError, ValueError, struct.error:
                 consume = None
             found.append(Player(unit['unit_id'], name, unit['mode'], area, *position(path), consume))
-        # A macro acts for one character; a game with other players in view is not handled.
-        return found[0] if len(found) == 1 else None
+        # Several player units may stand for the one character (levels/memory.py); a game with
+        # another character in view is not handled.
+        return min(found, key=lambda p: p.unit_id) if len({p.name for p in found}) == 1 else None
 
     def _monsters(self) -> tuple[Monster, ...]:
         heads = struct.unpack('<128Q', self.read(self.table + MONSTER_UNIT * 1024, 1024))
@@ -162,7 +173,11 @@ class GameMemory:
                 owner = struct.unpack('<I', self.read(unit['data_pointer'] + MONSTER_OWNER, 4))[0]
             except OSError, ValueError:
                 continue
-            found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner))
+            raw = b''
+            if unit['txt_id'] == DEFILER_CLASS:
+                with contextlib.suppress(OSError, ValueError):
+                    raw = self.read(unit['address'], 0x160) + self.read(unit['data_pointer'], 0x80)
+            found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], *position(path), owner, raw))
         return tuple(found)
 
     def world(self) -> World:
@@ -180,6 +195,8 @@ class GameMemory:
             open_panels=tuple(name for name, offset in OPEN_PANELS.items() if panels[offset] == 1),
             game_name=decode_name(self.read(self.base + GAME_NAME_RVA, GAME_NAME_SIZE)),
             slots=decode_slots(self.read(self.base + SKILL_SLOTS_RVA, SKILL_SLOTS * SKILL_SLOT_SIZE)),
+            trace=b''.join(self.read(self.base + rva, 1) for rva in TRACE_RVAS),
+            view=self.read(self.base + VIEW_RVA, 1)[0],
             player=player,
             monsters=monsters,
         )

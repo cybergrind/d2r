@@ -55,7 +55,7 @@ def test_published_measurement_changes_engine_verdict_without_losing_own_use():
     assert assess(item, tables)['verdict'] == 'vendor'
     assert assess(item, tables)['decision_ist'] == 0.5
     own['rows'] = [{'category': 'uniques', 'name': 'Example'}]
-    assert assess(item, tables)['verdict'] == 'self'
+    assert assess(item, tables)['verdict'] == 'slow'
     own['rows'] = []
     tables['market_demand']['buyers'][key] = {'buyers': 1}
     assert assess(item, tables)['verdict'] == 'slow'

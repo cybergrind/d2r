@@ -32,6 +32,7 @@ def compile_demand(rows, watches=()):
             'ethereal': ethereal,
             'source': row['source_id'],
             'locator': row['source_locator'],
+            'original_label': row.get('original_label', ''),
         }
         if row.get('category') in CATEGORIES:
             key = CATEGORIES[row['category']] + '/' + row['name'].casefold()
@@ -73,7 +74,14 @@ def compile_demand(rows, watches=()):
 
 def demand_for(item, evidence):
     key = str(item.get('category')) + '/' + str(item.get('name', '')).casefold()
-    return [r for r in evidence.get(key, []) if r['ethereal'] is None or r['ethereal'] is item.get('ethereal')]
+    from pricing.triage.engine import matches
+
+    return [
+        r
+        for r in evidence.get(key, [])
+        if (r['ethereal'] is None or r['ethereal'] is item.get('ethereal'))
+        and matches(item, {'conditions': r.get('base_conditions', {})})
+    ]
 
 
 def cohorts_without_demand(tables):

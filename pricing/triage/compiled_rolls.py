@@ -7,7 +7,7 @@ from itertools import product
 from pricing.triage.adapters import expanded_properties
 from pricing.triage.bands import band_for, eligible
 from pricing.triage.roll_cohorts import matches_cohort
-from pricing.triage.roll_comparisons import comparable, compare, fallback_required, numeric
+from pricing.triage.roll_comparisons import comparable, compare, fallback_required, lower_quartile, numeric, seller_rows
 
 
 def key(values):
@@ -23,6 +23,7 @@ def compile_model(report, rows, *, require_supported_split=False):
         for r in rows
         if eligible(r)
         and r['name'].casefold() == report['name'].casefold()
+        and r['category'] == report.get('category', r['category'])
         and matches_cohort(r, report)
         and r['amount'] == 1
     ]
@@ -56,6 +57,16 @@ def compile_model(report, rows, *, require_supported_split=False):
             deciding = supported
     if not deciding:
         return None
+    deciding = {prop: dict(spec) for prop, spec in deciding.items()}
+    for prop, spec in deciding.items():
+        sign = -1 if spec.get('better') == 'lower' else 1
+        valid = [
+            r
+            for r in cohort
+            if numeric(r['properties'].get(prop)) and spec['min'] <= r['properties'][prop] <= spec['max']
+        ]
+        if valid:
+            spec['selection_floor'] = sign * lower_quartile([sign * r['properties'][prop] for r in seller_rows(valid)])
     axes, stand_ins = {}, {}
     for prop, spec in deciding.items():
         sign = -1 if spec.get('better') == 'lower' else 1
@@ -149,9 +160,14 @@ def lookup(item, models, *, keep_ist):
             shortfall = value > floor if spec.get('better') == 'lower' else value < floor
             if shortfall:
                 selected_shortfalls.append(f'{spec.get("label", prop)} {value:g}, guide trade threshold {floor:g}')
-        elif value != best:
+        elif (
+            value > spec.get('selection_floor', best)
+            if spec.get('better') == 'lower'
+            else value < spec.get('selection_floor', best)
+        ):
             selected_shortfalls.append(
-                f'listed copies are mostly {best:g} {spec.get("label", prop)}; this has {value:g}'
+                f'below listed roll quartile {spec.get("selection_floor", best):g} '
+                f'{spec.get("label", prop)}; this has {value:g}'
             )
         oriented = value * (-1 if spec.get('better') == 'lower' else 1)
         values.append(points[bisect_right(points, oriented) - 1])

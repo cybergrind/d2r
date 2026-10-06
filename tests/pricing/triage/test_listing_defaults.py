@@ -255,3 +255,36 @@ def test_superior_signature_preserves_legal_native_modifiers(name, properties):
     assert normalize(row | {'properties': row['properties'] | {'520': 20}})['rarity'] == 'normal'
     assert normalize(row | {'rarity': None})['rarity'] is None
     assert normalize(row | {'socket_contents': 'filled'})['rarity'] == 'normal'
+
+
+@pytest.mark.parametrize(
+    ('name', 'properties', 'expected_ed'),
+    [
+        ('Berserker Axe', {'423': 1}, None),
+        ('Crystal Sword', {'423': 3, '937': 15}, 0),
+        ('Archon Plate', {'937': 11}, None),
+    ],
+)
+def test_superior_secondary_bonuses_correct_normal_listing_without_inventing_ed(name, properties, expected_ed):
+    from inventory_tracking.items.metadata import metadata
+    from pricing.triage.listing_defaults import normalize
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == name)
+    row = listing('seller', 2) | {
+        'category': 'base',
+        'name': name,
+        'base_code': base['code'],
+        'rarity': 'normal',
+        'sockets': 4,
+        'socket_contents': 'empty',
+    }
+    row['properties'].update(properties)
+    item = from_listing(row)
+    assert item['rarity'] == 'superior'
+    assert item['base_ed'] == expected_ed
+    assert normalize(row)['facet_basis']['rarity']['reported'] == 'normal'
+    for extra in ({'520': 10}, {'937': 16}, {'423': 4}):
+        invalid = row | {'properties': row['properties'] | extra}
+        assert normalize(invalid)['rarity'] == 'normal'
+    for change in ({'rarity': None}, {'rarity': 'magic'}, {'socket_contents': 'filled'}):
+        assert normalize(row | change)['rarity'] == change.get('rarity', 'normal')

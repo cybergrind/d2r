@@ -156,3 +156,16 @@ def test_connection_closes_if_timing_fails_after_open():
     with pytest.raises(OSError, match='clock'), X11Keyboard(x11, xtst, clock=clock).connect():
         pass
     x11.XCloseDisplay.assert_called_once_with(123)
+
+
+def test_a_long_connection_leaves_the_lock_free_for_short_ones():
+    from inventory_tracking.input import keyboard as module
+
+    x11, xtst = libraries()
+    keyboard = X11Keyboard(x11, xtst)
+    with keyboard.connect(exclusive=False) as keys:
+        assert keys is not None
+        assert module._X11_LOCK.acquire(blocking=False)
+        module._X11_LOCK.release()
+        x11.XCloseDisplay.assert_not_called()
+    x11.XCloseDisplay.assert_called_once_with(123)

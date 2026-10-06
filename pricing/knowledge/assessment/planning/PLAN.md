@@ -278,7 +278,64 @@ comparable seller count; refreshed/coarsened cohorts must not silently undo the 
 
 ## 4. Work packages
 
-### Steering 8 (progress check, 2026-10-06 15:40) — refines the Steering 7 queue; its items 3, 4, 6, 7 stand
+### Steering 9 (progress check, 2026-10-06 16:30; user: "achieve our goals faster") — sets the queue
+
+Measured from the score files of 16:25: attention 75.1% (75.0% at Steering 8), base recall
+63.2% (62.3%), cheap SELL 10.37% (unchanged), guide tables 305 of 404 (unchanged), 99 rows
+untranscribed (unchanged). Fifty minutes produced 37 seller votes and a relabelled miss
+table. The base exit was then declared out of reach from an audit that counts only 256
+votes as recoverable. That audit is not accepted: it sets aside 406 votes whose reason is
+"no priced band" although a fallback key for the item exists in the band table.
+
+Arithmetic for the 85% target: 2,172 more votes are needed. Bases can give about 650, named
+items about 600, SELF-USE 441. That is under 2,172, so the parked rare and magic patterns
+(1,935 votes) are required and Steering 7 item 3 is lifted, as one pass (item 4 below).
+
+Rules of pace, in force from now:
+
+- A pass ends with a changed verdict count in a score file. A pass that only renames miss
+  causes, audits a ceiling or rewrites section 8 is not a pass. No new miss-cause names
+  unless the fix ships in the same pass.
+- Work the largest remaining vote count first; do not finish a family to 100%.
+- One score run per lever, not per rule. Report votes gained per pass in one line.
+- The guide transcription does not touch the engine: run it in parallel with the engine
+  work (a second agent or session), not third in the queue.
+- A measure is reported as unreachable only after the largest miss cause in it has been
+  replayed and its number printed. Until then it is unmet.
+
+Queue, by votes per unit of work:
+
+1. **SELF-USE must not hide a sale price (441 votes, about 2 points, one rule).** The replay
+   misses 308 unique, 62 set, 55 base and 14 runeword votes as `own_use_only`: for example
+   the 20 FCR gloves listed at 57 Ist get SELF and no price. An item with a supported band
+   at or above the keep price is SELL or slow with its price and the own-use note beside it.
+   SELF alone is for items under the keep price.
+2. **Bases to 70% (300 votes).** Replay the 406 "no priced band" votes against the band
+   table and print sellers per ladder level; fix the largest cause. If the cause is that
+   every level keeps `base_modifiers` exact, add one floor level: same ethereal status and
+   sockets, modifiers that can only add value dropped (superior durability, attack rating,
+   defence, native shield rolls), priced as the plain base and labelled "at least". Then
+   the rarity (131) and ED (109) variants. Staffmod class bases (253) stay CHECK.
+3. **Named roll placement (about 600 votes) with the cheap SELL fix.** 319 unique votes are
+   capped at CHECK by the top-roll rule, including a roll of 289 against a listed 290. Apply
+   section 3.10: place the roll among the listed rolls and price it there; the cap applies
+   only when the roll is below the lowest quartile of listed copies. The 15 cheap unique
+   votes flagged SELL are placed by the same code. Exit: cheap SELL at or under 10%.
+4. **Rare, magic and crafted patterns in one data-driven pass (1,935 votes).** No hand-written
+   pattern batches. Per family, derive patterns from the listings themselves: affix
+   combinations with at least three sellers at or above the keep price become CHECK
+   patterns with the listed band as reference. Largest families first: rare belts 103,
+   gloves 97, swords 70, Barbarian helms 68; magic body armour 70, orbs 56. Guard against
+   CHECK inflation on real drops, since the listing replay has almost no cheap rare or magic
+   rows: the corpus CHECK share stays at or under 8% for rare and for magic (now 3.4% and
+   2.2%, `check_share_by_rarity` in `score-triage.json`). A pattern that breaks the guard is
+   dropped, not tuned.
+5. **Transcribe the 99 guide rows, in parallel from now** (Steering 8 item 3 unchanged).
+
+Order: 1 → 2 → 3 → 4, with 5 alongside. Expected after 1–3: about 82%; item 4 closes the rest.
+Steering 8 item 4 stands: test counts name their directories.
+
+### Steering 8 (progress check, 2026-10-06 15:40) — queue replaced by Steering 9; item 4 stands
 
 Measured from the score files of 2026-10-06 15:36: seller-weighted attention 75.0% (70.5% at
 Steering 7), base recall 62.3% (40.1%), guide rows classified 408 verdict / 49 own-use /
@@ -884,31 +941,33 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-06 — Reread Current contract and Steering 8; base exit remains unmet.
-- Scope SC / Non-Ladder / PC / RotW; inclusive keep threshold 0.25 Ist.
-- Current-code replay: attention 75.13% (target 85%), SELL/slow 67.36%;
-  base recall 63.15% (2761/4372; target 70%); 300 additional votes needed.
-  Latest native-policy build recovered two base votes; policy count is not coverage.
+2026-10-06 — Current contract and Steering 9 govern; completion unproven.
+- Current replay: attention 80.25% (17673/22022; target 85%), SELL/slow 70.48%.
+  Base recall 67.38% (2946/4372; target 70%), still unmet.
   Cheap SELL/slow 10.37% (17/164; limit 10%, FAIL); CHECK 17.68% (limit 25%).
-- Guide classification: 406 verdict / 49 own-use / 39 pickup / 72 context.
-  Tables 305/404 pass (75.50%); 99 remain untranscribed; no executed failures.
-  Worked 36/36, false positives 15/15. Two incomplete historical worked notes are
-  context, not new passing cases (missing orb skills / impossible glove suffix).
-- Named corpus CHECK 12.24% (limit 15%); replay covers 1471 captured items.
-- Offline bands 61,999 / 89 roll models; warm replay median 0.327 ms;
-  first call 124.895 ms. Ten-item identify timing remains unrecorded.
-- Tests: tests/pricing/triage 477 passed; tests/inventory_tracking/shop 233 passed
-  after catalog regeneration; generated shop catalog --check passes.
-  Changed-file Ruff/diff checks pass. Full inventory_tracking was not rerun;
-  Steering 8's unrelated terror/HUD failures are not claimed fixed or green.
-- Unknown rarity and illegal modifiers remain unresolved; no quality is invented.
-  Sparse staffmod comparisons and below-threshold asks are not recovery targets.
+- Replayed all 308 remaining clean-base misses through fallback levels: 131 have
+  one usable seller, 171 have two, five have none; one has a five-seller floor below keep.
+  Normal bases cannot borrow superior premiums to manufacture three-seller support.
+  Separate staffmod combinations remain unpooled. This evidence does not meet 70%.
+- Smaller validated roll cohorts: 18 more models; net -15 valuable seller votes.
+  Homunculus low ED Q1 0.247125 / 3 sellers and Flayed One rolls below 0.25 explain
+  retained below-threshold corrections. Cheap SELL remains 17/164; no claimed gain.
+- Guide rows: 374/404 pass (92.57%); all execute. Verdict 339/355, own-use 35/49.
+  Soul Cage guide corrected from October 4 Q1 asks 0.2 Ist / 23 sellers: +1 row.
+  Worked 36/36 and false positives 15/15 remain passing.
+- Earlier negative changes are explained: correcting normal/superior AR/durability
+  signatures lost eight net votes; validated Horazon Hold low-roll pricing lost three.
+  These native-quality / below-threshold evidence corrections are retained.
+- Learned combinations: 2735 accepted, 156 rejected; three sellers must support
+  complete vectors. Guide negatives and corpus CHECK caps reject whole patterns.
+- Rare corpus CHECK 7.72%; magic 2.19% (limits 8% each). Named CHECK 12.13%.
+- Tests: tests/pricing/triage plus tests/inventory_tracking/appraisal: 854 passed;
+  smaller-cohort positive and held-out support negative pass. Ruff/diff checks pass.
+- Offline bands 64,902 / 105 roll models. Warm median 0.457 ms; first call 160.875 ms.
+  Live 4-item pass 208 ms (Oct 6 15:33 UTC); ten-item timing remains unrecorded.
 - Demand unmeasured: one-day interval; authorized weekly pull October 10–11.
-  Use normal service logs for identify timing; no user labels or probes requested.
-- Next 1: missing base buckets, rarity and enhancement variants to >=70% recall.
-  Prioritize measured seller-vote recovery; retain comparison safeguards and metric.
-- Next 2: unique/set/runeword roll placement and cheap SELL corrections together;
-  no per-item VENDOR exceptions. Affixed/charm batches remain parked.
-- Next 3: transcribe all 99 guide rows in one pass, including 49 own-use cases;
-  record real failures and fix from that list. Materials UI follows base exit.
-Completion remains unproven; every Current contract measure must pass together.
+- Next 1: named roll coverage and cheap-SELL errors; preserve base seller/facet limits.
+- Next 2: remaining guide failures, distinguishing current own-use from obsolete
+  starter recommendations; no generic leveling keeps to inflate the score.
+- Next 3: Materials UI and saved-capture verification under MATERIALS.md.
+Every Current contract measure must pass together before completion.

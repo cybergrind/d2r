@@ -63,11 +63,18 @@ def test_watch_and_socket_demand_union_excludes_floor_only():
     assert demand_for({'name': 'Insert', 'category': 'uniques', 'ethereal': False}, evidence)
 
 
-def test_own_use_precedes_slow_but_not_liquid_sell():
+def test_supported_sale_precedes_own_use_without_losing_the_note():
     item = {'name': 'Example', 'category': 'uniques', 'ethereal': False}
     data = tables([listing(i, 0.6, ethereal=False) for i in range(10)])
     data['own'] = {'rows': [{'name': 'Example', 'label': 'Own charm'}]}
-    assert assess(item, data)['verdict'] == 'self'
+    result = assess(item, data)
+    assert result['verdict'] == 'slow'
+    assert result['decision_ist'] == 0.6
+    assert result['own_use']['label'] == 'Own charm'
+    from inventory_tracking.appraisal.triage import headline
+
+    assert 'asks 0.6 Ist' in headline(result)
+    assert 'Own use: Own charm' in headline(result)
     data['demand'] = compile_demand([mention()])
     assert assess(item, data)['verdict'] == 'sell'
 

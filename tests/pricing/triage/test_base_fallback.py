@@ -26,6 +26,64 @@ def tables(rows):
     }
 
 
+def test_native_shield_floor_keeps_identity_and_sockets_and_is_labelled():
+    from inventory_tracking.appraisal.triage import headline
+
+    rows = []
+    for i, resistance in enumerate((10, 20, 30)):
+        r = listing(str(i), 1 + i) | {
+            'name': 'Sacred Rondache',
+            'category': 'base',
+            'rarity': 'normal',
+            'sockets': 4,
+            'ethereal': False,
+        }
+        r['properties']['441'] = resistance
+        rows.append(r)
+    item, data = from_listing(rows[-1]), tables(rows)
+    result = assess(item, data)
+    assert result['verdict'] == 'slow'
+    assert result['decision_ist'] == 1.5
+    assert result['band']['price_basis'] == 'base_floor'
+    assert 'at least' in headline(result)
+    for change in ({'sockets': 3}, {'ethereal': True}, {'rarity': None}, {'socket_contents': 'filled'}):
+        assert assess(item | change, data)['decision_ist'] is None
+    low = tables([r | {'ask_ist': 0.1} for r in rows])
+    assert assess(item, low)['decision_ist'] is None
+
+
+def test_base_floor_does_not_erase_staffmods_or_other_class_skills():
+    from pricing.triage.import_bases import native_staffmod_policies
+
+    policy = next(p for p in native_staffmod_policies([]) if p['name'] == 'War Scepter')
+    skill = next(iter(policy['compare_staffmods']))
+    rows = []
+    for i in range(3):
+        r = listing(str(i), 2) | {
+            'name': 'War Scepter',
+            'category': 'base',
+            'rarity': 'normal',
+            'sockets': 3,
+            'ethereal': False,
+        }
+        r['properties'][skill] = i + 1
+        rows.append(r)
+    assert assess(from_listing(rows[-1]), tables(rows))['decision_ist'] is None
+
+
+def test_superior_base_can_use_plain_floor_but_plain_cannot_borrow_superior_price():
+    rows = [row(str(i), ed=0, sockets=4, price=2) | {'rarity': 'normal'} for i in range(3)]
+    superior = from_listing(row('target', ed=15, sockets=4))
+    result = assess(superior, tables(rows))
+    assert result['decision_ist'] == 2
+    assert result['band']['price_basis'] == 'base_floor'
+    assert result['band']['sellers'] == 3
+    for change in ({'sockets': 3}, {'ethereal': False}, {'rarity': None}):
+        assert assess(superior | change, tables(rows))['decision_ist'] is None
+    premium_rows = [row(str(i), ed=15, price=20) for i in range(3)]
+    assert assess(from_listing(rows[0]), tables(premium_rows))['decision_ist'] is None
+
+
 def test_base_without_authored_bucket_uses_first_supported_fallback_level():
     exact = [row(str(i), price=10) for i in range(3)]
     other_ed = [row(str(i + 3), ed=10, price=1) for i in range(3)]
@@ -227,7 +285,9 @@ def test_shield_all_resistance_comparison_changes_linked_elements_together():
     }
     high = from_listing(rows[-1])
     assert assess(high, data)['decision_ist'] == 1.5
-    assert assess(from_listing(rows[0]), data)['decision_ist'] is None
+    low = assess(from_listing(rows[0]), data)
+    assert low['decision_ist'] == 1.5
+    assert low['band']['price_basis'] == 'base_floor'
     changed = from_listing(rows[-1] | {'properties': rows[-1]['properties'] | {'427': 44}})
     assert assess(changed, data)['decision_ist'] is None
     assert assess(high | {'ethereal': True}, data)['decision_ist'] is None
@@ -312,3 +372,81 @@ def test_unsocketed_staffmod_candidate_does_not_borrow_socketed_price():
     result = assess(target, tables(unsocketed))
     assert result['decision_ist'] == 2
     assert result['band']['relaxed_facets'] == ['base_ed']
+
+
+def test_superior_floor_combines_sellers_without_lending_premiums_to_ordinary():
+    rows = [
+        row('ordinary', ed=0, price=1) | {'rarity': 'normal'},
+        row('superior-a', ed=10, price=2),
+        row('superior-b', ed=15, price=3),
+    ]
+    data = tables(rows)
+    result = assess(from_listing(row('target', ed=12)), data)
+    assert result['verdict'] == 'slow'
+    assert result['band']['sellers'] == 3
+    assert result['band']['price_basis'] == 'base_floor'
+    assert assess(from_listing(rows[0]), data)['decision_ist'] is None
+
+
+def test_same_socket_plain_floor_precedes_different_socket_fallback():
+    ordinary = [row(str(i), ed=0, sockets=4, price=2) | {'rarity': 'normal'} for i in range(3)]
+    other_sockets = [row('other-' + str(i), ed=15, sockets=3, price=0.1) for i in range(3)]
+    target = from_listing(row('target', ed=15, sockets=4))
+    result = assess(target, tables(ordinary + other_sockets))
+    assert result['verdict'] == 'slow'
+    assert result['decision_ist'] == 2
+    assert result['band']['price_basis'] == 'base_floor'
+    # A supported exact superior cohort still wins over the plain-base floor.
+    exact = [row('exact-' + str(i), ed=15, sockets=4, price=4) for i in range(3)]
+    assert assess(target, tables(ordinary + other_sockets + exact))['decision_ist'] == 4
+
+
+def test_total_weapon_damage_header_does_not_fragment_clean_base_sellers():
+    rows = [
+        listing(str(i), 2)
+        | {
+            'category': 'base',
+            'name': 'Cryptic Axe',
+            'rarity': 'normal',
+            'sockets': 4,
+            'ethereal': True,
+        }
+        for i in range(3)
+    ]
+    for r in rows[1:]:
+        r['properties']['551'] = 225  # Traderie label: Two-Hand Damage, not a damage affix.
+    target = from_listing(rows[0])
+    result = assess(target, tables(rows))
+    assert result['decision_ist'] == 2
+    assert result['band']['sellers'] == 3
+    observed = from_listing(rows[1])
+    assert observed['properties']['551'] == 225
+    assert observed['base_modifiers'] == {}
+    assert assess(observed, tables(rows))['decision_ist'] == 2
+    # A true flat damage affix still excludes the listing from clean-base prices.
+    invalid = [r | {'properties': r['properties'] | {'448': 3}} for r in rows]
+    assert assess(target, tables(invalid))['decision_ist'] is None
+
+
+def test_amazon_inherent_skills_use_lower_rolls_without_lending_high_roll_premiums():
+    for name, prop in (('Matriarchal Bow', '454'), ('Matriarchal Spear', '456')):
+        rows = []
+        for i in range(3):
+            r = listing(str(i), 2 + i) | {
+                'category': 'base',
+                'name': name,
+                'rarity': 'normal',
+                'sockets': 4,
+                'ethereal': False,
+            }
+            r['properties'][prop] = i + 1
+            rows.append(r)
+        data = tables(rows)
+        result = assess(from_listing(rows[-1]), data)
+        assert result['decision_ist'] == 2.5
+        assert result['band']['sellers'] == 3
+        assert result['band']['comparison']['rolls'] == {prop: 3}
+        for r in rows[:2]:
+            assert assess(from_listing(r), data)['decision_ist'] is None
+        for change in ({'base_modifiers': {}}, {'ethereal': True}, {'socket_contents': 'filled'}):
+            assert assess(from_listing(rows[-1]) | change, data)['decision_ist'] is None

@@ -14,7 +14,6 @@ PAUSES = {
     'type': (0.06, 0.17),  # between typed characters
     'aim': (0.1, 0.24),  # pointer arrived, before the key or click
     'screen': (0.35, 0.75),  # a menu or screen has just appeared
-    'settle': (2.4, 3.3),  # a whole screen change with nothing in memory to confirm it
 }
 HOLD = (0.045, 0.11)
 POINTER_STEP = (0.007, 0.018)

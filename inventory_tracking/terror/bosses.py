@@ -18,7 +18,8 @@ Ids are d2data monstats.json `*hcIdx` (2026-10-05). Pindleskin and the Countess 
 their own: each is the only super unique of its class (superuniques.json), so they are the
 units of that class first seen with the super unique type flag (monster data +0x1A & 0x02,
 terror/tracker.py; the Countess's sightings in the probe logs carry 0x0a and her super unique
-id 6 at +0x2A; Pindleskin is not in the logs yet, so his rule is unconfirmed in-game).
+id 6 at +0x2A; Pindleskin's rule has counted his kills on the host since). Eldritch and Shenk
+(2026-10-06) follow the same rule and are unconfirmed in-game.
 """
 
 import json
@@ -40,7 +41,11 @@ BOSSES = {
     256: 'Izual',
     526: 'Nihlathak',
 }
-SUPER_UNIQUES = {440: 'Pindleskin', 45: 'Countess'}  # reanimatedhorde5, corruptrogue3
+# reanimatedhorde5, corruptrogue3; minion1 (superuniques 'Megaflow Rectifier', Eldritch the
+# Rectifier by the Frigid Highlands waypoint) and overseer1 ('Siege Boss', Shenk the Overseer
+# below it, at the top of the Bloody Foothills): each the only super unique of its class
+# (2026-10-06). Their packs and the area's own Enslaved are the same classes without the flag.
+SUPER_UNIQUES = {440: 'Pindleskin', 45: 'Countess', 453: 'Eldritch', 479: 'Shenk'}
 TYPE_FLAGS, SUPER_UNIQUE_FLAG = 0x1A, 0x02  # monster data byte
 OUTLIER = 2.5  # times the median gap: longer is a break
 IDLE_SECONDS, IDLE_GAPS = 600, 3  # without a kill for this long: no longer farmed, not shown

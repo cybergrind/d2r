@@ -91,7 +91,8 @@ def finish(directory: Path, report: dict[str, Any], name: str) -> int:
 
 
 def record(args) -> int:
-    directory, report = create_run(args.output)
+    directory, created = create_run(args.output)
+    report: dict[str, Any] = dict(created)
     with log_to_file(directory / 'probe.log'):
         try:
             pid, images = attach(args.pid)
@@ -167,7 +168,8 @@ def tap(keys, code: int, rng) -> None:
 
 
 def pointer(args) -> int:
-    directory, report = create_run(args.output)
+    directory, created = create_run(args.output)
+    report: dict[str, Any] = dict(created)
     rng = random.Random()
     with log_to_file(directory / 'probe.log'):
         focus = FocusTracker(INPUT)

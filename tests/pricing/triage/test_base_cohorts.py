@@ -89,7 +89,9 @@ def test_declared_base_roll_range_pools_sellers_without_weakening_required_range
     result = assess(from_listing(rows[0]), data)
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 3
-    assert assess(from_listing(rows[0] | {'properties': rows[0]['properties'] | {'441': 39}}), data)['band'] is None
+    lower = assess(from_listing(rows[0] | {'properties': rows[0]['properties'] | {'441': 39}}), data)
+    assert lower['band']['price_basis'] == 'base_floor'
+    assert lower['band']['bucket'] != result['band']['bucket']
 
 
 def test_sparse_base_quote_is_reference_only_not_an_item_estimate():

@@ -171,3 +171,26 @@ def test_pindleskin_and_the_countess_are_the_super_uniques_of_their_class():
         ['Countess', '1 kill'],
         ['Pindleskin', '1 kill'],
     ]
+
+
+ENSLAVED, OVERSEER = 453, 479  # monstats minion1, overseer1
+
+
+def test_eldritch_and_shenk_count_once_each_and_their_packs_do_not():
+    clock = Clock()
+    bosses = tracker(clock=clock)
+
+    bosses.apply(
+        GAME,
+        [
+            seen(10, ENSLAVED, COUNTESS_DATA),  # Eldritch
+            seen(11, ENSLAVED, MINION_DATA),  # one of his pack
+            seen(12, ENSLAVED, MINION_DATA),  # an Enslaved of the area
+            seen(20, OVERSEER, COUNTESS_DATA),  # Shenk
+        ],
+    )
+    bosses.apply(GAME, [died(11, ENSLAVED), died(10, ENSLAVED), died(12, ENSLAVED)])
+    clock.now += 20
+    bosses.apply(GAME, [died(20, OVERSEER), died(20, OVERSEER)])
+
+    assert [line.split(' · ')[:2] for line in bosses.lines()] == [['Shenk', '1 kill'], ['Eldritch', '1 kill']]

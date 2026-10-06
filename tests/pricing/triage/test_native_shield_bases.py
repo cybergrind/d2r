@@ -32,15 +32,19 @@ def test_native_damage_shield_compares_both_rolls_and_preserves_variants():
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 3
     assert result['band']['q1_ist'] == 1.5
-    assert assess(from_listing(rows[0]), tables)['verdict'] == 'check'
+    lower = assess(from_listing(rows[0]), tables)
+    assert lower['verdict'] == 'slow'
+    assert lower['band']['price_basis'] == 'base_floor'
     relaxed = assess(from_listing(rows[2] | {'sockets': 2}), tables)
     assert relaxed['decision_ist'] == 1.5
     assert relaxed['band']['relaxed_facets'] == ['base_ed', 'sockets']
     for change in ({'sockets': None}, {'ethereal': True}, {'socket_contents': 'filled'}):
         assert assess(from_listing(rows[2] | change), tables)['band'] is None
-    for props in ({'510': 60}, {'423': 110}, {'510': 50, '423': 100}):
+    for props in ({'510': 60}, {'423': 110}):
         result = assess(from_listing(rows[2] | {'properties': props}), tables)
         assert result['verdict'] == 'vendor'
+    lower = assess(from_listing(rows[2] | {'properties': {'510': 50, '423': 100}}), tables)
+    assert lower['band']['price_basis'] == 'base_floor'
 
 
 def test_guide_native_damage_shield_remains_check_without_matching_asks():
@@ -95,5 +99,7 @@ def test_superior_durability_does_not_disable_joint_shield_roll_comparisons():
     assert result['verdict'] == 'slow'
     assert result['band']['sellers'] == 3
     assert result['decision_ist'] == 1.5
-    assert assess(from_listing(rows[0]), tables)['decision_ist'] is None
+    lower = assess(from_listing(rows[0]), tables)
+    assert lower['decision_ist'] == 1.75
+    assert lower['band']['price_basis'] == 'base_floor'
     assert assess(from_listing(rows[2] | {'ethereal': True}), tables)['decision_ist'] is None

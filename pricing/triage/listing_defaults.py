@@ -50,7 +50,11 @@ def superior_base(row):
         return False
     facets = base_facets(row.get('properties', {}), 'normal', row.get('sockets'), 'empty', base=base)
     ed, modifiers = facets['base_ed'], facets['base_modifiers']
-    if type(ed) not in (int, float) or not 5 <= ed <= 15 or ed != int(ed) or modifiers is None:
+    if type(ed) not in (int, float) or ed != int(ed) or (ed != 0 and not 5 <= ed <= 15) or modifiers is None:
+        return False
+    # qualityitems.json also allows attack rating or durability without ED.
+    # Native shield AR is an automod, so only weapon AR establishes quality.
+    if not (ed or '937' in modifiers or (base['category'] == 'weapons' and '423' in modifiers)):
         return False
     # Staffmods and inherent class automods remain legal on superior bases.
     # Use the same native bounds as price admission, including the prohibition
@@ -112,7 +116,7 @@ def normalize(row):
         result['facet_basis'] = {
             **result.get('facet_basis', {}),
             'rarity': {
-                'kind': 'clean_superior_ed_signature',
+                'kind': 'clean_superior_quality_signature',
                 'reported': 'normal',
                 'source': 'third-parties/d2data/json/qualityitems.json',
             },

@@ -1,6 +1,7 @@
 """XTest key and pointer injection over ctypes. Libraries load once; each send opens one display connection."""
 
 import ctypes
+import sys
 import time
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import AbstractContextManager, contextmanager
@@ -283,7 +284,11 @@ class X11Keyboard:
         return x11, xtst
 
     @contextmanager
-    def connect(self) -> Iterator[X11Connection | None]:
+    def connect(self, *, exclusive: bool = True) -> Iterator[X11Connection | None]:
+        """One display connection. `exclusive` keeps every other connection of this process out
+        until it closes, which suits a send of a few milliseconds; a long user (a macro) passes
+        False and holds the lock only to open and to close, so the service's own short checks
+        go on beside it (2026-10-06: a 47 s macro stalled the service loop for 47 s)."""
         with _X11_LOCK:
             x11, xtst = self.libraries
             started = self.clock()
@@ -292,7 +297,16 @@ class X11Keyboard:
                 yield None
                 return
             try:
-                open_ms = (self.clock() - started) * 1000
-                yield X11Connection(x11, xtst, display, open_ms)
+                connection = X11Connection(x11, xtst, display, (self.clock() - started) * 1000)
+                if exclusive:
+                    yield connection
             finally:
+                if exclusive or sys.exception() is not None:
+                    x11.XCloseDisplay(display)
+            if exclusive:
+                return
+        try:
+            yield connection
+        finally:
+            with _X11_LOCK:
                 x11.XCloseDisplay(display)

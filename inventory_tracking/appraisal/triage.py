@@ -43,6 +43,8 @@ def price_description(triage):
         comparison = f' · comparable-or-worse {label}'
     unsupported = triage['verdict'] == 'vendor' and price >= triage.get('keep_ist', 0.25)
     prefix = f'{triage["reason"]} · reference ' if unsupported else ''
+    if band.get('price_basis') == 'base_floor':
+        prefix += 'at least '
     sellers = band['sellers']
     seller_label = 'seller' if sellers == 1 else 'sellers'
     return f'{prefix}asks {price:g} Ist {statistic}{lot} · {sellers} {seller_label} · {observed}{stale}{comparison}'
@@ -50,6 +52,8 @@ def price_description(triage):
 
 def description(triage):
     text = price_description(triage)
+    if triage['verdict'] in ('sell', 'slow') and (own := triage.get('own_use')):
+        text += ' · Own use: ' + own.get('label', 'own-build rule')
     if options := triage.get('preparation'):
         counts = '/'.join(str(n) for n in options['larzuk'])
         conditional = ' (item level unknown)' if options['conditional'] else ''

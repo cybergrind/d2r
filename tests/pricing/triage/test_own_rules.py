@@ -76,3 +76,53 @@ def test_paid_pattern_check_remains_trade_review_with_own_use_attached():
     result = assess(item, data)
     assert result['verdict'] == 'check'
     assert result['own_use']['slot'] == 'amulet'
+
+
+@pytest.mark.parametrize(
+    'spec',
+    [
+        {'base': 'Amulet', 'rarity': 'magic', 'item_level': 90},
+        {'base': 'Wyrmhide Boots', 'rarity': 'magic', 'item_level': 90},
+        {'base': 'Monarch', 'rarity': 'normal', 'sockets': 4},
+        {'base': 'Small Charm', 'rarity': 'magic', 'stats': {'7:0': 20}},
+        {'base': 'Corona', 'name': 'Crown of Ages', 'rarity': 'unique'},
+        {'base': 'Demonhead', 'name': 'Cure', 'category': 'runewords', 'sockets': 3, 'socket_contents': 'filled'},
+        {'base': 'War Staff', 'name': 'Obsession', 'category': 'runewords', 'sockets': 6, 'socket_contents': 'filled'},
+    ],
+)
+def test_current_guide_crafting_bases_and_endgame_variants_qualify(spec):
+    from pricing.triage.guide_cases import item_from_spec
+
+    item = item_from_spec({'rarity': 'normal', 'sockets': 0, 'ethereal': False, **spec})
+    result = assess(item, tables())
+    assert result['own_use']
+    assert result['own_use']['source']
+
+
+@pytest.mark.parametrize(
+    'spec',
+    [
+        {'base': 'Amulet', 'rarity': 'magic', 'item_level': 40},
+        {'base': 'Amulet', 'rarity': 'magic'},
+        {'base': 'Wyrmhide Boots', 'rarity': 'rare', 'item_level': 90},
+        {'base': 'Monarch', 'rarity': 'normal', 'sockets': 4, 'ethereal': True},
+        {'base': 'Monarch', 'rarity': 'normal', 'sockets': 3},
+        {'base': 'Small Charm', 'rarity': 'magic', 'stats': {'7:0': 5}},
+        {'base': 'Corona', 'name': 'Crown of Ages', 'rarity': 'unique', 'ethereal': True},
+        {'base': 'Demonhead', 'name': 'Cure', 'category': 'runewords', 'sockets': 2, 'socket_contents': 'filled'},
+        {'base': 'War Staff', 'name': 'Obsession', 'category': 'runewords', 'sockets': 6, 'socket_contents': 'empty'},
+        {'base': 'Cap', 'name': 'Lore', 'category': 'runewords', 'sockets': 2, 'socket_contents': 'filled'},
+        {
+            'base': 'Quilted Armor',
+            'name': 'Stealth',
+            'category': 'runewords',
+            'sockets': 2,
+            'socket_contents': 'filled',
+        },
+    ],
+)
+def test_own_use_does_not_expand_to_wrong_facets_or_generic_leveling(spec):
+    from pricing.triage.guide_cases import item_from_spec
+
+    item = item_from_spec({'rarity': 'normal', 'sockets': 0, 'ethereal': False, **spec})
+    assert not assess(item, tables())['own_use']
