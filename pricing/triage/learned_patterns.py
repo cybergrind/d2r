@@ -2,7 +2,6 @@
 
 import math
 from collections import Counter, defaultdict
-from itertools import combinations
 
 from pricing.triage.adapters import AFFIXED, BASE_CONTEXT, from_listing
 from pricing.triage.bands import band_for, eligible, latest_rows, timestamp
@@ -12,7 +11,7 @@ CONTEXT = BASE_CONTEXT - {'425', '510'}
 
 
 def derive(rows, property_ids, keep_ist):
-    """Learn shared combinations without dropping universally present affixes."""
+    """Learn combinations priced by three sellers without unmodelled extra affixes."""
     from pricing.triage.engine import matches
 
     groups = defaultdict(list)
@@ -39,12 +38,12 @@ def derive(rows, property_ids, keep_ist):
             and value > 0
         }
         keys = tuple(sorted(props))
-        signatures = {keys} if keys else set()
-        for size in (2, 3):
-            signatures.update(combinations(keys, size))
         item = item | {'learned_properties': props}
-        for signature in signatures:
-            key = item['category'], item['family'], item['ethereal'], item['sockets'], signature
+        # A priced superset does not establish demand for its common filler.
+        # Only context fields are discarded; every potentially valuable numeric
+        # affix belongs in the signature and the runtime supporter comparison.
+        if keys:
+            key = item['category'], item['family'], item['ethereal'], item['sockets'], keys
             groups[key].append((row, item))
     result = []
     for (category, family, ethereal, sockets, signature), members in sorted(groups.items()):
@@ -54,9 +53,6 @@ def derive(rows, property_ids, keep_ist):
             if type(row.get('ask_ist')) in (int, float) and row['ask_ist'] >= keep_ist and row.get('seller_id')
         ]
         if len({row['seller_id'] for row, _ in paid}) < 3:
-            continue
-        shared = set.intersection(*(set(item['learned_properties']) for _, item in paid))
-        if shared != set(signature):
             continue
         rule = {
             'category': category,

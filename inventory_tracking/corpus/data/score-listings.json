@@ -1,17 +1,17 @@
 {
   "overall": {
     "priced": 25712,
-    "checks": 4201,
+    "checks": 3757,
     "valuable": 22022,
-    "flagged_valuable": 17673,
+    "flagged_valuable": 17241,
     "sell_flagged_valuable": 15521,
-    "checks_valuable": 3234,
+    "checks_valuable": 2802,
     "cheap": 164,
     "unpriced_cohort": 1139,
     "asks_above_cheap_cohort": 1069,
     "flagged_cheap": 17,
     "checks_cheap": 29,
-    "recall": 0.8025156661520297,
+    "recall": 0.7828989192625556,
     "sell_recall": 0.7047952047952047,
     "cheap_false_positive_rate": 0.10365853658536585,
     "cheap_check_rate": 0.17682926829268292
@@ -36,17 +36,17 @@
     },
     "crafted": {
       "priced": 279,
-      "checks": 241,
+      "checks": 139,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 275,
-      "flagged_valuable": 238,
+      "flagged_valuable": 139,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 238,
+      "checks_valuable": 139,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8654545454545455,
+      "recall": 0.5054545454545455,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
@@ -70,17 +70,17 @@
     },
     "magic": {
       "priced": 1316,
-      "checks": 592,
+      "checks": 579,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 1290,
-      "flagged_valuable": 734,
+      "flagged_valuable": 721,
       "sell_flagged_valuable": 143,
-      "checks_valuable": 591,
+      "checks_valuable": 578,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.5689922480620155,
+      "recall": 0.5589147286821705,
       "sell_recall": 0.11085271317829458,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -104,17 +104,17 @@
     },
     "rare": {
       "priced": 2249,
-      "checks": 1333,
+      "checks": 1004,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 2227,
-      "flagged_valuable": 1325,
+      "flagged_valuable": 1005,
       "sell_flagged_valuable": 2,
-      "checks_valuable": 1323,
+      "checks_valuable": 1003,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.5949708127525819,
+      "recall": 0.4512797485406376,
       "sell_recall": 0.000898069151324652,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
@@ -803,68 +803,68 @@
     },
     "crafted/amul": {
       "priced": 107,
-      "checks": 105,
+      "checks": 72,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 104,
-      "flagged_valuable": 102,
+      "flagged_valuable": 72,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 102,
+      "checks_valuable": 72,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9807692307692307,
+      "recall": 0.6923076923076923,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "crafted/belt": {
       "priced": 37,
-      "checks": 31,
+      "checks": 8,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 36,
-      "flagged_valuable": 31,
+      "flagged_valuable": 8,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 31,
+      "checks_valuable": 8,
       "cheap": 1,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8611111111111112,
+      "recall": 0.2222222222222222,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": 0.0,
       "cheap_check_rate": 0.0
     },
     "crafted/boot": {
       "priced": 31,
-      "checks": 24,
+      "checks": 13,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 31,
-      "flagged_valuable": 24,
+      "flagged_valuable": 13,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 24,
+      "checks_valuable": 13,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.7741935483870968,
+      "recall": 0.41935483870967744,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "crafted/glov": {
       "priced": 36,
-      "checks": 27,
+      "checks": 14,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 36,
-      "flagged_valuable": 27,
+      "flagged_valuable": 14,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 27,
+      "checks_valuable": 14,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.75,
+      "recall": 0.3888888888888889,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -888,17 +888,17 @@
     },
     "crafted/ring": {
       "priced": 54,
-      "checks": 54,
+      "checks": 32,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 54,
-      "flagged_valuable": 54,
+      "flagged_valuable": 32,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 54,
+      "checks_valuable": 32,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
+      "recall": 0.5925925925925926,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1075,17 +1075,17 @@
     },
     "magic/ajav": {
       "priced": 36,
-      "checks": 7,
+      "checks": 3,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 36,
-      "flagged_valuable": 30,
+      "flagged_valuable": 26,
       "sell_flagged_valuable": 23,
-      "checks_valuable": 7,
+      "checks_valuable": 3,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8333333333333334,
+      "recall": 0.7222222222222222,
       "sell_recall": 0.6388888888888888,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1160,17 +1160,17 @@
     },
     "magic/belt": {
       "priced": 9,
-      "checks": 1,
+      "checks": 0,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 8,
-      "flagged_valuable": 1,
+      "flagged_valuable": 0,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 1,
+      "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.125,
+      "recall": 0.0,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1245,17 +1245,17 @@
     },
     "magic/glov": {
       "priced": 69,
-      "checks": 4,
+      "checks": 0,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 67,
-      "flagged_valuable": 42,
+      "flagged_valuable": 38,
       "sell_flagged_valuable": 38,
-      "checks_valuable": 4,
+      "checks_valuable": 0,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.6268656716417911,
+      "recall": 0.5671641791044776,
       "sell_recall": 0.5671641791044776,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1330,17 +1330,17 @@
     },
     "magic/head": {
       "priced": 66,
-      "checks": 33,
+      "checks": 32,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 66,
-      "flagged_valuable": 33,
+      "flagged_valuable": 32,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 33,
+      "checks_valuable": 32,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.5,
+      "recall": 0.48484848484848486,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1449,51 +1449,51 @@
     },
     "magic/mcha": {
       "priced": 25,
-      "checks": 13,
+      "checks": 12,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 25,
-      "flagged_valuable": 21,
+      "flagged_valuable": 20,
       "sell_flagged_valuable": 8,
-      "checks_valuable": 13,
+      "checks_valuable": 12,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.84,
+      "recall": 0.8,
       "sell_recall": 0.32,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "magic/orb": {
       "priced": 207,
-      "checks": 152,
+      "checks": 151,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 207,
-      "flagged_valuable": 152,
+      "flagged_valuable": 151,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 152,
+      "checks_valuable": 151,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.7342995169082126,
+      "recall": 0.7294685990338164,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "magic/pelt": {
       "priced": 52,
-      "checks": 29,
+      "checks": 28,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 52,
-      "flagged_valuable": 29,
+      "flagged_valuable": 28,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 29,
+      "checks_valuable": 28,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.5576923076923077,
+      "recall": 0.5384615384615384,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -1925,34 +1925,34 @@
     },
     "rare/ajav": {
       "priced": 35,
-      "checks": 30,
+      "checks": 8,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 35,
-      "flagged_valuable": 30,
+      "flagged_valuable": 8,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 30,
+      "checks_valuable": 8,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.8571428571428571,
+      "recall": 0.22857142857142856,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "rare/amul": {
       "priced": 91,
-      "checks": 84,
+      "checks": 66,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 91,
-      "flagged_valuable": 84,
+      "flagged_valuable": 66,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 84,
+      "checks_valuable": 66,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9230769230769231,
+      "recall": 0.7252747252747253,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -2010,34 +2010,34 @@
     },
     "rare/belt": {
       "priced": 133,
-      "checks": 129,
+      "checks": 27,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 130,
-      "flagged_valuable": 126,
+      "flagged_valuable": 27,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 126,
+      "checks_valuable": 27,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9692307692307692,
+      "recall": 0.2076923076923077,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "rare/boot": {
       "priced": 141,
-      "checks": 138,
+      "checks": 105,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 141,
-      "flagged_valuable": 138,
+      "flagged_valuable": 105,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 138,
+      "checks_valuable": 105,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9787234042553191,
+      "recall": 0.7446808510638298,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -2095,17 +2095,17 @@
     },
     "rare/glov": {
       "priced": 416,
-      "checks": 405,
+      "checks": 310,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 409,
-      "flagged_valuable": 401,
+      "flagged_valuable": 312,
       "sell_flagged_valuable": 2,
-      "checks_valuable": 399,
+      "checks_valuable": 310,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.980440097799511,
+      "recall": 0.7628361858190709,
       "sell_recall": 0.004889975550122249,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -2214,17 +2214,17 @@
     },
     "rare/jave": {
       "priced": 71,
-      "checks": 63,
+      "checks": 25,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 70,
-      "flagged_valuable": 63,
+      "flagged_valuable": 25,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 63,
+      "checks_valuable": 25,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.9,
+      "recall": 0.35714285714285715,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -2350,17 +2350,17 @@
     },
     "rare/ring": {
       "priced": 14,
-      "checks": 14,
+      "checks": 8,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 14,
-      "flagged_valuable": 14,
+      "flagged_valuable": 8,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 14,
+      "checks_valuable": 8,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 1.0,
+      "recall": 0.5714285714285714,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -2452,34 +2452,34 @@
     },
     "rare/taxe": {
       "priced": 26,
-      "checks": 16,
+      "checks": 7,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 26,
-      "flagged_valuable": 16,
+      "flagged_valuable": 7,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 16,
+      "checks_valuable": 7,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.6153846153846154,
+      "recall": 0.2692307692307692,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
     },
     "rare/tkni": {
       "priced": 17,
-      "checks": 12,
+      "checks": 6,
       "unpriced_cohort": 0,
       "asks_above_cheap_cohort": 0,
       "valuable": 17,
-      "flagged_valuable": 12,
+      "flagged_valuable": 6,
       "sell_flagged_valuable": 0,
-      "checks_valuable": 12,
+      "checks_valuable": 6,
       "cheap": 0,
       "flagged_cheap": 0,
       "checks_cheap": 0,
-      "recall": 0.7058823529411765,
+      "recall": 0.35294117647058826,
       "sell_recall": 0.0,
       "cheap_false_positive_rate": null,
       "cheap_check_rate": null
@@ -15157,32 +15157,152 @@
     ],
     "crafted": [
       {
-        "family": "glov",
+        "family": "amul",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 11,
-        "seller_votes": 9,
-        "listings": 21,
+        "distinct_sellers": 32,
+        "seller_votes": 32,
+        "listings": 140,
         "examples": [
           {
-            "listing_id": "1002457268899",
-            "name": "Caster Gloves",
+            "listing_id": "1002282489974",
+            "name": "Amulet",
+            "reason": "no listings",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/amulet-tele-2026-09-18.json"
+          },
+          {
+            "listing_id": "3365429950",
+            "name": "Amulet",
+            "reason": "no listings",
+            "ask_ist": 205.57799999999997,
+            "source": "pricing/raw/traderie/amulet-tele-2026-09-18.json"
+          },
+          {
+            "listing_id": "1624577166",
+            "name": "Amulet",
             "reason": "no listings",
             "ask_ist": 171.315,
-            "source": "pricing/raw/traderie/wpi-caster-gloves.json"
-          },
+            "source": "pricing/raw/traderie/amulet-tele-2026-09-18.json"
+          }
+        ]
+      },
+      {
+        "family": "belt",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 28,
+        "seller_votes": 28,
+        "listings": 101,
+        "examples": [
           {
-            "listing_id": "3198644700",
-            "name": "Hit Power Gloves",
+            "listing_id": "1002479974998",
+            "name": "Mithril Coil",
             "reason": "no listings",
-            "ask_ist": 125.631,
-            "source": "pricing/raw/traderie/pull-20261004/3612361822-p0.json"
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/pull-20261004/2500857221-p0.json"
           },
           {
-            "listing_id": "2075473634",
-            "name": "Hit Power Gloves",
+            "listing_id": "1002374312376",
+            "name": "Mithril Coil",
+            "reason": "no listings",
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/wpi-blood-belt.json"
+          },
+          {
+            "listing_id": "1002452106321",
+            "name": "Mithril Coil",
+            "reason": "no listings",
+            "ask_ist": 205.57799999999997,
+            "source": "pricing/raw/traderie/wpi-blood-belt.json"
+          }
+        ]
+      },
+      {
+        "family": "ring",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 22,
+        "seller_votes": 22,
+        "listings": 164,
+        "examples": [
+          {
+            "listing_id": "1002282421833",
+            "name": "Ring",
             "reason": "no listings",
             "ask_ist": 68.526,
-            "source": "pricing/raw/traderie/pull-20261004/3612361822-p0.json"
+            "source": "pricing/raw/traderie/wpi-blood-ring.json"
+          },
+          {
+            "listing_id": "1002282421777",
+            "name": "Ring",
+            "reason": "no listings",
+            "ask_ist": 57.105,
+            "source": "pricing/raw/traderie/wpi-blood-ring.json"
+          },
+          {
+            "listing_id": "1002282421582",
+            "name": "Ring",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/wpi-blood-ring.json"
+          }
+        ]
+      },
+      {
+        "family": "glov",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 22,
+        "seller_votes": 22,
+        "listings": 143,
+        "examples": [
+          {
+            "listing_id": "1002334681182",
+            "name": "Vampirebone Gloves",
+            "reason": "no listings",
+            "ask_ist": 57.105,
+            "source": "pricing/raw/traderie/wpi-blood-gloves.json"
+          },
+          {
+            "listing_id": "2632323335",
+            "name": "Vampirebone Gloves",
+            "reason": "no listings",
+            "ask_ist": 342.63,
+            "source": "pricing/raw/traderie/wpi-blood-gloves.json"
+          },
+          {
+            "listing_id": "1002418172309",
+            "name": "Vampirebone Gloves",
+            "reason": "no listings",
+            "ask_ist": 319.788,
+            "source": "pricing/raw/traderie/pull-20261004/2918851501-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "boot",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 18,
+        "seller_votes": 18,
+        "listings": 95,
+        "examples": [
+          {
+            "listing_id": "1002319324644",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 91.368,
+            "source": "pricing/raw/traderie/wpi-blood-boots.json"
+          },
+          {
+            "listing_id": "1002228191635",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 137.052,
+            "source": "pricing/raw/traderie/wpi-blood-boots.json"
+          },
+          {
+            "listing_id": "1002346004112",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 251.262,
+            "source": "pricing/raw/traderie/wpi-blood-boots.json"
           }
         ]
       },
@@ -15217,66 +15337,6 @@
         ]
       },
       {
-        "family": "boot",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 8,
-        "seller_votes": 7,
-        "listings": 21,
-        "examples": [
-          {
-            "listing_id": "1002419584352",
-            "name": "Caster Boots",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/wpi-caster-boots.json"
-          },
-          {
-            "listing_id": "1002498102724",
-            "name": "Caster Boots",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261004/3370209349-p0.json"
-          },
-          {
-            "listing_id": "1002505861368",
-            "name": "Caster Boots",
-            "reason": "no listings",
-            "ask_ist": 114.21,
-            "source": "pricing/raw/traderie/pull-20261004/3370209349-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "belt",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 6,
-        "seller_votes": 5,
-        "listings": 13,
-        "examples": [
-          {
-            "listing_id": "1002394326040",
-            "name": "Blood Belt",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261003/2500857221-p0.json"
-          },
-          {
-            "listing_id": "1002481242216",
-            "name": "Blood Belt",
-            "reason": "no listings",
-            "ask_ist": 114.21,
-            "source": "pricing/raw/traderie/pull-20261003/2500857221-p0.json"
-          },
-          {
-            "listing_id": "1002481245654",
-            "name": "Blood Belt",
-            "reason": "no listings",
-            "ask_ist": 57.105,
-            "source": "pricing/raw/traderie/pull-20261003/2500857221-p0.json"
-          }
-        ]
-      },
-      {
         "family": "shie",
         "cause": "no_paid_pattern",
         "distinct_sellers": 5,
@@ -15307,29 +15367,6 @@
         ]
       },
       {
-        "family": "amul",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 2,
-        "seller_votes": 2,
-        "listings": 2,
-        "examples": [
-          {
-            "listing_id": "1002454315601",
-            "name": "Amulet",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261004/4200365670-p0.json"
-          },
-          {
-            "listing_id": "1002433724470",
-            "name": "Amulet",
-            "reason": "no listings",
-            "ask_ist": 5.885,
-            "source": "pricing/raw/traderie/pull-20261004/2488499381-p0.json"
-          }
-        ]
-      },
-      {
         "family": "Safety Weapon",
         "cause": "no_paid_pattern",
         "distinct_sellers": 1,
@@ -15342,6 +15379,22 @@
             "reason": "no listings",
             "ask_ist": 22.842,
             "source": "pricing/raw/traderie/pull-20261004/3829162316-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "amul",
+        "cause": "own_use_only",
+        "distinct_sellers": 1,
+        "seller_votes": 0,
+        "listings": 1,
+        "examples": [
+          {
+            "listing_id": "1002406134272",
+            "name": "Amulet",
+            "reason": "Echoing Strike +2 Warlock / 10 FCR amulet",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/wpi-caster-amulet.json"
           }
         ]
       }
@@ -15941,8 +15994,8 @@
         "family": "orb",
         "cause": "no_paid_pattern",
         "distinct_sellers": 53,
-        "seller_votes": 55,
-        "listings": 96,
+        "seller_votes": 56,
+        "listings": 103,
         "examples": [
           {
             "listing_id": "1002487496212",
@@ -16030,9 +16083,9 @@
       {
         "family": "head",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 33,
-        "seller_votes": 33,
-        "listings": 125,
+        "distinct_sellers": 34,
+        "seller_votes": 34,
+        "listings": 128,
         "examples": [
           {
             "listing_id": "1002292804062",
@@ -16090,9 +16143,9 @@
       {
         "family": "glov",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 25,
-        "seller_votes": 25,
-        "listings": 29,
+        "distinct_sellers": 29,
+        "seller_votes": 29,
+        "listings": 36,
         "examples": [
           {
             "listing_id": "1002329532393",
@@ -16120,9 +16173,9 @@
       {
         "family": "pelt",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 23,
-        "seller_votes": 23,
-        "listings": 70,
+        "distinct_sellers": 24,
+        "seller_votes": 24,
+        "listings": 79,
         "examples": [
           {
             "listing_id": "1002481729094",
@@ -16448,6 +16501,36 @@
         ]
       },
       {
+        "family": "ajav",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 10,
+        "seller_votes": 10,
+        "listings": 11,
+        "examples": [
+          {
+            "listing_id": "1002453479079",
+            "name": "Matriarchal Javelin",
+            "reason": "no listings",
+            "ask_ist": 1.0,
+            "source": "pricing/raw/traderie/matriarchal-javelin.json"
+          },
+          {
+            "listing_id": "1002390654709",
+            "name": "Matriarchal Javelin",
+            "reason": "no listings",
+            "ask_ist": 0.4,
+            "source": "pricing/raw/traderie/matriarchal-javelin.json"
+          },
+          {
+            "listing_id": "1002487330867",
+            "name": "Ceremonial Javelin",
+            "reason": "no listings",
+            "ask_ist": 11.77,
+            "source": "pricing/raw/traderie/pull-20261004/2685543227-p0.json"
+          }
+        ]
+      },
+      {
         "family": "lcha",
         "cause": "no_paid_pattern",
         "distinct_sellers": 9,
@@ -16510,9 +16593,9 @@
       {
         "family": "belt",
         "cause": "no_paid_pattern",
-        "distinct_sellers": 7,
-        "seller_votes": 7,
-        "listings": 12,
+        "distinct_sellers": 8,
+        "seller_votes": 8,
+        "listings": 13,
         "examples": [
           {
             "listing_id": "1002389735500",
@@ -16568,36 +16651,6 @@
         ]
       },
       {
-        "family": "ajav",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 6,
-        "seller_votes": 6,
-        "listings": 7,
-        "examples": [
-          {
-            "listing_id": "1002453479079",
-            "name": "Matriarchal Javelin",
-            "reason": "no listings",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/matriarchal-javelin.json"
-          },
-          {
-            "listing_id": "1002390654709",
-            "name": "Matriarchal Javelin",
-            "reason": "no listings",
-            "ask_ist": 0.4,
-            "source": "pricing/raw/traderie/matriarchal-javelin.json"
-          },
-          {
-            "listing_id": "1002487330867",
-            "name": "Ceremonial Javelin",
-            "reason": "no listings",
-            "ask_ist": 11.77,
-            "source": "pricing/raw/traderie/pull-20261004/2685543227-p0.json"
-          }
-        ]
-      },
-      {
         "family": "h2h",
         "cause": "no_paid_pattern",
         "distinct_sellers": 6,
@@ -16624,6 +16677,36 @@
             "reason": "no listings",
             "ask_ist": 5.885,
             "source": "pricing/raw/traderie/pull-20261004/3877717999-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "mcha",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 5,
+        "seller_votes": 5,
+        "listings": 8,
+        "examples": [
+          {
+            "listing_id": "1002507340558",
+            "name": "Large Charm",
+            "reason": "no listings",
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
+          },
+          {
+            "listing_id": "1002469536515",
+            "name": "Large Charm",
+            "reason": "no listings",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
+          },
+          {
+            "listing_id": "1002454825518",
+            "name": "Large Charm",
+            "reason": "no listings",
+            "ask_ist": 0.674,
+            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
           }
         ]
       },
@@ -16684,36 +16767,6 @@
             "reason": "no listings",
             "ask_ist": 1.0,
             "source": "pricing/raw/traderie/throwing-spear.json"
-          }
-        ]
-      },
-      {
-        "family": "mcha",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 4,
-        "seller_votes": 4,
-        "listings": 7,
-        "examples": [
-          {
-            "listing_id": "1002507340558",
-            "name": "Large Charm",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
-          },
-          {
-            "listing_id": "1002469536515",
-            "name": "Large Charm",
-            "reason": "no listings",
-            "ask_ist": 0.674,
-            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
-          },
-          {
-            "listing_id": "1002454825518",
-            "name": "Large Charm",
-            "reason": "no listings",
-            "ask_ist": 0.674,
-            "source": "pricing/raw/traderie/pull-20261003/4152254204-p0.json"
           }
         ]
       },
@@ -17194,6 +17247,66 @@
     ],
     "rare": [
       {
+        "family": "belt",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 100,
+        "seller_votes": 103,
+        "listings": 187,
+        "examples": [
+          {
+            "listing_id": "1002357608845",
+            "name": "Belt",
+            "reason": "no listings",
+            "ask_ist": 5.885,
+            "source": "pricing/raw/traderie/pull-20261004/2627679355-p0.json"
+          },
+          {
+            "listing_id": "2271503745",
+            "name": "Belt",
+            "reason": "no listings",
+            "ask_ist": 171.315,
+            "source": "pricing/raw/traderie/pull-20261004/2627679355-p0.json"
+          },
+          {
+            "listing_id": "1002512624230",
+            "name": "Belt",
+            "reason": "no listings",
+            "ask_ist": 11.421,
+            "source": "https://traderie.com/api/diablo2resurrected/listings?item=2627679355&page=0"
+          }
+        ]
+      },
+      {
+        "family": "glov",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 90,
+        "seller_votes": 97,
+        "listings": 191,
+        "examples": [
+          {
+            "listing_id": "1002436173484",
+            "name": "Chain Gloves",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261004/3336115398-p0.json"
+          },
+          {
+            "listing_id": "1002388447992",
+            "name": "Chain Gloves",
+            "reason": "no listings",
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/pull-20261004/3336115398-p0.json"
+          },
+          {
+            "listing_id": "1002290910411",
+            "name": "Chain Gloves",
+            "reason": "no listings",
+            "ask_ist": 91.368,
+            "source": "pricing/raw/traderie/pull-20261004/3336115398-p0.json"
+          }
+        ]
+      },
+      {
         "family": "swor",
         "cause": "no_paid_pattern",
         "distinct_sellers": 64,
@@ -17258,7 +17371,7 @@
         "cause": "no_paid_pattern",
         "distinct_sellers": 58,
         "seller_votes": 59,
-        "listings": 321,
+        "listings": 322,
         "examples": [
           {
             "listing_id": "1002437838447",
@@ -17310,6 +17423,36 @@
             "reason": "needs +2 Warlock, a paid staffmod and supporting affix; staffmods alone are not paid",
             "ask_ist": 171.315,
             "source": "pricing/raw/traderie/pull-20261004/3664912608-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "jave",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 48,
+        "seller_votes": 45,
+        "listings": 209,
+        "examples": [
+          {
+            "listing_id": "1002155223049",
+            "name": "Throwing Spear",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261004/2420972250-p0.json"
+          },
+          {
+            "listing_id": "1002446479815",
+            "name": "Throwing Spear",
+            "reason": "no listings",
+            "ask_ist": 91.368,
+            "source": "pricing/raw/traderie/pull-20261004/2420972250-p0.json"
+          },
+          {
+            "listing_id": "1002436665095",
+            "name": "Throwing Spear",
+            "reason": "no listings",
+            "ask_ist": 137.052,
+            "source": "pricing/raw/traderie/pull-20261004/2420972250-p0.json"
           }
         ]
       },
@@ -17430,6 +17573,36 @@
             "reason": "no listings",
             "ask_ist": 456.84,
             "source": "pricing/raw/traderie/pull-20261004/2229887909-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "boot",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 33,
+        "seller_votes": 36,
+        "listings": 122,
+        "examples": [
+          {
+            "listing_id": "1002436901233",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 57.105,
+            "source": "https://traderie.com/api/diablo2resurrected/listings?item=2261665814&page=0"
+          },
+          {
+            "listing_id": "1002391690036",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 79.947,
+            "source": "https://traderie.com/api/diablo2resurrected/listings?item=2261665814&page=0"
+          },
+          {
+            "listing_id": "2373917985",
+            "name": "Battle Boots",
+            "reason": "no listings",
+            "ask_ist": 57.105,
+            "source": "pricing/raw/traderie/pull-20261004/2261665814-p0.json"
           }
         ]
       },
@@ -17614,6 +17787,36 @@
         ]
       },
       {
+        "family": "amul",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 25,
+        "seller_votes": 25,
+        "listings": 332,
+        "examples": [
+          {
+            "listing_id": "1002250735362",
+            "name": "Amulet",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261004/3209126938-p0.json"
+          },
+          {
+            "listing_id": "1002443711529",
+            "name": "Amulet",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261004/3209126938-p0.json"
+          },
+          {
+            "listing_id": "1002156605564",
+            "name": "Amulet",
+            "reason": "no listings",
+            "ask_ist": 91.368,
+            "source": "pricing/raw/traderie/pull-20261004/3209126938-p0.json"
+          }
+        ]
+      },
+      {
         "family": "shie",
         "cause": "no_paid_pattern",
         "distinct_sellers": 25,
@@ -17734,6 +17937,36 @@
         ]
       },
       {
+        "family": "ajav",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 22,
+        "seller_votes": 27,
+        "listings": 55,
+        "examples": [
+          {
+            "listing_id": "1002323138373",
+            "name": "Matriarchal Javelin",
+            "reason": "no listings",
+            "ask_ist": 205.57799999999997,
+            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
+          },
+          {
+            "listing_id": "1002356097193",
+            "name": "Matriarchal Javelin",
+            "reason": "no listings",
+            "ask_ist": 285.525,
+            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
+          },
+          {
+            "listing_id": "1002319314279",
+            "name": "Matriarchal Javelin",
+            "reason": "no listings",
+            "ask_ist": 205.57799999999997,
+            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
+          }
+        ]
+      },
+      {
         "family": "ashd",
         "cause": "no_paid_pattern",
         "distinct_sellers": 21,
@@ -17820,6 +18053,36 @@
             "reason": "no listings",
             "ask_ist": 342.63,
             "source": "pricing/raw/traderie/pull-20261004/2190607457-p0.json"
+          }
+        ]
+      },
+      {
+        "family": "taxe",
+        "cause": "no_paid_pattern",
+        "distinct_sellers": 19,
+        "seller_votes": 19,
+        "listings": 25,
+        "examples": [
+          {
+            "listing_id": "1002445374191",
+            "name": "Balanced Axe",
+            "reason": "no listings",
+            "ask_ist": 22.842,
+            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
+          },
+          {
+            "listing_id": "2011052502",
+            "name": "Balanced Axe",
+            "reason": "no listings",
+            "ask_ist": 114.21,
+            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
+          },
+          {
+            "listing_id": "1002495979097",
+            "name": "Balanced Axe",
+            "reason": "no listings",
+            "ask_ist": 171.315,
+            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
           }
         ]
       },
@@ -17944,92 +18207,32 @@
         ]
       },
       {
-        "family": "taxe",
+        "family": "tkni",
         "cause": "no_paid_pattern",
         "distinct_sellers": 11,
-        "seller_votes": 10,
-        "listings": 12,
+        "seller_votes": 11,
+        "listings": 20,
         "examples": [
           {
-            "listing_id": "1002445374191",
-            "name": "Balanced Axe",
+            "listing_id": "1002445373100",
+            "name": "Balanced Knife",
             "reason": "no listings",
             "ask_ist": 22.842,
-            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
+            "source": "pricing/raw/traderie/pull-20261004/2164088638-p0.json"
           },
           {
-            "listing_id": "1002495979097",
-            "name": "Balanced Axe",
+            "listing_id": "1002519969525",
+            "name": "Balanced Knife",
             "reason": "no listings",
-            "ask_ist": 171.315,
-            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
+            "ask_ist": 34.263,
+            "source": "pricing/raw/traderie/pull-20261004/2164088638-p0.json"
           },
           {
-            "listing_id": "1002241965888",
-            "name": "Balanced Axe",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261004/2507299957-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "glov",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 10,
-        "seller_votes": 8,
-        "listings": 12,
-        "examples": [
-          {
-            "listing_id": "3513533562",
-            "name": "Gauntlets",
-            "reason": "no listings",
-            "ask_ist": 0.4904166666666666,
-            "source": "pricing/raw/traderie/gauntlets.json"
-          },
-          {
-            "listing_id": "2810459738",
-            "name": "Gauntlets",
-            "reason": "no listings",
-            "ask_ist": 0.789,
-            "source": "pricing/raw/traderie/gauntlets.json"
-          },
-          {
-            "listing_id": "3634707768",
-            "name": "Gauntlets",
-            "reason": "no listings",
-            "ask_ist": 1.0,
-            "source": "pricing/raw/traderie/gauntlets.json"
-          }
-        ]
-      },
-      {
-        "family": "amul",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 9,
-        "seller_votes": 7,
-        "listings": 34,
-        "examples": [
-          {
-            "listing_id": "1002506567263",
-            "name": "Amulet",
-            "reason": "no listings",
-            "ask_ist": 114.21,
-            "source": "pricing/raw/traderie/amulet-tele-2026-09-18.json"
-          },
-          {
-            "listing_id": "1002408105087",
-            "name": "Amulet",
+            "listing_id": "1002416275562",
+            "name": "Flying Knife",
             "reason": "no listings",
             "ask_ist": 91.368,
-            "source": "pricing/raw/traderie/wpi-amulet.json"
-          },
-          {
-            "listing_id": "1112565767",
-            "name": "Amulet",
-            "reason": "no listings",
-            "ask_ist": 171.315,
-            "source": "pricing/raw/traderie/wpi-amulet-p3-6.json"
+            "source": "pricing/raw/traderie/pull-20261004/2290377928-p0.json"
           }
         ]
       },
@@ -18064,92 +18267,32 @@
         ]
       },
       {
-        "family": "jave",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 7,
-        "seller_votes": 7,
-        "listings": 10,
-        "examples": [
-          {
-            "listing_id": "1002506465867",
-            "name": "Throwing Spear",
-            "reason": "no listings",
-            "ask_ist": 9.32,
-            "source": "pricing/raw/traderie/throwing-spear.json"
-          },
-          {
-            "listing_id": "1002361833924",
-            "name": "Throwing Spear",
-            "reason": "no listings",
-            "ask_ist": 57.105,
-            "source": "pricing/raw/traderie/throwing-spear.json"
-          },
-          {
-            "listing_id": "1002461629248",
-            "name": "Pilum",
-            "reason": "no listings",
-            "ask_ist": 34.263,
-            "source": "pricing/raw/traderie/pull-20261004/2266651215-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "tkni",
+        "family": "ring",
         "cause": "no_paid_pattern",
         "distinct_sellers": 6,
-        "seller_votes": 5,
-        "listings": 7,
+        "seller_votes": 6,
+        "listings": 142,
         "examples": [
           {
-            "listing_id": "1002519969525",
-            "name": "Balanced Knife",
+            "listing_id": "1002327833277",
+            "name": "Ring",
             "reason": "no listings",
-            "ask_ist": 34.263,
-            "source": "pricing/raw/traderie/pull-20261004/2164088638-p0.json"
+            "ask_ist": 11.421,
+            "source": "pricing/raw/traderie/wpi-ring-p3-6.json"
           },
           {
-            "listing_id": "1002416275562",
-            "name": "Flying Knife",
+            "listing_id": "1002374270098",
+            "name": "Ring",
             "reason": "no listings",
-            "ask_ist": 91.368,
-            "source": "pricing/raw/traderie/pull-20261004/2290377928-p0.json"
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/wpi-ring-p3-6.json"
           },
           {
-            "listing_id": "1002395625678",
-            "name": "Flying Knife",
+            "listing_id": "1002454620363",
+            "name": "Ring",
             "reason": "no listings",
-            "ask_ist": 57.105,
-            "source": "pricing/raw/traderie/pull-20261004/2290377928-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "ajav",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 5,
-        "seller_votes": 5,
-        "listings": 15,
-        "examples": [
-          {
-            "listing_id": "1002356097193",
-            "name": "Matriarchal Javelin",
-            "reason": "no listings",
-            "ask_ist": 285.525,
-            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
-          },
-          {
-            "listing_id": "1002319314279",
-            "name": "Matriarchal Javelin",
-            "reason": "no listings",
-            "ask_ist": 205.57799999999997,
-            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
-          },
-          {
-            "listing_id": "1965436845",
-            "name": "Matriarchal Javelin",
-            "reason": "no listings",
-            "ask_ist": 57.105,
-            "source": "pricing/raw/traderie/pull-20261004/3493754760-p0.json"
+            "ask_ist": 68.526,
+            "source": "pricing/raw/traderie/wpi-ring-p3-6.json"
           }
         ]
       },
@@ -18214,36 +18357,6 @@
         ]
       },
       {
-        "family": "belt",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 5,
-        "seller_votes": 4,
-        "listings": 5,
-        "examples": [
-          {
-            "listing_id": "1002352153405",
-            "name": "Belt",
-            "reason": "no listings",
-            "ask_ist": 21.903,
-            "source": "https://traderie.com/api/diablo2resurrected/listings?item=2627679355&page=1"
-          },
-          {
-            "listing_id": "1002406741035",
-            "name": "War Belt",
-            "reason": "no listings",
-            "ask_ist": 9.32,
-            "source": "pricing/raw/traderie/pull-20261004/2299086812-p0.json"
-          },
-          {
-            "listing_id": "1002441215830",
-            "name": "Troll Belt",
-            "reason": "no listings",
-            "ask_ist": 11.421,
-            "source": "pricing/raw/traderie/pull-20261004/2719575971-p0.json"
-          }
-        ]
-      },
-      {
         "family": "spea",
         "cause": "no_paid_pattern",
         "distinct_sellers": 4,
@@ -18270,36 +18383,6 @@
             "reason": "no listings",
             "ask_ist": 114.21,
             "source": "pricing/raw/traderie/pull-20261004/2538753757-p0.json"
-          }
-        ]
-      },
-      {
-        "family": "boot",
-        "cause": "no_paid_pattern",
-        "distinct_sellers": 4,
-        "seller_votes": 3,
-        "listings": 4,
-        "examples": [
-          {
-            "listing_id": "1002154349437",
-            "name": "Boots",
-            "reason": "no listings",
-            "ask_ist": 342.63,
-            "source": "pricing/raw/traderie/pull-20261004/3361757528-p0.json"
-          },
-          {
-            "listing_id": "1002500161227",
-            "name": "Mirrored Boots",
-            "reason": "no listings",
-            "ask_ist": 34.263,
-            "source": "pricing/raw/traderie/pull-20261004/3084743885-p0.json"
-          },
-          {
-            "listing_id": "1006896383",
-            "name": "Mirrored Boots",
-            "reason": "no listings",
-            "ask_ist": 456.84,
-            "source": "pricing/raw/traderie/pull-20261004/3084743885-p0.json"
           }
         ]
       }
@@ -24446,17 +24529,17 @@
   "per_listing": {
     "overall": {
       "priced": 40085,
-      "checks": 9775,
+      "checks": 7953,
       "valuable": 35847,
-      "flagged_valuable": 28037,
+      "flagged_valuable": 26233,
       "sell_flagged_valuable": 20918,
-      "checks_valuable": 8583,
+      "checks_valuable": 6779,
       "cheap": 177,
       "unpriced_cohort": 1391,
       "asks_above_cheap_cohort": 1211,
       "flagged_cheap": 17,
       "checks_cheap": 30,
-      "recall": 0.7821296063826819,
+      "recall": 0.7318046140541747,
       "sell_recall": 0.5835355817781125,
       "cheap_false_positive_rate": 0.096045197740113,
       "cheap_check_rate": 0.1694915254237288
@@ -24481,17 +24564,17 @@
       },
       "crafted": {
         "priced": 1218,
-        "checks": 1098,
+        "checks": 508,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 1214,
-        "flagged_valuable": 1095,
+        "flagged_valuable": 508,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 1095,
+        "checks_valuable": 508,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9019769357495881,
+        "recall": 0.4184514003294893,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
@@ -24515,17 +24598,17 @@
       },
       "magic": {
         "priced": 2316,
-        "checks": 1039,
+        "checks": 1007,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 2287,
-        "flagged_valuable": 1229,
+        "flagged_valuable": 1197,
         "sell_flagged_valuable": 191,
-        "checks_valuable": 1038,
+        "checks_valuable": 1006,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.5373852208132925,
+        "recall": 0.5233930913860954,
         "sell_recall": 0.0835155225185833,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -24549,17 +24632,17 @@
       },
       "rare": {
         "priced": 8063,
-        "checks": 5002,
+        "checks": 3802,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 8032,
-        "flagged_valuable": 4996,
+        "flagged_valuable": 3811,
         "sell_flagged_valuable": 10,
-        "checks_valuable": 4986,
+        "checks_valuable": 3801,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.6220119521912351,
+        "recall": 0.47447709163346613,
         "sell_recall": 0.001245019920318725,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
@@ -25248,68 +25331,68 @@
       },
       "crafted/amul": {
         "priced": 393,
-        "checks": 391,
+        "checks": 249,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 390,
-        "flagged_valuable": 388,
+        "flagged_valuable": 249,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 388,
+        "checks_valuable": 249,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9948717948717949,
+        "recall": 0.6384615384615384,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "crafted/belt": {
         "priced": 112,
-        "checks": 98,
+        "checks": 10,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 111,
-        "flagged_valuable": 98,
+        "flagged_valuable": 10,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 98,
+        "checks_valuable": 10,
         "cheap": 1,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.8828828828828829,
+        "recall": 0.09009009009009009,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": 0.0,
         "cheap_check_rate": 0.0
       },
       "crafted/boot": {
         "priced": 126,
-        "checks": 105,
+        "checks": 31,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 126,
-        "flagged_valuable": 105,
+        "flagged_valuable": 31,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 105,
+        "checks_valuable": 31,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.8333333333333334,
+        "recall": 0.24603174603174602,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "crafted/glov": {
         "priced": 237,
-        "checks": 216,
+        "checks": 94,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 237,
-        "flagged_valuable": 216,
+        "flagged_valuable": 94,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 216,
+        "checks_valuable": 94,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9113924050632911,
+        "recall": 0.39662447257383965,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25333,17 +25416,17 @@
       },
       "crafted/ring": {
         "priced": 288,
-        "checks": 288,
+        "checks": 124,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 288,
-        "flagged_valuable": 288,
+        "flagged_valuable": 124,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 288,
+        "checks_valuable": 124,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
+        "recall": 0.4305555555555556,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25520,17 +25603,17 @@
       },
       "magic/ajav": {
         "priced": 45,
-        "checks": 7,
+        "checks": 3,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 45,
-        "flagged_valuable": 38,
+        "flagged_valuable": 34,
         "sell_flagged_valuable": 31,
-        "checks_valuable": 7,
+        "checks_valuable": 3,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.8444444444444444,
+        "recall": 0.7555555555555555,
         "sell_recall": 0.6888888888888889,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25605,17 +25688,17 @@
       },
       "magic/belt": {
         "priced": 14,
-        "checks": 1,
+        "checks": 0,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 13,
-        "flagged_valuable": 1,
+        "flagged_valuable": 0,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 1,
+        "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.07692307692307693,
+        "recall": 0.0,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25690,17 +25773,17 @@
       },
       "magic/glov": {
         "priced": 78,
-        "checks": 7,
+        "checks": 0,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 76,
-        "flagged_valuable": 47,
+        "flagged_valuable": 40,
         "sell_flagged_valuable": 40,
-        "checks_valuable": 7,
+        "checks_valuable": 0,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.618421052631579,
+        "recall": 0.5263157894736842,
         "sell_recall": 0.5263157894736842,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25775,17 +25858,17 @@
       },
       "magic/head": {
         "priced": 194,
-        "checks": 69,
+        "checks": 66,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 194,
-        "flagged_valuable": 69,
+        "flagged_valuable": 66,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 69,
+        "checks_valuable": 66,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.3556701030927835,
+        "recall": 0.3402061855670103,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -25894,51 +25977,51 @@
       },
       "magic/mcha": {
         "priced": 33,
-        "checks": 16,
+        "checks": 15,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 33,
-        "flagged_valuable": 26,
+        "flagged_valuable": 25,
         "sell_flagged_valuable": 10,
-        "checks_valuable": 16,
+        "checks_valuable": 15,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.7878787878787878,
+        "recall": 0.7575757575757576,
         "sell_recall": 0.30303030303030304,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "magic/orb": {
         "priced": 316,
-        "checks": 220,
+        "checks": 213,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 316,
-        "flagged_valuable": 220,
+        "flagged_valuable": 213,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 220,
+        "checks_valuable": 213,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.6962025316455697,
+        "recall": 0.6740506329113924,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "magic/pelt": {
         "priced": 153,
-        "checks": 83,
+        "checks": 74,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 153,
-        "flagged_valuable": 83,
+        "flagged_valuable": 74,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 83,
+        "checks_valuable": 74,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.5424836601307189,
+        "recall": 0.48366013071895425,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26370,34 +26453,34 @@
       },
       "rare/ajav": {
         "priced": 67,
-        "checks": 52,
+        "checks": 12,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 67,
-        "flagged_valuable": 52,
+        "flagged_valuable": 12,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 52,
+        "checks_valuable": 12,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.7761194029850746,
+        "recall": 0.1791044776119403,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "rare/amul": {
         "priced": 468,
-        "checks": 434,
+        "checks": 136,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 468,
-        "flagged_valuable": 434,
+        "flagged_valuable": 136,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 434,
+        "checks_valuable": 136,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9273504273504274,
+        "recall": 0.2905982905982906,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26455,51 +26538,51 @@
       },
       "rare/belt": {
         "priced": 255,
-        "checks": 250,
+        "checks": 59,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 246,
-        "flagged_valuable": 241,
+        "flagged_valuable": 59,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 241,
+        "checks_valuable": 59,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9796747967479674,
+        "recall": 0.23983739837398374,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "rare/boot": {
         "priced": 920,
-        "checks": 916,
+        "checks": 798,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 920,
-        "flagged_valuable": 916,
+        "flagged_valuable": 798,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 916,
+        "checks_valuable": 798,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9956521739130435,
+        "recall": 0.8673913043478261,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "rare/bow": {
         "priced": 360,
-        "checks": 39,
+        "checks": 38,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 360,
-        "flagged_valuable": 39,
+        "flagged_valuable": 38,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 39,
+        "checks_valuable": 38,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.10833333333333334,
+        "recall": 0.10555555555555556,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26540,17 +26623,17 @@
       },
       "rare/glov": {
         "priced": 1177,
-        "checks": 1154,
+        "checks": 969,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 1170,
-        "flagged_valuable": 1158,
+        "flagged_valuable": 979,
         "sell_flagged_valuable": 10,
-        "checks_valuable": 1148,
+        "checks_valuable": 969,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9897435897435898,
+        "recall": 0.8367521367521368,
         "sell_recall": 0.008547008547008548,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26659,17 +26742,17 @@
       },
       "rare/jave": {
         "priced": 273,
-        "checks": 262,
+        "checks": 63,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 272,
-        "flagged_valuable": 262,
+        "flagged_valuable": 63,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 262,
+        "checks_valuable": 63,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.9632352941176471,
+        "recall": 0.23161764705882354,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26795,17 +26878,17 @@
       },
       "rare/ring": {
         "priced": 310,
-        "checks": 310,
+        "checks": 168,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 310,
-        "flagged_valuable": 310,
+        "flagged_valuable": 168,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 310,
+        "checks_valuable": 168,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 1.0,
+        "recall": 0.5419354838709678,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -26897,34 +26980,34 @@
       },
       "rare/taxe": {
         "priced": 35,
-        "checks": 23,
+        "checks": 10,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 35,
-        "flagged_valuable": 23,
+        "flagged_valuable": 10,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 23,
+        "checks_valuable": 10,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.6571428571428571,
+        "recall": 0.2857142857142857,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
       },
       "rare/tkni": {
         "priced": 26,
-        "checks": 19,
+        "checks": 6,
         "unpriced_cohort": 0,
         "asks_above_cheap_cohort": 0,
         "valuable": 26,
-        "flagged_valuable": 19,
+        "flagged_valuable": 6,
         "sell_flagged_valuable": 0,
-        "checks_valuable": 19,
+        "checks_valuable": 6,
         "cheap": 0,
         "flagged_cheap": 0,
         "checks_cheap": 0,
-        "recall": 0.7307692307692307,
+        "recall": 0.23076923076923078,
         "sell_recall": 0.0,
         "cheap_false_positive_rate": null,
         "cheap_check_rate": null
@@ -41028,7 +41111,7 @@
       "check"
     ],
     "[\"crafted\", \"amul\", false, []]": [
-      "check",
+      "self",
       "vendor"
     ],
     "[\"crafted\", \"belt\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}}, {\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"crafted\\\", \\\"family\\\": \\\"belt\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}}, {\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 40}, \\\"430\\\": {\\\"min\\\": 24}}}, \\\"pattern_label\\\": \\\"FHR belt + life + strength and resistance\\\", \\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 40}, \\\"430\\\": {\\\"min\\\": 24}}, \\\"source\\\": {\\\"guide\\\": \\\"guides/pricing.html \\\\u00a72 crafted boots and belts\\\", \\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/\\\", \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -41038,21 +41121,18 @@
       "check"
     ],
     "[\"crafted\", \"belt\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"crafted\", \"boot\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"crafted\\\", \\\"family\\\": \\\"boot\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 30}}}, \\\"pattern_label\\\": \\\"Fast boots + two high resistances\\\", \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 30}}, \\\"source\\\": {\\\"guide\\\": \\\"guides/pricing.html \\\\u00a72 crafted boots and belts\\\", \\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/\\\", \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
       "check"
     ],
     "[\"crafted\", \"boot\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"crafted\", \"glov\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"454\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"456\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"410\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"crafted\\\", \\\"family\\\": \\\"glov\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"454\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"456\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"410\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}, \\\"462\\\": {\\\"min\\\": 1}, \\\"567\\\": {\\\"min\\\": 5}}}, \\\"pattern_label\\\": \\\"Blood gloves: leech + crushing blow + life + speed or skills\\\", \\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}, \\\"462\\\": {\\\"min\\\": 1}, \\\"567\\\": {\\\"min\\\": 5}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow/orange\\\"}\"]]": [
       "check"
     ],
     "[\"crafted\", \"glov\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"crafted\", \"helm\", false, []]": [
@@ -41071,7 +41151,7 @@
       "check"
     ],
     "[\"crafted\", \"ring\", false, []]": [
-      "check"
+      "vendor"
     ],
     "[\"crafted\", \"shie\", false, []]": [
       "vendor"
@@ -41661,7 +41741,6 @@
       "vendor"
     ],
     "[\"magic\", \"belt\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"belt\", true, []]": [
@@ -41755,7 +41834,6 @@
       "slow"
     ],
     "[\"magic\", \"glov\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"glov\", true, []]": [
@@ -41831,7 +41909,6 @@
       "check"
     ],
     "[\"magic\", \"head\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"helm\", false, []]": [
@@ -42036,7 +42113,6 @@
       "check"
     ],
     "[\"magic\", \"mcha\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"orb\", false, [\"{\\\"category\\\": \\\"magic\\\", \\\"conditions\\\": {\\\"sockets\\\": 2}, \\\"family\\\": \\\"orb\\\", \\\"imported_class_rule\\\": true, \\\"labels\\\": {\\\"1049\\\": \\\"Lightning\\\", \\\"598\\\": \\\"Chain Lightning\\\", \\\"602\\\": \\\"Fire Ball\\\", \\\"703\\\": \\\"Blizzard\\\", \\\"944\\\": \\\"Enchant\\\", \\\"948\\\": \\\"Nova\\\"}, \\\"pattern\\\": {\\\"properties\\\": {\\\"1049\\\": {\\\"min\\\": 1}, \\\"516\\\": {\\\"min\\\": 3}}}, \\\"pattern_label\\\": \\\"Sorceress tree + matching spell + cast rate or two sockets\\\", \\\"properties\\\": {\\\"1049\\\": {\\\"min\\\": 1}, \\\"516\\\": {\\\"min\\\": 3}}, \\\"source\\\": {\\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/pull-20261003/\\\", \\\"query\\\": {\\\"category\\\": \\\"magic\\\", \\\"family\\\": \\\"orb\\\", \\\"spell\\\": \\\"1049\\\", \\\"support\\\": \\\"sockets\\\", \\\"tree\\\": \\\"516\\\"}, \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\", \"{\\\"category\\\": \\\"magic\\\", \\\"conditions\\\": {\\\"sockets\\\": 2}, \\\"family\\\": \\\"orb\\\", \\\"imported_class_rule\\\": true, \\\"labels\\\": {\\\"1049\\\": \\\"Lightning\\\", \\\"598\\\": \\\"Chain Lightning\\\", \\\"602\\\": \\\"Fire Ball\\\", \\\"703\\\": \\\"Blizzard\\\", \\\"944\\\": \\\"Enchant\\\", \\\"948\\\": \\\"Nova\\\"}, \\\"pattern\\\": {\\\"properties\\\": {\\\"516\\\": {\\\"min\\\": 3}, \\\"598\\\": {\\\"min\\\": 1}}}, \\\"pattern_label\\\": \\\"Sorceress tree + matching spell + cast rate or two sockets\\\", \\\"properties\\\": {\\\"516\\\": {\\\"min\\\": 3}, \\\"598\\\": {\\\"min\\\": 1}}, \\\"source\\\": {\\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/pull-20261003/\\\", \\\"query\\\": {\\\"category\\\": \\\"magic\\\", \\\"family\\\": \\\"orb\\\", \\\"spell\\\": \\\"598\\\", \\\"support\\\": \\\"sockets\\\", \\\"tree\\\": \\\"516\\\"}, \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -42115,7 +42191,6 @@
       "check"
     ],
     "[\"magic\", \"orb\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"orb\", true, [\"{\\\"category\\\": \\\"magic\\\", \\\"conditions\\\": {\\\"sockets\\\": 2}, \\\"family\\\": \\\"orb\\\", \\\"imported_class_rule\\\": true, \\\"labels\\\": {\\\"1049\\\": \\\"Lightning\\\", \\\"598\\\": \\\"Chain Lightning\\\", \\\"602\\\": \\\"Fire Ball\\\", \\\"703\\\": \\\"Blizzard\\\", \\\"944\\\": \\\"Enchant\\\", \\\"948\\\": \\\"Nova\\\"}, \\\"pattern\\\": {\\\"properties\\\": {\\\"1049\\\": {\\\"min\\\": 1}, \\\"516\\\": {\\\"min\\\": 3}}}, \\\"pattern_label\\\": \\\"Sorceress tree + matching spell + cast rate or two sockets\\\", \\\"properties\\\": {\\\"1049\\\": {\\\"min\\\": 1}, \\\"516\\\": {\\\"min\\\": 3}}, \\\"source\\\": {\\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/pull-20261003/\\\", \\\"query\\\": {\\\"category\\\": \\\"magic\\\", \\\"family\\\": \\\"orb\\\", \\\"spell\\\": \\\"1049\\\", \\\"support\\\": \\\"sockets\\\", \\\"tree\\\": \\\"516\\\"}, \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -42152,7 +42227,6 @@
       "check"
     ],
     "[\"magic\", \"pelt\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"magic\", \"phlm\", false, [\"{\\\"category\\\": \\\"magic\\\", \\\"conditions\\\": {}, \\\"family\\\": \\\"phlm\\\", \\\"imported_class_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"403\\\": {\\\"min\\\": 2}, \\\"765\\\": {\\\"min\\\": 3}}}, \\\"pattern_label\\\": \\\"Barbarian skills + Battle Orders switch helm\\\", \\\"properties\\\": {\\\"403\\\": {\\\"min\\\": 2}, \\\"765\\\": {\\\"min\\\": 3}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow and \\\\u00a77; PLAN.md \\\\u00a73.8\\\"}\"]]": [
@@ -42621,10 +42695,9 @@
       "check"
     ],
     "[\"rare\", \"ajav\", false, []]": [
-      "check"
+      "vendor"
     ],
     "[\"rare\", \"ajav\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"amul\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 15}}}]}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 40}}}, {\\\"properties\\\": {\\\"526\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"rare\\\", \\\"family\\\": \\\"amul\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 15}}}]}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 40}}}, {\\\"properties\\\": {\\\"526\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"520\\\": {\\\"min\\\": 10}}}, \\\"pattern_label\\\": \\\"Caster amulet: class skills + FCR + strong resistance, life or teleport\\\", \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"520\\\": {\\\"min\\\": 10}}, \\\"source\\\": \\\"guides/pricing-primer.html#s6-1 RR-caster-amulet\\\"}\", \"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"400\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"526\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"429\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"rare\\\", \\\"family\\\": \\\"amul\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"400\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"526\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"429\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"520\\\": {\\\"min\\\": 10}}}, \\\"pattern_label\\\": \\\"Caster amulet: class skills + FCR + two supporting affixes\\\", \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"520\\\": {\\\"min\\\": 10}}, \\\"source\\\": {\\\"guide\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow/orange\\\", \\\"kind\\\": \\\"paid_pattern\\\", \\\"mana_support_independent_sellers\\\": 10, \\\"path\\\": \\\"pricing/raw/traderie/\\\", \\\"reviewed_at\\\": \\\"2026-10-04\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -42697,7 +42770,6 @@
       "check"
     ],
     "[\"rare\", \"amul\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"ashd\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"446\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"430\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}}}, {\\\"conditions\\\": {\\\"sockets\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"441\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {\\\"base_name\\\": {\\\"in\\\": [\\\"Ancient Shield\\\", \\\"Sacred Rondache\\\", \\\"Sacred Targe\\\", \\\"Vortex Shield\\\", \\\"Zakarum Shield\\\"]}}, \\\"family\\\": \\\"ashd\\\", \\\"imported_class_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"442\\\": {\\\"min\\\": 2}, \\\"449\\\": {\\\"min\\\": 1}}}, \\\"pattern_label\\\": \\\"Elite Paladin shield: class skills, resistance or block rate and two supporting rolls\\\", \\\"properties\\\": {\\\"442\\\": {\\\"min\\\": 2}, \\\"449\\\": {\\\"min\\\": 1}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow and \\\\u00a77; PLAN.md \\\\u00a73.8\\\"}\", \"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"446\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"430\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"418\\\": {\\\"min\\\": 1}}}, {\\\"conditions\\\": {\\\"sockets\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {\\\"base_name\\\": {\\\"in\\\": [\\\"Ancient Shield\\\", \\\"Sacred Rondache\\\", \\\"Sacred Targe\\\", \\\"Vortex Shield\\\", \\\"Zakarum Shield\\\"]}}, \\\"family\\\": \\\"ashd\\\", \\\"imported_class_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"441\\\": {\\\"min\\\": 1}, \\\"442\\\": {\\\"min\\\": 2}}}, \\\"pattern_label\\\": \\\"Elite Paladin shield: class skills, resistance or block rate and two supporting rolls\\\", \\\"properties\\\": {\\\"441\\\": {\\\"min\\\": 1}, \\\"442\\\": {\\\"min\\\": 2}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow and \\\\u00a77; PLAN.md \\\\u00a73.8\\\"}\"]]": [
@@ -42740,11 +42812,9 @@
       "check"
     ],
     "[\"rare\", \"belt\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"belt\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"boot\", false, [\"{\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}, \\\"category\\\": \\\"rare\\\", \\\"family\\\": \\\"boot\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 2, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 1}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 1}}}]}, \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 30}}}, \\\"pattern_label\\\": \\\"Fast boots + two high resistances\\\", \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 30}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow/orange\\\"}\", \"{\\\"at_least\\\": {\\\"count\\\": 3, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 20}}}]}, \\\"category\\\": \\\"rare\\\", \\\"family\\\": \\\"boot\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 3, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 20}}}]}, \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 20}}}, \\\"pattern_label\\\": \\\"20 FRW + three resistances\\\", \\\"properties\\\": {\\\"480\\\": {\\\"min\\\": 20}}, \\\"source\\\": {\\\"example_listing_ids\\\": [\\\"1002422783093\\\", \\\"1002355993308\\\", \\\"1002342705143\\\"], \\\"guide\\\": \\\"guides/pricing.html#s2-yellow; guides/pricing-primer.html#s6-1\\\", \\\"independent_sellers\\\": 23, \\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/\\\", \\\"reviewed_at\\\": \\\"2026-10-06\\\", \\\"sample\\\": \\\"cached priced misses; one seller vote across September and October pulls\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -42770,14 +42840,12 @@
       "check"
     ],
     "[\"rare\", \"boot\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"bow\", false, [\"{\\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {\\\"base_name\\\": {\\\"in\\\": [\\\"Blade Bow\\\", \\\"Crusader Bow\\\", \\\"Diamond Bow\\\", \\\"Great Bow\\\", \\\"Hydra Bow\\\", \\\"Shadow Bow\\\", \\\"Spider Bow\\\", \\\"Ward Bow\\\"]}}, \\\"family\\\": \\\"bow\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 20}, \\\"510\\\": {\\\"min\\\": 300}}}, \\\"pattern_label\\\": \\\"Elite physical weapon: damage + speed\\\", \\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 20}, \\\"510\\\": {\\\"min\\\": 300}}, \\\"source\\\": {\\\"independent_sellers\\\": 10, \\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/pull-20261003/\\\", \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
       "check"
     ],
     "[\"rare\", \"bow\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"bow\", true, []]": [
@@ -42890,7 +42958,6 @@
       "check"
     ],
     "[\"rare\", \"glov\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"glov\", true, [\"{\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"429\\\": {\\\"min\\\": 15}}}, {\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 20}}}]}}]}, \\\"category\\\": \\\"rare\\\", \\\"family\\\": \\\"glov\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"437\\\": {\\\"min\\\": 15}}}, {\\\"properties\\\": {\\\"429\\\": {\\\"min\\\": 15}}}, {\\\"at_least\\\": {\\\"count\\\": 1, \\\"of\\\": [{\\\"properties\\\": {\\\"427\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"428\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"426\\\": {\\\"min\\\": 20}}}, {\\\"properties\\\": {\\\"401\\\": {\\\"min\\\": 20}}}]}}]}, \\\"properties\\\": {\\\"455\\\": {\\\"min\\\": 2}, \\\"457\\\": {\\\"min\\\": 20}}}, \\\"pattern_label\\\": \\\"+2 Passive and Magic skills + 20 IAS + attribute or resistance\\\", \\\"properties\\\": {\\\"455\\\": {\\\"min\\\": 2}, \\\"457\\\": {\\\"min\\\": 20}}, \\\"source\\\": {\\\"example_listing_ids\\\": [\\\"1121080165\\\", \\\"87687217\\\", \\\"1002381300750\\\"], \\\"guide\\\": \\\"guides/pricing.html#s2-yellow; guides/pricing-primer.html#s6-1\\\", \\\"independent_sellers\\\": 12, \\\"kind\\\": \\\"paid_pattern\\\", \\\"path\\\": \\\"pricing/raw/traderie/\\\", \\\"reviewed_at\\\": \\\"2026-10-06\\\", \\\"sample\\\": \\\"cached priced misses; one seller vote across September and October pulls\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -42906,7 +42973,6 @@
       "check"
     ],
     "[\"rare\", \"glov\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"grim\", false, [\"{\\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {\\\"sockets\\\": 2}, \\\"family\\\": \\\"grim\\\", \\\"imported_class_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}}}, \\\"pattern_label\\\": \\\"Warlock grimoire class skills + two sockets\\\", \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow and \\\\u00a77; PLAN.md \\\\u00a73.8\\\"}\", \"{\\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {}, \\\"family\\\": \\\"grim\\\", \\\"imported_class_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"418\\\": {\\\"min\\\": 1}}}, \\\"pattern_label\\\": \\\"Warlock grimoire class skills + supporting affix\\\", \\\"properties\\\": {\\\"1862\\\": {\\\"min\\\": 2}, \\\"418\\\": {\\\"min\\\": 1}}, \\\"source\\\": \\\"guides/pricing.html \\\\u00a72 blue/yellow and \\\\u00a77; PLAN.md \\\\u00a73.8\\\"}\"]]": [
@@ -42994,7 +43060,6 @@
       "vendor"
     ],
     "[\"rare\", \"jave\", false, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"jave\", true, [\"{\\\"category\\\": \\\"rare\\\", \\\"conditions\\\": {\\\"base_name\\\": {\\\"in\\\": [\\\"Balrog Spear\\\", \\\"Ghost Glaive\\\", \\\"Hyperion Javelin\\\", \\\"Stygian Pilum\\\", \\\"Winged Harpoon\\\"]}, \\\"ethereal\\\": true}, \\\"family\\\": \\\"jave\\\", \\\"imported_affixed_rule\\\": true, \\\"pattern\\\": {\\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 30}, \\\"510\\\": {\\\"min\\\": 300}}}, \\\"pattern_label\\\": \\\"Double Throw: ethereal damage + speed\\\", \\\"properties\\\": {\\\"457\\\": {\\\"min\\\": 30}, \\\"510\\\": {\\\"min\\\": 300}}, \\\"source\\\": {\\\"guide\\\": \\\"pricing/raw/mr/guides__double-throw-barbarian-guide.html\\\", \\\"kind\\\": \\\"paid_pattern\\\", \\\"market\\\": \\\"pricing/raw/traderie/\\\", \\\"query\\\": \\\"rare throwing weapons, ethereal, ED >= 300, IAS >= 30\\\", \\\"reviewed_at\\\": \\\"2026-10-03\\\", \\\"scope\\\": \\\"SC/NL/PC/RotW\\\"}}\"]]": [
@@ -43110,7 +43175,7 @@
       "check"
     ],
     "[\"rare\", \"ring\", false, []]": [
-      "check"
+      "vendor"
     ],
     "[\"rare\", \"scep\", false, []]": [
       "vendor"
@@ -43158,7 +43223,6 @@
       "check"
     ],
     "[\"rare\", \"taxe\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"tkni\", false, []]": [
@@ -43171,7 +43235,6 @@
       "check"
     ],
     "[\"rare\", \"tkni\", true, []]": [
-      "check",
       "vendor"
     ],
     "[\"rare\", \"tors\", false, []]": [
@@ -171204,7 +171267,7 @@
     "sell_supported_share": 0.9947643979057592,
     "sell_supported_only_by_censored_absence": 189,
     "sell_unmeasured": [],
-    "vendor_cohorts": 1220,
+    "vendor_cohorts": 1223,
     "vendor_strong_share": 0.0,
     "vendor_strong_cohorts": [],
     "strong_cohorts": 1,

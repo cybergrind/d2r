@@ -213,12 +213,37 @@ def test_a_breakpoint_beyond_the_mobs_left_says_the_group_is_done():
     assert text(tracker.lines(6, terrorized=True))[3] == 'Progress 0% · breakpoint 43% out of reach: 13 left give 6%'
 
 
-def test_visited_rooms_are_the_rooms_ever_loaded_in_that_level():
+def test_visited_rooms_are_the_players_room_and_the_rooms_touching_it():
+    # The client loads rooms further out than it shows monsters in: of 589 monsters first seen with
+    # the player's position known (probe logs, 2026-10-06), every one was in the player's room or
+    # one of its eight neighbours. Only those count as visited (user, 2026-10-06: too wide an area
+    # was coloured). Bounds are tiles; the player's position is world units, 5 to a tile.
     tracker = ZoneTracker()
-    tracker.apply([{'event': 'rooms', 'area': 6, 'bounds': [[0, 0, 8, 8], [8, 0, 8, 8]]}])
+    row = [[x, 0, 8, 8] for x in (0, 8, 16, 24)]
+    tracker.apply([{'event': 'rooms', 'area': 6, 'bounds': [*row, [8, 8, 8, 8], [24, 16, 8, 8]]}])
+    assert tracker.visited_rooms(6) == set()
 
-    assert tracker.visited_rooms(6) == {(0, 0, 8, 8), (8, 0, 8, 8)}
+    tracker.track([], Location(6, 0, 2 * 5, 3 * 5))  # in the first room
+
+    assert tracker.visited_rooms(6) == {(0, 0, 8, 8), (8, 0, 8, 8), (8, 8, 8, 8)}  # the corner neighbour too
     assert tracker.visited_rooms(7) == set()
+
+    tracker.track([], Location(6, 0, 20 * 5, 3 * 5))  # two rooms on
+
+    assert tracker.visited_rooms(6) == {(x, 0, 8, 8) for x in (0, 8, 16, 24)} | {(8, 8, 8, 8)}
+
+
+def test_visited_rooms_come_back_with_a_rejoined_game(tmp_path):
+    store = tmp_path / 'games.json'
+    tracker = ZoneTracker(store)
+    tracker.apply([entered(6, 0xAAAA), {'event': 'rooms', 'area': 6, 'bounds': [[0, 0, 8, 8], [40, 0, 8, 8]]}])
+    tracker.track([], Location(6, 0, 10, 10))
+    tracker.save()
+
+    again = ZoneTracker(store)
+    again.apply([entered(6, 0xAAAA)])
+
+    assert again.visited_rooms(6) == {(0, 0, 8, 8)}
 
 
 def at(event, x, y):
@@ -549,7 +574,10 @@ def test_an_aura_enchanted_leader_makes_the_archers_around_it_deadly_until_it_di
     leader = {**seen(50, 7, stats=[(350, 98), (351, 12)], data_hex=monster_data(0x08, (30, 5, 6))), 'txt_id': 160}
     tracker.apply([at(leader, 5000, 5010), *archers(7)])
 
-    assert [dot.kind for dot in tracker.map_dots(7)] == ['danger'] * 8 + ['pack']
+    # The leader stays told apart from its pack (user, 2026-10-06: the marks made elites look like the rest).
+    dots = tracker.map_dots(7)
+    assert [dot.kind for dot in dots] == ['danger'] * 7 + ['elite', 'pack']
+    assert (dots[7].label, dots[7].x, dots[7].y) == ('unique', 1000.0, 1002.0)
 
     tracker.apply([died(50, 7)])
 
@@ -578,3 +606,79 @@ def test_a_deadly_pack_stays_marked_while_it_is_killed_down_to_a_weak_one():
 
     assert tracker.danger_lines(7) == []
     assert [dot.kind for dot in tracker.map_dots(7)] == ['mob'] * 4
+
+
+def test_the_leader_of_a_pack_to_be_careful_with_stays_a_leader_dot():
+    tracker = ZoneTracker()
+    leader = {**seen(50, 7, data_hex=monster_data(0x08, (5,))), 'txt_id': 160}
+    tracker.apply([at(leader, 5000, 5010), *archers(5, modifiers=(5,))])
+
+    assert [dot.kind for dot in tracker.map_dots(7)] == ['caution'] * 5 + ['leader']
+
+
+def elite(unit_id, x, y, *, flags=0x08, txt_id=160, area=7, super_id=0, stats=()):
+    """A pack leader's first sight: type flags at +0x1A, the super unique's id (hcIdx) at +0x2A."""
+    data = bytearray(0x80)
+    data[0x1A] = flags
+    data[0x2A:0x2C] = super_id.to_bytes(2, 'little')
+    return at({**seen(unit_id, area, stats=stats, data_hex=data.hex()), 'txt_id': txt_id}, x, y)
+
+
+def test_the_elite_line_counts_groups_killed_and_alive_against_the_levels_range():
+    # Tamoe Highland (7) rolls 7-9 random groups in Hell (levels.txt, 2026-10-06).
+    tracker = ZoneTracker()
+    tracker.apply([
+        elite(1, 5000, 5000),
+        at({**seen(2, 7, data_hex=monster_data(0x10)), 'txt_id': 160}, 5002, 5000),  # its minion
+        elite(3, 6000, 5000),
+        *(elite(10 + n, 7000 + 3 * n, 5000, flags=0x0C) for n in range(3)),  # champions: one group
+        elite(20, 8000, 5000, stats=[(367, 1)]),  # a Herald is no elite group of the level
+        elite(30, 5000, 5000, area=6),  # another level's
+    ])  # fmt: skip
+    assert tracker.elite_line(7, []) == 'Elites: 0 killed · 3 alive of 7-9'
+
+    tracker.apply([died(1, 7), died(10, 7), died(11, 7)])
+
+    assert tracker.elite_line(7, []) == 'Elites: 1 killed · 2 alive of 7-9'
+
+    tracker.apply([died(12, 7)])
+
+    assert tracker.elite_line(7, []) == 'Elites: 2 killed · 1 alive of 7-9'
+
+
+def test_the_elite_line_knows_the_fixed_groups_of_the_levels_pieces_before_they_are_seen():
+    from inventory_tracking.levels.model import Room
+
+    # Travincal (83): piece 654 places the three council super uniques (elites.json, 2026-10-06).
+    rooms = [Room(654, 1140, 280, 8, 8, 0, (1140, 280, 32, 32))]
+    tracker = ZoneTracker()
+    assert tracker.elite_line(83, rooms) == 'Elites: 0 killed · 0 alive of 6-8 · fixed: 0 killed of 3'
+
+    tracker.apply([elite(1, 5762, 1494, flags=0x0A, txt_id=346, area=83, super_id=27)])  # Geleb Flamefinger
+    assert tracker.elite_line(83, rooms) == 'Elites: 0 killed · 0 alive of 6-8 · fixed: 0 killed · 1 alive of 3'
+
+    tracker.apply([died(1, 83)])
+    assert tracker.elite_line(83, rooms) == 'Elites: 0 killed · 0 alive of 6-8 · fixed: 1 killed of 3'
+
+
+def test_a_rejoined_game_keeps_its_elite_groups(tmp_path):
+    store = tmp_path / 'games.json'
+    tracker = ZoneTracker(store)
+    tracker.apply([entered(7, 0xAAAA), elite(1, 5000, 5000), died(1, 7), elite(2, 6000, 5000)])
+    tracker.save()
+
+    again = ZoneTracker(store)
+    again.apply([entered(7, 0xAAAA)])
+
+    assert again.elite_line(7, []) == 'Elites: 1 killed · 1 alive of 7-9'
+
+
+def test_the_elite_line_uses_the_rooms_the_level_guide_read():
+    from inventory_tracking.levels.model import Room
+
+    tracker = ZoneTracker()
+    assert tracker.elite_line(83) == 'Elites: 0 killed · 0 alive of 6-8'
+
+    tracker.level_layout(83, [Room(654, 1140, 280, 8, 8, 0, (1140, 280, 32, 32))])
+
+    assert tracker.elite_line(83) == 'Elites: 0 killed · 0 alive of 6-8 · fixed: 0 killed of 3'

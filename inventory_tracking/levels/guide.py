@@ -79,6 +79,7 @@ class LevelGuide:
         library=None,
         visited_rooms=None,
         map_dots=None,
+        on_rooms=None,
         observe_waypoints=None,
         pinned=False,
     ):
@@ -100,8 +101,11 @@ class LevelGuide:
         # Walkable tiles of loaded rooms, remembered for the current level (called under the capture lock).
         # The library (levels/walls.py) draws rooms of already-seen layouts before they load.
         self.observe_walls, self.library = observe_walls, library
-        self.visited_rooms = visited_rooms  # area -> bounds of the rooms ever loaded (terror/tracker.py)
+        self.visited_rooms = visited_rooms  # area -> bounds of rooms the player was in or next to
         self.map_dots = map_dots  # area -> live MapPoi dots: monsters, Heralds (terror/tracker.py)
+        # Called with (area, rooms) whenever a level's rooms are read: the rooms' pieces name the
+        # level's fixed elite groups (terror/tracker.py level_layout).
+        self.on_rooms = on_rooms
         # Waypoint objects seen in the current level, in tiles (called under the capture lock): the
         # waypoint POI moves from its room's centre onto the object once it is near (levels/spots.py).
         self.observe_waypoints, self.waypoints = observe_waypoints, set()
@@ -118,6 +122,8 @@ class LevelGuide:
     def _enter_rooms(self, area, rooms):
         """A fresh room list for the current level: seed walls from the library, then read live."""
         self.rooms = tuple(rooms)
+        if self.on_rooms is not None and area is not None and self.rooms:
+            self.on_rooms(area, self.rooms)
         key = layout_key(area, self.rooms)
         self.walls = self.level_walls.setdefault(key, {})
         self.level_walls.move_to_end(key)
@@ -145,6 +151,8 @@ class LevelGuide:
         if location is None or location.area_id != self.area or not rooms or rooms == snapshot.rooms:
             return
         self.rooms = rooms
+        if self.on_rooms is not None:
+            self.on_rooms(self.area, rooms)  # the pieces' files are read as rooms load
         handler = handler_for(self.area)
         snapshot = LevelSnapshot(location, rooms)
         guidance = guide_level(handler, snapshot)

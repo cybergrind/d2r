@@ -98,14 +98,15 @@ def compile_bands(name, rows, policy):
             band['relaxed_facets'] = list(relaxed)
         bands.extend(compiled)
     from pricing.triage.bands import band_for
-    from pricing.triage.base_floor import key as floor_key, pooled_key
+    from pricing.triage.base_floor import key as floor_key, pooled_key, targets
 
     floors = defaultdict(list)
     for row in valid:
         item = from_listing(row)
-        if bucket := floor_key(item, base):
-            floors[bucket].append(row)
-            floors[pooled_key(item, base)].append(row)
+        for target in targets(item, base):
+            if bucket := floor_key(target, base):
+                floors[bucket].append(row)
+                floors[pooled_key(target, base)].append(row)
     for bucket, members in floors.items():
         bands.append(band_for('base', name, members) | {'bucket': bucket, 'price_basis': 'base_floor'})
     return bands

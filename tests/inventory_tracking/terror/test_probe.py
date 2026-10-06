@@ -197,6 +197,7 @@ def test_the_card_counts_kills_in_the_current_group(tmp_path):
 def test_a_herald_confirms_the_card_and_unconfirmed_zones_can_be_hidden(tmp_path):
     herald = marsh(9, stats=((0, 367, 1),))
     probe, shown = card_probe(tmp_path, [black_marsh(marsh(5)), black_marsh(marsh(5), herald)], show_unconfirmed=False)
+    probe.elites = False
     probe.poll(1.0)
     probe.tick()
     assert shown[-1] == []
@@ -328,6 +329,7 @@ def test_a_deadly_pack_is_warned_of_on_the_card_outside_terror_zones_too(tmp_pat
         for unit_id in range(8)
     ]
     probe, shown = card_probe(tmp_path, [black_marsh(*archers), black_marsh(*archers)])
+    probe.elites = False
     probe.poll(1.0)
     probe.tick()
 
@@ -338,3 +340,20 @@ def test_a_deadly_pack_is_warned_of_on_the_card_outside_terror_zones_too(tmp_pat
     probe.poll(2.0)
     probe.tick()
     assert shown[-1] == []
+
+
+def test_the_card_counts_the_levels_elite_groups_under_the_terror_lines(tmp_path):
+    # Black Marsh (6) rolls 7-9 random groups in Hell; the line is there outside Terror Zones too
+    # (user, 2026-10-06: on this card, not on the map).
+    unique = Monster(50, 160, 1, 5100, 5000, 6, room(1), data_hex='00' * 0x1A + '08' + '00' * 0x65)
+    probe, shown = card_probe(tmp_path, [black_marsh(unique), black_marsh()])
+    probe.poll(1.0)
+    probe.tick()
+
+    assert shown[-1][0].startswith('Terror · Black Marsh')
+    assert shown[-1][-1] == 'Elites: 0 killed · 1 alive of 7-9'
+
+    probe.elites = False
+    probe.poll(2.0)
+    probe.tick()
+    assert not any(line.startswith('Elites') for line in shown[-1])

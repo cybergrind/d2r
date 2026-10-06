@@ -1,6 +1,6 @@
 {
   "classifications": {
-    "verdict": 406,
+    "verdict": 407,
     "own-use": 49,
     "pickup": 39,
     "context": 72
@@ -8,8 +8,8 @@
   "table_score": {
     "total": 404,
     "evaluated": 404,
-    "passed": 374,
-    "accuracy": 0.9257425742574258
+    "passed": 373,
+    "accuracy": 0.9232673267326733
   },
   "pickup": [
     {
@@ -212,8 +212,8 @@
     "verdict": {
       "total": 355,
       "evaluated": 355,
-      "passed": 339,
-      "accuracy": 0.9549295774647887
+      "passed": 338,
+      "accuracy": 0.952112676056338
     },
     "own-use": {
       "total": 49,
@@ -228,9 +228,9 @@
       "accuracy": 1.0
     },
     "false_positive": {
-      "total": 15,
-      "evaluated": 15,
-      "passed": 15,
+      "total": 16,
+      "evaluated": 16,
+      "passed": 16,
       "accuracy": 1.0
     }
   },
@@ -1406,30 +1406,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 11.421 Ist lower quartile \u00b7 13 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "belt",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 11.421,
-          "median_ist": 22.842,
-          "sellers": 13,
-          "listings": 40,
-          "priced_listings": 40,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 0.95,
-          "liquidity": "liquid",
-          "recent_priced_sellers": 11,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -2287,6 +2267,46 @@
         "own_use": null,
         "demand": [],
         "market_demand": null
+      }
+    },
+    {
+      "id": "guides/pricing-primer.html#miss:12/4",
+      "expected": [
+        "check",
+        "sell",
+        "slow",
+        "self"
+      ],
+      "actual": {
+        "verdict": "vendor",
+        "reason": "no listings",
+        "band": null,
+        "reference_band": null,
+        "bucket": null,
+        "stale": null,
+        "liquidity": "none",
+        "keep_ist": 0.25,
+        "decision_ist": null,
+        "roll_comparison": null,
+        "preparation": null,
+        "sale_mode": null,
+        "own_use": null,
+        "demand": [],
+        "market_demand": {
+          "previous_listings": 254,
+          "current_listings": 245,
+          "disappeared": 57,
+          "disappeared_share": 0.22440944881889763,
+          "uncensored_disappeared": 1,
+          "censored_disappeared": 56,
+          "new_sellers": 20,
+          "previous_sellers": 143,
+          "current_sellers": 139,
+          "gone_median_ist": 9.32,
+          "retained_median_ist": 11.421,
+          "minimum_interval_hours": 27.456598199444443,
+          "maximum_interval_hours": 27.45895112194444
+        }
       }
     },
     {
@@ -6519,6 +6539,46 @@
       }
     },
     {
+      "id": "guides/pricing-primer.html#s6-1:7/4",
+      "expected": [
+        "check",
+        "sell",
+        "slow",
+        "self"
+      ],
+      "actual": {
+        "verdict": "vendor",
+        "reason": "no listings",
+        "band": null,
+        "reference_band": null,
+        "bucket": null,
+        "stale": null,
+        "liquidity": "none",
+        "keep_ist": 0.25,
+        "decision_ist": null,
+        "roll_comparison": null,
+        "preparation": null,
+        "sale_mode": null,
+        "own_use": null,
+        "demand": [],
+        "market_demand": {
+          "previous_listings": 254,
+          "current_listings": 245,
+          "disappeared": 57,
+          "disappeared_share": 0.22440944881889763,
+          "uncensored_disappeared": 1,
+          "censored_disappeared": 56,
+          "new_sellers": 20,
+          "previous_sellers": 143,
+          "current_sellers": 139,
+          "gone_median_ist": 9.32,
+          "retained_median_ist": 11.421,
+          "minimum_interval_hours": 27.456598199444443,
+          "maximum_interval_hours": 27.45895112194444
+        }
+      }
+    },
+    {
       "id": "guides/pricing-primer.html#s6-1:7/5",
       "expected": [
         "check",
@@ -9225,30 +9285,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 11.421 Ist lower quartile \u00b7 13 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "belt",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 11.421,
-          "median_ist": 22.842,
-          "sellers": 13,
-          "listings": 40,
-          "priced_listings": 40,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 0.95,
-          "liquidity": "liquid",
-          "recent_priced_sellers": 11,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -9555,30 +9595,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 11.421 Ist lower quartile \u00b7 13 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "belt",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 11.421,
-          "median_ist": 22.842,
-          "sellers": 13,
-          "listings": 40,
-          "priced_listings": 40,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 0.95,
-          "liquidity": "liquid",
-          "recent_priced_sellers": 11,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -9615,30 +9635,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 11.421 Ist lower quartile \u00b7 13 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "belt",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 11.421,
-          "median_ist": 22.842,
-          "sellers": 13,
-          "listings": 40,
-          "priced_listings": 40,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 0.95,
-          "liquidity": "liquid",
-          "recent_priced_sellers": 11,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -9675,30 +9675,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 25.6972 Ist lower quartile \u00b7 10 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "glov",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 25.697249999999997,
-          "median_ist": 39.9735,
-          "sellers": 10,
-          "listings": 53,
-          "priced_listings": 53,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 1.0,
-          "liquidity": "thin",
-          "recent_priced_sellers": 7,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -9735,30 +9715,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 25.6972 Ist lower quartile \u00b7 10 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "glov",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 25.697249999999997,
-          "median_ist": 39.9735,
-          "sellers": 10,
-          "listings": 53,
-          "priced_listings": 53,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 1.0,
-          "liquidity": "thin",
-          "recent_priced_sellers": 7,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -9795,30 +9755,10 @@
         "check"
       ],
       "actual": {
-        "verdict": "check",
-        "reason": "listed stat combination; reference asks 25.6972 Ist lower quartile \u00b7 10 sellers \u00b7 2026-10-04",
+        "verdict": "vendor",
+        "reason": "no listings",
         "band": null,
-        "reference_band": {
-          "category": "crafted",
-          "name": "glov",
-          "bucket": "name",
-          "quantity": 1,
-          "price_unit": "per item",
-          "q1_ist": 25.697249999999997,
-          "median_ist": 39.9735,
-          "sellers": 10,
-          "listings": 53,
-          "priced_listings": 53,
-          "newest_listing": "2026-10-04",
-          "oldest_listing": "2026-09-18",
-          "listing_span_days": 16,
-          "observed_at": "2026-10-04",
-          "share_priced_in_runes": 1.0,
-          "liquidity": "thin",
-          "recent_priced_sellers": 7,
-          "activity_window_days": 14,
-          "evidence_kind": "asks"
-        },
+        "reference_band": null,
         "bucket": null,
         "stale": null,
         "liquidity": "none",
@@ -11092,9 +11032,9 @@
   ],
   "exact_verdict_score": {
     "mode": "triage",
-    "labelled": 569,
+    "labelled": 571,
     "worth": 90,
-    "checks": 1350,
+    "checks": 1341,
     "check_recall": 0.914,
     "recall": 1.0,
     "keeps": 6,
@@ -11110,7 +11050,7 @@
       "vendor\u2192check": 1,
       "vendor\u2192self": 2,
       "vendor\u2192slow": 2,
-      "vendor\u2192vendor": 380
+      "vendor\u2192vendor": 382
     },
     "missed": [],
     "false_keeps": []

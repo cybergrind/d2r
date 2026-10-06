@@ -77,8 +77,8 @@ from inventory_tracking.levels.evidence import DEFAULT_EVIDENCE, EvidenceLog
 from inventory_tracking.levels.guide import LevelGuide
 from inventory_tracking.levels.memory import observe_walkable, observe_waypoints
 from inventory_tracking.levels.walls import WallLibrary
-from inventory_tracking.macros.runner import REQUEST_PREFIX as MACRO_PREFIX, MacroRunner
 from inventory_tracking.loot.watch import RuneWatcher
+from inventory_tracking.macros.runner import REQUEST_PREFIX as MACRO_PREFIX, MacroRunner
 from inventory_tracking.native.session import GameNotReady, GameProcessUnavailable
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
@@ -544,6 +544,7 @@ def run_service(args, directory, report):
                             library=WallLibrary() if APPRAISAL.level_walls else None,
                             visited_rooms=zones.visited_rooms if zones is not None else None,
                             map_dots=map_dots,
+                            on_rooms=zones.level_layout if zones is not None else None,
                             observe_waypoints=observe_waypoints,
                             pinned=APPRAISAL.level_guide_pinned,
                         )
@@ -577,6 +578,7 @@ def run_service(args, directory, report):
                             show_unconfirmed=APPRAISAL.terror_card_unconfirmed,
                             bosses=BossTracker(args.output / 'boss-kills.json') if APPRAISAL.boss_stats else None,
                             danger=APPRAISAL.danger_marks,
+                            elites=APPRAISAL.elite_line,
                         )
                     stash = None
                     if args.stash_auto:
@@ -619,6 +621,8 @@ def run_service(args, directory, report):
                                 with timer.step('terror probe'):
                                     terror.poll(time.monotonic())
                                     terror.tick()
+                            with timer.step('macro'):
+                                macro.poll(time.monotonic())
                             try:
                                 data = server.recv(256)
                             except TimeoutError:

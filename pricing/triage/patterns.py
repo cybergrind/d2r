@@ -44,6 +44,9 @@ SUPPORT_LABELS = {
     '426': 'cold resistance',
     '401': 'poison resistance',
     '441': 'all resistances',
+    '480': 'faster run/walk',
+    '520': 'faster cast rate',
+    '457': 'increased attack speed',
 }
 
 
@@ -74,3 +77,36 @@ def check_reason(item, rule):
     differences = roll_differences(item, rule, SUPPORT_LABELS | rule.get('labels', {}))
     prefix = rule.get('pattern_label', 'Paid pattern complete')
     return prefix + '; ' + ('; '.join(differences) if differences else 'no supported price for these rolls')
+
+
+def vendor_reason(item, rows):
+    """Describe an unmet reviewed combination; never infer that listings do not exist."""
+    from pricing.triage.engine import matches
+
+    choices = []
+    for rule in rows:
+        if not rule.get('pattern') or not rule.get('pattern_label'):
+            continue
+        identity = {key: value for key, value in rule.items() if key not in ('properties', 'at_least')}
+        if not matches(item, identity) or matches(item, rule):
+            continue
+        primary_missing = sum(
+            not matches(item, {'properties': {key: condition}}) for key, condition in rule.get('properties', {}).items()
+        )
+        group = rule.get('at_least')
+        qualifying = sum(matches(item, option) for option in group['of']) if group else 0
+        shortfall = max(0, group['count'] - qualifying) if group else 0
+        details = [
+            text
+            for text in roll_differences(item, rule, SUPPORT_LABELS | rule.get('labels', {}))
+            if not text.startswith('property ') and not text.endswith(' unreadable')
+        ]
+        if shortfall:
+            details.append(f'{qualifying} of {group["count"]} supporting requirements met')
+        reason = 'misses reviewed pattern: ' + rule['pattern_label']
+        if details:
+            reason += '; ' + '; '.join(details)
+        choices.append(((primary_missing, shortfall), reason))
+    return (
+        min(choices, key=lambda choice: choice[0])[1] if choices else 'no supported trade combination for these stats'
+    )

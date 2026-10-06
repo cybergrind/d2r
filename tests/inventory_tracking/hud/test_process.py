@@ -7,9 +7,12 @@ from inventory_tracking.presentation import StyledLine
 
 
 def test_guide_slot_is_a_game_window_fraction():
+    # Bottom left, growing up over the life globe's corner: at the top left its rows covered
+    # item tooltips of the stash (user, 2026-10-06).
     slot = HUD.slots['guide']
-    assert 0 <= slot.x < 0.5
-    assert 0 <= slot.y < 0.5
+    assert 0 <= slot.x < 0.1
+    assert slot.upward
+    assert slot.y > 0.9
 
 
 def test_display_lines_become_a_guide_widget_and_a_map_widget_and_nothing_when_hidden():
@@ -103,9 +106,9 @@ def test_rune_rows_become_a_loot_widget_without_a_map():
     assert loot_widgets([]) == []
 
 
-def test_loot_slot_sits_below_the_guide_card():
-    assert HUD.slots['loot'].x == HUD.slots['guide'].x
-    assert HUD.slots['loot'].y > HUD.slots['guide'].y + 0.2  # the guide card is ~0.23 of a 1422 px window tall
+def test_loot_slot_sits_at_the_left_edge_above_the_guide_card():
+    assert HUD.slots['loot'].x < 0.1
+    assert HUD.slots['loot'].y < HUD.slots['guide'].y - 0.4  # five guide rows are ~0.23 of the window tall
 
 
 def test_rune_marks_default_to_io_and_up():
@@ -126,3 +129,6 @@ def test_terror_card_is_a_text_widget_in_its_own_top_right_slot():
     slot = HUD.slots['terror']
     assert slot.x > HUD.slots['assessment'].x + HUD.slots['assessment'].max_width  # never under an Alt+D card
     assert slot.y <= 0.03  # at the top of the window (user, 2026-10-04)
+    # Left of the game's own corner text (clock, game, level, difficulty: from about 0.91 of the
+    # width in the user's screenshot, 2026-10-06), however wide the card gets.
+    assert slot.x + slot.max_width <= 0.9

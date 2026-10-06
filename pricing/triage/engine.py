@@ -318,6 +318,10 @@ def assess(item, tables, *, today=None):
                 f' · {reference["sellers"]} sellers · {reference["observed_at"]}'
             )
             band, price, bucket, liquidity = None, None, None, 'none'
+    if verdict == 'vendor' and reason == 'no listings' and category in ('magic', 'rare', 'crafted'):
+        from pricing.triage.patterns import vendor_reason
+
+        reason = vendor_reason(item, pattern_rows)
     try:
         stale = (today - date.fromisoformat(band['observed_at'][:10])).days > 45
     except TypeError, KeyError, ValueError:

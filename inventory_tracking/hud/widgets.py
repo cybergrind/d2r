@@ -159,6 +159,7 @@ class GroundMarks:
 
     # Logical pixels; the radii are half the ellipse's width (a monster's is smaller than a way on).
     RADIUS, LEADER_RADIUS, LINE = 44, 30, 3
+    ELITE_RADIUS, ELITE_LINE = 38, 5  # a deadly pack's leader: wider and bolder than its pack's marks
     ARROW, ARROW_OUTLINE = 28, 2.5  # the arrow reaches this far from its centre, either way
     # Pointing along +x: head, then the shaft, as fractions of ARROW.
     ARROW_SHAPE = ((1, 0), (0.05, -0.8), (0.05, -0.3), (-1, -0.3), (-1, 0.3), (0.05, 0.3), (0.05, 0.8))
@@ -196,12 +197,14 @@ class GroundMarks:
                 cr.stroke()
                 continue
             cr.scale(1, 0.5)  # a circle on the floor, seen isometrically
-            cr.arc(0, 0, (self.LEADER_RADIUS if kind in ('leader', 'danger') else self.RADIUS) * scale, 0, 2 * math.pi)
+            radius = {'leader': self.LEADER_RADIUS, 'danger': self.LEADER_RADIUS, 'elite': self.ELITE_RADIUS}
+            cr.arc(0, 0, radius.get(kind, self.RADIUS) * scale, 0, 2 * math.pi)
             cr.restore()
-            cr.set_source_rgba(*colour, config.alpha * (self.DANGER_FILL if kind == 'danger' else self.FILL))
+            fill = KIND_COLOURS['danger'] if kind == 'elite' else colour  # the pack's fill, the leader's outline
+            cr.set_source_rgba(*fill, config.alpha * (self.DANGER_FILL if kind in ('danger', 'elite') else self.FILL))
             cr.fill_preserve()
             cr.set_source_rgba(*colour, config.alpha)
-            cr.set_line_width(self.LINE * scale)
+            cr.set_line_width((self.ELITE_LINE if kind == 'elite' else self.LINE) * scale)
             cr.stroke()
 
 

@@ -282,6 +282,7 @@ def test_dangerous_packs_have_their_own_dot_colours_and_the_pack_point_is_not_dr
             MapPoi('monster', 'danger', 4.0, 4.0),
             MapPoi('monster', 'caution', 8.0, 4.0),
             MapPoi('Dark Ranger x8 · Fanaticism', 'pack', 12.0, 4.0),
+            MapPoi('unique', 'elite', 4.0, 6.0),
         ),
     )
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 240, 160)
@@ -296,6 +297,11 @@ def test_dangerous_packs_have_their_own_dot_colours_and_the_pack_point_is_not_dr
     assert pixel(surface, card, 12, 4)[:3] not in (rgb('danger'), rgb('pack'), rgb('target'))
     assert len({KIND_COLOURS[kind] for kind in ('mob', 'leader', 'herald', 'danger', 'caution')}) == 5
     assert KIND_RADII['mob'] < KIND_RADII['caution'] <= KIND_RADII['danger']
+    # A deadly pack's leader: the leader's colour inside the pack's, and the biggest monster dot.
+    assert pixel(surface, card, 4, 6)[:3] == rgb('leader')
+    x, y = (round(v) for v in fit(card, 240, 160)(4, 6))
+    assert pixel_at(surface, x + round(KIND_RADII['elite']), y)[:3] != rgb('leader')
+    assert KIND_RADII['elite'] > max(KIND_RADII['leader'], KIND_RADII['danger'])
 
 
 def test_a_whole_card_keeps_the_fitted_level_and_the_local_view_is_fainter():

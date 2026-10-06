@@ -25,14 +25,15 @@ class Slot:
     y: float
     max_width: float = 1.0  # widest widget, as a fraction of the game window width
     centered: bool = False
+    upward: bool = False  # y is the bottom of the stack, which grows up
 
 
 def slot_limit(slot: Slot, rect: GameRect) -> tuple[int, int]:
     """(width, height) a widget may take: the game window's room right of (or around, centred) and
-    below the slot."""
+    below the slot (above it when it grows up)."""
     room = 2 * min(slot.x, 1 - slot.x) if slot.centered else 1 - slot.x
     width = min(rect.width * room, rect.width * slot.max_width)
-    return round(width), round(rect.height * (1 - slot.y))
+    return round(width), round(rect.height * (slot.y if slot.upward else 1 - slot.y))
 
 
 def game_rect(canvas_size, *, window_size, position) -> GameRect | None:
@@ -57,11 +58,12 @@ def place(widgets, sizes, slots, rect: GameRect, *, gap: int = 8):
         if slot is None:
             continue
         width, height = sizes[widget.id]
-        top = cursors.get(widget.slot, rect.y + slot.y * rect.height)
+        edge = cursors.get(widget.slot, rect.y + slot.y * rect.height)
+        top = edge - height if slot.upward else edge
         left = rect.x + slot.x * rect.width - (width / 2 if slot.centered else 0)
         x = min(left, rect.x + rect.width - width)
         y = min(top, rect.y + rect.height - height)
         x, y = max(rect.x, round(x)), max(rect.y, round(y))
         boxes.append((widget, (x, y, width, height)))
-        cursors[widget.slot] = y + height + gap
+        cursors[widget.slot] = y - gap if slot.upward else y + height + gap
     return boxes

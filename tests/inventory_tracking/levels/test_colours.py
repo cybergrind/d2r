@@ -39,6 +39,7 @@ def test_map_dots_use_the_row_colours():
         'danger': Tone.MOB_DANGER,  # a monster of a deadly pack
         'caution': Tone.MOB_CAUTION,  # a monster of a pack to be careful with
         'pack': Tone.MOB_DANGER,  # a deadly pack's centre: only a ground arrow
+        'elite': Tone.MOB_LEADER,  # a deadly pack's leader: ringed in the pack's colour
     }
     assert {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()} == KIND_COLOURS
 

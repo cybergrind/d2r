@@ -22,7 +22,9 @@ from inventory_tracking.osd.window import load_toolkit
 def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
     Gtk, Gdk, Gio, GLib, LayerShell, cairo = load_toolkit()
     app = Gtk.Application(application_id='local.d2r.Hud', flags=Gio.ApplicationFlags.NON_UNIQUE)
-    slots = {name: Slot(slot.x, slot.y, slot.max_width, slot.centered) for name, slot in config.slots.items()}
+    slots = {
+        name: Slot(slot.x, slot.y, slot.max_width, slot.centered, slot.upward) for name, slot in config.slots.items()
+    }
     failure = []
 
     def activate(application):

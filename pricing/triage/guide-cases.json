@@ -27390,6 +27390,57 @@
     "classification_reason": "Item or variant trade guidance: A rare with 3\u00d7 durability read as \u201calmost a unique\u201d."
   },
   {
+    "id": "guides/pricing.html#s9:10",
+    "source": "guides/pricing.html#s9",
+    "heading": "9 \u00b7 False positives \u2014 looks valuable, is not",
+    "kind": "false_positive",
+    "cells": [],
+    "resolved_cells": [],
+    "description": "Rare War Boots with 20% Faster Run/Walk, 5 Dexterity, 51% Enhanced Defense and only 8% or 9% Fire Resistance: VENDOR. The October 6 captured pair (run 20261006T161833Z-05e5e46f, request 4) borrowed a reference price from stronger boots. In the cached scoped listings reviewed 2026-10-06, priced 20-run/walk copies with fire resistance have 21\u201339% fire and nearly all have a second resistance of 26\u201340%. Shared run/walk, dexterity or defense does not establish a paid combination without those resistances. Require three independent sellers of the complete combination; do not transfer their extra-stat premium to these weak rolls.",
+    "text": "Rare War Boots with 20% Faster Run/Walk, 5 Dexterity, 51% Enhanced Defense and only 8% or 9% Fire Resistance: VENDOR. The October 6 captured pair (run 20261006T161833Z-05e5e46f, request 4) borrowed a reference price from stronger boots. In the cached scoped listings reviewed 2026-10-06, priced 20-run/walk copies with fire resistance have 21\u201339% fire and nearly all have a second resistance of 26\u201340%. Shared run/walk, dexterity or defense does not establish a paid combination without those resistances. Require three independent sellers of the complete combination; do not transfer their extra-stat premium to these weak rolls.",
+    "expected": null,
+    "examples": [
+      {
+        "spec": {
+          "base": "War Boots",
+          "rarity": "rare",
+          "ethereal": false,
+          "sockets": 0,
+          "stats": {
+            "96:0": 20,
+            "2:0": 5,
+            "16:0": 51,
+            "39:0": 8
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Steering 10 captured filler combination and its one-point near miss lack the high paired resistances of the priced listings."
+      },
+      {
+        "spec": {
+          "base": "War Boots",
+          "rarity": "rare",
+          "ethereal": false,
+          "sockets": 0,
+          "stats": {
+            "96:0": 20,
+            "2:0": 5,
+            "16:0": 51,
+            "39:0": 9
+          }
+        },
+        "expected": [
+          "vendor"
+        ],
+        "rationale": "Steering 10 captured filler combination and its one-point near miss lack the high paired resistances of the priced listings."
+      }
+    ],
+    "classification": "verdict",
+    "classification_reason": "Item or variant trade guidance: Rare War Boots with 20% Faster Run/Walk, 5 Dexterity, 51% Enhanced Defense and only 8% or 9% Fire Resistance: VENDOR. The October 6 captured"
+  },
+  {
     "id": "guides/pricing-primer.html#twin:1",
     "source": "guides/pricing-primer.html#twin",
     "heading": "",

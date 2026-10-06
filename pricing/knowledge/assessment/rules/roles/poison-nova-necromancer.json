@@ -2781,7 +2781,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
+            "sha256": "8a0f83a673ca75e827fcdafa7d8374aecf755c8e03b68558fff7823a383b1e65",
             "locator": "/staffmods/inferior_range"
           }
         ]
@@ -3562,7 +3562,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
+            "sha256": "8a0f83a673ca75e827fcdafa7d8374aecf755c8e03b68558fff7823a383b1e65",
             "locator": "/staffmods/inferior_range"
           }
         ]

@@ -659,3 +659,15 @@ def test_a_double_press_does_not_switch_the_view():
     guide.press(40.1)  # double: unpin; the first press's switch is taken back
     assert not guide.pinned
     assert guide.whole is True
+
+
+def test_the_rooms_of_an_entered_level_are_handed_on():
+    # The Terror card's elite line reads the level's fixed groups from them (terror/tracker.py).
+    guide, _, _ = make_guide([74])
+    got = []
+    guide.on_rooms = lambda area, rooms: got.append((area, len(rooms)))
+
+    guide.poll(1.0)
+
+    assert got[-1][0] == 74
+    assert got[-1][1] > 0

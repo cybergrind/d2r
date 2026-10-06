@@ -39,6 +39,39 @@ def test_unreachable_grand_charm_vita_tier_does_not_raise_life_ceiling():
     assert rows[-1]['roll_ranges']['7']['max'] == 50
 
 
+@pytest.mark.parametrize(
+    ('stat', 'codes'),
+    [
+        ('96', ('move1', 'move2', 'move3')),
+        ('93', ('swing1', 'swing2', 'swing3')),
+        ('99', ('balance1', 'balance2', 'balance3')),
+    ],
+)
+def test_native_group_combines_property_codes_without_combining_other_groups(stat, codes):
+    rows = []
+    for value, code in zip((10, 20, 30), codes, strict=True):
+        row = affix(value, value, 1)
+        row['game_definition']['group'] = 35
+        row['roll_ranges'] = {stat: {'min': value, 'max': value, 'property': code}}
+        rows.append(row)
+    other = affix(40, 40, 1)
+    other['game_definition']['group'] = 36
+    other['roll_ranges'] = {stat: {'min': 40, 'max': 40, 'property': codes[0]}}
+    rows.append(other)
+    add_charm_quality_ranges(rows, rare=True)
+    assert rows[0]['rare_roll_tiers']['fixture-base'][stat] == [{'min': value, 'max': value} for value in (30, 20, 10)]
+    assert other['rare_quality_ranges']['fixture-base'][stat] == {'min': 40, 'max': 40}
+
+
+def test_multi_stat_affix_does_not_borrow_single_stat_ceiling_in_same_group():
+    single, combined = affix(20, 30, 1), affix(5, 10, 1)
+    for row in (single, combined):
+        row['game_definition']['group'] = 120
+    combined['roll_ranges']['9'] = {'min': 5, 'max': 10, 'property': 'mana'}
+    add_charm_quality_ranges([single, combined])
+    assert combined['quality_ranges']['fixture-base']['7'] == {'min': 5, 'max': 10}
+
+
 @pytest.mark.parametrize('rarity', ['magic', 'rare', 'crafted'])
 @pytest.mark.parametrize(('level', 'eligible'), [(99, True), (100, False), (110, False)])
 def test_affix_generation_respects_native_maximum_level(rarity, level, eligible):

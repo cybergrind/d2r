@@ -90,11 +90,15 @@ def test_learning_does_not_combine_best_axes_or_drop_other_affixes():
     assert assess(drop() | {'properties': {'418': 40, '437': 20}}, tables)['verdict'] == 'vendor'
 
 
-def test_shared_combination_survives_different_secondary_affixes():
+def test_shared_combination_needs_sellers_without_other_valuable_affixes():
     rows = [member(i) for i in range(3)]
     for row, extra in zip(rows, ('429', '427', '428'), strict=True):
         row['properties'][extra] = 10
     patterns = derive(rows, {'418', '437', '429', '427', '428'}, 0.25)
+    tables = prepare_tables({'bands': [], 'learned_patterns': patterns}, {'rows': [], 'keep_ist': 0.25}, {'rows': []})
+    assert assess(drop(), tables)['verdict'] == 'vendor'
+    # The pair becomes supported only when three sellers price the pair itself.
+    patterns = derive(rows + [member(i) for i in range(3, 6)], {'418', '437', '429', '427', '428'}, 0.25)
     tables = prepare_tables({'bands': [], 'learned_patterns': patterns}, {'rows': [], 'keep_ist': 0.25}, {'rows': []})
     assert assess(drop(), tables)['verdict'] == 'check'
 
@@ -102,3 +106,42 @@ def test_shared_combination_survives_different_secondary_affixes():
 def test_guard_rejects_pattern_that_disagrees_with_guide_negative():
     patterns = derive([member(i) for i in range(3)], {'418', '437'}, 0.25)
     assert guard(patterns, [], [], negatives=[drop()]) == []
+
+
+def test_a_stat_pair_shared_by_sellers_priced_for_other_stats_is_not_a_pattern():
+    # Rare War Boots, 20 run/walk + 5 dexterity + 8 fire resist, were CHECK with a
+    # 10.37 Ist reference on 2026-10-06. Every listed copy carried two or three high
+    # resists: the run/walk + dexterity pair is all they share, and it is not what is paid for.
+    def boots(seller, **resists):
+        row = member(seller, 20, name='War Boots', item_type='boot')
+        row['properties'] = {k: v for k, v in row['properties'].items() if k not in ('418', '437')}
+        row['properties'].update({'480': 20, '429': 3 + seller, **resists})
+        return row
+
+    rows = [
+        boots(0, **{'427': 35, '428': 30}),
+        boots(1, **{'426': 38, '428': 33}),
+        boots(2, **{'426': 30, '427': 31}),
+    ]
+    ids = {'480', '429', '426', '427', '428'}
+    learned = derive(rows, ids, 0.25)
+    tables = prepare_tables({'bands': [], 'learned_patterns': learned}, {'rows': [], 'keep_ist': 0.25}, {'rows': []})
+    weak = drop() | {
+        'family': 'boot',
+        'name': 'War Boots',
+        'base_name': 'War Boots',
+        'properties': {'480': 20, '429': 5, '427': 8},
+    }
+    assert assess(weak, tables)['verdict'] == 'vendor'
+    listed = weak | {'properties': {'480': 20, '429': 5, '427': 35, '428': 30}}
+    assert assess(listed, tables)['verdict'] == 'vendor'
+    # One matching seller is insufficient. Supply two more independent copies
+    # of the full resistance combination for the positive three-seller case.
+    for seller in (3, 4):
+        row = boots(seller, **{'427': 35, '428': 30})
+        row['properties']['429'] = 5
+        rows.append(row)
+    learned = derive(rows, ids, 0.25)
+    tables = prepare_tables({'bands': [], 'learned_patterns': learned}, {'rows': [], 'keep_ist': 0.25}, {'rows': []})
+    assert assess(listed, tables)['verdict'] == 'check'
+    assert assess(weak, tables)['verdict'] == 'vendor'

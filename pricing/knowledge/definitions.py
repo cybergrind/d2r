@@ -143,11 +143,14 @@ def socket_bonus_ranges(runes, gems, properties, stat_ids):
     return result
 
 
-def range_family(definition):
-    # Local properties.json: cast1/cast2/cast3 all use func8/item_fastercastrate.
-    if definition.get('stat_id') == 105 and definition['property'] in ('cast1', 'cast2', 'cast3'):
-        return 'faster_cast_rate'
-    return definition['property']
+def range_family(entry, definition):
+    """Native affix groups span property aliases, but not different stat bundles."""
+    group = entry.get('game_definition', {}).get('group')
+    if type(group) is int and group > 0:
+        # All-resistance and single-resistance affixes may share a native group;
+        # a bundled roll must not borrow the single-stat affix's higher ceiling.
+        return ('group', group, tuple(sorted(entry['roll_ranges'])))
+    return ('property', definition['property'])
 
 
 def add_charm_quality_ranges(rows, *, rare=False):
@@ -163,7 +166,7 @@ def add_charm_quality_ranges(rows, *, rare=False):
             if not can_generate(entry, base, 'rare' if rare else 'magic'):
                 continue
             for stat, definition in entry['roll_ranges'].items():
-                key = (base, entry['affix_table'], stat, range_family(definition))
+                key = (base, entry['affix_table'], stat, range_family(entry, definition))
                 tiers.setdefault(key, set()).add((definition['min'], definition['max']))
                 pool = pools.setdefault(key, {'min': definition['min'], 'max': definition['max']})
                 pool['min'] = min(pool['min'], definition['min'])
@@ -180,7 +183,7 @@ def add_charm_quality_ranges(rows, *, rare=False):
                     )
                 ]
                 for stat, definition in entry['roll_ranges'].items()
-                if (key := (base, entry['affix_table'], stat, range_family(definition))) in tiers
+                if (key := (base, entry['affix_table'], stat, range_family(entry, definition))) in tiers
             }
             for base in entry['base_codes']
         }
@@ -188,7 +191,7 @@ def add_charm_quality_ranges(rows, *, rare=False):
             base: {
                 stat: dict(pools[key])
                 for stat, definition in entry['roll_ranges'].items()
-                if (key := (base, entry['affix_table'], stat, range_family(definition))) in pools
+                if (key := (base, entry['affix_table'], stat, range_family(entry, definition))) in pools
             }
             for base in entry['base_codes']
         }

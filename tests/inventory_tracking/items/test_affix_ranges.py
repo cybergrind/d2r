@@ -31,3 +31,14 @@ def test_magic_ring_can_use_magic_only_top_mana_tier():
     assert context is not None
     assert context['roll_ranges']['9']['quality_range']['max'] == 120
     assert context['roll_ranges']['9']['tiers'][0] == {'min': 91, 'max': 120}
+
+
+def test_rare_boot_run_walk_tiers_span_the_whole_affix_group():
+    # Rare War Boots "of Haste" (20%) were shown as "[T1; T1: 20-20%]" on 2026-10-06.
+    # Pacing 10 / Haste 20 / Speed 30 share magicsuffix group 35 and all spawn on rare boots.
+    from inventory_tracking.items.metadata import metadata
+
+    haste = metadata()['affixes']['suffix']['395']
+    pool = metadata()['affix_pools'][haste['rare_range_pools']['xhb']['96']]
+    assert pool['tiers'] == [{'min': 30, 'max': 30}, {'min': 20, 'max': 20}, {'min': 10, 'max': 10}]
+    assert pool['range'] == {'min': 10, 'max': 30}

@@ -3,7 +3,7 @@ is the level's Vis/Warp slot (2026-10-03: Cave Entrance CaveDr1.ds1 main 5 = Col
 
 import struct
 
-from inventory_tracking.levels.ds1 import warp_tiles
+from inventory_tracking.levels.ds1 import monster_presets, warp_tiles
 
 
 def cell(main, sub=0):
@@ -41,3 +41,11 @@ def test_a_warp_spans_tiles_in_several_wall_layers():
     second[0][5], second[1][5] = cell(0, 1), 11
 
     assert warp_tiles(ds1(2, 2, [first, second], objects=[(2, 17, 1, 1, 0)])) == {0: [(1, 1), (2, 1)]}
+
+
+def test_monster_presets_are_the_type_1_objects_with_the_files_act():
+    # Objects follow the layers: type (1 monster, 2 object), id, x and y in sub-tiles, flags.
+    blank = ([0] * 9, [0] * 9)
+    data = ds1(2, 2, [blank], objects=[(2, 17, 1, 1, 0), (1, 30, 62, 94, 0), (1, 2, 5, 6, 0)])
+
+    assert monster_presets(data) == (0, [(30, 62, 94), (2, 5, 6)])

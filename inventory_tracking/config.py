@@ -338,6 +338,7 @@ class AppraisalConfig(Config):
     terror_probe: bool = True  # record monster sightings/kills to terror-probe.jsonl (terror/probe.py research)
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
+    elite_line: bool = True  # the level's elite groups killed, alive and expected on the Terror card (terror/elites.py)
     danger_marks: bool = True  # deadly packs: own map dots, ground marks and a warning row (terror/danger.py)
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
     boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
@@ -356,6 +357,7 @@ class HudSlot(Config):
     y: Annotated[float, Field(ge=0, le=1)]
     max_width: Annotated[float, Field(gt=0, le=1)] = 1.0  # widest widget, fraction of the game window width
     centered: bool = False  # x is the middle of the slot's widgets, not their left edge
+    upward: bool = False  # y is the bottom of the slot's widget stack, which grows up
 
 
 class HudGroundConfig(Config):
@@ -364,8 +366,9 @@ class HudGroundConfig(Config):
     enabled: bool = True
     # Map dot kinds (osd/level_map.KIND_TONES) that also get a ground mark: unique/champion
     # monsters, Heralds, the next level, exits and waypoints (user, 2026-10-05).
-    # 'danger': every monster of a deadly pack; 'pack': the arrow to such a pack out of view (2026-10-06).
-    kinds: tuple[str, ...] = ('leader', 'danger', 'pack', 'herald', 'stairs', 'exit', 'waypoint')
+    # 'danger': every monster of a deadly pack, 'elite': its leader; 'pack': the arrow to such a
+    # pack out of view (2026-10-06).
+    kinds: tuple[str, ...] = ('leader', 'danger', 'elite', 'pack', 'herald', 'stairs', 'exit', 'waypoint')
     alpha: Annotated[float, Field(gt=0, le=1)] = 0.5  # outline; the fill is fainter still
     # Where the player stands in the game window, and one tile's floor-diamond height, as window
     # fractions. Classic 800x600 view values (a tile is 160x80 px there); not calibrated in D2R yet.
@@ -387,7 +390,7 @@ class HudGroundConfig(Config):
     # arrow for every pack of the level); a screen is roughly 15 tiles across. Others always do.
     # A deadly pack gets one arrow, to its centre, from as far as monsters are remembered; its
     # members get none.
-    arrow_range: dict[str, float] = {'leader': 15, 'danger': 0, 'pack': 40}
+    arrow_range: dict[str, float] = {'leader': 15, 'elite': 15, 'danger': 0, 'pack': 40}
 
 
 class HudConfig(Config):
@@ -398,15 +401,18 @@ class HudConfig(Config):
     refresh_interval: Positive = 0.1
     gap: Annotated[int, Field(ge=0)] = 8
     slots: dict[str, HudSlot] = {
-        'guide': HudSlot(x=0.03, y=0.08),
+        # Level guide rows: bottom left, growing up over the life globe's corner (user, 2026-10-06:
+        # at the top left they covered the stash's item tooltips).
+        'guide': HudSlot(x=0.01, y=0.99, upward=True),
         # Level map (the guide's MapCard): centred at the top of the window (user, 2026-10-04).
         'map': HudSlot(x=0.5, y=0.15, centered=True),
-        # Alt+D / shop / identify card: right of the guide card, at most 45% of the window wide.
+        # Alt+D / shop / identify card: at most 45% of the window wide.
         'assessment': HudSlot(x=0.2, y=0.12, max_width=0.45),
-        # Valuable runes on the ground: under the guide card.
+        # Valuable runes on the ground: the left edge, where the guide card was above them.
         'loot': HudSlot(x=0.03, y=0.34),
-        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04).
-        'terror': HudSlot(x=0.78, y=0.02, max_width=0.2),
+        # Terror Zone card (terror/tracker.py): right of the widest Alt+D card, at the top (user, 2026-10-04),
+        # and left of the game's own corner text (user, 2026-10-06).
+        'terror': HudSlot(x=0.68, y=0.02, max_width=0.2),
         # Ground marks (hud/ground.py): the whole game window.
         'ground': HudSlot(x=0, y=0),
     }

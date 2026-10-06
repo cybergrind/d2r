@@ -176,6 +176,7 @@ class TerrorProbe:
         show_unconfirmed=True,
         bosses=None,
         danger=True,
+        elites=True,
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
@@ -187,6 +188,7 @@ class TerrorProbe:
         self.show_unconfirmed = show_unconfirmed
         self.bosses = bosses  # boss kills of this game launch (terror/bosses.py), shown under the Terror lines
         self.danger = danger  # warning rows for deadly packs above the Terror lines (terror/danger.py)
+        self.elites = elites  # the level's elite groups under the Terror lines (terror/elites.py)
         self.card: list[str] = []
 
     def poll(self, now):
@@ -238,7 +240,8 @@ class TerrorProbe:
         if tracker is not None and self.danger:
             warnings = tracker.danger_lines(location.area_id, (location.x, location.y))
         terror = self.terror_lines(tracker, location, player_level) if tracker is not None else []
-        return [*warnings, *terror, *bosses]
+        elites = tracker.elite_line(location.area_id) if tracker is not None and self.elites else None
+        return [*warnings, *terror, *([elites] if elites else []), *bosses]
 
     def terror_lines(self, tracker, location, player_level=None) -> list[str]:
         terrorized = tracker.terrorized(location.area_id)

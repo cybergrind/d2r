@@ -1,6 +1,38 @@
 from pricing.triage.engine import assess
 
 
+def test_vendor_boots_explain_unmet_combination_without_claiming_no_listings():
+    from pricing.triage.engine import prepare_tables
+    from pricing.triage.import_affixed_rules import affixed_rules
+
+    tables = prepare_tables({'bands': []}, {'keep_ist': 0.25, 'rows': affixed_rules()}, {'rows': []})
+    item = {
+        'category': 'rare',
+        'family': 'boot',
+        'name': 'War Boots',
+        'base_name': 'War Boots',
+        'ethereal': False,
+        'sockets': 0,
+        'socket_contents': 'empty',
+        'properties': {'480': 20, '429': 5, '425': 51, '427': 8},
+    }
+    result = assess(item, tables)
+    assert result['verdict'] == 'vendor'
+    assert '20 FRW + three resistances' in result['reason']
+    assert 'fire resistance 8 of 20' in result['reason']
+    assert '0 of 3' in result['reason']
+    assert 'no listings' not in result['reason']
+    supported = item | {'properties': {'480': 20, '427': 25, '428': 25, '426': 25}}
+    assert assess(supported, tables)['verdict'] == 'check'
+
+
+def test_unknown_affixed_combination_does_not_claim_cache_absence():
+    tables = {'rules': {'keep_ist': 0.25, 'rows': []}, 'own': {'rows': []}, 'bands': {}}
+    result = assess({'category': 'rare', 'family': 'ring', 'name': 'Ring', 'properties': {}}, tables)
+    assert result['verdict'] == 'vendor'
+    assert result['reason'] == 'no supported trade combination for these stats'
+
+
 def test_complete_paid_pattern_below_bucket_is_check_not_vendor():
     rule = {
         'category': 'magic',

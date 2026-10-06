@@ -5,7 +5,7 @@ import pytest
 
 from inventory_tracking.hud.payloads import guide_payload
 from inventory_tracking.hud.scene import Widget
-from inventory_tracking.hud.widgets import RENDERERS, draw_scene, measure
+from inventory_tracking.hud.widgets import RENDERERS, GroundMarks, draw_scene, measure
 from inventory_tracking.osd.level_map import MapCard, MapPoi
 from inventory_tracking.presentation import StyledLine
 
@@ -169,6 +169,16 @@ def test_a_deadly_packs_monsters_get_filled_marks_and_the_pack_one_arrow_from_af
     far_x, far_y, _ = place_mark(30, 0, 800, 450, config)
     leader, danger = drawn([['leader', 11.0, 10.0]]), drawn([['danger', 11.0, 10.0]])
     assert alpha(danger, near_x, near_y) > 2 * alpha(leader, near_x, near_y)  # filled, not only outlined
+
+    # A deadly pack's leader: filled like its pack, and wider than either, so it is told apart.
+    elite = drawn([['elite', 11.0, 10.0]])
+    assert alpha(elite, near_x, near_y) > 2 * alpha(leader, near_x, near_y)
+    edge = near_x + GroundMarks.ELITE_RADIUS - 2
+    assert alpha(elite, edge, near_y) > 0
+    assert alpha(danger, edge, near_y) == 0
+    assert (
+        alpha(drawn([['elite', 22.0, 10.0]]), *place_mark(12, 0, 800, 450, config)[:2]) > 128
+    )  # an arrow, as a leader
 
     assert not any(drawn([['pack', 11.0, 10.0]]).get_data())  # in view: its monsters are the marks
     assert not any(drawn([['danger', 40.0, 10.0]]).get_data())  # out of view: no arrow per monster

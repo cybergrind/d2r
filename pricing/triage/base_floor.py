@@ -23,13 +23,26 @@ def key(item, base, *, ordinary=False):
     dropped = {'937'} if item['rarity'] == 'superior' else set()
     if item['rarity'] == 'superior' and base['category'] == 'weapons':
         dropped.add('423')
-    if base['type'] == 'ashd':
-        dropped.update(('441', '401', '426', '427', '428', '510', '423'))
     facets = {k: item[k] for k in ('rarity', 'ethereal', 'sockets')}
     if ordinary:
         facets['rarity'] = 'normal'
     facets['base_modifiers'] = {p: v for p, v in item['base_modifiers'].items() if p not in dropped}
     return 'base-floor:' + json.dumps(facets, sort_keys=True, separators=(',', ':'))
+
+
+def targets(item, base):
+    """Compile shield resistance floors only toward equal or better native rolls."""
+    from pricing.triage.base_comparisons import with_rolls
+
+    modifiers = item.get('base_modifiers', {})
+    resistance = modifiers.get('441')
+    if base['type'] == 'ashd' and type(resistance) is int and 5 <= resistance <= 45:
+        for value in range(resistance, 46):
+            yield item | {'base_modifiers': with_rolls(modifiers, {'441': value})}
+    else:
+        # Damage/AR automods and unknown rolls remain separate. Neither can
+        # establish the price of a resistance roll or be guessed to mean zero.
+        yield item
 
 
 def pooled_key(item, base):

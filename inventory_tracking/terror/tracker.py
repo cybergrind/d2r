@@ -42,6 +42,7 @@ from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
 from inventory_tracking.osd.level_map import MapPoi
+from inventory_tracking.terror import elites
 from inventory_tracking.terror.chance import Level, group_completion, odds
 from inventory_tracking.terror.danger import Pack, Unit, packs, table
 from inventory_tracking.terror.zones import GROUPS, HeraldGroup, group_of, group_population
@@ -55,6 +56,10 @@ MINION_FLAG = 0x10
 # Type flags of a pack leader, from the probe logs (2026-10-02/03): 0x08 unique (Heralds too),
 # 0x0c champion, 0x0a super unique, 0x4c ghostly champion; minions carry 0x10 alone.
 LEADER_FLAGS = 0x02 | 0x04 | 0x08
+SUPER_FLAG, CHAMPION_FLAG = 0x02, 0x04
+# Monster data u16: a super unique's superuniques.txt hcIdx (probe logs to 2026-10-06: 36-38 on the
+# seal bosses, 61-65 on Baal's waves, 52 on Pindleskin).
+SUPER_ID = 0x2A
 FIRST_MODIFIER = 0x20  # monster data byte: first special modifier (monumod.json id)
 MODIFIER_SLOTS = 9  # modifier bytes from there on; 0 = none (uniques show 3 in Hell, minions 2)
 AURA_MODIFIER = 30  # aura enchanted: the monster's aura is its own
@@ -127,6 +132,14 @@ def aura(event) -> tuple[int, int] | None:
     return (skill, stat(event, AURA_LEVEL_STAT) or 1) if skill in table().auras else None
 
 
+def super_name(event) -> str | None:
+    data = event.get('data_hex') or ''
+    if len(data) < 2 * (SUPER_ID + 2):
+        return None
+    found = int.from_bytes(bytes.fromhex(data[2 * SUPER_ID : 2 * SUPER_ID + 4]), 'little')
+    return elites.table().supers.get(found)
+
+
 def is_minion(event) -> bool:
     """Minion flag from first-sight monster data; unreadable data counts as not a minion."""
     data = event.get('data_hex') or ''
@@ -154,12 +167,17 @@ class ZoneTracker:
         self.allies: set[int] = set()
         self.zones: set[str] = set()  # Terror Zones where a Herald appeared this game
         self.visited: dict[int, set[tuple]] = {}  # area -> bounds of rooms ever loaded
+        # area -> bounds of the rooms the player was in or next to: where monsters would have shown
+        self.explored: dict[int, set[tuple]] = {}
         self.loaded: dict[int, int] = {}  # area -> rooms ever loaded, as the probe counts them
         self.positions: dict[int, tuple[int, int, int]] = {}  # hostile unit id -> (area, x, y), alive
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
         # hostile unit id -> (txt id, modifiers, aura) as first seen: what makes a pack deadly (danger.py)
         self.traits: dict[int, tuple[int, tuple[int, ...], tuple[int, int] | None]] = {}
         self.bands: dict[int, dict[int, str]] = {}  # area -> unit id -> its pack's band on the last pass
+        # leader's unit id -> (area, kind, txt id, x, y, name) as first seen: the level's elite groups (elites.py)
+        self.elites: dict[int, tuple[int, str, int, int, int, str | None]] = {}
+        self.layouts: dict[int, tuple] = {}  # area -> its rooms (levels/model.py Room), from the level guide
         self.lost: dict[int, tuple[int, int | None]] = {}  # unit id -> (area, Herald tier): not where remembered
         self.paths: dict[int, int] = {}  # unit id -> dynamic path address, units in the last walk only
         self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
@@ -270,11 +288,13 @@ class ZoneTracker:
             'allies': sorted(self.allies),
             'zones': sorted(self.zones),
             'visited': {area: sorted(rooms) for area, rooms in self.visited.items()},
+            'explored': {area: sorted(rooms) for area, rooms in self.explored.items()},
             'loaded': self.loaded,
             'dead': self.dead,
             'votes': {zone: list(votes) for zone, votes in self.votes.items()},
             'modifiers': {zone: list(mods) for zone, mods in self.modifiers.items()},
             'offsets': self.offsets,
+            'elites': {unit_id: list(first) for unit_id, first in self.elites.items()},
         }
 
     def restore(self, state: dict):
@@ -287,11 +307,19 @@ class ZoneTracker:
             set(state['zones']),
         )
         self.visited = {int(area): {tuple(room) for room in rooms} for area, rooms in state['visited'].items()}
+        # Absent in games stored before 2026-10-06: their map starts unshaded.
+        explored = state.get('explored', {})
+        self.explored = {int(area): {tuple(room) for room in rooms} for area, rooms in explored.items()}
         self.loaded = {int(area): int(count) for area, count in state['loaded'].items()}
         self.dead = {int(unit_id): int(area) for unit_id, area in state['dead'].items()}
         self.votes = {zone: deque(votes, maxlen=TERROR_VOTES) for zone, votes in state['votes'].items()}
         self.modifiers = {zone: deque(mods, maxlen=TERROR_VOTES) for zone, mods in state['modifiers'].items()}
         self.offsets = {str(name): float(offset) for name, offset in state['offsets'].items()}
+        # Absent in games stored before 2026-10-06.
+        self.elites = {
+            int(unit_id): (int(area), str(kind), int(txt_id), int(x), int(y), name)
+            for unit_id, (area, kind, txt_id, x, y, name) in state.get('elites', {}).items()
+        }
 
     def save(self):
         """Keep this game in the store, in place of what was stored of it before."""
@@ -324,8 +352,13 @@ class ZoneTracker:
             self.positions[unit_id] = (event['area'], event['x'], event['y'])
             if not (event['x'] or event['y']):
                 self.lost[unit_id] = (self.positions.pop(unit_id)[0], None)
-            if (data_byte(event, TYPE_FLAGS) or 0) & LEADER_FLAGS and not is_minion(event):
+            flags = data_byte(event, TYPE_FLAGS) or 0
+            if flags & LEADER_FLAGS and not is_minion(event):
                 self.leaders.add(unit_id)
+                if not stat(event, HERALD_TIER_STAT) and event.get('txt_id') is not None:
+                    kind = 'super' if flags & SUPER_FLAG else 'champion' if flags & CHAMPION_FLAG else 'unique'
+                    name = super_name(event) if kind == 'super' else None
+                    self.elites[unit_id] = (event['area'], kind, event['txt_id'], event['x'], event['y'], name)
             if event.get('txt_id') is not None:
                 self.traits[unit_id] = (event['txt_id'], modifiers(event), aura(event))
         tier = stat(event, HERALD_TIER_STAT)
@@ -348,6 +381,8 @@ class ZoneTracker:
         # Only units the client holds now: one that left its range keeps its dot, but the game frees
         # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
         self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
+        if location is not None:
+            self.explore(location)
         for monster in monsters:
             if not (monster.x or monster.y):
                 continue  # no position yet
@@ -355,6 +390,9 @@ class ZoneTracker:
             if alive and monster.unit_id in self.lost:
                 area, tier = self.lost.pop(monster.unit_id)
                 self.positions[monster.unit_id] = (monster.area or area, monster.x, monster.y)
+                first = self.elites.get(monster.unit_id)
+                if first and not (first[3] or first[4]):  # first seen before its path was filled in
+                    self.elites[monster.unit_id] = (first[0], first[1], first[2], monster.x, monster.y, first[5])
                 if tier is not None:
                     self.live_heralds[monster.unit_id] = (tier, monster.area or area, monster.x, monster.y)
             revived = monster.unit_id in self.dead and monster.unit_id not in self.positions
@@ -399,28 +437,54 @@ class ZoneTracker:
         self.bands[area] = {unit_id: pack.band for pack in found if pack.band for unit_id in pack.members}
         return found
 
+    def level_layout(self, area: int, rooms):
+        """The level guide read the level's rooms: their pieces name its fixed elite groups."""
+        self.layouts[area] = tuple(rooms)
+
+    def elite_line(self, area: int, rooms=None) -> str | None:
+        """'Elites: 3 killed · 2 alive of 7-9 · fixed: 1 killed of 3' for `area`. Its rooms (the
+        ones the level guide read, unless given) name the level's fixed groups (elites.py)."""
+        rooms = self.layouts.get(area, ()) if rooms is None else rooms
+        sightings = [
+            elites.Sighting(unit_id, kind, txt_id, x, y, name, unit_id in self.dead and unit_id not in self.positions)
+            for unit_id, (where, kind, txt_id, x, y, name) in self.elites.items()
+            if where == area
+        ]
+        return elites.line(elites.tally(area, rooms, sightings))
+
     def map_dots(self, area: int, *, danger: bool = True) -> list[MapPoi]:
         """A dot per hostile monster alive in `area` at its last seen position, in tiles: plain
         mobs (minions too), then pack leaders (unique, champion, super unique), then Heralds,
         the drawing order. A dot per monster rather than a tinted room (user, 2026-10-03: big
         rooms hid where the pack was). With `danger`, every monster of a pack to be careful with
-        is a 'caution' dot and of a deadly one a 'danger' dot, leaders too (user, 2026-10-06), and
-        a deadly pack adds a 'pack' point at its centre, named by what makes it deadly."""
+        is a 'caution' dot and of a deadly one a 'danger' dot; a leader stays a 'leader' dot, or
+        an 'elite' one in a deadly pack (user, 2026-10-06), and a deadly pack adds a 'pack' point
+        at its centre, named by what makes it deadly."""
         found = [pack for pack in self.packs(area) if pack.band] if danger else []
         bands = {
             unit_id: 'danger' if pack.band == 'deadly' else 'caution' for pack in found for unit_id in pack.members
         }
-        dots: dict[str, list[MapPoi]] = {'mob': [], 'caution': [], 'leader': [], 'danger': []}
+        dots: dict[str, list[MapPoi]] = {'mob': [], 'caution': [], 'leader': [], 'danger': [], 'elite': []}
         for unit_id, (where, x, y) in self.positions.items():
             if where == area and unit_id not in self.live_heralds:
-                kind = bands.get(unit_id) or ('leader' if unit_id in self.leaders else 'mob')
+                kind = bands.get(unit_id) or 'mob'
+                if unit_id in self.leaders:  # told apart from its pack whatever the band (user, 2026-10-06)
+                    kind = 'elite' if kind == 'danger' else 'leader'
                 label = 'unique' if unit_id in self.leaders else 'monster'
                 # The HUD follows the marked ones between passes (hud/live.py).
-                path = self.paths.get(unit_id, 0) if kind in ('leader', 'danger') else 0
+                path = self.paths.get(unit_id, 0) if kind in ('leader', 'danger', 'elite') else 0
                 dots[kind].append(MapPoi(label, kind, x / TILE_UNITS, y / TILE_UNITS, path))
         deadly = [pack for pack in found if pack.band == 'deadly']
         centres = [MapPoi(pack.label, 'pack', pack.x / TILE_UNITS, pack.y / TILE_UNITS) for pack in deadly]
-        return [*dots['mob'], *dots['caution'], *dots['leader'], *dots['danger'], *centres, *self.herald_dots(area)]
+        return [
+            *dots['mob'],
+            *dots['caution'],
+            *dots['leader'],
+            *dots['danger'],
+            *dots['elite'],
+            *centres,
+            *self.herald_dots(area),
+        ]
 
     def danger_lines(self, area: int, position: tuple[int, int] | None = None, *, shown: int = 2) -> list[str]:
         """A row per deadly pack in `area`, the nearest first: what it is, why, and which way."""
@@ -433,9 +497,27 @@ class ZoneTracker:
         )
         return [f'{pointer.arrow}  ⚠ {pointer.label}: {pointer.compass}' for pointer in pointers[:shown]]
 
+    def explore(self, location):
+        """Mark the player's room and the rooms touching it, corners too: the client shows the
+        monsters of those rooms only, though it loads rooms further out."""
+        x, y = location.x / TILE_UNITS, location.y / TILE_UNITS
+        loaded = self.visited.get(location.area_id, ())
+        for rx, ry, width, height in loaded:
+            if rx <= x < rx + width and ry <= y < ry + height:
+                near = {
+                    room
+                    for room in loaded
+                    if room[0] <= rx + width
+                    and rx <= room[0] + room[2]
+                    and room[1] <= ry + height
+                    and ry <= room[1] + room[3]
+                }
+                self.explored.setdefault(location.area_id, set()).update(near)
+                return
+
     def visited_rooms(self, area: int) -> set[tuple]:
-        """Bounds of the rooms ever loaded in `area`: the map dims the others."""
-        return self.visited.get(area, set())
+        """Bounds of the rooms of `area` the player was in or next to: the map dims the others."""
+        return self.explored.get(area, set())
 
     def terrorized(self, area: int) -> bool | None:
         """The area's Terror Zone by its plain monsters' forced modifier (most of the last few),

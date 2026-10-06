@@ -33,11 +33,11 @@ levelling characters. Keep price: 0.25 Ist, inclusive.
 
 | Measure | Target | Now |
 |---|---|---|
-| Guide worked examples and false-positive rows | 100% pass | 36/36 and 15/15 (two worked notes moved to context) |
-| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified; 305 of 404 pass (75.5%); 99 not transcribed |
-| Listing replay, valuable seller votes flagged | at least 85% | 75.1% (bases 63.2%) |
+| Guide worked examples and false-positive rows | 100% pass | 36/36 and 16/16 |
+| Guide table rows that are verdict or own-use rows | every row classified with a reason; at least 95% pass | all classified and executing; 373 of 404 pass (92.3%) |
+| Listing replay, valuable seller votes flagged | at least 85% | 78.3% (bases 67.4%, rare 45.1%) |
 | Cheap listings flagged SELL or slow / CHECK | at most 10% / 25% | 10.4% (over) / 17.7% |
-| Named corpus drops that end as CHECK | at most 15% | 12.2% |
+| Named corpus drops that end as CHECK | at most 15% | 12.1% |
 | SELL cohorts with turnover or buyers | at least 80%, over an interval of seven days or more | unmeasured (one-day interval) |
 | Speed | under 50 ms per item; a ten-item identify pass under 1 s | 0.3 ms replayed; live pass unrecorded |
 
@@ -46,15 +46,14 @@ number that goes down is reverted or explained in PLAN.md section 8.
 
 ### Queue
 
-PLAN.md "Steering 9" (2026-10-06 16:30), in this order, with its rules of pace:
+PLAN.md "Steering 11" (2026-10-06 20:00), in this order, with the Steering 9 rules of pace:
 
-1. SELF-USE does not hide a sale price: an own-use item with a supported band at or above
-   the keep price is SELL or slow.
-2. Bases: exit at base recall of at least 70%.
-3. Named items: roll placement, which also returns the cheap SELL rate under its limit.
-4. Rare, magic and crafted patterns in one data-driven pass, guarded by the corpus CHECK
-   share for rare and magic (at most 8% each).
-5. In parallel: transcribe the 99 classified guide rows as cases; failing rows are failures.
+1. Rare and magic: a per-family count of paid properties replaces exact combinations,
+   guarded by the corpus CHECK share (at most 8% each) and validated on held-out sellers.
+2. Bases: exit at base recall of at least 70%, using dominance floors.
+3. Named items: roll placement.
+4. Alongside: guide rows to 95% from the list of 29 failing rows.
+5. Cheap SELL rate: reported, not worked, until the user decides the measure (PLAN.md).
 6. Demand: measure at the next weekly pull, not before.
 
 ### Stopping rule

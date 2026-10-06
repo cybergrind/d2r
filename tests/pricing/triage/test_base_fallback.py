@@ -46,6 +46,12 @@ def test_native_shield_floor_keeps_identity_and_sockets_and_is_labelled():
     assert result['decision_ist'] == 1.5
     assert result['band']['price_basis'] == 'base_floor'
     assert 'at least' in headline(result)
+    weaker = from_listing(rows[0] | {'properties': rows[0]['properties'] | {'441': 5}})
+    assert assess(weaker, data)['decision_ist'] is None
+    unknown = from_listing(rows[0] | {'properties': {k: v for k, v in rows[0]['properties'].items() if k != '441'}})
+    assert assess(unknown, data)['decision_ist'] is None
+    damage = from_listing(rows[0] | {'properties': unknown['properties'] | {'510': 65, '423': 121}})
+    assert assess(damage, data)['decision_ist'] is None
     for change in ({'sockets': 3}, {'ethereal': True}, {'rarity': None}, {'socket_contents': 'filled'}):
         assert assess(item | change, data)['decision_ist'] is None
     low = tables([r | {'ask_ist': 0.1} for r in rows])
@@ -286,8 +292,7 @@ def test_shield_all_resistance_comparison_changes_linked_elements_together():
     high = from_listing(rows[-1])
     assert assess(high, data)['decision_ist'] == 1.5
     low = assess(from_listing(rows[0]), data)
-    assert low['decision_ist'] == 1.5
-    assert low['band']['price_basis'] == 'base_floor'
+    assert low['decision_ist'] is None  # one lower-roll seller cannot borrow the 40/43 premiums
     changed = from_listing(rows[-1] | {'properties': rows[-1]['properties'] | {'427': 44}})
     assert assess(changed, data)['decision_ist'] is None
     assert assess(high | {'ethereal': True}, data)['decision_ist'] is None

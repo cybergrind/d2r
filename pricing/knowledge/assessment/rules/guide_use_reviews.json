@@ -18209,7 +18209,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
+            "sha256": "8a0f83a673ca75e827fcdafa7d8374aecf755c8e03b68558fff7823a383b1e65",
             "locator": "/staffmods/inferior_range"
           }
         ]
@@ -18219,7 +18219,7 @@
       "scope": "softcore",
       "review_date": "2026-10-01",
       "review_reason": "Reviewed exact Starter completed Rhyme shield and base, preserving main/swap scope and all stated staffmods. CBF/farming/resistances support progression at ordinary rolls; total block and implicit simultaneous equipment are not inferred. Smite inherent45resistance is an illustrative better-base target, separate from fixed recipe25resistance. No numeric price inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). Rhyme grants no Poison Nova, so inferior quality cannot meet this exact +2 Poison Nova shield use. Normal and superior variants remain eligible. This does not exclude other Rhyme uses, empty bases, or the runeword identity.",
-      "profile_fingerprint": "641b7afb7184751a8d63de9fea9b594efd4b755bb55b5e90ad2cccfe3cd0f095",
+      "profile_fingerprint": "bb427c2fe11c6e12d3bc1ac8c7b68b44f63dbfccce3fc83a6575daf86df351f3",
       "presentation": {
         "progression": "Starter"
       }
@@ -33008,7 +33008,7 @@
           },
           {
             "path": "pricing/data/appraisal-definitions.json",
-            "sha256": "9acc5748c1096b78e7eb820b839a9ada7c70a6082df9f93f17bb183f759c77cd",
+            "sha256": "8a0f83a673ca75e827fcdafa7d8374aecf755c8e03b68558fff7823a383b1e65",
             "locator": "/staffmods/inferior_range"
           }
         ]
@@ -33018,7 +33018,7 @@
       "scope": "softcore",
       "review_date": "2026-10-01",
       "review_reason": "Cached Gear Options explicitly says White base with +2-3 Poison Nova is suitable. Accept+2; do not require perfect+3 from the planner-only Budget example. White does not grant Poison Nova, so the observed bonus establishes that base staffmod. Legal two-socket wand capacity and completed recipe required. Ethereal is usable for spell casting, not sustainable melee. Prioritize Poison and Bone skills, Poison Nova, FCR, mana, MDR and defensive Bone Armor; native Bone Spear/Skeleton Mastery do not imply Poison Nova priorities. Empty Bone Wand advice shares the same source. No market price or full loadout breakpoint inferred. 2026-10-01: RotW inferior staffmods are fixed at +1 (D2MOO sub_6FC52650, item format >=100). White grants no Poison Nova, so inferior quality cannot meet this explicitly sourced +2-3 staffmod use. Normal and superior variants remain eligible; other White uses and item identity are retained.",
-      "profile_fingerprint": "f37465490c130daf41de3da2e10b867dc2e79894adfaba64673f80065807b914"
+      "profile_fingerprint": "357399bef6a133571f2635cdc5c6d5d76aa817a9c6171648487c5b13a8df5734"
     },
     {
       "profile_id": "berserk-barbarian-wisp-projector-find-absorb-alternative",

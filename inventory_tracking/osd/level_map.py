@@ -45,12 +45,14 @@ KIND_TONES = {
     'danger': Tone.MOB_DANGER,  # a monster of a deadly pack (terror/danger.py)
     'caution': Tone.MOB_CAUTION,  # a monster of a pack to be careful with
     'pack': Tone.MOB_DANGER,  # a deadly pack's centre: the ground arrow towards it, no dot of its own
+    'elite': Tone.MOB_LEADER,  # a deadly pack's leader: a leader's dot ringed in the pack's colour
 }
 KIND_COLOURS = {kind: tone_rgb(tone) for kind, tone in KIND_TONES.items()}
 POI_RADIUS = 5.5
-MONSTER_KINDS = frozenset(('mob', 'leader', 'herald', 'danger', 'caution', 'pack'))  # from terror/tracker.py
-KIND_RADII = {'mob': 2.0, 'caution': 3.0, 'leader': 3.5, 'danger': 3.5, 'herald': POI_RADIUS}
-MONSTER_ORDER = ('mob', 'caution', 'leader', 'danger')  # drawn in this order, under everything else
+MONSTER_KINDS = frozenset(('mob', 'leader', 'herald', 'danger', 'caution', 'pack', 'elite'))  # from terror/tracker.py
+KIND_RADII = {'mob': 2.0, 'caution': 3.0, 'leader': 3.5, 'danger': 3.0, 'elite': 4.5, 'herald': POI_RADIUS}
+ELITE_RING = 2.5  # the elite dot's ring, in its pack's colour
+MONSTER_ORDER = ('mob', 'caution', 'leader', 'danger', 'elite')  # drawn in this order, under everything else
 
 # Card pixels per projected tile unit, at HUD scale 1 (the game view is about 190). A level is
 # drawn whole down to WHOLE_SCALE; a bigger one is drawn around the player at LOCAL_SCALE, where
@@ -318,6 +320,13 @@ def draw_map(cr, width: float, height: float, card: MapCard, *, min_scale: float
             x, y, pinned = pin(player, (x, y), width, height)
         if pinned:
             _arrowhead(cr, x, y, math.atan2(y - player[1], x - player[0]), colour)
+        elif poi.kind == 'elite':
+            cr.arc(x, y, radius + ELITE_RING / 2, 0, 2 * math.pi)
+            cr.set_source_rgba(*KIND_COLOURS['danger'], 1)
+            cr.fill()
+            cr.arc(x, y, radius - ELITE_RING / 2, 0, 2 * math.pi)
+            cr.set_source_rgba(*colour, 1)
+            cr.fill()
         elif radius < POI_RADIUS:
             cr.arc(x, y, radius, 0, 2 * math.pi)
             cr.set_source_rgba(*colour, 1)

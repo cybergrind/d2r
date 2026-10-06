@@ -60,3 +60,14 @@ def test_a_centred_slot_puts_the_middle_of_its_widgets_on_its_x():
 
     assert box == (450, 216, 300, 200)
     assert slot_limit(slot, rect) == (1000, 784)
+
+
+def test_an_upward_slot_stacks_its_widgets_up_from_its_bottom_edge():
+    rect = GameRect(100, 200, 1000, 800)
+    slot = Slot(0.1, 0.75, upward=True)  # y: the bottom of the stack
+    widgets = [Widget('a', 'guide', 's', {}), Widget('b', 'guide', 's', {})]
+
+    boxes = place(widgets, {'a': (300, 100), 'b': (200, 50)}, {'s': slot}, rect, gap=8)
+
+    assert [box for _, box in boxes] == [(200, 700, 300, 100), (200, 642, 200, 50)]
+    assert slot_limit(slot, rect) == (900, 600)  # the room above its bottom edge
