@@ -139,5 +139,11 @@ def test_ground_marks_fill_the_game_window_and_stay_translucent():
     far_x, far_y, far_on_screen = place_mark(80, 0, 800, 450, config)
     assert (near_on_screen, far_on_screen) == (True, False)
     assert 0 < alpha(near_x, near_y) < 128  # the faint fill: the monster under it stays visible
-    assert 0 < alpha(far_x, far_y) < 255  # the edge dot
+    assert alpha(far_x, far_y) > 128  # the arrow towards it: easy to spot, unlike the mark under a monster
     assert alpha(5, 5) == 0
+
+    far_leader = Widget('ground', 'ground', 'ground', {**payload, 'marks': [['leader', 90.0, 10.0]]})
+    blank = cairo.ImageSurface(cairo.FORMAT_ARGB32, 800, 450)
+    draw_scene(cairo.Context(blank), [(far_leader, (0, 0, 800, 450))], scale=1.0)
+    blank.flush()
+    assert not any(blank.get_data())  # a pack that far away gets no arrow

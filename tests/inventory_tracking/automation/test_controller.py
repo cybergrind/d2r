@@ -161,3 +161,20 @@ def test_new_player_publishes_empty_events_through_reader(tmp_path, healing_setu
     automation.step(changed)
     reader.set_state(changed)
     assert reader.latest().events == ()
+
+
+def test_extra_steps_run_after_healing_and_never_break_it(healing_setup, sample, clock):
+    make, sent = healing_setup
+    seen = []
+
+    class Broken:
+        def step(self, state):
+            seen.append(state)
+            raise RuntimeError('boom')
+
+    automation = Automation([make(PLAYER_HEALING)], extras=[Broken()])
+    result = automation.step(sample())
+
+    assert result[Actor.PLAYER].outcome == Outcome.SENT
+    assert sent.call_count == 1
+    assert len(seen) == 1

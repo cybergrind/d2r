@@ -2,6 +2,53 @@ from pricing.triage.engine import assess
 from pricing.triage.import_skillers import compile_skillers
 
 
+def test_all_native_skill_trees_are_prefixes_and_can_match_observed_market_rules():
+    import json
+
+    from pricing.knowledge.assessment.adapters.market_projection import market_properties
+    from pricing.triage.build import ROOT
+    from pricing.triage.charm_modifiers import TREES, suffix
+
+    native = {p for key, p in market_properties().items() if key.startswith('188:')}
+    assert len(native) == 24
+    assert native == TREES
+    rules = compile_skillers(json.loads((ROOT / 'pricing/data/wp-h-jewels-charms.json').read_text()))
+    observed = [r for r in rules if r.get('bucket', '').endswith('-observed-suffix')]
+    assert {p for r in observed for p in r['properties']} == native
+    assert suffix('Grand Charm', {'455': 1, '418': 40}) == {'418': 40}
+    passive = [r for r in rules if '455' in r['properties']]
+    assert passive
+    assert not any(r.get('pattern') for r in passive)
+
+
+def test_sparse_matched_plain_skiller_asks_are_review_not_vendor_or_a_price():
+    from pricing.triage.adapters import from_listing
+    from pricing.triage.bands import build_bands
+    from pricing.triage.engine import prepare_tables
+    from tests.pricing.triage.test_bands import listing
+
+    rules = compile_skillers({'tree': {'class': 'charm-grand-skiller', 'bucket_def': 'Grand Charm (prop 444)'}})
+    rows = []
+    for seller in range(2):
+        row = listing(seller, 0.5)
+        row.update(name='Grand Charm', category='charms', rarity='magic')
+        row['properties']['444'] = 1
+        rows.append(row)
+    tables = prepare_tables(build_bands(rows, [], rules=rules), {'keep_ist': 0.25, 'rows': rules}, {'rows': []})
+    item = from_listing(rows[0])
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    assert result['band'] is None
+    assert result['reference_band']['sellers'] == 2
+    assert assess(item | {'properties': {'445': 1}}, tables)['verdict'] == 'vendor'
+    # The observed plain ask does not establish a missing suffix cohort.
+    assert assess(item | {'charm_suffix': {'418': 30}}, tables)['verdict'] == 'vendor'
+    cheap = [row | {'ask_ist': 0.1} for row in rows]
+    cheap_tables = prepare_tables(build_bands(cheap, [], rules=rules), tables['rules'], {'rows': []})
+    assert assess(item, cheap_tables)['verdict'] == 'vendor'
+
+
 def test_documented_life_skiller_requires_tree_and_life_without_invented_price():
     source = {
         'CH-skiller-example': {

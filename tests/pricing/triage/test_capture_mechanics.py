@@ -74,3 +74,80 @@ def test_weapon_quantity_is_not_a_sale_lot():
     base = next(b for b in metadata()['bases'].values() if b['type'] == 'jave')
     item = from_drop(observation(base['code'], rarity='magic', quantity=120))
     assert item['quantity'] == 1
+
+
+@pytest.mark.parametrize('name', ['Rejuvenation Potion', 'Full Rejuvenation Potion'])
+def test_captured_material_potions_use_misc_market_and_keep_quantity(name):
+    base = next(b for b in metadata()['bases'].values() if b['name'] == name)
+    item = from_drop(observation(base['code'], name=name, rarity='normal', quantity=96))
+    assert item['category'] == 'misc'
+    assert item['name'] == name
+    assert item['quantity'] == 96
+
+
+def test_jewel_required_level_comes_from_verified_affixes_not_item_level():
+    from pricing.triage.engine import assess
+    from pricing.triage.import_affixed_rules import affixed_rules
+
+    base = next(b for b in metadata()['bases'].values() if b['name'] == 'Jewel')
+    suffix = next(
+        int(k)
+        for k, r in metadata()['affixes']['suffix'].items()
+        if r['name'] == 'of Carnage' and base['code'] in r['base_codes']
+    )
+    captured = observation(
+        base['code'], rarity='magic', identified=True, item_level=99, affixes=[{'property_id': '448', 'value': 11}]
+    )
+    captured['source'] = {
+        'stat_capture_complete': True,
+        'native_affixes': {'prefix': [], 'suffix': [suffix], 'auto': []},
+    }
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = from_drop(captured)
+    assert item['properties']['796'] == 18
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert 'low-level' in result['reason'].lower()
+    assert result['decision_ist'] is None
+    for level in [41, 50, None]:
+        properties = item['properties'] | {'796': level}
+        assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+    for source in [
+        {},
+        captured['source'] | {'stat_capture_complete': False},
+        captured['source'] | {'native_affixes': {'prefix': [], 'suffix': [999999], 'auto': []}},
+    ]:
+        unknown = from_drop(captured | {'source': source})
+        assert '796' not in unknown['properties']
+        assert assess(unknown, tables)['verdict'] == 'vendor'
+    high_prefix = next(
+        int(k)
+        for k, r in metadata()['affixes']['prefix'].items()
+        if r['name'] == 'Vermillion' and base['code'] in r['base_codes']
+    )
+    high = from_drop(
+        captured
+        | {
+            'item': captured['item'] | {'affixes': [{'property_id': '448', 'value': 26}]},
+            'source': captured['source']
+            | {'native_affixes': {'prefix': [high_prefix], 'suffix': [suffix], 'auto': []}},
+        }
+    )
+    assert high['properties']['796'] == 50
+    assert assess(high, tables)['verdict'] == 'vendor'
+    # Carnage is not rare-eligible; malformed IDs never establish LLD eligibility.
+    rare = from_drop(captured | {'item': captured['item'] | {'rarity': 'rare'}})
+    assert '796' not in rare['properties']
+    for stat in (92, 94):
+        adjusted = from_drop(
+            captured
+            | {
+                'decoded_stats': [
+                    {
+                        'memory_stat': {'id': stat, 'layer': 0, 'raw': 10},
+                        'status': 'unresolved',
+                    }
+                ]
+            }
+        )
+        assert '796' not in adjusted['properties']

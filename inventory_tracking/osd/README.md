@@ -5,13 +5,20 @@ Live behavior accepted 2026-09-21. Run from a host desktop terminal at repo root
 ```sh
 uv run -m inventory_tracking.osd
 # Read-only observation:
-uv run -m inventory_tracking.osd --no-player-heal --no-merc-heal
+uv run -m inventory_tracking.osd --no-player-heal --no-merc-heal --no-show-items
 # Input-free previews:
 uv run -m inventory_tracking.osd --demo
 uv run -m inventory_tracking.osd --demo-resources
 ```
 
-Both controllers default on. Ctrl+C stops the process; restart after changing
+Both controllers default on. So does Show Items (2026-10-05): when a new game's
+item labels are off, the OSD presses the character's own Show Items key once
+after 1.5 s. It reads that key from the character's key file in Saved Games
+(`<name><digits>.keyo`, offline `<name>.key`, action 37; `SHOW_ITEMS.key_names`
+overrides it), and doesn't press when the key is unbound, a mouse button, or a modifier: the default
+Alt switches the keyboard layout here, so rebind Show Items (to Z, say) on each character. It
+retries up to 3 times while the byte stays off. Once labels are seen on, it leaves that game alone, so turning them off
+yourself sticks until the next game. Ctrl+C stops the process; restart after changing
 code/config. `--text` prints alerts instead of opening GTK and retains automation
 unless disabled. `--once` prints one sample and exits; it and all demos never
 send keys. Once exits 0 for a health sample, 2 for unavailable state.

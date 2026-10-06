@@ -209,7 +209,7 @@ class ExitsHandler(Handler):
         unseen = [e for e in self.exits if e not in named]
         if len(unknown) == 1 and len(unseen) == 1:
             named[unseen[0]] = unknown.pop()
-        pois = [Poi(e.label, named[e], e.kind) for e in self.exits if e in named]
+        pois = [Poi(e.label, named[e], e.kind, area=e.area) for e in self.exits if e in named]
         pois += [Poi('Exit', room, 'exit') for room in unknown]
         rest = super().guide(snapshot)
         return Guidance((*pois, *rest.pois), rest.problems)

@@ -29,6 +29,21 @@ def magic_patterns(add):
     from inventory_tracking.items.metadata import metadata
     from pricing.knowledge.assessment.mechanics.base_tiers import base_tier
 
+    for prop, minimum, label in [('418', 81, 'life'), ('461', 26, 'magic find')]:
+        add(
+            'circ',
+            'magic',
+            'Warlock magic circlet: +2 skills + ' + label,
+            stats(**{'1862': 2, prop: minimum}),
+            source='guides/warlock.html#s4 Forbidden Diadem; native Whale/Luck suffix ranges',
+        )
+    add(
+        'lcha',
+        'magic',
+        'Sharp Grand Charm: maximum damage + attack rating',
+        stats(**{'448': 8, '423': 49}),
+        source='guides/pricing-primer.html#s4-1 CH-gc-melee; native magicprefix Sharp 253',
+    )
     add(
         'scha',
         'magic',
@@ -298,7 +313,9 @@ def throwing_weapon_patterns(add):
 def affixed_rules():
     rows = []
 
-    def add(family, rarity, label, required, support=None, source=SOURCE, low_rolls=None, labels=None):
+    def add(
+        family, rarity, label, required, support=None, source=SOURCE, low_rolls=None, labels=None, relax_support=True
+    ):
         rows.append(
             {
                 'family': family,
@@ -306,7 +323,7 @@ def affixed_rules():
                 **required,
                 **(support or {}),
                 'pattern': {
-                    **support_pattern(support or {}),
+                    **(support_pattern(support or {}) if relax_support else support or {}),
                     'properties': required.get('properties', {}) | (low_rolls or {}),
                 },
                 **({'labels': labels} if labels else {}),
@@ -338,6 +355,15 @@ def affixed_rules():
             counted(2, stats(**{'441': 10}), stats(**{'418': 30}), stats(**{'437': 10}), stats(**{'429': 10})),
         )
     for skill in CLASS_SKILLS:
+        add(
+            'amul',
+            'rare',
+            'Caster amulet: class skills + FCR + strong resistance, life or teleport',
+            stats(**{skill: 2, '520': 10}),
+            counted(1, resist(15), stats(**{'418': 40}), stats(**{'526': 1})),
+            source='guides/pricing-primer.html#s6-1 RR-caster-amulet',
+            relax_support=False,
+        )
         add(
             'amul',
             'rare',
@@ -458,6 +484,22 @@ def affixed_rules():
         stats(**{'462': 1, '567': 5, '418': 1}),
         counted(1, stats(**{'457': 20}), *(stats(**{p: 2}) for p in ('454', '456', '410'))),
     )
+    add(
+        'ring',
+        'crafted',
+        'Blood ring: leech + strength + life + resistance',
+        stats(**{'462': 1, '437': 10, '418': 30}),
+        resist(10),
+        relax_support=False,
+        source={
+            'guide': 'guides/pricing-primer.html#s6-1 CR-blood-ring',
+            'path': 'pricing/raw/traderie/pull-20261003/3658180761-p0.json; pull-20261004/3658180761-p0.json',
+            'reviewed_at': '2026-10-06',
+            'scope': 'SC/NL/PC/RotW',
+            'independent_sellers': 3,
+            'threshold_basis': 'existing melee-ring strength/life/resistance floors; Blood recipe leech minimum',
+        },
+    )
     # Scoped 2026-10-03 asks independently support these complete socketed
     # patterns; do not make mobility items pass by removing the caster's FCR gate.
     for prop, minimum, sellers in (
@@ -537,6 +579,14 @@ def affixed_rules():
             low_rolls={p: {'min': 1} for p in pair},
             labels={p: jewel_stats[p][1] for p in pair},
             source='guides/pricing-primer.html#d3 (JW-rare / pairs of paid jewel stats)',
+        )
+    for rarity in ('magic', 'rare'):
+        add(
+            'jewl',
+            rarity,
+            'Low-level damage jewel: 11+ maximum damage, equip level <=40',
+            {'properties': {'448': {'min': 11}, '796': {'min': 1, 'max': 40}}},
+            source='guides/pricing-primer.html#s3-2 JW-lowreq; Carnage and documented 11/12/15-max examples',
         )
     magic_patterns(add)
     physical_weapon_patterns(add)

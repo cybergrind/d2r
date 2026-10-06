@@ -75,6 +75,7 @@ class Poi:
     room: Room
     kind: str  # 'stairs' (next level) | 'previous' | 'waypoint' | 'target' (boss, chest)
     spot: tuple[float, float] | None = None  # tiles: the warp itself (levels/spots.py); None = room centre
+    area: int | None = None  # the level this way out leads to, when the rule that made it knows
 
     @property
     def point(self) -> tuple[float, float]:

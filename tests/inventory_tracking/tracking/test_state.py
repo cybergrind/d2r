@@ -92,3 +92,11 @@ def test_layout_constants_drive_classification_and_selection():
     assert {potion_kind(class_id) for class_id in layout.HEALING_POTIONS} == {PotionType.HEALING}
     assert potion_kind(layout.TOME_CLASS_ID) is None
     assert layout.BELT_SIZE == layout.BELT_COLUMNS * 4
+
+
+def test_the_local_player_name_rides_on_the_state(snapshot):
+    data = snapshot()
+    data['groups']['players']['units'][0]['details']['name'] = 'CybergrindAA'
+
+    assert from_research(data).player_name == 'CybergrindAA'
+    assert from_research(snapshot()).player_name is None

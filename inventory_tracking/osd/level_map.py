@@ -59,6 +59,7 @@ class MapPoi:
     kind: str
     x: float
     y: float
+    path: int = 0  # address of a monster's dynamic path, when the HUD can follow it (hud/live.py)
 
 
 @dataclass(frozen=True)
@@ -77,7 +78,7 @@ class MapCard:
             'map': {
                 'rooms': [list(room) for room in self.rooms],
                 'player': list(self.player),
-                'pois': [[p.label, p.kind, p.x, p.y] for p in self.pois],
+                'pois': [[p.label, p.kind, p.x, p.y, *([p.path] if p.path else [])] for p in self.pois],
                 'route': [list(point) for point in self.route],
                 'room_kinds': list(self.room_kinds),
                 'walkable': [list(grid) for grid in self.walkable],
@@ -92,7 +93,10 @@ class MapCard:
             data = value['map']
             rooms = tuple((int(x), int(y), int(w), int(h)) for x, y, w, h in data['rooms'])
             px, py = (float(v) for v in data['player'])
-            pois = tuple(MapPoi(str(label), str(kind), float(x), float(y)) for label, kind, x, y in data['pois'])
+            pois = tuple(
+                MapPoi(str(label), str(kind), float(x), float(y), *(int(path) for path in rest[:1]))
+                for label, kind, x, y, *rest in data['pois']
+            )
             route = tuple((float(x), float(y)) for x, y in data.get('route', ()))
             kinds = tuple(str(kind) for kind in data.get('room_kinds', ()))
             walkable = tuple((int(x), int(y), int(w), int(h), str(c)) for x, y, w, h, c in data.get('walkable', ()))

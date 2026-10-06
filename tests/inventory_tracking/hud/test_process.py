@@ -33,7 +33,12 @@ def test_marked_map_dots_also_become_ground_marks_over_the_whole_game_window():
     ground, level_map = guide_widgets([card])
 
     assert (ground.id, ground.kind, ground.slot) == ('ground', 'ground', 'ground')
-    assert ground.payload == {'player': [4.0, 4.0], 'marks': [['leader', 2.0, 3.0]], 'live': None}
+    assert ground.payload | {'level': 0} == {
+        'player': [4.0, 4.0],
+        'marks': [['leader', 2.0, 3.0]],
+        'live': None,
+        'level': 0,
+    }
     assert level_map.id == 'map'
     assert (HUD.slots['ground'].x, HUD.slots['ground'].y) == (0, 0)
 

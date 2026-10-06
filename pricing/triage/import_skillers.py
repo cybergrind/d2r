@@ -5,6 +5,7 @@ import re
 
 from pricing.knowledge.refresh import atomic_json
 from pricing.triage.build import ROOT
+from pricing.triage.charm_modifiers import TREES
 
 
 SOURCE = 'pricing/data/wp-h-jewels-charms.json'
@@ -24,8 +25,24 @@ PAID_PLAIN = frozenset(
 )
 
 
+def observed_rule(key, prop, source):
+    return {
+        'category': 'magic',
+        'name': 'Grand Charm',
+        'bucket': key + '-observed-suffix',
+        'properties': {prop: 1},
+        'band_facets': ['charm_suffix'],
+        'compare_property': '418',
+        'compare_label': 'life',
+        'compare_range': {'min': 1, 'max': 45},
+        'source': source,
+        'imported_skiller': key,
+    }
+
+
 def compile_skillers(document):
     rules = []
+    observed = set()
     for key, row in document.items():
         if not isinstance(row, dict) or row.get('class') != 'charm-grand-skiller':
             continue
@@ -33,20 +50,8 @@ def compile_skillers(document):
         life = row.get('split', {}).get(key + '-life', {})
         if not match:
             continue
-        rules.append(
-            {
-                'category': 'magic',
-                'name': 'Grand Charm',
-                'bucket': key + '-observed-suffix',
-                'properties': {match[1]: 1},
-                'band_facets': ['charm_suffix'],
-                'compare_property': '418',
-                'compare_label': 'life',
-                'compare_range': {'min': 1, 'max': 45},
-                'source': SOURCE + '#' + key,
-                'imported_skiller': key,
-            }
-        )
+        rules.append(observed_rule(key, match[1], SOURCE + '#' + key))
+        observed.add(match[1])
         if key in PAID_PLAIN:
             rules.append(
                 {
@@ -76,6 +81,14 @@ def compile_skillers(document):
                 'source': SOURCE + '#' + key + '/split/' + key + '-life',
                 'imported_skiller': key,
             }
+        )
+    # Historical research omitted some trees. Enable exact observed comparisons,
+    # without treating catalog presence as evidence of a paid plain/life pattern.
+    for prop in sorted(TREES - observed):
+        rules.append(
+            observed_rule(
+                'CH-skiller-native-' + prop, prop, 'pricing/data/appraisal-properties.json#/properties/' + prop
+            )
         )
     return rules
 

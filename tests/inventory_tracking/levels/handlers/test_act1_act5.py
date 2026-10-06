@@ -15,13 +15,16 @@ def guide(area, *rooms):
     return handler_for(area).guide(LevelSnapshot(Location(area, 0, 4, 4), rooms))
 
 
-def test_blood_moor_marks_the_den_and_names_the_gap_by_elimination():
-    guidance = guide(2, Room(52, 40, 40, 8, 8), Room(5, 0, 8, 8, 8, 3, (0, 8, 8, 8), (1,)), Room(6, 72, 8, 8, 8, 3))
+TOWN_TRANSITION_E = 2
+
+
+def test_blood_moor_marks_the_den_the_camp_and_names_its_one_gap_by_elimination():
+    guidance = guide(2, Room(52, 40, 40, 8, 8), Room(TOWN_TRANSITION_E, 0, 8, 8, 8), Room(6, 72, 8, 8, 8, 3))
 
     assert rows(guidance) == [
         ('Cold Plains', 'stairs', 'Act 1 - Wild Border 3'),
-        ('Rogue Encampment', 'previous', 'Act 1 - Wild Border 2'),
         ('Den of Evil', 'stairs', 'Act 1 - DOE Entrance'),
+        ('Rogue Encampment', 'previous', 'Act 1 - Town 1 Transition E'),
     ]
     assert guidance.problems == ()
 

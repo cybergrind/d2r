@@ -15,6 +15,7 @@ IDENTITY_FACETS = {
     'wraithstep': 'wraithstep_tree',
     'opalvein': 'opalvein_bonus',
     "ormus' robes": 'ormus_skill',
+    'rainbow facet': 'rainbow_variant',
 }
 IDENTITY_PROPERTIES = {
     'torch_class': dict.fromkeys(('453', '514', '498', '442', '403', '488', '519', '1862'), 3),
@@ -49,6 +50,10 @@ def identity_facet(item):
 def value(item, facet, rules):
     from pricing.triage.engine import matches
 
+    if facet == 'rainbow_variant':
+        from pricing.triage.facet_identity import identity
+
+        return identity(item)
     if facet in IDENTITY_PROPERTIES or facet == 'ormus_skill':
         properties = item.get('properties', {})
         choices = ormus_skills() if facet == 'ormus_skill' else IDENTITY_PROPERTIES[facet]
@@ -95,6 +100,11 @@ def compile_named(category, name, rows, rules, *, facets=FACETS, bucket='name'):
         rows = [row for row in rows if row.get('socket_contents') != 'filled']
     identity = identity_facet({'category': category, 'name': name})
     mandatory = (identity,) if identity else ()
+    if identity == 'rainbow_variant':
+        from pricing.triage.facet_identity import variants
+
+        rolls = dict.fromkeys(p for _, props, _, _ in variants() for p in props)
+        facets = (*(f'property:{p}' for p in rolls), *facets)
     facets = (*mandatory, *facets)
     prepared = [(row, from_listing(row)) for row in rows]
     bands = []

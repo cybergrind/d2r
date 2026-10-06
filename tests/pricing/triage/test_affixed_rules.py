@@ -11,6 +11,23 @@ def verdict(family, properties, category='rare'):
     )['verdict']
 
 
+def test_plain_sharp_grand_charm_keeps_guide_damage_threshold_and_native_ar_floor():
+    assert verdict('lcha', {'448': 8, '423': 49}, 'magic') == 'check'
+    assert verdict('lcha', {'448': 10, '423': 76}, 'magic') == 'check'
+    for props in ({'448': 7, '423': 76}, {'448': 8}, {'423': 76}, {'448': 8, '423': 48}):
+        assert verdict('lcha', props, 'magic') == 'vendor'
+    assert verdict('mcha', {'448': 8, '423': 49}, 'magic') == 'vendor'
+
+
+@pytest.mark.parametrize(('prop', 'minimum', 'maximum'), [('418', 81, 100), ('461', 26, 35)])
+def test_warlock_magic_circlet_whale_and_luck_require_both_guide_affixes(prop, minimum, maximum):
+    for roll in (minimum, maximum):
+        assert verdict('circ', {'1862': 2, prop: roll}, 'magic') == 'check'
+    for props in ({'1862': 1, prop: maximum}, {'1862': 2, prop: minimum - 1}, {prop: maximum}):
+        assert verdict('circ', props, 'magic') == 'vendor'
+    assert verdict('circ', {'514': 2, prop: maximum}, 'magic') == 'vendor'
+
+
 def test_caster_ring_needs_both_mandatory_and_supporting_stats():
     assert verdict('ring', {'520': 10, '418': 30, '427': 20}) == 'check'
     assert verdict('ring', {'520': 10, '427': 20, '428': 20}) == 'vendor'
@@ -20,8 +37,10 @@ def test_caster_ring_needs_both_mandatory_and_supporting_stats():
 def test_rare_caster_amulet_counts_mana_but_still_requires_another_support():
     props = {'514': 2, '520': 10, '400': 60, '427': 20}
     assert verdict('amul', props) == 'check'
-    for missing in ('514', '520', '400', '427'):
+    for missing in ('514', '520', '427'):
         assert verdict('amul', {k: v for k, v in props.items() if k != missing}) == 'vendor'
+    # The primer's separate strong-resistance rule does not also require mana.
+    assert verdict('amul', {k: v for k, v in props.items() if k != '400'}) == 'check'
     assert verdict('amul', props | {'400': 5}) == 'check'
     assert verdict('amul', props | {'514': 1}) == 'vendor'
     assert verdict('amul', props | {'520': 9}) == 'vendor'
@@ -548,3 +567,40 @@ def test_speed_resistance_tiara_needs_both_stats_without_three_sockets():
     assert assess(item | {'properties': {'480': 20, '441': 20}}, tables)['verdict'] == 'check'
     for properties in ({'480': 30}, {'441': 30}):
         assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+
+
+@pytest.mark.parametrize(
+    ('support', 'minimum'), [('427', 15), ('428', 15), ('426', 15), ('401', 15), ('418', 40), ('526', 1)]
+)
+def test_primer_caster_amulet_accepts_one_strong_support_without_inventing_price(support, minimum):
+    from pricing.triage.engine import assess
+    from pricing.triage.import_affixed_rules import affixed_rules
+
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {'category': 'rare', 'family': 'amul', 'properties': {'514': 2, '520': 10, support: minimum}}
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    for properties in (
+        {'514': 2, '520': 10, support: minimum - 1},
+        {'514': 1, '520': 10, support: minimum},
+        {'514': 2, '520': 9, support: minimum},
+    ):
+        assert assess(item | {'properties': properties}, tables)['verdict'] == 'vendor'
+
+
+def test_blood_ring_support_pattern_does_not_require_rare_ring_attack_rating():
+    tables = {'bands': {}, 'rules': {'keep_ist': 0.25, 'rows': affixed_rules()}, 'own': {'rows': []}}
+    item = {'category': 'crafted', 'family': 'ring', 'properties': {'462': 1, '437': 10, '418': 30, '401': 10}}
+    result = assess(item, tables)
+    assert result['verdict'] == 'check'
+    assert result['decision_ist'] is None
+    assert 'Blood ring' in result['reason']
+    for prop in item['properties']:
+        assert (
+            assess(item | {'properties': {k: v for k, v in item['properties'].items() if k != prop}}, tables)['verdict']
+            == 'vendor'
+        )
+    for changes in ({'437': 5, '418': 20}, {'437': 9}, {'418': 29}, {'401': 9}):
+        assert assess(item | {'properties': item['properties'] | changes}, tables)['verdict'] == 'vendor'
+    assert assess(item | {'category': 'rare'}, tables)['verdict'] == 'vendor'

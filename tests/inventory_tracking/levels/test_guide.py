@@ -551,3 +551,80 @@ def test_a_guide_started_pinned_shows_the_map_in_every_level_until_a_double_pres
     guide.press(100.2)
     assert not guide.pinned
     assert shown[-1] == []
+
+
+def knowing(guide, **neighbours):
+    """Later room reads of `guide` see the levels behind some Cold Plains rooms: index=areas."""
+    from dataclasses import replace
+
+    observe = guide.observe
+
+    def read(pid, images, capture, rooms=False):
+        location, found = observe(pid, images, capture, rooms)
+        found = list(found)
+        for index, areas in neighbours.items() if rooms else ():
+            found[int(index[1:])] = replace(found[int(index[1:])], leads_to=areas)
+        return location, found
+
+    guide.observe = read
+    return observe
+
+
+def labels(guide):
+    return [line.text.split('  ')[1].split(':')[0] for line in guide.visible[:-1]]
+
+
+UNNAMED_GAP = 20  # cold_plains_entry: an open border gap ('Act 1 - Wild Border 4', DS1 file 3) not read yet
+
+
+def test_an_exit_gets_its_name_while_the_card_is_shown_once_its_far_side_is_read():
+    # User, 2026-10-05: outdoor exits stayed a plain 'Exit' because rooms were read once per entry.
+    guide, _, clock = make_guide([3, 3, 3], fixture='cold_plains_entry')
+    guide.pinned = True
+    guide.poll(1.0)
+    assert labels(guide).count('Exit') == 2
+
+    knowing(guide, **{f'r{UNNAMED_GAP}': (4,)})
+    guide.poll(2.0)  # too soon for another room read
+    assert labels(guide).count('Exit') == 2
+    clock.now += 3.0
+    guide.poll(3.0)
+
+    assert labels(guide).count('Stony Field') == 1
+    assert 'Exit' not in labels(guide)  # the last gap is the Burial Grounds by elimination
+
+
+def test_an_exit_named_once_stays_named_for_the_game_and_is_forgotten_in_the_menu():
+    guide, _, _ = make_guide([3, 1, 3, None, 3], fixture='cold_plains_entry')
+    guide.pinned = True
+    plain = knowing(guide, **{f'r{UNNAMED_GAP}': (4,)})
+    guide.poll(1.0)
+    assert 'Stony Field' in labels(guide)
+
+    guide.observe = plain  # after a town trip the far side is not readable again
+    guide.poll(2.0)
+    guide.poll(3.0)
+    assert 'Stony Field' in labels(guide)
+
+    guide.poll(4.0)  # the menu, then a new game
+    guide.poll(5.0)
+    assert 'Stony Field' not in labels(guide)
+
+
+def test_walls_survive_room_details_that_load_later():
+    from inventory_tracking.levels.model import Walkable
+    from inventory_tracking.osd.level_map import MapCard
+
+    reads = iter([[Walkable(0, 0, 1, 1, '1')], [], []])
+    guide, shown, _ = make_guide([3, 1, 3], fixture='cold_plains_entry')
+    guide.pinned = True
+    guide.observe_walls = lambda pid, images, capture: next(reads)
+    guide.poll(1.0)
+    guide.poll(2.0)
+
+    knowing(guide, r0=(2,))  # the same level, one more room detail readable
+    guide.poll(3.0)
+    guide.tick()
+
+    card = next(line for line in shown[-1] if isinstance(line, MapCard))
+    assert card.walkable == ((0, 0, 1, 1, '1'),)

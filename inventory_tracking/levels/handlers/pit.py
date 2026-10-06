@@ -8,6 +8,10 @@ level, like the Countess's: no handler.
 Tamoe's border gaps (2026-10-01, unconfirmed): D2MOO gAct1MonasteryDrlgLink links Tamoe to the
 Monastery Gate (26) and Black Marsh (6) to Tamoe; borders come from the same
 DRLGOUTPLACE_PlaceAct1245OutdoorBorders as Black Marsh and Cold Plains (handler.ExitsHandler).
+2026-10-06, from 14 evidence entries: Tamoe has one open gap, to Black Marsh (named by
+elimination); the Monastery Gate side has none: plain terrain rooms touch it, which the generic
+border rule marks once read (levels/exits.py). Listed as a gap, it kept Black Marsh a plain
+'Exit' in ten of them.
 """
 
 from inventory_tracking.levels.handler import Exit, ExitsHandler, PoiSpec, previous, stairs_down
@@ -21,7 +25,7 @@ HANDLERS = [
         frozenset({7}),
         (PoiSpec('Pit', r'Act 1 - (Cave Entrance|Wild Cliff Cave (Left|Right))', 'stairs'),),
         confirmed=True,  # the Pit entrance; the exits are unconfirmed
-        exits=(Exit(26, 'Monastery Gate'), Exit(6, 'Black Marsh', 'previous')),
+        exits=(Exit(6, 'Black Marsh', 'previous'),),
     ),
     stairs_down(
         'Pit Level 1', areas={12}, family=CAVE, word='Down', extra=[previous(CAVE, 'Tamoe Highland')], confirmed=True

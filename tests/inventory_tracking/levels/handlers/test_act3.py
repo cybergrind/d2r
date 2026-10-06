@@ -6,6 +6,7 @@ comes from synthetic snapshots until evidence exists.
 
 import pytest
 
+from inventory_tracking.levels.exits import with_exits
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
 from inventory_tracking.levels.registry import handler_for
@@ -88,14 +89,31 @@ def test_travincal_points_at_the_north_temple_block():
     assert rows(guidance) == [('Durance of Hate', 'stairs', 'Act 3 - Travincal N')]
 
 
-@pytest.mark.parametrize(
-    ('area', 'preset', 'label'),
-    [(76, 575, 'Cave or waypoint'), (77, 585, 'Clearing'), (78, 595, 'Dungeon or waypoint')],
-)
-def test_jungle_marks_every_clearing(area, preset, label):
-    guidance = guide(area, Room(530, 0, 0, 32, 32), Room(preset, 32, 0, 32, 32), Room(preset + 1, 0, 32, 32, 32))
+def test_great_marsh_marks_every_clearing():
+    guidance = guide(77, Room(530, 0, 0, 32, 32), Room(585, 32, 0, 32, 32), Room(586, 0, 32, 32, 32))
 
-    assert [(p.label, p.room.x, p.room.y) for p in guidance.pois] == [(label, 32, 0), (label, 0, 32)]
+    assert [(p.label, p.kind, p.room.x, p.room.y) for p in guidance.pois] == [
+        ('Clearing', 'target', 32, 0),
+        ('Clearing', 'target', 0, 32),
+    ]
+    assert guidance.problems == ()
+
+
+@pytest.mark.parametrize(
+    ('area', 'preset', 'caves'),
+    [(76, 575, ['Arachnid Lair', 'Spider Cavern']), (78, 595, ['Swampy Pit 1', 'Flayer Dungeon 1'])],
+)
+def test_jungle_names_the_caves_and_takes_the_third_clearing_for_the_waypoint(area, preset, caves):
+    rooms = [Room(preset + i, 32 * i, 0, 32, 32, i, (32 * i, 0, 32, 32)) for i in range(3)]
+    snapshot = LevelSnapshot(Location(area, 0, 0, 0), tuple(rooms))
+
+    guidance = with_exits(handler_for(area).guide(snapshot), snapshot)
+
+    assert [(p.label, p.kind, p.room.x) for p in guidance.pois] == [
+        ('Waypoint', 'waypoint', 64),
+        (caves[0], 'stairs', 0),
+        (caves[1], 'stairs', 32),
+    ]
     assert guidance.problems == ()
 
 

@@ -10,6 +10,16 @@ STARTER_PROGRESSIONS = frozenset(
 )
 
 
+def exceptional_leveling_reason(result):
+    """Keep reviewed top leveling gear visible without alerting on ordinary progression."""
+    for use in result.get('assessment', {}).get('leveling', []):
+        if use.get('generic') or use.get('tier') != 'high':
+            continue
+        level = f' (level {use["required_level"]})' if use.get('required_level') is not None else ''
+        return f'leveling high{level}: {use["reason"].split(". ")[0].rstrip(".")}'
+    return None
+
+
 def progression_for(role, result):
     presentation = (result.get('guide_demand') or {}).get('role_presentation', {})
     return presentation.get(role['id'], {}).get('progression') or role.get('variant', '')

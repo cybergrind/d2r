@@ -18,8 +18,9 @@ def describe(result: PotionResult) -> str:
 
 
 class Automation:
-    def __init__(self, controllers) -> None:
+    def __init__(self, controllers, extras=()) -> None:
         self.controllers = sorted(controllers, key=lambda controller: controller.config.actor != Actor.PLAYER)
+        self.extras = list(extras)  # steps after healing (Show Items); a failure there never stops healing
         self._events: dict[Actor, PotionSent] = {}
         self._results: dict[Actor, PotionResult] = {}
         self._notable: dict[Actor, tuple[Outcome, object]] = {}
@@ -49,6 +50,11 @@ class Automation:
             self._log_transition(actor, result)
             if result.event:
                 self._events[actor] = result.event
+        for extra in self.extras:
+            try:
+                extra.step(state)
+            except Exception:
+                LOG.exception('%s failed', type(extra).__name__)
         return results
 
     def _log_transition(self, actor: Actor, result: PotionResult) -> None:

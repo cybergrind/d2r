@@ -48,6 +48,56 @@ def test_family_band_does_not_pool_stacks_or_sellers():
     assert bands[0]['median_ist'] == 2
 
 
+def test_large_charms_never_borrow_small_charm_prices_for_identical_stats():
+    from pricing.triage.engine import prepare_tables
+
+    rules = [RULE, RULE | {'name': 'Large Charm'}]
+    small = [charm(i, 18, 50) for i in range(3)]
+    large = [charm(i + 3, 18, 1) | {'name': 'Large Charm'} for i in range(3)]
+    for rows, expected in [(small, None), (small + large, 1)]:
+        data = prepare_tables(build_bands(rows, [], rules=rules), {'keep_ist': 0.25, 'rows': rules}, {'rows': []})
+        result = assess(from_listing(large[0]), data)
+        assert result['decision_ist'] == expected
+        if expected is None:
+            assert result['verdict'] == 'check'
+            assert result['band'] is None
+            assert result['reference_band'] is None
+        else:
+            assert result['band']['sellers'] == 3
+
+
+def test_rare_jewels_do_not_inherit_magic_prices_or_a_flat_extra_affix_premium():
+    from pricing.triage.engine import prepare_tables
+    from pricing.triage.import_affixed_rules import affixed_rules
+
+    rules = [
+        rule | {'bucket': 'resistance-damage-jewel', 'band_facets': ['base_modifiers']}
+        for rule in affixed_rules()
+        if rule.get('family') == 'jewl' and set(rule.get('properties', {})) == {'441', '448'}
+    ]
+    magic, rare = [], []
+    for rarity, price, offset, target in [('magic', 50, 0, magic), ('rare', 2, 3, rare)]:
+        for seller in range(3):
+            row = listing(seller + offset, price)
+            row.update(name='Jewel', category='misc', rarity=rarity, sockets=0, socket_contents='empty')
+            row['properties'].update({'441': 10, '448': 15})
+            target.append(row)
+    for rows, expected in [(magic, None), (magic + rare, 2)]:
+        tables = prepare_tables(build_bands(rows, [], rules=rules), {'keep_ist': 0.25, 'rows': rules}, {'rows': []})
+        item = from_listing(rare[0])
+        result = assess(item, tables)
+        assert result['decision_ist'] == expected
+        if expected is None:
+            assert result['verdict'] == 'check'
+            assert result['band'] is None
+        else:
+            assert result['band']['sellers'] == 3
+        extra = assess(from_listing(rare[0] | {'properties': rare[0]['properties'] | {'437': 5}}), tables)
+        assert extra['decision_ist'] == expected  # No invented premium for strength.
+        if expected is None:
+            assert extra['verdict'] == 'check'
+
+
 def test_magic_skill_gloves_price_only_matching_skill_base_and_modifier_cohort():
     from inventory_tracking.items.metadata import metadata
     from pricing.triage.import_affixed_rules import affixed_rules

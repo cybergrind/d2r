@@ -1,6 +1,7 @@
 """Editable runtime defaults. Healing triggers strictly below each threshold."""
 
 from collections.abc import Mapping
+from pathlib import Path
 from types import MappingProxyType
 from typing import Annotated, Self
 
@@ -89,6 +90,25 @@ MERC_HEALING = HealingConfig(
     max_consecutive_misses=8,
     suspend_seconds=120.0,
 )
+
+
+class ShowItemsConfig(Config):
+    """Turn the game's Show Items toggle on when a game starts (automation/show_items.py)."""
+
+    enabled: bool = True
+    # X11 key names to press; empty: the character's own Show Items binding (input/keybindings.py).
+    key_names: tuple[str, ...] = ()
+    saved_games: Path = Path(
+        '/mnt/extra/1000/games/steam/steamapps/compatdata/2536520/pfx/drive_c/users/steamuser/Saved Games/'
+        'Diablo II Resurrected'
+    )
+    settle_seconds: Positive = 1.5  # after entering a game, before the first press
+    retry_seconds: Positive = 2.0  # between presses while the byte stays off
+    max_attempts: Annotated[int, Field(gt=0)] = 3
+    sample_max_age: Positive = 1.0
+
+
+SHOW_ITEMS = ShowItemsConfig()
 
 
 class NotificationsWidgetConfig(Config):
@@ -319,6 +339,7 @@ class AppraisalConfig(Config):
     terror_probe_interval: Positive = 0.25  # seconds between monster-table reads
     terror_summary_seconds: Positive = 10.0  # seconds between per-area summary events
     terror_card: bool = True  # HUD card: next Herald tier, group kills, breakpoint and spawn odds
+    boss_stats: bool = True  # Terror card slot: kills, average time between kills and time since the last, per boss
     terror_card_unconfirmed: bool = (
         False  # also show it before any monster says terrorized or not (marked "unconfirmed")
     )
@@ -351,6 +372,18 @@ class HudGroundConfig(Config):
     tile_height: Positive = 80 / 600
     # Marks beyond the view are drawn this far inside the window edge (fraction of its height).
     edge_inset: Annotated[float, Field(ge=0, lt=0.4)] = 0.04
+    # A mark beyond the view is an arrow towards it on a ring around the player (user, 2026-10-05:
+    # the dot at the window edge was too hard to spot). The ring's radius as a fraction of the
+    # window height: `arrow_near` for `arrow_hold` seconds after entering a level, then it grows
+    # to `arrow_rest` by `arrow_seconds`.
+    arrow_near: Annotated[float, Field(gt=0, lt=0.5)] = 0.09
+    arrow_rest: Annotated[float, Field(gt=0, lt=0.5)] = 0.24
+    arrow_hold: Annotated[float, Field(ge=0)] = 1.0
+    arrow_seconds: Positive = 2.5
+    arrow_alpha: Annotated[float, Field(gt=0, le=1)] = 0.9
+    # Kinds that get an arrow only within this many tiles of the player (user, 2026-10-05: not an
+    # arrow for every pack of the level); a screen is roughly 15 tiles across. Others always do.
+    arrow_range: dict[str, float] = {'leader': 15}
 
 
 class HudConfig(Config):

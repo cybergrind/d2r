@@ -9,11 +9,17 @@ The card is the arrow line(s) plus a level map (levels/level_map.py). While it i
 each poll re-reads only the player position and rebuilds both, so the dot and arrow follow.
 
 Win+C calls `press()`: a single press shows the card again from a fresh room and position read,
-in any level (unguided levels get the map alone), waiting up to `lock_timeout` for the capture
-lock. Two presses within DOUBLE_PRESS seconds (hotkey timestamps) toggle a pinned card: it never
+in any level (levels without a handler get the map and their ways out, levels/exits.py), waiting
+up to `lock_timeout` for the capture lock. Two presses within DOUBLE_PRESS seconds (hotkey
+timestamps) toggle a pinned card: it never
 expires, follows the player into every level (map only where no handler exists), hides while
 D2R is unfocused, and is removed by the next double press. `pinned=True` starts that way
 (`APPRAISAL.level_guide_pinned`, what `make serve` does).
+
+Room details arrive late (the level behind an exit only once the player has been near it), so
+while a card is shown the rooms are read again every ROOMS_REFRESH seconds and merged with what
+this game already knew (levels/session.py): an exit named once stays named for the game. The
+memory is dropped when the player is in no level (the menu between games).
 
 Each entry into a guided area also yields one evidence record (levels/evidence.py), saved
 after the capture lock is released; a failed lookup is recorded once even while retrying.
@@ -26,11 +32,13 @@ from collections import OrderedDict
 
 from inventory_tracking.common import LOG
 from inventory_tracking.levels.evidence import evidence_record
+from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.geometry import Pointer, pointer
 from inventory_tracking.levels.level_map import build_map
 from inventory_tracking.levels.memory import observe_level
 from inventory_tracking.levels.model import Guidance, LevelSnapshot, Location
 from inventory_tracking.levels.registry import handler_for
+from inventory_tracking.levels.session import LevelMemory, layout_key
 from inventory_tracking.levels.spots import on_waypoint, pinpoint
 from inventory_tracking.osd.level_map import KIND_TONES
 from inventory_tracking.presentation import StyledLine, Tone
@@ -49,6 +57,7 @@ def pointer_lines(pointers: list[Pointer]) -> list[StyledLine]:
 
 MAX_REMEMBERED_LEVELS = 32
 DOUBLE_PRESS = 0.5  # seconds between two Win+C presses that toggle the pinned card
+ROOMS_REFRESH = 3.0  # seconds between room re-reads while a card is shown (exits get their names)
 
 
 class LevelGuide:
@@ -95,14 +104,17 @@ class LevelGuide:
         self.walls = {}
         self.rooms = ()  # the current level's rooms, for the library
         # Walls read this game, per level: a trip to town must not lose generated terrain, which
-        # the library never learns. Keyed by the level's exact room layout, so a new game (other
-        # rooms) starts blank; the oldest levels are dropped past MAX_REMEMBERED_LEVELS.
+        # the library never learns. Keyed by the level's layout (session.layout_key: room details
+        # that load later don't change it), so a new game (other rooms) starts blank; the oldest
+        # levels are dropped past MAX_REMEMBERED_LEVELS.
         self.level_walls: OrderedDict[tuple, dict] = OrderedDict()
+        self.memory = LevelMemory()  # room details read this game (exits' levels, preset variants)
+        self.rooms_read = -math.inf  # clock time of the last room read
 
     def _enter_rooms(self, area, rooms):
         """A fresh room list for the current level: seed walls from the library, then read live."""
         self.rooms = tuple(rooms)
-        key = (area, self.rooms)
+        key = layout_key(area, self.rooms)
         self.walls = self.level_walls.setdefault(key, {})
         self.level_walls.move_to_end(key)
         while len(self.level_walls) > MAX_REMEMBERED_LEVELS:
@@ -113,6 +125,28 @@ class LevelGuide:
         self.waypoints = set()
         self._read_walls()
         self._read_waypoints()
+
+    def _read_rooms(self):
+        """(location, the level's rooms merged with what this game already knew about them)."""
+        location, rooms = self.observe(self.source.pid, self.source.images, self.source.capture, rooms=True)
+        self.rooms_read = self.clock()
+        return location, self.memory.merge(location.area_id, rooms) if location else ()
+
+    def _refresh_rooms(self):
+        """While a card is shown: re-read the rooms now and then, and re-mark when they say more."""
+        if self.clock() - self.rooms_read < ROOMS_REFRESH:
+            return
+        snapshot, _ = self.shown
+        location, rooms = self._read_rooms()
+        if location is None or location.area_id != self.area or not rooms or rooms == snapshot.rooms:
+            return
+        self.rooms = rooms
+        handler = handler_for(self.area)
+        snapshot = LevelSnapshot(location, rooms)
+        guidance = guide_level(handler, snapshot)
+        for problem in guidance.problems:
+            self.warn('%s (%s): %s', handler.name, self.area, problem)
+        self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
 
     def _read_walls(self):
         if self.observe_walls is None:
@@ -166,8 +200,11 @@ class LevelGuide:
             if self.visible is not None and self.shown is not None and location is not None:
                 self._read_walls()
                 self._read_waypoints()
+                self._refresh_rooms()
                 self.visible = self._card(location)
             return None
+        if location is None:
+            self.memory.reset()  # the menu: the next game's levels are new
         self.walls, self.rooms = {}, ()  # a new level (or leaving one): forget its rooms
         handler = handler_for(area)
         if handler is None:
@@ -175,12 +212,12 @@ class LevelGuide:
             if self.pinned and location is not None:
                 self._show_map(location)
             return None
-        location, rooms = self.observe(self.source.pid, self.source.images, self.source.capture, rooms=True)
+        location, rooms = self._read_rooms()
         if location is None or location.area_id != area:
             return None  # left again between reads; the next poll sees the new area
-        snapshot = LevelSnapshot(location, tuple(rooms))
+        snapshot = LevelSnapshot(location, rooms)
         self._enter_rooms(area, snapshot.rooms)
-        guidance = handler.guide(snapshot)
+        guidance = guide_level(handler, snapshot)
         for problem in guidance.problems:
             self.warn('%s (%s): %s', handler.name, area, problem)
         key = (area, tuple(p.room.preset for p in guidance.pois), guidance.problems)
@@ -197,11 +234,12 @@ class LevelGuide:
         return record
 
     def _show_map(self, location: Location):
-        """Pinned card entering an unguided level: read its rooms and show the map alone."""
-        location, rooms = self.observe(self.source.pid, self.source.images, self.source.capture, rooms=True)
+        """Pinned card entering an unguided level: read its rooms and show the map with its ways out."""
+        location, rooms = self._read_rooms()
         if location is not None and rooms:
             self._enter_rooms(location.area_id, rooms)
-            self._present(LevelSnapshot(location, tuple(rooms)), Guidance())
+            snapshot = LevelSnapshot(location, rooms)
+            self._present(snapshot, guide_level(None, snapshot))
 
     def _present(self, snapshot: LevelSnapshot, guidance: Guidance):
         self.shown = (snapshot, tuple(pinpoint(poi) for poi in guidance.pois))
@@ -228,7 +266,7 @@ class LevelGuide:
             return False
         try:
             self.source.ensure_connected()
-            location, rooms = self.observe(self.source.pid, self.source.images, self.source.capture, rooms=True)
+            location, rooms = self._read_rooms()
             self._enter_rooms(location.area_id if location else None, rooms)
         except Exception as exc:
             self.warn('map not shown: %s', exc)
@@ -237,9 +275,9 @@ class LevelGuide:
             self.capture_lock.release()
         if location is None or not rooms:
             return False
-        snapshot = LevelSnapshot(location, tuple(rooms))
+        snapshot = LevelSnapshot(location, rooms)
         handler = handler_for(location.area_id)
-        guidance = handler.guide(snapshot) if handler else Guidance()
+        guidance = guide_level(handler, snapshot)
         for problem in guidance.problems:
             self.warn('%s (%s): %s', handler.name, location.area_id, problem)
         # Mark the area as entered so the next poll only moves the dot instead of re-announcing.

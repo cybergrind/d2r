@@ -1,6 +1,33 @@
 from pricing.triage.guide_cases import evaluate, extract
 
 
+def test_guide_lot_quantity_reaches_the_assessor():
+    from pricing.triage.guide_cases import item_from_spec
+
+    spec = {'base': 'Chipped Sapphire', 'category': 'gems', 'rarity': 'normal', 'ethereal': False, 'sockets': 0}
+    assert item_from_spec(spec)['quantity'] == 1
+    assert item_from_spec(spec | {'quantity': 10})['quantity'] == 10
+
+
+def test_review_history_is_preserved_without_becoming_current_verdict_guidance():
+    rows = extract(
+        """<h2 id="s6">Filter</h2>
+        <details><summary>Current recommendations</summary>
+          <ul><li>Keep useful bases</li></ul></details>
+        <details><summary><b>Review log</b> / corrections (collapsed)</summary>
+          <div><ul><li>Old rule: vendor these bases</li></ul></div></details>
+        <ul><li>Keep valuable jewels</li></ul>""",
+        'guides/warlock.html',
+    )
+    assert [row['kind'] for row in rows] == ['table', 'context', 'table']
+    assert rows[1]['id'] == 'guides/warlock.html#s6:2'
+    assert rows[1]['text'] == 'Old rule: vendor these bases'
+    assert 'Historical review log' in rows[1]['context_reason']
+    score = evaluate(rows, lambda item: {'verdict': 'vendor'})
+    assert score['groups']['table']['total'] == 2
+    assert len(score['unresolved']) == 2
+
+
 def test_extraction_preserves_context_and_does_not_read_alternative_as_drop_verdict():
     rows = extract(
         """
@@ -264,3 +291,71 @@ def test_observed_price_premium_requires_strict_order_and_two_estimates():
             },
         )
         assert report['groups']['false_positive']['passed'] == passed
+
+
+def test_shield_variants_retain_sockets_quality_and_resistance():
+    from pricing.triage.guide_cases import base_table_examples
+
+    def row(name, variant):
+        return {'source': 'guides/pindle-anya.html#s5', 'resolved_cells': [name, variant, 'keep']}
+
+    eth = base_table_examples(row('Sacred Targe (2588089657)', 'eth 45@ any sockets'))
+    assert {e['spec']['sockets'] for e in eth} == {0, 1, 2, 3, 4}
+    assert all(e['spec']['ethereal'] for e in eth)
+    superior = base_table_examples(row('Targe (3933241232)', '0os Superior 45@'))
+    assert all(e['spec']['stats']['39:0'] == 45 for e in superior)
+    mixed = base_table_examples(
+        row('Sacred Rondache (2317685657)', '4os 45@ (bimodal: normal 2.6-4, Superior 15 ED 57-69)')
+    )
+    assert {e['spec']['rarity'] for e in mixed} == {'normal', 'superior'}
+    assert {e['spec']['stats'].get('16:0', 0) for e in mixed} == {0, 15}
+
+
+def test_skull_song_nova_reconstruction_matches_native_affix_semantics():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[3]
+    suffixes = json.loads((root / 'third-parties/d2data/json/magicsuffix.json').read_text())
+    rows = suffixes.values() if isinstance(suffixes, dict) else suffixes
+    candidates = [
+        r
+        for r in rows
+        if r.get('spawnable') == 1
+        and r.get('rare') == 1
+        and r.get('mod1param') == 48
+        and r.get('mod1min') == 12
+        and r.get('itype1') == 'weap'
+    ]
+    assert len(candidates) == 1
+    assert (candidates[0]['mod1code'], candidates[0]['mod1max']) == ('hit-skill', 4)
+    props = json.loads((root / 'third-parties/d2data/json/properties.json').read_text())
+    assert props['hit-skill']['stat1'] == 'item_skillonhit'
+
+
+def test_mummified_trophy_unknown_suffixes_cover_legal_native_ranges():
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[3]
+    suffixes = json.loads((root / 'third-parties/d2data/json/magicsuffix.json').read_text())
+    rows = list(suffixes.values()) if isinstance(suffixes, dict) else suffixes
+    values = {}
+    for code in ('res-pois-len', 'thorns'):
+        values[code] = {
+            v
+            for r in rows
+            if r.get('spawnable') == 1
+            and r.get('rare') == 1
+            and r.get('mod1code') == code
+            and {'armo', 'shld'} & {r.get(f'itype{i}') for i in range(1, 8)}
+            for v in range(r['mod1min'], r['mod1max'] + 1)
+        }
+    assert values == {'res-pois-len': {25, 50, 75}, 'thorns': set(range(1, 10))}
+    cases = json.loads((root / 'pricing/triage/guide-cases.json').read_text())
+    row = next(c for c in cases if c['id'] == 'guides/pricing.html#s8:19')
+    from itertools import product
+
+    assert {
+        (e['spec']['stats']['110:0'], e['spec']['stats']['78:0'], e['spec']['ethereal']) for e in row['examples']
+    } == set(product(values['res-pois-len'], values['thorns'], [False, True]))

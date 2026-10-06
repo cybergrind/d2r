@@ -167,3 +167,47 @@ def test_supported_below_threshold_base_price_overrides_historical_guide_pattern
         'own': {'rows': []},
     }
     assert assess(item, tables)['verdict'] == 'vendor'
+
+
+def test_guide_shield_variants_do_not_merge_quality_or_socket_count():
+    from pricing.triage.engine import matches
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    rows = guide_base_patterns()
+    for name, quality, sockets, eth, ed in [
+        ('Targe', 'superior', 0, False, 10),
+        ('Sacred Targe', 'normal', 2, True, 0),
+        ('Sacred Rondache', 'superior', 4, False, 15),
+    ]:
+        stats = {f'{s}:0': 45 for s in (39, 41, 43, 45)}
+        if ed:
+            stats['16:0'] = ed
+        spec = {'base': name, 'rarity': quality, 'sockets': sockets, 'ethereal': eth, 'stats': stats}
+        item = item_from_spec(spec)
+        assert any(matches(item, r) for r in rows)
+        low = item_from_spec(spec | {'stats': stats | {'39:0': 44, '41:0': 44, '43:0': 44, '45:0': 44}})
+        assert not any(matches(low, r) for r in rows if r['source'].endswith((':33', ':35', ':97')))
+
+
+def test_three_socket_targe_high_resistance_shortfall_remains_reviewable():
+    from pricing.triage.engine import assess
+    from pricing.triage.guide_cases import item_from_spec
+    from pricing.triage.import_bases import guide_base_patterns
+
+    tables = {
+        'bands': {},
+        'rules': {'rows': guide_base_patterns(), 'policies': [], 'keep_ist': 0.25},
+        'own': {'rows': []},
+    }
+    for quality in ('normal', 'superior'):
+        for resistance in (39, 40, 44):
+            stats = {f'{s}:0': resistance for s in (39, 41, 43, 45)}
+            if quality == 'superior':
+                stats['16:0'] = 10
+            item = item_from_spec(
+                {'base': 'Sacred Targe', 'rarity': quality, 'ethereal': False, 'sockets': 3, 'stats': stats}
+            )
+            result = assess(item, tables)
+            assert result['verdict'] == ('vendor' if resistance == 39 else 'check')
+            assert result['band'] is None

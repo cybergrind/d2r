@@ -3,6 +3,7 @@
 from functools import lru_cache
 
 from inventory_tracking.items.metadata import metadata, metadata_generation
+from pricing.knowledge.material_items import MATERIAL_POTIONS
 from pricing.knowledge.non_equipment_mechanics import BASE_NAMES, EXPECTED
 from pricing.triage.charm_modifiers import suffix
 from pricing.triage.listing_defaults import normalize as listing_defaults
@@ -118,6 +119,7 @@ def from_drop(observation):
     from pricing.knowledge.assessment.adapters.capture import bases_by_code, normalize
     from pricing.knowledge.assessment.policies.quest_materials import NAMES
     from pricing.knowledge.socket_materials import TYPES
+    from pricing.triage.jewel_level import required_level
 
     facts = normalize(observation)
     facets = {field: getattr(facts, field) for field, _, _ in EXPECTED}
@@ -134,6 +136,8 @@ def from_drop(observation):
         # A verified zero-capacity base supplies mechanics, not a guess about capture flags.
         facets.update(sockets=0, socket_contents='empty')
     properties = expanded_properties(facts.properties)
+    if (level := required_level(facts)) is not None:
+        properties['796'] = level
     defense = facts.stats.get('31:0', {})
     if (
         bases_by_code().get(facts.base_code, {}).get('category') == 'armor'
@@ -152,7 +156,7 @@ def from_drop(observation):
             else 'gems'
             if facts.item_type in TYPES
             else 'misc'
-            if facts.item_type == 'ques'
+            if facts.item_type == 'ques' or facts.base_code in MATERIAL_POTIONS
             else 'base'
         )
         name = NAMES.get(facts.base_code, name)
@@ -187,6 +191,8 @@ def from_drop(observation):
 
 
 def from_listing(row):
+    from pricing.triage.facet_identity import catalog_identity
+
     row = listing_defaults(row)
     base = bases_by_code(metadata_generation()).get(row.get('base_code'), {})
     base_name = row.get('base_name') or base.get('name') or row['name']
@@ -197,6 +203,7 @@ def from_listing(row):
     return {
         'category': category,
         'name': row['name'],
+        'facet_table_id': catalog_identity(row),
         'family': (
             base.get('type')
             or row.get('item_type')

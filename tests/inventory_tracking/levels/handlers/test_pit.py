@@ -5,6 +5,7 @@ one is placed. Pit 1's stairs down are 'Cave Down' (not 'Next'). Pit 2 is one fi
 ('Cave Treasure 5', DrlgType 2) covering the level, so it has no handler.
 """
 
+from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.model import LevelSnapshot, Location, Room
 from inventory_tracking.levels.presets import preset_name
 from inventory_tracking.levels.registry import handler_for
@@ -35,17 +36,18 @@ def test_pit_level_2_has_no_handler_and_the_route_is_confirmed():
     assert all(handler_for(area).confirmed for area in (7, 12))  # user, in game, 2026-09-30
 
 
-def test_tamoe_highland_names_its_border_gaps_before_the_pit():
+def test_tamoe_highland_names_its_gap_and_the_monastery_gate_by_the_rooms_touching_it():
     rooms = (
-        Room(4, 0, 0, 8, 8, 3, (0, 0, 8, 8), (26,)),  # Wild Border 1, seen from the Monastery side
-        Room(5, 0, 80, 8, 8, 3),  # the other gap: Black Marsh by elimination
+        Room(0, 0, 0, 8, 8, None, None, (26,)),  # plain terrain touching the Monastery Gate: no open gap there
+        Room(5, 0, 80, 8, 8, 3),  # the only gap: Black Marsh by elimination
         Room(51, 40, 16, 8, 8),
     )
-    guidance = handler_for(7).guide(LevelSnapshot(Location(7, 0, 20, 20), rooms))
+    snapshot = LevelSnapshot(Location(7, 0, 20, 20), rooms)
+    guidance = guide_level(handler_for(7), snapshot)
 
     assert [(p.label, p.kind) for p in guidance.pois] == [
-        ('Monastery Gate', 'stairs'),
         ('Black Marsh', 'previous'),
         ('Pit', 'stairs'),
+        ('Monastery Gate', 'stairs'),
     ]
     assert guidance.problems == ()

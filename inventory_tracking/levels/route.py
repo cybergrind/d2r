@@ -51,8 +51,8 @@ def route(rooms: Iterable[Room], tile: tuple[float, float], goal: Room) -> list[
     """Shortest path of preset instances from the one holding `tile` to `goal`, or None."""
     nodes = [room for room, _ in instances(rooms)]
     start = room_at(nodes, tile)
-    if start is None or goal not in nodes:
-        return None
+    if start is None or goal not in nodes or doorways(start) is None:
+        return None  # no doorways where the player stands (a Temple quadrant): nothing to route through
     previous: dict[Room, Room | None] = {start: None}
     queue = deque([start])
     while queue:

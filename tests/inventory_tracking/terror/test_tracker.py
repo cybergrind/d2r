@@ -2,6 +2,7 @@
 
 import pytest
 
+from inventory_tracking.levels.model import Location
 from inventory_tracking.terror.monsters import Monster
 from inventory_tracking.terror.tracker import ZoneTracker
 
@@ -156,6 +157,25 @@ def test_plain_monsters_with_a_forced_terror_modifier_mark_their_terror_zone():
     assert tracker.terrorized(2) is None  # Blood Moor: nothing seen there
 
 
+def test_the_card_names_the_zone_modifier_and_the_terrorized_level():
+    # The game's own lines under the area name, which the card covers (user, 2026-10-06):
+    # 'Terrorized: 95' and 'Fire Enchanted' in the Lut Gholein sewers.
+    tracker = ZoneTracker()
+    sightings(tracker, 6, [9, 9, 25, 9])  # 9 = fire; one stray reading
+
+    assert tracker.zone_modifier(6) == 'Fire Enchanted'
+    assert tracker.lines(6, terrorized=True, player_level=93)[:2] == [
+        'Terror · Black Marsh',
+        'Level 95 · Fire Enchanted',
+    ]
+    assert tracker.lines(6, terrorized=True, player_level=98)[1] == 'Level 96 · Fire Enchanted'  # Hell cap
+    assert tracker.lines(6, terrorized=True)[1] == 'Fire Enchanted'
+
+    unknown = ZoneTracker()
+    assert unknown.zone_modifier(6) is None
+    assert unknown.lines(6, terrorized=None, player_level=93)[1].startswith('Next Herald')
+
+
 def test_plain_monsters_without_a_modifier_mean_no_terror_zone():
     tracker = ZoneTracker()
     sightings(tracker, 35, [0, 0, 0])
@@ -237,6 +257,69 @@ def test_map_dots_put_each_live_hostile_at_its_last_seen_position():
 
     tracker.apply([died(2, 6), died(8, 6), died(9, 6)])
     assert [dot.kind for dot in tracker.map_dots(6)] == ['mob', 'mob']
+
+
+def test_leader_and_herald_dots_carry_the_path_address_last_seen_and_plain_mobs_none():
+    tracker = ZoneTracker()
+    tracker.apply(
+        [
+            at(seen(1, 6, data_hex=PLAIN_DATA), 5000, 5000),
+            at(seen(2, 6, data_hex=CHAMPION_DATA), 5010, 5000),
+            herald(9, 6, 5100, 5200),
+        ]
+    )
+
+    tracker.track(
+        [
+            Monster(1, 1, 2, 5000, 5000, 6, None, path=0x10),
+            Monster(2, 1, 2, 5010, 5000, 6, None, path=0x20),
+            Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90),
+        ]
+    )
+
+    assert [(dot.kind, dot.path) for dot in tracker.map_dots(6)] == [('mob', 0), ('leader', 0x20), ('herald', 0x90)]
+
+    # The champion walks out of the client's range: its dot stays where it was last seen, but its
+    # path is freed and reused (by another monster or a missile), so the address must not be followed.
+    tracker.track([Monster(9, 1, 2, 5100, 5200, 6, None, path=0x90)])
+    assert [(dot.kind, dot.path) for dot in tracker.map_dots(6)] == [('mob', 0), ('leader', 0), ('herald', 0x90)]
+
+    tracker.apply([{'event': 'left_game'}])
+    assert tracker.paths == {}
+
+
+def test_a_unit_that_cannot_be_killed_is_no_monster_to_mark_or_count():
+    # Durance of Hate 3, 2026-10-05: the Compelling Orb (monstats compellingorb 366, not killable)
+    # carries the unique flag 0x08 and never dies; it got a pack-leader ring with no monster in it.
+    tracker = ZoneTracker()
+
+    tracker.apply([at({**seen(4, 6, data_hex=CHAMPION_DATA), 'txt_id': 366}, 5000, 5000)])
+
+    assert tracker.map_dots(6) == []
+    assert tracker.area_count(6).seen == set()
+
+
+def test_a_remembered_monster_that_is_not_there_when_the_player_comes_close_loses_its_dot():
+    # The client drops live monsters 8-24 tiles away (probe log 2026-10-05: 3 of 1233 nearer than
+    # 40 units), keeping their dot at the last seen spot. Back within 40 units with the unit still
+    # absent from a complete walk, it is not there any more (it moved, or died unseen).
+    tracker = ZoneTracker()
+    tracker.apply([at(seen(2, 6, data_hex=CHAMPION_DATA), 5000, 5000), herald(9, 6, 5010, 5000)])
+
+    tracker.track([], Location(6, 0, 5100, 5000))  # far: out of the client's range, the dots stay
+    tracker.track([], Location(6, 0, 5020, 5000), complete=False)  # a broken-off walk proves nothing
+    tracker.track([], Location(11, 0, 5020, 5000))  # another level
+    assert [dot.kind for dot in tracker.map_dots(6)] == ['leader', 'herald']
+
+    tracker.track([], Location(6, 0, 5020, 5000))
+    assert tracker.map_dots(6) == []
+    assert tracker.herald_marks(6) == []
+
+    tracker.track([Monster(2, 1, 2, 5300, 5300, 6, None), Monster(9, 1, 2, 5310, 5300, 6, None)])  # found again
+    assert [(dot.kind, dot.x, dot.y) for dot in tracker.map_dots(6)] == [
+        ('leader', 1060.0, 1060.0),
+        ('herald', 1062.0, 1060.0),
+    ]
 
 
 def test_a_monster_followed_into_another_level_moves_its_dot_there():
@@ -350,3 +433,63 @@ def test_rooms_loaded_count_from_logs_without_bounds():
     tracker.apply([seen(unit_id, 6, data_hex='') for unit_id in range(100)])
 
     assert text(tracker.lines(6, terrorized=True))[2] == 'Killed 0 / 200 · 200 left'  # 100 in half the rooms
+
+
+def entered(area, seed):
+    """An 'area' event with the level struct the probe reads on entering: its seed is at +0x1E4."""
+    level = bytearray(0x400)
+    level[0x1E4:0x1EC] = seed.to_bytes(8, 'little')
+    return {'event': 'area', 'area': area, 'level_rooms': 30, 'level_hex': level.hex()}
+
+
+def test_rejoining_the_same_game_after_a_restart_continues_its_heralds_and_kills(tmp_path):
+    # The game restarted and the same server game rejoined showed Tier 1 again (user, 2026-10-06).
+    # A level's seed (+0x1E4, 8 bytes) is the same whenever the same game is entered and differs
+    # between games (probe logs: 516 area/seed pairs, shared only by rejoins and service restarts).
+    store = tmp_path / 'terror-games.json'
+    first = ZoneTracker(store)
+    first.apply([entered(1, 0xAAAA), entered(6, 0xBBBB), herald(9, 6, 5100, 5200, tier=2), died(9, 6)])
+    kill(first, 6, 3)
+    assert first.next_tier == 3
+    first.apply([{'event': 'left_game'}])
+    assert first.next_tier == 1
+
+    again = ZoneTracker(store)  # the service restarted with the game
+    again.apply([entered(40, 0xCCCC)])  # a level the game was never seen in: not known yet
+    assert again.next_tier == 1
+    again.apply([entered(6, 0xBBBB)])
+    assert again.next_tier == 3
+    assert again.area_count(6).killed == 4
+    assert again.visited_rooms(6) == first.visited_rooms(6)
+
+    again.apply([herald(9, 6, 5100, 5200, tier=2)])  # seen again by a fresh client: the same Herald
+    assert again.heralds == [(2, 'Black Marsh')]
+
+
+def test_another_game_starts_from_nothing_and_both_are_kept(tmp_path):
+    store = tmp_path / 'terror-games.json'
+    first = ZoneTracker(store)
+    first.apply([entered(6, 0xBBBB), herald(9, 6, 5100, 5200), {'event': 'left_game'}])
+
+    first.apply([entered(6, 0xDDDD)])  # the same area with another seed: a new game
+    assert first.next_tier == 1
+    first.apply([herald(3, 6, 5100, 5200, tier=4), {'event': 'left_game'}])
+
+    assert [tracker_for(store, seed).next_tier for seed in (0xBBBB, 0xDDDD, 0xEEEE)] == [2, 5, 1]
+
+
+def tracker_for(store, seed):
+    tracker = ZoneTracker(store)
+    tracker.apply([entered(6, seed)])
+    return tracker
+
+
+def test_a_game_killed_without_leaving_is_still_saved_and_a_broken_store_is_ignored(tmp_path):
+    store = tmp_path / 'terror-games.json'
+    crashed = ZoneTracker(store, clock=lambda: 100.0)
+    crashed.apply([entered(6, 0xBBBB), herald(9, 6, 5100, 5200)])  # no 'left_game' follows
+
+    assert tracker_for(store, 0xBBBB).next_tier == 2
+
+    store.write_text('{"games": [')
+    assert tracker_for(store, 0xBBBB).next_tier == 1

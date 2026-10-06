@@ -161,7 +161,18 @@ def extract(html, path):
         elif (path.endswith('/pricing.html') and section == 9) or (special == 'miss' and checklist_false_positive):
             kind = 'false_positive'
         context_reason = None
-        if path == 'guides/warlock.html' and section == 7 and heading.startswith('7 · Verify in-game'):
+        if any(
+            parent.tag == 'details'
+            and any(
+                isinstance(child, Node)
+                and child.tag == 'summary'
+                and re.match(r'review log\b', child.text(), re.IGNORECASE)
+                for child in parent.children
+            )
+            for parent in ancestors
+        ):
+            context_reason = 'Historical review log; current guidance is in the guide body'
+        elif path == 'guides/warlock.html' and section == 7 and heading.startswith('7 · Verify in-game'):
             context_reason = 'Explicitly unverified appendix; not an asserted item verdict'
         elif table_row and len(cells) == 1:
             cell = next(child for child in node.children if isinstance(child, Node) and child.tag == 'td')
@@ -201,6 +212,21 @@ def base_table_examples(case):
     if base is None:
         return None
     variant = cells[1].split(' (')[0]
+    variants = None
+    if variant == 'eth 45@ any sockets':
+        variants = [f'eth 45@ {sockets}os normal' for sockets in range(base['max_sockets'] + 1)]
+    elif trailing := re.fullmatch(r'([0-6])os Superior 45@', variant):
+        variants = [f'45@ {trailing[1]}os Superior']
+    elif (mixed := re.fullmatch(r'([0-6])os 45@', variant)) and re.search(
+        r'\(bimodal: normal .+, Superior 15 ED .+\)', cells[1]
+    ):
+        variants = [f'45@ {mixed[1]}os normal', f'45@ {mixed[1]}os Superior ≥15 ED']
+    if variants is not None:
+        return [
+            example
+            for text in variants
+            for example in base_table_examples(case | {'resolved_cells': [cells[0], text, *cells[2:]]})
+        ]
     match = re.fullmatch(
         r'(?:(?P<eth>eth) )?(?:(?P<res>45)@ )?(?P<sockets>[0-6])os '
         r'(?:(?P<noneth>non-eth) )?(?P<quality>normal|Superior)'
@@ -263,6 +289,7 @@ def item_from_spec(spec):
             'base_code': base['code'],
             'category': spec.get('category', {'unique': 'uniques', 'set': 'sets'}.get(rarity, 'base')),
             'rarity': rarity,
+            'amount': spec.get('quantity', 1),
             'properties': properties,
             'ethereal': spec['ethereal'],
             'sockets': spec['sockets'],

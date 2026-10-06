@@ -135,14 +135,18 @@ class PotionInput:
         if isinstance(self._owned_tracker, FocusTracker):
             self._owned_tracker.close()
 
+    def attempt(self, target: Target, request: PotionRequest) -> AbstractContextManager[_Attempt]:
+        return self.attempt_keys(target, keys_for(self.config, request))
+
     @contextmanager
-    def attempt(self, target: Target, request: PotionRequest) -> Iterator[_Attempt]:
+    def attempt_keys(self, target: Target, key_names: tuple[str, ...]) -> Iterator[_Attempt]:
+        """The same guarded attempt for any X11 key names, pressed in order and released in reverse."""
         stack = ExitStack()
         attempt = None
         try:
             try:
                 keys = stack.enter_context(self.keyboard.connect())
-                names = [name.encode() for name in keys_for(self.config, request)]
+                names = [name.encode() for name in key_names]
                 attempt = _Attempt(self, target, keys, names)
             except Exception as exc:
                 raise InputError('Input entry failed') from exc

@@ -17,6 +17,7 @@ from typing import Any
 
 from inventory_tracking.common import LOG, timestamp
 from inventory_tracking.levels.evidence import evidence_record
+from inventory_tracking.levels.exits import guide_level
 from inventory_tracking.levels.geometry import pointer
 from inventory_tracking.levels.memory import observe_level
 from inventory_tracking.levels.model import LevelSnapshot
@@ -72,7 +73,7 @@ def level_evidence(pid, images, capture, observe=observe_level) -> tuple[dict[st
             'rooms': [r.row() for r in snapshot.rooms],
         }
         return record, f'{name}: no handler{touches}'
-    guidance = handler.guide(snapshot)
+    guidance = guide_level(handler, snapshot)
     found = [pointer(poi, location) for poi in guidance.pois]
     parts = [f'• {p.label} here' if p.here else f'{p.arrow} {p.label} {p.compass}' for p in found]
     parts += list(guidance.problems)

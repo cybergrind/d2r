@@ -39,6 +39,7 @@ from typing import Any
 from inventory_tracking.appraisal.cache import database_revision
 from inventory_tracking.appraisal.capture import AppraisalCapture, RecentFocus
 from inventory_tracking.appraisal.loop_timing import PassTimer
+from inventory_tracking.appraisal.material_sets import recorded_set
 from inventory_tracking.appraisal.owned import owned_copies
 from inventory_tracking.appraisal.presentation import ItemAssessment
 from inventory_tracking.appraisal.published_backend import (
@@ -78,6 +79,7 @@ from inventory_tracking.native.session import GameNotReady, GameProcessUnavailab
 from inventory_tracking.osd.__main__ import positive_float
 from inventory_tracking.reports import create_run, publish
 from inventory_tracking.shop.service import REQUEST_PREFIX as SHOP_PREFIX, ShopWorker, triage_stock
+from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.probe import TerrorProbe
 from inventory_tracking.terror.tracker import ZoneTracker
 from inventory_tracking.tracking.panels import observe_panels
@@ -92,7 +94,9 @@ def owned_evidence(database):
 
     def lookup(observation):
         try:
-            return owned_copies(observation, database)
+            owned = owned_copies(observation, database)
+            basket = recorded_set(observation, database)
+            return {**(owned or {}), 'material_set': basket} if basket else owned
         except sqlite3.Error as exc:
             LOG.warning('Owned-copy lookup failed: %s', exc)
             return None
@@ -506,7 +510,7 @@ def run_service(args, directory, report):
                     )
                     level = LevelDumper(source, args.level_output, capture_lock=worker.capture_lock, notify=notify)
                     # Per-game monster/Herald state: the Terror card and the level map shading.
-                    zones = ZoneTracker() if args.terror_probe else None
+                    zones = ZoneTracker(args.output / 'terror-games.json') if args.terror_probe else None
                     if args.level_guide:
                         guide = LevelGuide(
                             source,
@@ -551,6 +555,7 @@ def run_service(args, directory, report):
                             ),
                             focused=focused,
                             show_unconfirmed=APPRAISAL.terror_card_unconfirmed,
+                            bosses=BossTracker(args.output / 'boss-kills.json') if APPRAISAL.boss_stats else None,
                         )
                     stash = None
                     if args.stash_auto:

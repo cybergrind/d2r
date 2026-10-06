@@ -18,6 +18,9 @@ On a drop, say quickly whether it is worth keeping to sell. In the user's priori
 
 Scope: Softcore / Non-Ladder / PC / RotW, Ist = 1. The player is not levelling characters.
 
+Materials-tab workstream (2026-10-06): [inventory, market collection and implementation plan](MATERIALS.md).
+Covers all 33 individual/bundle entries, including bulk quantity and recipe-set distinctions.
+
 ## 2. Where we are (measured 2026-10-03)
 
 | Fact | Number |
@@ -787,33 +790,32 @@ Decisions needed from the user:
    minutes, paced) to measure turnover? Add a hotkey that marks the last verdict as wrong?
 
 ## 8. Status
-2026-10-04 — Steering 6 active; no user labels or requested live probes.
-- Decision 5 published: measured sub-1-Ist equipment without build use, turnover or buyers
-  is VENDOR; any demand keeps it slow. Green SELL needs demand. Missing measurement is not
-  inactivity. Own-use/commodities retained; sparse CHECK asks are reference only.
-- Demand union: 167 names, 1115 variant records (201 merc), 170 inserts, 114 watches.
-  Second pull completed 1402/1402. Turnover: 4543 cohorts, 10676 vanished IDs, 54 uncensored.
-  Buy-side: four Jah buyers / five listings; no further buy pulls authorized. Prior 181 SELL
-  cohorts show hints, 180 only censored absence; zero of 1620 VENDOR cohorts has strong
-  demand. Only ONE strong cohort (Jah). Page-zero disappearance is not a sale.
-- Guide: 38 worked (34 execute/pass), 15 false-positive (all execute/pass), 503 table/prose
-  candidates (223 execute/pass); 10 context rows retained, 284 candidates unresolved.
-  Ormus bands/models now preserve its exact legal +3 skill; unknown/ambiguous stays
-  CHECK unpriced. Native elemental range corrected to 10–15%; 18932 bands, 14997 priced.
-- Clean normal-labelled listings with 5–15 ED and at most one legal AR/durability bonus
-  infer superior quality, retaining reported labels and native qualityitems provenance.
-- Completed words: 16 roll models (84 total), separate base/ethereal/socket cohorts.
-  Spirit Monarch 25 FCR stays CHECK unpriced; 35 FCR uses matched asks. Bloodthief stays
-  CHECK reference-only; sparse base/charm CHECKs also no longer expose an item estimate.
-- Bonehew September 19 vendor claim corrected: October 4 non-eth Q1 0.29425 / 202
-  sellers clears 0.25; slow uses cohort fallback, not the rejected ED300 model.
-  Ravenlore -25 listings explicitly contain Fire Facets; native range is 10–20.
-  Removed contaminated bucket guidance; added native-roll cases. Four worked inputs remain incomplete.
-- Tests: 482 item/affix and 383 triage tests pass; Ruff/diff clean. Replay 51.25 s; warm median 0.39 ms.
-  Corpus 943: 700 VENDOR, 127 slow, 75 CHECK, 19 SELL, 22 SELF. Normal-play captures
-  continue; live Python adoption unverified. Two unsupported premium SELLs removed.
-- Seller-weighted attention 68.94%, SELL/slow 61.81%; cheap SELL/slow 9.76%, CHECK 17.68%.
-  Pindle September 18 floor rows corrected by October 4 scoped Q1 asks; 35 guide rows added.
-- Poison charm affix tiers/ranges now preserve duration; saved +25/5s capture replays as
-  suffix T2 (6–50, T1 50/6s); combined poison and mismatched-native guards tested.
-- Next: remaining Pindle/Anya rows and guide groups, four worked inputs. No commits/staging/cleanup.
+2026-10-06 — Steering 6 active; no user labels or probes requested.
+- Decision 5 distinguishes measured inactivity from missing evidence. Sparse matched
+  affixed/supply asks >=0.25 Ist yield CHECK/reference; thin unit asks never price stacks.
+- Demand: 167 names, 1115 variants (201 merc), 170 inserts, 114 watches.
+  Second pull 1402/1402; 4543 turnover cohorts, 10676 vanished IDs, 54 uncensored.
+  Only Jah has strong turnover; disappearance is not sales. Buy test: 4 buyers.
+- Guide: 36/38 worked, 15/15 false positives, 257/493 tables execute/pass;
+  20 historical/context rows retained, 238 unresolved, zero executable failures.
+- Caster amulet strong-support gate fixed; 57 jewelry guide cases pass. Blood rings
+  with leech/10 str/30 life/10 resist now CHECK without AR, retaining strict floors.
+  Three October sellers support review, not a common price; 33 craft cases added.
+- Socketed magic armor/shields: 80 cases pass; impossible Skull guidance removed.
+  RotW sets/Bloodpact: 37 cases pass; blanket floor labels corrected with October asks.
+- Facets require element/event identity and supported roll splits; eight perfect
+  variants price from 16–23 sellers. Rebuilt 19,396 bands; 80 roll models.
+- Niche skillers are not zero-demand: October high-life Druid Summoning/Shadow
+  quotes and sparse Masteries/7 FRW support kept separate; mid-life Aura gap retained.
+- Materials: 33 pages / 692 scoped asks; MATERIALS.md lists entries and gaps.
+  Finite lots normalize; 63 offers ambiguous. 30 entries have >=3 sellers across
+  quantities; sale lots need their own cohort. Recorded key/statue sets work.
+- Full triage suite: 426 passed previously; 28 latest guide/skiller tests pass.
+  Ruff/diff clean. New CHECK patterns change the counted cohort denominator;
+  SELL votes stay 13,834. Current SELL recall 63.06% reflects that, not lost SELLs.
+- Full replay: 1444 drops; 1136 VENDOR, 166 slow, 99 CHECK, 20 SELL, 23 SELF; 0.402 ms warm.
+  Seller-weighted attention 70.28%, SELL/slow 63.06%; cheap SELL/slow 9.76%, CHECK 17.68%.
+- Two worked cases remain incomplete; restart for Python changes.
+- Jewels: rare legal pairs/cross-rarity pricing tested. LLD 11+ max / equip <=40
+  gets CHECK; native IDs recover equip level for 38/42 saved jewels (no verdict change).
+  Next: base/charm guide gaps and Materials/UI. Completion unproven; goal active.

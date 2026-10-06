@@ -1,0 +1,299 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Worldstone Shards — where and how to farm each one (D2R RotW, SC/NL/PC)</title>
+<style>
+:root{
+  --bg:#f7f6f3; --panel:#ffffff; --ink:#26251f; --mut:#6d6a60; --line:#dedbd2;
+  --main:#c04747; --main-bg:#fbeaea; --sub:#3667b8; --sub-bg:#e8eef9;
+  --drw:#a06a1f; --drw-bg:#f8efdc; --flu:#177a72; --flu-bg:#e0f2f0;
+  --mach:#57534a; --mach-bg:#eeece7; --ok:#2c7a3d; --warn:#a05a12; --bad:#b03434;
+  --code-bg:#f0eee8;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#191a1c; --panel:#212327; --ink:#e6e4de; --mut:#9b988f; --line:#3a3c40;
+    --main:#e07070; --main-bg:#3a2626; --sub:#7aa0e0; --sub-bg:#242c3c;
+    --drw:#d0a050; --drw-bg:#362d1c; --flu:#54b8ae; --flu-bg:#1c332f;
+    --mach:#b0aca2; --mach-bg:#2c2e32; --ok:#6cc07d; --warn:#d09050; --bad:#e07070;
+    --code-bg:#2a2c30;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;}
+main{max-width:1080px;margin:0 auto;padding:2.2rem 1.4rem 5rem}
+h1{font-size:1.8rem;margin:.2rem 0 .3rem}
+h2{font-size:1.28rem;margin:2.6rem 0 .7rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:1.4rem 0 .4rem}
+p{margin:.55rem 0}
+.sub{color:var(--mut)}
+code,pre{font:13.5px/1.5 ui-monospace,"Cascadia Code",Consolas,monospace;
+  background:var(--code-bg);border-radius:4px}
+code{padding:.08em .35em}
+pre{padding:.7rem .9rem;overflow-x:auto;white-space:pre-wrap;word-break:break-word;
+  border:1px solid var(--line)}
+pre.mermaid{background:var(--panel);text-align:center}
+table{border-collapse:collapse;width:100%;font-size:.87rem;margin:.6rem 0}
+th,td{border:1px solid var(--line);padding:.34rem .5rem;text-align:left;vertical-align:top}
+th{background:var(--mach-bg);font-weight:600}
+.tblwrap{overflow-x:auto}
+.tldr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--sub);
+  border-radius:6px;padding:.9rem 1.1rem;margin:1.2rem 0}
+.tldr b{color:var(--sub)}
+.warnbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--warn);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.okbox{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--ok);
+  border-radius:6px;padding:.7rem 1rem;margin:.9rem 0}
+.stg{font-size:.82rem;margin:.4rem 0 .9rem;max-width:900px}
+.stg th{width:8rem;white-space:nowrap;background:var(--sub-bg);color:var(--sub)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin:.8rem 0;font-size:.82rem}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.dot{width:.85em;height:.85em;border-radius:3px;display:inline-block}
+.prio{display:grid;grid-template-columns:5.2rem 1fr;gap:.35rem .8rem;margin:.9rem 0;
+  max-width:820px;font-size:.86rem}
+.prio .pn{font:600 .8rem/1.9 ui-monospace,monospace;text-align:right;color:var(--mut)}
+.vs th:first-child,.vs td:first-child{white-space:nowrap}
+.flow{display:flex;flex-direction:column;gap:0;margin:1rem 0;max-width:760px}
+.fbox{border:1.5px solid;border-radius:6px;padding:.5rem .8rem;font-size:.86rem}
+.fbox b{font-size:.9rem}
+.fbox small{color:var(--mut);display:block}
+.f-main{border-color:var(--main);background:var(--main-bg)}
+.f-sub{border-color:var(--sub);background:var(--sub-bg)}
+.f-drw{border-color:var(--drw);background:var(--drw-bg)}
+.f-flu{border-color:var(--flu);background:var(--flu-bg)}
+.f-mach{border-color:var(--mach);background:var(--mach-bg)}
+.farrow{color:var(--mut);font-size:.8rem;padding:.15rem 0 .15rem 1.4rem;position:relative}
+.farrow::before{content:"▼";position:absolute;left:.55rem;font-size:.7rem}
+details{margin:.8rem 0}
+summary{cursor:pointer;font-weight:600}
+footer{margin-top:3rem;color:var(--mut);font-size:.8rem;border-top:1px solid var(--line);padding-top:1rem}
+.ok{color:var(--ok);font-weight:600}.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
+.key{font:600 .8rem/1.6 ui-monospace,monospace;white-space:nowrap}
+</style>
+<link rel="stylesheet" href="toc.css">
+<nav class="guide-toc" aria-label="Table of contents">
+<strong class="guide-toc-title">On this page</strong>
+<ul>
+<li><a href="#top">Back to top</a></li>
+<li><a href="#s1">1 · How shards drop</a></li>
+<li><a href="#s2">2 · Which shard you get</a></li>
+<li><a href="#s3">3 · Where to farm each shard</a>
+<ul>
+<li><a href="#sh-western">Western (Act 1)</a></li>
+<li><a href="#sh-eastern">Eastern (Act 2)</a></li>
+<li><a href="#sh-southern">Southern (Act 3)</a></li>
+<li><a href="#sh-deep">Deep (Act 4)</a></li>
+<li><a href="#sh-northern">Northern (Act 5)</a></li>
+</ul></li>
+<li><a href="#s4">4 · Terror zones and Heralds</a></li>
+<li><a href="#s5">5 · How to run it</a></li>
+<li><a href="#s6">6 · Appendix: verified vs verify in-game</a></li>
+</ul>
+</nav>
+<main>
+<h1 id="top">Worldstone Shards — where and how to farm each one</h1>
+<p class="sub">Diablo II: Resurrected, <b>Softcore · Non-Ladder · PC · Reign of the Warlock</b>. Drop tables read from the
+installed game on 2026-10-05. Rates are computed from those tables, not measured in play.</p>
+
+<div class="tldr"><b>Kill Hell elites in the right act, outside terror zones.</b> Only champions, unique pack bosses,
+super uniques and Heralds drop shards; white monsters and act bosses never do. Outside a terror zone the shard you get
+is weighted by the monster's home act, and the weighting is shifted: <b>Act 5 monsters favour Western, Act 4 Eastern,
+Act 1 Southern, Act 2 Deep, Act 3 Northern</b>. In a terror zone every shard is equally likely (20% each), so terror
+zones are the wrong place to target one specific shard. The per-elite shard chance is the same in and out of terror
+zones.</div>
+
+<details><summary>Links &amp; sources</summary><ul>
+<li>Installed game (Steam), <code>data/global/excel/treasureclassex.txt</code>, <code>monstats.txt</code>,
+<code>superuniques.txt</code>, <code>levels.txt</code>, extracted 2026-10-05 with
+<code>uv run --offline python -m terror_zones.game_files &lt;install&gt; data/global/excel/&lt;file&gt;.txt -o &lt;out&gt;</code>.
+Authoritative for this build. 1,358 treasure classes, 752 monsters, 67 super uniques, 139 levels.</li>
+<li><code>third-parties/d2data/json/treasureclassex.json</code> (patch 3.3.93847, 2026-08-21): same shard rows as the
+installed game; used only for readable in-game level names.</li>
+<li><a href="../terror_zones/Patch 3.2 Update! Herald spawn mechanics, Sunder drop rates, Shard drop ratio and more.html">Saved Patch 3.2 article</a>:
+reports "5-3-2-2-1" outside terror zones and "1-1-1-1-1" inside them, which matches the tables. Community analysis.</li>
+<li>Maxroll terror-zones resource and Summoner Warlock guide, cached in <code>pricing/raw/mr/</code> (2026-09-18 / 2026-09-23):
+"Shards can drop … once the player has completed the Hell Baal quest"; build notes in §5.</li>
+<li><a href="terror_zones.html">Terror Zones — Herald progression and farming</a> for Herald routes;
+<a href="planning-with-html.html">document conventions</a>.</li>
+</ul></details>
+
+<details><summary>Preconditions &amp; working assumptions</summary><ul>
+<li>Hell difficulty, players 1. Elite and Herald tables have NoDrop 0, so player count does not change the shard chance per kill.</li>
+<li>Negative <code>Picks</code> are read the classic way: take the listed entries in order, each <code>Prob</code> times, up to |Picks|.
+The shard parent classes (<code>Act N Worldstone Shard Parent …</code>, Picks −2) therefore evaluate the act-weighted table and the
+even table once each; the <code>ConditionCalc</code> on those two tables lets exactly one of them pay out.</li>
+<li>The condition <code>cond('Desecrated')</code> is taken to mean "the area is currently terrorized".</li>
+<li>An area's shard mix is the plain average over the monster types in its Hell spawn list (<code>nmon1–25</code>). Real spawn
+weights per game are not modelled; this only matters in the few areas that mix acts.</li>
+<li>"Elite packs" is <code>MonUMin(H)</code>–<code>MonUMax(H)</code> from <code>levels.txt</code>. It counts champion and unique packs together.</li>
+<li>In-game locations of named super uniques are general game knowledge, not read from the tables.</li>
+</ul></details>
+
+<details><summary>Rejected ideas (and why)</summary><ul>
+<li><b>"Farm the act the shard terrorizes."</b> Wrong by the tables: the act-weighted table each act's elites use is shifted
+(Act 1 elites use the "Act 3" parent, Act 2 the "Act 4", Act 3 the "Act 5", Act 4 the "Act 2", Act 5 the "Act 1"). Act 5 elites
+drop Northern only 8% of the time.</li>
+<li><b>"Terror zones drop more shards per elite."</b> The terrorized elite classes (<code>… Desecrated</code>, Picks −2) hold one entry,
+the ordinary class, so the roll is identical. Before RotW the second entry was the Sunder Charm roll.</li>
+<li><b>Act bosses, Council, Countess, Nihlathak, Summoner, Radament, Izual, Hephasto for shards.</b> Their own classes have no shard entry.</li>
+<li><b>Clearing white monsters for shards.</b> Regular classes (<code>Act N (H) H2H/Cast/Miss …</code>) have no shard entry. White
+kills only matter in terror zones, where they advance Herald spawns.</li>
+<li><b>Quoting d2data alone.</b> Its terror-zone config is known stale (see the terror zones guide), so every number here was
+recomputed from the installed game.</li>
+</ul></details>
+
+<details><summary>Review log — errors already found &amp; fixed (don't reintroduce)</summary><ul>
+<li><b>Pass 0 — 2026-10-05, authoring.</b> Earlier chat estimates corrected before writing: Herald shard chance is 7.4% / 11.1% / 14.7%
+by tier (not a flat 17%; the two "Extra" item rolls are gated on Herald tier). The Council has no shard entry, so Travincal counts
+only its ordinary elite packs. Kurast areas roll 7–9 packs in the installed game (d2data says 8).</li>
+</ul></details>
+
+<h2 id="s1">1 · How shards drop</h2>
+<p>Shards are an entry inside the ordinary Hell elite item tables. Each time an elite's item roll lands on that entry
+you get exactly one shard.</p>
+<div class="tblwrap"><table>
+<tr><th>Monster</th><th>Shard chance per kill</th><th>How</th></tr>
+<tr><td>Regular (white) monster</td><td class="bad">0</td><td>No shard entry</td></tr>
+<tr><td>Champion</td><td>2.26%</td><td>One item roll at 3/133</td></tr>
+<tr><td>Unique pack boss</td><td>2.41%</td><td>One item roll at 2/83</td></tr>
+<tr><td>Super unique on a standard table (Pindleskin, Eldritch, seal bosses …)</td><td>4.82%</td><td>Two item rolls at 2/83</td></tr>
+<tr><td>The Cow King</td><td>4.02%</td><td>Five rolls, 1 in 3 on the unique item table</td></tr>
+<tr><td>Griswold, The Smith</td><td>2.41%</td><td>Same as a unique pack boss</td></tr>
+<tr><td>Baal's wave bosses</td><td>2.26%</td><td>They use the Act 5 champion table</td></tr>
+<tr><td>Herald, tier 1–2 / 3–4 / 5 (terror zones only)</td><td>7.4% / 11.1% / 14.7%</td><td>2 / 3 / 4 item rolls at 15/407</td></tr>
+<tr><td>Act bosses, Council, Countess, Nihlathak, Summoner, Radament, Izual, Hephasto, Blood Raven, Ubers</td><td class="bad">0</td><td>No shard entry</td></tr>
+</table></div>
+<ul>
+<li><b>Hell only.</b> The shard tables carry the condition <code>cond('Difficulty', hell)</code>.</li>
+<li><b>Quest gate.</b> They also carry <code>QuestFlagEx 40</code>; Maxroll states shards need the Hell Baal quest completed.</li>
+<li><b>Magic Find and player count do nothing.</b> A shard is not a quality roll, and the elite tables have no "no drop" entry to shrink.</li>
+<li><b>Terrorized or not, same chance.</b> Only the mix changes (§2).</li>
+</ul>
+
+<h2 id="s2">2 · Which shard you get</h2>
+<p>Outside a terror zone the mix depends on which act's tables the <em>monster</em> uses, which is almost always the act
+you are standing in. The Hell cows are the exception: they use Act 4 tables.</p>
+<div class="tblwrap"><table>
+<tr><th>Elite's tables</th><th>Western</th><th>Eastern</th><th>Southern</th><th>Deep</th><th>Northern</th></tr>
+<tr><td>Act 1</td><td>8%</td><td>15%</td><td class="ok">38%</td><td>23%</td><td>15%</td></tr>
+<tr><td>Act 2</td><td>15%</td><td>8%</td><td>15%</td><td class="ok">38%</td><td>23%</td></tr>
+<tr><td>Act 3</td><td>17%</td><td>17%</td><td>8%</td><td>17%</td><td class="ok">42%</td></tr>
+<tr><td>Act 4 (and Hell cows)</td><td>23%</td><td class="ok">38%</td><td>15%</td><td>8%</td><td>15%</td></tr>
+<tr><td>Act 5</td><td class="ok">38%</td><td>23%</td><td>15%</td><td>15%</td><td>8%</td></tr>
+<tr><td>Any terrorized area, and every Herald</td><td>20%</td><td>20%</td><td>20%</td><td>20%</td><td>20%</td></tr>
+</table></div>
+<p>Chance per kill for the shard you are targeting, in its best act:</p>
+<div class="tblwrap"><table>
+<tr><th>Target</th><th>Champion</th><th>Unique pack boss</th><th>Super unique</th></tr>
+<tr><td>Western, Eastern, Southern or Deep (38%)</td><td>0.87%</td><td>0.93%</td><td>1.85%</td></tr>
+<tr><td>Northern (42%)</td><td>0.94%</td><td>1.00%</td><td>2.01%</td></tr>
+<tr><td>Any one shard in a terror zone (20%)</td><td>0.45%</td><td>0.48%</td><td>0.96%</td></tr>
+</table></div>
+<div class="warnbox"><b>The act that favours a shard is never the act that shard terrorizes.</b> Using a shard on its own act
+also switches that act to the even mix, which halves the rate for the shard its elites favoured.</div>
+
+<h2 id="s3">3 · Where to farm each shard</h2>
+<p>All rows are Hell, not terrorized. "Packs" is elite packs rolled per game. Areas with a waypoint are marked WP.</p>
+
+<h3 id="sh-western">Western Worldstone Shard (terrorizes Act 1) — farm Act 5</h3>
+<table class="stg">
+<tr><th>Share</th><td>38% from Act 5 monsters</td></tr>
+<tr><th>Best targets</th><td><b>Pindleskin</b> (Anya's portal), <b>Eldritch the Rectifier</b> and <b>Shenk the Overseer</b> (Frigid Highlands WP),
+Thresh Socket (Arreat Plateau). Each is a super unique at 1.85% Western per kill.</td></tr>
+<tr><th>Best areas</th><td>Frigid Highlands, Arreat Plateau, Frozen Tundra (9–11 packs each, WP). Crystalline Passage and Ancients' Way (7–9, WP).
+Frozen River, Drifter Cavern (6–8, level 85).</td></tr>
+<tr><th>Weaker</th><td>Worldstone Keep and Nihlathak's halls mix in Act 3 and Act 4 monsters: 24–33% Western.</td></tr>
+<tr><th>Zero</th><td>Nihlathak, the Ancients, Baal.</td></tr>
+</table>
+<p>The existing Pindleskin loop is already the best Western farm: one kill per game, about 1 Western per 54 kills.</p>
+
+<h3 id="sh-eastern">Eastern Worldstone Shard (terrorizes Act 2) — farm Act 4 or the Hell cows</h3>
+<table class="stg">
+<tr><th>Share</th><td>38% from Act 4 monsters and from Hell Bovines</td></tr>
+<tr><th>Best targets</th><td>Chaos Sanctuary seal bosses: <b>Grand Vizier of Chaos, Lord De Seis, Infector of Souls</b> (1.85% Eastern each).</td></tr>
+<tr><th>Best areas</th><td>Outer Steppes (8–10 packs, 38%). Plains of Despair and City of the Damned (8–10, 35%, WP at City).
+River of Flame (6–7, WP) and Chaos Sanctuary (6–7), both level 85. <b>Secret Cow Level</b> (6–8 packs, 38%).</td></tr>
+<tr><th>Note</th><td>The Cow King himself uses an Act 1 table: 4.02% shard chance, but Southern-weighted (15% Eastern).</td></tr>
+<tr><th>Zero</th><td>Izual, Hephasto, Diablo.</td></tr>
+</table>
+<p>The existing Hell cow runs are an Eastern farm as long as the champion and unique packs get killed.</p>
+
+<h3 id="sh-southern">Southern Worldstone Shard (terrorizes Act 3) — farm Act 1</h3>
+<table class="stg">
+<tr><th>Share</th><td>38% from Act 1 monsters</td></tr>
+<tr><th>Best targets</th><td>Act 1 super uniques at 1.85% Southern each: Bishibosh (Cold Plains), Rakanishu (Stony Field), Treehead Woodfist (Dark Wood),
+Corpsefire (Den of Evil), Coldcrow (The Cave), Bonebreak (Crypt), Pitspawn Fouldog (Jail), Boneash (Cathedral).
+The Cow King (1.5% Southern). Griswold and The Smith (0.93%).</td></tr>
+<tr><th>Best areas</th><td>Cold Plains, Stony Field, Dark Wood, Black Marsh (7–9 packs, WP). <b>The Pit</b> level 1 (6–8) and level 2 (2–3), level 85.
+Mausoleum (4–5, level 85). Jail 1 and Catacombs 2 (6–8, WP).</td></tr>
+<tr><th>Weaker</th><td>Catacombs 3–4: 27–31% Southern (Act 2 zombies mixed in).</td></tr>
+<tr><th>Zero</th><td>Andariel, The Countess, Blood Raven.</td></tr>
+</table>
+
+<h3 id="sh-deep">Deep Worldstone Shard (terrorizes Act 4) — farm Act 2</h3>
+<table class="stg">
+<tr><th>Share</th><td>38% from Act 2 monsters</td></tr>
+<tr><th>Best targets</th><td>Act 2 super uniques at 1.85% Deep each: Creeping Feature (Stony Tomb 2), Beetleburst (Far Oasis), Dark Elder (Lost City),
+Bloodwitch the Wild (Halls of the Dead 3), Fangskin (Claw Viper Temple 2), Coldworm the Burrower (Maggot Lair 3),
+Fire Eye (Palace Cellar 3), Ancient Kaa the Soulless (Tal Rasha's Tomb).</td></tr>
+<tr><th>Best areas</th><td>Dry Hills, Far Oasis, Lost City, Canyon of the Magi, Arcane Sanctuary (7–9 packs, WP). Rocky Waste (7–9).
+<b>Ancient Tunnels</b> and <b>Stony Tomb</b> level 1 (6–8) and level 2 (4–6), all level 85.</td></tr>
+<tr><th>Weaker</th><td>Tal Rasha's tombs: 35% Deep.</td></tr>
+<tr><th>Zero</th><td>Radament, The Summoner, Duriel.</td></tr>
+</table>
+
+<h3 id="sh-northern">Northern Worldstone Shard (terrorizes Act 5) — farm Act 3</h3>
+<table class="stg">
+<tr><th>Share</th><td>42% from Act 3 monsters, the highest share any shard gets</td></tr>
+<tr><th>Best targets</th><td>Act 3 super uniques at 2.01% Northern each: Stormtree (Lower Kurast), Battlemaid Sarina (Ruined Temple),
+Icehawk Riftwing (Sewers 1), Witch Doctor Endugu (Flayer Dungeon 3), Sszark the Burning (Spider Cavern).</td></tr>
+<tr><th>Best areas</th><td><b>Lower Kurast, Kurast Bazaar, Upper Kurast</b> (7–9 packs each, WP each). Spider Forest, Great Marsh, Flayer Jungle
+(10–15 packs, WP, but large). Travincal (6–8, WP). Sewers 1–2 (6–7, level 85). The six Kurast temples (2–4 packs in one small room, level 85).</td></tr>
+<tr><th>Weaker</th><td>Spider Cave, Swampy Pit, Durance of Hate 1–2: 34–38% Northern.</td></tr>
+<tr><th>Zero</th><td>The Council, Mephisto.</td></tr>
+</table>
+
+<h2 id="s4">4 · Terror zones and Heralds</h2>
+<ul>
+<li><b>Same chance per elite, even mix.</b> A terrorized elite gives each shard type at 0.45–0.48% per kill (0.96% for a super unique),
+about half the targeted rate in §2.</li>
+<li><b>Heralds are the terror-zone bonus.</b> Each Herald kill gives 7.4% (tier 1–2), 11.1% (tier 3–4) or 14.7% (tier 5) for a shard,
+always the even mix: 1.5% / 2.2% / 2.9% for any one type. Routes for spawning them are in the
+<a href="terror_zones.html">terror zones guide</a>.</li>
+<li><b>Use terror zones when you want all five shards</b> or are farming Heralds anyway. Use §3 when you want one specific shard.</li>
+<li><b>Avoid your target's best act while it is terrorized.</b> Act 3 terrorized drops Northern at 20% instead of 42%.</li>
+</ul>
+
+<h2 id="s5">5 · How to run it</h2>
+<ol>
+<li><b>Play Hell, players 1.</b> Higher player counts make elites tougher without raising the shard chance.</li>
+<li><b>Skip white monsters and act bosses.</b> Teleport pack to pack; kill every champion in a champion pack and the boss of a unique pack.</li>
+<li><b>Chain waypoint areas, then remake.</b> For example Lower Kurast → Kurast Bazaar → Upper Kurast → Travincal for Northern,
+or Frigid Highlands (Eldritch, Shenk) → Anya's portal (Pindleskin) for Western.</li>
+<li><b>Prefer super uniques at fixed spots.</b> They are worth two elite rolls and need no searching.</li>
+<li><b>Check the terror-zone message first.</b> If your target act is terrorized, farm a different shard or go Herald hunting instead.</li>
+</ol>
+<p><b>Build.</b> Maxroll's elite-hunting tier list (2026-05-22) ranks Berserk Barbarian S, the current Echoing Strike Warlock A,
+and Summoner Warlock B. Echoing Strike needs no change for this. Summoner Warlock (bound Dark Lancer with Cursed and Fanaticism,
+Goatman, Defiler, Enigma) is the hands-off option at lower speed.</p>
+
+<h2 id="s6">6 · Appendix: verified vs verify in-game</h2>
+<h3 id="verified">Stands on the installed game tables (2026-10-05)</h3>
+<ul>
+<li>Which treasure classes contain shards, and every probability in §1.</li>
+<li>The five act-weighted tables and the even table, their conditions, and which parent each act's elite classes point to (§2).</li>
+<li>Terrorized elite classes containing only the ordinary class.</li>
+<li>Zero shard entries for the monsters listed as "Zero".</li>
+<li>Elite pack counts and each area's Hell monster list.</li>
+</ul>
+<h3 id="verify">Verify in-game (not asserted anywhere above as measured)</h3>
+<ul>
+<li>That one shard drops per shard-entry hit (the negative-Picks reading in the assumptions).</li>
+<li>Unique-pack minions: assumed to use the regular table and so drop no shards.</li>
+<li>Whether the Barbarian's Find Item can produce shards from an elite corpse. The tables do not exclude it; the engine check is unknown.</li>
+<li>Actual shards per hour for any route. No timings were measured.</li>
+<li>Per-area mixes where acts are mixed (Catacombs 3–4, Worldstone Keep, Nihlathak's halls): real spawn weights may differ from the plain average.</li>
+</ul>
+<footer>Worldstone shard farming guide · tables read 2026-10-05 · SC / NL / PC / RotW.</footer>
+</main>

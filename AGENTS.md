@@ -68,6 +68,8 @@ Follow [development practices](development.md) for code changes.
 - `guides/pindle-anya.html` — farm loop, pickup rules §3 (`PK-*`), Anya shop/gamble checklist §4, value table §5.
 - `guides/warlock.html` — Echoing Strike gear (§0 upgrade path, §1 list), boots §2, crafts §3, Warlock item
   values §4, pickup rules §5, loot filter rule table §6, verify-in-game §7.
+- `guides/worldstone-shards.html` — which Hell elites drop Worldstone Shards, the per-act shard mix, where to
+  farm each of the five shards, terror zones/Heralds (installed-game tables, 2026-10-05).
 - `pricing/plan.html` — research plan and access cookbook; `pricing/data/wp-*.md` hand-off notes.
 - `pricing/data/*.json` — ladder (`wp-f-ladder.json`), base buckets (`wp-b-prices.json`), uniques/sets/misc
   (`wp-i-uniques-misc.json`), jewels/charms (`wp-h-jewels-charms.json`), builds (`wp-a-builds.json`,

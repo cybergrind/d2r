@@ -22,7 +22,12 @@ from inventory_tracking.appraisal.owned import AT_LEAST_AS_GOOD, multiple_copy_u
 from inventory_tracking.appraisal.presentation import item_tone
 from inventory_tracking.appraisal.triage import LABELS, TONES, description
 from inventory_tracking.common import LOG, timestamp
-from inventory_tracking.identify.attention import actionable_roles, role_reason, starter_only
+from inventory_tracking.identify.attention import (
+    actionable_roles,
+    exceptional_leveling_reason,
+    role_reason,
+    starter_only,
+)
 from inventory_tracking.identify.capture import capture_inventory_state, capture_records, decode_records
 from inventory_tracking.presentation import StyledLine, Tone
 from inventory_tracking.reports import publish
@@ -143,6 +148,9 @@ def verdict_for(result, owned=None) -> tuple[str, str]:
     trade reasons stay keep, since a second copy still sells.
     """
     if triage := result.get('triage'):
+        if leveling := exceptional_leveling_reason(result):
+            verdict = 'check' if triage['verdict'] in ('vendor', 'slow') else triage['verdict']
+            return verdict, f'{leveling}; trade: {LABELS[triage["verdict"]]} — {description(triage)}'
         return triage['verdict'], description(triage)
     assessment = result.get('assessment', {})
     roles = assessment.get('roles', [])

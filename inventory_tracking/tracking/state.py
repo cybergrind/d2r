@@ -103,6 +103,9 @@ def from_research(snapshot: Snapshot, *, resource_config: ResourceReaderConfig =
     return State(
         sampled_at=sampled,
         session=session,
+        player_name=next(
+            (unit['details'].get('name') for unit in groups['players']['units'] if unit['unit_id'] == player_id), None
+        ),
         health=health,
         merc=select_mercenary(groups.get('monsters', {}).get('units', []), player_id),
         belt=belt,

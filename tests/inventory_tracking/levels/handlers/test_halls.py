@@ -16,8 +16,9 @@ def test_stairs_quadrant_is_one_poi_covering_the_whole_quadrant(fixture):
 
     guidance = handler.guide(replay(fixture))
 
-    [poi] = guidance.pois
+    poi, waypoint = guidance.pois
     assert (poi.label, poi.room.preset, poi.room.block) == ('Next level', 1047, (2040, 2983, 40, 40))
+    assert (waypoint.label, waypoint.kind, waypoint.room.width) == ('Waypoint', 'waypoint', 40)
     assert guidance.problems == ()
 
 

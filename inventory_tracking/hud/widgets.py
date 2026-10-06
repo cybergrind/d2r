@@ -18,7 +18,7 @@ from gi.repository import Pango, PangoCairo  # ruff: ignore[module-import-not-at
 
 from inventory_tracking.common import LOG  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.config import HUD, OSD  # ruff: ignore[module-import-not-at-top-of-file]
-from inventory_tracking.hud.ground import ground_marks, place_mark  # ruff: ignore[module-import-not-at-top-of-file]
+from inventory_tracking.hud.ground import arrow_reach, arrow_shown, ground_marks, place_mark  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.hud.payloads import card_lines  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.osd.direction import MAP_SIZE, draw_indicator  # ruff: ignore[module-import-not-at-top-of-file]
 from inventory_tracking.osd.level_map import KIND_COLOURS, MapCard, draw_map  # ruff: ignore[module-import-not-at-top-of-file]
@@ -148,10 +148,13 @@ class TextCard:
 
 class GroundMarks:
     """Translucent marks on the game view at map positions (hud/ground.py). In view: a floor
-    ellipse around the spot; beyond it: a small dot at the window edge, in the spot's direction."""
+    ellipse around the spot; beyond it: an arrow towards the spot, on a ring around the player."""
 
     # Logical pixels; the radii are half the ellipse's width (a monster's is smaller than a way on).
-    RADIUS, LEADER_RADIUS, EDGE_RADIUS, LINE = 44, 30, 9, 3
+    RADIUS, LEADER_RADIUS, LINE = 44, 30, 3
+    ARROW, ARROW_OUTLINE = 28, 2.5  # the arrow reaches this far from its centre, either way
+    # Pointing along +x: head, then the shaft, as fractions of ARROW.
+    ARROW_SHAPE = ((1, 0), (0.05, -0.8), (0.05, -0.3), (-1, -0.3), (-1, 0.3), (0.05, 0.3), (0.05, 0.8))
     FILL = 0.3  # of the outline's alpha
 
     def measure(self, payload, scale, limit=None):
@@ -160,16 +163,28 @@ class GroundMarks:
     def draw(self, cr, width, height, payload, scale, config=None):
         config = config or HUD.ground
         (px, py), marks = ground_marks(payload)
+        reach = arrow_reach(payload.get('age'), config)
+        origin_x, origin_y, _ = place_mark(0, 0, width, height, config)
         for kind, x, y in marks:
             colour = KIND_COLOURS.get(kind, KIND_COLOURS['target'])
-            sx, sy, on_screen = place_mark(x - px, y - py, width, height, config)
-            if not on_screen:
-                cr.arc(sx, sy, self.EDGE_RADIUS * scale, 0, 2 * math.pi)
-                cr.set_source_rgba(*colour, config.alpha)
-                cr.fill()
+            sx, sy, on_screen = place_mark(x - px, y - py, width, height, config, reach)
+            if not (on_screen or arrow_shown(kind, x - px, y - py, config)):
                 continue
             cr.save()
             cr.translate(sx, sy)
+            if not on_screen:
+                cr.rotate(math.atan2(sy - origin_y, sx - origin_x))
+                size = self.ARROW * scale
+                for index, (ax, ay) in enumerate(self.ARROW_SHAPE):
+                    (cr.line_to if index else cr.move_to)(ax * size, ay * size)
+                cr.close_path()
+                cr.restore()
+                cr.set_source_rgba(*colour, config.arrow_alpha)
+                cr.fill_preserve()
+                cr.set_source_rgba(0, 0, 0, config.arrow_alpha)  # readable on fire and snow alike
+                cr.set_line_width(self.ARROW_OUTLINE * scale)
+                cr.stroke()
+                continue
             cr.scale(1, 0.5)  # a circle on the floor, seen isometrically
             cr.arc(0, 0, (self.LEADER_RADIUS if kind == 'leader' else self.RADIUS) * scale, 0, 2 * math.pi)
             cr.restore()

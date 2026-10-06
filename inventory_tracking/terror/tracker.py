@@ -22,12 +22,23 @@ A revived monster (Fallen Shamans raise their Fallen: same unit id, 2026-10-03 l
 kill however often it dies (user, 2026-10-03), and gets its map dot back while alive.
 
 Leaving the game resets everything; a service started mid-game assumes Tier 1 until it sees
-a Herald.
+a Herald, unless the game is one it knows: the state is saved per server game and taken up
+again when that game is entered (user, 2026-10-06: the game client restarted and the same game
+rejoined showed Tier 1). A game is known by its levels' seeds: the level struct the probe reads
+on entering a level has 8 random bytes at +0x1E4 which are the same whenever the same game is
+entered and differ between games (probe logs to 2026-10-06: 516 area/seed pairs, shared only
+across rejoins and service restarts; the Act/ActMisc seed hashes of levels/research.py read as
+constants on this build). Unit ids are taken to stay the same in a rejoined game.
 """
 
+import json
+import math
+import time
 from collections import deque
 from dataclasses import dataclass, field
+from pathlib import Path
 
+from inventory_tracking.common import LOG
 from inventory_tracking.levels.geometry import Pointer
 from inventory_tracking.native.layout import DEAD_MODES, TILE_UNITS
 from inventory_tracking.osd.level_map import MapPoi
@@ -47,7 +58,38 @@ FIRST_MODIFIER = 0x20  # monster data byte: first special modifier (monumod.json
 # desecratedzones.json rotw/hell always_unique_mod_pool: strong, fast, curse, fire, lightning
 # (17), cold, manahit, spectral hit (27), and 28 (d2data, 2026-10-02).
 TERROR_MODIFIERS = frozenset((5, 6, 7, 9, 17, 18, 25, 27, 28))
+# monstats.json rows without `killable` (d2data, 2026-10-05): townsfolk, critters, traps and
+# scenery units such as the Compelling Orb (366), which carries the unique flag and never dies.
+UNKILLABLE = frozenset((
+    34, 35, 36, 37, 106, 107, 108, 109, 146, 147, 148, 149, 150, 153, 154, 155, 159, 175, 176, 177, 178, 179, 185,
+    195, 196, 197, 198, 199, 200, 201, 202, 204, 205, 210, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 244,
+    245, 246, 251, 252, 253, 254, 255, 257, 264, 265, 294, 296, 297, 326, 327, 328, 329, 330, 332, 355, 366, 367,
+    368, 369, 401, 405, 406, 408, 414, 450, 451, 452, 511, 512, 513, 514, 515, 516, 517, 518, 519, 520, 521, 527,
+    537, 538, 539, 543, 545, 556, 559, 567, 568, 569, 574, 734, 737,
+))  # fmt: skip
+# The client drops live monsters about 8-24 tiles away; nearer than this (world units) it holds
+# them (probe log 2026-10-05: 3 of 1233 live monsters vanished closer).
+HELD_RANGE = 40
 TERROR_VOTES = 6  # plain-monster sightings per Terror Zone that decide
+LEVEL_SEED, LEVEL_SEED_SIZE = 0x1E4, 8  # level struct bytes: the same in a rejoined game
+STORED_GAMES = 8  # games kept in the store, the latest last
+SAVE_SECONDS = 5.0  # between saves while playing; leaving a game and a Herald always save
+# The game's names of those modifiers (monumod.json ids, d2data 2026-10-06): the zone's own line
+# under 'Terrorized: <level>' in the game's top-right text.
+MODIFIER_NAMES = {
+    5: 'Extra Strong',
+    6: 'Extra Fast',
+    7: 'Cursed',
+    9: 'Fire Enchanted',
+    17: 'Lightning Enchanted',
+    18: 'Cold Enchanted',
+    25: 'Mana Burn',
+    27: 'Spectral Hit',
+    28: 'Stone Skin',
+}
+# 'Terrorized: 95' at character level 93 (user's screenshot, 2026-10-06): the classic rule,
+# character level + 2 up to 96 in Hell. The area's own level as a floor is not applied here.
+TERROR_LEVEL_BONUS, TERROR_LEVEL_CAP = 2, 96
 
 
 @dataclass
@@ -79,10 +121,14 @@ def percent(value: float) -> str:
 
 
 class ZoneTracker:
-    def __init__(self):
+    def __init__(self, store: Path | None = None, *, clock=time.monotonic):
+        self.store, self.clock = store, clock
+        self.saved_at = -math.inf
         self.reset()
 
     def reset(self):
+        self.game_levels: dict[int, str] = {}  # area -> level seed (hex): what this game is known by
+        self.restored = False
         self.areas: dict[int, Count] = {}
         self.level_rooms: dict[int, int] = {}  # area -> Room2 count of the level
         self.heralds: list[tuple[int, str]] = []
@@ -93,7 +139,10 @@ class ZoneTracker:
         self.loaded: dict[int, int] = {}  # area -> rooms ever loaded, as the probe counts them
         self.positions: dict[int, tuple[int, int, int]] = {}  # hostile unit id -> (area, x, y), alive
         self.leaders: set[int] = set()  # unique, champion and super unique monsters (not minions)
+        self.lost: dict[int, tuple[int, int | None]] = {}  # unit id -> (area, Herald tier): not where remembered
+        self.paths: dict[int, int] = {}  # unit id -> dynamic path address, units in the last walk only
         self.dead: dict[int, int] = {}  # hostile unit id -> area, killed at least once this game
+        self.modifiers: dict[str, deque[int]] = {}  # Terror Zone -> recent forced modifiers of plain monsters
         self.votes: dict[str, deque[bool]] = {}  # Terror Zone -> recent plain sightings: forced modifier?
         self.live_heralds: dict[int, tuple[int, int, int, int]] = {}  # unit id -> (tier, area, x, y), alive
         self.offsets: dict[str, float] = {}  # group -> completion % when its last Herald appeared
@@ -121,13 +170,16 @@ class ZoneTracker:
         return result
 
     def apply(self, events):
+        heralds = len(self.heralds)
         for event in events:
             kind = event['event']
             if kind == 'left_game':
+                self.save()
                 self.reset()
             elif kind == 'seen':
                 self.saw(event)
             elif kind == 'area':
+                self.entered(event['area'], event.get('level_hex') or '')
                 if event.get('level_rooms'):
                     self.level_rooms[event['area']] = event['level_rooms']
             elif kind == 'rooms':
@@ -138,41 +190,141 @@ class ZoneTracker:
                 unit_id = event['unit_id']
                 self.live_heralds.pop(unit_id, None)
                 self.positions.pop(unit_id, None)
+                self.paths.pop(unit_id, None)
+                self.lost.pop(unit_id, None)
                 if group and unit_id not in self.allies and unit_id not in self.dead:
                     self.area_count(event['area']).killed += 1
                 if unit_id not in self.allies:
                     self.dead.setdefault(unit_id, event['area'])
+
+        if events and (len(self.heralds) != heralds or self.clock() - self.saved_at >= SAVE_SECONDS):
+            self.save()
+
+    def entered(self, area: int, level_hex: str):
+        """Take the level's seed as this game's mark; a game known by it continues where it was left."""
+        seed = level_hex[2 * LEVEL_SEED : 2 * (LEVEL_SEED + LEVEL_SEED_SIZE)]
+        if len(seed) != 2 * LEVEL_SEED_SIZE or not int(seed, 16):
+            return
+        if self.game_levels.get(area, seed) != seed:  # another game, entered without the leaving being seen
+            self.save()
+            self.reset()
+        self.game_levels[area] = seed
+        if self.restored:
+            return
+        for game in reversed(self.stored_games()):
+            if game['levels'].get(str(area)) == seed:
+                levels = self.game_levels
+                try:
+                    self.restore(game['state'])
+                except (KeyError, TypeError, ValueError) as exc:
+                    LOG.warning('Terror tracker: stored game unreadable: %s', exc)
+                    self.reset()
+                self.game_levels = {int(k): v for k, v in game['levels'].items()} | levels
+                self.restored = True
+                LOG.info('Terror tracker: game rejoined; Heralds seen %s', self.heralds)
+                return
+
+    def stored_games(self) -> list[dict]:
+        if self.store is None:
+            return []
+        try:
+            games = json.loads(self.store.read_text(encoding='utf-8'))['games']
+            return [game for game in games if isinstance(game.get('levels'), dict) and 'state' in game]
+        except OSError, ValueError, KeyError, TypeError, AttributeError:
+            return []
+
+    def state(self) -> dict:
+        """What a rejoined game continues with; live positions are found again by the probe."""
+        return {
+            'areas': {area: [count.killed, sorted(count.seen)] for area, count in self.areas.items()},
+            'level_rooms': self.level_rooms,
+            'heralds': self.heralds,
+            'herald_units': sorted(self.herald_units),
+            'allies': sorted(self.allies),
+            'zones': sorted(self.zones),
+            'visited': {area: sorted(rooms) for area, rooms in self.visited.items()},
+            'loaded': self.loaded,
+            'dead': self.dead,
+            'votes': {zone: list(votes) for zone, votes in self.votes.items()},
+            'modifiers': {zone: list(mods) for zone, mods in self.modifiers.items()},
+            'offsets': self.offsets,
+        }
+
+    def restore(self, state: dict):
+        self.areas = {int(area): Count(int(killed), set(seen)) for area, (killed, seen) in state['areas'].items()}
+        self.level_rooms = {int(area): int(rooms) for area, rooms in state['level_rooms'].items()}
+        self.heralds = [(int(tier), str(name)) for tier, name in state['heralds']]
+        self.herald_units, self.allies, self.zones = (
+            set(state['herald_units']),
+            set(state['allies']),
+            set(state['zones']),
+        )
+        self.visited = {int(area): {tuple(room) for room in rooms} for area, rooms in state['visited'].items()}
+        self.loaded = {int(area): int(count) for area, count in state['loaded'].items()}
+        self.dead = {int(unit_id): int(area) for unit_id, area in state['dead'].items()}
+        self.votes = {zone: deque(votes, maxlen=TERROR_VOTES) for zone, votes in state['votes'].items()}
+        self.modifiers = {zone: deque(mods, maxlen=TERROR_VOTES) for zone, mods in state['modifiers'].items()}
+        self.offsets = {str(name): float(offset) for name, offset in state['offsets'].items()}
+
+    def save(self):
+        """Keep this game in the store, in place of what was stored of it before."""
+        self.saved_at = self.clock()
+        if self.store is None or not self.game_levels:
+            return
+        mine = {str(area): seed for area, seed in self.game_levels.items()}
+        others = [g for g in self.stored_games() if not any(mine.get(a) == seed for a, seed in g['levels'].items())]
+        games = [*others, {'levels': mine, 'state': self.state()}][-STORED_GAMES:]
+        try:
+            self.store.write_text(json.dumps({'games': games}, separators=(',', ':')), encoding='utf-8')
+        except OSError as exc:
+            LOG.warning('Terror tracker: games not saved to %s: %s', self.store, exc)
 
     def saw(self, event):
         unit_id, group = event['unit_id'], group_of(event['area'])
         if stat(event, ALIGNMENT_STAT):
             self.allies.add(unit_id)
             return
+        if event.get('txt_id') in UNKILLABLE:
+            return
         if group and data_byte(event, TYPE_FLAGS) == 0 and not stat(event, HERALD_TIER_STAT):
             modifier = data_byte(event, FIRST_MODIFIER)
             votes = self.votes.setdefault(group.zone, deque(maxlen=TERROR_VOTES))
             votes.append(modifier in TERROR_MODIFIERS)
+            if modifier in TERROR_MODIFIERS:
+                self.modifiers.setdefault(group.zone, deque(maxlen=TERROR_VOTES)).append(modifier)
         if 'x' in event and event.get('mode') not in DEAD_MODES:  # a corpse seen first is nothing left to kill
             self.positions[unit_id] = (event['area'], event['x'], event['y'])
             if (data_byte(event, TYPE_FLAGS) or 0) & LEADER_FLAGS and not is_minion(event):
                 self.leaders.add(unit_id)
         tier = stat(event, HERALD_TIER_STAT)
         if tier:
+            known = unit_id in self.herald_units  # seen before the game was rejoined
             self.herald_units.add(unit_id)
             if group and not is_minion(event):
                 if event.get('mode') not in DEAD_MODES and 'x' in event:
                     self.live_heralds[unit_id] = (tier, event['area'], event['x'], event['y'])
-                self.heralds.append((tier, group.name))
-                self.offsets[group.name] = group_completion(self.levels(group))
-                self.zones.add(group.zone)
+                if not known:
+                    self.heralds.append((tier, group.name))
+                    self.offsets[group.name] = group_completion(self.levels(group))
+                    self.zones.add(group.zone)
         if group:
             self.area_count(event['area']).seen.add(unit_id)
 
-    def track(self, monsters):
-        """Follow live monsters: `monsters` are the units present this pass (terror/monsters.py)."""
+    def track(self, monsters, location=None, complete=True):
+        """Follow live monsters: `monsters` are the units present this pass (terror/monsters.py),
+        `location` the player's, `complete` whether the walk reached every unit."""
+        # Only units the client holds now: one that left its range keeps its dot, but the game frees
+        # its path and reuses the memory for other units, missiles included (RCA 2026-10-05).
+        self.paths = {monster.unit_id: monster.path for monster in monsters if monster.path}
         for monster in monsters:
+            alive = monster.mode not in DEAD_MODES
+            if alive and monster.unit_id in self.lost:
+                area, tier = self.lost.pop(monster.unit_id)
+                self.positions[monster.unit_id] = (monster.area or area, monster.x, monster.y)
+                if tier is not None:
+                    self.live_heralds[monster.unit_id] = (tier, monster.area or area, monster.x, monster.y)
             revived = monster.unit_id in self.dead and monster.unit_id not in self.positions
-            if revived and monster.mode not in DEAD_MODES:
+            if revived and alive:
                 self.positions[monster.unit_id] = (monster.area or self.dead[monster.unit_id], monster.x, monster.y)
             if monster.unit_id in self.positions:
                 area = self.positions[monster.unit_id][0]
@@ -180,6 +332,16 @@ class ZoneTracker:
             if monster.unit_id in self.live_heralds:
                 tier, area, _x, _y = self.live_heralds[monster.unit_id]
                 self.live_heralds[monster.unit_id] = (tier, monster.area or area, monster.x, monster.y)
+        if location is None or not complete:
+            return
+        # A remembered monster the client would hold if it were still there: it moved or died unseen.
+        present = {monster.unit_id for monster in monsters}
+        for unit_id, (area, x, y) in list(self.positions.items()):
+            near = math.hypot(x - location.x, y - location.y) <= HELD_RANGE
+            if unit_id not in present and area == location.area_id and near:
+                del self.positions[unit_id]
+                herald = self.live_heralds.pop(unit_id, None)
+                self.lost[unit_id] = (area, herald[0] if herald else None)
 
     def herald_marks(self, area: int) -> list[tuple[int, int, int]]:
         """(tier, x, y) in world units of the Heralds alive in `area`, at their last seen position."""
@@ -187,8 +349,9 @@ class ZoneTracker:
 
     def herald_dots(self, area: int) -> list[MapPoi]:
         return [
-            MapPoi(f'Herald T{tier}', 'herald', x / TILE_UNITS, y / TILE_UNITS)
-            for tier, x, y in self.herald_marks(area)
+            MapPoi(f'Herald T{tier}', 'herald', x / TILE_UNITS, y / TILE_UNITS, self.paths.get(unit_id, 0))
+            for unit_id, (tier, where, x, y) in self.live_heralds.items()
+            if where == area
         ]
 
     def map_dots(self, area: int) -> list[MapPoi]:
@@ -200,7 +363,8 @@ class ZoneTracker:
         for unit_id, (where, x, y) in self.positions.items():
             if where == area and unit_id not in self.live_heralds:
                 if unit_id in self.leaders:
-                    leaders.append(MapPoi('unique', 'leader', x / TILE_UNITS, y / TILE_UNITS))
+                    path = self.paths.get(unit_id, 0)  # the HUD follows these between passes (hud/live.py)
+                    leaders.append(MapPoi('unique', 'leader', x / TILE_UNITS, y / TILE_UNITS, path))
                 else:
                     mobs.append(MapPoi('monster', 'mob', x / TILE_UNITS, y / TILE_UNITS))
         return [*mobs, *leaders, *self.herald_dots(area)]
@@ -220,7 +384,20 @@ class ZoneTracker:
             return sum(votes) * 2 > len(votes)
         return True if group.zone in self.zones else None
 
-    def lines(self, area: int, *, terrorized: bool | None, position: tuple[int, int] | None = None) -> list[str]:
+    def zone_modifier(self, area: int) -> str | None:
+        """The game's name of the modifier every plain monster of the area's Terror Zone carries."""
+        group = group_of(area)
+        recent = self.modifiers.get(group.zone) if group else None
+        return MODIFIER_NAMES[max(set(recent), key=recent.count)] if recent else None
+
+    def lines(
+        self,
+        area: int,
+        *,
+        terrorized: bool | None,
+        position: tuple[int, int] | None = None,
+        player_level: int | None = None,
+    ) -> list[str]:
         group = group_of(area)
         if group is None or terrorized is False:
             return []
@@ -234,8 +411,13 @@ class ZoneTracker:
             for tier, x, y in self.herald_marks(area):
                 pointer = Pointer(f'Herald T{tier} alive', None, x - position[0], y - position[1])
                 pointers.append(f'{pointer.arrow}  {pointer.label}: {pointer.compass}')
+        # What the game prints where the card sits: 'Terrorized: <level>' and the zone's modifier.
+        modifier = self.zone_modifier(area)
+        level = min(player_level + TERROR_LEVEL_BONUS, TERROR_LEVEL_CAP) if terrorized and player_level else None
+        zone = ' · '.join(part for part in (f'Level {level}' if level else None, modifier) if part)
         lines = [
             f'Terror · {group.name}' + ('' if terrorized else ' (unconfirmed)'),
+            *([zone] if zone else []),
             *pointers,
             f'Next Herald: Tier {result.tier} · {seen} seen this game',
             f'Killed {killed} / {killed + result.remaining} · {result.remaining} left',

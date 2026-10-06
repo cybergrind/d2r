@@ -12,6 +12,7 @@ from pricing.knowledge.cache_dates import collection_day_evidence
 from pricing.knowledge.documented_cache_dates import documented_day, load_reviews
 from pricing.knowledge.market_mechanics import apply_mechanics
 from pricing.knowledge.market_named_aliases import canonicalize_named_catalog
+from pricing.knowledge.material_items import material_lot
 
 
 VERSION = 'reign of the warlock'
@@ -70,6 +71,8 @@ def normalize_listing(listing, *, name, category, source, observed_at=None, curr
     ask, conversion = convert_groups(listing.get('prices'), currencies or {})
     amount = listing.get('amount')
     unit = 'stack_total' if category in ('runes', 'gems') else 'single_item' if amount == 1 else 'ambiguous'
+    if material_lot(name, category, listing) and amount > 1:
+        unit = 'stack_total'
     if unit == 'stack_total':
         if valid_positive(amount) and ask is not None:
             ask /= amount

@@ -168,6 +168,7 @@ class TerrorProbe:
         display=None,
         focused=None,
         show_unconfirmed=True,
+        bosses=None,
     ):
         self.source, self.output, self.capture_lock = source, output, capture_lock
         self.poll_interval, self.observe = poll_interval, observe
@@ -177,6 +178,7 @@ class TerrorProbe:
         self.last_warning = None
         self.tracker, self.display, self.focused = tracker, display, focused
         self.show_unconfirmed = show_unconfirmed
+        self.bosses = bosses  # boss kills of this game launch (terror/bosses.py), shown under the Terror lines
         self.card: list[str] = []
 
     def poll(self, now):
@@ -208,19 +210,26 @@ class TerrorProbe:
         self.write(events)
         if self.tracker is not None:
             self.tracker.apply(events)
-            self.tracker.track(snapshot.monsters)
-            self.card = self.card_lines(self.tracker, snapshot.location)
+            self.tracker.track(snapshot.monsters, snapshot.location, snapshot.complete)
+        if self.bosses is not None:
+            self.bosses.apply(self.source.images.get('identity') or {'pid': self.source.pid}, events)
+        self.card = self.card_lines(self.tracker, snapshot.location, snapshot.player_level)
 
-    def card_lines(self, tracker, location) -> list[str]:
+    def card_lines(self, tracker, location, player_level=None) -> list[str]:
         if location is None:
             return []
+        bosses = self.bosses.lines() if self.bosses is not None else []
+        return [*(self.terror_lines(tracker, location, player_level) if tracker is not None else []), *bosses]
+
+    def terror_lines(self, tracker, location, player_level=None) -> list[str]:
         terrorized = tracker.terrorized(location.area_id)
         if terrorized is None and not self.show_unconfirmed:
             return []
-        return tracker.lines(location.area_id, terrorized=terrorized, position=(location.x, location.y))
+        position = (location.x, location.y)
+        return tracker.lines(location.area_id, terrorized=terrorized, position=position, player_level=player_level)
 
     def tick(self):
-        if self.display is not None and self.tracker is not None:
+        if self.display is not None and (self.tracker is not None or self.bosses is not None):
             focused = self.focused is None or self.focused(self.source.images)
             self.display(self.card if focused else [])
 

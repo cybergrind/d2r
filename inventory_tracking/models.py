@@ -149,6 +149,7 @@ class State:
     sampled_at: float
     reason: str = ''
     session: SessionIdentity | None = None
+    player_name: str | None = None
     health: PlayerHealth | None = None
     merc: Mercenary | None = None
     belt: BeltSnapshot | None = None

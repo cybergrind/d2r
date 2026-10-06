@@ -1,6 +1,6 @@
 """Comparable skiller suffixes: omitted numeric affixes differ from present rolls."""
 
-# Tree IDs verified against WP-H bucket_def and cached Traderie property labels.
+# Tree IDs verified against native stat 188 mappings and cached Traderie labels.
 TREES = frozenset(
     [
         '443',
@@ -14,6 +14,7 @@ TREES = frozenset(
         '409',
         '456',
         '454',
+        '455',
         '500',
         '499',
         '501',

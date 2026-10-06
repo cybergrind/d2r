@@ -1,5 +1,6 @@
 """Compact reports for fungible materials with validated native identities."""
 
+from inventory_tracking.appraisal.material_sets import set_lines
 from inventory_tracking.appraisal.sections import current_price_lines, review_lines, utility_lines
 
 
@@ -29,7 +30,8 @@ def commodity_lines(result):
         price = basket['estimate']
         lines.append(f'Complete {basket["name"]}: ~{price["estimate_ist"]:g} Ist (asks; {basket["quantity_label"]})')
         lines.append('  Set quotes observed: ' + ', '.join(price['dates']))
-    if type(owned.get('count')) is int:
+    lines.extend(set_lines(owned.get('material_set')))
+    if type(owned.get('count')) is int and not owned.get('material_set'):
         lines.append(f'Owned quantity: {owned["count"]}')
     lines.extend('Use: ' + line.strip() for line in utility_lines(result)[1:])
     lines.extend('Unreadable: ' + issue for issue in review_lines(result['extraction']))

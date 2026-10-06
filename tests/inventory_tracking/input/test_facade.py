@@ -174,3 +174,13 @@ def test_x11_owner_is_checked_even_when_compositor_is_unfocused():
     with sender(keyboard, focus=FakeFocus([False])).attempt(TARGET, request()) as attempt:
         assert attempt.refusal == Refusal.UNFOCUSED
     assert keyboard.owner_checks == 1
+
+
+def test_named_keys_go_through_the_same_guarded_attempt():
+    keyboard = FakeKeyboard()
+    clock = Mock(side_effect=[100, 100.1, 100.2])
+    with sender(keyboard, clock=clock).attempt_keys(TARGET, ('Control_L',)) as attempt:
+        assert attempt.refusal is None
+        assert attempt.send() == pytest.approx(100.2)
+    assert keyboard.names == [b'Control_L']
+    assert [event for event in keyboard.events if event[0] in ('press', 'release')] == [('press', 37), ('release', 37)]

@@ -12,7 +12,7 @@ import time
 from inventory_tracking.common import LOG
 from inventory_tracking.config import HUD, OSD
 from inventory_tracking.hud.layout import Slot, game_rect, place, scale_for, slot_limit
-from inventory_tracking.hud.live import LivePlayer, follow, ground_payload_of
+from inventory_tracking.hud.live import Entrance, LiveUnits, follow, ground_payload_of
 from inventory_tracking.hud.scene import read_scene
 from inventory_tracking.hud.widgets import draw_scene, measure
 from inventory_tracking.osd.monitor import GameOutput, choose_monitor
@@ -49,22 +49,25 @@ def run(scene_dir, config=HUD, *, monitor_index=OSD.monitor):
         )
         monitors = Gdk.Display.get_default().get_monitors()
         game_output = GameOutput()
-        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'player': None}
-        live = LivePlayer()
+        state = {'boxes': [], 'scale': 1.0, 'key': None, 'monitor': None, 'ground': None}
+        live, entrance = LiveUnits(), Entrance()
         area.set_draw_func(
-            lambda _a, cr, _w, _h: draw_scene(cr, follow(state['boxes'], state['player']), scale=state['scale'])
+            lambda _a, cr, _w, _h: draw_scene(cr, follow(state['boxes'], state['ground']), scale=state['scale'])
         )
 
-        def follow_player(*_):
-            """Every frame: ground marks move with the player's position read now (hud/live.py)."""
+        def follow_units(*_):
+            """Every frame: the player and the marked monsters where they are now (hud/live.py)."""
             payload = ground_payload_of(state['boxes'])
-            player = live.locate(payload) if payload else None
-            if player != state['player']:
-                state['player'] = player
+            ground = live.locate(payload) if payload else None
+            age = entrance.age(payload, time.monotonic())
+            if age is not None and age < config.ground.arrow_seconds:  # the arrows are still moving out
+                ground = {**(ground or payload), 'age': age}
+            if ground != state['ground']:
+                state['ground'] = ground
                 area.queue_draw()
             return GLib.SOURCE_CONTINUE
 
-        area.add_tick_callback(follow_player)
+        area.add_tick_callback(follow_units)
 
         def canvas_size(monitor):
             if area.get_width() > 0 and area.get_height() > 0:

@@ -11,8 +11,9 @@ from inventory_tracking.automation.controller import Automation
 from inventory_tracking.automation.heal import HealController
 from inventory_tracking.automation.ledger import PotionLedger
 from inventory_tracking.automation.potions import PotionsController
+from inventory_tracking.automation.show_items import ShowItemsController
 from inventory_tracking.common import LOG, configure_logging, log_to_file
-from inventory_tracking.config import MERC_HEALING, OSD, PLAYER_HEALING, READER, with_overrides
+from inventory_tracking.config import MERC_HEALING, OSD, PLAYER_HEALING, READER, SHOW_ITEMS, with_overrides
 from inventory_tracking.input import PotionInput
 from inventory_tracking.models import BeltSnapshot, PlayerHealth, State
 from inventory_tracking.osd.demo import DEMO_SESSION, repair_frame, resource_frame
@@ -52,6 +53,12 @@ def main():
         action=argparse.BooleanOptionalAction,
         default=PLAYER_HEALING.enabled,
         help='Heal player using config.py thresholds; keys 1/2/3/4',
+    )
+    parser.add_argument(
+        '--show-items',
+        action=argparse.BooleanOptionalAction,
+        default=SHOW_ITEMS.enabled,
+        help="Turn item labels (Show Items) on when a game starts, with the character's own key",
     )
     parser.add_argument('--pid', type=int, help='Pin a game PID; omit to rediscover after restarts')
     parser.add_argument(
@@ -130,8 +137,10 @@ def main():
                 with_overrides(PLAYER_HEALING, enabled=args.player_heal and not args.once),
                 with_overrides(MERC_HEALING, enabled=args.merc_heal and not args.once),
             )
+            show_items = with_overrides(SHOW_ITEMS, enabled=args.show_items and not args.once)
             automation = Automation(
-                [HealController(config, PotionsController(config, ledger, deliver)) for config in configs]
+                [HealController(config, PotionsController(config, ledger, deliver)) for config in configs],
+                extras=[ShowItemsController(show_items, deliver)],
             )
             live = reader = LiveReader(
                 directory,

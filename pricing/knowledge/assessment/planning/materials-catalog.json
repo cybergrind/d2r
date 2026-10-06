@@ -1,0 +1,537 @@
+{
+  "scope": "Softcore / Non-Ladder / PC / RotW",
+  "date": "2026-10-06",
+  "pages_per_item": 1,
+  "sources": [
+    "third-parties/d2data/json/misc.json",
+    "third-parties/d2data/json/allstrings-eng.json",
+    "pricing/data/appraisal-traderie-catalog.json"
+  ],
+  "items": [
+    {
+      "base_code": "bet",
+      "name": "Burning Essence of Terror",
+      "catalog": {
+        "id": "4236249228",
+        "name": "Burning Essence of Terror",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/4236249228-p0.json",
+      "fetched_at": "2026-10-06T06:45:45.945566+00:00",
+      "scoped_asks": 16,
+      "usable_priced_sellers": 4,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "bey",
+      "name": "Baal's Eye",
+      "catalog": {
+        "id": "2655337846",
+        "name": "Baal's Eye",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2655337846-p0.json",
+      "fetched_at": "2026-10-06T06:45:49.338502+00:00",
+      "scoped_asks": 19,
+      "usable_priced_sellers": 12,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ceh",
+      "name": "Charged Essence of Hatred",
+      "catalog": {
+        "id": "2952287395",
+        "name": "Charged Essence of Hatred",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2952287395-p0.json",
+      "fetched_at": "2026-10-06T06:45:52.748471+00:00",
+      "scoped_asks": 22,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "dhn",
+      "name": "Diablo's Horn",
+      "catalog": {
+        "id": "4017446841",
+        "name": "Diablo's Horn",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/4017446841-p0.json",
+      "fetched_at": "2026-10-06T06:45:56.146708+00:00",
+      "scoped_asks": 17,
+      "usable_priced_sellers": 10,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "fed",
+      "name": "Festering Essence of Destruction",
+      "catalog": {
+        "id": "3727189878",
+        "name": "Festering Essence of Destruction",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/3727189878-p0.json",
+      "fetched_at": "2026-10-06T06:45:59.519234+00:00",
+      "scoped_asks": 15,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "mbr",
+      "name": "Mephisto's Brain",
+      "catalog": {
+        "id": "4156171711",
+        "name": "Mephisto's Brain",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/4156171711-p0.json",
+      "fetched_at": "2026-10-06T06:46:02.918101+00:00",
+      "scoped_asks": 19,
+      "usable_priced_sellers": 9,
+      "ambiguous_quantity_asks": 2
+    },
+    {
+      "base_code": "pk1",
+      "name": "Key of Terror",
+      "catalog": {
+        "id": "3117972750",
+        "name": "Key of Terror",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/3117972750-p0.json",
+      "fetched_at": "2026-10-06T06:46:06.313386+00:00",
+      "scoped_asks": 9,
+      "usable_priced_sellers": 4,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "pk2",
+      "name": "Key of Hate",
+      "catalog": {
+        "id": "2324195166",
+        "name": "Key of Hate",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2324195166-p0.json",
+      "fetched_at": "2026-10-06T06:46:09.707405+00:00",
+      "scoped_asks": 23,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "pk3",
+      "name": "Key of Destruction",
+      "catalog": {
+        "id": "2841933158",
+        "name": "Key of Destruction",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2841933158-p0.json",
+      "fetched_at": "2026-10-06T06:46:13.102010+00:00",
+      "scoped_asks": 11,
+      "usable_priced_sellers": 4,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "rvl",
+      "name": "Full Rejuvenation Potion",
+      "catalog": {
+        "id": "2483707607",
+        "name": "Full Rejuvenation Potion",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2483707607-p0.json",
+      "fetched_at": "2026-10-06T06:46:16.488947+00:00",
+      "scoped_asks": 23,
+      "usable_priced_sellers": 12,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "rvs",
+      "name": "Rejuvenation Potion",
+      "catalog": {
+        "id": "2235187003",
+        "name": "Rejuvenation Potion",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2235187003-p0.json",
+      "fetched_at": "2026-10-06T06:46:19.761437+00:00",
+      "scoped_asks": 3,
+      "usable_priced_sellers": 3,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "std",
+      "name": "Standard of Heroes",
+      "catalog": {
+        "id": "3884330429",
+        "name": "Standard of Heroes",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/3884330429-p0.json",
+      "fetched_at": "2026-10-06T06:46:23.121439+00:00",
+      "scoped_asks": 25,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 5
+    },
+    {
+      "base_code": "tes",
+      "name": "Twisted Essence of Suffering",
+      "catalog": {
+        "id": "2406244331",
+        "name": "Twisted Essence of Suffering",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/2406244331-p0.json",
+      "fetched_at": "2026-10-06T06:46:26.512404+00:00",
+      "scoped_asks": 25,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 2
+    },
+    {
+      "base_code": "toa",
+      "name": "Token of Absolution",
+      "catalog": {
+        "id": "3193724423",
+        "name": "Token of Absolution",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/3193724423-p0.json",
+      "fetched_at": "2026-10-06T06:46:29.952235+00:00",
+      "scoped_asks": 28,
+      "usable_priced_sellers": 10,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ua1",
+      "name": "Talic's Anguish",
+      "catalog": {
+        "id": "700449418",
+        "name": "Talic's Anguish",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/700449418-p0.json",
+      "fetched_at": "2026-10-06T06:46:33.339266+00:00",
+      "scoped_asks": 23,
+      "usable_priced_sellers": 9,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ua2",
+      "name": "Korlic's Pain",
+      "catalog": {
+        "id": "1526346808",
+        "name": "Korlic's Pain",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1526346808-p0.json",
+      "fetched_at": "2026-10-06T06:46:36.784210+00:00",
+      "scoped_asks": 29,
+      "usable_priced_sellers": 2,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ua3",
+      "name": "Madawc's Ire",
+      "catalog": {
+        "id": "1806446366",
+        "name": "Madawc's Ire",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1806446366-p0.json",
+      "fetched_at": "2026-10-06T06:46:40.178542+00:00",
+      "scoped_asks": 24,
+      "usable_priced_sellers": 11,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ua4",
+      "name": "Bul-Kathos' Nightmare",
+      "catalog": {
+        "id": "169558979",
+        "name": "Bul-Kathos' Nightmare",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/169558979-p0.json",
+      "fetched_at": "2026-10-06T06:46:43.566680+00:00",
+      "scoped_asks": 24,
+      "usable_priced_sellers": 9,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "ua5",
+      "name": "Worusk's End",
+      "catalog": {
+        "id": "1055348421",
+        "name": "Worusk's End",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1055348421-p0.json",
+      "fetched_at": "2026-10-06T06:46:46.961240+00:00",
+      "scoped_asks": 20,
+      "usable_priced_sellers": 11,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um1",
+      "name": "Defender's Fire",
+      "catalog": {
+        "id": "1800159900",
+        "name": "Defender's Fire",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1800159900-p0.json",
+      "fetched_at": "2026-10-06T06:46:50.368584+00:00",
+      "scoped_asks": 28,
+      "usable_priced_sellers": 2,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um2",
+      "name": "Defender's Bile",
+      "catalog": {
+        "id": "71831106",
+        "name": "Defender's Bile",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/71831106-p0.json",
+      "fetched_at": "2026-10-06T06:46:54.016411+00:00",
+      "scoped_asks": 17,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um3",
+      "name": "Protector's Frost",
+      "catalog": {
+        "id": "1863477272",
+        "name": "Protector's Frost",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1863477272-p0.json",
+      "fetched_at": "2026-10-06T06:46:57.397720+00:00",
+      "scoped_asks": 27,
+      "usable_priced_sellers": 13,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um4",
+      "name": "Protector's Stone",
+      "catalog": {
+        "id": "1464621663",
+        "name": "Protector's Stone",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1464621663-p0.json",
+      "fetched_at": "2026-10-06T06:47:00.765848+00:00",
+      "scoped_asks": 16,
+      "usable_priced_sellers": 7,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um5",
+      "name": "Guardian's Thunder",
+      "catalog": {
+        "id": "6886385",
+        "name": "Guardian's Thunder",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/6886385-p0.json",
+      "fetched_at": "2026-10-06T06:47:04.149986+00:00",
+      "scoped_asks": 27,
+      "usable_priced_sellers": 15,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "um6",
+      "name": "Guardian's Light",
+      "catalog": {
+        "id": "1587435925",
+        "name": "Guardian's Light",
+        "type": "uniques"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1587435925-p0.json",
+      "fetched_at": "2026-10-06T06:47:07.526536+00:00",
+      "scoped_asks": 36,
+      "usable_priced_sellers": 13,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "xa1",
+      "name": "Western Worldstone Shard",
+      "catalog": {
+        "id": "1189945720",
+        "name": "Western Worldstone Shard",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1189945720-p0.json",
+      "fetched_at": "2026-10-06T06:47:10.878584+00:00",
+      "scoped_asks": 18,
+      "usable_priced_sellers": 17,
+      "ambiguous_quantity_asks": 1
+    },
+    {
+      "base_code": "xa2",
+      "name": "Eastern Worldstone Shard",
+      "catalog": {
+        "id": "901913969",
+        "name": "Eastern Worldstone Shard",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/901913969-p0.json",
+      "fetched_at": "2026-10-06T06:47:14.269434+00:00",
+      "scoped_asks": 25,
+      "usable_priced_sellers": 17,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "xa3",
+      "name": "Southern Worldstone Shard",
+      "catalog": {
+        "id": "1662925107",
+        "name": "Southern Worldstone Shard",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1662925107-p0.json",
+      "fetched_at": "2026-10-06T06:47:17.676781+00:00",
+      "scoped_asks": 16,
+      "usable_priced_sellers": 16,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "xa4",
+      "name": "Deep Worldstone Shard",
+      "catalog": {
+        "id": "1395991248",
+        "name": "Deep Worldstone Shard",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1395991248-p0.json",
+      "fetched_at": "2026-10-06T06:47:21.054953+00:00",
+      "scoped_asks": 21,
+      "usable_priced_sellers": 17,
+      "ambiguous_quantity_asks": 0
+    },
+    {
+      "base_code": "xa5",
+      "name": "Northern Worldstone Shard",
+      "catalog": {
+        "id": "399128412",
+        "name": "Northern Worldstone Shard",
+        "type": "misc"
+      },
+      "unit": "one item",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/399128412-p0.json",
+      "fetched_at": "2026-10-06T06:47:24.473347+00:00",
+      "scoped_asks": 25,
+      "usable_priced_sellers": 19,
+      "ambiguous_quantity_asks": 2
+    },
+    {
+      "name": "3x3 Key Set",
+      "catalog": {
+        "id": "3357156195",
+        "name": "3x3 Key Set",
+        "type": "misc"
+      },
+      "unit": "3 of each key; 9 keys total",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/3357156195-p0.json",
+      "fetched_at": "2026-10-06T06:47:27.863502+00:00",
+      "scoped_asks": 17,
+      "usable_priced_sellers": 6,
+      "ambiguous_quantity_asks": 10
+    },
+    {
+      "name": "Statue Set",
+      "catalog": {
+        "id": "1002230133766",
+        "name": "Statue Set",
+        "type": "misc"
+      },
+      "unit": "one of each of the five statues",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1002230133766-p0.json",
+      "fetched_at": "2026-10-06T06:47:31.253981+00:00",
+      "scoped_asks": 44,
+      "usable_priced_sellers": 8,
+      "ambiguous_quantity_asks": 34
+    },
+    {
+      "name": "Shard Set",
+      "catalog": {
+        "id": "1002228103191",
+        "name": "Shard Set",
+        "type": "misc"
+      },
+      "unit": "set composition requires listing verification",
+      "status": "collected",
+      "source": "pricing/raw/traderie/pull-20261006-materials/1002228103191-p0.json",
+      "fetched_at": "2026-10-06T06:47:34.635216+00:00",
+      "scoped_asks": 0,
+      "usable_priced_sellers": 0,
+      "ambiguous_quantity_asks": 0
+    }
+  ]
+}

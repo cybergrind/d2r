@@ -14,7 +14,7 @@ struct bytes for that research.
 import contextlib
 import os
 import struct
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 
 from inventory_tracking.levels.memory import MAX_LOADED, MAX_NEAR, MAX_ROOMS, player_room, pointer
 from inventory_tracking.levels.model import Location
@@ -38,6 +38,7 @@ MONSTER_UNIT = 1
 MONSTER_DATA_SIZE = 0x80
 FULL_STATS = 0xE8
 BASE_STATS = 0x30
+LEVEL_STAT = 12
 LEVEL_SIZE = 0x400  # as the Win+C research dump (levels/research.py)
 
 Bounds = tuple[int, int, int, int]
@@ -55,6 +56,7 @@ class Monster:
     data_hex: str | None = None  # first sight only
     stats: tuple[tuple[int, int, int], ...] | None = None  # (layer, stat id, raw); first sight only
     base_stats: tuple[tuple[int, int, int], ...] | None = None  # first sight only
+    path: int = field(default=0, compare=False)  # address of the dynamic path (hud/live.py)
 
 
 @dataclass(frozen=True)
@@ -65,6 +67,7 @@ class MonsterSnapshot:
     monsters: tuple[Monster, ...]
     complete: bool = True  # False when the unit walk broke off: absent monsters may still be there
     level_hex: str | None = None  # the level struct, read only on entering a level (R1 research)
+    player_level: int | None = None  # character level (stat 12): the Terror Zone's level follows it
 
 
 def room_bounds(read, room2) -> Bounds:
@@ -113,8 +116,23 @@ def monster_units(read, table_address, *, known) -> tuple[list[Monster], bool]:
         x, y = struct.unpack_from('<HxxH', path, 0x02)
         area, room = room_area(read, struct.unpack_from('<Q', path, PATH_ROOM1)[0], rooms)
         details = {} if unit['unit_id'] in known else first_sight(read, unit)
-        found.append(Monster(unit['unit_id'], unit['txt_id'], unit['mode'], x, y, area, room, **details))
+        monster = Monster(unit['unit_id'], unit['txt_id'], unit['mode'], x, y, area, room, **details)
+        found.append(replace(monster, path=unit['path_pointer']))
     return found, walked['complete']
+
+
+def player_level(read, table_address) -> int | None:
+    """The highest level stat (12) among the player units; None when none is readable."""
+    heads = struct.unpack('<128Q', read(table_address, 1024))
+    levels = []
+    for unit in walk_units(read, heads, 0)['units']:
+        if not unit['stats_pointer']:
+            continue
+        for offset in (BASE_STATS, FULL_STATS):
+            with contextlib.suppress(OSError, ValueError, struct.error):
+                stats = read_stats(read, unit['stats_pointer'] + offset)
+                levels.extend(s['raw'] for s in stats if s['id'] == LEVEL_STAT and s['layer'] == 0)
+    return max((level for level in levels if 0 < level < 100), default=None)
 
 
 def loaded_rooms(read, room1, level, *, max_rooms=MAX_LOADED) -> frozenset[Bounds]:
@@ -173,7 +191,10 @@ def observe_monsters(pid, images, capture, *, known, counted_level) -> MonsterSn
                     level_rooms, level_hex = level_entry(read, location.level)
             monsters, complete = monster_units(read, table, known=known)
             rooms = loaded_rooms(read, room1, location.level)
-            snapshot = MonsterSnapshot(location, rooms, level_rooms, tuple(monsters), complete, level_hex)
+            level = None
+            with contextlib.suppress(OSError, ValueError, struct.error):
+                level = player_level(read, table)
+            snapshot = MonsterSnapshot(location, rooms, level_rooms, tuple(monsters), complete, level_hex, level)
     finally:
         os.close(fd)
     if identity(pid) != token:

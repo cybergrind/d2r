@@ -2,7 +2,7 @@
 
 import struct
 
-from inventory_tracking.terror.monsters import Monster, level_entry, loaded_rooms, monster_units
+from inventory_tracking.terror.monsters import Monster, level_entry, loaded_rooms, monster_units, player_level
 
 
 TABLE = 0x100000
@@ -92,6 +92,7 @@ def test_monsters_carry_position_area_and_first_sight_details():
         base_stats=((0, 12, 95),),
     )
     assert found[1] == Monster(second_id, 156, 12, 5110, 5210, 108, BOUNDS)  # already known: no data, no stats
+    assert [m.path for m in found] == [0x300000, 0x300400]  # the dynamic path: where the HUD reads it live
 
 
 def test_loaded_rooms_follow_room1_neighbours_within_the_level():
@@ -125,3 +126,21 @@ def test_level_entry_counts_room2s_and_keeps_the_level_bytes_for_research():
     assert count == 2
     assert len(level_hex) == 0x800
     assert level_hex[0x600:0x602] == '7f'
+
+
+def test_the_player_level_is_stat_12_of_the_player_unit():
+    memory = Memory()
+    address, stat_block = 0x700000, 0x710000
+    header = memory.block(address, 0x160)
+    struct.pack_into('<IIII', header, 0, 0, 7, 1, 1)
+    struct.pack_into('<Q', header, 0x88, stat_block)
+    block = memory.block(stat_block, 0x100)
+    base = bytearray(16)
+    stat_list(memory, base, stat_block + 0x300, [(0, 150), (12, 93)])
+    block[0x30:0x40] = base
+    struct.pack_into('<Q', memory.block(TABLE, 1024), 1 * 8, address)  # players: unit id 1 -> bucket 1
+
+    assert player_level(memory.read, TABLE) == 93
+
+    struct.pack_into('<Q', memory.blocks[TABLE], 1 * 8, 0)
+    assert player_level(memory.read, TABLE) is None

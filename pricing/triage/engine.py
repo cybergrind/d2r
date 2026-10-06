@@ -5,7 +5,16 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 
 from pricing.triage.bands import ethereal_bucket, quantity_bucket
-from pricing.triage.commodity_lots import accumulation, compile_lots, fungible, sale_lot, sale_value, saving_reason
+from pricing.triage.commodity_lots import (
+    accumulation,
+    compile_lots,
+    crafting_reason,
+    fungible,
+    sale_lot,
+    sale_value,
+    saving_reason,
+    sparse_supply_quote,
+)
 from pricing.triage.compiled_rolls import lookup as roll_model
 from pricing.triage.family_bands import lookup as family_band
 from pricing.triage.named_fallback import NAMED, lookup as named_fallback, protects_variant, supported
@@ -185,6 +194,13 @@ def assess(item, tables, *, today=None):
         verdict, reason = 'vendor', 'below keep price'
     elif patterns:
         verdict, reason = 'check', min((check_reason(item, r) for r in patterns), key=len)
+    elif (
+        category in ('magic', 'rare', 'crafted')
+        and price is not None
+        and price >= tables['rules']['keep_ist']
+        and 0 < (band or {}).get('sellers', 0) < 3
+    ):
+        verdict, reason = 'check', 'fewer than three sellers for the matched stat pattern; price is reference only'
     elif price is not None and price >= tables['rules']['keep_ist'] and (band or {}).get('comparison'):
         verdict, reason = 'check', 'fewer than three comparable-or-worse sellers'
     elif (
@@ -235,6 +251,13 @@ def assess(item, tables, *, today=None):
         elif lot := accumulation(item, tables):
             verdict, reason, sale_mode = 'check', saving_reason(lot), 'accumulate'
             reference, band, price, bucket, liquidity = lot, None, None, None, 'none'
+        elif recipe := crafting_reason(item):
+            verdict, reason = 'check', recipe
+        elif quote := sparse_supply_quote(item, tables, band, price):
+            verdict, reason = 'check', 'fewer than three sellers for this commodity lot; price is reference only'
+            if quote.get('quantity', 1) != item.get('quantity', 1):
+                reason = 'only sparse unit asks; stack price unavailable'
+            band, price, bucket = quote, quote['q1_ist'], quote['bucket']
     comparison = roll_model(item, tables.get('roll_models', []), keep_ist=tables['rules']['keep_ist'])
     if comparison is not None:
         verdict, reason = comparison['verdict'], comparison['reason']

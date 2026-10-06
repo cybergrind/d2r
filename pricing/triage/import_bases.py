@@ -374,42 +374,67 @@ def guide_base_patterns():
         examples = base_table_examples(case)
         if not examples:
             continue
-        items = [item_from_spec(example['spec']) for example in examples]
-        item = items[0]
-        eds = [entry['base_ed'] for entry in items]
-        conditions = {
-            'rarity': item['rarity'],
-            'ethereal': item['ethereal'],
-            'sockets': item['sockets'],
-            'empty_sockets': True,
-            'base_ed': {'min': min(eds), 'max': max(eds)},
-        }
-        properties = {key: value for key, value in item['properties'].items() if key not in {'425', '510'}}
-        rows.append(
-            {
-                'category': 'base',
-                'name': item['name'],
-                'conditions': conditions,
-                'properties': properties,
-                'pattern': {'conditions': conditions, 'properties': properties},
-                'pattern_label': 'Guide-listed runeword base',
-                'source': case['id'],
-                'imported_guide_base': True,
+        groups = defaultdict(list)
+        for example in examples:
+            item = item_from_spec(example['spec'])
+            # Only ED endpoints of the same quality/socket/ethereal/modifier variant
+            # may form a range. Never copy the first variant's selectors to the others.
+            properties = {key: value for key, value in item['properties'].items() if key not in {'425', '510'}}
+            key = item['rarity'], item['ethereal'], item['sockets'], json.dumps(properties, sort_keys=True)
+            groups[key].append(item)
+        for items in groups.values():
+            item = items[0]
+            eds = [entry['base_ed'] for entry in items]
+            conditions = {
+                'rarity': item['rarity'],
+                'ethereal': item['ethereal'],
+                'sockets': item['sockets'],
+                'empty_sockets': True,
+                'base_ed': {'min': min(eds), 'max': max(eds)},
             }
-        )
-        if item['rarity'] == 'normal' and item['sockets'] > 0:
-            # §9 says sub-perfect superior ED is a plain base, not a premium.
-            # Retain its paid pattern, but do not copy the plain base's price.
-            # Unsocketed bases are excluded: superior cannot use the cube recipe.
-            superior = conditions | {'rarity': 'superior', 'base_ed': {'min': 0, 'max': 14}}
+            properties = {key: value for key, value in item['properties'].items() if key not in {'425', '510'}}
             rows.append(
-                rows[-1]
-                | {
-                    'conditions': superior,
-                    'pattern': {'conditions': superior, 'properties': properties},
-                    'sources': [case['id'], 'guides/pricing.html#s9'],
+                {
+                    'category': 'base',
+                    'name': item['name'],
+                    'conditions': conditions,
+                    'properties': properties,
+                    'pattern': {'conditions': conditions, 'properties': properties},
+                    'pattern_label': 'Guide-listed runeword base',
+                    'source': case['id'],
+                    'imported_guide_base': True,
                 }
             )
+            if item['rarity'] == 'normal' and item['sockets'] > 0:
+                # §9 says sub-perfect superior ED is a plain base, not a premium.
+                # Retain its paid pattern, but do not copy the plain base's price.
+                # Unsocketed bases are excluded: superior cannot use the cube recipe.
+                superior = conditions | {'rarity': 'superior', 'base_ed': {'min': 0, 'max': 14}}
+                rows.append(
+                    rows[-1]
+                    | {
+                        'conditions': superior,
+                        'pattern': {'conditions': superior, 'properties': properties},
+                        'sources': [case['id'], 'guides/pricing.html#s9'],
+                    }
+                )
+    # §5's mixed "40-44 sell / <40 floor" row is not a single-variant
+    # auto-transcription. Import only its explicit paid pattern; floor is not
+    # an instruction to copy a premium band or discard every lower roll.
+    conditions = {'rarity': {'in': ['normal', 'superior']}, 'ethereal': False, 'sockets': 3, 'empty_sockets': True}
+    properties = {'441': {'min': 40, 'max': 44}}
+    rows.append(
+        {
+            'category': 'base',
+            'name': 'Sacred Targe',
+            'conditions': conditions,
+            'properties': properties,
+            'pattern': {'conditions': conditions, 'properties': properties},
+            'pattern_label': 'Three-socket Sacred Targe with 40-44 all resistance',
+            'source': 'guides/pindle-anya.html#s5:34',
+            'imported_guide_base': True,
+        }
+    )
     return rows
 
 

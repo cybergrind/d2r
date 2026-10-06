@@ -4,6 +4,7 @@ import json
 import threading
 
 from inventory_tracking.levels.model import Location
+from inventory_tracking.terror.bosses import BossTracker
 from inventory_tracking.terror.monsters import Monster, MonsterSnapshot
 from inventory_tracking.terror.probe import MonsterLedger, TerrorProbe
 from inventory_tracking.terror.tracker import ZoneTracker
@@ -245,3 +246,36 @@ def test_the_card_follows_a_live_herald_with_the_player_position(tmp_path):
     probe.tick()
     assert shown[-1][1] == '↗  Herald T1 alive: north'
     assert probe.tracker.herald_marks(6) == [(1, 5000, 4900)]
+
+
+def test_boss_kills_of_this_launch_follow_the_terror_lines_and_show_outside_terror_zones_too(tmp_path):
+    town = Location(1, 0x500000, 5000, 5000)
+    snapshots = [black_marsh(marsh(5)), black_marsh(marsh(5, 12)), snapshot(location=town), snapshot(location=None)]
+    probe, shown = card_probe(tmp_path, snapshots)
+    probe.bosses = BossTracker(clock=lambda: 50.0)  # marsh() monsters have Andariel's id, 156
+
+    for now in (1.0, 2.0):
+        probe.poll(now)
+    probe.tick()
+    assert shown[-1][0] == 'Terror · Black Marsh (unconfirmed)'
+    assert shown[-1][-1] == 'Andariel · 1 kill · last 0:00 ago'
+
+    probe.poll(3.0)
+    probe.tick()
+    assert shown[-1] == ['Andariel · 1 kill · last 0:00 ago']
+
+    probe.poll(4.0)  # out of the game: nothing to show
+    probe.tick()
+    assert shown[-1] == []
+
+
+def test_the_card_gets_the_player_level_read_with_the_monsters(tmp_path):
+    forced = 'aa' * 0x1A + '00' + '00' * 5 + '09' + '00' * 0x5F  # plain (+0x1A == 0), modifier 9 at +0x20
+    snap = black_marsh(*(marsh(unit_id, data_hex=forced) for unit_id in (5, 6, 7)))
+    probe, shown = card_probe(
+        tmp_path, [MonsterSnapshot(snap.location, snap.room2s, None, snap.monsters, player_level=93)]
+    )
+    probe.poll(1.0)
+    probe.tick()
+
+    assert shown[-1][:2] == ['Terror · Black Marsh', 'Level 95 · Fire Enchanted']

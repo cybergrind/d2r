@@ -583,3 +583,29 @@ def test_slow_items_are_one_count_line_and_do_not_push_out_priority_items():
     assert 'Own charm' in text
     assert 'Slow item' not in text
     assert len(result['items']) == 8
+
+
+@pytest.mark.parametrize('trade_verdict', ['vendor', 'slow', 'sell', 'check'])
+def test_identify_keeps_high_leveling_use_visible_alongside_trade(trade_verdict):
+    result = {
+        'triage': {'verdict': trade_verdict, 'reason': 'below keep price', 'band': None},
+        'assessment': {'leveling': [{'tier': 'high', 'required_level': 33, 'reason': 'Explosive arrows with pierce.'}]},
+    }
+    summary = item_summary(observation('Kuko Shakaku', rarity='unique'), result)
+    assert summary['verdict'] == ('check' if trade_verdict in ('vendor', 'slow') else trade_verdict)
+    lines = result_lines({'state': 'complete', 'items': [summary], 'issues': []})
+    assert any('leveling high (level 33)' in line.text for line in lines)
+    assert 'Explosive arrows with pierce' in summary['reason']
+    assert result['triage']['verdict'] == trade_verdict
+
+
+@pytest.mark.parametrize(
+    'use',
+    [
+        {'tier': 'med', 'reason': 'Ordinary progression.'},
+        {'tier': 'high', 'generic': True, 'reason': 'Generic progression.'},
+    ],
+)
+def test_triage_does_not_alert_for_generic_or_mid_leveling(use):
+    result = {'triage': {'verdict': 'vendor', 'reason': 'below keep price'}, 'assessment': {'leveling': [use]}}
+    assert verdict_for(result) == ('vendor', 'below keep price')
